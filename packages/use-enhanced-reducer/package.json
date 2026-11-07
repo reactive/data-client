@@ -36,6 +36,15 @@
   "module": "lib/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "react-native": "./lib/index.js",
+      "require": "./dist/index.cjs.js",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "typesVersions": {
     ">=4.0": {
       "": [

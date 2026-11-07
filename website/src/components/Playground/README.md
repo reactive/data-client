@@ -20,6 +20,7 @@ and `editor/callouts.ts`.
 | Fence metastring, file list                  | `editor/codeModel.ts`                                                                                           |
 | Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                           |
 | Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
+| Code colors                                  | `monaco/theme.ts` (Monaco and server HTML), `monaco/tokenize.ts` (Prism's tokens in Monaco's colors)            |
 | Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
 | Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
 | Drawer state, demo view, Actions grouping    | `preview/inspector.ts`                                                                                          |
@@ -43,7 +44,7 @@ nothing else: DOM size counts against the page.
 
 | Part                                                  | In the server HTML                                                                                                                                                     |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Open file, shown                                      | Prism-highlighted (`StaticEditor`, also the `BrowserOnly` fallback)                                                                                                    |
+| Open file, shown                                      | Highlighted as Monaco will (`StaticEditor`, also the `BrowserOnly` fallback)                                                                                           |
 | Code not yet shown (`hidden` tab, a `demo`'s code)    | Plain `<pre>` text; highlighted once it shows                                                                                                                          |
 | Collapsed file                                        | Nothing, unless the element has `ssr` (a prop, not a metastring): then plain text                                                                                      |
 | Preview                                               | `PreviewLoading`: frame, `PendingSheet`, Store toggle. Same for bots and while the chunk loads                                                                         |
@@ -69,10 +70,19 @@ Gotchas:
   measures, or the preview jumps at hydration: `--pg-pending-sheet` in
   `row` (`usePreviewGap`); the `--pg-app-*` and `--pg-store-height`
   defaults in stacked (`useAppBox`).
-- Monaco mounts under the Prism code (`InteractiveEditor`'s cover), which
+- Monaco mounts under the static code (`InteractiveEditor`'s cover), which
   lifts once `monaco/whenPainted.ts` sees it laid out and highlighted to
   its last line. Never give Monaco's container zero width while it mounts:
   it lays out one letter per line.
+- The static code draws what Monaco will, so the cover lifts unseen:
+  `monaco/tokenize.ts` colors Prism's tokens as Monaco's grammars do
+  (keywords, capitalized names, operators, HTML tags), both take colors
+  from `monaco/theme.ts`, and Monaco draws nothing extra (every bracket
+  depth gets the delimiter color; no indent guides). Change colors only in
+  `theme.ts`. A few characters can still differ, such as an apostrophe in
+  JSX text, which starts a string in Monaco. The keyword and operator lists
+  in `tokenize.ts` are copied from Monaco's grammars; recheck them when
+  upgrading Monaco. `monaco/language.ts` lists the languages it covers.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and

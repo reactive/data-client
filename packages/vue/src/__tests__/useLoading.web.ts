@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { defineComponent, h, nextTick } from 'vue';
+import type { Ref } from 'vue';
 
 import useLoading from '../consumers/useLoading';
 
@@ -234,5 +235,52 @@ describe('vue useLoading()', () => {
     expect(wrapper.find('[data-testid="error"]').text()).toBe('');
     expect(wrapper.find('[data-testid="loading"]').text()).toBe('false');
     expect(mockAsyncFunction).toHaveBeenCalledTimes(2);
+  });
+
+  describe('with overlapping calls', () => {
+    const testError = new Error('Test error');
+    let settle: Record<string, () => void>;
+    let wrapped: (value: string) => Promise<string>;
+    let loading: Ref<boolean>, error: Ref<Error | undefined>;
+    beforeEach(() => {
+      settle = {};
+      const mockAsyncFunction = (value: string) =>
+        new Promise<string>((resolve, reject) => {
+          settle[value] = () =>
+            value === 'fail' ? reject(testError) : resolve(value);
+        });
+      mount(
+        defineComponent({
+          setup() {
+            [wrapped, loading, error] = useLoading(mockAsyncFunction);
+            return () => h('div');
+          },
+        }),
+      );
+    });
+
+    it('ignores an earlier call that rejects after the latest call resolves', async () => {
+      const first = wrapped('fail');
+      const second = wrapped('ok');
+      settle.ok();
+      await second;
+      expect(loading.value).toBe(false);
+      expect(error.value).toBeUndefined();
+      settle.fail();
+      await first;
+      expect(loading.value).toBe(false);
+      expect(error.value).toBeUndefined();
+    });
+
+    it('keeps loading until the latest call settles', async () => {
+      const first = wrapped('a');
+      const second = wrapped('b');
+      settle.a();
+      await first;
+      expect(loading.value).toBe(true);
+      settle.b();
+      await second;
+      expect(loading.value).toBe(false);
+    });
   });
 });

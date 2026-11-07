@@ -45,12 +45,14 @@ export default function makeRenderDataHook(
       initialFixtures,
       resolverFixtures,
       getInitialInterceptorData = () => ({}) as any,
+      managers: createManagers = defaultManagers,
       ...options
     }: {
       initialProps?: P;
       initialFixtures?: Fixture[];
       resolverFixtures?: (Fixture | Interceptor<T>)[];
       getInitialInterceptorData?: () => T;
+      managers?: () => Manager[];
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'> = {} as any,
   ): RenderDataHookResult<R, P> => {
@@ -85,8 +87,16 @@ export default function makeRenderDataHook(
     }
 
     // each call renders one store, so its Managers are created here, where cleanup() can reach them
-    const nm = new NetworkManager();
-    const managers = [nm, new SubscriptionManager(PollingSubscription)];
+    const managers = createManagers();
+    const nm = managers.find(
+      (manager): manager is NetworkManager => manager instanceof NetworkManager,
+    );
+    if (!nm) {
+      managers.forEach(manager => manager.cleanup());
+      throw new Error(
+        'renderDataHook(): managers must include a NetworkManager: managers: () => [myManager, new NetworkManager()]',
+      );
+    }
     const cleanup = () => {
       activeCleanups.delete(cleanup);
       // NetworkManager resolves responses that land after cleanup(), so settle in-flight fetches here
@@ -161,6 +171,11 @@ export default function makeRenderDataHook(
   renderDataClient.allSettled = () => Promise.allSettled([]);
   return renderDataClient;
 }
+
+/** New instances for each render, so manager state never leaks between tests */
+function defaultManagers(): Manager[] {
+  return [new NetworkManager(), new SubscriptionManager(PollingSubscription)];
+}
 export interface DataProviderProps {
   children: React.ReactNode;
   managers: () => Manager[];
@@ -181,6 +196,8 @@ export type RenderDataHook = (<P, R>(
     initialProps?: P;
     initialFixtures?: readonly Fixture[];
     readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
+    /** Returns the Managers for each renderDataHook() call, replacing the defaults; must include a NetworkManager */
+    managers?: () => Manager[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
   } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'>,
 ) => RenderDataHookResult<R, P>) & {

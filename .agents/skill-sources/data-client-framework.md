@@ -24,6 +24,8 @@ const todo = useSuspense(TodoResource.get, { id: 5 });
 const todoList = useSuspense(TodoResource.getList);
 // GET https://jsonplaceholder.typicode.com/todos?userId=1
 const todoListByUser = useSuspense(TodoResource.getList, { userId: 1 });
+// conditional: null skips fetching and binding; an endpoint without params takes {}
+const user = useSuspense(UserResource.get, userId ? { id: userId } : null);
 // subscriptions with polling, websockets or SSE
 const todo = useLive(TodoResource.get, { id: 5 });
 // without fetch
@@ -65,7 +67,7 @@ useFetch(PostResource.get, { id });
 useFetch(CommentResource.getList, { postId: id });
 const post = await useSuspense(PostResource.get, { id });
 const comments = await useSuspense(CommentResource.getList, { postId: id });
-// conditional: null skips fetching and binding
+// conditional: null skips fetching and binding; an endpoint without params takes {}
 const user = await useSuspense(UserResource.get, () => (userId.value ? { id: userId.value } : null));
 ```
 :::

@@ -247,6 +247,7 @@ orchestrate loading and error code.
 > **Tip: Conditional Dependencies**
 >
 > Use `null` as the second argument to any Data Client hook means "do nothing."
+> A [RestEndpoint](./RestEndpoint.vue.md) without path or search params takes `{}` in its place, like `enabled ? {} : null`.
 >
 > ```typescript
 > // todo could be undefined if id is undefined

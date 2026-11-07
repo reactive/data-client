@@ -163,6 +163,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 > **Tip: Conditional Dependencies**
 >
 > Use `null` as the second argument to any Data Client hook means "do nothing."
+> A [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) without path or search params takes `{}` in its place, like `enabled ? {} : null`.
 >
 > ```typescript
 > // todo could be undefined if id is undefined

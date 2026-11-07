@@ -168,6 +168,28 @@ export const PostResource = resource({
 </template>
 ```
 
+An [Entity](https://dataclient.io/rest/api/Entity) in `expectedResponse` only needs its [primary key](https://dataclient.io/rest/api/Entity#pk) and the fields that
+change: fields it leaves out keep their cached values. Without the primary key the cached entity doesn't change,
+so the UI waits for the server (development builds log why). When the endpoint's arguments don't include the
+key, like `PATCH /users/profile`, read it from the [snapshot](https://dataclient.io/vue/api/Snapshot):
+
+```ts
+const getMe = new RestEndpoint({ path: '/users/me', schema: User });
+const updateProfile = new RestEndpoint({
+  path: '/users/profile',
+  method: 'PATCH',
+  body: {} as { firstName: string; bio: string },
+  schema: User,
+  getOptimisticResponse(snap, body) {
+    const { data: user } = snap.getResponse(getMe);
+    if (!user) throw snap.abort;
+    return { id: user.id, ...body };
+  },
+});
+```
+
+`throw snap.abort` skips the optimistic update when the entity isn't cached yet.
+
 [Optimistic update guide](./optimistic-updates.vue.md)
 
 ### update() {#update}
