@@ -43,7 +43,7 @@ const KEPT: Record<string, string> = {
   property: 'plain',
 };
 
-const textOf = (token: Token | Token[]): string =>
+export const textOf = (token: Token | Token[]): string =>
   typeof token === 'string' ? token
   : Array.isArray(token) ? token.map(textOf).join('')
   : textOf(token.content as Token | Token[]);
@@ -52,6 +52,12 @@ const contentOf = (token: Prism.Token) =>
   (Array.isArray(token.content) ? token.content : [token.content]) as Token[];
 
 const typed = (type: string, text: string) => new Prism.Token(type, text);
+
+/** An attribute value's text split into its leading `=` (if any) and the rest */
+const splitEquals = (token: Prism.Token) =>
+  textOf(token)
+    .match(/^(=?)([\s\S]*)$/)!
+    .slice(1);
 
 /** Code outside strings and comments, colored as Monaco's grammar does */
 function lex(code: string, keywords: Set<string>): Token[] {
@@ -93,7 +99,7 @@ function recolor(stream: Token[], keywords: Set<string>): Token[] {
       tokens.push(typed(KEPT[token.type], textOf(token)));
     } else if (token.type === 'attr-value') {
       // a JSX attribute: `="value"`
-      const [, equals, value] = textOf(token).match(/^(=?)([\s\S]*)$/)!;
+      const [equals, value] = splitEquals(token);
       code += equals;
       flush();
       tokens.push(typed('string', value));
@@ -136,7 +142,7 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
         return [...(prefix ? [prefix] : []), typed('attr-name', name)];
       }
       case 'attr-value': {
-        const [, equals, value] = textOf(token).match(/^(=?)([\s\S]*)$/)!;
+        const [equals, value] = splitEquals(token);
         return [
           ...(equals ? [typed('punctuation', equals)] : []),
           ...withBrackets(value, 'string'),

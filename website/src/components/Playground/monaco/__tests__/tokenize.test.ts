@@ -4,7 +4,7 @@ import { Prism } from 'prism-react-renderer';
 
 import { extensionToMonacoLanguage, isMonacoTokenized } from '../language';
 import { codePrismTheme } from '../theme';
-import { monacoPrism } from '../tokenize';
+import { monacoPrism, textOf } from '../tokenize';
 
 /** Each token's theme type (null for plain) and text, whitespace left out */
 function spans(code: string, language: string) {
@@ -164,13 +164,9 @@ describe('monacoPrism colors as Monaco does', () => {
     ['html', '<!-- a --><div class="b">c</div>'],
     ['json', '{"a": [1, null]}'],
   ])('keeps every character of %s', (language, code) => {
-    const text = (token: string | Prism.Token): string =>
-      typeof token === 'string' ? token
-      : Array.isArray(token.content) ? token.content.map(text).join('')
-      : text(token.content as string | Prism.Token);
-    expect(
-      monacoPrism.tokenize(code, Prism.languages[language]).map(text).join(''),
-    ).toBe(code);
+    expect(textOf(monacoPrism.tokenize(code, Prism.languages[language]))).toBe(
+      code,
+    );
   });
 
   test('tokenizes a long run of code without overflowing the stack', () => {

@@ -97,8 +97,6 @@ export function definePrismTheme(monaco: typeof Monaco) {
   });
 }
 
-const italic = 'italic' as const;
-
 /**
  * The same colors for the code the server renders, by the Prism token types
  * ./tokenize.ts gives it
@@ -106,8 +104,14 @@ const italic = 'italic' as const;
 export const codePrismTheme: PrismTheme = {
   plain: { color: color.plain, backgroundColor: 'transparent' },
   styles: [
-    { types: ['comment'], style: { color: color.comment, fontStyle: italic } },
-    { types: ['keyword'], style: { color: color.keyword, fontStyle: italic } },
+    {
+      types: ['comment'],
+      style: { color: color.comment, fontStyle: 'italic' },
+    },
+    {
+      types: ['keyword'],
+      style: { color: color.keyword, fontStyle: 'italic' },
+    },
     { types: ['class-name', 'attr-name'], style: { color: color.type } },
     { types: ['number'], style: { color: color.number } },
     { types: ['string'], style: { color: color.string } },
