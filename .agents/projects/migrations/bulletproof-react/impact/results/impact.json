@@ -1,0 +1,1519 @@
+{
+  "schema": 1,
+  "app": "bulletproof-react",
+  "title": "bulletproof-react: react-query vs data-client",
+  "labels": {
+    "baseline": "react-query",
+    "migrated": "data-client"
+  },
+  "generated": "2026-11-07T04:48:43.761Z",
+  "inputs": [
+    {
+      "file": "/home/claude/data-client/.agents/projects/migrations/bulletproof-react/impact/results/flow.json",
+      "kind": "flow",
+      "date": "2026-11-07T04:48:37.148Z"
+    },
+    {
+      "file": "/home/claude/data-client/.agents/projects/migrations/bulletproof-react/impact/results/static.json",
+      "kind": "static",
+      "date": "2026-11-07T04:48:43.697Z"
+    }
+  ],
+  "metrics": [
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "mutationReflectMs",
+      "label": "Mutation submit to UI updated (sum)",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 11063,
+      "migrated": 8999,
+      "delta": -2064,
+      "pct": -18.7,
+      "ci95": [-2130, -1993.47],
+      "spread": {
+        "baseline": [11012.25, 11099.5],
+        "migrated": [8968.75, 9029.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "mutationFollowupReads",
+      "label": "Reads triggered by mutations",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 6,
+      "migrated": 2,
+      "delta": -4,
+      "pct": -66.7,
+      "ci95": [-4, -4],
+      "spread": {
+        "baseline": [6, 6],
+        "migrated": [2, 2]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "staleViews",
+      "label": "Stale views (checked views showing old data)",
+      "unit": "views",
+      "lowerIsBetter": true,
+      "baseline": 2,
+      "migrated": 0,
+      "delta": -2,
+      "pct": -100,
+      "ci95": [-2, -2],
+      "spread": {
+        "baseline": [2, 2],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "flowMs",
+      "label": "All steps, action to ready (sum)",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 13881.5,
+      "migrated": 11773.5,
+      "delta": -2108,
+      "pct": -15.2,
+      "ci95": [-2217.5, -2002.5],
+      "spread": {
+        "baseline": [13802.75, 13953.25],
+        "migrated": [11723.75, 11818]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "requests",
+      "label": "API requests",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 15,
+      "migrated": 10,
+      "delta": -5,
+      "pct": -33.3,
+      "ci95": [-5, -5],
+      "spread": {
+        "baseline": [15, 15],
+        "migrated": [10, 10]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "reads",
+      "label": "API reads (GET)",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 9,
+      "migrated": 4,
+      "delta": -5,
+      "pct": -55.6,
+      "ci95": [-5, -5],
+      "spread": {
+        "baseline": [9, 9],
+        "migrated": [4, 4]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "writes",
+      "label": "API writes",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 6,
+      "migrated": 6,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [6, 6],
+        "migrated": [6, 6]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "redundant",
+      "label": "Redundant reads (same URL, same payload already received)",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "navsWithoutLoading",
+      "label": "Navigations with no loading indicator (of 7)",
+      "unit": "navs",
+      "lowerIsBetter": false,
+      "baseline": 7,
+      "migrated": 7,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [7, 7],
+        "migrated": [7, 7]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "loadingShown",
+      "label": "Loading indicators shown",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "loadingMs",
+      "label": "Loading indicator visible",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "longTasks",
+      "label": "Long tasks (>50ms)",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "flow",
+      "id": "tbtMs",
+      "label": "Total blocking time",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "readyMs",
+      "label": "First screen ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 1653,
+      "migrated": 1668,
+      "delta": 15,
+      "pct": 0.9,
+      "ci95": [-74.05, 114.07],
+      "spread": {
+        "baseline": [1629.25, 1722.25],
+        "migrated": [1653.75, 1739.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "loadMs",
+      "label": "Load event",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 437,
+      "migrated": 421,
+      "delta": -16,
+      "pct": -3.7,
+      "ci95": [-37, 9],
+      "spread": {
+        "baseline": [426.75, 445.75],
+        "migrated": [407.75, 437.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "lcpMs",
+      "label": "Largest contentful paint",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 1572,
+      "migrated": 1544,
+      "delta": -28,
+      "pct": -1.8,
+      "ci95": [-108, 62],
+      "spread": {
+        "baseline": [1546, 1638],
+        "migrated": [1523, 1619]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "parseCompileMs",
+      "label": "JS parse + compile",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 530.14,
+      "migrated": 510.62,
+      "delta": -19.52,
+      "pct": -3.7,
+      "ci95": [-66.43, 50.01],
+      "spread": {
+        "baseline": [506.4, 560.71],
+        "migrated": [490.2, 566.93]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "evaluateMs",
+      "label": "JS module evaluation",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 469.26,
+      "migrated": 455.35,
+      "delta": -13.9,
+      "pct": -3,
+      "ci95": [-61.86, 18.4],
+      "spread": {
+        "baseline": [461.83, 507.6],
+        "migrated": [442.73, 483.24]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "scriptMs",
+      "label": "Main-thread JS",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 788.08,
+      "migrated": 756.51,
+      "delta": -31.57,
+      "pct": -4,
+      "ci95": [-99.23, 32.33],
+      "spread": {
+        "baseline": [776.02, 834.06],
+        "migrated": [738.87, 813.14]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "tbtMs",
+      "label": "Total blocking time",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 349,
+      "migrated": 352.5,
+      "delta": 3.5,
+      "pct": 1,
+      "ci95": [-53, 47],
+      "spread": {
+        "baseline": [331.75, 385.75],
+        "migrated": [324.25, 387]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "loadingMs",
+      "label": "Loading indicator visible",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 565.35,
+      "migrated": 0,
+      "delta": -565.35,
+      "pct": -100,
+      "ci95": [-576.06, -555.8],
+      "spread": {
+        "baseline": [557.3, 575.9],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "cold load",
+      "id": "heapMb",
+      "label": "JS heap",
+      "unit": "MB",
+      "lowerIsBetter": true,
+      "baseline": 8.1,
+      "migrated": 7.72,
+      "delta": -0.38,
+      "pct": -4.7,
+      "ci95": [-0.4, -0.37],
+      "spread": {
+        "baseline": [8.09, 8.12],
+        "migrated": [7.71, 7.73]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "open discussions.readyMs",
+      "label": "open discussions: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 927,
+      "migrated": 942,
+      "delta": 15,
+      "pct": 1.6,
+      "ci95": [-8.01, 40.5],
+      "spread": {
+        "baseline": [917.25, 940],
+        "migrated": [934, 959.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "open discussions.reads",
+      "label": "open discussions: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "create discussion.readyMs",
+      "label": "create discussion: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2297,
+      "migrated": 2281.5,
+      "delta": -15.5,
+      "pct": -0.7,
+      "ci95": [-30.5, 8.51],
+      "spread": {
+        "baseline": [2275.5, 2307.75],
+        "migrated": [2276.5, 2285.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "create discussion.reads",
+      "label": "create discussion: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "open discussion.readyMs",
+      "label": "open discussion: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 953.5,
+      "migrated": 911.5,
+      "delta": -42,
+      "pct": -4.4,
+      "ci95": [-68, -12.5],
+      "spread": {
+        "baseline": [928.5, 973.5],
+        "migrated": [904.25, 918.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "open discussion.reads",
+      "label": "open discussion: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 2,
+      "migrated": 1,
+      "delta": -1,
+      "pct": -50,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [2, 2],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "update discussion.readyMs",
+      "label": "update discussion: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2277,
+      "migrated": 1773.5,
+      "delta": -503.5,
+      "pct": -22.1,
+      "ci95": [-521, -489],
+      "spread": {
+        "baseline": [2271, 2291],
+        "migrated": [1768.75, 1780.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "update discussion.reads",
+      "label": "update discussion: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "create comment.readyMs",
+      "label": "create comment: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2286.5,
+      "migrated": 1778,
+      "delta": -508.5,
+      "pct": -22.2,
+      "ci95": [-527.5, -488],
+      "spread": {
+        "baseline": [2271.5, 2299.5],
+        "migrated": [1769.75, 1786.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "create comment.reads",
+      "label": "create comment: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "delete comment.readyMs",
+      "label": "delete comment: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 1616,
+      "migrated": 1095.5,
+      "delta": -520.5,
+      "pct": -32.2,
+      "ci95": [-564.01, -504.5],
+      "spread": {
+        "baseline": [1604.25, 1617.75],
+        "migrated": [1082.25, 1103]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "delete comment.reads",
+      "label": "delete comment: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "back to list (shows rename?).readyMs",
+      "label": "back to list (shows rename?): action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 105.5,
+      "migrated": 111,
+      "delta": 5.5,
+      "pct": 5.2,
+      "ci95": [-10.5, 11],
+      "spread": {
+        "baseline": [101.25, 114.5],
+        "migrated": [99.75, 113.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "back to list (shows rename?).reads",
+      "label": "back to list (shows rename?): reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "stale views",
+      "id": "back to list (shows rename?).stale",
+      "label": "back to list (shows rename?): stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "reopen discussion (comment gone?).readyMs",
+      "label": "reopen discussion (comment gone?): action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 112,
+      "migrated": 97,
+      "delta": -15,
+      "pct": -13.4,
+      "ci95": [-28, -0.5],
+      "spread": {
+        "baseline": [98.5, 117],
+        "migrated": [91, 100.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "reopen discussion (comment gone?).reads",
+      "label": "reopen discussion (comment gone?): reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "stale views",
+      "id": "reopen discussion (comment gone?).stale",
+      "label": "reopen discussion (comment gone?): stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "profile.readyMs",
+      "label": "profile: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 527.5,
+      "migrated": 530.5,
+      "delta": 3,
+      "pct": 0.6,
+      "ci95": [-14, 11.5],
+      "spread": {
+        "baseline": [521.5, 535.5],
+        "migrated": [520, 532.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "profile.reads",
+      "label": "profile: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "update profile.readyMs",
+      "label": "update profile: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2286,
+      "migrated": 1768.5,
+      "delta": -517.5,
+      "pct": -22.6,
+      "ci95": [-521.5, -503],
+      "spread": {
+        "baseline": [2283, 2288.25],
+        "migrated": [1765.5, 1780.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "update profile.reads",
+      "label": "update profile: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "dashboard (shows new name?).readyMs",
+      "label": "dashboard (shows new name?): action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 89.5,
+      "migrated": 90,
+      "delta": 0.5,
+      "pct": 0.6,
+      "ci95": [-13.5, 18.5],
+      "spread": {
+        "baseline": [80.25, 100.25],
+        "migrated": [84.25, 102.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "dashboard (shows new name?).reads",
+      "label": "dashboard (shows new name?): reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "stale views",
+      "id": "dashboard (shows new name?).stale",
+      "label": "dashboard (shows new name?): stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "list again.readyMs",
+      "label": "list again: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 102,
+      "migrated": 97,
+      "delta": -5,
+      "pct": -4.9,
+      "ci95": [-15.51, 7],
+      "spread": {
+        "baseline": [99.25, 109.25],
+        "migrated": [92.5, 106.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "nav steps",
+      "id": "list again.reads",
+      "label": "list again: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "flow",
+      "group": "stale views",
+      "id": "list again.stale",
+      "label": "list again: stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "delete discussion.readyMs",
+      "label": "delete discussion: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 300,
+      "migrated": 304,
+      "delta": 4,
+      "pct": 1.3,
+      "ci95": [-13, 16],
+      "spread": {
+        "baseline": [290.5, 313.25],
+        "migrated": [302, 309]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "source": "flow",
+      "group": "mutation steps",
+      "id": "delete discussion.reads",
+      "label": "delete discussion: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "entry.gzip",
+      "label": "Entry JS, gzip",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 177.87,
+      "migrated": 161.72,
+      "delta": -16.15,
+      "pct": -9.1,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "entry.brotli",
+      "label": "Entry JS, brotli",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 153.3,
+      "migrated": 139.03,
+      "delta": -14.27,
+      "pct": -9.3,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "entry.raw",
+      "label": "Entry JS, raw",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 552.88,
+      "migrated": 508.65,
+      "delta": -44.23,
+      "pct": -8,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "total.gzip",
+      "label": "All JS, gzip",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 232.6,
+      "migrated": 214.92,
+      "delta": -17.68,
+      "pct": -7.6,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "total.brotli",
+      "label": "All JS, brotli",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 202.3,
+      "migrated": 186.84,
+      "delta": -15.46,
+      "pct": -7.6,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "total.raw",
+      "label": "All JS, raw",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 702.27,
+      "migrated": 653.74,
+      "delta": -48.53,
+      "pct": -6.9,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "bundle",
+      "id": "css.gzip",
+      "label": "CSS, gzip",
+      "unit": "kB",
+      "lowerIsBetter": true,
+      "baseline": 7.68,
+      "migrated": 7.68,
+      "delta": 0,
+      "pct": 0,
+      "verdict": "same"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "app.loc",
+      "label": "app LoC",
+      "unit": "lines",
+      "lowerIsBetter": true,
+      "baseline": 3451,
+      "migrated": 3302,
+      "delta": -149,
+      "pct": -4.3,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "app.files",
+      "label": "app files",
+      "unit": "files",
+      "lowerIsBetter": true,
+      "baseline": 76,
+      "migrated": 76,
+      "delta": 0,
+      "pct": 0,
+      "verdict": "same"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "app.complexity",
+      "label": "app decision points",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 97,
+      "migrated": 82,
+      "delta": -15,
+      "pct": -15.5,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "test.loc",
+      "label": "test LoC",
+      "unit": "lines",
+      "lowerIsBetter": null,
+      "baseline": 2097,
+      "migrated": 2156,
+      "delta": 59,
+      "pct": 2.8,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "test.files",
+      "label": "test files",
+      "unit": "files",
+      "lowerIsBetter": null,
+      "baseline": 40,
+      "migrated": 41,
+      "delta": 1,
+      "pct": 2.5,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "test.complexity",
+      "label": "test decision points",
+      "unit": "count",
+      "lowerIsBetter": null,
+      "baseline": 82,
+      "migrated": 84,
+      "delta": 2,
+      "pct": 2.4,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "data.loc",
+      "label": "data LoC",
+      "unit": "lines",
+      "lowerIsBetter": true,
+      "baseline": 514,
+      "migrated": 276,
+      "delta": -238,
+      "pct": -46.3,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "data.files",
+      "label": "data files",
+      "unit": "files",
+      "lowerIsBetter": true,
+      "baseline": 15,
+      "migrated": 7,
+      "delta": -8,
+      "pct": -53.3,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "code",
+      "id": "data.complexity",
+      "label": "data decision points",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 14,
+      "migrated": 7,
+      "delta": -7,
+      "pct": -50,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "useEffect",
+      "label": "useEffect",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 5,
+      "migrated": 5,
+      "delta": 0,
+      "pct": 0,
+      "verdict": "same"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "useState",
+      "label": "useState",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 4,
+      "migrated": 4,
+      "delta": 0,
+      "pct": 0,
+      "verdict": "same"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "loadingFlags",
+      "label": "loadingFlags",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 45,
+      "migrated": 40,
+      "delta": -5,
+      "pct": -11.1,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "cacheCalls",
+      "label": "cacheCalls",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 24,
+      "migrated": 10,
+      "delta": -14,
+      "pct": -58.3,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "cacheKeys",
+      "label": "cacheKeys",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 11,
+      "migrated": 0,
+      "delta": -11,
+      "pct": -100,
+      "verdict": "better"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "tryCatch",
+      "label": "tryCatch",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 2,
+      "delta": 2,
+      "pct": null,
+      "verdict": "worse"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "imports.@tanstack/react-query",
+      "label": "files importing @tanstack/react-query",
+      "unit": "files",
+      "lowerIsBetter": null,
+      "baseline": 19,
+      "migrated": 0,
+      "delta": -19,
+      "pct": -100,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "imports.react-query-auth",
+      "label": "files importing react-query-auth",
+      "unit": "files",
+      "lowerIsBetter": null,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "imports.@data-client/react",
+      "label": "files importing @data-client/react",
+      "unit": "files",
+      "lowerIsBetter": null,
+      "baseline": 0,
+      "migrated": 19,
+      "delta": 19,
+      "pct": null,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "imports.@data-client/rest",
+      "label": "files importing @data-client/rest",
+      "unit": "files",
+      "lowerIsBetter": null,
+      "baseline": 0,
+      "migrated": 5,
+      "delta": 5,
+      "pct": null,
+      "verdict": "changed"
+    },
+    {
+      "source": "static",
+      "group": "plumbing",
+      "id": "imports.axios",
+      "label": "files importing axios",
+      "unit": "files",
+      "lowerIsBetter": null,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "verdict": "changed"
+    }
+  ]
+}

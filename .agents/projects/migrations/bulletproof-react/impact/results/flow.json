@@ -1,0 +1,4778 @@
+{
+  "kind": "flow",
+  "app": "bulletproof-react",
+  "date": "2026-11-07T04:48:37.148Z",
+  "runs": 10,
+  "cpuThrottle": 4,
+  "steps": [
+    {
+      "name": "open discussions",
+      "kind": "nav",
+      "fresh": false
+    },
+    {
+      "name": "create discussion",
+      "kind": "mutation",
+      "fresh": false
+    },
+    {
+      "name": "open discussion",
+      "kind": "nav",
+      "fresh": false
+    },
+    {
+      "name": "update discussion",
+      "kind": "mutation",
+      "fresh": false
+    },
+    {
+      "name": "create comment",
+      "kind": "mutation",
+      "fresh": false
+    },
+    {
+      "name": "delete comment",
+      "kind": "mutation",
+      "fresh": false
+    },
+    {
+      "name": "back to list (shows rename?)",
+      "kind": "nav",
+      "fresh": true
+    },
+    {
+      "name": "reopen discussion (comment gone?)",
+      "kind": "nav",
+      "fresh": true
+    },
+    {
+      "name": "profile",
+      "kind": "nav",
+      "fresh": false
+    },
+    {
+      "name": "update profile",
+      "kind": "mutation",
+      "fresh": false
+    },
+    {
+      "name": "dashboard (shows new name?)",
+      "kind": "nav",
+      "fresh": true
+    },
+    {
+      "name": "list again",
+      "kind": "nav",
+      "fresh": true
+    },
+    {
+      "name": "delete discussion",
+      "kind": "mutation",
+      "fresh": false
+    }
+  ],
+  "navSteps": 7,
+  "failures": {
+    "baseline": [],
+    "migrated": []
+  },
+  "metrics": [
+    {
+      "group": "flow",
+      "id": "mutationReflectMs",
+      "label": "Mutation submit to UI updated (sum)",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 11063,
+      "migrated": 8999,
+      "delta": -2064,
+      "pct": -18.7,
+      "ci95": [-2130, -1993.47],
+      "spread": {
+        "baseline": [11012.25, 11099.5],
+        "migrated": [8968.75, 9029.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "flow",
+      "id": "mutationFollowupReads",
+      "label": "Reads triggered by mutations",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 6,
+      "migrated": 2,
+      "delta": -4,
+      "pct": -66.7,
+      "ci95": [-4, -4],
+      "spread": {
+        "baseline": [6, 6],
+        "migrated": [2, 2]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "flow",
+      "id": "staleViews",
+      "label": "Stale views (checked views showing old data)",
+      "unit": "views",
+      "lowerIsBetter": true,
+      "baseline": 2,
+      "migrated": 0,
+      "delta": -2,
+      "pct": -100,
+      "ci95": [-2, -2],
+      "spread": {
+        "baseline": [2, 2],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "flow",
+      "id": "flowMs",
+      "label": "All steps, action to ready (sum)",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 13881.5,
+      "migrated": 11773.5,
+      "delta": -2108,
+      "pct": -15.2,
+      "ci95": [-2217.5, -2002.5],
+      "spread": {
+        "baseline": [13802.75, 13953.25],
+        "migrated": [11723.75, 11818]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "flow",
+      "id": "requests",
+      "label": "API requests",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 15,
+      "migrated": 10,
+      "delta": -5,
+      "pct": -33.3,
+      "ci95": [-5, -5],
+      "spread": {
+        "baseline": [15, 15],
+        "migrated": [10, 10]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "flow",
+      "id": "reads",
+      "label": "API reads (GET)",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 9,
+      "migrated": 4,
+      "delta": -5,
+      "pct": -55.6,
+      "ci95": [-5, -5],
+      "spread": {
+        "baseline": [9, 9],
+        "migrated": [4, 4]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "flow",
+      "id": "writes",
+      "label": "API writes",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 6,
+      "migrated": 6,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [6, 6],
+        "migrated": [6, 6]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "flow",
+      "id": "redundant",
+      "label": "Redundant reads (same URL, same payload already received)",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "flow",
+      "id": "navsWithoutLoading",
+      "label": "Navigations with no loading indicator (of 7)",
+      "unit": "navs",
+      "lowerIsBetter": false,
+      "baseline": 7,
+      "migrated": 7,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [7, 7],
+        "migrated": [7, 7]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "flow",
+      "id": "loadingShown",
+      "label": "Loading indicators shown",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "flow",
+      "id": "loadingMs",
+      "label": "Loading indicator visible",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "flow",
+      "id": "longTasks",
+      "label": "Long tasks (>50ms)",
+      "unit": "count",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "flow",
+      "id": "tbtMs",
+      "label": "Total blocking time",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "cold load",
+      "id": "readyMs",
+      "label": "First screen ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 1653,
+      "migrated": 1668,
+      "delta": 15,
+      "pct": 0.9,
+      "ci95": [-74.05, 114.07],
+      "spread": {
+        "baseline": [1629.25, 1722.25],
+        "migrated": [1653.75, 1739.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "loadMs",
+      "label": "Load event",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 437,
+      "migrated": 421,
+      "delta": -16,
+      "pct": -3.7,
+      "ci95": [-37, 9],
+      "spread": {
+        "baseline": [426.75, 445.75],
+        "migrated": [407.75, 437.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "lcpMs",
+      "label": "Largest contentful paint",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 1572,
+      "migrated": 1544,
+      "delta": -28,
+      "pct": -1.8,
+      "ci95": [-108, 62],
+      "spread": {
+        "baseline": [1546, 1638],
+        "migrated": [1523, 1619]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "parseCompileMs",
+      "label": "JS parse + compile",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 530.14,
+      "migrated": 510.62,
+      "delta": -19.52,
+      "pct": -3.7,
+      "ci95": [-66.43, 50.01],
+      "spread": {
+        "baseline": [506.4, 560.71],
+        "migrated": [490.2, 566.93]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "evaluateMs",
+      "label": "JS module evaluation",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 469.26,
+      "migrated": 455.35,
+      "delta": -13.9,
+      "pct": -3,
+      "ci95": [-61.86, 18.4],
+      "spread": {
+        "baseline": [461.83, 507.6],
+        "migrated": [442.73, 483.24]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "scriptMs",
+      "label": "Main-thread JS",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 788.08,
+      "migrated": 756.51,
+      "delta": -31.57,
+      "pct": -4,
+      "ci95": [-99.23, 32.33],
+      "spread": {
+        "baseline": [776.02, 834.06],
+        "migrated": [738.87, 813.14]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "tbtMs",
+      "label": "Total blocking time",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 349,
+      "migrated": 352.5,
+      "delta": 3.5,
+      "pct": 1,
+      "ci95": [-53, 47],
+      "spread": {
+        "baseline": [331.75, 385.75],
+        "migrated": [324.25, 387]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "cold load",
+      "id": "loadingMs",
+      "label": "Loading indicator visible",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 565.35,
+      "migrated": 0,
+      "delta": -565.35,
+      "pct": -100,
+      "ci95": [-576.06, -555.8],
+      "spread": {
+        "baseline": [557.3, 575.9],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "cold load",
+      "id": "heapMb",
+      "label": "JS heap",
+      "unit": "MB",
+      "lowerIsBetter": true,
+      "baseline": 8.1,
+      "migrated": 7.72,
+      "delta": -0.38,
+      "pct": -4.7,
+      "ci95": [-0.4, -0.37],
+      "spread": {
+        "baseline": [8.09, 8.12],
+        "migrated": [7.71, 7.73]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "nav steps",
+      "id": "open discussions.readyMs",
+      "label": "open discussions: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 927,
+      "migrated": 942,
+      "delta": 15,
+      "pct": 1.6,
+      "ci95": [-8.01, 40.5],
+      "spread": {
+        "baseline": [917.25, 940],
+        "migrated": [934, 959.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "nav steps",
+      "id": "open discussions.reads",
+      "label": "open discussions: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "mutation steps",
+      "id": "create discussion.readyMs",
+      "label": "create discussion: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2297,
+      "migrated": 2281.5,
+      "delta": -15.5,
+      "pct": -0.7,
+      "ci95": [-30.5, 8.51],
+      "spread": {
+        "baseline": [2275.5, 2307.75],
+        "migrated": [2276.5, 2285.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "mutation steps",
+      "id": "create discussion.reads",
+      "label": "create discussion: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "nav steps",
+      "id": "open discussion.readyMs",
+      "label": "open discussion: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 953.5,
+      "migrated": 911.5,
+      "delta": -42,
+      "pct": -4.4,
+      "ci95": [-68, -12.5],
+      "spread": {
+        "baseline": [928.5, 973.5],
+        "migrated": [904.25, 918.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "nav steps",
+      "id": "open discussion.reads",
+      "label": "open discussion: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 2,
+      "migrated": 1,
+      "delta": -1,
+      "pct": -50,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [2, 2],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "update discussion.readyMs",
+      "label": "update discussion: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2277,
+      "migrated": 1773.5,
+      "delta": -503.5,
+      "pct": -22.1,
+      "ci95": [-521, -489],
+      "spread": {
+        "baseline": [2271, 2291],
+        "migrated": [1768.75, 1780.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "update discussion.reads",
+      "label": "update discussion: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "create comment.readyMs",
+      "label": "create comment: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2286.5,
+      "migrated": 1778,
+      "delta": -508.5,
+      "pct": -22.2,
+      "ci95": [-527.5, -488],
+      "spread": {
+        "baseline": [2271.5, 2299.5],
+        "migrated": [1769.75, 1786.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "create comment.reads",
+      "label": "create comment: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "delete comment.readyMs",
+      "label": "delete comment: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 1616,
+      "migrated": 1095.5,
+      "delta": -520.5,
+      "pct": -32.2,
+      "ci95": [-564.01, -504.5],
+      "spread": {
+        "baseline": [1604.25, 1617.75],
+        "migrated": [1082.25, 1103]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "delete comment.reads",
+      "label": "delete comment: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "nav steps",
+      "id": "back to list (shows rename?).readyMs",
+      "label": "back to list (shows rename?): action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 105.5,
+      "migrated": 111,
+      "delta": 5.5,
+      "pct": 5.2,
+      "ci95": [-10.5, 11],
+      "spread": {
+        "baseline": [101.25, 114.5],
+        "migrated": [99.75, 113.5]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "nav steps",
+      "id": "back to list (shows rename?).reads",
+      "label": "back to list (shows rename?): reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "stale views",
+      "id": "back to list (shows rename?).stale",
+      "label": "back to list (shows rename?): stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "nav steps",
+      "id": "reopen discussion (comment gone?).readyMs",
+      "label": "reopen discussion (comment gone?): action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 112,
+      "migrated": 97,
+      "delta": -15,
+      "pct": -13.4,
+      "ci95": [-28, -0.5],
+      "spread": {
+        "baseline": [98.5, 117],
+        "migrated": [91, 100.25]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "nav steps",
+      "id": "reopen discussion (comment gone?).reads",
+      "label": "reopen discussion (comment gone?): reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "stale views",
+      "id": "reopen discussion (comment gone?).stale",
+      "label": "reopen discussion (comment gone?): stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "nav steps",
+      "id": "profile.readyMs",
+      "label": "profile: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 527.5,
+      "migrated": 530.5,
+      "delta": 3,
+      "pct": 0.6,
+      "ci95": [-14, 11.5],
+      "spread": {
+        "baseline": [521.5, 535.5],
+        "migrated": [520, 532.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "nav steps",
+      "id": "profile.reads",
+      "label": "profile: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "mutation steps",
+      "id": "update profile.readyMs",
+      "label": "update profile: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 2286,
+      "migrated": 1768.5,
+      "delta": -517.5,
+      "pct": -22.6,
+      "ci95": [-521.5, -503],
+      "spread": {
+        "baseline": [2283, 2288.25],
+        "migrated": [1765.5, 1780.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "update profile.reads",
+      "label": "update profile: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "nav steps",
+      "id": "dashboard (shows new name?).readyMs",
+      "label": "dashboard (shows new name?): action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 89.5,
+      "migrated": 90,
+      "delta": 0.5,
+      "pct": 0.6,
+      "ci95": [-13.5, 18.5],
+      "spread": {
+        "baseline": [80.25, 100.25],
+        "migrated": [84.25, 102.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "nav steps",
+      "id": "dashboard (shows new name?).reads",
+      "label": "dashboard (shows new name?): reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "stale views",
+      "id": "dashboard (shows new name?).stale",
+      "label": "dashboard (shows new name?): stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "nav steps",
+      "id": "list again.readyMs",
+      "label": "list again: action to ready",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 102,
+      "migrated": 97,
+      "delta": -5,
+      "pct": -4.9,
+      "ci95": [-15.51, 7],
+      "spread": {
+        "baseline": [99.25, 109.25],
+        "migrated": [92.5, 106.75]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "nav steps",
+      "id": "list again.reads",
+      "label": "list again: reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 0,
+      "migrated": 0,
+      "delta": 0,
+      "pct": null,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [0, 0],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    },
+    {
+      "group": "stale views",
+      "id": "list again.stale",
+      "label": "list again: stale (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 0,
+      "delta": -1,
+      "pct": -100,
+      "ci95": [-1, -1],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [0, 0]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "better"
+    },
+    {
+      "group": "mutation steps",
+      "id": "delete discussion.readyMs",
+      "label": "delete discussion: submit to UI updated",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 300,
+      "migrated": 304,
+      "delta": 4,
+      "pct": 1.3,
+      "ci95": [-13, 16],
+      "spread": {
+        "baseline": [290.5, 313.25],
+        "migrated": [302, 309]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "noise"
+    },
+    {
+      "group": "mutation steps",
+      "id": "delete discussion.reads",
+      "label": "delete discussion: follow-up reads",
+      "unit": "requests",
+      "lowerIsBetter": true,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 10,
+        "migrated": 10
+      },
+      "verdict": "same"
+    }
+  ],
+  "summary": {
+    "landing": {
+      "cold load": {
+        "loadMs": {
+          "baseline": 437,
+          "migrated": 421,
+          "delta": -16,
+          "pct": -3.7,
+          "ci95": [-37, 9],
+          "spread": {
+            "baseline": [426.75, 445.75],
+            "migrated": [407.75, 437.25]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "readyMs": {
+          "baseline": 1653,
+          "migrated": 1668,
+          "delta": 15,
+          "pct": 0.9,
+          "ci95": [-74.05, 114.07],
+          "spread": {
+            "baseline": [1629.25, 1722.25],
+            "migrated": [1653.75, 1739.25]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "lcpMs": {
+          "baseline": 1572,
+          "migrated": 1544,
+          "delta": -28,
+          "pct": -1.8,
+          "ci95": [-108, 62],
+          "spread": {
+            "baseline": [1546, 1638],
+            "migrated": [1523, 1619]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "parseCompileMs": {
+          "baseline": 530.14,
+          "migrated": 510.62,
+          "delta": -19.52,
+          "pct": -3.7,
+          "ci95": [-66.43, 50.01],
+          "spread": {
+            "baseline": [506.4, 560.71],
+            "migrated": [490.2, 566.93]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "evaluateMs": {
+          "baseline": 469.26,
+          "migrated": 455.35,
+          "delta": -13.9,
+          "pct": -3,
+          "ci95": [-61.86, 18.4],
+          "spread": {
+            "baseline": [461.83, 507.6],
+            "migrated": [442.73, 483.24]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "scriptMs": {
+          "baseline": 788.08,
+          "migrated": 756.51,
+          "delta": -31.57,
+          "pct": -4,
+          "ci95": [-99.23, 32.33],
+          "spread": {
+            "baseline": [776.02, 834.06],
+            "migrated": [738.87, 813.14]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "tbtMs": {
+          "baseline": 349,
+          "migrated": 352.5,
+          "delta": 3.5,
+          "pct": 1,
+          "ci95": [-53, 47],
+          "spread": {
+            "baseline": [331.75, 385.75],
+            "migrated": [324.25, 387]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "heapMb": {
+          "baseline": 8.1,
+          "migrated": 7.72,
+          "delta": -0.38,
+          "pct": -4.7,
+          "ci95": [-0.4, -0.37],
+          "spread": {
+            "baseline": [8.09, 8.12],
+            "migrated": [7.71, 7.73]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "loadingMs": {
+          "baseline": 565.35,
+          "migrated": 0,
+          "delta": -565.35,
+          "pct": -100,
+          "ci95": [-576.06, -555.8],
+          "spread": {
+            "baseline": [557.3, 575.9],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        }
+      }
+    },
+    "totals": {
+      "flow": {
+        "flowMs": {
+          "baseline": 13881.5,
+          "migrated": 11773.5,
+          "delta": -2108,
+          "pct": -15.2,
+          "ci95": [-2217.5, -2002.5],
+          "spread": {
+            "baseline": [13802.75, 13953.25],
+            "migrated": [11723.75, 11818]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 15,
+          "migrated": 10,
+          "delta": -5,
+          "pct": -33.3,
+          "ci95": [-5, -5],
+          "spread": {
+            "baseline": [15, 15],
+            "migrated": [10, 10]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "reads": {
+          "baseline": 9,
+          "migrated": 4,
+          "delta": -5,
+          "pct": -55.6,
+          "ci95": [-5, -5],
+          "spread": {
+            "baseline": [9, 9],
+            "migrated": [4, 4]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "writes": {
+          "baseline": 6,
+          "migrated": 6,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [6, 6],
+            "migrated": [6, 6]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "staleViews": {
+          "baseline": 2,
+          "migrated": 0,
+          "delta": -2,
+          "pct": -100,
+          "ci95": [-2, -2],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "navsWithoutLoading": {
+          "baseline": 7,
+          "migrated": 7,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [7, 7],
+            "migrated": [7, 7]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "mutationFollowupReads": {
+          "baseline": 6,
+          "migrated": 2,
+          "delta": -4,
+          "pct": -66.7,
+          "ci95": [-4, -4],
+          "spread": {
+            "baseline": [6, 6],
+            "migrated": [2, 2]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "mutationReflectMs": {
+          "baseline": 11063,
+          "migrated": 8999,
+          "delta": -2064,
+          "pct": -18.7,
+          "ci95": [-2130, -1993.47],
+          "spread": {
+            "baseline": [11012.25, 11099.5],
+            "migrated": [8968.75, 9029.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        }
+      }
+    },
+    "steps": {
+      "open discussions": {
+        "readyMs": {
+          "baseline": 927,
+          "migrated": 942,
+          "delta": 15,
+          "pct": 1.6,
+          "ci95": [-8.01, 40.5],
+          "spread": {
+            "baseline": [917.25, 940],
+            "migrated": [934, 959.5]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 28,
+          "migrated": 28,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [-8, 8],
+          "spread": {
+            "baseline": [24, 32],
+            "migrated": [24, 32]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "create discussion": {
+        "readyMs": {
+          "baseline": 2297,
+          "migrated": 2281.5,
+          "delta": -15.5,
+          "pct": -0.7,
+          "ci95": [-30.5, 8.51],
+          "spread": {
+            "baseline": [2275.5, 2307.75],
+            "migrated": [2276.5, 2285.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 2,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [2, 2]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 24,
+          "migrated": 32,
+          "delta": 8,
+          "pct": 33.3,
+          "ci95": [0, 8],
+          "spread": {
+            "baseline": [24, 32],
+            "migrated": [32, 32]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": -100,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        }
+      },
+      "open discussion": {
+        "readyMs": {
+          "baseline": 953.5,
+          "migrated": 911.5,
+          "delta": -42,
+          "pct": -4.4,
+          "ci95": [-68, -12.5],
+          "spread": {
+            "baseline": [928.5, 973.5],
+            "migrated": [904.25, 918.25]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 1,
+          "delta": -1,
+          "pct": -50,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "reads": {
+          "baseline": 2,
+          "migrated": 1,
+          "delta": -1,
+          "pct": -50,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 28,
+          "migrated": 24,
+          "delta": -4,
+          "pct": -14.3,
+          "ci95": [-8, 0],
+          "spread": {
+            "baseline": [24, 32],
+            "migrated": [24, 24]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "update discussion": {
+        "readyMs": {
+          "baseline": 2277,
+          "migrated": 1773.5,
+          "delta": -503.5,
+          "pct": -22.1,
+          "ci95": [-521, -489],
+          "spread": {
+            "baseline": [2271, 2291],
+            "migrated": [1768.75, 1780.5]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 1,
+          "delta": -1,
+          "pct": -50,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 0,
+          "delta": -1,
+          "pct": -100,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "writes": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 24,
+          "migrated": 28,
+          "delta": 4,
+          "pct": 16.7,
+          "ci95": [-4, 8],
+          "spread": {
+            "baseline": [24, 30],
+            "migrated": [24, 32]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "create comment": {
+        "readyMs": {
+          "baseline": 2286.5,
+          "migrated": 1778,
+          "delta": -508.5,
+          "pct": -22.2,
+          "ci95": [-527.5, -488],
+          "spread": {
+            "baseline": [2271.5, 2299.5],
+            "migrated": [1769.75, 1786.5]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 1,
+          "delta": -1,
+          "pct": -50,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 0,
+          "delta": -1,
+          "pct": -100,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "writes": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 24,
+          "migrated": 32,
+          "delta": 8,
+          "pct": 33.3,
+          "ci95": [0, 16],
+          "spread": {
+            "baseline": [24, 32],
+            "migrated": [32, 40]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "delete comment": {
+        "readyMs": {
+          "baseline": 1616,
+          "migrated": 1095.5,
+          "delta": -520.5,
+          "pct": -32.2,
+          "ci95": [-564.01, -504.5],
+          "spread": {
+            "baseline": [1604.25, 1617.75],
+            "migrated": [1082.25, 1103]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 1,
+          "delta": -1,
+          "pct": -50,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 0,
+          "delta": -1,
+          "pct": -100,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "writes": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 16,
+          "migrated": 20,
+          "delta": 4,
+          "pct": 25,
+          "ci95": [0, 8],
+          "spread": {
+            "baseline": [16, 16],
+            "migrated": [16, 24]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "back to list (shows rename?)": {
+        "readyMs": {
+          "baseline": 105.5,
+          "migrated": 111,
+          "delta": 5.5,
+          "pct": 5.2,
+          "ci95": [-10.5, 11],
+          "spread": {
+            "baseline": [101.25, 114.5],
+            "migrated": [99.75, 113.5]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 16,
+          "migrated": 16,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [-8, 0],
+          "spread": {
+            "baseline": [16, 24],
+            "migrated": [16, 16]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "stale": {
+          "baseline": 1,
+          "migrated": 0,
+          "delta": -1,
+          "pct": -100,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "freshMs": {
+          "baseline": null,
+          "migrated": 9.5,
+          "delta": null,
+          "pct": null,
+          "ci95": [null, null],
+          "spread": {
+            "baseline": [null, null],
+            "migrated": [8.25, 11.5]
+          },
+          "n": {
+            "baseline": 0,
+            "migrated": 10
+          },
+          "verdict": "few runs"
+        }
+      },
+      "reopen discussion (comment gone?)": {
+        "readyMs": {
+          "baseline": 112,
+          "migrated": 97,
+          "delta": -15,
+          "pct": -13.4,
+          "ci95": [-28, -0.5],
+          "spread": {
+            "baseline": [98.5, 117],
+            "migrated": [91, 100.25]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 16,
+          "migrated": 20,
+          "delta": 4,
+          "pct": 25,
+          "ci95": [0, 8],
+          "spread": {
+            "baseline": [16, 16],
+            "migrated": [16, 24]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "stale": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "freshMs": {
+          "baseline": 5,
+          "migrated": 5,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [-2.5, 1],
+          "spread": {
+            "baseline": [4, 6.75],
+            "migrated": [4.25, 5]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        }
+      },
+      "profile": {
+        "readyMs": {
+          "baseline": 527.5,
+          "migrated": 530.5,
+          "delta": 3,
+          "pct": 0.6,
+          "ci95": [-14, 11.5],
+          "spread": {
+            "baseline": [521.5, 535.5],
+            "migrated": [520, 532.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 44,
+          "migrated": 32,
+          "delta": -12,
+          "pct": -27.3,
+          "ci95": [-16, -4],
+          "spread": {
+            "baseline": [40, 48],
+            "migrated": [32, 38]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "update profile": {
+        "readyMs": {
+          "baseline": 2286,
+          "migrated": 1768.5,
+          "delta": -517.5,
+          "pct": -22.6,
+          "ci95": [-521.5, -503],
+          "spread": {
+            "baseline": [2283, 2288.25],
+            "migrated": [1765.5, 1780.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 1,
+          "delta": -1,
+          "pct": -50,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 0,
+          "delta": -1,
+          "pct": -100,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "writes": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 24,
+          "migrated": 32,
+          "delta": 8,
+          "pct": 33.3,
+          "ci95": [0, 8],
+          "spread": {
+            "baseline": [24, 30],
+            "migrated": [32, 32]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      },
+      "dashboard (shows new name?)": {
+        "readyMs": {
+          "baseline": 89.5,
+          "migrated": 90,
+          "delta": 0.5,
+          "pct": 0.6,
+          "ci95": [-13.5, 18.5],
+          "spread": {
+            "baseline": [80.25, 100.25],
+            "migrated": [84.25, 102.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 16,
+          "migrated": 16,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 4],
+          "spread": {
+            "baseline": [16, 16],
+            "migrated": [16, 16]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "stale": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "freshMs": {
+          "baseline": 7,
+          "migrated": 5,
+          "delta": -2,
+          "pct": -28.6,
+          "ci95": [-3.5, 0],
+          "spread": {
+            "baseline": [5.25, 7.75],
+            "migrated": [4.25, 5.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        }
+      },
+      "list again": {
+        "readyMs": {
+          "baseline": 102,
+          "migrated": 97,
+          "delta": -5,
+          "pct": -4.9,
+          "ci95": [-15.51, 7],
+          "spread": {
+            "baseline": [99.25, 109.25],
+            "migrated": [92.5, 106.75]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 16,
+          "migrated": 16,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [-8, 0],
+          "spread": {
+            "baseline": [16, 24],
+            "migrated": [16, 16]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "stale": {
+          "baseline": 1,
+          "migrated": 0,
+          "delta": -1,
+          "pct": -100,
+          "ci95": [-1, -1],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "better"
+        },
+        "freshMs": {
+          "baseline": null,
+          "migrated": 7,
+          "delta": null,
+          "pct": null,
+          "ci95": [null, null],
+          "spread": {
+            "baseline": [null, null],
+            "migrated": [6.25, 8]
+          },
+          "n": {
+            "baseline": 0,
+            "migrated": 10
+          },
+          "verdict": "few runs"
+        }
+      },
+      "delete discussion": {
+        "readyMs": {
+          "baseline": 300,
+          "migrated": 304,
+          "delta": 4,
+          "pct": 1.3,
+          "ci95": [-13, 16],
+          "spread": {
+            "baseline": [290.5, 313.25],
+            "migrated": [302, 309]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "noise"
+        },
+        "requests": {
+          "baseline": 2,
+          "migrated": 2,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [2, 2],
+            "migrated": [2, 2]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "reads": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "writes": {
+          "baseline": 1,
+          "migrated": 1,
+          "delta": 0,
+          "pct": 0,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [1, 1],
+            "migrated": [1, 1]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "redundant": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingShown": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "loadingMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "longTasks": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "tbtMs": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        },
+        "maxInteractionMs": {
+          "baseline": 16,
+          "migrated": 24,
+          "delta": 8,
+          "pct": 50,
+          "ci95": [4, 8],
+          "spread": {
+            "baseline": [16, 16],
+            "migrated": [24, 24]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "worse"
+        },
+        "cls": {
+          "baseline": 0,
+          "migrated": 0,
+          "delta": 0,
+          "pct": null,
+          "ci95": [0, 0],
+          "spread": {
+            "baseline": [0, 0],
+            "migrated": [0, 0]
+          },
+          "n": {
+            "baseline": 10,
+            "migrated": 10
+          },
+          "verdict": "same"
+        }
+      }
+    }
+  },
+  "samples": {
+    "landing": {
+      "cold load": {
+        "loadMs": {
+          "baseline": [448, 431, 429, 412, 426, 393, 446, 472, 445, 443],
+          "migrated": [435, 375, 407, 438, 445, 536, 424, 418, 410, 386]
+        },
+        "readyMs": {
+          "baseline": [
+            1788, 1583, 1624, 1604, 1663, 1645, 1649, 1742, 1657, 1757
+          ],
+          "migrated": [
+            1800, 1651, 1666, 2118, 1731, 1742, 1670, 1621, 1662, 1536
+          ]
+        },
+        "lcpMs": {
+          "baseline": [
+            1768, 1544, 1520, 1544, 1592, 1552, 1552, 1652, 1596, 1676
+          ],
+          "migrated": [
+            1696, 1504, 1520, 1624, 1628, 1604, 1540, 1548, 1532, 1404
+          ]
+        },
+        "parseCompileMs": {
+          "baseline": [
+            616.298, 509.868, 505.244, 502.504, 547.511, 527.962, 480.397,
+            565.107, 532.314, 595.061
+          ],
+          "migrated": [
+            580.152, 498.037, 502.726, 571.083, 572.805, 448.919, 554.465,
+            518.514, 487.583, 424.966
+          ]
+        },
+        "evaluateMs": {
+          "baseline": [
+            549.724, 470.076, 465.06, 434.996, 496.116, 460.757, 440.434,
+            529.383, 468.441, 511.427
+          ],
+          "migrated": [
+            525.853, 452.829, 445.149, 457.88, 484.281, 417.364, 488.851,
+            480.103, 441.929, 383.898
+          ]
+        },
+        "scriptMs": {
+          "baseline": [
+            969.504, 778.845, 775.256, 769.896, 812.4, 778.331, 747.243,
+            841.281, 797.318, 870.357
+          ],
+          "migrated": [
+            866.859, 742.049, 738.823, 827.95, 820.709, 689.384, 790.451,
+            770.967, 739.025, 633.86
+          ]
+        },
+        "tbtMs": {
+          "baseline": [430, 353, 340, 315, 361, 329, 303, 394, 345, 406],
+          "migrated": [434, 337, 324, 372, 393, 293, 392, 368, 325, 257]
+        },
+        "heapMb": {
+          "baseline": [
+            8.094752, 8.102372, 8.117204, 8.12754, 8.0865, 8.118344, 8.103,
+            8.124908, 8.095528, 8.071956
+          ],
+          "migrated": [
+            7.740964, 7.721064, 7.685684, 7.747312, 7.722128, 7.715672,
+            7.732912, 7.721908, 7.710816, 7.709708
+          ]
+        },
+        "loadingMs": {
+          "baseline": [
+            594.1999999999534, 538.5999999999767, 555.8000000000466, 576,
+            575.5999999999767, 553.5, 566.8999999999069, 580.9000000001397,
+            563.8000000000466, 561.8000000000466
+          ],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      }
+    },
+    "steps": {
+      "open discussions": {
+        "readyMs": {
+          "baseline": [923, 911, 918, 914, 941, 931, 968, 917, 937, 963],
+          "migrated": [962, 915, 973, 937, 952, 933, 944, 940, 922, 973]
+        },
+        "requests": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [24, 32, 24, 24, 32, 24, 32, 32, 24, 32],
+          "migrated": [32, 24, 32, 24, 32, 32, 24, 24, 24, 32]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "create discussion": {
+        "readyMs": {
+          "baseline": [
+            2316, 2308, 2318, 2270, 2307, 2298, 2273, 2283, 2272, 2296
+          ],
+          "migrated": [
+            2284, 2279, 2298, 2291, 2276, 2275, 2272, 2286, 2278, 2285
+          ]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "writes": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [32, 40, 32, 24, 32, 24, 24, 24, 24, 24],
+          "migrated": [32, 32, 32, 32, 32, 32, 32, 32, 32, 32]
+        },
+        "cls": {
+          "baseline": [
+            0.00011436631944444446, 0.00011436631944444446,
+            0.00011436631944444446, 0, 0.00011436631944444446, 0, 0,
+            0.00011436631944444446, 0, 0
+          ],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "open discussion": {
+        "readyMs": {
+          "baseline": [966, 963, 928, 930, 944, 990, 928, 899, 995, 976],
+          "migrated": [930, 904, 916, 919, 972, 913, 905, 910, 904, 899]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "reads": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [6, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [24, 32, 24, 32, 24, 40, 32, 24, 24, 32],
+          "migrated": [24, 16, 24, 24, 32, 24, 16, 24, 24, 24]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "update discussion": {
+        "readyMs": {
+          "baseline": [
+            2300, 2313, 2282, 2270, 2273, 2271, 2267, 2271, 2294, 2281
+          ],
+          "migrated": [
+            1773, 1762, 1771, 1776, 1774, 2264, 1768, 1746, 1803, 1782
+          ]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [24, 40, 24, 32, 24, 24, 24, 24, 32, 24],
+          "migrated": [24, 32, 32, 24, 24, 32, 24, 24, 40, 32]
+        },
+        "cls": {
+          "baseline": [
+            0.00011436631944444446, 0.00011436631944444446, 0, 0, 0, 0, 0, 0, 0,
+            0
+          ],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "create comment": {
+        "readyMs": {
+          "baseline": [
+            2289, 2309, 2284, 2271, 2273, 2306, 2265, 2298, 2300, 2256
+          ],
+          "migrated": [
+            1782, 1795, 1760, 1789, 1776, 1788, 1775, 1768, 1780, 1762
+          ]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [24, 32, 32, 24, 24, 32, 24, 24, 32, 24],
+          "migrated": [40, 48, 32, 40, 32, 48, 32, 24, 32, 32]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "delete comment": {
+        "readyMs": {
+          "baseline": [
+            1637, 1618, 1616, 1617, 1616, 1497, 1604, 1605, 1638, 1597
+          ],
+          "migrated": [1105, 987, 974, 1093, 1104, 1100, 1081, 1086, 1109, 1098]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [16, 16, 24, 16, 16, 16, 16, 16, 24, 16],
+          "migrated": [24, 24, 16, 16, 24, 32, 16, 16, 24, 16]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "back to list (shows rename?)": {
+        "readyMs": {
+          "baseline": [100, 102, 117, 101, 99, 107, 118, 104, 119, 107],
+          "migrated": [105, 137, 95, 118, 111, 98, 112, 111, 114, 89]
+        },
+        "requests": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "reads": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [16, 24, 16, 16, 24, 24, 16, 16, 16, 24],
+          "migrated": [16, 24, 16, 16, 16, 16, 16, 16, 16, 16]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "stale": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "freshMs": {
+          "baseline": [],
+          "migrated": [8, 12, 9, 12, 6, 10, 16, 9, 8, 10]
+        }
+      },
+      "reopen discussion (comment gone?)": {
+        "readyMs": {
+          "baseline": [134, 140, 97, 79, 110, 98, 100, 117, 114, 117],
+          "migrated": [120, 101, 90, 98, 101, 97, 94, 81, 97, 80]
+        },
+        "requests": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "reads": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [16, 24, 16, 16, 16, 16, 16, 16, 16, 16],
+          "migrated": [32, 16, 32, 24, 24, 16, 16, 16, 16, 24]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "stale": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "freshMs": {
+          "baseline": [6, 2, 7, 4, 4, 4, 12, 4, 6, 8],
+          "migrated": [4, 6, 10, 5, 2, 4, 5, 5, 5, 5]
+        }
+      },
+      "profile": {
+        "readyMs": {
+          "baseline": [521, 541, 537, 531, 557, 520, 524, 515, 531, 523],
+          "migrated": [540, 541, 529, 532, 533, 529, 517, 512, 532, 506]
+        },
+        "requests": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "reads": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [40, 48, 40, 48, 48, 40, 32, 48, 56, 40],
+          "migrated": [40, 40, 32, 32, 32, 40, 32, 32, 32, 32]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "update profile": {
+        "readyMs": {
+          "baseline": [
+            2283, 2279, 2293, 2286, 2286, 2286, 2272, 2292, 2289, 2283
+          ],
+          "migrated": [
+            1783, 1755, 1785, 1768, 1774, 1764, 1765, 1783, 1769, 1767
+          ]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [24, 32, 32, 32, 24, 24, 24, 24, 24, 24],
+          "migrated": [32, 32, 32, 32, 32, 32, 24, 40, 32, 32]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      },
+      "dashboard (shows new name?)": {
+        "readyMs": {
+          "baseline": [80, 117, 77, 73, 91, 88, 81, 104, 103, 92],
+          "migrated": [77, 119, 108, 83, 76, 88, 106, 93, 92, 88]
+        },
+        "requests": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "reads": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [16, 24, 16, 16, 16, 16, 16, 16, 16, 16],
+          "migrated": [16, 24, 16, 16, 16, 24, 16, 16, 16, 16]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "stale": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "freshMs": {
+          "baseline": [5, 7, 5, 5, 7, 7, 8, 10, 12, 6],
+          "migrated": [5, 4, 6, 4, 5, 4, 8, 6, 5, 5]
+        }
+      },
+      "list again": {
+        "readyMs": {
+          "baseline": [99, 104, 111, 100, 90, 101, 85, 119, 116, 103],
+          "migrated": [86, 109, 103, 108, 71, 94, 116, 99, 95, 92]
+        },
+        "requests": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "reads": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "writes": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [16, 24, 24, 16, 16, 24, 16, 32, 16, 16],
+          "migrated": [16, 16, 16, 16, 16, 16, 24, 16, 16, 16]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "stale": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "freshMs": {
+          "baseline": [],
+          "migrated": [8, 8, 9, 7, 7, 7, 11, 4, 5, 6]
+        }
+      },
+      "delete discussion": {
+        "readyMs": {
+          "baseline": [315, 298, 308, 288, 290, 292, 290, 332, 302, 330],
+          "migrated": [310, 311, 302, 306, 298, 304, 304, 311, 293, 302]
+        },
+        "requests": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        },
+        "reads": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "writes": {
+          "baseline": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+          "migrated": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "maxInteractionMs": {
+          "baseline": [16, 16, 24, 16, 16, 16, 16, 16, 16, 24],
+          "migrated": [24, 24, 24, 24, 24, 24, 24, 24, 16, 16]
+        },
+        "cls": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      }
+    },
+    "totals": {
+      "flow": {
+        "flowMs": {
+          "baseline": [
+            13963, 14003, 13886, 13730, 13877, 13785, 13775, 13856, 14010, 13924
+          ],
+          "migrated": [
+            11857, 11715, 11704, 11818, 11818, 12247, 11759, 11726, 11788, 11723
+          ]
+        },
+        "requests": {
+          "baseline": [15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+          "migrated": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+        },
+        "reads": {
+          "baseline": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+          "migrated": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        },
+        "writes": {
+          "baseline": [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+          "migrated": [6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
+        },
+        "redundant": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingShown": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "loadingMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "longTasks": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "tbtMs": {
+          "baseline": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          "migrated": [6, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "staleViews": {
+          "baseline": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          "migrated": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        "navsWithoutLoading": {
+          "baseline": [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+          "migrated": [7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+        },
+        "mutationFollowupReads": {
+          "baseline": [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+          "migrated": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        },
+        "mutationReflectMs": {
+          "baseline": [
+            11140, 11125, 11101, 11002, 11045, 10950, 10971, 11081, 11095, 11043
+          ],
+          "migrated": [
+            9037, 8889, 8890, 9023, 9002, 9495, 8965, 8980, 9032, 8996
+          ]
+        }
+      }
+    }
+  }
+}
