@@ -15,7 +15,7 @@ import {
   isNative,
   nativeOrNormalPath,
   nodeEntries,
-  checkNodeShims,
+  nodeOutput,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -120,17 +120,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       ...(isNative && { [nativeContextEntry]: 'src/context.ts' }),
     },
     external: isExternal,
-    output: [
-      {
-        dir: 'dist',
-        format: 'cjs',
-        entryFileNames: nativeOrNormalPath('[name].js'),
-        chunkFileNames: nativeOrNormalPath('[name]-[hash].js'),
-      },
-    ],
+    output: [nodeOutput],
     onwarn,
     plugins: [
-      checkNodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,

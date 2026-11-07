@@ -10,7 +10,7 @@ import {
   typeConfigNext,
   onwarn,
   nodeEntries,
-  checkNodeShims,
+  nodeOutput,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -62,10 +62,9 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     // the same Controller as `@data-client/core`, not a bundled copy
     input: nodeEntries(pkg),
     external: isExternal,
-    output: [{ dir: 'dist', format: 'cjs' }],
+    output: [nodeOutput],
     onwarn,
     plugins: [
-      checkNodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,

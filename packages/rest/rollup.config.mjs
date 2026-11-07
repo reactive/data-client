@@ -11,10 +11,9 @@ import {
   typeConfig,
   typeConfigNext,
   onwarn,
-  nativeOrNormalPath,
   resolveTsAsJs,
   nodeEntries,
-  checkNodeShims,
+  nodeOutput,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -120,17 +119,9 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
   configs.push({
     input: nodeEntries(pkg),
     external: isExternal,
-    output: [
-      {
-        dir: 'dist',
-        format: 'cjs',
-        entryFileNames: nativeOrNormalPath('[name].js'),
-        chunkFileNames: nativeOrNormalPath('[name]-[hash].js'),
-      },
-    ],
+    output: [nodeOutput],
     onwarn,
     plugins: [
-      checkNodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,

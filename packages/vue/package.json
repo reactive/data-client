@@ -105,7 +105,7 @@
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' POLYFILL_TARGETS='chrome>88,safari>14' yarn g:babel --out-dir lib",
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
-    "build:bundle": "yarn g:clean-dist && yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:bundle": "yarn g:bundle build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean index.d.ts",
     "build": "run build:lib && run build:bundle",
     "dev": "run build:lib -w",
