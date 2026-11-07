@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 /**
  * Takes an async function and tracks resolution as a boolean.
@@ -27,24 +27,10 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
 ): [F, boolean, Error | undefined] {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<undefined | Error>(undefined);
-  const isMountedRef = useRef(true);
-  // a hidden <Activity> runs effect cleanups but keeps state; loading is cleared once shown again
-  const settledWhileHiddenRef = useRef(false);
-  useEffect(() => {
-    isMountedRef.current = true;
-    if (settledWhileHiddenRef.current) {
-      settledWhileHiddenRef.current = false;
-      setLoading(false);
-    }
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
   const latestCallRef = useRef(0);
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
     const callId = ++latestCallRef.current;
-    settledWhileHiddenRef.current = false;
     setLoading(true);
     setError(undefined);
     let ret;
@@ -52,13 +38,10 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     try {
       ret = await func(...args);
     } catch (e: any) {
-      // not gated on mount, so an error that lands while <Activity> is hidden still shows
       if (callId === latestCallRef.current) setError(e);
     } finally {
-      if (callId === latestCallRef.current) {
-        if (isMountedRef.current) setLoading(false);
-        else settledWhileHiddenRef.current = true;
-      }
+      // not gated on mount: a hidden <Activity> keeps state, so the result must land to show again
+      if (callId === latestCallRef.current) setLoading(false);
     }
     return ret;
     // eslint-disable-next-line react-hooks/exhaustive-deps
