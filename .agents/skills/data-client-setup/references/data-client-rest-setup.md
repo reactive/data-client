@@ -15,7 +15,7 @@ npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-s
 ```
 
 - If a skill isn't available by name afterwards, read `.claude/skills/<skill>/SKILL.md`.
-- If the command isn't found, the installed version predates 0.19. Read it with `node -p "require('./node_modules/@data-client/rest/package.json').version"` and install the skills from that release's tag instead: `npx skills add 'reactive/data-client#%40data-client%2Frest%40<version>' --skill data-client-rest --skill data-client-schema -y` (the part after `#` is the URL-encoded tag `@data-client/rest@<version>`; without it you get the latest source, which can describe APIs the installed version lacks). Tell the user which version the skills target.
+- If the command isn't found, the installed version predates 0.19: run `npx skills add reactive/data-client --skill data-client-rest --skill data-client-schema -y` instead.
 - Add this line to `AGENTS.md` (create it if missing; if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line), with the project's package manager in the command, and commit `.agents/skills` and `.claude/skills`:
 
 ```md
@@ -38,7 +38,7 @@ Check `package.json` and imports. Several libraries can coexist: migrate each on
 Axios:
 
 1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
-2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx @data-client/codemods axios-to-rest src/` (it reads TypeScript and skips `node_modules`). If npm has no `@data-client/codemods` yet (it ships from 0.19), run `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`; if that host is unreachable too, copy the transform from `packages/codemods/src/transforms/axios-to-rest.js` in the `reactive/data-client` repo and pass its path to `-t`. It turns each axios call into a call to an endpoint (usually a module-level `const` when the call is in a function), turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
+2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx @data-client/codemods axios-to-rest src/` (it reads TypeScript and skips `node_modules`). It turns each axios call into a call to an endpoint (usually a module-level `const` when the call is in a function), turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
 3. Search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
 4. Follow the reference's remaining steps. Callers keep loading data the way they did; only the call changes.
 5. Run the type checker and tests. When no `axios` import or `TODO(data-client)` comment is left, uninstall axios.

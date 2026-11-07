@@ -13,20 +13,6 @@
         "Does not leave `DataProvider` as the only thing between the app's outer `<Suspense>` and `<App />`.",
         "Says why: a boundary above `DataProvider` never catches suspends below it."
       ]
-    },
-    {
-      "id": 2,
-      "name": "skills-match-installed-version",
-      "source": "Migration of alan2207/bulletproof-react@9506629 (apps/react-vite), problem record in https://github.com/reactive/data-client/pull/4607 (.agents/projects/migrations/bulletproof-react/problems.md) P8",
-      "prompt": "Set up Data Client in this React app (REST API). `@data-client/react` 0.18.2 and `@data-client/rest` 0.18.2 are already in package.json and node_modules. Install the Data Client skills this project needs. Show the exact commands you run.",
-      "expected_output": "Reads the installed version first, sees it is before 0.19, skips `data-client-skills`, and installs the skills from the matching release tag (`reactive/data-client#%40data-client%2Freact%400.18.2`), telling the user the skills target 0.18.2.",
-      "files": [],
-      "assertions": [
-        "Checks the installed `@data-client/*` version before choosing how to install skills.",
-        "Does not run `npx --no data-client-skills` for 0.18.2, or runs it and then falls back without retrying it.",
-        "The skills install command pins the release tag of the installed version (e.g. `#%40data-client%2Freact%400.18.2`), not the latest source.",
-        "Tells the user which package version the skills target."
-      ]
     }
   ]
 }
