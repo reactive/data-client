@@ -10,7 +10,7 @@ export default {
 - Both stay correct right after a user creates or deletes a comment, including when they navigate back to the list with the sidebar link, without a page reload.
 
 Keep the existing tests passing (npx tsc --noEmit and npx vitest run). Do not start dev servers or browsers.
-Change files only with the Edit and Write tools. Shell commands are limited to reading files, npx tsc, npx vitest and npx prettier; anything else is refused.`,
+Change files only with the Edit and Write tools. Shell commands are limited to ls, cat, grep, head, wc, npx tsc, npx vitest and npx prettier --check; anything else is refused.`,
   acceptanceFiles: {
     'impact.playwright.config.ts': 'acceptance/impact.playwright.config.ts',
     'e2e/impact-comment-count.spec.ts': 'acceptance/comment-count.spec.ts',

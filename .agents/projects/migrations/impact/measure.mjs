@@ -100,6 +100,11 @@ const meta = {
       v,
       {
         commit: sh('git rev-parse HEAD', checkouts[v]),
+        // Fingerprint of the working tree on top of the commit, so two dirty trees can be told apart.
+        treeDiffSha1: sh(
+          '{ git diff HEAD; git ls-files --others --exclude-standard | sort | xargs -r sha1sum; } | sha1sum | cut -c1-12',
+          checkouts[v],
+        ),
         // Prep patches and the migration itself usually show here; the count says how much.
         uncommittedFiles:
           sh('git status --porcelain', checkouts[v])

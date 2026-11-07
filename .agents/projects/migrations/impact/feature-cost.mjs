@@ -68,10 +68,8 @@ const ALLOWED_TOOLS = config.allowedTools ?? [
   'Bash(cat:*)',
   'Bash(grep:*)',
   'Bash(head:*)',
-  'Bash(sed -n:*)',
-  'Bash(find:*)',
   'Bash(wc:*)',
-  'Bash(npx prettier:*)',
+  'Bash(npx prettier --check:*)',
 ];
 
 // Agent guidance each copy carries. It is part of what the agent sees, so it is recorded.
@@ -141,13 +139,16 @@ function runAgent(cwd) {
     out = JSON.parse(r.stdout || '');
     if (!out || typeof out !== 'object') throw new Error('no JSON result');
   } catch {
-    out = { is_error: true, result: (r.stderr || r.stdout || '').slice(-2000) };
+    out = {
+      is_error: true,
+      result: (r.error?.message ?? (r.stderr || r.stdout || '')).slice(-2000),
+    };
   }
   // Sum across every model the session used (subagents included).
   const models = Object.values(out.modelUsage ?? {});
   const sum = k => models.reduce((t, m) => t + (m[k] ?? 0), 0);
   return {
-    ok: out.is_error || r.error || r.status !== 0 ? 0 : 1,
+    ok: !out.is_error && !r.error && r.status === 0,
     wallMs: Date.now() - t0,
     turns: out.num_turns,
     costUsd: out.total_cost_usd,
@@ -228,12 +229,11 @@ for (let i = 0; i < +opt.runs; i++) {
       agent.cacheWriteTokens +
       agent.cacheReadTokens +
       agent.outputTokens;
-    const m = { ...agent, ...diff, pass: acc.pass, totalTokens };
+    // An errored session is a failed feature even if the acceptance test happens to pass.
+    const m = { ...agent, ...diff, pass: agent.ok ? acc.pass : 0, totalTokens };
     if (!agent.ok) failures[variant].push(agent.result.slice(0, 300));
     for (const [k, v] of Object.entries(m)) {
       if (typeof v !== 'number') continue;
-      // An errored session counts as a failed feature, but its partial usage would skew the medians.
-      if (!agent.ok && k !== 'pass') continue;
       (samples[k] ??= { baseline: [], migrated: [] })[variant].push(v);
     }
     runsLog.push({

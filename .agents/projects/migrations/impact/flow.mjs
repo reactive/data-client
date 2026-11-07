@@ -70,7 +70,7 @@ const samples = previous?.samples ?? { landing: {}, steps: {}, totals: {} };
 const failures = previous?.failures ?? { baseline: [], migrated: [] };
 // A run's samples are staged and kept only if the whole run succeeds, so every row uses the same runs.
 let staged = [];
-const push = (...entry) => staged.push(entry);
+const stage = (...entry) => staged.push(entry);
 const commit = (section, name, metrics, variant) => {
   const s = (samples[section][name] ??= {});
   for (const [k, v] of Object.entries(metrics)) {
@@ -116,8 +116,9 @@ async function landing(base) {
     loadMs = Date.now() - t0;
     if (config.landing?.ready) await config.landing.ready({ page });
     readyMs = Date.now() - t0;
+    const buffer = await browser.stopTracing();
     tracing = false;
-    trace = summarizeTrace(await browser.stopTracing());
+    trace = summarizeTrace(buffer);
     m = Object.fromEntries(
       (await cdp.send('Performance.getMetrics')).metrics.map(x => [
         x.name,
@@ -295,7 +296,7 @@ async function flow(base, variant) {
         m.stale = freshMs === null ? 1 : 0;
         if (freshMs !== null) m.freshMs = freshMs;
       }
-      push('steps', step.name, m, variant);
+      stage('steps', step.name, m, variant);
       for (const k of [
         'requests',
         'reads',
@@ -336,8 +337,8 @@ for (let i = 0; !previous && i < runs; i++) {
     staged = [];
     try {
       if (!opt['skip-landing'])
-        push('landing', 'cold load', await landing(base), variant);
-      push('totals', 'flow', await flow(base, variant), variant);
+        stage('landing', 'cold load', await landing(base), variant);
+      stage('totals', 'flow', await flow(base, variant), variant);
       for (const entry of staged) commit(...entry);
       process.stderr.write(`run ${i + 1}/${runs} ${variant} ok\n`);
     } catch (e) {

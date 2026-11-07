@@ -3,11 +3,11 @@
 Measured 2026-11-07 with [`../impact.config.mjs`](../impact.config.mjs), 8 interleaved runs per pair at 4x
 CPU throttle, mock API latency fixed at 400ms ([`../fixed-latency.patch`](../fixed-latency.patch)).
 
-| Variant                  | Source                                                                                                                                  |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| react-query              | `alan2207/bulletproof-react` @ `9506629`, `apps/react-vite`                                                                             |
-| data-client              | the same commit plus `migration.patch` from #4607 @ `daada76`                                                                           |
-| data-client + optimistic | the same commit plus `migration.patch` from #4607 @ `5258d83` (optimistic comment create and delete, discussion update, profile update) |
+| Variant                  | Source                                                                                                                                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| react-query              | `alan2207/bulletproof-react` @ `9506629`, `apps/react-vite`                                                                                                                                  |
+| data-client              | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `daada76`                                                                           |
+| data-client + optimistic | the same commit plus `migration.patch` from [#4607](https://github.com/reactive/data-client/pull/4607) @ `5258d83` (optimistic comment create and delete, discussion update, profile update) |
 
 The commit shown in each report's Setup table is the checkout's own HEAD, so the migrated variants show a
 local commit; the table above names the patch each one applied.
@@ -32,8 +32,9 @@ Data-client saves one round trip on four mutations: react-query refetches after 
 updates the normalized entity from the mutation response. Optimistic updates remove the remaining round
 trip. Create and delete discussion are not optimistic in either version.
 
-The optimistic version's slowest interaction rises from about 40ms to 76ms, and total blocking time from
-0 to about 12ms. The optimistic update renders inside the click handler's task.
+The optimistic version's slowest interaction is 76ms, against 36 to 48ms in the other two builds, and
+its total blocking time is 10 to 13.5ms against 0. A likely cause is that the optimistic update renders
+inside the click handler's task; no trace confirms it yet.
 
 ## Reports
 

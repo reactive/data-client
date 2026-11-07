@@ -68,7 +68,7 @@ Copies each checkout to a temporary folder (node_modules symlinked) and runs
 `claude -p "<prompt>" --permission-mode acceptEdits` with only file tools, type-check and unit-test
 commands allowed. Then it copies in the acceptance files and runs `acceptance`. It records total and
 output tokens, cost, turns, wall time, lines and files changed, and whether the acceptance test passed.
-An errored session counts as a failed acceptance but stays out of the token and cost medians. The report
+An errored session counts as a failed acceptance, and its spend stays in the token and cost medians. The report
 lists the agent guidance files (CLAUDE.md, AGENTS.md, skills) each copy contained, because they are part
 of what the agent sees. Tell the agent in the prompt to edit with the Edit and Write tools: shell edits
 (sed -i, scripts) are refused and the run ends with no change. Writes into node_modules reach the source

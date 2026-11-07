@@ -84,12 +84,12 @@ if (flow) {
   const failed = Object.entries(flow.failures).filter(([, f]) => f.length);
   if (failed.length)
     notes.push(
-      `Failed runs: ${failed.map(([v, f]) => `${v} ${f.length}`).join(', ')}.`,
+      `Failed runs: ${failed.map(([v, f]) => `${v} ${f.length}`).join(', ')}. Every row leaves these runs out, which can favor the variant that fails more.`,
     );
 }
 if (feature) {
   notes.push(
-    `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort. Errored agent sessions count as failed acceptance but are left out of the token and cost medians.`,
+    `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort. Errored agent sessions count as failed acceptance; their spend stays in the medians.`,
   );
   const failed = Object.entries(feature.failures ?? {}).filter(
     ([, f]) => f.length,
@@ -112,11 +112,11 @@ if (meta) {
   lines.push(
     '## Setup',
     '',
-    '| Variant | Commit | Uncommitted files |',
-    '| --- | --- | --- |',
+    '| Variant | Commit | Uncommitted files | Working-tree diff sha1 |',
+    '| --- | --- | --- | --- |',
     ...Object.entries(meta.checkouts).map(
       ([v, c]) =>
-        `| ${v === 'baseline' ? B : M} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} |`,
+        `| ${v === 'baseline' ? B : M} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} | ${c.treeDiffSha1 ?? '–'} |`,
     ),
     '',
     `Config \`${meta.config}\`, prep ${meta.prep.map(p => `\`${p}\``).join(', ') || 'none'}, Node ${meta.node}, Playwright ${meta.playwright ?? 'unknown'}.`,
