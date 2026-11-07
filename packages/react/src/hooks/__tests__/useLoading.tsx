@@ -149,7 +149,7 @@ describe('useLoading()', () => {
     function fun(value: string) {
       return new Promise<string>((resolve, reject) => {
         settle[value] = () =>
-          value.startsWith('fail') ? reject(error) : resolve(value);
+          value === 'fail' ? reject(error) : resolve(value);
       });
     }
     beforeEach(() => {
