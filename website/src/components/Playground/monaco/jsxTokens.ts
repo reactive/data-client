@@ -11,7 +11,7 @@ import type * as Monaco from 'monaco-editor';
 /** Semantic token types, by index */
 const TYPES = ['jsxTag', 'jsxComponent', 'jsxAttribute', 'jsxText'];
 
-/** ts.ClassificationType → index in TYPES (tags get theirs from the name) */
+/** TypeScript's ClassificationType values (19 to 21 are tag names) */
 const ATTRIBUTE = 22;
 const TEXT = 23;
 
@@ -26,8 +26,9 @@ const painted = new WeakMap<Monaco.editor.ITextModel, number>();
 export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
   !isTsx(model) || painted.get(model) === model.getVersionId();
 
+/** TypeScript parses JSX in .tsx files; the provider serves typescript models */
 const isTsx = (model: Monaco.editor.ITextModel) =>
-  model.uri.path.endsWith('.tsx');
+  model.uri.path.endsWith('.tsx') && model.getLanguageId() === 'typescript';
 
 export function registerJsxColors(monaco: typeof Monaco) {
   monaco.languages.registerDocumentSemanticTokensProvider('typescript', {
