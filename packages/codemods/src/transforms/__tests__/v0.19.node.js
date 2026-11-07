@@ -221,6 +221,22 @@ mountDataClient(Comp, { managers: () => [new NetworkManager()] });
       `,
       'converts plugin arrays and mountDataClient()',
     );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataHook } from '@data-client/test';
+
+renderDataHook(() => useThing(), { managers: [new NetworkManager(), logger] });
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+
+renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger] });
+      `,
+      'converts renderDataHook() managers',
+    );
   });
 
   describe('custom providers', () => {

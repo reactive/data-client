@@ -181,7 +181,7 @@ import type { Manager } from '@data-client/react';
 it('should handle manager middleware', async () => {
   const types: string[] = [];
   const mockManager: Manager = {
-    middleware: (controller) => (next) => async (action) => {
+    middleware: () => (next) => (action) => {
       types.push(action.type);
       return next(action);
     },
