@@ -78,7 +78,9 @@ function publishedPackages() {
     .split('\n')
     .map(line => JSON.parse(line).location)
     .map(location =>
-      JSON.parse(fs.readFileSync(path.join(root, location, 'package.json'))),
+      JSON.parse(
+        fs.readFileSync(path.join(root, location, 'package.json'), 'utf8'),
+      ),
     );
 }
 
