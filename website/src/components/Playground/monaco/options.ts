@@ -12,6 +12,8 @@ export const options = {
   renderLineHighlightOnlyWhenFocus: true,
   overviewRulerLanes: 0,
   overviewRulerBorder: false,
+  // no indent guides: the code the server renders draws none (./tokenize.ts)
+  guides: { indentation: false },
   // Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
   //lineDecorationsWidth: 0,
   //lineNumbersMinChars: 0,
