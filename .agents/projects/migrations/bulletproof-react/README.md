@@ -1,5 +1,10 @@
 # bulletproof-react → data-client migration
 
+> **0.18.2 snapshot.** Everything here was measured and written on `@data-client/*` 0.18.2, before 0.19. Treat the numbers
+> as 0.18.2 results. The plan is to re-run the migration on the 0.19 beta (install `@beta` with the exact version, since
+> `latest` stays 0.18.2) and replace this snapshot. `migration.patch` still contains 0.18-only workarounds
+> (`server.deps.inline` in `vite.config.ts`, `^0.18.2` pins, skills installed with `npx skills add`) that 0.19 does not need.
+
 Target: `alan2207/bulletproof-react` @ `9506629ed003a561c6627735480cce4994244bb4`, `apps/react-vite`
 (react-query + axios + react-query-auth, MSW mock API, vitest + playwright).
 Migrated with the `data-client-setup` skill, `@data-client/react|rest|test` 0.18.2, Sonnet 5.5 (medium, no advisor).

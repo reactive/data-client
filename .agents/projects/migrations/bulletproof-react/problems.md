@@ -1,5 +1,7 @@
 # Problems found migrating bulletproof-react
 
+**Version note:** found on 0.18.2. P2, P4 and P8 exist only on 0.18 (P4 is fixed on master by #4613; on 0.19 `npx --no data-client-skills` links the skills from the packages, which removes P8, and P2's codemod handling is re-checked on 0.19). P5 now uses a documented `process()` recipe instead of a library change (#4611 was dropped). Re-evaluate the rest on the 0.19 beta.
+
 Context for every record: repo `alan2207/bulletproof-react` @ `9506629` (`apps/react-vite`), packages `@data-client/*` 0.18.2,
 skills from `reactive/data-client` master @ `433dcfb`, agent Sonnet 5.5 medium. Each record is an eval: run **Repro**,
 the problem is solved when the **Pass** criterion holds without the workaround.
@@ -17,7 +19,7 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Repro: apply the baseline commit, run the setup skill with the prompt "migrate to data-client".
 - Pass: with no extra hints, an agent reaches `tsc`, vitest, playwright (incl. `e2e/tests/stale-list.spec.ts` from this PR) all green with zero `@tanstack` imports, and its mapping follows a documented guide.
 
-## P2 (S/E): axios codemod URL unreachable offline or behind an egress proxy
+## P2 (S/E) [0.18 only]: axios codemod URL unreachable offline or behind an egress proxy
 
 - Fix: #4609.
 
@@ -38,7 +40,7 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Repro: `<Suspense fallback="x"><DataProvider><Comp/></DataProvider></Suspense>` where `Comp` calls `useSuspense` on a pending endpoint.
 - Pass: skill text covers it, and the checklist item "a Suspense/AsyncBoundary is inside DataProvider" exists; an agent migrating this app places it correctly first time.
 
-## P4 (L, high): vitest + jsdom cannot render `DataProvider` without `server.deps.inline`
+## P4 (L, high) [0.18 only]: vitest + jsdom cannot render `DataProvider` without `server.deps.inline`
 
 - Fix: #4613. Eval: `.agents/projects/migrations/evals/vitest-jsdom-provider/run.sh` (exit 0 = pass; `DATA_CLIENT_VERSION=0.18.2` gives the failing baseline).
 
@@ -49,7 +51,7 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Repro: Vite app, `vitest` with `environment: 'jsdom'`, `render(<DataProvider><div/></DataProvider>)` using `@data-client/react@0.18.2`.
 - Pass: the repro renders with default vitest config (and the react-testing skill mentions vitest if any setting is still needed).
 
-## P5 (L/D): API returns `{}` for a missing nested entity, which fails the whole response
+## P5 (L/D) [now a documented process() recipe]: API returns `{}` for a missing nested entity, which fails the whole response
 
 - Fix: #4611. Eval: the `useSuspense` test in `optional-members.tsx`.
 
@@ -80,7 +82,7 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Repro: the `getComments`/`createComment` endpoints in `migration.patch`.
 - Pass: a skill reference contains an envelope + Collection + getPage + push recipe that matches this working code.
 
-## P8 (S): library version vs skill version mismatch
+## P8 (S) [0.18 only]: library version vs skill version mismatch
 
 - Fix: #4609.
 
