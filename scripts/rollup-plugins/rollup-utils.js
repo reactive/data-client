@@ -53,15 +53,15 @@ export function nativeOrNormalPath(file) {
  * `{ 'server/redux/index': 'src/server/redux/index.ts' }`. Build them all in one rollup build, so entries share
  * chunks rather than each bundling its own copy of shared code (a second `Controller`, or contexts no hook reads).
  *
- * Throws unless each of those entries also loads its `dist/` file for Node `import`, through a shim that re-exports
+ * Throws unless each `require` target also loads its `dist/` file for Node `import`, through a shim that re-exports
  * it, with `module` ahead of `import` so bundlers keep `lib/`. Otherwise Node `import` of the subpath falls through
  * to `lib/` while the main entry loads `dist/`: two copies of shared code.
  */
 export function nodeEntries(pkg) {
   const input = {};
   for (const [subpath, conditions] of Object.entries(pkg.exports)) {
-    if (typeof conditions.require !== 'string') continue;
-    checkNodeShim(subpath, conditions);
+    if (typeof conditions.require === 'string')
+      checkNodeShim(subpath, conditions);
     const target =
       isNative ? conditions['react-native']?.require : conditions.require;
     if (typeof target !== 'string') continue;

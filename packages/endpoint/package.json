@@ -118,7 +118,7 @@
     "build:js:node": "BROWSERSLIST_ENV=node12 yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
     "build:js:native": "yarn g:rollup-native",
-    "build:bundle": "yarn g:bundle build:js:\\*",
+    "build:bundle": "yarn g:clean-runs build:js:\\*",
     "build:clean": "yarn g:clean ts4.0 ts4.2 ts4.8 native",
     "build": "run build:lib && run build:legacy:lib && run build:native:lib && run build:bundle",
     "build:legacy-types": "yarn g:legacy-types 4.8 4.2 4.0",
