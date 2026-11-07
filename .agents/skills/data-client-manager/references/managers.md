@@ -27,6 +27,11 @@ They can also be customized to change core behaviors.
 | Extra managers                                                            |                                                                                                           |
 | [LogoutManager](./LogoutManager.md)                                       | Handles HTTP `401` (or other logout conditions)                                                           |
 
+Each store gets its own Managers from the [managers function](./Manager.md#adding). A Manager's constructor
+stores its options, its fields hold state about its store, and [init()](./Manager.md#init) and
+[cleanup()](./Manager.md#cleanup) start and stop its timers and connections. See
+[Manager lifetimes](./Manager.md#lifetimes).
+
 ## Examples
 
 Reactive Data Client improves type-safety and ergonomics by performing dispatches and store access with
@@ -305,7 +310,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [new PersistManager(), ...getDefaultManagers()];
+const managers = () => [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -463,7 +468,7 @@ export default class StreamManager implements Manager {
 import { getDefaultManagers } from '@data-client/react';
 import StreamManager from './StreamManager';
 
-// passed to <DataProvider managers={getManagers()}>
+// passed to <DataProvider managers={getManagers}>
 export default function getManagers() {
   return [new StreamManager(), ...getDefaultManagers()];
 }

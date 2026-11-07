@@ -35,16 +35,17 @@ app.use(DataClientPlugin, options);
 
 ```typescript
 interface ProvideOptions {
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
 }
 ```
 
-### managers?: Manager[] {#managers}
+### managers?: () => Manager[] {#managers}
 
-List of [Managers](./Manager.md) to use. This is the main extensibility point of the store.
+A function that returns the [Managers](./Manager.md) to use. This is the main extensibility point of the store.
+It runs once for each app.
 
 Defaults to [getDefaultManagers()](./getDefaultManagers.md), which can also be used to extend the defaults.
 
@@ -56,7 +57,7 @@ import MyManager from './MyManager';
 
 const app = createApp(App);
 app.use(DataClientPlugin, {
-  managers: [new MyManager(), ...getDefaultManagers()],
+  managers: () => [new MyManager(), ...getDefaultManagers()],
 });
 ```
 

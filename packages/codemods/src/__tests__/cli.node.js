@@ -35,7 +35,9 @@ describe('cli', () => {
   it('lists the codemods when none is named', () => {
     const { status, stderr } = run([], dir);
     expect(status).toBe(1);
-    expect(stderr).toContain('Codemods: axios-to-rest, v0.15, v0.16, v0.18');
+    expect(stderr).toContain(
+      'Codemods: axios-to-rest, v0.15, v0.16, v0.18, v0.19',
+    );
   });
 
   it('rejects an unknown codemod', () => {

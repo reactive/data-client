@@ -258,7 +258,7 @@ declare function provide<A extends { type: string }, S>(props: ProviderProps<A, 
   for (let i = 0; i < 100 * N; i++)
     s += `export function store${i}() {
   const reducers = { r${i}: (s: { n${i}: number } = { n${i}: 0 }, a: { type: string }) => s, list: (s: string[] = []) => s };
-  const { store, selector, controller } = prepareStore(initialState, getDefaultManagers(), Controller, reducers);
+  const { store, selector, controller } = prepareStore(initialState, getDefaultManagers, Controller, reducers);
   const n: number = store.getState().r${i}.n${i} + store.getState().list.length;
   store.dispatch({ type: 'a${i}' });
   provide({ store, children: null });

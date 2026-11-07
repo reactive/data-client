@@ -61,7 +61,7 @@ const fetchTodo = jest.fn(
 const getTodo = makeGetTodo(fetchTodo);
 const stateAB = mockTodoState(getTodo, ['A', 'B']);
 const emptyState = mockTodoState(getTodo, []);
-const noDevManagers = getDefaultManagers({ devToolsManager: null });
+const noDevManagers = () => getDefaultManagers({ devToolsManager: null });
 
 const renders: string[] = [];
 const hydratedIslands: string[] = [];

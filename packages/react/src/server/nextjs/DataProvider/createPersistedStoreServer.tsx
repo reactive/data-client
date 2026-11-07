@@ -17,9 +17,11 @@ import { PromiseifyMiddleware } from '../../redux/index.js';
 import { createStore, applyMiddleware } from '../../redux/redux.js';
 import SSRDataProvider from '../../SSRDataProvider.js';
 
-export default function createPersistedStore(managers?: Manager[]) {
+export default function createPersistedStore(
+  createManagers: () => Manager[] = () => [new ReactNetworkManager()],
+) {
   const controller = new Controller();
-  managers = managers ?? [new ReactNetworkManager()];
+  const managers = createManagers();
   const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;
@@ -39,7 +41,7 @@ export default function createPersistedStore(managers?: Manager[]) {
     initialState as any,
     enhancer,
   );
-  initManager(managers, controller, getState())();
+  initManager(managers, controller)();
 
   const initPromise: Promise<State<any>> = (async () => {
     let firstRender = true;
@@ -69,9 +71,8 @@ export default function createPersistedStore(managers?: Manager[]) {
   }: ProviderProps) => {
     // only include if they have devtools integrated
     // if managers isn't overridden we know it will by default include DevToolsManager, so set this to true
-    const hasDevManager =
-      !managers ||
-      !!managers.find(manager => manager instanceof DevToolsManager);
+    // matches the client's DataProvider, which owns the user's managers
+    const hasDevManager = !managers || includesDevTools(managers);
     return (
       <SSRDataProvider
         getState={getState}
@@ -87,6 +88,16 @@ export default function createPersistedStore(managers?: Manager[]) {
 
   return [StoreDataProvider, initPromise] as const;
 }
+
+/** Whether the client's managers include DevToolsManager; caches the answer for each managers function */
+const devToolsFound = new WeakMap<() => Manager[], boolean>();
+function includesDevTools(managers: () => Manager[]) {
+  let found = devToolsFound.get(managers);
+  if (found === undefined)
+    devToolsFound.set(managers, (found = managers().some(isDevTools)));
+  return found;
+}
+const isDevTools = (manager: Manager) => manager instanceof DevToolsManager;
 
 type ProviderProps = Omit<
   Partial<ComponentProps<typeof DataProvider>>,

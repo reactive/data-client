@@ -7,11 +7,12 @@
 against your source folders:
 
 ```bash
-npx @data-client/codemods v0.18 src/
+npx @data-client/codemods v0.19 src/
 ```
 
 | Codemod         | Migrates                                                                                                                                                                                  |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v0.19`         | `managers` arrays to functions that return them ([v0.19 post](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function))                                                   |
 | `v0.18`         | `Schema.denormalize()`/`normalize()` to the delegate signatures ([v0.18 post](https://dataclient.io/blog/2026/05/01/v0.18-scalar-typed-downloads))                                        |
 | `v0.16`         | `path-to-regexp` v8 path syntax, `useFetch()` truthiness checks and `schema.X` imports ([v0.16 post](https://dataclient.io/blog/2026/04/01/v0.16-parallel-fetching-collection-move-lazy)) |
 | `v0.15`         | `useDebounce()` results, `entityMeta`, `MemoCache` state and `INVALID` imports ([v0.15 post](https://dataclient.io/blog/2026/01/06/v0.15-vue-support-collection-remove))                  |

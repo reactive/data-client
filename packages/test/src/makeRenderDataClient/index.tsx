@@ -84,21 +84,14 @@ export default function makeRenderDataHook(
       }
     }
 
-    // we want fresh manager state in each instance
+    // each call renders one store, so its Managers are created here, where cleanup() can reach them
     const nm = new NetworkManager();
-    const sm = new SubscriptionManager(PollingSubscription);
-    const managers = [nm, sm];
+    const managers = [nm, new SubscriptionManager(PollingSubscription)];
     const cleanup = () => {
       activeCleanups.delete(cleanup);
       // NetworkManager resolves responses that land after cleanup(), so settle in-flight fetches here
       // to keep them out of the next test.
-      if ((nm as any)['rejectors'])
-        Object.values((nm as any)['rejectors'] as Record<string, any>).forEach(
-          rej => {
-            rej();
-          },
-        );
-      else if (nm['fetching']) nm['fetching'].forEach(({ reject }) => reject());
+      nm['fetching'].forEach(({ reject }) => reject());
       nm['clearAll']();
       managers.forEach(manager => manager.cleanup());
     };
@@ -117,7 +110,7 @@ export default function makeRenderDataHook(
           <Provider
             initialState={initialState}
             Controller={ActController}
-            managers={managers}
+            managers={() => managers}
             devButton={null}
           >
             {children}
@@ -170,7 +163,7 @@ export default function makeRenderDataHook(
 }
 export interface DataProviderProps {
   children: React.ReactNode;
-  managers: Manager[];
+  managers: () => Manager[];
   initialState: State<unknown>;
   Controller: new (props: { gcPolicy: GCInterface }) => Controller<any>;
   devButton: any;

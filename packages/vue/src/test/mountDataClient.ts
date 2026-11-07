@@ -23,7 +23,8 @@ export interface RenderDataClientOptions<P = any> {
   initialFixtures?: readonly Fixture[];
   resolverFixtures?: readonly (Fixture | Interceptor)[];
   getInitialInterceptorData?: () => any;
-  managers?: Manager[];
+  /** Returns new Managers for this mount */
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   gcPolicy?: GCInterface;
   wrapper?: any;
@@ -73,10 +74,10 @@ export function mountDataClient<P = any>(
   );
 
   // Create managers
-  const finalManagers = managers ?? [
-    new NetworkManager(),
-    new SubscriptionManager(PollingSubscription),
-  ];
+  const finalManagers =
+    managers ? managers() : (
+      [new NetworkManager(), new SubscriptionManager(PollingSubscription)]
+    );
   // allSettled() and cleanup() track the NetworkManager actually in use
   const nm =
     finalManagers.find(
@@ -125,7 +126,8 @@ export function mountDataClient<P = any>(
         [
           DataClientPlugin,
           {
-            managers: finalManagers,
+            // a function, since these instances belong to this store only
+            managers: () => finalManagers,
             initialState: finalInitialState,
             Controller: MockControllerClass,
             gcPolicy,

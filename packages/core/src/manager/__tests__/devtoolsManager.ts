@@ -402,3 +402,93 @@ describe('DevToolsManager', () => {
     });
   });
 });
+
+describe('DevToolsManager with the Redux DevTools extension', () => {
+  let connection: {
+    init: jest.Mock;
+    subscribe: jest.Mock;
+    send: jest.Mock;
+    unsubscribe: jest.Mock;
+  };
+  let connect: jest.Mock;
+  beforeEach(() => {
+    const unsubscribe = jest.fn();
+    connection = {
+      init: jest.fn(),
+      subscribe: jest.fn(() => unsubscribe),
+      send: jest.fn(),
+      unsubscribe,
+    };
+    connect = jest.fn(() => connection);
+    (window as any).__REDUX_DEVTOOLS_EXTENSION__ = { connect };
+  });
+  afterEach(() => {
+    delete (window as any).__REDUX_DEVTOOLS_EXTENSION__;
+  });
+
+  it('connects when started, not when constructed', () => {
+    const manager = new DevToolsManager({ name: 'lazy' });
+    setup(manager);
+    expect(connect).not.toHaveBeenCalled();
+    manager.init(initialState);
+    expect(connect).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'lazy' }),
+    );
+    manager.cleanup();
+  });
+
+  it('keeps one connection when resumed, even after another store took its key', () => {
+    const a = new DevToolsManager({ name: 'resumed' });
+    const { controller } = setup(a);
+    a.init(initialState);
+    a.cleanup();
+    const b = new DevToolsManager({ name: 'resumed' });
+    setup(b);
+    b.init(initialState);
+    a.init(controller.getState());
+    expect(connect).toHaveBeenCalledTimes(2);
+    expect(connection.init).toHaveBeenCalledTimes(2);
+    a.cleanup();
+    b.cleanup();
+  });
+
+  it('connects each store mounted at the same time under its own name', () => {
+    const a = new DevToolsManager({ name: 'both' });
+    const b = new DevToolsManager({ name: 'both' });
+    setup(a);
+    setup(b);
+    a.init(initialState);
+    b.init(initialState);
+    expect(connect.mock.calls.map(([options]) => options.name)).toEqual([
+      'both',
+      'both (2)',
+    ]);
+    a.cleanup();
+    b.cleanup();
+  });
+
+  it('listens to the extension only while started', () => {
+    const manager = new DevToolsManager({ name: 'listens' });
+    const { controller } = setup(manager);
+    manager.init(initialState);
+    expect(connection.subscribe).toHaveBeenCalledTimes(1);
+    manager.cleanup();
+    expect(connection.unsubscribe).toHaveBeenCalledTimes(1);
+    // resumed, like a hidden <Activity> shown again
+    manager.init(controller.getState());
+    expect(connection.subscribe).toHaveBeenCalledTimes(2);
+    expect(connection.init).toHaveBeenCalledTimes(1);
+    manager.cleanup();
+  });
+
+  it('sends the state of each new store to the extension', () => {
+    const manager = new DevToolsManager({ name: 'new store' });
+    setup(manager);
+    manager.init(initialState);
+    manager.cleanup();
+    setup(manager);
+    manager.init(initialState);
+    expect(connection.init).toHaveBeenCalledTimes(2);
+    manager.cleanup();
+  });
+});

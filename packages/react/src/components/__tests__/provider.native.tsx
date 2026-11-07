@@ -95,7 +95,7 @@ describe('<DataProvider />', () => {
     await rerender(<DataProvider>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    const managers: any[] = [new NetworkManager()];
+    const managers = () => [new NetworkManager()];
     await rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;

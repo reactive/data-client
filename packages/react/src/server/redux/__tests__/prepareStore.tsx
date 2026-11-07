@@ -12,7 +12,7 @@ describe('prepareStore()', () => {
     action.type === 'add' ? [...state, 'added'] : state;
 
   function makeStore() {
-    return prepareStore(initialState, getDefaultManagers(), Controller, {
+    return prepareStore(initialState, getDefaultManagers, Controller, {
       todos,
     });
   }

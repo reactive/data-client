@@ -17,11 +17,11 @@ import SSRDataProvider from './SSRDataProvider.js';
 import { NetworkManager as ReactNetworkManager } from '../managers/index.js';
 
 export default function createPersistedStore(
-  managers?: Manager[],
+  createManagers: () => Manager[] = () => [new ReactNetworkManager()],
   hasDevManager: boolean = true,
 ) {
   const controller = new Controller();
-  managers = managers ?? [new ReactNetworkManager()];
+  const managers = createManagers();
   const networkManager: NetworkManager = managers.find(
     m => m instanceof NetworkManager,
   ) as any;
@@ -37,7 +37,7 @@ export default function createPersistedStore(
     PromiseifyMiddleware,
   );
   const store = createStore(reducer, initialState as any, enhancer);
-  initManager(managers, controller, store.getState())();
+  initManager(managers, controller)();
 
   const selector = (state: any) => state;
 

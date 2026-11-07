@@ -149,7 +149,10 @@ type ConstructorArgs<T extends {
 
 /** Options for `app.use(DataClientPlugin, options)` */
 interface ProvideOptions {
-    managers?: Manager[];
+    /** Returns new Managers; called once for each app.
+     * @see https://dataclient.io/docs/api/DataClientPlugin#managers
+     */
+    managers?: () => Manager[];
     initialState?: State<unknown>;
     Controller?: new (props: {
         gcPolicy: GCInterface;
@@ -185,7 +188,7 @@ declare function createDataClient(options?: ProvideOptions): ProvidedDataClient;
  *
  * const app = createApp(App);
  * app.use(DataClientPlugin, {
- *   managers: getDefaultManagers(),
+ *   managers: getDefaultManagers,
  *   initialState: customInitialState,
  * });
  * app.mount('#app');

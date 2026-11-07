@@ -1,7 +1,7 @@
 'use client';
 import { DevToolsManager, GCInterface, initManager } from '@data-client/core';
 import type { Controller, Manager, State } from '@data-client/core';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import ExternalCacheProvider from './ExternalDataProvider.js';
 import { prepareStore } from './prepareStore.js';
@@ -16,23 +16,34 @@ export default function TestExternalDataProvider({
   gcPolicy,
   devButton = 'bottom-right',
 }: Props) {
-  const { selector, store, controller } = useMemo(
-    () => prepareStore(initialState, managers, Controller, {}, [], gcPolicy),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [Controller, ...managers],
-  );
+  // StrictMode runs useMemo and useState initializers twice and keeps the first result, but the
+  // second call binds the managers last; a ref builds the store once
+  const storeRef = useRef<ReturnType<typeof prepareStore>>(undefined);
+  if (!storeRef.current)
+    storeRef.current = prepareStore(
+      initialState,
+      managers,
+      Controller,
+      {},
+      [],
+      gcPolicy,
+    );
+  const {
+    selector,
+    store,
+    controller,
+    managers: storeManagers,
+  } = storeRef.current;
 
   // this is not handled in ExternalCacheProvider as it doesn't
   // own its managers. Since we are owning them here, we should ensure it happens
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(
-    initManager(managers, controller, selector(store.getState())),
-    // we're ignoring state here, because it shouldn't trigger inits
-    managers,
-  );
+  useEffect(initManager(storeManagers, controller), [
+    storeManagers,
+    controller,
+  ]);
 
   // only include if they have devtools integrated
-  const hasDevManager = !!managers.find(
+  const hasDevManager = !!storeManagers.find(
     manager => manager instanceof DevToolsManager,
   );
 
@@ -51,7 +62,8 @@ export default function TestExternalDataProvider({
 
 interface Props {
   children: React.ReactNode;
-  managers: Manager[];
+  /** Returns new Managers; called once for each store */
+  managers: () => Manager[];
   initialState: State<unknown>;
   Controller: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;

@@ -124,7 +124,7 @@ function connectStore(
   }
   const view = render(
     <DataProvider
-      managers={[log.head, registry, ...log.track(own), log.tail]}
+      managers={() => [log.head, registry, ...log.track(own), log.tail]}
       devButton={null}
     >
       <Grab />

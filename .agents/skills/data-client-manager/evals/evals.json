@@ -48,7 +48,7 @@
       "name": "timing-manager",
       "changeset": "manager-middleware-required",
       "prompt": "Add src/managers/TimingManager.ts: a Manager that logs how long each fetch takes, from when the fetch action is dispatched until its result is in the store, as `console.log(key, ms)`. It has no timers or sockets to close. Also show how to add it to our `DataProvider` in src/index.tsx next to the default managers.",
-      "expected_output": "A class implementing Manager with a `middleware: Middleware` property that records the start time on FETCH and logs when `action.meta.promise` settles (or on the SET_RESPONSE with the same key), passing every action to `next(action)`; a `cleanup()` method; and `managers={[new TimingManager(), ...getDefaultManagers()]}` on DataProvider.",
+      "expected_output": "A class implementing Manager with a `middleware: Middleware` property that records the start time on FETCH and logs when `action.meta.promise` settles (or on the SET_RESPONSE with the same key), passing every action to `next(action)`; a `cleanup()` method; and a module-level `managers = () => [new TimingManager(), ...getDefaultManagers()]` function passed to DataProvider.",
       "files": [],
       "assertions": [
         "The Manager defines `middleware` as a property or field typed `Middleware` (not a `getMiddleware()` method).",
@@ -64,7 +64,7 @@
       "name": "clock-manager",
       "changeset": "manager-cleanup-keeps-store",
       "prompt": "Add src/managers/ClockManager.ts: a Manager that writes the current time to our `CurrentTime` entity (src/resources/CurrentTime.ts: `class CurrentTime extends Entity { id = 0; time = 0; }`) once per second with `controller.set()`, so components can show a live clock with `useQuery(CurrentTime, { id: 1 })`. Also show how to add it to our `DataProvider` in src/index.tsx next to the default managers.",
-      "expected_output": "A class implementing Manager whose `middleware` stores the controller and passes every action to `next(action)`, whose `init()` starts a 1000 ms `setInterval` that calls `this.controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() })`, and whose `cleanup()` clears that interval; plus `managers={[new ClockManager(), ...getDefaultManagers()]}` on DataProvider.",
+      "expected_output": "A class implementing Manager whose `middleware` stores the controller and passes every action to `next(action)`, whose `init()` starts a 1000 ms `setInterval` that calls `this.controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() })`, and whose `cleanup()` clears that interval; plus a module-level `managers = () => [new ClockManager(), ...getDefaultManagers()]` function passed to DataProvider.",
       "files": [],
       "assertions": [
         "The interval is started in `init()`, not in `middleware`, the constructor, or a field initializer.",
@@ -72,6 +72,21 @@
         "The interval callback writes with a controller kept from `middleware` (for example `this.controller = controller`), not a controller created by the Manager.",
         "The middleware passes every action to `next(action)` and returns or awaits its result.",
         "DataProvider receives `managers` that include `...getDefaultManagers()` along with the new ClockManager."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "presence-socket-provider",
+      "changeset": "managers-function",
+      "prompt": "Add src/managers/PresenceManager.ts: a Manager that takes the socket URL as a constructor option, connects a WebSocket to it, and on each `{ userId, online }` message writes it to our `Presence` entity (src/resources/Presence.ts: `class Presence extends Entity { userId = ''; online = false; pk() { return this.userId; } }`) with `controller.set()`. Then wire it into src/index.tsx, which currently renders `<DataProvider><App /></DataProvider>` with the default managers, using `wss://presence.example.com`.",
+      "expected_output": "A Manager whose constructor only stores the URL, which opens the WebSocket in init() and closes it in cleanup(), writing messages with this.controller.set(Presence, { userId }, msg); and a module-level `const managers = () => [new PresenceManager('wss://presence.example.com'), ...getDefaultManagers()]` passed as `<DataProvider managers={managers}>`.",
+      "files": [],
+      "assertions": [
+        "`managers` passed to DataProvider is a function that returns the Manager list (for example `() => [new PresenceManager(url), ...getDefaultManagers()]`), not an array.",
+        "The managers function is defined at module level (outside any component) or inline in a module-level call, not built with useMemo, useState or useRef inside a component.",
+        "The constructor only stores its options: the WebSocket is not created in the constructor, a field initializer, or `middleware`.",
+        "The WebSocket is opened in `init()` and closed in `cleanup()`.",
+        "PresenceManager is listed before `...getDefaultManagers()`."
       ]
     }
   ]

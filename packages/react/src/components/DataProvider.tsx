@@ -22,7 +22,10 @@ import GCPolicy from '../state/GCPolicy.js';
 
 export interface ProviderProps {
   children: React.ReactNode;
-  managers?: Manager[];
+  /** Returns new Managers; called once for each store.
+   * @see https://dataclient.io/docs/api/DataProvider#managers
+   */
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
   gcPolicy?: GCInterface;
@@ -50,14 +53,14 @@ export default function DataProvider({
     controllerRef.current = new Controller({ gcPolicy: gcRef.current });
   //TODO: bind all methods so destructuring works
 
-  const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
-  if (!managersRef.current) managersRef.current = getDefaultManagers();
+  const managersRef: React.RefObject<Manager[]> = useRef<any>(undefined);
+  if (!managersRef.current)
+    managersRef.current = (managers ?? getDefaultManagers)();
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mgrEffect = useCallback(
-    initManager(managersRef.current, controllerRef.current, initialState),
-    // we don't support initialState changes
+    initManager(managersRef.current, controllerRef.current),
     managersRef.current,
   );
 

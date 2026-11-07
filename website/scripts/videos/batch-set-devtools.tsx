@@ -67,7 +67,7 @@ const COLUMNS = [
   },
 ].map(({ Manager, ...column }) => ({
   ...column,
-  managers: [
+  managers: () => [
     new Manager(createFeed, { ticker: Ticker }),
     ...getDefaultManagers({ devToolsManager: { name: column.name } }),
   ],

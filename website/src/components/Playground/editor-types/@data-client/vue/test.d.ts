@@ -9,7 +9,8 @@ interface RenderDataClientOptions<P = any> {
     initialFixtures?: readonly Fixture[];
     resolverFixtures?: readonly (Fixture | Interceptor)[];
     getInitialInterceptorData?: () => any;
-    managers?: Manager[];
+    /** Returns new Managers for this mount */
+    managers?: () => Manager[];
     initialState?: State<unknown>;
     gcPolicy?: GCInterface;
     wrapper?: any;

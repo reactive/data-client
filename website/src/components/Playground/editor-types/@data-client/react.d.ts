@@ -14,7 +14,10 @@ type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left
 
 interface ProviderProps {
     children: React__default.ReactNode;
-    managers?: Manager[];
+    /** Returns new Managers; called once for each store.
+     * @see https://dataclient.io/docs/api/DataProvider#managers
+     */
+    managers?: () => Manager[];
     initialState?: State<unknown>;
     Controller?: new (props: {
         gcPolicy: GCInterface;

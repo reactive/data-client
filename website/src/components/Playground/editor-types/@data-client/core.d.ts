@@ -1203,7 +1203,12 @@ declare class NetworkManager implements Manager {
     protected idleCallback(callback: (...args: any[]) => void, options?: IdleRequestOptions): void;
 }
 
-declare function initManager(managers: Manager[], controller: Controller, initialState: State<unknown>): () => () => void;
+/** Returns an Effect that starts `managers` and returns their cleanup.
+ *
+ * `init()` gets the store's current state, so a Manager resumed after `cleanup()` sees what the store
+ * applied while it was paused.
+ */
+declare function initManager(managers: Manager[], controller: Controller): () => () => void;
 
 declare function createSubscription<E extends EndpointInterface>(endpoint: E, { args }: {
     args: readonly [...Parameters<E>];
@@ -1608,8 +1613,13 @@ declare class DevToolsManager implements Manager {
     /** Actions kept in the log for each key while it polls (development only) */
     maxPollingActions: number;
     protected controller: Controller;
+    /** The store the extension last got `init()` state from */
+    private extensionStore?;
+    /** Stops the extension's messages; set while started */
+    private unsubscribeExtension?;
     skipLogging?: (action: ActionTypes) => boolean;
     devtoolsName: string;
+    private config;
     maxBufferLength: number;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
     handleAction(action: any, state: any): void;

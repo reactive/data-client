@@ -92,7 +92,7 @@ const updateTodo = new Endpoint(
     },
   },
 );
-const noDevManagers = getDefaultManagers({ devToolsManager: null });
+const noDevManagers = () => getDefaultManagers({ devToolsManager: null });
 
 const ids = new WeakMap<object, number>();
 let nextId = 0;

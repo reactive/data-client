@@ -125,7 +125,7 @@ describe('DataClientPlugin', () => {
 
     const wrapper = mount(TestComponent, {
       global: {
-        plugins: [[DataClientPlugin, { managers: customManagers }]],
+        plugins: [[DataClientPlugin, { managers: () => customManagers }]],
       },
     });
 
