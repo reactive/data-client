@@ -492,6 +492,21 @@ jobs:
             cd examples/normalizr-relationships
             yarn run start
 
+  package-exports:
+    executor: node
+    resource_class: large
+    steps:
+      - halt-unless-relevant-change:
+          flag: esmodule
+      - attach_workspace:
+          at: ~/
+      - run:
+          # Packs every published package (its prepack builds the JavaScript;
+          # setup built the types), then checks each entry point with publint,
+          # arethetypeswrong, and Node import()/require()
+          name: Check published package entry points
+          command: yarn run check:package-exports
+
   tree-passed:
     # Runs only once every job passed (a halted job counts), so later
     # pipelines on the same tree (the merge queue, then master) skip the work
@@ -565,6 +580,9 @@ workflows:
       - esmodule-types-latest:
           requires:
             - setup
+      - package-exports:
+          requires:
+            - setup
       - esmodule-types:
           matrix:
             parameters:
@@ -585,3 +603,4 @@ workflows:
             - validate-esmodule-browser-build
             - esmodule-types-latest
             - esmodule-types
+            - package-exports
