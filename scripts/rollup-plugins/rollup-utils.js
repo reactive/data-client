@@ -74,9 +74,9 @@ export function nodeEntries(pkg) {
 /** Fails the build unless every `exports` entry with a `require` target also loads it for Node `import`, through a
  * shim that re-exports it, with `module` ahead of `import` so bundlers keep `lib/`. Otherwise Node `import` of the
  * subpath falls through to `lib/` while the main entry loads `dist/`: two copies of shared code. */
-export function nodeShims(pkg) {
+export function checkNodeShims(pkg) {
   return {
-    name: 'node-shims',
+    name: 'check-node-shims',
     buildStart() {
       for (const [subpath, conditions] of Object.entries(pkg.exports)) {
         if (typeof conditions.require !== 'string') continue;
@@ -92,7 +92,10 @@ export function nodeShims(pkg) {
           fs.readFileSync(shim, 'utf8') !== expected
         )
           this.error(`${shim} must contain exactly: ${expected}`);
-        else if (keys.indexOf('module') > keys.indexOf('import'))
+        else if (
+          !keys.includes('module') ||
+          keys.indexOf('module') > keys.indexOf('import')
+        )
           this.error(
             `exports['${subpath}'] needs "module" (lib/) ahead of "import"`,
           );

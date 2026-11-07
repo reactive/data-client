@@ -9,7 +9,7 @@ import {
   typeConfig,
   onwarn,
   nodeEntries,
-  nodeShims,
+  checkNodeShims,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -74,7 +74,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     output: [{ dir: 'dist', format: 'cjs' }],
     onwarn,
     plugins: [
-      nodeShims(pkg),
+      checkNodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,

@@ -18,6 +18,7 @@ Monorepo for `@data-client` high performance npm packages.
 - `yarn lint` / `yarn format` - Linting and formatting
 - `yarn check:typeperf` - Type-check cost budget (CI `typecheck` job); run after `yarn ci:build:types` when changing public types, `--update` to re-record. See `scripts/typeperf/README.md`
 - `yarn check:package-exports` - Packs every published package and checks each entry point with publint, arethetypeswrong, Node `import()`/`require()`, and that subpaths share `.`'s code (CI `package-exports` job); run after `yarn build:types` when changing a package's `exports`, `main`, `files` or build output
+- New package subpath: copy a sibling's `exports` conditions and `<name>.node.mjs` shim. core, react, rest and vue build CommonJS entries from `exports` and fail the build on a missing or wrong shim (`nodeEntries`, `checkNodeShims`); give another package's first subpath the same setup.
 - `yarn copy:websitetypes` - Regenerates the website playground's Monaco types (`website/src/components/Playground/editor-types`, ~10s); commit the result when public types or a copied dependency (`scripts/copywebsitetypes.sh`) change. CI `regenerate` check fails when they're stale
 - `yarn check:doc-examples [react|vue]` - Type-checks the React and Vue code examples in `docs/` (CI `regenerate` check). See "Code examples" in `website/framework-docs/README.md`
 - Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`
@@ -47,7 +48,6 @@ Fill in `.github/PULL_REQUEST_TEMPLATE.md`. Its HTML comments are per-section in
 - **Examples**: `examples/todo-app`, `examples/github-app`, `examples/nextjs`
 - **Documentation**: `docs/core/api`, `docs/rest`, `docs/core/guides`
 - **Tests**: `packages/*/src/**/__tests__`
-- **Package entry points**: a package's `exports` is the single list of its entry points. Its CommonJS build (`dist/`) takes every `require` target from it (`nodeEntries` in `scripts/rollup-plugins`), and the build fails unless each has a `<name>.node.mjs` `import` shim re-exporting it, with `module` ahead of `import` (`nodeShims`). Add a subpath by copying a sibling's conditions and shim; the rollup config needs no edit.
 - **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
 - **Skills**: `.agents/skills/` (Cursor, Codex, and other agents; `.claude/skills` links to it for Claude Code)
   - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `regenerate` CI check fails on drift.

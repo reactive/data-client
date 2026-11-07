@@ -14,7 +14,7 @@ import {
   nativeOrNormalPath,
   resolveTsAsJs,
   nodeEntries,
-  nodeShims,
+  checkNodeShims,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -130,7 +130,7 @@ if (process.env.BROWSERSLIST_ENV === '2020') {
     ],
     onwarn,
     plugins: [
-      nodeShims(pkg),
+      checkNodeShims(pkg),
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions: nativeExtensions,
