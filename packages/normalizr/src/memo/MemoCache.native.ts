@@ -55,7 +55,7 @@ export default class MemoCache {
     input: unknown,
     entities: any,
     args: readonly any[] = [],
-    /** the caller's pairs to track with the result's (see `query()`) */
+    /** @internal the caller's pairs to track with the result's (see `query()`) */
     records: unknown[] = [],
   ): {
     data: DenormalizeNullable<S> | typeof INVALID;
@@ -172,6 +172,7 @@ export default class MemoCache {
     const records = this.queryRecords;
     const value = this.queryKey(schema, args, state, argsKey, records);
     this.track(state.entities, records);
+    // pop() keeps the backing store; `length = 0` frees it, so the next query allocates
     while (records.length) records.pop();
     return value;
   }

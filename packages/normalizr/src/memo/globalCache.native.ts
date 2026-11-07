@@ -1,6 +1,5 @@
 import type { GetEntityCache } from './entitiesCache.js';
 import type { DenormGetEntity } from './types.js';
-import { NO_CHILDREN } from './WeakDependencyMap.native.js';
 import type WeakDependencyMap from './WeakDependencyMap.native.js';
 import type { Dep, KeyFn } from './WeakDependencyMap.native.js';
 import type Cache from '../denormalize/cache.js';
@@ -31,8 +30,8 @@ export default class GlobalCache implements Cache {
   /** Set true once `argsKey` is called for this denormalize frame. Gates
    * function-stripping fast paths in `paths()` / `getResults()`. */
   private _hasArgsKey = false;
-  /** The result's own memo entries, as node and entry pairs for `keep()`:
-   * the endpoints entry, or the top-level entity's for a pk input. */
+  /** The caller's node and entry pairs for `keep()`; this adds the result's
+   * own entry: the endpoints entry, or the top-level entity's for a pk input. */
   declare private records: unknown[];
   /** Node and entry pairs read so far by the value being computed. */
   declare private children: unknown[];
@@ -139,7 +138,7 @@ export default class GlobalCache implements Cache {
           this._args,
           undefined,
           parent,
-          children.length ? children : NO_CHILDREN,
+          children,
         );
 
         // start of cycle - reset cycle detection
@@ -217,7 +216,7 @@ export default class GlobalCache implements Cache {
         this._args,
         paths,
         this.records,
-        children.length ? children : NO_CHILDREN,
+        children,
       );
     }
     // hit branch: `paths` aliases the stored entry's journey — return as-is.

@@ -1,8 +1,7 @@
+import type { KeyFn, GetDependency, Dep } from './WeakDependencyMap.js';
 import { INVALID } from '../denormalize/symbol.js';
 
-/** Function path used by `argsKey` deps. Distinguished from object paths
- * via `typeof === 'function'`. */
-export type KeyFn = (args: readonly any[]) => string | undefined;
+export type { KeyFn, GetDependency, Dep };
 
 /** Sentinel string used in place of `undefined` for string-keyed deps so we
  * can perform Map lookups consistently. */
@@ -99,7 +98,7 @@ export default class WeakDependencyMap<
     /** gets the new entry's node and entry pushed, for `keep()` */
     out?: unknown[],
     /** node and entry pairs read to compute `value`; `keep()` pins them with it */
-    children: unknown[] = NO_CHILDREN,
+    children?: unknown[],
   ): void {
     if (dependencies.length < 1) throw new KeySize();
     const root = depKey(dependencies[0].entity) as K;
@@ -147,7 +146,8 @@ export default class WeakDependencyMap<
       value,
       // we could recompute this on get, but it would have a cost and we optimize for `get`
       journey: journey ?? (dependencies.map(d => d.path) as Path[]),
-      children,
+      // entries with no children share one array
+      children: children?.length ? children : NO_CHILDREN,
       gen: 0,
     };
     if (!node) {
@@ -238,15 +238,6 @@ function matches<Path, K extends object, V>(
   return true;
 }
 
-export type GetDependency<Path, K = object | symbol> = (
-  lookup: Path,
-) => K | undefined;
-
-export interface Dep<Path> {
-  path: Path | KeyFn;
-  entity: unknown;
-}
-
 const EMPTY = [undefined, undefined] as const;
 
 /** Pins `entry` (from a `get` or `set` `out` pair) and every entry read to
@@ -296,7 +287,7 @@ function evictUnpinned<Path, V>(node: Node<Path, V>): void {
   }
 }
 
-export const NO_CHILDREN: unknown[] = [];
+const NO_CHILDREN: unknown[] = [];
 
 /** Nodes under one first dependency that may gain a second `argsKey` branch. */
 const MAX_FORKS = 8;
