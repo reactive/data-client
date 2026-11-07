@@ -28,8 +28,8 @@ export default class MemoCache {
   /** Caches the final denormalized form based on input, entities */
   protected endpoints = new WeakDependencyMap<EntityPath>();
   /** Results read per store `entities`, until that store commits: each
-   * result's node and entry. Weakly keyed, so a store that never commits
-   * frees its reads with its `entities`. */
+   * result's node and entry, at most `MAX_PENDING` per store. Weakly keyed,
+   * so a store that never commits frees its reads with its `entities`. */
   private reads = new WeakMap<object, Map<unknown, unknown>>();
   /** `entities` from the latest `commit`; reads with it are kept right away. */
   private committedEntities: object | undefined = undefined;
@@ -99,6 +99,8 @@ export default class MemoCache {
       // one per node, the last read wins
       reads.set(records[i], records[i + 1]);
     }
+    // a long-lived store that never commits must not keep every result alive
+    while (reads.size > MAX_PENDING) reads.delete(reads.keys().next().value);
   }
 
   /**
@@ -216,3 +218,7 @@ type StateInterface = {
         getIn(k: string[]): any;
       };
 };
+
+/** Results remembered per uncommitted store; past this, the earliest reads go.
+ * A render reads one result per hook, so this is far above any one screen. */
+const MAX_PENDING = 256;
