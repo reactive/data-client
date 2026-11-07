@@ -441,9 +441,37 @@ Call sites change shape:
 
 `useAccount()` needs `/session` to answer a signed-out visitor with no account, as `react-query-auth`'s `userFn` returns
 `null`. Then signed-out pages render, and the refetch after `resetEntireStore()` shows the signed-out state. If the API
-answers 401 instead, catch that status in the session endpoint's `fetchResponse()` and return `new Response(JSON.stringify({ account: null }))`, or the
-error reaches the nearest error boundary. To sign out on any other 401 response, add
-[LogoutManager](https://dataclient.io/docs/api/LogoutManager); for token storage, see [authentication](https://dataclient.io/rest/guides/auth).
+answers 401 instead, the error reaches the nearest error boundary, so turn that status into a signed-out response:
+
+```ts title="getSession.ts"
+import { Entity, NetworkError, RestEndpoint } from '@data-client/rest';
+
+class Account extends Entity {
+  id = '';
+  displayName = '';
+
+  static key = 'Account';
+}
+
+export const getSession = new RestEndpoint({
+  path: '/session',
+  schema: { account: Account },
+  async fetchResponse(input: RequestInfo, init: RequestInit) {
+    const response = await fetch(input, init);
+    if (response.status === 401) {
+      // parseResponse() reads JSON only when the Content-Type says so
+      return new Response(JSON.stringify({ account: null }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    if (!response.ok) throw new NetworkError(response);
+    return response;
+  },
+});
+```
+
+To sign out on any other 401 response, add [LogoutManager](https://dataclient.io/docs/api/LogoutManager); for token storage, see
+[authentication](https://dataclient.io/rest/guides/auth).
 
 ## Tests {#tests}
 
