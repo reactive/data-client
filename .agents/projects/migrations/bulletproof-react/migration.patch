@@ -2298,10 +2298,10 @@ index f385d34..14d471f 100644
 +    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
  }
 diff --git a/apps/react-vite/src/lib/api-client.ts b/apps/react-vite/src/lib/api-client.ts
-index 86a60a2..b105105 100644
+index 86a60a2..17ec9cd 100644
 --- a/apps/react-vite/src/lib/api-client.ts
 +++ b/apps/react-vite/src/lib/api-client.ts
-@@ -1,42 +1,46 @@
+@@ -1,42 +1,48 @@
 -import Axios, { InternalAxiosRequestConfig } from 'axios';
 +import { NetworkError, RestEndpoint, RestGenerics } from '@data-client/rest';
  
@@ -2349,28 +2349,30 @@ index 86a60a2..b105105 100644
 +    try {
 +      return await super.fetchResponse(input, init);
 +    } catch (error) {
++      let message = error instanceof Error ? error.message : 'Network error';
 +      if (error instanceof NetworkError) {
 +        const body = await error.response
 +          .clone()
 +          .json()
 +          .catch(() => null);
-+        error.message = body?.message || error.message;
-+        useNotifications.getState().addNotification({
-+          type: 'error',
-+          title: 'Error',
-+          message: error.message,
-+        });
++        message = error.message = body?.message || error.message;
++      }
++      // transport failures (offline, DNS) reject with a TypeError and notify too
++      useNotifications.getState().addNotification({
++        type: 'error',
++        title: 'Error',
++        message,
++      });
  
 -    if (error.response?.status === 401) {
 -      const searchParams = new URLSearchParams();
 -      const redirectTo =
 -        searchParams.get('redirectTo') || window.location.pathname;
 -      window.location.href = paths.auth.login.getHref(redirectTo);
-+        if (error.status === 401) {
-+          window.location.href = paths.auth.login.getHref(
-+            window.location.pathname,
-+          );
-+        }
++      if (error instanceof NetworkError && error.status === 401) {
++        window.location.href = paths.auth.login.getHref(
++          window.location.pathname,
++        );
 +      }
 +      throw error;
      }
