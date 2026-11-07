@@ -30,21 +30,21 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     isMounted.value = false;
   });
 
-  // only the latest call reports its result
+  // only the latest call updates loading and error; every call still returns its result
   let latestCall = 0;
 
   // Create the wrapped function directly - no need for computed in Vue
   const wrappedFunc = (async (...args: any) => {
-    const call = ++latestCall;
+    const callId = ++latestCall;
     loading.value = true;
     error.value = undefined;
     let ret;
     try {
       ret = await func(...args);
     } catch (e: any) {
-      if (call === latestCall) error.value = e;
+      if (callId === latestCall) error.value = e;
     } finally {
-      if (isMounted.value && call === latestCall) {
+      if (isMounted.value && callId === latestCall) {
         loading.value = false;
       }
     }

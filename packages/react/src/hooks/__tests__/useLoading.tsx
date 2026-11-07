@@ -143,95 +143,85 @@ describe('useLoading()', () => {
     expect(result.current[0]).toBe(wrappedFunc);
   });
 
-  it('should clear error on the next call', async () => {
+  describe('with calls settled by hand', () => {
     const error = new Error('ack');
-    let shouldReject = true;
-    function fun(value: string) {
-      return new Promise<string>((resolve, reject) =>
-        setTimeout(() => (shouldReject ? reject(error) : resolve(value)), 1000),
-      );
-    }
-    const { result, waitForNextUpdate } = renderHook(() => {
-      return useLoading(fun);
-    });
-    act(() => {
-      result.current[0]('first');
-    });
-    act(() => {
-      jest.advanceTimersByTime(1100);
-    });
-    await waitForNextUpdate();
-    expect(result.current[1]).toBe(false);
-    expect(result.current[2]).toBe(error);
-
-    shouldReject = false;
-    let resolved = '';
-    act(() => {
-      result.current[0]('second').then(value => {
-        resolved = value;
-      });
-    });
-    // cleared as soon as the next call starts
-    expect(result.current[1]).toBe(true);
-    expect(result.current[2]).toBeUndefined();
-    act(() => {
-      jest.advanceTimersByTime(1100);
-    });
-    await waitForNextUpdate();
-    expect(result.current[1]).toBe(false);
-    expect(result.current[2]).toBeUndefined();
-    expect(resolved).toBe('second');
-  });
-
-  it('should follow the latest call when calls overlap', async () => {
-    const error = new Error('ack');
-    const settle: Record<string, () => void> = {};
+    let settle: Record<string, () => void>;
     function fun(value: string) {
       return new Promise<string>((resolve, reject) => {
         settle[value] = () =>
-          value === 'fail' ? reject(error) : resolve(value);
+          value.startsWith('fail') ? reject(error) : resolve(value);
       });
     }
-    const { result } = renderHook(() => useLoading(fun));
-    let first: Promise<string>, second: Promise<string>;
-    act(() => {
-      first = result.current[0]('fail');
+    beforeEach(() => {
+      settle = {};
     });
-    act(() => {
-      second = result.current[0]('ok');
-    });
-    // latest call resolves first
-    await act(async () => {
-      settle.ok();
-      await second;
-    });
-    expect(result.current[1]).toBe(false);
-    expect(result.current[2]).toBeUndefined();
-    // earlier call rejects afterwards: ignored
-    await act(async () => {
-      settle.fail();
-      await first;
-    });
-    expect(result.current[1]).toBe(false);
-    expect(result.current[2]).toBeUndefined();
 
-    // earlier call settling first keeps loading for the latest call
-    act(() => {
-      first = result.current[0]('a');
+    it('should clear error on the next call', async () => {
+      const { result } = renderHook(() => useLoading(fun));
+      let call!: Promise<string>;
+      act(() => {
+        call = result.current[0]('fail');
+      });
+      await act(async () => {
+        settle.fail();
+        await call;
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBe(error);
+
+      act(() => {
+        call = result.current[0]('ok');
+      });
+      // cleared as soon as the next call starts
+      expect(result.current[1]).toBe(true);
+      expect(result.current[2]).toBeUndefined();
+      await act(async () => {
+        settle.ok();
+        expect(await call).toBe('ok');
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBeUndefined();
     });
-    act(() => {
-      second = result.current[0]('b');
+
+    it('should ignore an earlier call that rejects after the latest call resolves', async () => {
+      const { result } = renderHook(() => useLoading(fun));
+      let first!: Promise<string>, second!: Promise<string>;
+      act(() => {
+        first = result.current[0]('fail');
+        second = result.current[0]('ok');
+      });
+      await act(async () => {
+        settle.ok();
+        await second;
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBeUndefined();
+      await act(async () => {
+        settle.fail();
+        await first;
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBeUndefined();
     });
-    await act(async () => {
-      settle.a();
-      await first;
+
+    it('should keep loading until the latest call settles', async () => {
+      const { result } = renderHook(() => useLoading(fun));
+      let first!: Promise<string>, second!: Promise<string>;
+      act(() => {
+        first = result.current[0]('a');
+        second = result.current[0]('b');
+      });
+      await act(async () => {
+        settle.a();
+        await first;
+      });
+      expect(result.current[1]).toBe(true);
+      await act(async () => {
+        settle.b();
+        await second;
+      });
+      expect(result.current[1]).toBe(false);
     });
-    expect(result.current[1]).toBe(true);
-    await act(async () => {
-      settle.b();
-      await second;
-    });
-    expect(result.current[1]).toBe(false);
   });
 
   it('should work in strictmode', async () => {

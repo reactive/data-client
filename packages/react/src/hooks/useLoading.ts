@@ -34,20 +34,20 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
       isMountedRef.current = false;
     };
   }, []);
-  // only the latest call reports its result
+  // only the latest call updates loading and error; every call still returns its result
   const latestCallRef = useRef(0);
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
-    const call = ++latestCallRef.current;
+    const callId = ++latestCallRef.current;
     setLoading(true);
     setError(undefined);
     let ret;
     try {
       ret = await func(...args);
     } catch (e: any) {
-      if (call === latestCallRef.current) setError(e);
+      if (callId === latestCallRef.current) setError(e);
     } finally {
-      if (isMountedRef.current && call === latestCallRef.current) {
+      if (isMountedRef.current && callId === latestCallRef.current) {
         setLoading(false);
       }
     }
