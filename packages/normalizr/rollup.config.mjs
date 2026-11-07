@@ -10,6 +10,7 @@ import {
   onwarn,
   isNative,
   nativeOrNormalPath,
+  nodeOutput,
 } from 'rollup-plugins';
 
 import pkg from './package.json' with { type: 'json' };
@@ -36,20 +37,8 @@ function isExternal(id) {
 
 // React Native: `INVALID` lives in one CommonJS file that both the ESM `native/` build (Metro
 // `import`) and `dist/normalizr.native.js` (core, Jest `require()`) load, so an app has one `INVALID`.
-const nativeSymbol = 'dist/symbol.native.js';
-const symbolSource = path.resolve('src/denormalize/symbol.js');
-function isNativeSymbol(id, importer) {
-  return (
-    isNative &&
-    !!importer &&
-    id.startsWith('.') &&
-    path.resolve(path.dirname(importer), id) === symbolSource
-  );
-}
-/** Require the shared `INVALID` by its dist path */
-function nativeSymbolPath(id) {
-  return id === symbolSource ? './symbol.native.js' : id;
-}
+const nativeSymbolEntry = 'symbol';
+const nativeSymbol = nativeOrNormalPath(`dist/${nativeSymbolEntry}.js`);
 /** native/ (Babel ESM) re-exports the shared `INVALID` */
 const writeNativeSymbol = {
   name: 'write-native-symbol',
@@ -127,47 +116,38 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   }
 } else {
   // node-friendly (or React Native Jest) commonjs build
-  if (isNative) {
-    configs.push({
-      input: 'src/denormalize/symbol.ts',
-      output: [{ file: nativeSymbol, format: 'cjs' }],
-      onwarn,
-      plugins: [
-        babel({
-          exclude: ['node_modules/**', '/**__tests__/**'],
-          extensions,
-          babelHelpers: 'runtime',
-          rootMode: 'upward',
-        }),
-        resolve({ extensions }),
-        writeNativeSymbol,
-      ],
-    });
-  }
-  configs.push({
-    input: 'src/index.ts',
-    output: [
+  const plugins = [
+    babel({
+      exclude: ['node_modules/**', '/**__tests__/**'],
+      extensions,
+      babelHelpers: 'runtime',
+      rootMode: 'upward',
+    }),
+    resolve({ extensions }),
+    commonjs({ extensions }),
+    isProduction && terser(),
+    filesize(),
+  ].filter(Boolean);
+  configs.push(
+    isNative ?
       {
-        file: nativeOrNormalPath(`${destBase}${destExtension}`),
-        format: 'cjs',
-        ...(isNative && { paths: nativeSymbolPath }),
+        // one build, so `normalizr` loads the `symbol` entry instead of bundling its own `INVALID`
+        input: {
+          [path.basename(destBase)]: 'src/index.ts',
+          [nativeSymbolEntry]: 'src/denormalize/symbol.ts',
+        },
+        output: [nodeOutput],
+        external: id => id === '..' || isExternal(id),
+        onwarn,
+        plugins: [...plugins, writeNativeSymbol],
+      }
+    : {
+        input: 'src/index.ts',
+        output: [{ file: `${destBase}${destExtension}`, format: 'cjs' }],
+        external: id => id === '..' || isExternal(id),
+        onwarn,
+        plugins,
       },
-    ],
-    external: (id, importer) =>
-      id === '..' || isExternal(id) || isNativeSymbol(id, importer),
-    onwarn,
-    plugins: [
-      babel({
-        exclude: ['node_modules/**', '/**__tests__/**'],
-        extensions,
-        babelHelpers: 'runtime',
-        rootMode: 'upward',
-      }),
-      resolve({ extensions }),
-      commonjs({ extensions }),
-      isProduction && terser(),
-      filesize(),
-    ].filter(Boolean),
-  });
+  );
 }
 export default configs;
