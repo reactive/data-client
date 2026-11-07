@@ -120,7 +120,8 @@ calls `axios(config)`, the codemod has little to do. Skip it and start at [step 
 ### 3. Move interceptors into a base endpoint {#base-endpoint}
 
 Axios interceptors and instance config become methods on one `RestEndpoint` subclass that every endpoint extends. The
-codemod creates this class from `axios.create()`; move the interceptors into it.
+codemod creates this class from `axios.create()`. It comments out the module's `api.interceptors` and `api.defaults`
+setup, since `api` no longer exists, and marks each with a `TODO(data-client)`; move each into the class.
 
 `RestEndpoint` parses JSON itself, so an interceptor that only unwraps `response.data` has nothing left to do.
 

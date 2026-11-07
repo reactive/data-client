@@ -1339,7 +1339,12 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   const endpoint = j.newExpression(j.identifier(className || 'RestEndpoint'), [
     j.objectExpression(options),
   ]);
-  const params = callArgs.length ? j.objectExpression(callArgs) : null;
+  const params =
+    !callArgs.length ? null
+      // Prettier breaks every argument around a multi-line object that
+      // isn't the last one, but leaves a one-line object as written
+    : data ? oneLineObject(j, callArgs)
+    : j.objectExpression(callArgs);
   const invokeArgs = [params, data].filter(Boolean);
 
   return {
@@ -1351,6 +1356,18 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     unknownOptions,
     todos,
   };
+}
+
+/**
+ * An object literal recast prints on one line, when it fits; recast prints
+ * the ones it builds over several lines
+ */
+function oneLineObject(j, properties) {
+  const text = `{ ${properties.map(p => j(p).toSource()).join(', ')} }`;
+  if (text.includes('\n') || text.length > 50)
+    return j.objectExpression(properties);
+  // a parsed node reprints as its source text (unless it was parenthesized)
+  return j(`f(${text})`).find(j.CallExpression).get().node.arguments[0];
 }
 
 // --- 3b. Build each endpoint once, at module scope ---
@@ -1634,8 +1651,11 @@ function markLeftovers(
   axiosLocalName,
   axiosImportScope,
   createToClass,
+  commentedOut,
 ) {
   let dirty = false;
+  /** module-level statements that read a removed instance, to their TODO */
+  const commentOut = new Map();
 
   // calls it couldn't convert are marked already
   const isMarkedCall = p => HTTP_METHODS.has(memberOf(p.parent.node, p.node));
@@ -1669,20 +1689,27 @@ function markLeftovers(
           return;
         }
         const member = memberOf(parent, p.node);
-        if (member === 'interceptors') {
-          markTodo(
-            j,
-            p,
-            `move this interceptor into \`${className}\``,
-            'base-endpoint',
-          );
-        } else if (member === 'defaults') {
-          markTodo(
-            j,
-            p,
-            `move these defaults into \`${className}\``,
-            'base-endpoint',
-          );
+        if (member === 'interceptors' || member === 'defaults') {
+          const what =
+            member === 'interceptors' ?
+              ['this interceptor', 'is', 'it']
+            : ['these defaults', 'are', 'them'];
+          // module setup like `api.interceptors.request.use(fn)` would read
+          // the removed instance, so keep it as comments to move by hand
+          const statement = moduleStatement(p);
+          if (statement) {
+            commentOut.set(
+              statement,
+              `\`${name}\` is the \`${className}\` class now, so ${what[0]} ${what[1]} commented out; move ${what[2]} into \`${className}\``,
+            );
+          } else {
+            markTodo(
+              j,
+              p,
+              `move ${what[0]} into \`${className}\``,
+              'base-endpoint',
+            );
+          }
         } else {
           markTodo(
             j,
@@ -1732,7 +1759,123 @@ function markLeftovers(
       }
     });
 
-  return dirty;
+  return commentOut.size ?
+      commentOutStatements(j, commentOut, commentedOut)
+    : dirty;
+}
+
+/** The module-level expression statement `path` reads in directly, not from a nested function */
+function moduleStatement(path) {
+  let p = path;
+  while (p.parent && p.parent.node.type !== 'Program') {
+    if (/Function|Method/.test(p.node.type)) return null;
+    p = p.parent;
+  }
+  return p.parent && p.node.type === 'ExpressionStatement' ? p : null;
+}
+
+const COMMENTED_OUT = '__dataClientCommentedOut';
+
+/**
+ * Swaps each statement for a placeholder that `restoreCommentedOut()` turns
+ * into its source as line comments, under a TODO
+ */
+function commentOutStatements(j, commentOut, commentedOut) {
+  for (const [path, message] of commentOut) {
+    const { node } = path;
+    const comments = node.comments || [];
+    node.comments = null;
+    const index = commentedOut.length;
+    commentedOut.push({
+      source: j(node).toSource(),
+      blankAfter: blankLineAfter(path),
+    });
+    const placeholder = j.expressionStatement(
+      j.identifier(`${COMMENTED_OUT}${index}`),
+    );
+    placeholder.comments = comments;
+    addTodo(j, placeholder, message, 'base-endpoint');
+    path.replace(placeholder);
+  }
+  return true;
+}
+
+/** Whether a blank line separates the statement at `path` from the next one */
+function blankLineAfter(path) {
+  const next = path.parent.node.body[path.name + 1];
+  if (!next || !next.loc || !path.node.loc) return true;
+  const first = (next.comments || []).find(c => c.leading && c.loc) || next;
+  return first.loc.start.line - path.node.loc.end.line > 1;
+}
+
+/**
+ * Turns each placeholder `commentOutStatements()` left into the statement's
+ * source as line comments
+ */
+function restoreCommentedOut(output, commentedOut) {
+  if (!commentedOut.length) return output;
+  return output.replace(
+    // recast spaces the placeholder from the next statement with a blank line
+    new RegExp(
+      `^([ \\t]*)${COMMENTED_OUT}(\\d+);?[ \\t]*(\\n(?=[ \\t]*\\n))?`,
+      'gm',
+    ),
+    (_, indent, index, blank) => {
+      const { source, blankAfter } = commentedOut[index];
+      const lines = source
+        .split('\n')
+        .map(line => (line ? `${indent}// ${line}` : `${indent}//`))
+        .join('\n');
+      return blank && blankAfter ? lines + blank : lines;
+    },
+  );
+}
+
+// --- Output style ---
+
+/**
+ * The quotes and trailing commas the file already uses, so reprinted code
+ * matches what its formatter expects. With no sample: single quotes, and
+ * trailing commas like Prettier 3's default
+ */
+function sourceStyle(j, root, source) {
+  const votes = { single: 0, double: 0 };
+  root.find(j.StringLiteral).forEach(p => {
+    // JSX attributes follow their own setting (jsxSingleQuote)
+    if (p.parent.node.type === 'JSXAttribute') return;
+    const raw = p.node.extra && p.node.extra.raw;
+    if (raw && raw[0] === "'") votes.single++;
+    else if (raw && raw[0] === '"') votes.double++;
+  });
+
+  // [with, without] a trailing comma, among lists whose closing bracket
+  // sits on its own line
+  const commas = { objects: [0, 0], parameters: [0, 0] };
+  const vote = (kind, last, closeIndex) => {
+    if (!last || last.end == null || closeIndex < last.end) return;
+    const between = source.slice(last.end, closeIndex);
+    if (!between.includes('\n')) return;
+    commas[kind][between.includes(',') ? 0 : 1]++;
+  };
+  const voteList = ({ node }, items) =>
+    node.end != null && vote('objects', items[items.length - 1], node.end - 1);
+  root.find(j.ObjectExpression).forEach(p => voteList(p, p.node.properties));
+  root.find(j.ArrayExpression).forEach(p => voteList(p, p.node.elements));
+  root.find(j.Function).forEach(({ node }) => {
+    const last = node.params[node.params.length - 1];
+    if (!last || last.type === 'RestElement' || last.end == null) return;
+    vote('parameters', last, source.indexOf(')', last.end));
+  });
+  const objects = commas.objects[0] >= commas.objects[1];
+  const [withComma, without] = commas.parameters;
+  return {
+    quote: votes.double > votes.single ? 'double' : 'single',
+    trailingComma: {
+      objects,
+      arrays: objects,
+      parameters: withComma || without ? withComma >= without : objects,
+    },
+  };
 }
 
 // --- Main ---
@@ -1745,6 +1888,9 @@ module.exports = function transformer(fileInfo, api) {
   const j = api.jscodeshift;
   const root = j(source);
   const isTS = /\.[cm]?tsx?$/.test(fileInfo.path || '');
+  // before any edit, while every node still has its source position
+  const printOptions = sourceStyle(j, root, source);
+  const commentedOut = [];
 
   const axiosImport = root
     .find(j.ImportDeclaration)
@@ -1792,6 +1938,7 @@ module.exports = function transformer(fileInfo, api) {
       axiosLocalName,
       axiosImportScope,
       createResult.createToClass,
+      commentedOut,
     ) || dirty;
 
   // after the calls, which look the instance up by its imported name
@@ -1826,7 +1973,9 @@ module.exports = function transformer(fileInfo, api) {
   // last, so the names the imports and renamed instances took are taken
   hoistEndpoints(j, root, calls.hoists);
 
-  return dirty ? root.toSource({ quote: 'single' }) : source;
+  return dirty ?
+      restoreCommentedOut(root.toSource(printOptions), commentedOut)
+    : source;
 };
 
 module.exports.parser = 'tsx';
