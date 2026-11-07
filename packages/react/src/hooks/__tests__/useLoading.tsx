@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react';
+import React, { Activity } from 'react';
 
 import { renderHook, act } from '../../../../test';
 import useLoading from '../useLoading';
@@ -142,6 +143,124 @@ describe('useLoading()', () => {
     // maintain referential equality
     expect(result.current[0]).toBe(wrappedFunc);
   });
+
+  describe('with calls settled by hand', () => {
+    const error = new Error('ack');
+    let settle: Record<string, () => void>;
+    function fun(value: string) {
+      return new Promise<string>((resolve, reject) => {
+        settle[value] = () =>
+          value === 'fail' ? reject(error) : resolve(value);
+      });
+    }
+    beforeEach(() => {
+      settle = {};
+    });
+
+    it('should clear error on the next call', async () => {
+      const { result } = renderHook(() => useLoading(fun));
+      let call!: Promise<string>;
+      act(() => {
+        call = result.current[0]('fail');
+      });
+      await act(async () => {
+        settle.fail();
+        await call;
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBe(error);
+
+      act(() => {
+        call = result.current[0]('ok');
+      });
+      // cleared as soon as the next call starts
+      expect(result.current[1]).toBe(true);
+      expect(result.current[2]).toBeUndefined();
+      await act(async () => {
+        settle.ok();
+        expect(await call).toBe('ok');
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBeUndefined();
+    });
+
+    it('should ignore an earlier call that rejects after the latest call resolves', async () => {
+      const { result } = renderHook(() => useLoading(fun));
+      let first!: Promise<string>, second!: Promise<string>;
+      act(() => {
+        first = result.current[0]('fail');
+        second = result.current[0]('ok');
+      });
+      await act(async () => {
+        settle.ok();
+        await second;
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBeUndefined();
+      await act(async () => {
+        settle.fail();
+        await first;
+      });
+      expect(result.current[1]).toBe(false);
+      expect(result.current[2]).toBeUndefined();
+    });
+
+    it('should keep loading until the latest call settles', async () => {
+      const { result } = renderHook(() => useLoading(fun));
+      let first!: Promise<string>, second!: Promise<string>;
+      act(() => {
+        first = result.current[0]('a');
+        second = result.current[0]('b');
+      });
+      await act(async () => {
+        settle.a();
+        await first;
+      });
+      expect(result.current[1]).toBe(true);
+      await act(async () => {
+        settle.b();
+        await second;
+      });
+      expect(result.current[1]).toBe(false);
+    });
+  });
+
+  ('Activity' in React ? it : it.skip)(
+    'should show a call that settles while hidden in <Activity>',
+    async () => {
+      const error = new Error('ack');
+      let rejectCall!: (e: Error) => void;
+      let run!: () => Promise<void>;
+      function Form() {
+        let loading: boolean, err: Error | undefined;
+        [run, loading, err] = useLoading(
+          () => new Promise<void>((_, reject) => (rejectCall = reject)),
+        );
+        return (
+          <div>
+            {loading ? 'loading' : 'idle'} {err ? err.message : 'no error'}
+          </div>
+        );
+      }
+      const tree = (mode: 'visible' | 'hidden') => (
+        <Activity mode={mode}>
+          <Form />
+        </Activity>
+      );
+      const { getByText, rerender } = render(tree('visible'));
+      let call!: Promise<void>;
+      act(() => {
+        call = run();
+      });
+      await act(async () => rerender(tree('hidden')));
+      await act(async () => {
+        rejectCall(error);
+        await call;
+      });
+      await act(async () => rerender(tree('visible')));
+      expect(getByText('idle ack')).toBeDefined();
+    },
+  );
 
   it('should work in strictmode', async () => {
     const error = new Error('ack');

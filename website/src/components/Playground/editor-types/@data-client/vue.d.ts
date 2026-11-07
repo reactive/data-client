@@ -67,6 +67,9 @@ declare function useLive<E extends EndpointInterface<FetchFunction, Schema | und
 /**
  * Takes an async function and tracks resolution as a boolean.
  *
+ * If `func` rejects, the error is stored and cleared again on the next call.
+ * When calls overlap, `loading` and `error` follow the latest one.
+ *
  * @see https://dataclient.io/docs/api/useLoading
  * @param func A function returning a promise
  * @example
