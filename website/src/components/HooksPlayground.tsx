@@ -1,7 +1,7 @@
 import React, { memo, useContext } from 'react';
 
 import Playground, { type PlaygroundProps } from './Playground';
-import { PlaygroundHiddenContext } from './Playground/hiddenContext';
+import { HiddenContext } from './Playground/hiddenContext';
 
 /** MDX entry point: wraps one or more code fences in a live Playground. */
 const HooksPlayground = ({
@@ -22,7 +22,7 @@ const HooksPlayground = ({
   autoRun,
   getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => {
-  const inHiddenTab = useContext(PlaygroundHiddenContext);
+  const notShownYet = useContext(HiddenContext);
   return (
     <Playground
       groupId={groupId}
@@ -32,7 +32,7 @@ const HooksPlayground = ({
       demo={demo}
       before={before}
       beforeLabel={beforeLabel}
-      hidden={hidden ?? inHiddenTab}
+      hidden={hidden ?? notShownYet}
       fixtures={fixtures}
       getInitialInterceptorData={getInitialInterceptorData}
       defaultTab={defaultTab}

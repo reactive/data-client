@@ -1,32 +1,23 @@
-import { usePrismTheme } from '@docusaurus/theme-common';
 import { Highlight, type Token } from 'prism-react-renderer';
 import React, { memo } from 'react';
 
 import { isPlainToken, mergeTokens } from './mergeTokens';
-import { isMonacoTokenized } from '../monaco/language';
-import { codePrismTheme } from '../monaco/theme';
-import { monacoPrism } from '../monaco/tokenize';
+import useCodeTheme from './useCodeTheme';
 
 const LINE_END: Token = { types: ['plain'], content: '\n' };
 
 /**
  * Prism-highlighted, non-editable code. Renders identically on server and
  * client, so it is the SSG/crawler markup and the placeholder until Monaco
- * mounts. Draws what ../PlaygroundLiveEditor does (react-live's markup and
- * colors), with as few elements as draw it (mergeTokens).
+ * mounts. Draws what ../PlaygroundLiveEditor does (react-live 5's markup and
+ * colors; recheck on react-live upgrades), with as few elements as draw it
+ * (mergeTokens).
  */
 function StaticEditor({ code, language }: { code: string; language: string }) {
-  const siteTheme = usePrismTheme();
-  const monaco = isMonacoTokenized(language);
-  const theme = monaco ? codePrismTheme : siteTheme;
+  const { theme, prism } = useCodeTheme(language);
   return (
     <div>
-      <Highlight
-        code={code}
-        language={language}
-        theme={theme}
-        prism={monaco ? monacoPrism : undefined}
-      >
+      <Highlight code={code} language={language} theme={theme} prism={prism}>
         {({ className, style, tokens, getTokenProps }) => (
           <pre
             className={className}

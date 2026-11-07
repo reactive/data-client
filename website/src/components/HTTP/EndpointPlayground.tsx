@@ -10,7 +10,7 @@ import {
   useCodeDocuments,
 } from '../Playground/editor/codeModel';
 import EditorSurface from '../Playground/editor/EditorSurface';
-import { PlaygroundHiddenContext } from '../Playground/hiddenContext';
+import { HiddenContext } from '../Playground/hiddenContext';
 import type { LiveProps } from '../Playground/preview/exchange/LiveExchange';
 import playgroundstyles from '../Playground/styles.module.css';
 
@@ -25,8 +25,9 @@ import playgroundstyles from '../Playground/styles.module.css';
  * `response` its response. */
 export default function EndpointPlayground(props: Props) {
   const model = useCodeDocuments(props.children);
-  // in a hidden tab (PlaygroundTabs) the code is plain text until first shown
-  const hidden = useContext(PlaygroundHiddenContext);
+  // not shown yet (an unselected tab, a closed details): the code is plain
+  // text until first shown
+  const hidden = useContext(HiddenContext);
   const [interactive, setInteractive] = useState(!hidden);
   if (!hidden && !interactive) setInteractive(true);
   // the editor stays responsive while the exchange reruns

@@ -4,15 +4,16 @@ import Line from '@theme-original/CodeBlock/Line';
 import type { LineInputProps, Token } from 'prism-react-renderer';
 import React, { useContext } from 'react';
 
-import { PlaygroundHiddenContext } from '../../../components/Playground/hiddenContext';
 import { mergeTokens } from '../../../components/Playground/editor/mergeTokens';
+import { HiddenContext } from '../../../components/Playground/hiddenContext';
 
 /** Docusaurus's line with as few elements as draw the same code
  * (mergeTokens; ./Token renders plain text bare). Code not shown yet (an
- * unselected tab, a closed details) is plain text until it shows. */
+ * unselected tab, a closed details) is plain text until it shows (Prism
+ * still tokenizes it: the saving is the elements). */
 export default function LineWrapper(props: Props) {
   const { plain } = usePrismTheme();
-  const hidden = useContext(PlaygroundHiddenContext);
+  const hidden = useContext(HiddenContext);
   return (
     <Line
       {...props}
@@ -31,6 +32,6 @@ export default function LineWrapper(props: Props) {
 }
 
 function plainLine(line: Token[]): Token[] {
-  if (line.length === 1 && line[0].empty) return line;
+  if (line.some(token => token.empty)) return line;
   return [{ types: ['plain'], content: line.map(t => t.content).join('') }];
 }

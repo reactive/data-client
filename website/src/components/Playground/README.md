@@ -98,7 +98,7 @@ running; only the app's Effects pause. Keep that `<Activity>` inside
 `LiveProvider` (`preview/Preview.tsx`), so a show doesn't remount the app. The row Store folder
 stays out of the `<Activity>`, which would detach `setStoreHost`; the
 container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
-`PlaygroundHiddenContext` (`hiddenContext.ts`) sets it for every playground
+`HiddenContext` (`hiddenContext.tsx`) sets it for every playground
 under an unselected tab (`theme/TabItem`, so `PlaygroundTabs` and Docusaurus
 `<Tabs>` alike) or a `<details>` not yet opened (`theme/Details`), nested
 ones included. An explicit prop wins. `TypeScriptEditor` there latches the

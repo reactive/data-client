@@ -1,25 +1,19 @@
 import type { Props } from '@theme/Details';
 import Details from '@theme-original/Details';
-import React, {
-  useContext,
-  useState,
-  type MouseEvent,
-  type ToggleEvent,
-} from 'react';
+import React, { useState, type MouseEvent, type ToggleEvent } from 'react';
 
-import { PlaygroundHiddenContext } from '../../components/Playground/hiddenContext';
+import { HiddenProvider } from '../../components/Playground/hiddenContext';
 
 /** A closed `<details>`'s code and playgrounds wait until it first opens
- * (PlaygroundHiddenContext), then stay, so closing never redraws them */
+ * (HiddenContext), then stay, so closing never redraws them */
 export default function DetailsWrapper(props: Props) {
-  const inheritedHidden = useContext(PlaygroundHiddenContext);
   const [opened, setOpened] = useState(!!props.open);
   return (
-    <PlaygroundHiddenContext.Provider value={inheritedHidden || !opened}>
+    <HiddenProvider hidden={!opened}>
       <Details
         {...props}
-        // in the click that opens it, so it opens drawn; Details itself
-        // takes onClick
+        // in the click that opens it, so it opens drawn. Details itself
+        // takes onClick; this is its summary test (isInSummary, hasParent)
         onClickCapture={(event: MouseEvent<HTMLDetailsElement>) => {
           if (
             (event.target as Element).closest('summary')?.parentElement ===
@@ -34,6 +28,6 @@ export default function DetailsWrapper(props: Props) {
           props.onToggle?.(event);
         }}
       />
-    </PlaygroundHiddenContext.Provider>
+    </HiddenProvider>
   );
 }
