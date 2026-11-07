@@ -316,7 +316,8 @@ class Post extends Entity {
     args: any[],
   ) {
     const processed = super.process(input, parent, key, args);
-    if (processed.author && !Object.keys(processed.author).length)
+    const { author } = processed;
+    if (author && typeof author === 'object' && !Object.keys(author).length)
       processed.author = undefined;
     return processed;
   }

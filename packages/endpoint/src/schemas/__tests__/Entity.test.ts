@@ -132,7 +132,8 @@ describe(`${Entity.name} normalization`, () => {
         args: any[],
       ) {
         const processed = super.process(input, parent, key, args);
-        if (processed.author && !Object.keys(processed.author).length)
+        const { author } = processed;
+        if (author && typeof author === 'object' && !Object.keys(author).length)
           processed.author = undefined;
         return processed;
       }
@@ -162,6 +163,11 @@ describe(`${Entity.name} normalization`, () => {
         author: { id: 0, name: 'zero' },
       });
       expect(entities.SafeDiscussion['1'].author).toBe('0');
+    });
+
+    it('process() recipe keeps a numeric author reference', () => {
+      const { entities } = normalize(SafeDiscussion, { id: '1', author: 2 });
+      expect(entities.SafeDiscussion['1'].author).toBe('2');
     });
 
     it('process() recipe still throws for an author with data but no pk', () => {
