@@ -298,15 +298,32 @@ export const getComments = new RestEndpoint({
 });
 ```
 
-```tsx
-const { data, meta } = useSuspense(getComments, { discussionId });
-const ctrl = useController();
-// appends the next page to data, and replaces meta with the new page's
-const loadMore = () =>
-  ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 });
-// adds a new comment to the same list
-const create = (body: string) =>
-  ctrl.fetch(getComments.push, { discussionId }, { body });
+```tsx title="CommentList"
+import { useController, useSuspense } from '@data-client/react';
+import { getComments } from './Comment';
+
+export default function CommentList({ discussionId }: { discussionId: string }) {
+  // leave `page` out of the first fetch
+  const { data, meta } = useSuspense(getComments, { discussionId });
+  const ctrl = useController();
+  // appends the next page to data, and replaces meta with the new page's
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 });
+  // adds a new comment to the same list
+  const create = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId }, { body });
+  return (
+    <div>
+      {data.map(comment => (
+        <p key={comment.pk()}>{comment.body}</p>
+      ))}
+      {meta.page < meta.totalPages && (
+        <button onClick={loadMore}>Load more</button>
+      )}
+      <button onClick={() => create('Nice post')}>Add comment</button>
+    </div>
+  );
+}
 ```
 
 - **Leave the page out of the first fetch.** `getPage` drops the `paginationField` from its args to find the list

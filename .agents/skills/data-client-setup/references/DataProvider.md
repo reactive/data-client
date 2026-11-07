@@ -15,11 +15,18 @@ Put your [Suspense boundaries](https://dataclient.io/docs/getting-started/data-d
 that shows "Uncaught Suspense", so a boundary above `DataProvider` never catches a component below it.
 
 ```tsx
-<DataProvider>
-  <AsyncBoundary fallback={<Spinner />}>
-    <App />
-  </AsyncBoundary>
-</DataProvider>
+import { AsyncBoundary, DataProvider } from '@data-client/react';
+import App from './App';
+
+export default function Root() {
+  return (
+    <DataProvider>
+      <AsyncBoundary fallback={<Loading />}>
+        <App />
+      </AsyncBoundary>
+    </DataProvider>
+  );
+}
 ```
 
 **Web**
