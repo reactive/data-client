@@ -35,6 +35,6 @@ Migrated shows the new title because `Discussion` is one normalized Entity share
 
 Notes: the script/load rows are noise-dominated (baseline varied by 20% between two runs); the bundle includes the MSW mock
 DB chunk (209 kB gzip, same in both) because mocking is enabled in the build. Tokens-per-feature and cache hit/miss counters
-were not measured in this run. Reproduce: `node measure.cjs <label> <preview-url> <runs>` (Playwright, `vite preview`).
+were not measured in this run. Reproduce: from the app folder, `node measure.cjs <label> <preview-url> <runs>` (resolves Playwright from the current folder; set `CHROMIUM_PATH` to use a specific browser).
 The data-access LoC includes the Entity definitions (data-definition, cheap to maintain).
 The migration kept `yarn.lock` untouched (installed with npm, see problem P10); regenerate it before merging anywhere.

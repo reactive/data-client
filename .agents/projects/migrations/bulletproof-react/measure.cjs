@@ -1,8 +1,8 @@
-const { chromium } = require('/tmp/work/bulletproof-react/apps/react-vite/node_modules/playwright');
+const { chromium } = require(require.resolve('playwright', { paths: [process.cwd()] }));
 const [,, label, base, runs='7'] = process.argv;
 const med = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)];
 (async () => {
-  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1243/chrome-linux64/chrome', args: ['--no-sandbox'] });
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] });
   const res = { script: [], task: [], load: [], heap: [], reqsFlow: [], reqsByStep: null };
   for (let i = 0; i < +runs; i++) {
     const ctx = await browser.newContext();
