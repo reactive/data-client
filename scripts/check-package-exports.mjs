@@ -34,8 +34,8 @@ const packs = path.join(work, 'packs');
 // types (lib/*.d.ts under "type": "module") for its CommonJS dist/. Only
 // CommonJS files compiled with TypeScript < 5.8 or `module: node16` see this,
 // and fixing it means publishing a CommonJS copy of every declaration file.
+// Allowed only on exports subpaths with a `require` condition (`FalseESM`).
 const ALLOWED_PUBLINT = new Set(['EXPORTS_TYPES_INVALID_FORMAT']);
-const ALLOWED_TYPES = new Set(['FalseESM']);
 // Suggestions about entry points fail; other suggestions are only listed
 const ENTRY_POINT_SUGGESTIONS = new Set([
   'HAS_MODULE_BUT_NO_EXPORTS',
@@ -53,23 +53,31 @@ const packages = fs
 
 fs.rmSync(work, { recursive: true, force: true });
 fs.mkdirSync(packs, { recursive: true });
-execFileSync(
-  'yarn',
-  [
-    'workspaces',
-    'foreach',
-    '--all',
-    '--parallel',
-    ...packages.flatMap(pkg => ['--include', pkg.name]),
-    'pack',
-    '--out',
-    path.join(packs, '%s.tgz'),
-  ],
-  { cwd: root, stdio: ['ignore', 'ignore', 'inherit'] },
-);
+try {
+  execFileSync(
+    'yarn',
+    [
+      'workspaces',
+      'foreach',
+      '--all',
+      '--parallel',
+      ...packages.flatMap(pkg => ['--include', pkg.name]),
+      'pack',
+      '--out',
+      path.join(packs, '%s.tgz'),
+    ],
+    { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+  );
+} catch (error) {
+  // yarn reports a failed prepack on stdout
+  console.error(error.stdout, error.stderr);
+  console.error('yarn pack failed');
+  process.exit(1);
+}
 
 // Unpack them all first, so they load each other rather than the workspaces
 const unpacked = packages.map(pkg => {
+  // yarn's `%s` in `--out`: @scope/name -> @scope-name
   const tarball = path.join(packs, `${pkg.name.replace('/', '-')}.tgz`);
   const dir = path.join(work, 'node_modules', pkg.name);
   fs.mkdirSync(dir, { recursive: true });
@@ -132,17 +140,22 @@ async function checkTypes(pkg, tarball) {
   const errors = [];
   const allowed = [];
   for (const problem of analysis.problems ?? []) {
+    const entrypoints = Object.keys(analysis.entrypoints).filter(entrypoint =>
+      problemAffectsEntrypoint(problem, entrypoint, analysis),
+    );
+    const requireConditions = entrypoints.map(entrypoint =>
+      hasRequire(pkg.exports?.[entrypoint]),
+    );
     if (
-      ALLOWED_TYPES.has(problem.kind) ||
+      (problem.kind === 'FalseESM' && requireConditions.every(Boolean)) ||
+      // exports subpaths with no `require` condition ship only ESM on purpose
       (problem.kind === 'CJSResolvesToESM' &&
-        isEsmOnly(pkg, problem.entrypoint))
+        pkg.exports?.[problem.entrypoint] !== undefined &&
+        !hasRequire(pkg.exports[problem.entrypoint]))
     ) {
       allowed.push(problem.kind);
       continue;
     }
-    const entrypoints = Object.keys(analysis.entrypoints).filter(entrypoint =>
-      problemAffectsEntrypoint(problem, entrypoint, analysis),
-    );
     errors.push(
       `${problem.kind} (${entrypoints.join(', ')}): ${problemKindInfo[problem.kind].description}`,
     );
@@ -150,12 +163,11 @@ async function checkTypes(pkg, tarball) {
   return { errors, allowed };
 }
 
-// Exports subpaths with no `require` condition ship only ESM on purpose
-function isEsmOnly(pkg, subpath) {
-  const conditions = pkg.exports?.[subpath];
-  return (
-    conditions !== undefined &&
-    !JSON.stringify(conditions).includes('"require"')
+// Whether exports conditions have a `require` key at any nesting level
+function hasRequire(conditions) {
+  if (typeof conditions !== 'object' || conditions === null) return false;
+  return Object.entries(conditions).some(
+    ([key, value]) => key === 'require' || hasRequire(value),
   );
 }
 

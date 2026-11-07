@@ -498,6 +498,8 @@ jobs:
     steps:
       - halt-unless-relevant-change:
           flag: esmodule
+      # prepack copies skills from .agents/, which setup's workspace leaves out
+      - checkout
       - attach_workspace:
           at: ~/
       - run:
