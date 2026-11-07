@@ -500,12 +500,13 @@ jobs:
           flag: esmodule
       - attach_workspace:
           at: ~/
-      # prepack copies skills from .agents/, which setup's workspace leaves out
-      # (persisting it would make skill-only changes rerun every test job).
-      # Checked out beside the project: checkout refuses a non-empty directory.
+      # prepack reads files setup's workspace leaves out (skills in .agents/;
+      # persisting them would make skill-only changes rerun every test job).
+      # Checked out beside the project, since checkout refuses a non-empty
+      # directory, then copied in without replacing the workspace's files.
       - checkout:
           path: ~/repo
-      - run: cp -R ~/repo/.agents ~/project/.agents
+      - run: cp -R --update=none ~/repo/. ~/project/
       - run:
           # Packs every published package (its prepack builds the JavaScript;
           # setup built the types), then checks each entry point with publint,

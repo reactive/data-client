@@ -74,14 +74,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     // `@data-client/vue/test` must provide the same keys the composables inject
     input: { index: 'src/index.ts', test: 'src/test/index.ts' },
     external: isExternal,
-    output: [
-      {
-        dir: 'dist',
-        format: 'cjs',
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name]-[hash].js',
-      },
-    ],
+    output: [{ dir: 'dist', format: 'cjs' }],
     onwarn,
     plugins: [
       babel({

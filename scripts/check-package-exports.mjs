@@ -119,7 +119,7 @@ async function lint(pkg, dir) {
   const allowed = [];
   for (const message of messages) {
     if (
-      ALLOWED_PUBLINT.has(message.code) ||
+      (ALLOWED_PUBLINT.has(message.code) && isRequireSubpath(pkg, message)) ||
       (message.type === 'suggestion' &&
         !ENTRY_POINT_SUGGESTIONS.has(message.code))
     ) {
@@ -152,6 +152,14 @@ async function checkTypes(pkg, tarball) {
     );
   }
   return { errors, allowed };
+}
+
+// publint paths look like ['exports', '.', 'types']
+function isRequireSubpath(pkg, { path: [field, subpath] }) {
+  return (
+    field === 'exports' &&
+    Object.hasOwn(pkg.exports?.[subpath] ?? {}, 'require')
+  );
 }
 
 function isAllowedTypesProblem(pkg, problem, entrypoints) {
