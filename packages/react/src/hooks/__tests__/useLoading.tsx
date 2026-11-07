@@ -226,17 +226,21 @@ describe('useLoading()', () => {
   });
 
   ('Activity' in React ? it : it.skip)(
-    'should keep an error that lands while hidden in <Activity>',
+    'should show a call that settles while hidden in <Activity>',
     async () => {
       const error = new Error('ack');
       let rejectCall!: (e: Error) => void;
       let run!: () => Promise<void>;
       function Form() {
-        let err: Error | undefined;
-        [run, , err] = useLoading(
+        let loading: boolean, err: Error | undefined;
+        [run, loading, err] = useLoading(
           () => new Promise<void>((_, reject) => (rejectCall = reject)),
         );
-        return <div>{err ? err.message : 'no error'}</div>;
+        return (
+          <div>
+            {loading ? 'loading' : 'idle'} {err ? err.message : 'no error'}
+          </div>
+        );
       }
       const tree = (mode: 'visible' | 'hidden') => (
         <Activity mode={mode}>
@@ -254,7 +258,7 @@ describe('useLoading()', () => {
         await call;
       });
       await act(async () => rerender(tree('visible')));
-      expect(getByText('ack')).toBeDefined();
+      expect(getByText('idle ack')).toBeDefined();
     },
   );
 

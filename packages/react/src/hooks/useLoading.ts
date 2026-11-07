@@ -28,8 +28,14 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<undefined | Error>(undefined);
   const isMountedRef = useRef(true);
+  // a hidden <Activity> runs effect cleanups but keeps state; loading is cleared once shown again
+  const settledWhileHiddenRef = useRef(false);
   useEffect(() => {
     isMountedRef.current = true;
+    if (settledWhileHiddenRef.current) {
+      settledWhileHiddenRef.current = false;
+      setLoading(false);
+    }
     return () => {
       isMountedRef.current = false;
     };
@@ -38,6 +44,7 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
     const callId = ++latestCallRef.current;
+    settledWhileHiddenRef.current = false;
     setLoading(true);
     setError(undefined);
     let ret;
@@ -45,11 +52,12 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     try {
       ret = await func(...args);
     } catch (e: any) {
-      // not gated on mount: a hidden <Activity> keeps state, so the error must survive to show again
+      // not gated on mount, so an error that lands while <Activity> is hidden still shows
       if (callId === latestCallRef.current) setError(e);
     } finally {
-      if (isMountedRef.current && callId === latestCallRef.current) {
-        setLoading(false);
+      if (callId === latestCallRef.current) {
+        if (isMountedRef.current) setLoading(false);
+        else settledWhileHiddenRef.current = true;
       }
     }
     return ret;
