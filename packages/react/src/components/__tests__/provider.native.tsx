@@ -17,6 +17,7 @@ import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
+import type { MemoCommit } from '../DataStore.native';
 
 const { SET_RESPONSE } = actionTypes;
 
@@ -149,8 +150,6 @@ describe('<DataProvider />', () => {
     expect(state).toMatchSnapshot();
   });
   describe('memo commit', () => {
-    // React Native normalizr builds add MemoCache.commit
-    type MemoCommit = { commit(entities: object, settled?: boolean): void };
     class Item extends Entity {
       id = '';
       title = '';
@@ -173,7 +172,10 @@ describe('<DataProvider />', () => {
 
     it('commits each committed store, unsettled while optimistic updates are in flight', async () => {
       const memo = new MemoCache();
-      const commit = jest.spyOn(memo as MemoCache & MemoCommit, 'commit');
+      const commit = jest.spyOn(
+        memo as MemoCache & Required<MemoCommit>,
+        'commit',
+      );
       class MemoController extends Controller {
         constructor(options: ConstructorParameters<typeof Controller>[0]) {
           super({ ...options, memo });
