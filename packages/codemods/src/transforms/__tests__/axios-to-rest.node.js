@@ -2723,10 +2723,15 @@ const [state, setState] = useState(null);
     const node = (args, cwd) =>
       spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
 
+    /** A copy of `src` in a new temp folder */
+    const copyOf = src => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
+      fs.cpSync(src, dir, { recursive: true });
+      return dir;
+    };
     /** Runs the codemod's CLI on a copy of the app, and returns that folder */
     const migrate = app => {
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'axios-to-rest-'));
-      fs.cpSync(path.join(evals, app), dir, { recursive: true });
+      const dir = copyOf(path.join(evals, app));
       const { status, stderr } = node(
         [
           path.join(__dirname, '../../cli.js'),
@@ -2757,13 +2762,14 @@ const [state, setState] = useState(null);
       it("passes the app's prettier --check after its formatter runs", () => {
         const prettier = require.resolve('prettier/bin/prettier.cjs');
         // on a copy, so the other checks still read the codemod's own output
-        const formatted = fs.mkdtempSync(
-          path.join(os.tmpdir(), 'axios-to-rest-'),
-        );
-        fs.cpSync(dir, formatted, { recursive: true });
-        const write = node([prettier, '--write', 'src'], formatted);
-        const check = node([prettier, '--check', 'src'], formatted);
-        fs.rmSync(formatted, { recursive: true, force: true });
+        const copy = copyOf(dir);
+        let write, check;
+        try {
+          write = node([prettier, '--write', 'src'], copy);
+          check = node([prettier, '--check', 'src'], copy);
+        } finally {
+          fs.rmSync(copy, { recursive: true, force: true });
+        }
         expect(write.status).toBe(0);
         expect(check.stdout + check.stderr).not.toMatch(/\[warn\]|\[error\]/);
         expect(check.status).toBe(0);
