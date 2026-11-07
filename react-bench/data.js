@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794063288175,
+  "lastUpdate": 1794069931533,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -12893,6 +12893,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 284.5,
             "range": "± 1.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "a81df72907e7fd84e25a233121a9a2b72ec0d819",
+          "message": "fix(vue, img): Fix Node entry points, and check every package's entry points in CI (#4617)\n\n* fix(vue): Load @data-client/vue/test from Jest and Node\n\n`require` pointed at dist/test/index.js, which was never built, and Node\n`import` went to node.mjs, which re-exports the main entry. The CommonJS\nbuild now emits dist/test.js beside dist/index.js in one Rollup build, so\nboth share the chunk holding the injection keys, and test.node.mjs gives\nNode `import` the same file.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* fix(img): Add an exports map so Node import gets the ESM build\n\nSame shape as use-enhanced-reducer's: types, react-native and default go\nto lib/, require goes to the CommonJS dist/.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Check published package entry points in CI\n\n`yarn check:package-exports` packs every published package, then runs\npublint, arethetypeswrong, and a Node import()/require() of each exports\nsubpath compared against its ESM build. The new CircleCI package-exports\njob runs it. It catches the use-enhanced-reducer Vitest 2 bug, the missing\nimg exports map, and the broken @data-client/vue/test entry.\n\nAllowed: CommonJS consumers get ESM-format types (every package with an\nexports map), and ESM-only subpaths with no require condition.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Check out the repo in package-exports so prepack finds skills\n\nCI failed because the react and vue prepack copies skills from .agents/,\nwhich setup's workspace leaves out; the job now checks out first. The\nscript prints yarn's output when packing fails, allows FalseESM only on\nexports subpaths with a require condition, and finds require conditions\nby key rather than by text.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Pack in dependency order, and build normalizr on pack\n\nFrom a clean tree (what CI's setup leaves), packing failed: normalizr\nbuilt only on prepublishOnly, so `yarn pack` shipped it without lib/ or\ndist/, and core and react bundle a dependency's lib/ that its own prepack\nbuilds. normalizr now builds on prepack like the other packages, and the\ncheck packs topologically.\n\nThe types allowances share one predicate that reads only top-level\n`require` conditions and never allows an unattributed FalseESM; a failed\npack prints yarn's error message.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Check out beside the project in package-exports\n\nCircleCI's checkout refuses ~/project once the relevance flags are\nrestored into it, so the job checks out to ~/repo and copies .agents/\ninto the attached workspace.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Ignore Node's CommonJS interop names in the export comparison\n\nOn Node 26 (CI), `export *` from a CommonJS module passes its\n`module.exports` name on, so graphql's and rest's ESM builds listed an\nexport `require()` doesn't have. Both sides now skip `__esModule` and\n`module.exports`; P4 still fails the check on Node 26.\n\nCJSResolvesToESM is again allowed only when a subpath has no `require`\ncondition at any depth (FalseESM keeps the top-level one), the types-gap\ncomment sits with that predicate, and a failed pack prints yarn's output\nonce.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Simplify the package-exports check\n\nUse Rollup's default output names for the vue CommonJS build, copy the\nwhole checkout into the CI workspace without replacing its files, and\nallow publint's types-format warning only on subpaths with a require\ncondition.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Allow publint's types-format warning only for the require condition\n\npublint reports which condition's types have the wrong format; allow only\n'require', the CommonJS-types gap, rather than any subpath that has a\nrequire condition.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Also scope publint's allowance to subpaths with a require condition\n\nMatches the FalseESM allowance, which shares the new helper.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Split the package-exports check into named steps\n\nThe top level now reads as the steps (pack, unpack, check each); one\nfunction owns which publint messages are allowed, like\nisAllowedTypesProblem for arethetypeswrong; report() returns whether the\ncheck passed instead of setting a global; checkNode takes its loaders.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Drop the Vitest 2 eval's separate normalizr build\n\nnormalizr now builds on prepack, so yarn pack builds it like the others.\nAlso note why the entry-point check runs every check before combining.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Explain the Vitest 2 eval's types build and pack order separately\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Simplify the package-exports check further\n\n- Select published packages with yarn's --no-private, like release does,\n  instead of a hand-built --include list.\n- Drop the module fallback for packages with no exports map: publint's\n  HAS_MODULE_BUT_NO_EXPORTS already fails them.\n- Pass the tarball Buffer to arethetypeswrong without copying it.\n- Drop vue's isExternal cases for ../index.js, which no source imports;\n  the shared CommonJS build is how entries share the injection keys now.\n- Drop a CI step comment that restated the script header.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n* internal: Read package manifests as utf8 in the package-exports check\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZC58minXrVY2chwchj\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-07T16:39:06Z",
+          "tree_id": "f91e915f7b37959cd02bc3864fb0f8155186bb7a",
+          "url": "https://github.com/reactive/data-client/commit/a81df72907e7fd84e25a233121a9a2b72ec0d819"
+        },
+        "date": 1794069928553,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 277.39,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 72.57,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 662.26,
+            "range": "± 1.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 659.02,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 65.19,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 383.88,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 584.8,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.44,
+            "range": "± 11.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 99.75,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 83.09,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 11.46,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 331.13,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 459.77,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 290.71,
+            "range": "± 2.3%",
             "unit": "ops/s"
           }
         ]
