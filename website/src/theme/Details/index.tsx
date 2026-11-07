@@ -1,6 +1,6 @@
 import type { Props } from '@theme/Details';
 import Details from '@theme-original/Details';
-import React, { type MouseEvent } from 'react';
+import React, { type MouseEvent, type ToggleEvent } from 'react';
 
 import {
   HiddenProvider,
@@ -25,6 +25,11 @@ export default function DetailsWrapper(props: Props) {
           )
             reveal();
           props.onClickCapture?.(event);
+        }}
+        // the browser opening it: find in page, a link to inside it
+        onToggle={(event: ToggleEvent<HTMLDetailsElement>) => {
+          if (event.currentTarget.open) reveal();
+          props.onToggle?.(event);
         }}
       />
     </HiddenProvider>

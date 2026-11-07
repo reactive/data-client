@@ -23,13 +23,22 @@ describe('useHiddenUntilIdle', () => {
     expect(result.current[0]).toBe(false);
   });
 
-  it('shows at once when shown before the page is idle', () => {
+  it('shows at once when shown before the page is idle, and stops waiting', () => {
     const { result, rerender } = renderHook(
       ({ hidden }) => useHiddenUntilIdle(hidden),
       { initialProps: { hidden: true } },
     );
+    const cancel = (whenIdle as jest.Mock).mock.results[0].value;
     rerender({ hidden: false });
     expect(result.current[0]).toBe(false);
+    expect(cancel).toHaveBeenCalled();
+  });
+
+  it('stops waiting when unmounted', () => {
+    const { unmount } = renderHook(() => useHiddenUntilIdle(true));
+    const cancel = (whenIdle as jest.Mock).mock.results[0].value;
+    unmount();
+    expect(cancel).toHaveBeenCalled();
   });
 
   it('shows at once on reveal', () => {

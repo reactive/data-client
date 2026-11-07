@@ -21,7 +21,7 @@ import { metaFlag } from '../../utils/fenceMeta';
 export default function CodeBlockWrapper(props: Props) {
   // not shown (an unselected tab, a closed details): plain text (./Line)
   // until the page is idle, then highlighted ahead of being shown
-  const [plain] = useHiddenUntilIdle(useContext(HiddenContext));
+  const [hidden] = useHiddenUntilIdle(useContext(HiddenContext));
   const language = props.language ?? parseLanguage(props.className);
   // a title in the meta wins, as in Docusaurus's own CodeBlock
   const title =
@@ -47,7 +47,7 @@ export default function CodeBlockWrapper(props: Props) {
       })
     : undefined;
   return (
-    <HiddenContext.Provider value={plain}>
+    <HiddenContext.Provider value={hidden}>
       <CodeBlock {...props} title={terminalTitle ?? props.title} />
     </HiddenContext.Provider>
   );
