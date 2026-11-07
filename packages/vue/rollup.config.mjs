@@ -70,9 +70,18 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'src/index.ts',
+    // One build so both entries share a chunk with the injection keys:
+    // `@data-client/vue/test` must provide the same keys the composables inject
+    input: { index: 'src/index.ts', test: 'src/test/index.ts' },
     external: isExternal,
-    output: [{ file: pkg.main, format: 'cjs', inlineDynamicImports: true }],
+    output: [
+      {
+        dir: 'dist',
+        format: 'cjs',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name]-[hash].js',
+      },
+    ],
     onwarn,
     plugins: [
       babel({
