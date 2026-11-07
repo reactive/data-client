@@ -643,11 +643,13 @@ describe('reducer', () => {
       expect(errorspy).toHaveBeenCalledTimes(1);
       reducer(initialState, createOptimistic(endpoint, args, 2000));
       expect(errorspy).toHaveBeenCalledTimes(2);
-      // capped at 100: 100 newer reports evict the oldest
+      // capped at 100: newer reports evict the oldest, recent ones stay deduped
       for (let t = 3000; t < 3100; t++) {
         reducer(initialState, createOptimistic(endpoint, args, t));
       }
       errorspy.mockClear();
+      reducer(initialState, createOptimistic(endpoint, args, 3050));
+      expect(errorspy).not.toHaveBeenCalled();
       reducer(initialState, createOptimistic(endpoint, args, 1000));
       expect(errorspy).toHaveBeenCalledTimes(1);
     } finally {

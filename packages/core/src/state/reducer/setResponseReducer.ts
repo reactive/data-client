@@ -112,13 +112,14 @@ export function setResponseReducer(
 const reportedOptimistic = /* @__PURE__ */ new Set<string>();
 /** Records the report; false when this optimistic failure was already reported.
  * Optimistic actions are re-applied on every state change (also by DevToolsManager),
- * and React 18 StrictMode can re-create one from the same fetch, so each is reported once.
+ * and React 18 StrictMode can re-create one from the same fetch, so each is reported once
+ * while among the latest 100.
  */
 function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
   const reportKey = `${action.key} ${action.meta.fetchedAt}`;
   if (reportedOptimistic.has(reportKey)) return false;
-  // forget the oldest so a long session stays bounded
+  // Sets iterate in insertion order, so this forgets the oldest
   if (reportedOptimistic.size >= 100)
     reportedOptimistic.delete(reportedOptimistic.values().next().value!);
   reportedOptimistic.add(reportKey);
