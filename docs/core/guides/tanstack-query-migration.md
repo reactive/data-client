@@ -70,40 +70,40 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 
 ## API map {#api-map}
 
-| TanStack Query | Data Client |
-| --- | --- |
-| `queryFn` + `queryKey`, `queryOptions()` | An endpoint with a `schema`. The endpoint and its args are the key, so key factories go away |
-| `useQuery()`, `useSuspenseQuery()` | `useSuspense(endpoint, args)`: loading goes to the nearest `<Suspense>`, errors to the nearest error boundary, and `data` is never `undefined` |
-| `useQuery()` where the component renders its own spinner or error | [useDLE()](../api/useDLE.md): `{ data, loading, error }` |
-| `enabled: false` | `null` in place of the args: `useSuspense(endpoint, id ? { id } : null)` returns `undefined` and fetches nothing |
-| `select` | Compute in render, or a [Query](/rest/api/Query) schema read with [useQuery()](../api/useQuery.md) |
-| `useQueries()` | [useFetch()](../api/useFetch.md) for each, then React's `use()`: they fetch in parallel |
-| `staleTime` | [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength) on the endpoint or base class. The default is 60 seconds (TanStack Query's is 0) |
-| `gcTime` | `DataProvider`'s [gcPolicy](../api/DataProvider.md#gcPolicy) |
-| `retry` | Delete it: Data Client has no retry loop. An errored request is fetched again when a component needs it after `errorExpiryLength` (default 1 second), like TanStack Query's `retry: false` |
-| `refetchInterval` | `pollFrequency` on the endpoint, read with [useLive()](../api/useLive.md) |
-| `refetchOnWindowFocus` | Delete it: Data Client doesn't refetch on window focus |
-| `placeholderData: keepPreviousData` | Change the args inside `startTransition()` (or [useDebounce()](../api/useDebounce.md) for typed input): React keeps showing the current data while the next loads |
-| `initialData` from a list query | Delete it: while the list's data is fresh, an Entity it loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity |
-| `useMutation()` | `ctrl.fetch(endpoint, ...args)` in the event handler, from [useController()](../api/useController.md) |
-| `isPending`, `error` of a mutation | [useLoading()](../api/useLoading.md): `const [run, isPending, error] = useLoading(fn, deps)` |
-| `isSuccess`, `onSuccess`, `onError` | Code after or around `await ctrl.fetch()` ([Mutations](#mutations)) |
-| `invalidateQueries()` after an update | Delete it, when the response is the updated Entity |
-| `invalidateQueries()` after a create | `ctrl.fetch(Resource.getList.push, body)` (or `unshift`): the new Entity joins every matching list. Needs a [Collection](/rest/api/Collection) in the list's schema: `resource()` has one by default, and an envelope needs it inside, like `results: new Collection([Issue])`. Lists split into numbered pages: a plain `POST`, then `ctrl.expireAll(Resource.getList)` |
-| `invalidateQueries()` after a delete | Delete it: `resource().delete` (or a `schema.Invalidate` schema) removes the Entity from every list |
-| `invalidateQueries()` for data the response doesn't include (counts, totals) | `ctrl.expireAll(endpoint)`: mounted components refetch |
-| `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
-| `setQueryData()` | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)` |
-| `getQueryData()` | In a component, [useCache()](../api/useCache.md). Elsewhere, `ctrl.get(schema, args, ctrl.getState())` |
-| `prefetchQuery()`, `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | `ctrl.fetchIfStale(endpoint, args)` |
-| `fetchQuery()` | `ctrl.fetch(endpoint, args)` |
-| `onMutate` optimistic update and rollback | [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error |
-| `useInfiniteQuery()` | A [Collection](/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite)) |
-| `queryClient.clear()`, `removeQueries()` on logout | `ctrl.resetEntireStore()` |
-| `QueryClientProvider`, `new QueryClient()` | `DataProvider` |
-| `useQueryClient()` | `useController()` |
-| `ReactQueryDevtools` | Delete it: `DataProvider` adds [devtools](../getting-started/debugging.md) in development |
-| `HydrationBoundary`, `dehydrate()` | [Server Side Rendering](./ssr.md) |
+| TanStack Query                                                               | Data Client                                                                                                                                                                                |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `queryFn` + `queryKey`, `queryOptions()`                                     | An endpoint with a `schema`. The endpoint and its args are the key, so key factories go away                                                                                               |
+| `useQuery()`, `useSuspenseQuery()`                                           | `useSuspense(endpoint, args)`: loading goes to the nearest `<Suspense>`, errors to the nearest error boundary, and `data` is never `undefined`                                             |
+| `useQuery()` where the component renders its own spinner or error            | [useDLE()](../api/useDLE.md): `{ data, loading, error }`                                                                                                                                   |
+| `enabled: false`                                                             | `null` in place of the args: `useSuspense(endpoint, id ? { id } : null)` returns `undefined` and fetches nothing                                                                           |
+| `select`                                                                     | Compute in render, or a [Query](/rest/api/Query) schema read with [useQuery()](../api/useQuery.md)                                                                                         |
+| `useQueries()`                                                               | [useFetch()](../api/useFetch.md) for each, then React's `use()`: they fetch in parallel                                                                                                    |
+| `staleTime`                                                                  | [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength) on the endpoint or base class. The default is 60 seconds (TanStack Query's is 0)                                 |
+| `gcTime`                                                                     | `DataProvider`'s [gcPolicy](../api/DataProvider.md#gcPolicy)                                                                                                                               |
+| `retry`                                                                      | Delete it: Data Client has no retry loop. An errored request is fetched again when a component needs it after `errorExpiryLength` (default 1 second), like TanStack Query's `retry: false` |
+| `refetchInterval`                                                            | `pollFrequency` on the endpoint, read with [useLive()](../api/useLive.md)                                                                                                                  |
+| `refetchOnWindowFocus`                                                       | Delete it: Data Client doesn't refetch on window focus                                                                                                                                     |
+| `placeholderData: keepPreviousData`                                          | Change the args inside `startTransition()` (or [useDebounce()](../api/useDebounce.md) for typed input): React keeps showing the current data while the next loads                          |
+| `initialData` from a list query                                              | Delete it: while the list's data is fresh, an Entity it loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity                                |
+| `useMutation()`                                                              | `ctrl.fetch(endpoint, ...args)` in the event handler, from [useController()](../api/useController.md)                                                                                      |
+| `isPending`, `error` of a mutation                                           | [useLoading()](../api/useLoading.md): `const [run, isPending, error] = useLoading(fn, deps)`                                                                                               |
+| `isSuccess`, `onSuccess`, `onError`                                          | Code after or around `await ctrl.fetch()` ([Mutations](#mutations))                                                                                                                        |
+| `invalidateQueries()` after an update                                        | Delete it, when the response is the updated Entity                                                                                                                                         |
+| `invalidateQueries()` after a create                                         | `ctrl.fetch(Resource.getList.push, body)` (or `unshift`); numbered pages differ ([Mutations](#mutations))                                                                                  |
+| `invalidateQueries()` after a delete                                         | Delete it: `resource().delete` (or a `schema.Invalidate` schema) removes the Entity from every list                                                                                        |
+| `invalidateQueries()` for data the response doesn't include (counts, totals) | `ctrl.expireAll(endpoint)`: mounted components refetch                                                                                                                                     |
+| `refetchQueries()`                                                           | `ctrl.fetch(endpoint, args)`                                                                                                                                                               |
+| `setQueryData()`                                                             | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)`                                                                                                |
+| `getQueryData()`                                                             | In a component, [useCache()](../api/useCache.md). Elsewhere, `ctrl.get(schema, args, ctrl.getState())`                                                                                     |
+| `prefetchQuery()`, `ensureQueryData()`, `getQueryData() ?? fetchQuery()`     | `ctrl.fetchIfStale(endpoint, args)`                                                                                                                                                        |
+| `fetchQuery()`                                                               | `ctrl.fetch(endpoint, args)`                                                                                                                                                               |
+| `onMutate` optimistic update and rollback                                    | [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error                                                                                |
+| `useInfiniteQuery()`                                                         | A [Collection](/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite))                                                                              |
+| `queryClient.clear()`, `removeQueries()` on logout                           | `ctrl.resetEntireStore()`                                                                                                                                                                  |
+| `QueryClientProvider`, `new QueryClient()`                                   | `DataProvider`                                                                                                                                                                             |
+| `useQueryClient()`                                                           | `useController()`                                                                                                                                                                          |
+| `ReactQueryDevtools`                                                         | Delete it: `DataProvider` adds [devtools](../getting-started/debugging.md) in development                                                                                                  |
+| `HydrationBoundary`, `dehydrate()`                                           | [Server Side Rendering](./ssr.md)                                                                                                                                                          |
 
 :::warning
 
@@ -129,7 +129,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => (
 ```
 
 `DataProvider` makes its own store, so there is no client to create. Move `QueryClient` `defaultOptions` to the base
-endpoint class: `staleTime` becomes `dataExpiryLength`. Delete `retry` and `refetchOnWindowFocus`.
+endpoint class, as the [API map](#api-map) lists.
 
 ## Reads {#reads}
 
@@ -145,7 +145,10 @@ export const issueKeys = {
 };
 
 export const useIssues = (page: number) =>
-  useQuery({ queryKey: issueKeys.list(page), queryFn: () => fetchIssues(page) });
+  useQuery({
+    queryKey: issueKeys.list(page),
+    queryFn: () => fetchIssues(page),
+  });
 ```
 
 ```tsx title="Before, in IssueTable" nocheck
@@ -160,9 +163,12 @@ import { useSuspense } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
 export function IssueTable({ page }: { page: number }) {
-  const { results: issues, pagination } = useSuspense(IssueResource.getList, {
-    page,
-  });
+  const { results: issues, pagination } = useSuspense(
+    IssueResource.getList,
+    {
+      page,
+    },
+  );
   return (
     <table>
       <caption>
@@ -185,8 +191,8 @@ The `isLoading` branch moves to a `<Suspense>` fallback, and the `isError` branc
 [AsyncBoundary](../api/AsyncBoundary.md) is both. Keep the app's own skeleton and error banner as their fallbacks. The
 `?? []` guard goes away, because `useSuspense()` returns only once data is there.
 
-Two `useSuspense()` calls in one component load one after the other. When neither needs the other's data, start both
-with `useFetch()` and read them with `use()`.
+Two `useSuspense()` calls in one component load one after the other; to load them in parallel, see
+[parallel data loading](../api/useFetch.md#parallel-data-loading).
 
 ### Envelope responses
 
@@ -238,7 +244,9 @@ export const useCloseIssue = () => {
   return useMutation({
     mutationFn: (id: number) => patchIssue(id, { state: 'closed' }),
     onSuccess: issue => {
-      queryClient.invalidateQueries({ queryKey: issueKeys.detail(issue.id) });
+      queryClient.invalidateQueries({
+        queryKey: issueKeys.detail(issue.id),
+      });
       toast(`Closed #${issue.id}`);
     },
     onError: () => toast('Could not close the issue'),
@@ -254,7 +262,11 @@ export function CloseIssueButton({ id }: { id: number }) {
   const ctrl = useController();
   const [close, isPending] = useLoading(async () => {
     try {
-      await ctrl.fetch(IssueResource.partialUpdate, { id }, { state: 'closed' });
+      await ctrl.fetch(
+        IssueResource.partialUpdate,
+        { id },
+        { state: 'closed' },
+      );
       toast(`Closed #${id}`);
     } catch {
       toast('Could not close the issue');
@@ -269,15 +281,18 @@ export function CloseIssueButton({ id }: { id: number }) {
 ```
 
 The `invalidateQueries()` call is gone: the response is the updated `Issue`, so the table and the detail page both
-show it closed (lists filtered by state need more; see below). TanStack Query apps usually invalidate the detail key but not every list key, so lists show stale
+show it closed. TanStack Query apps usually invalidate the detail key but not every list key, so lists show stale
 data until they expire; after the migration they don't.
 
-Decide what to do with each `invalidateQueries()` and `refetchQueries()` call from the response:
+Decide what to do with each `invalidateQueries()` and `refetchQueries()` call from the response (more examples in
+[mutations](../getting-started/mutations.md)):
 
 - **Response is the changed Entity** (update, partial update): delete the call, unless the change moves the Entity
   between filtered or sorted lists. Closing an issue updates it everywhere, but doesn't remove it from a cached
   `?state=open` list or add it to a `?state=closed` one; keep those right with `ctrl.expireAll(Resource.getList)`.
-- **Create**: fetch the list's `push` (or `unshift`) endpoint instead of the plain `POST`. For lists split into
+- **Create**: fetch the list's `push` (or `unshift`) endpoint instead of the plain `POST`, and the new Entity joins every
+  matching list. This needs a [Collection](/rest/api/Collection) in the list's schema: `resource()` has one by default,
+  and an envelope needs it inside, like `results: new Collection([Issue])`. For lists split into
   numbered pages, where a new item shifts every page, add a plain `POST` endpoint (`create` in the
   [envelope example](#envelope-responses): `Base.getList.push.extend({ schema: Issue })`), then call
   `ctrl.expireAll(Resource.getList)`.
@@ -336,8 +351,7 @@ export const issueLoader =
     ctrl.fetchIfStale(IssueResource.get, { id: Number(params.issueId) });
 ```
 
-`fetchIfStale()` fetches only when the data is missing or stale, which is what `ensureQueryData()`,
-`getQueryData() ?? fetchQuery()` and `prefetchQuery()` do. Use it for hover or focus prefetching too:
+`fetchIfStale()` fetches only when the data is missing or stale. Use it for hover or focus prefetching too:
 `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Load several endpoints with `Promise.all()` of
 `fetchIfStale()` calls.
 
@@ -381,14 +395,19 @@ export const addNote = new RestEndpoint({
 invalidating anything.
 
 ```tsx title="IssueNotes.tsx"
-import { useController, useLoading, useSuspense } from '@data-client/react';
+import {
+  useController,
+  useLoading,
+  useSuspense,
+} from '@data-client/react';
 import { getNotes } from './resources/Note';
 
 export function IssueNotes({ issueId }: { issueId: number }) {
   const { results: notes, nextPage } = useSuspense(getNotes, { issueId });
   const ctrl = useController();
   const [loadMore, isLoadingMore] = useLoading(
-    async (page: number) => ctrl.fetch(getNotes.getPage, { issueId, page }),
+    async (page: number) =>
+      ctrl.fetch(getNotes.getPage, { issueId, page }),
     [ctrl, issueId],
   );
   return (
@@ -401,7 +420,10 @@ export function IssueNotes({ issueId }: { issueId: number }) {
         ))}
       </ul>
       {nextPage !== null && (
-        <button onClick={() => loadMore(nextPage)} disabled={isLoadingMore}>
+        <button
+          onClick={() => loadMore(nextPage)}
+          disabled={isLoadingMore}
+        >
           Show older notes
         </button>
       )}
@@ -420,7 +442,11 @@ Libraries like `react-query-auth` give `useUser()`, `useLogin()`, `useLogout()` 
 Query. Rebuild them from endpoints:
 
 ```ts title="session.ts"
-import { useController, useLoading, useSuspense } from '@data-client/react';
+import {
+  useController,
+  useLoading,
+  useSuspense,
+} from '@data-client/react';
 import { Entity, RestEndpoint } from '@data-client/rest';
 
 class Account extends Entity {
@@ -519,7 +545,10 @@ To sign out on any other 401 response, add [LogoutManager](../api/LogoutManager.
   suspends. Wait only when a spinner is present:
 
   ```ts title="test-utils.ts"
-  import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+  import {
+    screen,
+    waitForElementToBeRemoved,
+  } from '@testing-library/react';
 
   const loadingElements = () => screen.queryAllByTestId(/loading/i);
 
