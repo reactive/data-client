@@ -492,6 +492,25 @@ jobs:
             cd examples/normalizr-relationships
             yarn run start
 
+  package-exports:
+    executor: node
+    resource_class: large
+    steps:
+      - halt-unless-relevant-change:
+          flag: esmodule
+      - attach_workspace:
+          at: ~/
+      # prepack reads files setup's workspace leaves out (skills in .agents/;
+      # persisting them would make skill-only changes rerun every test job).
+      # Checked out beside the project, since checkout refuses a non-empty
+      # directory, then copied in without replacing the workspace's files.
+      - checkout:
+          path: ~/repo
+      - run: cp -R --update=none ~/repo/. ~/project/
+      - run:
+          name: Check published package entry points
+          command: yarn run check:package-exports
+
   tree-passed:
     # Runs only once every job passed (a halted job counts), so later
     # pipelines on the same tree (the merge queue, then master) skip the work
@@ -565,6 +584,9 @@ workflows:
       - esmodule-types-latest:
           requires:
             - setup
+      - package-exports:
+          requires:
+            - setup
       - esmodule-types:
           matrix:
             parameters:
@@ -585,3 +607,4 @@ workflows:
             - validate-esmodule-browser-build
             - esmodule-types-latest
             - esmodule-types
+            - package-exports
