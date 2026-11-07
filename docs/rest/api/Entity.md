@@ -393,10 +393,10 @@ class User extends Entity {
 }
 ```
 
-A missing nested entity can arrive as `null`, as `undefined`, or as an empty object `{}`.
-All three normalize to "no entity", so `friend` above keeps no value instead of failing the
-whole response. A nested object with data but no primary key still throws, because that is
-usually a malformed response.
+An API can mark a missing related entity with `null`, by leaving the member out, or with an
+empty object `{}`. All three mean "no entity" instead of failing the whole response. `{}`
+becomes `undefined`. A nested object that has fields but no primary key still throws, because
+that usually means a malformed response.
 
 ### static indexes?: (keyof this)[] {#indexes}
 

@@ -111,6 +111,7 @@ describe(`${Entity.name} normalization`, () => {
   });
 
   describe('empty nested object', () => {
+    // P5 eval (.agents/projects/migrations/bulletproof-react/problems.md):
     // APIs often send `{}` for a missing relation (e.g. a deleted author)
     class User extends Entity {
       id = '';
@@ -124,7 +125,7 @@ describe(`${Entity.name} normalization`, () => {
       static schema = { author: User, watchers: [User] };
     }
 
-    it('normalizes `{}` like null', () => {
+    it('normalizes `{}` on an Entity member to undefined', () => {
       const { result, entities } = normalize(Discussion, {
         id: '1',
         title: 'hi',
@@ -150,11 +151,18 @@ describe(`${Entity.name} normalization`, () => {
       ).toThrow('Missing usable primary key');
     });
 
-    it('still throws for `{}` at the top level', () => {
+    it('still throws for `{}` outside an Entity', () => {
       expect(() => normalize(User, {})).toThrow('Missing usable primary key');
       expect(() => normalize([User], [{}])).toThrow(
         'Missing usable primary key',
       );
+      // envelope: a detail endpoint that returns no entity is malformed
+      expect(() => normalize({ data: User }, { data: {} })).toThrow(
+        'Missing usable primary key',
+      );
+      expect(() =>
+        normalize(new schema.Collection([User]), [{}], [{}]),
+      ).toThrow('Missing usable primary key');
     });
   });
 

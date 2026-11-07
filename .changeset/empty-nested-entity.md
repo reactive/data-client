@@ -4,7 +4,7 @@
 '@data-client/graphql': patch
 ---
 
-Normalize an empty nested entity (`{}`) like `null`
+Normalize an empty nested entity (`{}`) as missing
 
 Many APIs send `{}` for a missing relation, such as a deleted author.
 
@@ -19,6 +19,7 @@ class Discussion extends Entity {
 
 Before: normalizing threw `Missing usable primary key` in development
 (and stored a placeholder `User` in production), failing the whole response.
-Now `discussion.author` is `undefined`, the same as when the API sends `null`.
+Now `discussion.author` is `undefined`.
 
-A nested object with data but no primary key, and a top-level `{}`, still throw.
+Only `{}` on an Entity member changes. A nested object with fields but no primary key,
+and `{}` anywhere else (the top level, a response envelope, a Collection item), still throw.

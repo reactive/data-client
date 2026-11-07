@@ -25,6 +25,21 @@ export class Some extends Entity {
 }
 const SomeResource = resource({ path: '/some/:id', schema: Some });
 
+class Author extends Entity {
+  id = '';
+  name = '';
+}
+class Discussion extends Entity {
+  id = '';
+  title = '';
+  author?: Author = undefined;
+  static schema = { author: Author };
+}
+const DiscussionResource = resource({
+  path: '/discussions/:id',
+  schema: Discussion,
+});
+
 const fixture: FixtureEndpoint = {
   endpoint: SomeResource.getList,
   args: [],
@@ -152,5 +167,26 @@ describe(`optional members`, () => {
       { initialFixtures: [fixture] },
     );
     expect(result.current).toMatchSnapshot();
+  });
+
+  // P5 eval (.agents/projects/migrations/bulletproof-react/problems.md)
+  it('should render an empty nested entity ({}) as undefined', () => {
+    const { result } = renderDataClient(
+      () => {
+        return useSuspense(DiscussionResource.get, { id: '1' });
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: DiscussionResource.get,
+            args: [{ id: '1' }],
+            response: { id: '1', title: 'hi', author: {} },
+          },
+        ],
+      },
+    );
+    expect(result.current).toBeInstanceOf(Discussion);
+    expect(result.current.title).toBe('hi');
+    expect(result.current.author).toBeUndefined();
   });
 });
