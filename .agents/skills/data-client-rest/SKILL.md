@@ -172,8 +172,10 @@ export const IssueResource = resource({
 - When asked to browse or navigate to a web address, actual visit the address
 - Prefer `RestEndpoint` over `resource()` for defining single endpoints or when mutation endpoints don't exist
 - For blob/file downloads and other non-JSON responses, see [network-transform: file download](references/network-transform.md#file-download).
-- A mutation that changes another entity's server-computed field (a comment changes its post's `commentCount`): see
-  skill "data-client-schema", `references/side-effects.md` (Counts and other server-computed fields).
+- A mutation that changes another entity's server-computed field (a comment changes its post's `commentCount`): put
+  that entity in the mutation's response schema when the API can return it, else fetch its endpoint after the mutation
+  without awaiting it. Details: skill "data-client-schema", `references/side-effects.md` (Counts and other
+  server-computed fields).
 
 ## 6. Common Mistakes to Avoid
 

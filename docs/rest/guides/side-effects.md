@@ -160,7 +160,7 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
 Return the parent in the comment's create and delete responses, and add it to those endpoints' schemas, the same way
 as the [example above](#example). This needs no extra request. Call `CommentResource.add` and `CommentResource.remove`
 instead of `CommentResource.getList.push` and `CommentResource.delete`, so the
-response's post is stored. (`add` and `remove` are names chosen in [`.extend()`](../api/resource.md#extend); the built-in `create` is deprecated.)
+response's post is stored. (`add` and `remove` are names chosen in [`.extend()`](/rest/api/resource#extend); the built-in `create` is deprecated.)
 
 ```typescript title="resources/Comment.ts"
 export const CommentResource = resource({
