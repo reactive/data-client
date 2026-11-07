@@ -285,7 +285,7 @@ export type RestEndpointExtendOptions<
 /** Argument I passed to process(), from Parameters<F>.
  * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
  * merges position-wise, giving `undefined` where some call omits the argument.
- * Endpoints that take no args, or only an optional `{}`, keep `any`, so process(value, params: any) and similar still compile.
+ * Endpoints that take no args, or `{}` as their only alternative to no args, keep `any`, so process(value, params: any) and similar still compile.
  */
 type ProcessArg<A extends readonly any[], I extends 0 | 1> =
   [A['length']] extends [0] ? any
@@ -864,7 +864,8 @@ export type ParamFetchNoBody<P, R = any> =
       | ((this: EndpointInstanceInterface) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
-// same algorithm, but for Args (aka readonly any[]); Collection args stay `[]` without params
+// same algorithm, but for Args (aka readonly any[]). Without params this stays `[]` (unlike ParamFetchNoBody's `{}`):
+// it types a Collection's argsKey, and `{}` or no args give the same Collection key
 export type ParamToArgs<P> =
   P extends undefined ? []
   : {} extends P ?

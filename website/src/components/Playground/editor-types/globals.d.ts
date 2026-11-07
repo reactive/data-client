@@ -1757,7 +1757,7 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
 /** Argument I passed to process(), from Parameters<F>.
  * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
  * merges position-wise, giving `undefined` where some call omits the argument.
- * Endpoints that take no args, or only an optional `{}`, keep `any`, so process(value, params: any) and similar still compile.
+ * Endpoints that take no args, or `{}` as their only alternative to no args, keep `any`, so process(value, params: any) and similar still compile.
  */
 type ProcessArg<A extends readonly any[], I extends 0 | 1> = [
     A['length']
