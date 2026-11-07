@@ -8,6 +8,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 
 ## P1 (S, high): no migration path from TanStack Query to data-client hooks
 
+- Fix: #4608.
+
 - Step: setup skill, REST setup, "Migrate each HTTP library". Axios guide says "Components still call them directly, so how the app loads and stores data doesn't change".
 - Tried: followed the axios guide, then needed to replace 20 files of `useQuery`, `useMutation`, `queryOptions`, `invalidateQueries`, `refetchQueries`, `prefetchQuery`, `useInfiniteQuery`, `QueryClient` in react-router loaders, and `react-query-auth`.
 - Occurred: no skill section covers it; the model reconstructed the mapping from the schema, rest and react skills (worked, but cost the most time of any step).
@@ -16,6 +18,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Pass: with no extra hints, an agent reaches `tsc`, vitest, playwright (incl. `e2e/tests/stale-list.spec.ts` from this PR) all green with zero `@tanstack` imports, and its mapping follows a documented guide.
 
 ## P2 (S/E): axios codemod URL unreachable offline or behind an egress proxy
+
+- Fix: #4609.
 
 - Step: axios migration step 2, `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js`.
 - Occurred: `getaddrinfo ENOTFOUND dataclient.io` (jscodeshift's fetch ignores `HTTPS_PROXY`; the proxy also returns 403 for dataclient.io).
@@ -26,6 +30,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 
 ## P3 (S, high): Suspense boundary must live inside `DataProvider`
 
+- Fix: #4609.
+
 - Step: provider setup. App had `<Suspense><ErrorBoundary><Providers>` with the provider inside the app's Suspense.
 - Occurred: every `useSuspense` rendered DataProvider's built-in "Uncaught Suspense. Try adding a suspense boundary" fallback; all vitest suites failed with `waitForElementToBeRemoved ... already removed`. Moving `<Suspense>` inside `<DataProvider>` fixed it.
 - Expected: the provider section or Common Issues says a boundary (or `AsyncBoundary`) must be a descendant of `DataProvider`, and the setup verification checklist checks it.
@@ -33,6 +39,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Pass: skill text covers it, and the checklist item "a Suspense/AsyncBoundary is inside DataProvider" exists; an agent migrating this app places it correctly first time.
 
 ## P4 (L, high): vitest + jsdom cannot render `DataProvider` without `server.deps.inline`
+
+- Fix: #4613. Eval: `.agents/projects/migrations/evals/vitest-jsdom-provider/run.sh` (exit 0 = pass; `DATA_CLIENT_VERSION=0.18.2` gives the failing baseline).
 
 - Step: running existing vitest suite after provider swap.
 - Occurred: `TypeError: useEnhancedReducer is not a function or its return value is not iterable` at `DataStore` (default-export interop of `@data-client/use-enhanced-reducer` through `node.mjs`).
@@ -43,6 +51,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 
 ## P5 (L/D): API returns `{}` for a missing nested entity, which fails the whole response
 
+- Fix: #4611. Eval: the `useSuspense` test in `optional-members.tsx`.
+
 - Step: Entity definition (`Discussion.author`, `Comment.author`). The mock API returns `author: {}` when the author row is gone (test data has `authorId: ''`).
 - Occurred: `Missing usable primary key when normalizing response. Entity: User, Value (processed): {}` thrown from the whole fetch; UI errors.
 - Workaround: `static process(input) { const { author, ...rest } = input; return author?.id ? input : rest; }` on both entities, `author: User | undefined`.
@@ -52,6 +62,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 
 ## P6 (L, typing): conditional fetch of a zero-argument endpoint
 
+- Fix: #4612. Evals: `packages/react/typescript-tests/conditionalNoArgs.test.ts` and `packages/vue/typescript-tests/conditionalNoArgs.test.ts` (`yarn ci:build:types && yarn run tsc -p tsconfig.test.json --noEmit`).
+
 - Step: `register.tsx` had `useTeams({ enabled: chooseTeam })`.
 - Occurred: `useSuspense(getTeams, chooseTeam ? {} : null)` is a TS error (`[{} | null]` not assignable to `readonly [null] | readonly []`). Needed `useSuspense(getTeams, ...(chooseTeam ? [] : [null] as [null]))`.
 - Expected: the documented `cond ? args : null` form type-checks for endpoints without args.
@@ -59,6 +71,8 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - Pass: repro compiles; or the skill documents the supported form.
 
 ## P7 (S): envelope responses (`{ data, meta }`) lack a worked recipe
+
+- Fix: #4609.
 
 - Step: schemas for list endpoints. API wraps lists and details as `{ data: [...], meta }` and `{ data: {...} }`.
 - Occurred: worked out `schema: { data: [Discussion], meta: {} as Meta }`, `{ data: Discussion }`, a shared `Collection` with `argsKey: ({ discussionId }) => ({ discussionId })` so `getPage` and `push` share one list, `paginationField: 'page'` on a plain RestEndpoint with envelope schema. All worked (vitest "load more comments"), but only after reading Collection, RestEndpoint and pagination references; nothing says envelopes work with `getPage`/`push`, that page args must be left out of `argsKey`, or that `meta` updates after `getPage`.
@@ -68,11 +82,15 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 
 ## P8 (S): library version vs skill version mismatch
 
+- Fix: #4609.
+
 - Step: skills install. Setup skill says `npx --no data-client-skills`; published 0.18.2 has no such bin (npm 404), so the fallback `npx skills add reactive/data-client ...` (from master) was used. Skills from master describe 0.19 behaviour while 0.18.2 was installed.
 - Expected: detection of the installed version before choosing the install path, or a note about master skills vs released packages.
 - Pass: on a project with 0.18.x installed, the skill's first-attempt path works and says which version the skills target.
 
 ## P9 (S, minor): codemod output needs formatting and orphaned interceptors
+
+- Fix: #4610.
 
 - `axios-to-rest` output had unformatted object literals (missing trailing commas) and left `api.interceptors...` referencing the removed `api`. The TODO comments pointed at the right section, so this cost little. Pass: codemod output passes `prettier --check` and does not leave references to the removed instance (or comments out the block).
 
