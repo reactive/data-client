@@ -32,7 +32,8 @@ process.env.NODE_ENV = 'production';
 
 // React Native: the contexts are one CommonJS file that both the ESM `native/` build (Metro
 // `import`) and `dist/*.native.js` (Jest, `require()`) load, so an app has one set of contexts.
-const nativeContext = 'dist/context.native.js';
+const nativeContextEntry = 'context';
+const nativeContext = `dist/${nativeContextEntry}.native.js`;
 
 function isExternal(id) {
   return (
@@ -115,7 +116,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       isNative ?
         {
           // its own file: native/context.js loads it (see nativeContext)
-          context: 'src/context.ts',
+          [nativeContextEntry]: 'src/context.ts',
           index: 'src/index.ts',
           next: 'src/next/index.ts',
           // @data-client/react/redux: client-side despite the server/ folder

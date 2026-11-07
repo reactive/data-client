@@ -307,8 +307,9 @@ function compareExports(expected, actual) {
 
 // A subpath that loads a second copy of code `.` also loads breaks at runtime:
 // MockController isn't the app's Controller, a provider fills a context the
-// hooks never read. Subpaths with no `require` condition are ESM-only, for
-// bundlers, which load one build for every entry point.
+// hooks never read. Subpaths with no `require` condition are ESM-only: they
+// are for bundlers (Next.js for react's ./nextjs), and Node `import` still
+// loads them from lib/, so they are not checked.
 async function checkShared(pkg, dir, consumer) {
   const subpaths = entryPoints(pkg)
     .map(([subpath]) => subpath)
@@ -317,25 +318,40 @@ async function checkShared(pkg, dir, consumer) {
   for (const subpath of subpaths) {
     const specifier = pkg.name + subpath.slice(1);
     for (const [call, load] of Object.entries(consumer)) {
-      for (const [name, builds] of mixedBuilds(call, [pkg.name, specifier])) {
-        errors.push(
-          `${call}('${pkg.name}') and ${call}('${specifier}') load ${name} from both ${builds.join(' and ')}`,
-        );
-      }
-      const [root, sub] = [await load(pkg.name), await load(specifier)];
-      for (const name of Object.keys(sub)) {
-        if (!(name in root) || INTEROP.has(name) || name === 'default')
-          continue;
-        if (DIFFERENT_ON_PURPOSE[specifier]?.includes(name)) continue;
-        if (sub[name] !== root[name]) {
+      try {
+        for (const [name, builds] of mixedBuilds(call, [pkg.name, specifier])) {
+          errors.push(
+            `${call}('${pkg.name}') and ${call}('${specifier}') load ${name} from both ${builds.join(' and ')}`,
+          );
+        }
+        for (const name of await differentExports(load, pkg.name, specifier)) {
           errors.push(
             `${call}('${specifier}') export ${name} is a different object from ${call}('${pkg.name}')'s`,
           );
         }
+      } catch (error) {
+        errors.push(
+          `${call}('${specifier}') threw ${error.message.split('\n')[0]}`,
+        );
       }
     }
   }
   return { errors };
+}
+
+// Names the subpath exports that are a different object from `.`'s export
+// of the same name
+async function differentExports(load, rootSpecifier, specifier) {
+  const root = await load(rootSpecifier);
+  const sub = await load(specifier);
+  return Object.keys(sub).filter(
+    name =>
+      name in root &&
+      !INTEROP.has(name) &&
+      name !== 'default' &&
+      !DIFFERENT_ON_PURPOSE[specifier]?.includes(name) &&
+      sub[name] !== root[name],
+  );
 }
 
 // Loads the specifiers in a fresh Node process, and returns each unpacked
@@ -369,7 +385,9 @@ function mixedBuilds(call, specifiers) {
 
 // A class bundled into two CommonJS files of one build: separate rollup
 // builds per entry point each bundle their own copy of shared modules.
-// React Native's dist/*.native.js are a separate build.
+// Only catches classes; a duplicated function or context shows up only when
+// `.` exports it too (differentExports). React Native's dist/*.native.js are
+// a separate build.
 function duplicateClasses(dir) {
   const declared = new Map();
   const distDir = path.join(dir, 'dist');
@@ -381,14 +399,14 @@ function duplicateClasses(dir) {
     // rollup output declares top-level classes at the start of a line
     for (const [, name] of source.matchAll(/^class ([\w$]+)/gm)) {
       const key = `${build} ${name}`;
-      if (!declared.has(key)) declared.set(key, []);
-      declared.get(key).push(`dist/${file}`);
+      if (!declared.has(key)) declared.set(key, { name, files: [] });
+      declared.get(key).files.push(`dist/${file}`);
     }
   }
-  return [...declared]
-    .filter(([, files]) => files.length > 1)
+  return [...declared.values()]
+    .filter(({ files }) => files.length > 1)
     .map(
-      ([key, files]) =>
-        `class ${key.split(' ')[1]} is bundled into ${files.join(' and ')}`,
+      ({ name, files }) =>
+        `class ${name} is bundled into ${files.join(' and ')}`,
     );
 }

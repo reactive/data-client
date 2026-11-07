@@ -23,11 +23,14 @@ Run `./run.sh`. It builds the types, packs every published package through `yarn
 2. Runs `probe.mjs` against the packed packages: under `import` and `require`, a hook rendered inside
    `@data-client/react/redux`'s `ExternalDataProvider` must get that provider's controller.
 
-- Pass: exit 0 (every package's `shared` check passes and the probe prints `pass` twice).
-- Fail: exit 1.
+- Pass: exit 0 (all 11 published packages report a passing `shared` check, and the probe prints `pass` twice).
+- Fail: exit 1. A check that crashes before every package reports also fails.
 - Exit 2: the type build or packing failed, so the eval did not run. It prints the end of the log.
 - Baseline: PR #4617's head (`38a9f50`) fails. `shared` fails for core, react and rest, and the probe prints
   `FAIL import`.
+
+Not covered: React Native's `dist/*.native.js` (the probe runs in Node, and the `shared` check scans the native
+files only for duplicated classes).
 
 `SKIP_BUILD=1` skips the type build when it is current. It takes about three minutes, and is not part of CI as an
 eval: CI's `package-exports` job runs the same `shared` check.
