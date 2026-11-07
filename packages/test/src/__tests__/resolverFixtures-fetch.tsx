@@ -4,7 +4,7 @@ import { RestEndpoint } from '@data-client/rest';
 
 import { renderDataHook } from '..';
 
-// REACT-28: controller.fetch() answered by resolverFixtures, with no hook subscribed to the store
+// controller.fetch() answered by resolverFixtures resolves even with no hook subscribed to the store
 const getTodo = new RestEndpoint({
   urlPrefix: 'http://test.com',
   path: '/todo/:id',
