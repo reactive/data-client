@@ -48,7 +48,7 @@ describe('monacoPrism colors as Monaco does', () => {
     ]);
   });
 
-  test('JavaScript has no TypeScript keywords; private names stay plain', () => {
+  test('JavaScript has no TypeScript keywords; lowercase private names stay plain', () => {
     expect(spans('let type; #get', 'js')).toEqual([
       ['keyword', 'let'],
       [null, 'type'],
@@ -173,6 +173,12 @@ describe('monacoPrism colors as Monaco does', () => {
     ).toBe(code);
   });
 
+  test('tokenizes a long run of code without overflowing the stack', () => {
+    expect(() =>
+      monacoPrism.tokenize('a+'.repeat(200000), Prism.languages.jsx),
+    ).not.toThrow();
+  });
+
   test('gives every type it emits a theme style', () => {
     const styled = codePrismTheme.styles.flatMap(style => style.types);
     const emitted = [
@@ -182,6 +188,7 @@ describe('monacoPrism colors as Monaco does', () => {
     ].flatMap(([language, code]) =>
       spans(code, language).map(([type]) => type),
     );
+    expect(emitted.length).toBeGreaterThan(0);
     for (const type of new Set(emitted)) {
       if (type) expect(styled).toContain(type);
     }
@@ -189,7 +196,7 @@ describe('monacoPrism colors as Monaco does', () => {
 });
 
 test('isMonacoTokenized covers the fence languages Monaco highlights', () => {
-  for (const language of ['ts', 'TSX', 'typescript', 'js', 'html', 'json']) {
+  for (const language of ['ts', 'TSX', 'typescript', 'JS', 'html', 'json']) {
     expect(isMonacoTokenized(language)).toBe(true);
   }
   for (const language of ['bash', 'md', 'constructor']) {

@@ -3,7 +3,7 @@
  * server renders keeps its colors when Monaco takes over (see ./theme.ts).
  * Prism still finds strings, comments, numbers and regular expressions, which
  * Monaco colors the same way. The rest is colored here the way Monaco's
- * TypeScript and HTML grammars color it: keywords, capitalized names,
+ * TypeScript, JavaScript and HTML grammars color it: keywords, capitalized names,
  * operators and brackets, tags. A few characters can still differ (an
  * apostrophe in JSX text starts a string in Monaco).
  */
@@ -56,6 +56,7 @@ const typed = (type: string, text: string) => new Prism.Token(type, text);
 /** Code outside strings and comments, colored as Monaco's grammar does */
 function lex(code: string, keywords: Set<string>): Token[] {
   const tokens: Token[] = [];
+  // Monaco's two identifier rules: a `#` joins only a lowercase name
   for (const [text, word, delimiter, symbols] of code.matchAll(
     /(#?[a-z_$][\w$]*|[A-Z][\w$]*)|([{}()[\];,.]|!(?!=))|([=><!~?:&|+\-*/^%]+)|\s+|./g,
   )) {
@@ -159,6 +160,12 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
   });
 }
 
+/** Monaco's JavaScript grammar is its TypeScript one with fewer keywords */
+const keywordsFor = (grammar: Prism.Grammar) =>
+  grammar === Prism.languages.javascript || grammar === Prism.languages.jsx ?
+    JS_KEYWORDS
+  : TS_KEYWORDS;
+
 /**
  * Prism, for react-live's `prism`, with its tokens colored as Monaco does.
  * Use it with ./theme.ts's `codePrismTheme`.
@@ -168,13 +175,5 @@ export const monacoPrism = {
   tokenize: (code: string, grammar: Prism.Grammar) =>
     grammar === Prism.languages.markup ?
       recolorHtml(Prism.tokenize(code, grammar))
-    : recolor(
-        Prism.tokenize(code, grammar),
-        (
-          grammar === Prism.languages.javascript ||
-            grammar === Prism.languages.jsx
-        ) ?
-          JS_KEYWORDS
-        : TS_KEYWORDS,
-      ),
+    : recolor(Prism.tokenize(code, grammar), keywordsFor(grammar)),
 } as typeof Prism;
