@@ -44,6 +44,8 @@ const INTEROP = new Set(['__esModule', 'module.exports']);
 const DIFFERENT_ON_PURPOSE = {
   // the Redux-backed provider
   '@data-client/react/redux': ['DataProvider'],
+  // the provider that streams server data to the client
+  '@data-client/react/nextjs': ['DataProvider'],
 };
 
 // Lists the files a fresh Node process loads for `import`s or `require`s of
@@ -311,9 +313,8 @@ function compareExports(expected, actual) {
 // A subpath that loads a second copy of code `.` also loads breaks at runtime:
 // MockController isn't the app's Controller, a provider fills a context the
 // hooks never read. Skips ESM-only subpaths (no `require` condition), which
-// are for bundlers. Known gap: Node `import` loads them from lib/ while `.`
-// loads dist/, so react's ./nextjs DataProvider run unbundled in Node fills
-// contexts that `@data-client/react`'s hooks don't read. Next.js bundles it.
+// are for bundlers: Node `import` loads them from lib/ while `.` loads dist/,
+// so one that shares state with `.` needs a `require` target and shim too.
 async function checkShared(pkg, dir, consumer) {
   const subpaths = entryPoints(pkg)
     .map(([subpath]) => subpath)
