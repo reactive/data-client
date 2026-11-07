@@ -30,6 +30,18 @@ class Discussion extends Entity {
   title = '';
   author?: Nested = undefined;
   static schema = { author: Nested };
+
+  // the API sends `author: {}` when the author was deleted
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    if (processed.author && !processed.author.id) processed.author = undefined;
+    return processed;
+  }
 }
 const DiscussionResource = resource({
   path: '/discussions/:id',
@@ -165,8 +177,8 @@ describe(`optional members`, () => {
     expect(result.current).toMatchSnapshot();
   });
 
-  // Eval for migration problem P5 (bulletproof-react, #4607): the API sends
-  // `author: {}` when the author was deleted
+  // Eval for migration problem P5 (bulletproof-react, #4607): the documented
+  // process() recipe (docs/rest/api/Entity.md#optional-members)
   it('should render an empty nested entity ({}) as undefined', () => {
     const { result } = renderDataClient(
       () => {

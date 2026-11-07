@@ -112,7 +112,8 @@ describe(`${Entity.name} normalization`, () => {
 
   describe('empty nested object', () => {
     // Eval for migration problem P5 (bulletproof-react, #4607): the API sends
-    // `author: {}` when the author was deleted
+    // `author: {}` when the author was deleted. The documented fix is process()
+    // (docs/rest/api/Entity.md#optional-members).
     class User extends Entity {
       id = '';
       name = '';
@@ -121,89 +122,53 @@ describe(`${Entity.name} normalization`, () => {
       id = '';
       title = '';
       author?: User = undefined;
-      editors?: User[] = undefined;
-      watchers: User[] = [];
-      static schema = {
-        author: User,
-        editors: [User],
-        watchers: [User],
-      };
+      static schema = { author: User };
+    }
+    class SafeDiscussion extends Discussion {
+      static process(
+        input: any,
+        parent: any,
+        key: string | undefined,
+        args: any[],
+      ) {
+        const processed = super.process(input, parent, key, args);
+        if (processed.author && !processed.author.id)
+          processed.author = undefined;
+        return processed;
+      }
     }
 
-    it('normalizes `{}` on an optional member to undefined', () => {
-      const { result, entities } = normalize(Discussion, {
+    it('throws without the process() recipe', () => {
+      expect(() =>
+        normalize(Discussion, { id: '1', title: 'hi', author: {} }),
+      ).toThrow('Missing usable primary key');
+    });
+
+    it('process() recipe normalizes `{}` to undefined', () => {
+      const { result, entities } = normalize(SafeDiscussion, {
         id: '1',
         title: 'hi',
         author: {},
-        editors: [{}, { id: '2', name: 'b' }],
       });
-      expect(result).toBe('1');
-      expect(entities.Discussion['1'].author).toBeUndefined();
-      expect(entities.Discussion['1'].editors).toEqual([undefined, '2']);
-      expect(entities.User).toEqual({ 2: { id: '2', name: 'b' } });
-
-      const discussion = plainDenormalize(Discussion, result, entities);
-      expect(discussion).toBeInstanceOf(Discussion);
-      expect((discussion as Discussion).author).toBeUndefined();
-      expect((discussion as Discussion).editors).toEqual([
-        User.fromJS({ id: '2', name: 'b' }),
-      ]);
+      expect(entities.SafeDiscussion['1'].author).toBeUndefined();
+      const discussion = plainDenormalize(SafeDiscussion, result, entities);
+      expect(discussion).toBeInstanceOf(SafeDiscussion);
+      expect((discussion as SafeDiscussion).author).toBeUndefined();
     });
 
-    it('clears a stored relation', () => {
-      const first = normalize(Discussion, {
+    it('process() recipe clears a stored author', () => {
+      const first = normalize(SafeDiscussion, {
         id: '1',
         author: { id: '2', name: 'b' },
       });
+      expect(first.entities.SafeDiscussion['1'].author).toBe('2');
       const { entities } = normalize(
-        Discussion,
+        SafeDiscussion,
         { id: '1', author: {} },
         [],
         first,
       );
-      expect(entities.Discussion['1'].author).toBeUndefined();
-    });
-
-    it('still throws for `{}` on a required member', () => {
-      class Post extends Entity {
-        id = '';
-        author = User.fromJS();
-        static schema = { author: User };
-      }
-      expect(() => normalize(Post, { id: '1', author: {} })).toThrow(
-        'Missing usable primary key',
-      );
-      expect(() => normalize(Discussion, { id: '1', watchers: [{}] })).toThrow(
-        'Missing usable primary key',
-      );
-    });
-
-    it('still throws for a nested object with data but no pk', () => {
-      expect(() =>
-        normalize(Discussion, { id: '1', author: { name: 'a' } }),
-      ).toThrow('Missing usable primary key');
-    });
-
-    it('still throws for `{}` outside an Entity', () => {
-      expect(() => normalize(User, {})).toThrow('Missing usable primary key');
-      expect(() => normalize([User], [{}])).toThrow(
-        'Missing usable primary key',
-      );
-      // envelope: a detail endpoint that returns no entity is malformed
-      expect(() => normalize({ data: User }, { data: {} })).toThrow(
-        'Missing usable primary key',
-      );
-      expect(() =>
-        normalize(new schema.Collection([User]), [{}], [{}]),
-      ).toThrow('Missing usable primary key');
-      class Thread extends Entity {
-        id = '';
-        members?: User[] = undefined;
-        static schema = { members: new schema.Collection([User]) };
-      }
-      expect(() => normalize(Thread, { id: '1', members: [{}] })).toThrow(
-        'Missing usable primary key',
-      );
+      expect(entities.SafeDiscussion['1'].author).toBeUndefined();
     });
   });
 

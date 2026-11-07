@@ -393,12 +393,26 @@ class User extends Entity {
 }
 ```
 
-Some APIs send an empty object `{}` instead of `null` for a missing related entity. On an
-optional member (one whose default is falsy, like `friend` above), `{}` becomes `undefined`
-instead of failing the whole response. `null` stays `null`. Both clear a relation already in
-the store. `{}` on a required member (default like `[]` or `User.fromJS()`), or a nested
-object that has fields but no primary key, still throws in development, because that usually
-means a malformed response.
+Some APIs send an empty object `{}` instead of `null` for a missing related entity, such as a
+deleted author. `{}` has no primary key, so normalizing it throws `Missing usable primary key`.
+Clear it in the parent's [process()](#process):
+
+```typescript
+class Post extends Entity {
+  id = '';
+  author?: User = undefined;
+  static schema = { author: User };
+
+  static process(input: any, parent: any, key: string | undefined, args: any[]) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-next-line
+    if (processed.author && !processed.author.id) processed.author = undefined;
+    return processed;
+  }
+}
+```
+
+`post.author` is then `undefined`, and a stored author is cleared the same way `null` clears it.
 
 ### static indexes?: (keyof this)[] {#indexes}
 

@@ -168,7 +168,6 @@ export interface IEntityClass<TBase extends Constructor = any> {
     parent: any,
     key: string | undefined,
     delegate: INormalizeDelegate,
-    parentEntity?: any,
   ): any;
   /** Do any transformations when first receiving input
    *

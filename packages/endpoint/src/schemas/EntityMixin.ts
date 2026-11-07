@@ -254,7 +254,6 @@ export default function EntityMixin<TBase extends Constructor>(
       parent: any,
       key: string | undefined,
       delegate: INormalizeDelegate,
-      parentEntity?: any,
     ): any {
       const args = delegate.args;
       const visit = delegate.visit;
@@ -269,14 +268,6 @@ export default function EntityMixin<TBase extends Constructor>(
       }
       id = this.pk(processedEntity, parent, key, args);
       if (id === undefined || id === '' || id === 'undefined') {
-        // `{}` on an optional (falsy default, as in denormalize) member of an Entity class (not a
-        // Collection instance) is a missing relation; anywhere else it's a malformed response.
-        if (
-          Object.keys(input).length === 0 &&
-          typeof parentEntity === 'function' &&
-          !parentEntity.defaults?.[key as string]
-        )
-          return undefined;
         // 'creates' conceptually should allow missing PK to make optimistic creates easy
         if (process.env.NODE_ENV !== 'production' && !visit.creating) {
           let why: string;
