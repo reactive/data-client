@@ -57,6 +57,7 @@ registerHooks({
     return result;
   },
 });
+// slice(1): it runs with node -e, so argv has no script path
 const [call, ...specifiers] = process.argv.slice(1);
 const require = createRequire(import.meta.url);
 for (const specifier of specifiers) {
@@ -317,7 +318,7 @@ async function checkShared(pkg, dir, consumer) {
   const subpaths = entryPoints(pkg)
     .map(([subpath]) => subpath)
     .filter(subpath => subpath !== '.' && hasTopLevelRequire(pkg, subpath));
-  const errors = duplicateClasses(dir);
+  const errors = duplicateSingletons(dir);
   for (const subpath of subpaths) {
     const specifier = pkg.name + subpath.slice(1);
     for (const [call, load] of Object.entries(consumer)) {
@@ -385,12 +386,11 @@ function mixedBuilds(call, specifiers) {
     .map(([name, set]) => [name, [...set]]);
 }
 
-// A class bundled into two CommonJS files of one build: separate rollup
-// builds per entry point each bundle their own copy of shared modules.
-// Only catches classes; a duplicated function or context shows up only when
-// `.` exports it too (differentExports). React Native's dist/*.native.js are
-// a separate build.
-function duplicateClasses(dir) {
+// A class or React context bundled into two CommonJS files of one build:
+// separate rollup builds per entry point each bundle their own copy of shared
+// modules. A duplicated function shows up only when `.` exports it too
+// (differentExports). React Native's dist/*.native.js are a separate build.
+function duplicateSingletons(dir) {
   const declared = new Map();
   const distDir = path.join(dir, 'dist');
   if (!fs.existsSync(distDir)) return [];
@@ -398,17 +398,21 @@ function duplicateClasses(dir) {
     if (!file.endsWith('.js') || file.endsWith('.umd.min.js')) continue;
     const build = file.endsWith('.native.js') ? 'native' : 'node';
     const source = fs.readFileSync(path.join(distDir, file), 'utf8');
-    // rollup output declares top-level classes at the start of a line
-    for (const [, name] of source.matchAll(/^class ([\w$]+)/gm)) {
-      const key = `${build} ${name}`;
-      if (!declared.has(key)) declared.set(key, []);
-      declared.get(key).push(`dist/${file}`);
+    // rollup output declares them at the start of a line
+    for (const [, className, contextName] of source.matchAll(SINGLETON)) {
+      const [kind, name] =
+        className ? ['class', className] : ['context', contextName];
+      const key = `${build} ${kind} ${name}`;
+      if (!declared.has(key)) declared.set(key, { kind, name, files: [] });
+      declared.get(key).files.push(`dist/${file}`);
     }
   }
-  return [...declared]
-    .filter(([, files]) => files.length > 1)
+  return [...declared.values()]
+    .filter(({ files }) => files.length > 1)
     .map(
-      ([key, files]) =>
-        `class ${key.split(' ')[1]} is bundled into ${files.join(' and ')}`,
+      ({ kind, name, files }) =>
+        `${kind} ${name} is bundled into ${files.join(' and ')}`,
     );
 }
+const SINGLETON =
+  /^(?:class ([\w$]+)|const ([\w$]+) = (?:\/\*#__PURE__\*\/)?[\w$.]*createContext\()/gm;
