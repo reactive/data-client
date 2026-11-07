@@ -58,7 +58,6 @@ import { RestEndpoint } from '@data-client/rest';
   () => requiredSearch({ userId: 'hi' }, { userId: 'hi' });
 
   () => undef();
-  // @ts-expect-error
   () => undef({});
   // @ts-expect-error
   () => undef({ userId: 'hi' });
@@ -66,7 +65,7 @@ import { RestEndpoint } from '@data-client/rest';
   () => undef(5);
 
   () => noSearch();
-  // @ts-expect-error
+  // `{}` lets `cond ? {} : null` conditionally fetch; same key and url as no args
   () => noSearch({});
   // @ts-expect-error
   () => noSearch({ userId: 'hi' });

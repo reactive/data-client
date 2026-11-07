@@ -322,6 +322,7 @@ and [incrementally streaming SSR](https://dataclient.io/docs/guides/ssr) won't w
 > **Tip: Conditional Dependencies**
 >
 > Use `null` as the second argument to any Data Client hook means "do nothing."
+> A [RestEndpoint](./RestEndpoint.md) without path or search params takes `{}` in its place, like `enabled ? {} : null`.
 >
 > ```typescript
 > // todo could be undefined if id is undefined

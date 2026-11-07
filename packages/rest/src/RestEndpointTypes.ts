@@ -285,10 +285,12 @@ export type RestEndpointExtendOptions<
 /** Argument I passed to process(), from Parameters<F>.
  * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
  * merges position-wise, giving `undefined` where some call omits the argument.
- * Endpoints that take no args keep `any`, so process(value, params: any) and similar still compile.
+ * Endpoints that take no args, or only an optional `{}`, keep `any`, so process(value, params: any) and similar still compile.
  */
 type ProcessArg<A extends readonly any[], I extends 0 | 1> =
-  [A['length']] extends [0] ? any : A[I];
+  [A['length']] extends [0] ? any
+  : [A] extends [readonly [params?: EmptyParams]] ? any
+  : A[I];
 
 type ExtendOmitKeys =
   KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
@@ -844,6 +846,9 @@ export type ParamFetchWithBody<P, B = {}, R = any> =
       | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
 
+/** Params of an endpoint with no path or search params: only `{}` */
+type EmptyParams = Record<string, never>;
+
 export type ParamFetchNoBody<P, R = any> =
   // we must always allow undefined in a union and give it a type without params
   P extends undefined ? (this: EndpointInstanceInterface) => Promise<R>
@@ -851,12 +856,13 @@ export type ParamFetchNoBody<P, R = any> =
   {} extends P ?
     // this safely handles PathArgs with no members that results in a simple `unknown` type
     keyof P extends never ?
-      (this: EndpointInstanceInterface) => Promise<R>
+      // `{}` lets hooks take `cond ? {} : null`; RestEndpoint gives it the same key and url as no args
+      (this: EndpointInstanceInterface, params?: EmptyParams) => Promise<R>
     : | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
       | ((this: EndpointInstanceInterface) => Promise<R>)
   : (this: EndpointInstanceInterface, params: P) => Promise<R>;
 
-// same algorithm, but for Args (aka readonly any[])
+// same algorithm, but for Args (aka readonly any[]); Collection args stay `[]` without params
 export type ParamToArgs<P> =
   P extends undefined ? []
   : {} extends P ?
