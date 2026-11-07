@@ -258,6 +258,8 @@ declare function useCancelling<E extends EndpointInterface & {
 /**
  * Takes an async function and tracks resolution as a boolean.
  *
+ * If `func` rejects, the error is stored and cleared again on the next call.
+ *
  * @see https://dataclient.io/docs/api/useLoading
  * @param func A function returning a promise
  * @param deps Deps list sent to useCallback()
