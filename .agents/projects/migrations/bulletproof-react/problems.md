@@ -81,3 +81,13 @@ Type: S = skill gap, L = library, D = docs, E = environment (not a data-client f
 - `yarn install` (v1.22) failed with `ECONNRESET` repeatedly behind the egress proxy; `npm install --legacy-peer-deps` worked (so `yarn.lock` is stale in the patch).
 - Playwright's bundled browser version differs from the container's preinstalled chromium; used `launchOptions.executablePath`.
 - The app's unit tests assumed react-query-auth's `AuthLoader` always showed a spinner (`waitForLoadingToFinish`); changed it to tolerate no spinner. Migrations of apps with similar test helpers will hit this.
+
+## P11 (S/L, medium): partial optimistic responses fail silently when they omit entity fields
+
+- Step: adding optimistic updates (discussion `partialUpdate`, profile update). The first version returned `{ id, ...body }`.
+- Occurred: the UI did not update until the server answered; no error or warning. `Entity.validate()` rejects a response missing fields, and the exception is counted as an endpoint failure instead of a visible error. Spreading the cached entity first (`{ ...snap.get(Discussion, { id }), ...body }`, as `resource({ optimistic: true })` does internally) fixed it.
+- Expected: the skill's `getOptimisticResponse` section says partial updates must include the full entity, or the failure is logged in development.
+- Repro: `getOptimisticResponse(snap, { id }, body) { return { id, ...body }; }` on a `partialUpdate` of an Entity with required fields; submit and watch the UI.
+- Pass: skill text shows the spread pattern for partial updates, or a dev-mode warning names the failed validation; `e2e/tests/optimistic.spec.ts` passes with the documented pattern first time.
+
+Test note for P11: `getByRole('heading')` cannot see page content behind an open Radix drawer (aria-hidden), so optimistic UI checks behind a drawer must use `locator`/`getByText`.

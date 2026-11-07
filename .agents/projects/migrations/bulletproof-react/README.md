@@ -13,6 +13,7 @@ Result: [`migration.patch`](./migration.patch) (`git apply` at the repo root of 
 | vitest | 21/21 | 22/22 (+1 load-more-comments test) |
 | playwright (setup, profile, smoke) | 3/3 | 3/3 (9/9 over 3 repeat runs; 1 cold-start failure on the first run) |
 | playwright `stale-list` (new) | **fail** | pass |
+| playwright `optimistic` (new): discussion update, comment create and delete show within 250ms; mock API answers in >=300ms | **fail** | pass (3/3) |
 
 `stale-list.spec.ts`: create a discussion, update its title on the discussion page, navigate back to the list.
 Baseline shows the old title (`['discussions', id]` is refetched, the list's `['discussions', {page}]` is not, staleTime 60s).
@@ -38,3 +39,7 @@ DB chunk (209 kB gzip, same in both) because mocking is enabled in the build. To
 were not measured in this run. Reproduce: from the app folder, `node measure.cjs <label> <preview-url> <runs>` (resolves Playwright from the current folder; set `CHROMIUM_PATH` to use a specific browser).
 The data-access LoC includes the Entity definitions (data-definition, cheap to maintain).
 The migration kept `yarn.lock` untouched (installed with npm, see problem P10); regenerate it before merging anywhere.
+
+## Optimistic updates (added after the first measurement)
+
+Comment create and delete, discussion update and profile update are optimistic (`getOptimisticResponse`); the other mutations are not. Main chunk is 165.87 kB gzip with them (165.83 before). Tests: vitest 22/22, playwright 5/5. See problem P11.

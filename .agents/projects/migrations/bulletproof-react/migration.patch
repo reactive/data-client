@@ -1,9 +1,73 @@
+diff --git a/apps/react-vite/e2e/tests/optimistic.spec.ts b/apps/react-vite/e2e/tests/optimistic.spec.ts
+new file mode 100644
+index 0000000..25a26e4
+--- /dev/null
++++ b/apps/react-vite/e2e/tests/optimistic.spec.ts
+@@ -0,0 +1,58 @@
++import { test, expect } from '@playwright/test';
++
++import {
++  createComment,
++  createDiscussion,
++} from '../../src/testing/data-generators';
++
++// the mock API takes at least 300ms to answer, so anything shown sooner is optimistic
++const FASTER_THAN_NETWORK = { timeout: 250 };
++
++test('discussion and comment mutations show before the server answers', async ({
++  page,
++}) => {
++  const discussion = createDiscussion();
++  const comment = createComment();
++
++  await page.goto('/app/discussions');
++  await page.getByRole('button', { name: 'Create Discussion' }).click();
++  await page.getByLabel('Title').fill(discussion.title);
++  await page.getByLabel('Body').fill(discussion.body);
++  await page.getByRole('button', { name: 'Submit' }).click();
++  await page
++    .getByLabel('Discussion Created')
++    .getByRole('button', { name: 'Close' })
++    .click();
++  await page
++    .getByRole('row', { name: new RegExp(discussion.title) })
++    .getByRole('link', { name: 'View' })
++    .click();
++
++  // update discussion
++  await page.getByRole('button', { name: 'Update Discussion' }).click();
++  await page.getByLabel('Title').fill(`${discussion.title} - updated`);
++  await page.getByRole('button', { name: 'Submit' }).click();
++  // not getByRole: the open drawer hides the page behind it from the accessibility tree
++  await expect(
++    page.locator('h1', { hasText: `${discussion.title} - updated` }),
++  ).toBeVisible(FASTER_THAN_NETWORK);
++  await page
++    .getByLabel('Discussion Updated')
++    .getByRole('button', { name: 'Close' })
++    .click();
++
++  // create comment
++  await page.getByRole('button', { name: 'Create Comment' }).click();
++  await page.getByLabel('Body').fill(comment.body);
++  await page.getByRole('button', { name: 'Submit' }).click();
++  await expect(page.getByText(comment.body)).toBeVisible(FASTER_THAN_NETWORK);
++  await page
++    .getByLabel('Comment Created')
++    .getByRole('button', { name: 'Close' })
++    .click();
++
++  // delete comment
++  await page.getByRole('button', { name: 'Delete Comment' }).click();
++  await page.getByRole('button', { name: 'Delete Comment' }).click();
++  await expect(page.getByText(comment.body)).toBeHidden(FASTER_THAN_NETWORK);
++});
 diff --git a/apps/react-vite/e2e/tests/stale-list.spec.ts b/apps/react-vite/e2e/tests/stale-list.spec.ts
 new file mode 100644
-index 0000000..9511efb
+index 0000000..25490ea
 --- /dev/null
 +++ b/apps/react-vite/e2e/tests/stale-list.spec.ts
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,38 @@
 +import { test, expect } from '@playwright/test';
 +
 +import { createDiscussion } from '../../src/testing/data-generators';
@@ -33,9 +97,7 @@ index 0000000..9511efb
 +  await page.getByRole('button', { name: 'Update Discussion' }).click();
 +  await page.getByLabel('Title').fill(updatedTitle);
 +  await page.getByRole('button', { name: 'Submit' }).click();
-+  await expect(
-+    page.getByRole('heading', { name: updatedTitle }),
-+  ).toBeVisible();
++  await expect(page.getByRole('heading', { name: updatedTitle })).toBeVisible();
 +
 +  // client-side navigation, so cached list data is what renders first
 +  await page.getByRole('link', { name: 'Discussions' }).click();
@@ -726,17 +788,17 @@ index 9eb4a03..330d147 100644
              </div>
 diff --git a/apps/react-vite/src/features/comments/api/comment.ts b/apps/react-vite/src/features/comments/api/comment.ts
 new file mode 100644
-index 0000000..01626cc
+index 0000000..1f63411
 --- /dev/null
 +++ b/apps/react-vite/src/features/comments/api/comment.ts
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,71 @@
 +import { Collection, Entity, schema } from '@data-client/rest';
 +import { z } from 'zod';
 +
 +import { ApiEndpoint } from '@/lib/api-client';
 +import { Meta } from '@/types/api';
 +
-+import { User } from '../../users/api/user';
++import { User, getUser } from '../../users/api/user';
 +
 +export class Comment extends Entity {
 +  id = '';
@@ -780,12 +842,26 @@ index 0000000..01626cc
 +  searchParams: {} as { discussionId: string },
 +  body: {} as CreateCommentInput,
 +  schema: commentsOf.push,
++  getOptimisticResponse(snap, { discussionId }, body) {
++    const author = snap.getResponse(getUser).data?.data;
++    if (!author) throw snap.abort;
++    return {
++      id: `optimistic-${Date.now()}`,
++      createdAt: Date.now(),
++      ...body,
++      discussionId,
++      author,
++    };
++  },
 +});
 +
 +export const deleteComment = new ApiEndpoint({
 +  path: '/comments/:id',
 +  method: 'DELETE',
 +  schema: new schema.Invalidate(Comment),
++  getOptimisticResponse(snap, { id }) {
++    return { id };
++  },
 +});
 diff --git a/apps/react-vite/src/features/comments/api/create-comment.ts b/apps/react-vite/src/features/comments/api/create-comment.ts
 deleted file mode 100644
@@ -1249,10 +1325,10 @@ index 07c95ec..0000000
 -};
 diff --git a/apps/react-vite/src/features/discussions/api/discussion.ts b/apps/react-vite/src/features/discussions/api/discussion.ts
 new file mode 100644
-index 0000000..9550713
+index 0000000..b708305
 --- /dev/null
 +++ b/apps/react-vite/src/features/discussions/api/discussion.ts
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,58 @@
 +import { Entity, resource } from '@data-client/rest';
 +import { z } from 'zod';
 +
@@ -1293,6 +1369,13 @@ index 0000000..9550713
 +  searchParams: {} as { page?: number },
 +  body: {} as DiscussionInput,
 +}).extend((Base) => ({
++  partialUpdate: Base.partialUpdate.extend({
++    getOptimisticResponse(snap, { id }, body) {
++      const discussion = snap.get(Discussion, { id });
++      if (!discussion) throw snap.abort;
++      return { ...discussion, ...body };
++    },
++  }),
 +  get: Base.get.extend({ schema: { data: Discussion } }),
 +  getList: Base.getList.extend({
 +    schema: { data: [Discussion], meta: {} as Meta },
@@ -1942,10 +2025,10 @@ index cf36049..0000000
 -};
 diff --git a/apps/react-vite/src/features/users/api/user.ts b/apps/react-vite/src/features/users/api/user.ts
 new file mode 100644
-index 0000000..a50b32e
+index 0000000..edff4cb
 --- /dev/null
 +++ b/apps/react-vite/src/features/users/api/user.ts
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,54 @@
 +import { Entity, schema } from '@data-client/rest';
 +import { z } from 'zod';
 +
@@ -1963,6 +2046,11 @@ index 0000000..a50b32e
 +
 +  static key = 'User';
 +}
++
++export const getUser = new ApiEndpoint({
++  path: '/auth/me',
++  schema: { data: User },
++});
 +
 +export const getUsers = new ApiEndpoint({
 +  path: '/users',
@@ -1989,6 +2077,11 @@ index 0000000..a50b32e
 +  method: 'PATCH',
 +  body: {} as UpdateProfileInput,
 +  schema: User,
++  getOptimisticResponse(snap, body) {
++    const user = snap.getResponse(getUser).data?.data;
++    if (!user) throw snap.abort;
++    return { ...user, ...body };
++  },
 +});
 diff --git a/apps/react-vite/src/features/users/components/delete-user.tsx b/apps/react-vite/src/features/users/components/delete-user.tsx
 index 3078e16..a1adab7 100644
@@ -2288,10 +2381,10 @@ index 86a60a2..b105105 100644
 +  }
 +}
 diff --git a/apps/react-vite/src/lib/auth.tsx b/apps/react-vite/src/lib/auth.tsx
-index 1537981..c06e5b5 100644
+index 1537981..bed6b47 100644
 --- a/apps/react-vite/src/lib/auth.tsx
 +++ b/apps/react-vite/src/lib/auth.tsx
-@@ -1,24 +1,18 @@
+@@ -1,24 +1,13 @@
 -import { configureAuth } from 'react-query-auth';
 +import { useController, useLoading, useSuspense } from '@data-client/react';
  import { Navigate, useLocation } from 'react-router';
@@ -2299,7 +2392,7 @@ index 1537981..c06e5b5 100644
  
  import { paths } from '@/config/paths';
 -import { AuthResponse, User } from '@/types/api';
-+import { User } from '@/features/users/api/user';
++import { User, getUser } from '@/features/users/api/user';
  
 -import { api } from './api-client';
 +import { ApiEndpoint } from './api-client';
@@ -2309,11 +2402,7 @@ index 1537981..c06e5b5 100644
 -
 -const getUser = async (): Promise<User> => {
 -  const response = await api.get('/auth/me');
-+const getUser = new ApiEndpoint({
-+  path: '/auth/me',
-+  schema: { data: User },
-+});
- 
+-
 -  return response.data;
 -};
 -
@@ -2324,7 +2413,7 @@ index 1537981..c06e5b5 100644
  
  export const loginInputSchema = z.object({
    email: z.string().min(1, 'Required').email('Invalid email'),
-@@ -26,9 +20,13 @@ export const loginInputSchema = z.object({
+@@ -26,9 +15,13 @@ export const loginInputSchema = z.object({
  });
  
  export type LoginInput = z.infer<typeof loginInputSchema>;
@@ -2341,7 +2430,7 @@ index 1537981..c06e5b5 100644
  
  export const registerInputSchema = z
    .object({
-@@ -53,33 +51,53 @@ export const registerInputSchema = z
+@@ -53,33 +46,53 @@ export const registerInputSchema = z
  
  export type RegisterInput = z.infer<typeof registerInputSchema>;
  
