@@ -637,23 +637,19 @@ describe('reducer', () => {
         getOptimisticResponse: (snap, params, body) => body,
       });
       const args = [{ id: 5 }, { title: 'hi' }] as const;
-      // React 18 StrictMode and DevToolsManager re-create the action from the same fetch
+      // React 18 StrictMode re-creates the action from the same fetch
       reducer(initialState, createOptimistic(endpoint, args, 1000));
       reducer(initialState, createOptimistic(endpoint, args, 1000));
       expect(errorspy).toHaveBeenCalledTimes(1);
       reducer(initialState, createOptimistic(endpoint, args, 2000));
       expect(errorspy).toHaveBeenCalledTimes(2);
-      // the response forgets the report, so tracking stays bounded
-      reducer(
-        initialState,
-        createSetResponse(endpoint, {
-          args,
-          response: { id: 5, title: 'hi' },
-          fetchedAt: 1000,
-        }),
-      );
+      // capped: after 100 more reports, the first is forgotten
+      for (let t = 3000; t < 3100; t++) {
+        reducer(initialState, createOptimistic(endpoint, args, t));
+      }
+      errorspy.mockClear();
       reducer(initialState, createOptimistic(endpoint, args, 1000));
-      expect(errorspy).toHaveBeenCalledTimes(3);
+      expect(errorspy).toHaveBeenCalledTimes(1);
     } finally {
       errorspy.mockRestore();
     }

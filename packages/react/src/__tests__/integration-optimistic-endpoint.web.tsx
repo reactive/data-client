@@ -877,9 +877,7 @@ describe.each([
           );
           expect(message).toContain('getOptimisticResponse()');
           expect(message).toContain('missing its primary key');
-          expect(message).toContain(
-            'snap.getResponse(readEndpoint, ...args).data',
-          );
+          expect(message).toContain('snap.getResponse(getMe).data');
           expect(message).toContain("'id' missing");
         },
       );

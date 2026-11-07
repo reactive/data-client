@@ -14,14 +14,6 @@ export function setResponseReducer(
   action: OptimisticAction | SetResponseAction,
   controller: Controller,
 ): State<unknown> {
-  // the fetch resolved, so its optimistic action won't be re-applied
-  if (
-    process.env.NODE_ENV !== 'production' &&
-    reportedOptimistic.size &&
-    action.type !== OPTIMISTIC
-  ) {
-    reportedOptimistic.delete(`${action.key} ${action.meta.fetchedAt}`);
-  }
   if (action.error) {
     return reduceError(state, action, action.response);
   }
@@ -115,17 +107,19 @@ export function setResponseReducer(
 }
 
 /** Optimistic failures already logged, by key and fetch time (development only).
- * Like filterOptimistic(), key + fetchedAt identifies the fetch; its response removes the entry.
+ * Like filterOptimistic(), key + fetchedAt identifies the fetch. Capped, so a long
+ * session can't grow it; clearing at worst repeats a report.
  */
 const reportedOptimistic = /* @__PURE__ */ new Set<string>();
 /** Records the report; false when this optimistic failure was already reported.
- * Optimistic actions are re-applied on every state change, and React StrictMode or
- * DevToolsManager can re-create one from the same fetch, so each is reported once.
+ * Optimistic actions are re-applied on every state change (also by DevToolsManager),
+ * and React 18 StrictMode can re-create one from the same fetch, so each is reported once.
  */
 function claimReport(action: OptimisticAction | SetResponseAction) {
   if (action.type !== OPTIMISTIC) return true;
   const reportKey = `${action.key} ${action.meta.fetchedAt}`;
   if (reportedOptimistic.has(reportKey)) return false;
+  if (reportedOptimistic.size >= 100) reportedOptimistic.clear();
   reportedOptimistic.add(reportKey);
   return true;
 }
@@ -133,7 +127,7 @@ function claimReport(action: OptimisticAction | SetResponseAction) {
 function optimisticFailureIntro(key: string) {
   return `Optimistic update skipped for ${key}; the UI will update when the server responds.
 getOptimisticResponse() threw, or returned a value that could not be normalized.
-Often an Entity is missing its primary key: read it from snap.getResponse(readEndpoint, ...args).data.
+Often an Entity is missing its primary key: read it from the snapshot, like snap.getResponse(getMe).data.
 https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse`;
 }
 
