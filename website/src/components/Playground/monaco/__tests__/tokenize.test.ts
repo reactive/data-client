@@ -1,7 +1,9 @@
 /// <reference types="jest" />
 
+import fs from 'fs';
+import path from 'path';
+
 import { MONACO_VERSION } from '../grammars';
-import { MONACO_CDN_VS } from '../preloadManifest';
 import { codePrismTheme, tokenClass } from '../theme';
 import {
   isMonacoTokenized,
@@ -11,8 +13,9 @@ import {
   tokenizeJson,
   tokenizeTs,
 } from '../tokenize';
-// Monaco's own tokens for these snippets, from monaco.editor.tokenize in the
-// browser: regenerate them with ../grammars.ts after a Monaco upgrade
+// Monaco's own tokens for these snippets: monaco.editor.tokenize(code,
+// language) run in the browser on a page with Monaco loaded. Run it again
+// after a Monaco upgrade, and after adding a snippet
 import monacoTokens from './__fixtures__/monacoTokens.json';
 
 type MonacoLines = string[][][];
@@ -55,8 +58,12 @@ const cases = (snippets: { code: string; tokens: MonacoLines }[]) =>
 
 describe('tokenizers', () => {
   test('copy the installed Monaco', () => {
-    // preloadManifest.ts is generated from the installed monaco-editor
-    expect(MONACO_CDN_VS).toContain(`/monaco-editor@${MONACO_VERSION}/`);
+    // its entry is min/vs/index.js; `exports` hides package.json
+    const root = path.resolve(require.resolve('monaco-editor'), '../../..');
+    const { version } = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
+    );
+    expect(version).toBe(MONACO_VERSION);
   });
 
   test.each(cases(monacoTokens.typescript))(

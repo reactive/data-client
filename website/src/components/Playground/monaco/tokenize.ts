@@ -51,22 +51,39 @@ const BRACKETS: Record<string, string> = {
 };
 
 interface CompiledRule {
+  /** matches at the start of the text */
   regex: RegExp;
+  /** matches anywhere in the text */
+  search: RegExp;
   action: Action;
 }
 
-/** A grammar's rules per state, `include`s flattened and `@attr`s expanded */
+const compiled = new Map<Grammar, Record<string, CompiledRule[]>>();
+
+/**
+ * A grammar's rules per state, `include`s flattened and `@attr`s expanded,
+ * compiled once per grammar
+ */
 function compile(grammar: Grammar): Record<string, CompiledRule[]> {
+  let rules = compiled.get(grammar);
+  if (!rules) {
+    rules = compileRules(grammar);
+    compiled.set(grammar, rules);
+  }
+  return rules;
+}
+
+function compileRules(grammar: Grammar): Record<string, CompiledRule[]> {
   const attrs = grammar as unknown as Record<string, unknown>;
   const flags = grammar.ignoreCase ? 'i' : '';
-  const compileRegExp = (source: string) => {
+  const expand = (source: string) => {
     for (let depth = 0; depth < 5 && source.includes('@'); depth++) {
       source = source.replace(
         /@(\w+)/g,
         (_, attr: string) => `(?:${(attrs[attr] as RegExp).source})`,
       );
     }
-    return new RegExp(`^(?:${source})`, flags);
+    return source;
   };
   const compileState = (state: string): CompiledRule[] =>
     grammar.tokenizer[state].flatMap(rule => {
@@ -74,9 +91,11 @@ function compile(grammar: Grammar): Record<string, CompiledRule[]> {
         return compileState(rule.include.replace(/^@/, ''));
       }
       const [regex, action = '', next] = rule;
+      const source = expand(regex.source);
       return [
         {
-          regex: compileRegExp(regex.source),
+          regex: new RegExp(`^(?:${source})`, flags),
+          search: new RegExp(source, flags),
           action:
             next === undefined ? action
             : typeof action === 'string' ? { token: action, next }
@@ -95,7 +114,10 @@ type LineTokenizer = (
   emit: (text: string, monacoToken: string) => void,
 ) => void;
 
-/** Monaco's languages by the MIME type a `<script>` names */
+/**
+ * Monaco's languages by the MIME type a `<script>` names. `<style>` (CSS)
+ * stays plain: no playground file has one
+ */
 const EMBEDDED: Record<string, Grammar> = {
   'text/javascript': javascript,
 };
@@ -136,11 +158,7 @@ function runGrammar(grammar: Grammar): LineTokenizer {
     if (embedded !== undefined) {
       const leaves = rulesOf(state())
         .filter(rule => (rule.action as ActionObject).nextEmbedded === '@pop')
-        .map(rule =>
-          line.search(
-            new RegExp(rule.regex.source.slice(4, -1), rule.regex.flags),
-          ),
-        )
+        .map(rule => line.search(rule.search))
         .filter(found => found !== -1);
       pos = leaves.length ? Math.min(...leaves) : line.length;
       if (embedded) embedded(line.slice(0, pos), emit);
@@ -179,8 +197,11 @@ function runGrammar(grammar: Grammar): LineTokenizer {
         if (action.nextEmbedded === '@pop') {
           embedded = undefined;
         } else if (action.nextEmbedded) {
-          const language = EMBEDDED[substitute(action.nextEmbedded, groups)];
-          embedded = language ? runGrammar(language) : null;
+          const mime = substitute(action.nextEmbedded, groups);
+          embedded =
+            Object.prototype.hasOwnProperty.call(EMBEDDED, mime) ?
+              runGrammar(EMBEDDED[mime])
+            : null;
         }
       };
       const { action } = rule;
@@ -246,7 +267,7 @@ function tokenizeWith(grammar: Grammar, code: string): Token[] {
       if (
         grammar === html &&
         (monacoToken === '' || monacoToken.endsWith(grammar.tokenPostfix)) &&
-        !monacoToken.startsWith('comment')
+        !/^(comment|string)/.test(monacoToken)
       ) {
         for (const part of text.split(/([{}()])/)) {
           pushToken(tokens, part, /^[{}()]$/.test(part) ? DELIMITER : type);

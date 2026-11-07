@@ -76,11 +76,12 @@ Gotchas:
   it lays out one letter per line.
 - The static code draws what Monaco will, so the cover lifts unseen:
   `monaco/tokenize.ts` runs Monaco's own grammars (`monaco/grammars.ts`:
-  TypeScript, and HTML with embedded JavaScript for Vue files) and JSON
-  tokens, both take colors from `monaco/theme.ts`, and Monaco draws nothing
-  extra (every bracket depth gets the delimiter color; no indent guides).
-  Change colors only in `theme.ts`. After a Monaco upgrade, copy its
-  grammars into `grammars.ts` and regenerate the test fixture.
+  TypeScript, and HTML with embedded JavaScript for Vue files; a `<style>`
+  block would stay plain) and JSON tokens, both take colors from
+  `monaco/theme.ts`, and Monaco draws nothing extra (every bracket depth
+  gets the delimiter color; no indent guides). Change colors only in
+  `theme.ts`. After a Monaco upgrade, copy its grammars into `grammars.ts`
+  and regenerate the test fixture (see `monaco/__tests__/tokenize.test.ts`).
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and
