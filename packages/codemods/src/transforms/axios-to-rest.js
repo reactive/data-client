@@ -1652,14 +1652,14 @@ const AXIOS_MEMBER_TODOS = {
   ],
 };
 
-/** Instance members that configure it: [what, how it was handled, pronoun] */
+/** Instance members that configure it, and how a TODO names that setup */
 const INSTANCE_SETUP = {
-  interceptors: ['this interceptor', 'is commented out', 'it'],
-  defaults: ['these defaults', 'are commented out', 'them'],
+  interceptors: { noun: 'this interceptor', verb: 'is', pronoun: 'it' },
+  defaults: { noun: 'these defaults', verb: 'are', pronoun: 'them' },
 };
 
-function commentedOutTodo(name, className, [noun, isCommentedOut, pronoun]) {
-  return `\`${name}\` is the \`${className}\` class now, so ${noun} ${isCommentedOut}; move ${pronoun} into \`${className}\``;
+function commentedOutTodo(name, className, { noun, verb, pronoun }) {
+  return `\`${name}\` is the \`${className}\` class now, so ${noun} ${verb} commented out; move ${pronoun} into \`${className}\``;
 }
 
 function markLeftovers(
@@ -1707,7 +1707,6 @@ function markLeftovers(
         const member = memberOf(parent, p.node);
         const setup = own(INSTANCE_SETUP, member);
         if (setup) {
-          const [noun] = setup;
           // module setup like `api.interceptors.request.use(fn)` would read
           // the removed instance, so keep it as comments to move by hand
           const statement = moduleStatement(j, p);
@@ -1717,7 +1716,7 @@ function markLeftovers(
             markTodo(
               j,
               p,
-              `move ${noun} into \`${className}\``,
+              `move ${setup.noun} into \`${className}\``,
               'base-endpoint',
             );
           }

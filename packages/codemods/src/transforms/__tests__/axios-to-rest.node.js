@@ -2019,33 +2019,28 @@ export async function getPost(id: number) {
       );
     });
 
-    it('keeps .data when the rewritten client module commented out its response interceptor', () => {
-      const client = `
+    it.each([
+      ['LF', text => text],
+      // a project's formatter may keep CRLF line endings
+      ['CRLF', text => text.replace(/\n/g, '\r\n')],
+    ])(
+      'keeps .data when the rewritten client module (%s) commented out its response interceptor',
+      (_, lineEndings) => {
+        const client = `
 import axios from 'axios';
 export const api = axios.create();
 api.interceptors.response.use(res => res.data);
 `;
-      const rewritten = run({ 'client.ts': client }, 'client.ts');
-      expect(rewritten).toMatch('// api.interceptors.response.use(');
-      expect(
-        run({ 'client.ts': rewritten, 'posts.ts': posts }, 'posts.ts'),
-      ).toMatch('return res.data;');
-    });
-
-    it('keeps .data when that rewritten client module has CRLF line endings', () => {
-      const client = `
-import axios from 'axios';
-export const api = axios.create();
-api.interceptors.response.use(res => res.data);
-`;
-      const rewritten = run({ 'client.ts': client }, 'client.ts');
-      expect(
-        run(
-          { 'client.ts': rewritten.replace(/\n/g, '\r\n'), 'posts.ts': posts },
-          'posts.ts',
-        ),
-      ).toMatch('return res.data;');
-    });
+        const rewritten = run({ 'client.ts': client }, 'client.ts');
+        expect(rewritten).toMatch('// api.interceptors.response.use(');
+        expect(
+          run(
+            { 'client.ts': lineEndings(rewritten), 'posts.ts': posts },
+            'posts.ts',
+          ),
+        ).toMatch('return res.data;');
+      },
+    );
 
     it('unwraps .data when the client only has an interceptor the author disabled', () => {
       const client = `
