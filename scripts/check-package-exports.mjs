@@ -30,7 +30,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const work = path.join(root, 'node_modules/.cache/check-package-exports');
 const packs = path.join(work, 'packs');
 
-// Suggestions about entry points fail; other suggestions are only listed
+// publint suggestions that are about entry points
 const ENTRY_POINT_SUGGESTIONS = new Set([
   'HAS_MODULE_BUT_NO_EXPORTS',
   'HAS_ESM_MAIN_BUT_NO_EXPORTS',
@@ -39,61 +39,23 @@ const ENTRY_POINT_SUGGESTIONS = new Set([
 // passes `module.exports` on, so they say nothing about the entry point
 const INTEROP = new Set(['__esModule', 'module.exports']);
 
-const packages = fs
-  .readdirSync(path.join(root, 'packages'))
-  .map(dir => path.join(root, 'packages', dir, 'package.json'))
-  .filter(file => fs.existsSync(file))
-  .map(file => JSON.parse(fs.readFileSync(file, 'utf8')))
-  .filter(pkg => !pkg.private);
-
+const packages = publishedPackages();
 fs.rmSync(work, { recursive: true, force: true });
 fs.mkdirSync(packs, { recursive: true });
-try {
-  execFileSync(
-    'yarn',
-    [
-      'workspaces',
-      'foreach',
-      '--all',
-      '--parallel',
-      // bundles inline some dependencies' lib/, which their prepack builds
-      '--topological',
-      ...packages.flatMap(pkg => ['--include', pkg.name]),
-      'pack',
-      '--out',
-      path.join(packs, '%s.tgz'),
-    ],
-    { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
-  );
-} catch (error) {
-  // yarn reports a failed prepack on stdout; with no output, yarn never ran
-  if (error.stdout === undefined) console.error(error.message);
-  else console.error(error.stdout, '\n', error.stderr);
-  console.error('yarn pack failed');
-  process.exit(1);
-}
-
+packAll(packages);
 // Unpack them all first, so they load each other rather than the workspaces
-const unpacked = packages.map(pkg => {
-  // yarn's `%s` in `--out`: @scope/name -> @scope-name
-  const tarball = path.join(packs, `${pkg.name.replace('/', '-')}.tgz`);
-  const dir = path.join(work, 'node_modules', pkg.name);
-  fs.mkdirSync(dir, { recursive: true });
-  execFileSync('tar', ['-xzf', tarball, '-C', dir, '--strip-components=1']);
-  return { pkg, dir, tarball: fs.readFileSync(tarball) };
-});
-// Resolves specifiers the way a consumer of the unpacked packages would
-const probe = path.join(work, 'probe.mjs');
-fs.writeFileSync(probe, 'export default specifier => import(specifier);\n');
-const importAsConsumer = (await import(pathToFileURL(probe))).default;
-const requireAsConsumer = createRequire(probe);
+const unpacked = packages.map(unpack);
+const consumer = await consumerLoaders();
 
 let failed = false;
 for (const { pkg, dir, tarball } of unpacked) {
   console.log(`\n${pkg.name}`);
-  report('publint', await lint(pkg, dir));
-  report('types', await checkTypes(pkg, tarball));
-  report('node', await checkNode(pkg, dir));
+  const passed = [
+    report('publint', await lint(pkg, dir)),
+    report('types', await checkTypes(pkg, tarball)),
+    report('node', await checkNode(pkg, dir, consumer)),
+  ].every(Boolean);
+  if (!passed) failed = true;
 }
 if (failed) {
   console.error('\nPackage entry point check failed.');
@@ -101,13 +63,73 @@ if (failed) {
 }
 console.log('\nAll package entry points passed.');
 
+function publishedPackages() {
+  return fs
+    .readdirSync(path.join(root, 'packages'))
+    .map(dir => path.join(root, 'packages', dir, 'package.json'))
+    .filter(file => fs.existsSync(file))
+    .map(file => JSON.parse(fs.readFileSync(file, 'utf8')))
+    .filter(pkg => !pkg.private);
+}
+
+function packAll(packages) {
+  try {
+    execFileSync(
+      'yarn',
+      [
+        'workspaces',
+        'foreach',
+        '--all',
+        '--parallel',
+        // bundles inline some dependencies' lib/, which their prepack builds
+        '--topological',
+        ...packages.flatMap(pkg => ['--include', pkg.name]),
+        'pack',
+        '--out',
+        path.join(packs, '%s.tgz'),
+      ],
+      { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+    );
+  } catch (error) {
+    // yarn reports a failed prepack on stdout; with no output, yarn never ran
+    if (error.stdout === undefined) console.error(error.message);
+    else console.error(error.stdout, '\n', error.stderr);
+    console.error('yarn pack failed');
+    process.exit(1);
+  }
+}
+
+function unpack(pkg) {
+  // yarn's `%s` in `--out`: @scope/name -> @scope-name
+  const tarball = path.join(packs, `${pkg.name.replace('/', '-')}.tgz`);
+  const dir = path.join(work, 'node_modules', pkg.name);
+  fs.mkdirSync(dir, { recursive: true });
+  execFileSync('tar', ['-xzf', tarball, '-C', dir, '--strip-components=1']);
+  return { pkg, dir, tarball: fs.readFileSync(tarball) };
+}
+
+// import() and require() that resolve specifiers the way a consumer of the
+// unpacked packages would
+async function consumerLoaders() {
+  const probe = path.join(work, 'probe.mjs');
+  fs.writeFileSync(probe, 'export default specifier => import(specifier);\n');
+  return {
+    import: (await import(pathToFileURL(probe))).default,
+    require: createRequire(probe),
+  };
+}
+
+// Prints the check's result; returns whether it passed
 function report(check, { errors, allowed = [] }) {
   const note =
     allowed.length ? ` (allowed: ${[...new Set(allowed)].join(', ')})` : '';
-  if (!errors.length) return console.log(`  ✓ ${check}${note}`);
-  failed = true;
+  if (!errors.length) {
+    console.log(`  ✓ ${check}${note}`);
+    return true;
+  }
   console.error(`  ✗ ${check}${note}`);
   for (const error of errors) console.error(`    ${error}`);
+  return false;
 }
 
 async function lint(pkg, dir) {
@@ -116,11 +138,7 @@ async function lint(pkg, dir) {
   const errors = [];
   const allowed = [];
   for (const message of messages) {
-    if (
-      isCommonJSTypesGap(pkg, message) ||
-      (message.type === 'suggestion' &&
-        !ENTRY_POINT_SUGGESTIONS.has(message.code))
-    ) {
+    if (isAllowedLintMessage(pkg, message)) {
       allowed.push(message.code);
     } else {
       errors.push(
@@ -152,19 +170,22 @@ async function checkTypes(pkg, tarball) {
   return { errors, allowed };
 }
 
-// The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it:
-// the `require` condition's types, on a subpath with a top-level `require`.
-// publint paths look like ['exports', '.', 'types']
-function isCommonJSTypesGap(pkg, { code, args, path: [field, subpath] }) {
+function isAllowedLintMessage(pkg, { type, code, args, path: msgPath }) {
+  // Suggestions about entry points fail; other suggestions are only listed
+  if (type === 'suggestion') return !ENTRY_POINT_SUGGESTIONS.has(code);
+  // The CommonJS-types gap (see isAllowedTypesProblem), as publint reports it:
+  // the `require` condition's types, on a subpath with a top-level `require`.
+  // publint paths look like ['exports', '.', 'types']
+  const [field, subpath] = msgPath;
   return (
     code === 'EXPORTS_TYPES_INVALID_FORMAT' &&
     args.condition === 'require' &&
     field === 'exports' &&
-    hasRequire(pkg, subpath)
+    hasTopLevelRequire(pkg, subpath)
   );
 }
 
-function hasRequire(pkg, subpath) {
+function hasTopLevelRequire(pkg, subpath) {
   return Object.hasOwn(pkg.exports?.[subpath] ?? {}, 'require');
 }
 
@@ -178,7 +199,7 @@ function isAllowedTypesProblem(pkg, problem, entrypoints) {
     case 'FalseESM':
       return (
         entrypoints.length > 0 &&
-        entrypoints.every(entrypoint => hasRequire(pkg, entrypoint))
+        entrypoints.every(entrypoint => hasTopLevelRequire(pkg, entrypoint))
       );
     // Exports subpaths with no `require` condition at any level ship only ESM
     // on purpose
@@ -206,15 +227,12 @@ function entryPoints(pkg) {
     ]);
 }
 
-async function checkNode(pkg, dir) {
+async function checkNode(pkg, dir, consumer) {
   const errors = [];
   for (const [subpath, esmFile] of entryPoints(pkg)) {
     const specifier = pkg.name + subpath.slice(1);
     const expected = await import(pathToFileURL(path.join(dir, esmFile)));
-    for (const [call, load] of [
-      ['import', importAsConsumer],
-      ['require', requireAsConsumer],
-    ]) {
+    for (const [call, load] of Object.entries(consumer)) {
       try {
         const diff = compareExports(expected, await load(specifier));
         if (diff) errors.push(`${call}('${specifier}') ${diff}`);
