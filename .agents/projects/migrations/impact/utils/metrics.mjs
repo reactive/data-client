@@ -5,8 +5,7 @@
 //
 // verdict: better | worse | same | noise (CI includes 0) | changed (no preferred direction)
 
-const round = (x, d = 2) =>
-  Number.isFinite(x) ? Math.round(x * 10 ** d) / 10 ** d : x;
+import { direction, round } from './stats.mjs';
 
 /** A metric measured once per variant (static analysis, token counts of a single run). */
 export function metric(
@@ -20,10 +19,7 @@ export function metric(
 ) {
   const delta = round(migrated) - round(baseline);
   let verdict = 'same';
-  if (delta !== 0) {
-    if (lowerIsBetter === null) verdict = 'changed';
-    else verdict = delta < 0 === lowerIsBetter ? 'better' : 'worse';
-  }
+  if (delta !== 0) verdict = direction(delta, lowerIsBetter);
   return {
     group,
     id,

@@ -15,6 +15,7 @@ import { parseArgs } from 'node:util';
 import { brotliCompressSync, gzipSync, constants } from 'node:zlib';
 
 import { loadConfig } from './utils/config.mjs';
+import { matchesGlob } from './utils/glob.mjs';
 import { metric } from './utils/metrics.mjs';
 
 const { values: opt } = parseArgs({
@@ -104,20 +105,6 @@ function categorize(rel) {
   return 'app';
 }
 
-function matchesGlob(rel, glob) {
-  // path.matchesGlob is experimental in node 22; this covers **, * and {a,b}.
-  const re = glob
-    .replace(/[.+^$()|[\]\\]/g, '\\$&')
-    .replace(/\{([^}]+)\}/g, (_, alts) => `(${alts.split(',').join('|')})`)
-    .replace(/\*\*\//g, '\u0000')
-    .replace(/\*\*/g, '\u0001')
-    .replace(/\*/g, '[^/]*')
-    .replace(/\?/g, '[^/]')
-    .replace(/\u0000/g, '(.*/)?')
-    .replace(/\u0001/g, '.*');
-  return new RegExp(`^${re}$`).test(rel);
-}
-
 function scanSource(root) {
   const ts = loadTs(root);
   const files = [
@@ -146,7 +133,9 @@ function scanSource(root) {
     }
     for (const lib of config.dataLibs ?? []) {
       if (
-        new RegExp(`from\\s+['"]${lib.replace(/[/.]/g, '\\$&')}`).test(code)
+        new RegExp(`from\\s+['"]${lib.replace(/[/.]/g, '\\$&')}(['"/])`).test(
+          code,
+        )
       ) {
         importers[lib] = (importers[lib] ?? 0) + 1;
       }
@@ -272,7 +261,8 @@ for (const cat of catNames) {
       dir,
     ),
   );
-  if (b.source.complexityAvailable)
+  // Only when both sides could count; otherwise one side reads as 0.
+  if (b.source.complexityAvailable && m.source.complexityAvailable)
     metrics.push(
       metric(
         'code',

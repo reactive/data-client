@@ -67,6 +67,20 @@ const ALLOWED_TOOLS = config.allowedTools ?? [
   'Bash(ls:*)',
   'Bash(cat:*)',
   'Bash(grep:*)',
+  'Bash(head:*)',
+  'Bash(sed -n:*)',
+  'Bash(find:*)',
+  'Bash(wc:*)',
+  'Bash(npx prettier:*)',
+];
+
+// Agent guidance each copy carries. It is part of what the agent sees, so it is recorded.
+const CONTEXT_GLOBS = [
+  '**/CLAUDE.md',
+  '**/AGENTS.md',
+  '.claude/**/SKILL.md',
+  '.agents/skills/*/SKILL.md',
+  '**/.agents/skills/*/SKILL.md',
 ];
 
 function copyCheckout(src) {
@@ -124,7 +138,8 @@ function runAgent(cwd) {
   });
   let out = {};
   try {
-    out = JSON.parse(r.stdout);
+    out = JSON.parse(r.stdout || '');
+    if (!out || typeof out !== 'object') throw new Error('no JSON result');
   } catch {
     out = { is_error: true, result: (r.stderr || r.stdout || '').slice(-2000) };
   }
@@ -132,7 +147,7 @@ function runAgent(cwd) {
   const models = Object.values(out.modelUsage ?? {});
   const sum = k => models.reduce((t, m) => t + (m[k] ?? 0), 0);
   return {
-    ok: !out.is_error,
+    ok: out.is_error || r.error || r.status !== 0 ? 0 : 1,
     wallMs: Date.now() - t0,
     turns: out.num_turns,
     costUsd: out.total_cost_usd,
@@ -193,11 +208,17 @@ const variants = {
 };
 const samples = {};
 const runsLog = [];
+const failures = { baseline: [], migrated: [] };
+const context = {};
 for (let i = 0; i < +opt.runs; i++) {
   for (const variant of i % 2 ?
     ['migrated', 'baseline']
   : ['baseline', 'migrated']) {
     const cwd = copyCheckout(variants[variant]);
+    context[variant] ??= globSync(CONTEXT_GLOBS, {
+      cwd,
+      exclude: p => String(p.parentPath ?? p).includes('node_modules'),
+    }).sort();
     process.stderr.write(`run ${i + 1}/${opt.runs} ${variant} in ${cwd}\n`);
     const agent = runAgent(cwd);
     const diff = diffSize(cwd);
@@ -208,8 +229,11 @@ for (let i = 0; i < +opt.runs; i++) {
       agent.cacheReadTokens +
       agent.outputTokens;
     const m = { ...agent, ...diff, pass: acc.pass, totalTokens };
+    if (!agent.ok) failures[variant].push(agent.result.slice(0, 300));
     for (const [k, v] of Object.entries(m)) {
       if (typeof v !== 'number') continue;
+      // An errored session counts as a failed feature, but its partial usage would skew the medians.
+      if (!agent.ok && k !== 'pass') continue;
       (samples[k] ??= { baseline: [], migrated: [] })[variant].push(v);
     }
     runsLog.push({
@@ -259,6 +283,8 @@ writeFileSync(
       model: opt.model,
       effort: opt.effort,
       date: new Date().toISOString(),
+      failures,
+      context,
       metrics,
       runs: runsLog,
     },

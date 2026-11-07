@@ -68,7 +68,10 @@ const HIGHER_IS_BETTER = new Set(['navsWithoutLoading']);
 // samples[section][name][metric][variant] = number[]
 const samples = previous?.samples ?? { landing: {}, steps: {}, totals: {} };
 const failures = previous?.failures ?? { baseline: [], migrated: [] };
-const push = (section, name, metrics, variant) => {
+// A run's samples are staged and kept only if the whole run succeeds, so every row uses the same runs.
+let staged = [];
+const push = (...entry) => staged.push(entry);
+const commit = (section, name, metrics, variant) => {
   const s = (samples[section][name] ??= {});
   for (const [k, v] of Object.entries(metrics)) {
     if (v === undefined || v === null) continue;
@@ -101,25 +104,36 @@ async function landing(base) {
   const { ctx, page, cdp } = await newPage();
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
   await cdp.send('Performance.enable');
-  await browser.startTracing(page, { categories: TRACE_CATEGORIES });
-  const t0 = Date.now();
-  await page.goto(base + (config.landing?.path ?? '/'), { waitUntil: 'load' });
-  const loadMs = Date.now() - t0;
-  if (config.landing?.ready) await config.landing.ready({ page });
-  const readyMs = Date.now() - t0;
-  const trace = summarizeTrace(await browser.stopTracing());
-  const m = Object.fromEntries(
-    (await cdp.send('Performance.getMetrics')).metrics.map(x => [
-      x.name,
-      x.value,
-    ]),
-  );
-  const rec = await page.evaluate(() => ({
-    lcp: window.__impact.lcp.at(-1),
-    longtasks: window.__impact.longtasks,
-    loading: window.__impact.flush(),
-  }));
-  await ctx.close();
+  let tracing = false;
+  let loadMs, readyMs, trace, m, rec;
+  try {
+    await browser.startTracing(page, { categories: TRACE_CATEGORIES });
+    tracing = true;
+    const t0 = Date.now();
+    await page.goto(base + (config.landing?.path ?? '/'), {
+      waitUntil: 'load',
+    });
+    loadMs = Date.now() - t0;
+    if (config.landing?.ready) await config.landing.ready({ page });
+    readyMs = Date.now() - t0;
+    tracing = false;
+    trace = summarizeTrace(await browser.stopTracing());
+    m = Object.fromEntries(
+      (await cdp.send('Performance.getMetrics')).metrics.map(x => [
+        x.name,
+        x.value,
+      ]),
+    );
+    rec = await page.evaluate(() => ({
+      lcp: window.__impact.lcp.at(-1),
+      longtasks: window.__impact.longtasks,
+      loading: window.__impact.flush(),
+    }));
+  } finally {
+    // A failed run must not leave tracing on, or every later startTracing fails.
+    if (tracing) await browser.stopTracing().catch(() => {});
+    await ctx.close().catch(() => {});
+  }
   return {
     loadMs,
     readyMs,
@@ -171,7 +185,10 @@ function trackNetwork(page) {
           if (net.seen.get(req.url()) === hash && entry) entry.redundant = true;
           net.seen.set(req.url(), hash);
         })
-        .catch(() => {}),
+        .catch(() => {
+          // Counted so a zero redundant-read count is never silently a broken detector.
+          if (entry) entry.unhashed = true;
+        }),
     );
   });
   net.settle = async (quietMs = config.quietMs ?? 500, maxMs = 8000) => {
@@ -203,9 +220,6 @@ async function flow(base, variant) {
     uid: Math.random().toString(36).slice(2, 8),
     state: {},
   };
-  if (config.setup) await config.setup(ctx);
-  await net.settle();
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
   const totals = {
     flowMs: 0,
     requests: 0,
@@ -220,81 +234,97 @@ async function flow(base, variant) {
     navsWithoutLoading: 0,
     mutationFollowupReads: 0,
     mutationReflectMs: 0,
+    unhashedReads: 0,
+    maxInteractionMs: 0,
+    cls: 0,
   };
-  for (const step of config.steps) {
-    // Unmeasured: open forms, type input, dismiss toasts.
-    if (step.prepare) await step.prepare(ctx);
-    const before = net.log.length;
-    const [origin0, p0] = await page.evaluate(() => [
-      window.__impact.origin,
-      performance.now(),
-    ]);
-    const t0 = Date.now();
-    await step.run(ctx);
-    if (step.ready) await step.ready(ctx);
-    const readyMs = Date.now() - t0;
-    let freshMs;
-    if (step.fresh)
-      freshMs = await pollFresh(step, ctx, config.staleTimeoutMs ?? 3000);
+  try {
+    if (config.setup) await config.setup(ctx);
     await net.settle();
-    const rec = await page.evaluate(() => ({
-      origin: window.__impact.origin,
-      longtasks: window.__impact.longtasks,
-      events: window.__impact.events,
-      shifts: window.__impact.shifts,
-      loading: window.__impact.flush(),
-    }));
-    // A full page load inside the step resets the page clock; then count from its start.
-    const from = rec.origin === origin0 ? p0 : 0;
-    const inWin = e => e.start >= from;
-    const loading = rec.loading.filter(l => l.end > from);
-    const longtasks = rec.longtasks.filter(inWin);
-    const reqs = net.log.slice(before);
-    const m = {
-      readyMs,
-      requests: reqs.length,
-      reads: reqs.filter(r => r.method === 'GET').length,
-      writes: reqs.filter(r => r.method !== 'GET').length,
-      redundant: reqs.filter(r => r.redundant).length,
-      loadingShown: loading.length,
-      loadingMs: loading.reduce(
-        (t, l) => t + (l.end - Math.max(l.start, from)),
-        0,
-      ),
-      longTasks: longtasks.length,
-      tbtMs: longtasks.reduce((t, l) => t + Math.max(0, l.dur - 50), 0),
-      maxInteractionMs: Math.max(
-        0,
-        ...rec.events.filter(inWin).map(e => e.dur),
-      ),
-      cls: rec.shifts.filter(inWin).reduce((t, s) => t + s.value, 0),
-    };
-    if (step.fresh) {
-      m.stale = freshMs === null ? 1 : 0;
-      if (freshMs !== null) m.freshMs = freshMs;
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
+    for (const step of config.steps) {
+      // Unmeasured: open forms, type input, dismiss toasts.
+      if (step.prepare) await step.prepare(ctx);
+      const before = net.log.length;
+      const [origin0, p0] = await page.evaluate(() => [
+        window.__impact.origin,
+        performance.now(),
+      ]);
+      const t0 = Date.now();
+      await step.run(ctx);
+      if (step.ready) await step.ready(ctx);
+      const readyMs = Date.now() - t0;
+      let freshMs;
+      if (step.fresh)
+        freshMs = await pollFresh(step, ctx, config.staleTimeoutMs ?? 3000);
+      await net.settle();
+      const rec = await page.evaluate(() => ({
+        origin: window.__impact.origin,
+        longtasks: window.__impact.longtasks,
+        events: window.__impact.events,
+        shifts: window.__impact.shifts,
+        loading: window.__impact.flush(),
+      }));
+      // A full page load inside the step resets the page clock; then count from its start.
+      const from = rec.origin === origin0 ? p0 : 0;
+      const inWin = e => e.start >= from;
+      const loading = rec.loading.filter(l => l.end > from);
+      const longtasks = rec.longtasks.filter(inWin);
+      const reqs = net.log.slice(before);
+      const m = {
+        readyMs,
+        requests: reqs.length,
+        reads: reqs.filter(r => r.method === 'GET').length,
+        writes: reqs.filter(r => r.method !== 'GET').length,
+        redundant: reqs.filter(r => r.redundant).length,
+        unhashedReads: reqs.filter(r => r.unhashed).length,
+        loadingShown: loading.length,
+        loadingMs: loading.reduce(
+          (t, l) => t + (l.end - Math.max(l.start, from)),
+          0,
+        ),
+        longTasks: longtasks.length,
+        tbtMs: longtasks.reduce((t, l) => t + Math.max(0, l.dur - 50), 0),
+        maxInteractionMs: Math.max(
+          0,
+          ...rec.events.filter(inWin).map(e => e.dur),
+        ),
+        cls: rec.shifts.filter(inWin).reduce((t, s) => t + s.value, 0),
+      };
+      if (step.fresh) {
+        m.stale = freshMs === null ? 1 : 0;
+        if (freshMs !== null) m.freshMs = freshMs;
+      }
+      push('steps', step.name, m, variant);
+      for (const k of [
+        'requests',
+        'reads',
+        'writes',
+        'redundant',
+        'unhashedReads',
+        'loadingShown',
+        'loadingMs',
+        'longTasks',
+        'tbtMs',
+      ])
+        totals[k] += m[k];
+      totals.flowMs += readyMs;
+      totals.maxInteractionMs = Math.max(
+        totals.maxInteractionMs,
+        m.maxInteractionMs,
+      );
+      totals.cls += m.cls;
+      totals.staleViews += m.stale ?? 0;
+      if (step.kind === 'mutation') {
+        totals.mutationFollowupReads += m.reads;
+        totals.mutationReflectMs += readyMs;
+      }
+      if ((step.kind ?? 'nav') === 'nav' && m.loadingShown === 0)
+        totals.navsWithoutLoading++;
     }
-    push('steps', step.name, m, variant);
-    for (const k of [
-      'requests',
-      'reads',
-      'writes',
-      'redundant',
-      'loadingShown',
-      'loadingMs',
-      'longTasks',
-      'tbtMs',
-    ])
-      totals[k] += m[k];
-    totals.flowMs += readyMs;
-    totals.staleViews += m.stale ?? 0;
-    if (step.kind === 'mutation') {
-      totals.mutationFollowupReads += m.reads;
-      totals.mutationReflectMs += readyMs;
-    }
-    if ((step.kind ?? 'nav') === 'nav' && m.loadingShown === 0)
-      totals.navsWithoutLoading++;
+  } finally {
+    await bctx.close().catch(() => {});
   }
-  await bctx.close();
   return totals;
 }
 
@@ -303,10 +333,12 @@ for (let i = 0; !previous && i < runs; i++) {
   // Alternate which variant goes first so drift (thermal, GC, cache) affects both equally.
   for (const variant of i % 2 ? [...order].reverse() : order) {
     const base = variants[variant];
+    staged = [];
     try {
       if (!opt['skip-landing'])
         push('landing', 'cold load', await landing(base), variant);
       push('totals', 'flow', await flow(base, variant), variant);
+      for (const entry of staged) commit(...entry);
       process.stderr.write(`run ${i + 1}/${runs} ${variant} ok\n`);
     } catch (e) {
       failures[variant].push(String(e?.message ?? e).split('\n')[0]);
@@ -365,6 +397,9 @@ const LABELS = {
     loadingShown: ['Loading indicators shown', 'count'],
     loadingMs: ['Loading indicator visible', 'ms'],
     longTasks: ['Long tasks (>50ms)', 'count'],
+    maxInteractionMs: ['Slowest interaction (input to next paint)', 'ms'],
+    cls: ['Layout shift (CLS sum)', 'score'],
+    unhashedReads: ['Reads the redundancy check could not hash', 'requests'],
     tbtMs: ['Total blocking time', 'ms'],
   },
 };

@@ -11,9 +11,9 @@
 // 4. runs static.mjs, and feature-cost.mjs when --feature is given (it spends model tokens)
 // 5. writes <out>/impact.json and <out>/impact.md with report.mjs
 import { execFileSync, execSync, spawn } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
-import { createConnection } from 'node:net';
-import { dirname, join, resolve } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { createConnection, createServer } from 'node:net';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 
@@ -73,9 +73,60 @@ for (const v of Object.keys(checkouts)) {
   }
 }
 
-const waitForPort = async (port, ms = 60_000) => {
+// What was measured, so a committed report can be traced to exact commits and tools.
+const sh = (cmd, cwd) => {
+  try {
+    return execSync(cmd, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return null;
+  }
+};
+const meta = {
+  config: relative(process.cwd(), configPath),
+  prep: config.prep ?? [],
+  runs: +opt.runs,
+  cpuThrottle: +opt.cpu,
+  node: process.version,
+  playwright: sh(
+    `node -p "require('playwright/package.json').version"`,
+    rootOf('baseline'),
+  ),
+  checkouts: Object.fromEntries(
+    Object.keys(checkouts).map(v => [
+      v,
+      {
+        commit: sh('git rev-parse HEAD', checkouts[v]),
+        // Prep patches and the migration itself usually show here; the count says how much.
+        uncommittedFiles:
+          sh('git status --porcelain', checkouts[v])
+            ?.split('\n')
+            .filter(Boolean).length ?? null,
+      },
+    ]),
+  ),
+};
+writeFileSync(join(out, 'meta.json'), JSON.stringify(meta, null, 1));
+
+const freePort = () =>
+  new Promise((res, rej) => {
+    const srv = createServer();
+    srv.on('error', rej);
+    srv.listen(0, '127.0.0.1', () => {
+      const { port } = srv.address();
+      srv.close(() => res(port));
+    });
+  });
+
+const waitForPort = async (port, child, ms = 60_000) => {
   const start = Date.now();
   while (Date.now() - start < ms) {
+    // Fail fast instead of measuring whatever else answers on this port.
+    if (child.exitCode !== null)
+      throw new Error(`server for port ${port} exited with ${child.exitCode}`);
     const ok = await new Promise(r => {
       const s = createConnection(port, '127.0.0.1', () => (s.end(), r(true)));
       s.on('error', () => r(false));
@@ -88,21 +139,33 @@ const waitForPort = async (port, ms = 60_000) => {
 
 const servers = [];
 const urls = {};
-const ports = { baseline: 4310, migrated: 4311 };
+const stopServers = () => {
+  for (const s of servers) {
+    try {
+      process.kill(-s.pid);
+    } catch {}
+  }
+};
+for (const sig of ['SIGINT', 'SIGTERM']) {
+  process.on(sig, () => {
+    stopServers();
+    process.exit(130);
+  });
+}
 try {
   for (const v of Object.keys(checkouts)) {
+    const port = await freePort();
     const cmd = (
       config.serve ?? 'npx vite preview --port {port} --strictPort'
-    ).replaceAll('{port}', ports[v]);
-    servers.push(
-      spawn('bash', ['-c', `exec ${cmd}`], {
-        cwd: rootOf(v),
-        stdio: 'ignore',
-        detached: true,
-      }),
-    );
-    await waitForPort(ports[v]);
-    urls[v] = `http://localhost:${ports[v]}`;
+    ).replaceAll('{port}', port);
+    const child = spawn('bash', ['-c', `exec ${cmd}`], {
+      cwd: rootOf(v),
+      stdio: 'ignore',
+      detached: true,
+    });
+    servers.push(child);
+    await waitForPort(port, child);
+    urls[v] = `http://localhost:${port}`;
   }
   const reports = [];
   if (config.flow) {
@@ -157,14 +220,12 @@ try {
     opt['baseline-label'],
     '--migrated-label',
     opt['migrated-label'],
+    '--meta',
+    join(out, 'meta.json'),
     '--out',
     join(out, 'impact'),
     ...reports,
   ]);
 } finally {
-  for (const s of servers) {
-    try {
-      process.kill(-s.pid);
-    } catch {}
-  }
+  stopServers();
 }

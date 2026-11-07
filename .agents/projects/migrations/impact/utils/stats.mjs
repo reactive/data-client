@@ -35,8 +35,14 @@ export function bootstrapDiff(before, after, iterations = 2000, seed = 1) {
   return [quantile(diffs, 0.025), quantile(diffs, 0.975)];
 }
 
-const round = (x, d = 2) =>
+export const round = (x, d = 2) =>
   Number.isFinite(x) ? Math.round(x * 10 ** d) / 10 ** d : x;
+
+/** better | worse for a non-zero change; 'changed' when no direction is preferred (lowerIsBetter null). */
+export const direction = (delta, lowerIsBetter) =>
+  lowerIsBetter === null ? 'changed'
+  : delta < 0 === lowerIsBetter ? 'better'
+  : 'worse';
 
 /**
  * Summarize one metric's samples from both variants.
@@ -55,7 +61,7 @@ export function compare(before, after, { lowerIsBetter = true } = {}) {
   // Too few samples for an interval; one run is enough only for counts that never vary.
   else if (b.length < 3 || a.length < 3) verdict = 'few runs';
   else if (ci[0] <= 0 && ci[1] >= 0) verdict = 'noise';
-  else verdict = delta < 0 === lowerIsBetter ? 'better' : 'worse';
+  else verdict = direction(delta, lowerIsBetter);
   return {
     baseline: round(mb),
     migrated: round(ma),

@@ -15,6 +15,8 @@ const { values: opt, positionals: files } = parseArgs({
     'baseline-label': { type: 'string', default: 'Baseline' },
     'migrated-label': { type: 'string', default: 'Migrated' },
     out: { type: 'string', default: 'impact' },
+    // meta.json from measure.mjs: commits, tool versions and settings.
+    meta: { type: 'string' },
   },
 });
 if (!files.length) {
@@ -69,6 +71,7 @@ function change(m) {
 const groups = [...new Set(metrics.map(m => m.group))];
 const B = opt['baseline-label'];
 const M = opt['migrated-label'];
+const meta = opt.meta ? JSON.parse(readFileSync(opt.meta, 'utf8')) : null;
 const lines = [`# ${opt.title ?? `${app}: impact report`}`, ''];
 
 const flow = inputs.find(i => i.kind === 'flow');
@@ -84,21 +87,42 @@ if (flow) {
       `Failed runs: ${failed.map(([v, f]) => `${v} ${f.length}`).join(', ')}.`,
     );
 }
-if (feature)
+if (feature) {
   notes.push(
-    `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort.`,
+    `Feature cost: "${feature.feature}", ${feature.runs.length / 2} runs per variant, model ${feature.model} at ${feature.effort} effort. Errored agent sessions count as failed acceptance but are left out of the token and cost medians.`,
   );
+  const failed = Object.entries(feature.failures ?? {}).filter(
+    ([, f]) => f.length,
+  );
+  if (failed.length)
+    notes.push(
+      `Errored agent sessions: ${failed.map(([v, f]) => `${v} ${f.length}`).join(', ')}.`,
+    );
+  for (const [v, files] of Object.entries(feature.context ?? {}))
+    notes.push(
+      `Agent guidance in the ${v === 'baseline' ? B : M} copy: ${files.length ? files.map(f => `\`${f}\``).join(', ') : 'none'}.`,
+    );
+}
 notes.push(
   'Sampled rows show median (interquartile range); the change column adds a 95% bootstrap interval in brackets. "Within noise" means that interval includes zero.',
 );
 lines.push(...notes.map(n => `- ${n}`), '');
 
-const counts = { better: 0, worse: 0, noise: 0 };
-for (const m of metrics) if (m.verdict in counts) counts[m.verdict]++;
-lines.push(
-  `**${counts.better} better, ${counts.worse} worse, ${counts.noise} within noise** (rows with a preferred direction).`,
-  '',
-);
+if (meta) {
+  lines.push(
+    '## Setup',
+    '',
+    '| Variant | Commit | Uncommitted files |',
+    '| --- | --- | --- |',
+    ...Object.entries(meta.checkouts).map(
+      ([v, c]) =>
+        `| ${v === 'baseline' ? B : M} | ${c.commit ?? 'not a git checkout'} | ${c.uncommittedFiles ?? '–'} |`,
+    ),
+    '',
+    `Config \`${meta.config}\`, prep ${meta.prep.map(p => `\`${p}\``).join(', ') || 'none'}, Node ${meta.node}, Playwright ${meta.playwright ?? 'unknown'}.`,
+    '',
+  );
+}
 
 for (const g of groups) {
   lines.push(`## ${g[0].toUpperCase() + g.slice(1)}`, '');
@@ -123,6 +147,7 @@ writeFileSync(
       title: opt.title,
       labels: { baseline: B, migrated: M },
       generated: new Date().toISOString(),
+      meta,
       inputs: inputs.map(i => ({ file: i.file, kind: i.kind, date: i.date })),
       metrics,
     },

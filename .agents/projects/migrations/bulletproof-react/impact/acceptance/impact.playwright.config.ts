@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  testMatch: /impact-.*\.spec\.ts/,
+  testMatch: /e2e\/impact-[^/]*\.spec\.ts$/,
   reporter: 'line',
   timeout: 90_000,
   use: {

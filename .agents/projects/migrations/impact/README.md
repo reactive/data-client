@@ -11,7 +11,8 @@ node .agents/projects/migrations/impact/measure.mjs \
 ```
 
 It writes `impact-results/impact.md` (tables) and `impact-results/impact.json` (every row, one schema),
-plus the raw `flow.json`, `static.json` and `feature.json` with all samples.
+plus the raw `flow.json`, `static.json` and `feature.json` with all samples, and `meta.json` (the commit
+and uncommitted-file count of each checkout, tool versions and settings, also shown in the report).
 
 Requirements: Node 22+, both checkouts installed, and Playwright resolvable from the app (set
 `CHROMIUM_PATH` to use a preinstalled browser). `--feature` also needs the `claude` CLI and spends
@@ -36,6 +37,7 @@ Each step of the flow records:
   refetches that mutation triggered.
 - **Redundant reads**: a GET whose response body equals the last response from the same URL in this
   session. The client already had that data, so this read was a cache miss that a cache could have served.
+  Reads whose body could not be read are counted separately, so a zero is never a silent detector failure.
 - **Stale views**: steps with a `fresh` check poll it for `staleTimeoutMs` (3s). If it never passes, the
   view showed old data after a change made elsewhere.
 - **Loading indicators**: how many elements matching `loading` appeared, and for how long. A navigation
@@ -66,6 +68,11 @@ Copies each checkout to a temporary folder (node_modules symlinked) and runs
 `claude -p "<prompt>" --permission-mode acceptEdits` with only file tools, type-check and unit-test
 commands allowed. Then it copies in the acceptance files and runs `acceptance`. It records total and
 output tokens, cost, turns, wall time, lines and files changed, and whether the acceptance test passed.
+An errored session counts as a failed acceptance but stays out of the token and cost medians. The report
+lists the agent guidance files (CLAUDE.md, AGENTS.md, skills) each copy contained, because they are part
+of what the agent sees. Tell the agent in the prompt to edit with the Edit and Write tools: shell edits
+(sed -i, scripts) are refused and the run ends with no change. Writes into node_modules reach the source
+checkout through the symlink.
 Pick a feature that touches data the app shows in more than one place; that is where cache design shows.
 
 ## Config
@@ -136,3 +143,9 @@ export default {
   build can finish a flow even while it shows stale data. The `fresh` check records the staleness.
 - **Write mutation steps in three parts.** `prepare` opens the form and types the input. `run` only
   submits, and `ready` waits for the change to show. Then the time measures the data layer, not typing.
+
+## Tests
+
+```bash
+node --test .agents/projects/migrations/impact/utils/utils.test.mjs
+```
