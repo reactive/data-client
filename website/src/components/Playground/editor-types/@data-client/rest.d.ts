@@ -192,7 +192,7 @@ interface SnapshotInterface {
      * Retrieved memoized value for any Querable schema
      * @see https://dataclient.io/docs/api/Snapshot#get
      */
-    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
+    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): DenormalizeNullable<S> | undefined;
 }
 type ExpiryStatusInterface = 1 | 2 | 3;
 

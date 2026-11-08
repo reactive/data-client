@@ -926,7 +926,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * @see https://dataclient.io/docs/api/Controller#get
      */
     get<S extends Queryable>(schema: S, ...rest: readonly [
-        ...SchemaArgs<S>,
+        ...(SchemaArgs<S> | readonly [null]),
         Pick<State<unknown>, 'entities' | 'indexes'>
     ]): DenormalizeNullable<S> | undefined;
     /**
@@ -934,7 +934,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * @see https://dataclient.io/docs/api/Controller#getQueryMeta
      */
     getQueryMeta<S extends Queryable>(schema: S, ...rest: readonly [
-        ...SchemaArgs<S>,
+        ...(SchemaArgs<S> | readonly [null]),
         Pick<State<unknown>, 'entities' | 'indexes'>
     ]): {
         data: DenormalizeNullable<S> | undefined;
@@ -990,12 +990,12 @@ declare class Snapshot<T = unknown> implements SnapshotInterface {
      * Retrieved memoized value for any Querable schema
      * @see https://dataclient.io/docs/api/Snapshot#get
      */
-    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
+    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): DenormalizeNullable<S> | undefined;
     /**
      * Queries the store for a Querable schema; providing related metadata
      * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
      */
-    getQueryMeta<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): {
+    getQueryMeta<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): {
         data: DenormalizeNullable<S> | undefined;
         countRef: () => () => void;
     };
