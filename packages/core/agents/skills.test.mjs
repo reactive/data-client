@@ -549,12 +549,12 @@ test('pnpm workspaces, with comments, flow lists and CRLF', () => {
 });
 
 /** A workspace app at apps/<name> installing @data-client/react@version */
-const app = (name, version) => ({
-  [`apps/${name}/package.json`]: {
+const app = (name, version, base = 'apps') => ({
+  [`${base}/${name}/package.json`]: {
     dependencies: { '@data-client/react': version },
   },
   ...pkg(
-    `apps/${name}/node_modules/@data-client/react`,
+    `${base}/${name}/node_modules/@data-client/react`,
     '@data-client/react',
     version,
     ['data-client-react'],
@@ -577,12 +577,7 @@ test('workspaceRoot stops at the repository root', () => {
   const dir = project({
     'package.json': { workspaces: ['repo/apps/*'] },
     'repo/.git': 'gitdir: elsewhere',
-    ...Object.fromEntries(
-      Object.entries(app('web', '0.19.0')).map(([file, v]) => [
-        `repo/${file}`,
-        v,
-      ]),
-    ),
+    ...app('web', '0.19.0', 'repo/apps'),
   });
   assert.equal(workspaceRoot(path.join(dir, 'repo/apps/web')), undefined);
 });

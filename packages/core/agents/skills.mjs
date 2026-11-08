@@ -300,7 +300,8 @@ function holdsJunction(target, dir) {
  * workspace root, where agents started at the root load the skills.
  */
 export function main(cwd = process.cwd()) {
-  const workspace = workspaceRoot(cwd);
+  const repo = repoRoot(cwd);
+  const workspace = workspaceRoot(cwd, repo);
   const projectDir = workspace ?? cwd;
   const { added, removed, outdated, kept, junctions, ...result } =
     syncSkills(projectDir);
@@ -324,20 +325,22 @@ export function main(cwd = process.cwd()) {
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
     );
   // nothing to point at when no skill folder was synced
-  if (!dir || !fs.existsSync(path.join(cwd, dir))) return;
-  if (workspace) {
-    console.log(
-      `Synced ${dir} at the workspace root, which covers every workspace package`,
-    );
-    return;
-  }
-  // agents load skills from where they start and its parents, but a nested
-  // folder's only once they touch its files
-  const repo = repoRoot(cwd);
-  if (repo && repo !== cwd) {
-    const here = posix(path.relative(repo, cwd));
-    console.log(
-      `Claude Code and Cursor started at the repository root load ${here}/${dir} only once they work on files in ${here}; start your agent in ${here} to have them from the start.`,
-    );
-  }
+  const hint =
+    dir &&
+    fs.existsSync(path.join(cwd, dir)) &&
+    whereAgentsLoad(cwd, dir, workspace, repo);
+  if (hint) console.log(hint);
+}
+
+/**
+ * Where agents find the skills at `dir` (relative to `cwd`), when that isn't
+ * where they start: agents load skills from where they start and its parents,
+ * but a nested folder's only once they touch its files
+ */
+function whereAgentsLoad(cwd, dir, workspace, repo) {
+  if (workspace)
+    return `Synced ${dir} at the workspace root, which covers every workspace package`;
+  if (!repo || repo === cwd) return;
+  const here = posix(path.relative(repo, cwd));
+  return `Claude Code and Cursor started at the repository root load ${here}/${dir} only once they work on files in ${here}; start your agent in ${here} to have them from the start.`;
 }

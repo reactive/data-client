@@ -53,8 +53,7 @@ function declaredPackages(dir) {
  * The nearest parent of `dir` whose workspaces include it, up to the
  * repository root; undefined outside a repository or a workspace package
  */
-export function workspaceRoot(dir) {
-  const repo = repoRoot(dir);
+export function workspaceRoot(dir, repo = repoRoot(dir)) {
   if (!repo || repo === dir) return;
   const target = realpath(dir);
   for (const parent of ancestors(path.dirname(dir))) {
