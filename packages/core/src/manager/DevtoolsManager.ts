@@ -271,6 +271,8 @@ export default class DevToolsManager implements Manager {
           if (old >= 0) log[old] = summarize(log[old]);
         };
         return next => action => {
+          // an unmounted store sharing this manager must not touch the new store's log
+          if (controller !== this.controller) return next(action);
           const shouldSkip = this.skipLogging?.(action);
           trackPolling(action);
           if (!shouldSkip) logAction(action);
