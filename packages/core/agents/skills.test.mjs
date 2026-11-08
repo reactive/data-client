@@ -484,13 +484,16 @@ for (const field of [
 }
 
 test('pnpm links transitive packages through a direct one, so upgrades follow', () => {
-  const store = version =>
-    `node_modules/.pnpm/@data-client+react@${version}/node_modules/@data-client`;
+  // as pnpm lays it out: each package in its own store folder, with its
+  // dependencies linked next to it
+  const folder = (name, version) =>
+    `node_modules/.pnpm/@data-client+${name}@${version}/node_modules/@data-client`;
+  const store = version => folder('react', version);
   const install = version => ({
     ...pkg(`${store(version)}/react`, '@data-client/react', version, [
       'data-client-react',
     ]),
-    ...pkg(`${store(version)}/core`, '@data-client/core', version, [
+    ...pkg(`${folder('core', version)}/core`, '@data-client/core', version, [
       'data-client-manager',
     ]),
   });
@@ -499,6 +502,12 @@ test('pnpm links transitive packages through a direct one, so upgrades follow', 
     ...install('0.19.0'),
     ...install('0.19.1'),
   });
+  for (const version of ['0.19.0', '0.19.1'])
+    fs.symlinkSync(
+      path.join(dir, folder('core', version), 'core'),
+      path.join(dir, store(version), 'core'),
+      'junction',
+    );
   const use = version => {
     const linked = path.join(dir, 'node_modules/@data-client/react');
     fs.rmSync(linked, { force: true });
