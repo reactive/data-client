@@ -1,5 +1,7 @@
 import type * as Monaco from 'monaco-editor';
 
+import { isComponentName } from './language';
+
 /**
  * JSX colors. Monaco's TypeScript grammar doesn't know JSX, so TypeScript
  * itself classifies it, in the playground's worker (./surfaceWorker.js), and
@@ -26,55 +28,45 @@ const painted = new WeakMap<Monaco.editor.ITextModel, number>();
 export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
   !takesJsx(model) || painted.get(model) === model.getVersionId();
 
-/** Whether `model` gets JSX colors: TypeScript parses JSX in .tsx files,
- * and the provider serves typescript models */
+/** TypeScript parses JSX only in .tsx files */
 const takesJsx = (model: Monaco.editor.ITextModel) =>
-  model.uri.path.endsWith('.tsx') && model.getLanguageId() === 'typescript';
-
-/** Whether a JSX tag name (or its first letter) names a component, colored
- * apart from HTML tags */
-export const isComponentName = (name: string) => /^[A-Z]/.test(name);
+  model.uri.path.endsWith('.tsx');
 
 export function registerJsxColors(monaco: typeof Monaco) {
   monaco.languages.registerDocumentSemanticTokensProvider('typescript', {
     getLegend: () => ({ tokenTypes: TYPES, tokenModifiers: [] }),
     async provideDocumentSemanticTokens(model) {
+      if (!takesJsx(model)) return { data: new Uint32Array() };
       const version = model.getVersionId();
-      const data: number[] = [];
-      if (takesJsx(model)) {
-        const getWorker = await monaco.typescript.getTypeScriptWorker();
-        const worker = (await getWorker(model.uri)) as unknown as JsxWorker;
-        const spans = await worker.getJsxSpans(model.uri.toString());
-        if (model.isDisposed() || model.getVersionId() !== version) return null;
-        encode(model, spans, data);
-      }
+      const getWorker = await monaco.typescript.getTypeScriptWorker();
+      const worker = (await getWorker(model.uri)) as unknown as JsxWorker;
+      const spans = await worker.getJsxSpans(model.uri.toString());
+      if (model.isDisposed() || model.getVersionId() !== version) return null;
       painted.set(model, version);
-      return { data: new Uint32Array(data) };
+      return { data: new Uint32Array(encode(model, spans)) };
     },
     releaseDocumentSemanticTokens() {},
   });
 }
 
 /**
- * Appends `spans` (start, length, classification) to `data` as Monaco's
- * semantic tokens: one per line, each relative to the one before
+ * `spans` (start, length, classification) as Monaco's semantic tokens: one
+ * per line, each relative to the one before
  */
-function encode(
-  model: Monaco.editor.ITextModel,
-  spans: number[],
-  data: number[],
-) {
+function encode(model: Monaco.editor.ITextModel, spans: number[]) {
+  const data: number[] = [];
   const code = model.getValue();
   let lastLine = 1;
   let lastColumn = 1;
   for (let i = 0; i < spans.length; i += 3) {
     const start = model.getPositionAt(spans[i]);
     const end = model.getPositionAt(spans[i] + spans[i + 1]);
-    const type =
-      spans[i + 2] === TEXT ? 3
-      : spans[i + 2] === ATTRIBUTE ? 2
-      : isComponentName(code[spans[i]]) ? 1
-      : 0;
+    const type = TYPES.indexOf(
+      spans[i + 2] === TEXT ? 'jsxText'
+      : spans[i + 2] === ATTRIBUTE ? 'jsxAttribute'
+      : isComponentName(code[spans[i]]) ? 'jsxComponent'
+      : 'jsxTag',
+    );
     for (let line = start.lineNumber; line <= end.lineNumber; line++) {
       const from = line === start.lineNumber ? start.column : 1;
       const to =
@@ -91,4 +83,5 @@ function encode(
       lastColumn = from;
     }
   }
+  return data;
 }

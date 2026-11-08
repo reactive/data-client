@@ -9,7 +9,7 @@
  */
 import { Prism } from 'prism-react-renderer';
 
-import { isComponentName } from './jsxTokens';
+import { isComponentName } from './language';
 
 type Token = string | Prism.Token;
 
@@ -134,6 +134,12 @@ class MonacoLexer {
 
   private flush() {
     const { code, textRanges } = this;
+    if (!textRanges.length) {
+      // a loop, as spreading a long run of tokens overflows the stack
+      for (const token of lex(code, this.keywords)) this.tokens.push(token);
+      this.code = '';
+      return;
+    }
     const cuts = textRanges.flat();
     const inText = (at: number) =>
       textRanges.some(([from, to]) => at >= from && at < to);
@@ -167,8 +173,8 @@ class MonacoLexer {
  */
 function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
   const lexer = new MonacoLexer(keywords);
-  /** Where JSX nests: an element's children, a tag's attributes, `{}` code */
-  const nesting: ('children' | 'tag' | 'code')[] = [];
+  /** Where JSX nests: an element's children, or code (`{}`, a tag's attributes) */
+  const nesting: ('children' | 'code')[] = [];
   /** `<Name attr="value">` or `</Name>`, maybe without a name */
   const walkTag = (tag: Prism.Token) => {
     const [head, ...attributes] = contentOf(tag);
@@ -180,7 +186,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
         typed(isComponentName(tagName) ? 'class-name' : 'tag', tagName),
       );
     }
-    nesting.push('tag');
+    nesting.push('code');
     for (const part of attributes) {
       if (typeof part === 'object' && part.type === 'attr-name')
         lexer.addToken(typed('attr-name', textOf(part)));
@@ -221,7 +227,8 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
   const walkAll = (list: Token[]) => {
     for (let i = 0; i < list.length; i++) {
       if (jsx && isPunctuation(list[i], '<')) {
-        // Prism reads a fragment's `<>` as two operators
+        // Prism reads a fragment's `<>` as two operators right after a `>`,
+        // or in code it reads again (below)
         if (isPunctuation(list[i + 1], '>')) {
           lexer.addCode('<>');
           nesting.push('children');

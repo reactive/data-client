@@ -6,6 +6,10 @@ export function extensionToMonacoLanguage(language: string) {
   return id;
 }
 
+/** Whether a JSX tag name (or its first letter) names a component, colored
+ * apart from HTML tags */
+export const isComponentName = (name: string) => /^[A-Z]/.test(name);
+
 /** Monaco languages that `monaco/tokenize.ts` colors as Monaco does */
 const TOKENIZED = new Set(['typescript', 'javascript', 'html', 'json']);
 

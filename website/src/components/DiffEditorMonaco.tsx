@@ -22,7 +22,8 @@ import { isMobileOrBot } from './Playground/userAgent';
 export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
   const original = sides[0].editorValue;
   const modified = sides[1].editorValue;
-  // named by the fence's extension, so TypeScript reads JSX in tsx sides
+  // named by the fence's extension, so TypeScript reads JSX in tsx sides;
+  // not modelPath()'s numeric surface shape, so each side is its own program
   const modelPath = `inmemory://diff/${useId().replace(/\W/g, '')}/`;
 
   const { height, handleMount } = useAutoHeight({
@@ -123,7 +124,12 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
                 <div className={styles.playgroundEditor}>
                   <div className={clsx(styles.editorHost, styles.diffHost)}>
                     <BaseDiffEditor
-                      language={extensionToMonacoLanguage(sides[0].language)}
+                      originalLanguage={extensionToMonacoLanguage(
+                        sides[0].language,
+                      )}
+                      modifiedLanguage={extensionToMonacoLanguage(
+                        sides[1].language,
+                      )}
                       original={original}
                       modified={modified}
                       originalModelPath={`${modelPath}original.${sides[0].language.toLowerCase()}`}
