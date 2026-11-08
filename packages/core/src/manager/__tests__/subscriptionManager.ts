@@ -101,6 +101,28 @@ describe('SubscriptionManager', () => {
       expect(current.init).toHaveBeenCalledTimes(1);
     });
 
+    it('ignores actions from a previous store', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const action = {
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction;
+      const oldNext = manager.middleware(new Controller())(() =>
+        Promise.resolve(),
+      );
+      oldNext(action);
+      manager.middleware(new Controller())(() => Promise.resolve())(action);
+      const current: TestSubscription = (manager as any).subscriptions[
+        action.key
+      ];
+
+      oldNext({ ...action, type: UNSUBSCRIBE } as UnsubscribeAction);
+      expect(current.remove).not.toHaveBeenCalled();
+      expect((manager as any).subscriptions[action.key]).toBe(current);
+    });
+
     it('keeps a Subscription without init() created while paused running', () => {
       class NoInitSubscription implements Subscription {
         add = jest.fn();

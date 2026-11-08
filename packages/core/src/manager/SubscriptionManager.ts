@@ -61,6 +61,8 @@ export default class SubscriptionManager<
     }
     this.controller = controller;
     return next => action => {
+      // the old store's actions must not touch the new store's subscriptions
+      if (controller !== this.controller) return next(action);
       switch (action.type) {
         case SUBSCRIBE:
           try {
