@@ -6,11 +6,11 @@
       "name": "sdk-abort-signal-member",
       "source": "G4 in the Voyager migration (aeharding/voyager@6a15757): its feeds pass `{ signal }` to the threadiverse SDK, and an AbortSignal in the endpoint's arguments becomes part of its cache key.",
       "prompt": "Move this feed fetch onto Data Client. `PostView` (an Entity, `@/schemas/PostView`) exists, `DataProvider` wraps the app, and `client` is the app's threadiverse SDK instance. Write the endpoint in src/features/feed/endpoints.ts and rewrite the component to read through it. Keep the current behavior: switching sort aborts the request for the old sort.\n\n```tsx\n// src/features/feed/CommunityFeed.tsx\nimport { useEffect, useState } from 'react';\nimport { client } from '@/services/client';\nimport type { PostView } from '@/schemas/PostView';\nimport PostList from './PostList';\n\nexport default function CommunityFeed({ community, sort }: { community: string; sort: string }) {\n  const [posts, setPosts] = useState<PostView[]>();\n  useEffect(() => {\n    const controller = new AbortController();\n    client\n      .getPosts({ community_name: community, sort, signal: controller.signal })\n      .then(res => setPosts(res.posts));\n    return () => controller.abort();\n  }, [community, sort]);\n  if (!posts) return <Spinner />;\n  return <PostList posts={posts} />;\n}\n```",
-      "expected_output": "An `Endpoint` whose arguments are only `{ community, sort }` (or the SDK's key fields), which reads a declared `signal` member from `this` and passes it to `client.getPosts`; the component reads with `useSuspense(useCancelling(endpoint, args), args)`.",
+      "expected_output": "An `Endpoint` whose arguments are only `{ community, sort }` (or the SDK's key fields), which reads `this.signal` and passes it to `client.getPosts`; the component reads with `useSuspense(useCancelling(endpoint, args), args)`.",
       "files": [],
       "assertions": [
         "The endpoint's arguments hold no `AbortSignal`: no `signal` parameter, and no `key` override written to drop one.",
-        "The fetch function reads the signal from the endpoint (`this.signal`, a member declared in the options) and passes it to `client.getPosts`.",
+        "The fetch function reads the signal from the endpoint (`this.signal`) and passes it to `client.getPosts`.",
         "The component aborts the old sort's request through `useCancelling(endpoint, args)` (or `endpoint.extend({ signal })`), with the same args passed to `useSuspense()`.",
         "The component reads with `useSuspense()` and has no `useEffect` or `useState` for the posts."
       ]
