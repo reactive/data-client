@@ -3,6 +3,8 @@
 '@data-client/vue': patch
 '@data-client/core': patch
 '@data-client/endpoint': patch
+'@data-client/rest': patch
+'@data-client/graphql': patch
 ---
 
 [useQuery()](https://dataclient.io/docs/api/useQuery) accepts `null` to skip the query, like the other hooks
