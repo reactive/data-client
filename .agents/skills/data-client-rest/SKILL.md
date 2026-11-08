@@ -93,8 +93,6 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-Fetch the first page without the `paginationField` arg: `getPage` drops it to find the list to extend. Lists in a `{ data: [...], meta }` envelope keep the envelope as the schema, with the Collection where the list is: [Page numbers in an envelope](references/pagination.md#envelope) shows `getPage` and `push`.
-
 For more detailed usage, apply the skill "data-client-react" or "data-client-vue".
 
 ---
@@ -198,7 +196,7 @@ For detailed API documentation, see the [references](references/) directory:
 
 **Guides** (refer when user asks about these topics):
 - [auth](references/auth.md) - Authentication headers, tokens, login/logout flows
-- [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) - Cursor/offset pagination, `{ data, meta }` envelopes, infinite scroll
+- [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) - Cursor/offset pagination, infinite scroll
 - [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) - Instant UI feedback before server response
 - [network-transform](references/network-transform.md) - Transform responses, handle non-standard APIs
 

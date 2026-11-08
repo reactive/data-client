@@ -68,7 +68,7 @@ Override only what the app does today:
 | Auth or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
 | Auth token from React context (Okta, Auth0) | [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md); a base class can't read context |
 | Cookies, CSRF, other `RequestInit` | `getRequestInit(body)`, spreading `super.getRequestInit(body)` |
-| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed. If the app reads `meta` (page counts, totals), keep the envelope as the schema instead, and don't unwrap in a base class, whose `process()` runs for every endpoint ("Page numbers in an envelope" in skill "data-client-rest"'s pagination reference) |
+| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed |
 | Date fields | Not `process()`: the Entity's `static schema`, e.g. `createdAt: Temporal.Instant.from` (skill "data-client-schema") |
 | Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow ([Server error messages](./data-client-rest-setup/references/axios-migration.md#server-error-messages) shows it) |
 | Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |
