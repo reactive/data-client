@@ -49,6 +49,9 @@ const currentOrigin = isNext ? '' : url;
 // This build's baseUrl (/, /es/, /next/, /next/es/), so pages load static
 // files from their own build, the one an installed app's worker can serve
 const buildBase = `${isNext ? '/next' : ''}${localeRoot}/`;
+// Posts published before the cut are the current version's: /next/ links them
+// to the root's copy (scripts/snapshot/rootBlog.client.ts)
+const nextCut = isNext ? versionCurrent?.cut : undefined;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -303,6 +306,7 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by DocsSelector to switch between differently named pages
     docsEquivalents: frameworkDocs.docsEquivalents(),
+    nextCut,
   },
   onBrokenLinks: 'warn',
   future: {
@@ -386,8 +390,14 @@ const config: Config = {
           // social cards are for link previews, never shown on the site
           globIgnores: [
             'img/social/**',
-            // /next/ sends its posts to the root site's (blog/<yyyy>/...)
-            ...(isNext ? ['blog/[0-9][0-9][0-9][0-9]/**'] : []),
+            // /next/ sends posts from before the cut to the root site's
+            ...(nextCut ?
+              fs
+                .readdirSync(path.join(__dirname, 'blog'))
+                .map(file => /^(\d{4})-(\d{2})-(\d{2})-/.exec(file))
+                .filter(date => date && date.slice(1).join('-') < nextCut)
+                .map(date => `blog/${date!.slice(1).join('/')}/**`)
+            : []),
           ],
           // Pages are files like docs/intro.html served at /docs/intro
           // (trailingSlash: false), so cache them under the URL they're served

@@ -3,15 +3,13 @@ import type BlogSidebarType from '@theme/BlogSidebar';
 import BlogSidebar from '@theme-original/BlogSidebar';
 import React from 'react';
 
-import { rootPost } from '../../utils/rootPost';
+import { isNext, rootPost } from '../../utils/rootPost';
 
 type Props = WrapperProps<typeof BlogSidebarType>;
 
-// Recent posts link to the root's copies (rootPost)
+// Recent posts from before the cut link to the root's copies (rootPost)
 export default function BlogSidebarWrapper({ sidebar, ...props }: Props) {
-  if (!rootPost || !sidebar)
-    return <BlogSidebar sidebar={sidebar} {...props} />;
-  const toRoot = rootPost;
+  if (!isNext || !sidebar) return <BlogSidebar sidebar={sidebar} {...props} />;
   return (
     <BlogSidebar
       {...props}
@@ -19,7 +17,7 @@ export default function BlogSidebarWrapper({ sidebar, ...props }: Props) {
         ...sidebar,
         items: sidebar.items.map(item => ({
           ...item,
-          permalink: toRoot(item.permalink),
+          permalink: rootPost(item.permalink),
         })),
       }}
     />

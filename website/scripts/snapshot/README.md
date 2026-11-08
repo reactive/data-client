@@ -55,16 +55,18 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
   `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,
-  pages), but they link each post to the root's copy (`src/utils/rootPost.ts`), and other links to a
-  post load the root's (`rootBlog.client.ts`). It shows an "unreleased" banner
+  pages) and the posts published since `versionCurrent.json`'s `cut` date. Posts from before the cut
+  are the current version's: the lists link them to the root's copy (`src/utils/rootPost.ts`), their
+  `/next/` pages redirect there with a meta refresh, and in-app routes to them do too
+  (`rootBlog.client.ts`). Once the next major ships and master serves the root again, the `/next/*`
+  redirect below sends every `/next/blog` post to the root's copy at the same path. It shows an "unreleased" banner
   linking to the current version's docs (from a PR preview, built alone at its root, production's).
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
   (the wrapper keeps the blog and every
   static file), cached by the branch's commit so master's deploys rebuild it only when the branch
   changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
   (except its `sw.js` paths, below) to the root whenever there is no next build (`docs deploy`
-  drops that redirect while there is one, and fails if it's gone), and `/next/blog/<yyyy>/...` posts to
-  the root's.
+  drops that redirect while there is one, and fails if it's gone).
 - `website-port.yml` opens a PR to the branch for each master push whose commits change only site
   code (`website/src`, `website/static`), so a UI fix reaches the root
   ([scripts/maintenance/README.md](../../../scripts/maintenance/README.md#website-fixes)).

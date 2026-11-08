@@ -21,12 +21,19 @@ function check(ok: unknown, message: string): asserts ok {
 /**
  * The released version master is a major ahead of, present while
  * versionCurrent.json is (from scripts/maintenance/cut.sh): its docs serve at
- * the root, built from its maintenance branch.
+ * the root, built from its maintenance branch. Posts dated before its cut
+ * (YYYY-MM-DD) are its: /next/'s blog lists link them to the root's copy.
  */
-export const versionCurrent: { version: string; ref: string } | undefined =
-  read('versionCurrent.json');
+export const versionCurrent:
+  { version: string; ref: string; cut: string } | undefined = read(
+  'versionCurrent.json',
+);
 if (versionCurrent) {
-  const { version, ref } = versionCurrent;
+  const { version, ref, cut } = versionCurrent;
+  check(
+    /^\d{4}-\d{2}-\d{2}$/.test(cut ?? ''),
+    `versionCurrent.json: cut must be YYYY-MM-DD`,
+  );
   check(LINE.test(version), `versionCurrent.json: ${version} isn't a line`);
   check(
     ref === `${version}.x`,
