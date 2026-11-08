@@ -326,9 +326,9 @@ Then we can get the endpoints as composables in our Vue Components
 >   import { PostResource } from 'resources/Post';
 >
 >   const controller = useController();
->   const createPost = PostResource.useCreate();
+>   const createPost = PostResource.useGetList().push;
 >   const onSubmit = (e: Event) =>
->     controller.fetch(createPost, new FormData(e.target as HTMLFormElement));
+>     controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 > </script>
 >
 > <template>
@@ -381,7 +381,7 @@ function useEndpoint(endpoint: RestEndpoint) {
 >   import { useEndpoint } from './useEndpoint';
 >
 >   const controller = useController();
->   const createPost = useEndpoint(PostResource.create);
+>   const createPost = useEndpoint(PostResource.getList.push);
 >   const onSubmit = (e: Event) =>
 >     controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 > </script>

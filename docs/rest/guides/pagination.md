@@ -16,13 +16,13 @@ import { validatorFixtures } from '@site/src/fixtures/validators';
 
 ## Expanding Lists
 
-In case you want to append results to your existing list, rather than move to another page
-[Resource.getList.getPage](../api/resource.md#getpage) can be used as long as [paginationField](../api/resource.md#paginationfield) was provided.
+To append results to the list instead of moving to another page, use
+[Resource.getList.getPage](../api/resource.md#getpage). It needs [paginationField](../api/resource.md#paginationfield).
 
 <PaginationDemo />
 
-Don't forget to define our [Resource's](../api/resource.md) [paginationField](../api/resource.md#paginationfield) and
-correct [schema](../api/resource.md#schema)!
+Set the [Resource's](../api/resource.md) [paginationField](../api/resource.md#paginationfield) and
+[schema](../api/resource.md#schema):
 
 ```ts title="Post"
 export const PostResource = resource({
@@ -38,17 +38,17 @@ export const PostResource = resource({
 
 ### Github Issues Demo
 
-Our `NextPage` component has a click handler that calls [RestEndpoint.getPage](../api/RestEndpoint.md#getpage).
-Scroll to the bottom of the preview to click _"Load more"_ to append the next page of issues.
+`NextPage` calls [RestEndpoint.getPage](../api/RestEndpoint.md#getpage) on click. Scroll to the bottom of the preview
+and click _"Load more"_ to append the next page of issues.
 
 <StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" height={700} />
 
 ### Using RestEndpoint Directly
 
-Here we explore a real world example using [Cosmos Hub validators list](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
-
-Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) instead of [resource](../api/resource.md). By using [Collections](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
-to append the next page of validators to our list.
+This example uses the [Cosmos Hub validators list](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
+It has only one endpoint, so it uses [RestEndpoint](../api/RestEndpoint.md) instead of [resource](../api/resource.md).
+With a [Collection](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield),
+[RestEndpoint.getPage](../api/RestEndpoint.md#getpage) appends the next page of validators to the list.
 
 <FrameworkPlayground defaultOpen="n" row fixtures={validatorFixtures}>
 
@@ -265,9 +265,9 @@ render(<ValidatorList />);
 
 ### Infinite Scrolling
 
-Since UI behaviors vary widely, and implementations vary from platform (react-native or web),
-we'll just assume a `Pagination` component is built, that uses a callback to trigger next
-page fetching. On web, it is recommended to use something based on [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+Infinite scroll UI differs by app and platform (React Native or web). This example uses a `Pagination` component that
+calls a callback to fetch the next page. On the web, build it with an
+[Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
 
 :::react
 
@@ -321,16 +321,12 @@ function NewsList() {
 
 ## Tokens in HTTP Headers
 
-In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
-case you'll need to customize the [parseResponse()](../api/RestEndpoint.md#parseResponse) function
-for [getList](../api/resource.md#getlist) so the pagination headers are included fetch object.
-
-We show the custom `getList` below. All other parts of the above example remain the same.
-
-Pagination token is stored in the header `link` for this example.
+Some APIs send pagination tokens in HTTP headers instead of the body. Override
+[getList](../api/resource.md#getlist)'s [parseResponse()](../api/RestEndpoint.md#parseResponse) to add the header to
+the response. In this example, the token is in the `link` header. The rest of the example above stays the same.
 
 ```typescript
-import { Collection, Resource } from '@data-client/rest';
+import { resource } from '@data-client/rest';
 
 export const ArticleResource = resource({
   path: '/articles/:id',
@@ -357,8 +353,7 @@ export const ArticleResource = resource({
 
 ### Code organization
 
-If much of your API share a similar pagination, you might
-try a custom Endpoint class that shares this logic.
+If many endpoints share the same pagination, put the logic in a custom Endpoint class.
 
 ```ts title="resources/PagingEndpoint.ts"
 import { Collection, RestEndpoint, type RestGenerics } from '@data-client/rest';

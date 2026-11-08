@@ -10,7 +10,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 # TypeScript Standard Endpoints
 
-[Endpoints](/rest/api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
+[Endpoints](/rest/api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). They hold its runtime behavior and, optionally, its types.
 
 <PkgTabs pkgs="@data-client/endpoint" />
 
@@ -71,38 +71,28 @@ console.log(await todoDetail({ id: '1' }));
 
 </details>
 
-We will likely want to use this endpoint in many places with differing needs.
-By defining a reusable function of _just_ the network definition, we empower
-its use in _any_ context.
+The endpoint holds _only_ the network definition, so any component can use it. Each piece of information you add to
+it, such as TypeScript types, then helps every place that uses it: types catch typos and give autocomplete.
 
-This is especially useful when we start adding more information related to the
-endpoint. For instance, TypeScript definitions help us avoid common mistakes, typos
-and speed up development with autocomplete.
-
-By _tightly coupling_ the interface definition, while _loosely coupling_ its usage,
-we reduce boilerplate, complexity, and common mistakes, while increasing performance and
-enabling global application consistency and integrity even in the face of unreliable
-asynchronous data.
+Define the interface once, and use it anywhere. This removes boilerplate and mistakes, and keeps data consistent across
+the application.
 
 ## More than just a function
 
-In addition to an async function and (optional) types, [Endpoint](/rest/api/Endpoint)s are objects,
-allowing them to provide any additional relevant information about the endpoint itself.
+An [Endpoint](/rest/api/Endpoint) is also an object, so it can hold more information about the endpoint.
 
-For instance, to allow integration into a cache as well as knowing when to recompute and/or refetch
-when parameters change, Endpoints have a [key()](/rest/api/Endpoint#key) member that serializes
-the endpoint and parameters to a unique string.
+For example, [key()](/rest/api/Endpoint#key) serializes the endpoint and its parameters to a unique string. The cache
+uses it to store responses and to know when parameters changed.
 
 ```js
 console.log(todoDetail.key({ id: '1' }));
-// fetchTodoDetail {"id":"1"}
+// fetchTodoDetail [{"id":"1"}]
 ```
 
 ### Members
 
-The second optional arg is an object to initialize the endpoint with. By avoiding arrow functions,
-we can use [this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
-to access other members we defined.
+The optional second argument sets the endpoint's members. Use methods, not arrow functions, so
+[this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this) can read the other members.
 
 ```js
 const todoDetailWithCustomizedKey = new Endpoint(fetchTodoDetail, {
@@ -120,13 +110,10 @@ console.log(todoDetailWithCustomizedKey.key({ id: '1' }));
 
 ### Endpoint.extend()
 
-For convenience, [extend()](/rest/api/Endpoint#extend) allows type-correct
-prototypical inheritance extensions of an endpoint.
+[extend()](/rest/api/Endpoint#extend) creates a new endpoint that inherits the members of the original, with correct
+types. Use it to share patterns, such as authentication, across an API.
 
-This is greatly reduces boilerplate when strong patterns are established for an API like
-authentication.
-
-Here we show the benefits of customizing [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) member.
+This example changes the [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) member:
 
 ```js
 const fetchTodoDetail = function ({ id }) {

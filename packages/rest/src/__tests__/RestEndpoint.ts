@@ -1968,6 +1968,88 @@ describe('content property', () => {
     },
   );
 
+  describe('getRequestInit() override without a method', () => {
+    let errorSpy: jest.SpyInstance;
+    let sent: RequestInit[];
+    // records each RequestInit instead of calling fetch()
+    class RecordingEndpoint<
+      O extends RestGenerics = any,
+    > extends RestEndpoint<O> {
+      fetchResponse(_input: RequestInfo, init: RequestInit) {
+        sent.push(init);
+        return Promise.resolve(new Response('{"id":5}'));
+      }
+    }
+    beforeEach(() => {
+      sent = [];
+      errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      errorSpy.mockRestore();
+    });
+
+    it('warns when a mutation spreads super.getRequestInit() without await', async () => {
+      class UnawaitedEndpoint<
+        O extends RestGenerics = any,
+      > extends RecordingEndpoint<O> {
+        getRequestInit(body: any): RequestInit {
+          return { ...super.getRequestInit(body), credentials: 'include' };
+        }
+      }
+      const update = new UnawaitedEndpoint({
+        path: '/user/:id',
+        method: 'PATCH',
+        body: {} as { username: string },
+      });
+      await update({ id: 5 }, { username: 'bob' });
+      expect(sent[0].method).toBeUndefined();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('sends GET instead of PATCH'),
+      );
+    });
+
+    it('does not warn when super.getRequestInit() is awaited', async () => {
+      class AwaitedEndpoint<
+        O extends RestGenerics = any,
+      > extends RecordingEndpoint<O> {
+        async getRequestInit(body: any): Promise<RequestInit> {
+          return {
+            ...(await super.getRequestInit(body)),
+            credentials: 'include',
+          };
+        }
+      }
+      const update = new AwaitedEndpoint({
+        path: '/user/:id',
+        method: 'PATCH',
+        body: {} as { username: string },
+      });
+      await update({ id: 5 }, { username: 'bob' });
+      expect(sent[0]).toMatchObject({
+        method: 'PATCH',
+        body: '{"username":"bob"}',
+        credentials: 'include',
+      });
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+
+    it('builds the url before calling getRequestInit()', async () => {
+      const getRequestInit = jest.fn();
+      const get = new RecordingEndpoint({ path: '/user/:id', getRequestInit });
+      await expect(get({} as any)).rejects.toThrow();
+      expect(getRequestInit).not.toHaveBeenCalled();
+    });
+
+    it('does not warn for GET', async () => {
+      const get = new RecordingEndpoint({
+        path: '/user/:id',
+        getRequestInit: () => ({ credentials: 'include' }),
+      });
+      await get({ id: 5 });
+      expect(errorSpy).not.toHaveBeenCalled();
+    });
+  });
+
   it('204 with content: blob returns null', async () => {
     nock(/.*/)
       .defaultReplyHeaders({

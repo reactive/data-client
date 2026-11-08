@@ -4,13 +4,8 @@ title: Using hooks with class components
 ---
 import PkgTabs from '@site/src/components/PkgTabs';
 
-Hooks are great, but many of us are working with existing codebases or libraries
-with class based components. Some might be easy to migrate but others might be
-more diffcult. Should this block you from adopting Reactive Data Client? Of course not!
-
-Using the simple [hook-hoc](https://github.com/ntucker/hook-hoc) interop library
-we can create Higher Order Components from hooks quite easily. This enables us
-to easily replace any existing HOC with ease.
+Class components cannot call hooks. To use Reactive Data Client with them, wrap hooks in a Higher Order Component
+with [hook-hoc](https://github.com/ntucker/hook-hoc). It can also replace your existing HOCs.
 
 ## Install [hook-hoc](https://github.com/ntucker/hook-hoc)
 
@@ -40,14 +35,13 @@ export default withHook(({ id }: { id: number }) => {
 })(Profile);
 ```
 
-Here you can see the return value of the function you pass in gets injected into the props
-of the component you wrap.
+`withHook()` passes the function's return value to the wrapped component as props.
 
 ## Extracting the function
 
-You might notice the function we pass to `withHook()` is a function that calls
-hooks. That makes it a hook by definition. To make this detectable by the [rules of hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks)
-and also potentially reusable, let's move it out to a named function:
+The function passed to `withHook()` calls hooks, so it is a hook. Give it a `use` name so the
+[rules of hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks) lint rule can check it, and so you can reuse
+it:
 
 ```tsx
 import { PureComponent } from 'react';
@@ -75,11 +69,8 @@ export default withHook(useProfile)(Profile);
 
 ## Filters, debounce and more
 
-Often times you'll be doing a bit more than just retrieving the data. We can
-do all of that extra work in the hook we just created. Here we'll add some
-client-side filtering as well as [debouncing](https://usehooks.com/useDebounce/) the requests themselves.
-
-You can combine any hooks here - the sky's the limit.
+Put any other work in the same hook. This example filters on the client and
+[debounces](../api/useDebounce.md) the requests:
 
 ```tsx
 import { useSuspense, useDebounce } from '@data-client/react';
@@ -87,10 +78,10 @@ import { useSuspense, useDebounce } from '@data-client/react';
 import { UserResource } from './resources/User';
 
 function useProfile({ id }: { id: number }) {
-  const debouncedId = useDebounce(id, 150);
+  const [debouncedId] = useDebounce(id, 150);
 
-  const user = useSuspense(UserResource.get, { id });
-  const friends = useSuspense(UserResource.getList, { friendid: id });
+  const user = useSuspense(UserResource.get, { id: debouncedId });
+  const friends = useSuspense(UserResource.getList, { friendid: debouncedId });
   const realFriends = friends.filter(friend => friend.isReal);
 
   return { user, friends: realFriends };

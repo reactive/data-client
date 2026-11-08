@@ -11,13 +11,12 @@ import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/
 
 # Relational data
 
-Reactive Data Client handles one-to-one, many-to-one and many-to-many relationships on [entities][1]
-using [Entity.schema][3]
+Declare one-to-one, many-to-one and many-to-many relationships between [entities][1] in [Entity.schema][3].
 
 ## Nesting
 
-Nested members are hoisted during normalization when [Entity.schema][3] is defined.
-They are then rejoined during denormalization
+When an Entity defines [Entity.schema][3], normalization stores each nested entity separately. Denormalization joins
+them again.
 
 <details>
 <summary><b>Diagram</b></summary>
@@ -212,8 +211,8 @@ render(<PostPage />);
 
 Nesting data when your endpoint doesn't.
 
-Even if the network responses don't nest data, we can perform client-side joins by specifying
-the relationship in [Entity.schema](../api/Entity.md#schema).
+When a response does not nest related data, declare the relationship in [Entity.schema](../api/Entity.md#schema).
+Data Client then joins the data on the client.
 
 Here `/todos` only sends each todo's `userId`. [Entity.process()](../api/Entity.md#process) points
 `user` at that id, so every todo in the list carries its whole `User` from `/users`. A component
@@ -493,12 +492,12 @@ render(<TodoList />);
 
 ### Key-based joins
 
-For more complex scenarios where related entities are fetched separately, use [Entity.process()](/rest/api/Entity#process)
-to create a reference key that links to another Entity. This is useful when:
+When related entities come from separate fetches, use [Entity.process()](/rest/api/Entity#process) to add a key that
+references the other Entity. Use this when:
 
-- Related data comes from different API endpoints
-- You want to avoid over-fetching nested data
-- The relationship is optional or varies by context
+- Related data comes from different API endpoints.
+- You do not want to fetch nested data you do not need.
+- The relationship is optional or depends on context.
 
 ```typescript
 import { Entity, resource } from '@data-client/rest';
@@ -540,15 +539,13 @@ class Currency extends Entity {
 }
 ```
 
-When both `CurrencyResource.getList` and `StatsResource.getList` are fetched, the `stats`
-field will automatically resolve to the matching `Stats` entity.
+After both `CurrencyResource.getList` and `StatsResource.getList` resolve, `stats` is the matching `Stats` entity.
 
 ### Crypto price example
 
-Here we want to sort `Currencies` by their trade volume. However, trade volume is only available in the `Stats`
-Entity. Even though `CurrencyResource.getList` fetch does not include `Stats` in the response, we can additionally
-call `StatsResource.getList`, while adding it to our `Currency's` [Entity.schema](../api/Entity.md#schema) - enabling
-`Stats` inclusion in our `Currency` Entity, which enables sorting with:
+This list sorts `Currencies` by trade volume. Only the `Stats` Entity has trade volume, and the
+`CurrencyResource.getList` response does not include it. So the page also fetches `StatsResource.getList`, and
+`Currency`'s [Entity.schema](../api/Entity.md#schema) adds `Stats` to each `Currency`. The list can then sort:
 
 ```ts
 entries.sort((a, b) => {
@@ -562,12 +559,11 @@ entries.sort((a, b) => {
 
 Nesting data when your endpoint doesn't (part 2).
 
-Even though a response may only nest in one direction, Reactive Data Client can handle reverse relationships
-by overriding [Entity.process](../api/Entity.md#process). Additionally, [Entity.merge](../api/Entity.md#merge)
-may need overriding to ensure deep merging of those expected fields.
+A response can nest in one direction only. To add the reverse relationship, override
+[Entity.process](../api/Entity.md#process). You might also need to override [Entity.merge](../api/Entity.md#merge) to
+deep merge those fields.
 
-This allows you to traverse the relationship after processing only one fetch request, rather than having to fetch
-each time you want access to a different view.
+Then one fetch gives every view of the relationship, with no fetch per view.
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -851,8 +847,8 @@ export default function PostPage() {
 
 ### Circular dependencies
 
-Because circular imports and circular class definitions are not allowed, sometimes it
-will be necessary to define the [schema][3] after the [Entities][1] definition.
+JavaScript does not allow circular imports or circular class definitions. So for [Entities][1] that reference each
+other, define the [schema][3] after the class definitions.
 
 ```typescript title="resources/Post"
 import { Collection, Entity } from '@data-client/rest';

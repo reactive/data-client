@@ -8,6 +8,13 @@ import zlib from 'node:zlib';
 import { escapes, posix, readJSON } from './node-modules.mjs';
 
 /**
+ * A package in Yarn's zip cache: the archive, then the package's path inside
+ * it, which always starts at node_modules (so a folder named *.zip higher up
+ * isn't taken for the archive)
+ */
+const ZIPPED = /^(.*?\.zip)[\\/](node_modules[\\/].*)$/;
+
+/**
  * Each installed version of the `names` packages in the PnP project holding
  * `projectDir`. Packages in the zip cache get their package.json and skills
  * extracted under `extractTo`, an empty directory the caller owns.
@@ -21,10 +28,15 @@ export function pnpPackages(projectDir, names, extractTo) {
     if (!names.includes(pkg)) continue;
     for (const [, { packageLocation }] of versions) {
       const location = path.resolve(root, packageLocation);
+      // read a path inside a zip only by extracting, never as a folder, even
+      // when extracting finds nothing: under Yarn's runtime
+      // (`yarn data-client-skills`) it looks like a folder, but only Yarn's
+      // patched fs can read it
+      const zip = zipLocation(location);
       const dir =
-        fs.existsSync(location) ? location : (
-          extract(location, path.join(extractTo, String(found.length)))
-        );
+        zip ? extract(zip, path.join(extractTo, String(found.length)))
+        : fs.existsSync(location) ? location
+        : undefined;
       if (dir) found.push({ pkg, dir });
     }
   }
@@ -64,10 +76,16 @@ function runtimeState(root) {
   );
 }
 
+/** `location`'s archive and path inside it, when a zip file holds it */
+function zipLocation(location) {
+  const match = ZIPPED.exec(location);
+  return match && fs.statSync(match[1], { throwIfNoEntry: false })?.isFile() ?
+      { zipFile: match[1], inner: match[2] }
+    : undefined;
+}
+
 /** Extracts a zipped package's package.json and skills into `dir` */
-function extract(location, dir) {
-  const [, zipFile, inner] = /^(.*?\.zip)[\\/](.*)$/.exec(location) ?? [];
-  if (!zipFile || !fs.existsSync(zipFile)) return undefined;
+function extract({ zipFile, inner }, dir) {
   const prefix = posix(inner).replace(/\/?$/, '/');
   const entries = zipEntries(fs.readFileSync(zipFile));
   const manifest = entries.get(`${prefix}package.json`)?.();

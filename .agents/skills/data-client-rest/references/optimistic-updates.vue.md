@@ -2,15 +2,14 @@
 
 # Optimistic Updates
 
-Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
-An update is optimistic by assuming the network is successful.
+An optimistic update shows the result of a mutation before the server responds. It assumes the request succeeds, so
+the interface does not wait for the network.
 
-Doing this amplifies and creates new race conditions; thankfully Reactive Data Client automatically
-handles these for you.
+Optimistic updates add new race conditions. Reactive Data Client handles them for you.
 
 ## Resources
 
-[resource()](./resource.vue.md) can be configured by setting [optimistic: true](./resource.vue.md#optimistic).
+To make a [resource()](./resource.vue.md) optimistic, set [optimistic: true](./resource.vue.md#optimistic).
 
 ```ts title="TodoResource" {16}
 import { Entity, resource } from '@data-client/rest';
@@ -115,7 +114,7 @@ export const TodoResource = resource({
 </template>
 ```
 
-This makes all mutations optimistic using some sensible default implementations that handle most cases.
+All its mutations then use these default optimistic responses:
 
 ### update/getList.push/getList.unshift
 
@@ -138,13 +137,11 @@ function ensureBodyPojo(body: any) {
 }
 ```
 
-For creates (push/unshift) this typically results in no `id` in the response to compute a pk.
-Data Client will create a random `pk` to make this work.
+A create (push/unshift) body usually has no `id` to compute a pk from. So
+Data Client creates a random `pk`.
 
-Until the object is actually created, doing mutations on that object generally does not work.
-Therefore, it may be prudent in these cases to disable further mutations until the actual
-`POST` is completed. One way to determine this is to simply look for the existence of
-a real `id` in the entity.
+Mutations on the new object usually fail until the server creates it. So disable other mutations on it until the
+`POST` completes. For example, check that the entity has a real `id`.
 
 ### partialUpdate
 
@@ -165,10 +162,9 @@ function optimisticPartial(schema: Queryable) {
 
 Partial updates do not send the entire body. Fields the expected response leaves out keep their
 cached values, so an Entity only needs its [primary key](https://dataclient.io/rest/api/Entity#pk) and the changed fields.
-Reading the entity from the store lets us [abort](https://dataclient.io/vue/api/Snapshot#abort) when it isn't cached yet,
-instead of showing an Entity made only of the changed fields. [Snapshots](https://dataclient.io/vue/api/Snapshot)
-give us safe access to the existing store value that is robust against any
-race conditions.
+If the entity is not in the store yet, the update [aborts](https://dataclient.io/vue/api/Snapshot#abort) instead of showing an Entity
+made only of the changed fields. [Snapshots](https://dataclient.io/vue/api/Snapshot) read the current store value safely, with no race
+conditions.
 
 ### delete
 
@@ -178,15 +174,14 @@ function optimisticDelete(snap: SnapshotInterface, params: any) {
 }
 ```
 
-In case you do not want all endpoints to be optimistic, or if you have unusual API designs,
-you can set [getOptimisticResponse()](./RestEndpoint.vue.md#getoptimisticresponse) using
-[Resource.extend()](./resource.vue.md#extend)
+To make only some endpoints optimistic, or to match an unusual API, set
+[getOptimisticResponse()](./RestEndpoint.vue.md#getoptimisticresponse) with
+[Resource.extend()](./resource.vue.md#extend).
 
 ## Optimistic Transforms
 
-Sometimes user actions should result in data transformations that are dependent on the previous state of data.
-The simplest examples of this are toggling a boolean, or incrementing a counter; but the same principal applies to
-more complicated transforms. To make it more obvious we're using a simple counter here.
+Some updates depend on the previous value, such as toggling a boolean or incrementing a counter. This example uses a
+counter.
 
 ```ts title="count"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -269,17 +264,14 @@ export const increment = new RestEndpoint({
 </template>
 ```
 
-Reactive Data Client automatically handles all race conditions due to network timings. Reactive Data Client both tracks
-fetch timings, pairs responses with their respective optimistic update and rollsback in case of resolution or
-rejection/failure.
+Reactive Data Client handles race conditions from network timing. It tracks when each fetch starts, pairs each
+response with its optimistic update, and rolls the update back when the request resolves or fails.
 
-You can see how this is problematic for other libraries even without optimistic updates;
-but optimistic updates make it even worse.
+Other libraries have these race conditions even without optimistic updates. Optimistic updates make them worse.
 
 ### Example race condition
 
-Here's an example of the race condition. Here we request an increment twice; but the first response comes back to
-client after the second response.
+This example requests two increments. The first response arrives after the second.
 
 Other libraries show 0, 2, then 1 without optimistic updates, and 0, 1, 2, 2, then 1 with them. Both end on the wrong count, with janky updates along the way. Data Client shows 0, 1, then 2, and keeps 2 when the older response arrives last.
 
@@ -295,26 +287,26 @@ sequenceDiagram
     Server->>Client: Response timing
 ```
 
-There are three timings which can vary in an async mutation.
+Three timings can vary in an async mutation:
 
 1. Request timing
 2. Server timing
 3. Response timing
 
-Reactive Data Client is able to automatically handling the network timings, aka request and response timing. Typically this
-is sufficient, as servers tend to process requests received first before others. However, in case persist order
-varies from request order in the server this could cause another race condition.
+Reactive Data Client handles request and response timing for you. This is usually enough, because servers usually
+process requests in the order they arrive. If the server saves requests in a different order, a race condition
+remains.
 
-This can be be solved by maintaining a [total order](https://en.wikipedia.org/wiki/Total_order). Because the
-servers and clients can potentially has different times, we will need to track time from a consistent perspective.
-Since we are performing optimistic updates this means we must use the client's clock. This means we will send the request
-timing to the server in an `updatedAt` header via [getRequestInit()](./RestEndpoint.vue.md#getRequestInit). The server should then ensure processing based on that order, and
-then store this `updatedAt` in the entity to return in any request.
+To fix it, keep a [total order](https://en.wikipedia.org/wiki/Total_order) with one clock. Server and client clocks
+can differ, and optimistic updates happen on the client, so use the client's clock:
 
-Overriding [shouldReorder](https://dataclient.io/rest/api/Entity#shouldreorder), we can reorder out-of-order responses based on the
-server timestamp.
+1. Send the request time in an `updatedAt` header with [getRequestInit()](./RestEndpoint.vue.md#getRequestInit).
+2. The server processes requests in `updatedAt` order, stores `updatedAt` in the entity, and returns it in every
+   response.
+3. Override [shouldReorder](https://dataclient.io/rest/api/Entity#shouldreorder) to reorder out-of-order responses by `updatedAt`.
 
-We use [snap.fetchedAt](https://dataclient.io/vue/api/Snapshot#fetchedat) in our [getOptimisticResponse](./RestEndpoint.vue.md#getoptimisticresponse). This respresents the moment the fetch is triggered, which will be the same time the `updatedAt` header is computed.
+[getOptimisticResponse](./RestEndpoint.vue.md#getoptimisticresponse) uses [snap.fetchedAt](https://dataclient.io/vue/api/Snapshot#fetchedat).
+It is the moment the fetch starts, the same time as the `updatedAt` header.
 
 ```ts title="count" {11-13}
 import { Entity, RestEndpoint } from '@data-client/rest';
