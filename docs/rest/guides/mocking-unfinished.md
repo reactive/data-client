@@ -4,10 +4,8 @@ title: Mocking unfinished endpoints
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-You have agreed to an API schema with a backend engineer who will implement it;
-but they are starting to code the same time as you. It would be nice to easily
-mock the endpoint and use it in a way such that when the endpoint is done
-you won't need to make major changes to your code.
+To build against an endpoint the backend has not finished, mock it in the endpoint definition. When the endpoint is
+ready, your components do not change.
 
 <HooksPlayground row>
 
@@ -72,12 +70,9 @@ render(<Demo />);
 
 </HooksPlayground>
 
-By mocking the
-[RestEndpoint](../api/RestEndpoint.md) we can easily fake the data the server will return. Doing
-this allows free use of the strongly typed RatingResource as normal throughout the codebase.
+The `fetch` override on the [RestEndpoint](../api/RestEndpoint.md) returns fake data. The rest of the code uses the
+typed `RatingResource` as usual.
 
-Once the API is implemented you can simply remove the custom fetch (and the entire list()
-override if that's all it's doing).
+When the API is ready, remove the `fetch` override. Remove the whole `getList` override if `fetch` is all it changes.
 
-In this example we also set the dataExpiryLength to a longer time so the random values generated
-persist longer. This makes for a more realistic demo.
+`dataExpiryLength: Infinity` keeps the random values from changing on refetch.

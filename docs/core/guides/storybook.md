@@ -13,12 +13,11 @@ import TabItem from '@theme/TabItem';
 
 # Mocking data for Storybook
 
-[Storybook](https://storybook.js.org/) is a great utility to do isolated development and
-testing, potentially speeding up development time greatly.
+[Storybook](https://storybook.js.org/) renders components in isolation for development and testing.
 
-[&lt;MockResolver /\>](../api/MockResolver.md) enables easy loading of [fixtures or interceptors](../api/Fixtures.md) to see what
-different network responses might look like. It can be layered, composed, and even used
-for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [getList.push](/rest/api/resource#push) and [update](/rest/api/resource#update).
+[&lt;MockResolver /\>](../api/MockResolver.md) loads [fixtures or interceptors](../api/Fixtures.md), so stories show
+different network responses. You can nest and compose it. It also resolves [imperative fetches](../api/Controller.md#fetch),
+such as [getList.push](/rest/api/resource#push) and [update](/rest/api/resource#update).
 
 ## Setup
 
@@ -78,8 +77,8 @@ export default function ArticleList({
 
 ## Fixtures
 
-We'll test three cases with our [fixtures and interceptors](../api/Fixtures.md): some interesting results in the list, an empty list, and data not
-existing so loading fallback is shown.
+These [fixtures and interceptors](../api/Fixtures.md) cover three cases: a list with results, an empty list, and no
+data, which shows the loading fallback.
 
 ```typescript title="ArticleResource.ts"
 // leave out in production so we don't bloat the bundle
@@ -138,12 +137,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 ## Decorators
 
-You'll need to add the appropriate [global decorators](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators) to establish the correct context.
-
-This should resemble what you have added in [initial setup](../getting-started/installation#add-provider-at-top-level-component)
+Add [global decorators](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators) that render
+the same providers as your app's [initial setup](../getting-started/installation#add-provider-at-top-level-component):
 
 ```tsx title=".storybook/preview.tsx"
-import { Suspense } from 'react';
 import { DataProvider, AsyncBoundary } from '@data-client/react';
 
 export const decorators = [
@@ -159,10 +156,8 @@ export const decorators = [
 
 ## Story
 
-Wrapping our component with [&lt;MockResolver /\>](../api/MockResolver.md) enables us to declaratively
-control how Reactive Data Client' fetches are resolved.
-
-Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
+Wrap the component in [&lt;MockResolver /\>](../api/MockResolver.md) to choose how its fetches resolve. Here
+[Storybook controls](https://storybook.js.org/docs/react/essentials/controls) pick the fixtures.
 
 ```tsx title="ArticleList.stories.tsx"
 import { type StoryObj } from '@storybook/react';
