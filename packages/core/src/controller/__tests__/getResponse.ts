@@ -246,10 +246,12 @@ describe('Controller.getResponse() with deleted entities', () => {
     expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
   });
 
-  it('fetchIfStale() resolves errored deleted entities to undefined', () => {
+  it('fetchIfStale() resolves errored deleted entities to undefined', async () => {
     const controller = new Contoller();
     controller.getState = () => erroredState as any;
-    expect(controller.fetchIfStale(ep, { id: '1' })).toBeUndefined();
+    await expect(
+      controller.fetchIfStale(ep, { id: '1' }),
+    ).resolves.toBeUndefined();
   });
 });
 

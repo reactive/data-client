@@ -780,12 +780,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: ControllerFetch;
     /**
-     * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
+     * Fetches only if endpoint is considered 'stale'; otherwise resolves with the cached data.
+     *
+     * Safe to call without awaiting: a failed fetch is stored for useSuspense() and never an unhandled rejection.
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => Promise<E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>>;
     /**
      * Forces refetching on useSuspense with the same Endpoint and parameters, suspending until it resolves
      * (mounted Vue components keep their current data instead).

@@ -164,7 +164,9 @@ export default class Controller<
   };
 
   /**
-   * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
+   * Fetches only if endpoint is considered 'stale'; otherwise resolves with the cached data.
+   *
+   * Safe to call without awaiting: a failed fetch is stored for useSuspense() and never an unhandled rejection.
    * @see https://dataclient.io/docs/api/Controller#fetchIfStale
    */
   fetchIfStale = <
@@ -172,16 +174,21 @@ export default class Controller<
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>]
-  ): E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E>
-  : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
+  ): Promise<
+    E['schema'] extends undefined | null ? ResolveType<E>
+    : Denormalize<E['schema']>
+  > => {
     const { data, expiresAt, expiryStatus } = this.getResponseMeta(
       endpoint,
       ...args,
       this.getState(),
     );
     if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
-      return data as any;
-    return this.fetch(endpoint, ...args);
+      return Promise.resolve(data as any);
+    const promise: Promise<any> = this.fetch(endpoint, ...args);
+    // handled here, so prefetching without a .catch() can't crash; awaiting still rejects
+    promise.catch(() => {});
+    return promise;
   };
 
   /**

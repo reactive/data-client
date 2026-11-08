@@ -16,7 +16,7 @@ and retrieval performance.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
+  fetchIfStale(endpoint, ...args): Promise<Denormalize<E['schema']>>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -149,9 +149,19 @@ function PostListItem({ post }: { post: Post }) {
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
 Fetches only if endpoint is considered '[stale](https://dataclient.io/docs/concepts/expiry-policy#stale)' or [invalid](https://dataclient.io/docs/concepts/expiry-policy#invalid),
-returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
+resolving like [fetch()](#fetch). Otherwise resolves with the cached data, without fetching.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
+
+Prefetches don't need to be awaited or caught. A failed fetch is stored, so components reading that endpoint render
+its error. Calls that `await` the result still reject with it.
+
+```ts
+// start a secondary request without waiting for it
+controller.fetchIfStale(CommentResource.getList, { issueId });
+// wait for the data the page needs first; rejects if that fetch fails
+await controller.fetchIfStale(IssueResource.get, { id: issueId });
+```
 
 An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
 

@@ -61,11 +61,14 @@ describe('Controller', () => {
         dispatch,
         getState,
       });
-      const article = await controller.fetchIfStale(CoolerArticleResource.get, {
+      const pending = controller.fetchIfStale(CoolerArticleResource.get, {
         id: payload.id,
       });
+      // fresh data still comes as a Promise, so prefetch code can chain .catch()
+      expect(pending).toBeInstanceOf(Promise);
+      const article = await pending.catch(() => undefined);
       expect(dispatch.mock.calls.length).toBe(0);
-      expect(article.title).toBe(payload.title);
+      expect(article?.title).toBe(payload.title);
     });
     it('should fetch if result stale', () => {
       const payload = {
@@ -105,6 +108,38 @@ describe('Controller', () => {
       });
 
       expect(dispatch.mock.calls.length).toBe(1);
+    });
+    describe('when the fetch fails', () => {
+      const error = new Error('network down');
+      let controller: Controller;
+      beforeEach(() => {
+        controller = new Controller({
+          dispatch: (action: any) => {
+            action.meta.reject(error);
+            return Promise.resolve();
+          },
+          getState: () => initialState,
+        });
+      });
+
+      it('rejects when awaited', async () => {
+        await expect(
+          controller.fetchIfStale(CoolerArticleResource.get, { id: 5 }),
+        ).rejects.toBe(error);
+      });
+
+      it('is not an unhandled rejection when not awaited', async () => {
+        const unhandled = jest.fn();
+        process.on('unhandledRejection', unhandled);
+        try {
+          controller.fetchIfStale(CoolerArticleResource.get, { id: 5 });
+          // unhandledRejection fires after the microtask queue drains
+          await new Promise(resolve => setTimeout(resolve, 10));
+        } finally {
+          process.off('unhandledRejection', unhandled);
+        }
+        expect(unhandled).not.toHaveBeenCalled();
+      });
     });
   });
 });
