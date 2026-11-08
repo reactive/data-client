@@ -41,7 +41,7 @@ it('useSuspense() should render the response', async () => {
 - `controller` - Controller instance for manual actions
 - `allSettled()` - Wait for all async operations to complete
 
-**Cleanup is automatic** -- an `afterEach` hook is registered at module load time that drains all active cleanups. No manual `renderDataHook.cleanup()` calls are needed.
+**Cleanup is automatic** -- an `afterEach` hook is registered at module load time that drains all active cleanups. Call the `cleanup()` a `renderDataHook()` call returns only to control cleanup order, such as before `jest.useRealTimers()`.
 
 ## Fixtures and Interceptors
 
@@ -226,7 +226,7 @@ packages/react/src/components/__tests__/DataProvider.test.tsx
 - Test mutations and their side effects
 - Don't mock @data-client internals directly
 - Don't use raw fetch in tests when fixtures are available
-- Don't manually call `renderDataHook.cleanup()` in `afterEach` -- cleanup is automatic
+- Don't call `cleanup()` in `afterEach` -- cleanup is automatic
 
 ## References
 

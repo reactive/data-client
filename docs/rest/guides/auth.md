@@ -462,12 +462,12 @@ import { PostResource } from './resources/Post';
 function CreatePost() {
   const controller = useController();
   //highlight-next-line
-  const createPost = PostResource.useCreate();
+  const createPost = PostResource.useGetList().push;
 
   return (
     <form
       onSubmit={e =>
-        controller.fetch(createPost, new FormData(e.currentTarget))
+        controller.fetch(createPost, {}, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -487,9 +487,9 @@ function CreatePost() {
 
   const controller = useController();
   //highlight-next-line
-  const createPost = PostResource.useCreate();
+  const createPost = PostResource.useGetList().push;
   const onSubmit = (e: Event) =>
-    controller.fetch(createPost, new FormData(e.target as HTMLFormElement));
+    controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 </script>
 
 <template>

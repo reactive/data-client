@@ -84,7 +84,7 @@ export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
-  create: Base.getList.push.extend({
+  createTrade: Base.getList.push.extend({
     schema: {
       trade: Base.getList.push.schema,
       account: Account,
@@ -93,7 +93,7 @@ export const TradeResource = resource({
 }));
 ```
 
-`create` extends [getList.push](../api/resource.md#push). When the `POST` completes, the store updates both the new
+`createTrade` extends [getList.push](../api/resource.md#push). When the `POST` completes, the store updates both the new
 trade and the account.
 
 :::react
@@ -102,7 +102,7 @@ trade and the account.
 export default function CreateTrade() {
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 }
 ```
@@ -118,7 +118,7 @@ export default function CreateTrade() {
 
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 </script>
 ```

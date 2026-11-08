@@ -75,7 +75,7 @@ export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
-  create: Base.getList.push.extend({
+  createTrade: Base.getList.push.extend({
     schema: {
       trade: Base.getList.push.schema,
       account: Account,
@@ -84,7 +84,7 @@ export const TradeResource = resource({
 }));
 ```
 
-`create` extends [getList.push](https://dataclient.io/rest/api/resource#push). When the `POST` completes, the store updates both the new
+`createTrade` extends [getList.push](https://dataclient.io/rest/api/resource#push). When the `POST` completes, the store updates both the new
 trade and the account.
 
 ```html title="CreateTrade.vue"
@@ -94,7 +94,7 @@ trade and the account.
 
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 </script>
 ```
