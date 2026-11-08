@@ -5,7 +5,6 @@ title: Server Side Rendering with NextJS, Express, and more
 sidebar_label: Server Side Rendering
 ---
 
-import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
@@ -22,7 +21,8 @@ immediate. The client does not fetch the data again, which would add server load
 
 ### App Router
 
-Next.js 13 added the App Router in the `/app` directory. It adds nested layouts and React Server Components.
+Reactive Data Client supports the Next.js App Router (the `/app` directory, Next.js 13 and later). It does not support the
+Pages Router.
 
 #### Root Layout
 
@@ -97,111 +97,6 @@ class User extends Entity {
 
   // highlight-next-line
   static key = 'User';
-}
-```
-
-### Pages Router
-
-For the Pages Router, use the Next.js [Document](https://nextjs.org/docs/advanced-features/custom-document) and
-[App](https://nextjs.org/docs/advanced-features/custom-app) wrappers:
-
-<PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
-
-```tsx title="pages/_document.tsx"
-import { DataClientDocument } from '@data-client/ssr/nextjs';
-
-export default DataClientDocument;
-```
-
-```tsx title="pages/_app.tsx"
-import { AppDataProvider } from '@data-client/ssr/nextjs';
-import type { AppProps } from 'next/app';
-
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <AppDataProvider>
-      <Component {...pageProps} />
-    </AppDataProvider>
-  );
-}
-```
-
-:::warning
-
-To fetch with parameters from [useRouter()](https://nextjs.org/docs/api-reference/next/router#userouter), add
-`getServerSideProps`. Otherwise [Next.js leaves router.query empty](https://nextjs.org/docs/advanced-features/automatic-static-optimization)
-during prerendering.
-
-```typescript
-export default function MyComponent() {
-  const id = useRouter().query.id as string;
-  const post = useSuspense(getPost, { id });
-  // etc
-}
-// highlight-next-line
-export const getServerSideProps = () => ({ props: {} });
-```
-
-:::
-
-#### Further customizing Document
-
-To customize Document, extend `DataClientDocument`. Call `super.getInitialProps()`, not `Document.getInitialProps()`,
-or Reactive Data Client's code does not run.
-
-```tsx title="pages/_document.tsx"
-import { Html, Head, Main, NextScript } from 'next/document';
-import { DataClientDocument } from '@data-client/ssr/nextjs';
-
-export default class MyDocument extends DataClientDocument {
-  static async getInitialProps(ctx) {
-    const originalRenderPage = ctx.renderPage;
-
-    // Run the React rendering logic synchronously
-    ctx.renderPage = () =>
-      originalRenderPage({
-        // Useful for wrapping the whole react tree
-        enhanceApp: App => App,
-        // Useful for wrapping in a per-page basis
-        enhanceComponent: Component => Component,
-      });
-
-    // Run the parent `getInitialProps`, it now includes the custom `renderPage`
-    const initialProps = await super.getInitialProps(ctx);
-
-    return initialProps;
-  }
-
-  render() {
-    return (
-      <Html>
-        <Head />
-        <body>
-          <Main />
-          <NextScript />
-        </body>
-      </Html>
-    );
-  }
-}
-```
-
-#### CSP Nonce
-
-`DataClientDocument` serializes the store in a script tag. If your Content Security Policy requires a
-[nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce), override
-`DataClientDocument.getNonce`. Next.js has no standard nonce API, so return the nonce you created in the
-`DocumentContext`.
-
-```tsx title="pages/_document.tsx"
-import { DataClientDocument } from '@data-client/ssr/nextjs';
-import type { DocumentContext } from 'next/document.js';
-
-export default class MyDocument extends DataClientDocument {
-  static getNonce(ctx: DocumentContext & { res: { nonce?: string } }) {
-    // this assumes nonce has been added here - customize as you need
-    return ctx?.res?.nonce;
-  }
 }
 ```
 
