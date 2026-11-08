@@ -17,8 +17,8 @@
       "permanent": true
     },
     {
-      "source": "/next/blog/:path*",
-      "destination": "/blog/:path*",
+      "source": "/next/blog/:year(\\d{4})/:path*",
+      "destination": "/blog/:year/:path*",
       "permanent": true
     },
     {
@@ -33,8 +33,8 @@
       "permanent": true
     },
     {
-      "source": "/next/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
-      "destination": "/:locale/blog/:path*",
+      "source": "/next/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:year(\\d{4})/:path*",
+      "destination": "/:locale/blog/:year/:path*",
       "permanent": true
     },
     {

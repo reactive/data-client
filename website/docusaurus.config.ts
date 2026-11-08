@@ -291,8 +291,8 @@ const config: Config = {
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
     require.resolve('./scripts/snapshot/versionMenu.client.ts'),
-    // /next/ builds its blog so its links are checked, but sends in-app blog
-    // links to the root's, as vercel.json does page loads: blog URLs never change
+    // /next/ lists its own posts, but sends in-app links to a post to the
+    // root's, as vercel.json does page loads: post URLs never change
     ...(isNext ?
       [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
     : []),
@@ -386,8 +386,8 @@ const config: Config = {
           // social cards are for link previews, never shown on the site
           globIgnores: [
             'img/social/**',
-            // /next/ sends its blog links to the root site's blog
-            ...(isNext ? ['blog.html', 'blog/**'] : []),
+            // /next/ sends its posts to the root site's (blog/<yyyy>/...)
+            ...(isNext ? ['blog/[0-9][0-9][0-9][0-9]/**'] : []),
           ],
           // Pages are files like docs/intro.html served at /docs/intro
           // (trailingSlash: false), so cache them under the URL they're served
