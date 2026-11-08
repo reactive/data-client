@@ -574,7 +574,7 @@ import { useEndpoint } from './useEndpoint';
 function CreatePost() {
   const controller = useController();
   //highlight-next-line
-  const createPost = useEndpoint(PostResource.create);
+  const createPost = useEndpoint(PostResource.getList.push);
 
   return (
     <form
@@ -600,7 +600,7 @@ function CreatePost() {
 
   const controller = useController();
   //highlight-next-line
-  const createPost = useEndpoint(PostResource.create);
+  const createPost = useEndpoint(PostResource.getList.push);
   const onSubmit = (e: Event) =>
     controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 </script>

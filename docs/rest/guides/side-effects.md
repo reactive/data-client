@@ -2,12 +2,9 @@
 title: Mutation Side-Effects
 ---
 
-When mutations update more than one resource, it may be tempting to simply
-[expire all](/docs/api/Controller#expireAll) the other resources.
-
-However, we can still achieve the high performance atomic mutations if we
-simply bundle _all_ updated resources in the mutation response, we can
-avoid this slow networking cascade.
+When a mutation changes more than one resource, do not [expire](/docs/api/Controller#expireAll) the other
+resources. Expiring them causes a slow cascade of refetches. Instead, include _all_ changed resources in the mutation
+response. The mutation stays atomic and needs one request.
 
 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
 
@@ -48,11 +45,8 @@ sequenceDiagram
 
 ## Example
 
-You're running a crypto trading platform called `dogebase`. Every time
-a user creates a trade, you need to update some balance information
-in their accounts object. So upon `POST`ing to the `/trade/` endpoint,
-you nest both the updated accounts object along with the trade you just
-created.
+A crypto trading platform updates the user's account balance with each trade. So `POST /trade/` returns the new
+trade and the updated account.
 
 ```json title="POST /trade/"
 {
@@ -72,8 +66,7 @@ created.
 }
 ```
 
-To handle this, we just need to update the `schema` to include the custom
-endpoint.
+Add the account to the endpoint's `schema`.
 
 ```typescript title="resources/Trade.ts"
 import { resource, Entity } from '@data-client/rest';
@@ -100,9 +93,8 @@ export const TradeResource = resource({
 }));
 ```
 
-Now if when we use the [getList.push](../api/resource.md#push) Endpoint generator method,
-we will be happy knowing both the trade and account information will
-be updated in the cache after the `POST` request is complete.
+`create` extends [getList.push](../api/resource.md#push). When the `POST` completes, the store updates both the new
+trade and the account.
 
 :::react
 
@@ -135,8 +127,7 @@ export default function CreateTrade() {
 
 :::note
 
-Feel free to create completely new [RestEndpoint](../api/RestEndpoint.md) methods for any custom
-endpoints you have. This endpoint tells `Reactive Data Client` how to process any
-request.
+Define a new [RestEndpoint](../api/RestEndpoint.md) for any custom endpoint. Its `schema` tells Data Client how to
+store the response.
 
 :::

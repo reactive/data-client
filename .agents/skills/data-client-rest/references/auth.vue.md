@@ -381,7 +381,7 @@ function useEndpoint(endpoint: RestEndpoint) {
 >   import { useEndpoint } from './useEndpoint';
 >
 >   const controller = useController();
->   const createPost = useEndpoint(PostResource.create);
+>   const createPost = useEndpoint(PostResource.getList.push);
 >   const onSubmit = (e: Event) =>
 >     controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 > </script>

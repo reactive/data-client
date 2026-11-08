@@ -374,7 +374,7 @@ function useEndpoint(endpoint: IRestEndpoint) {
 >
 > function CreatePost() {
 >   const controller = useController();
->   const createPost = useEndpoint(PostResource.create);
+>   const createPost = useEndpoint(PostResource.getList.push);
 >
 >   return (
 >     <form
