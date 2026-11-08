@@ -636,6 +636,25 @@ test('run in a workspace package, it removes the skills an earlier run linked th
   assert.ok(links(dir)['data-client-react']);
 });
 
+test("keeps a package's skills when the workspace root can't take them", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'custom/mine/SKILL.md': 'my own skill',
+  });
+  fs.mkdirSync(path.join(dir, '.agents'));
+  fs.symlinkSync(
+    path.join(dir, 'custom'),
+    path.join(dir, '.agents/skills'),
+    'junction',
+  );
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web);
+  run(t, web);
+  assert.ok(links(web)['data-client-react']);
+});
+
 test('run in a workspace below the repository root, it says to start the agent there', t => {
   const dir = project({
     '.git/HEAD': 'ref',

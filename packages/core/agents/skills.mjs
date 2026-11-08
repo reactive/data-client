@@ -320,8 +320,10 @@ export function main(cwd = process.cwd()) {
   const projectDir = workspace ?? cwd;
   const { added, removed, outdated, kept, junctions, ...result } =
     syncSkills(projectDir);
-  // an earlier run in the package linked them there
-  const moved = workspace ? unlinkSkills(cwd) : [];
+  // an earlier run in the package linked them there; keep them unless the
+  // root now has its own
+  const synced = result.dir && fs.existsSync(path.join(projectDir, result.dir));
+  const moved = workspace && synced ? unlinkSkills(cwd) : [];
   // where the skills are, from where the command ran
   const dir =
     result.dir && posix(path.relative(cwd, path.join(projectDir, result.dir)));
