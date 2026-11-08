@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794160249355,
+  "lastUpdate": 1794180517221,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -13756,6 +13756,114 @@ window.BENCHMARK_DATA = {
           {
             "name": "data-client: move-item",
             "value": 388.35,
+            "range": "± 1.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "719ab07a164f224ae9bf73d926f808b7bdbd9430",
+          "message": "enhance: useQuery() accepts null to skip, like the other hooks (#4661)\n\n* enhance: useQuery() accepts null to skip, like the other hooks\n\nRuntime already returned undefined for [null] args (buildQueryKey), but the\ntypes rejected it, so conditional queries needed a component split.\nWiden useQuery (React, Vue), Controller.get/getQueryMeta and Snapshot\nget/getQueryMeta (incl. SnapshotInterface) to accept [null].\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGqxbwgoGymgJdmNw\n\n* internal: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGqxbwgoGymgJdmNw\n\n* docs: Add useQuery null skip to the v0.19 release notes\n\nAlso list rest and graphql in the changeset, since both expose SnapshotInterface.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGqxbwgoGymgJdmNw\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T23:25:24Z",
+          "tree_id": "22f4e0a34bd92068d8733cc57342106a979cd9f4",
+          "url": "https://github.com/reactive/data-client/commit/719ab07a164f224ae9bf73d926f808b7bdbd9430"
+        },
+        "date": 1794180514439,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 389.86,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 110.62,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 823.06,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 653.59,
+            "range": "± 3.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 100.05,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 662.25,
+            "range": "± 3.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 719.42,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 28.77,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 152.03,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 123.61,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 17.75,
+            "range": "± 1.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 421.05,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 561.8,
+            "range": "± 1.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 377.74,
             "range": "± 1.6%",
             "unit": "ops/s"
           }
