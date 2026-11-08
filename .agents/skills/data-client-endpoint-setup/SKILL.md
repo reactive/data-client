@@ -124,6 +124,8 @@ export const getUser = new Endpoint(fetchUser, {
 
 ## Custom Key Function
 
+Arguments are the cache key, so they hold only what chooses the data. Pass an `AbortSignal`, SDK client or other non-key value as a member read from `this`, not an argument or a `key` override: see [cancellation](references/Endpoint.md#members-not-args).
+
 If the default key function doesn't work for your use case:
 
 ```ts

@@ -1,3 +1,4 @@
+import { Endpoint } from '@data-client/endpoint';
 import { ArticleResource } from '__tests__/new';
 import nock from 'nock';
 
@@ -78,6 +79,26 @@ describe('useCancelling()', () => {
     lastendpoint = result.current;
     act(() => rerender({ id: '6' }));
     expect(result.current).toBe(lastendpoint);
+  });
+
+  it('aborts a plain Endpoint that reads its signal member, keeping its key', () => {
+    const signals: (AbortSignal | undefined)[] = [];
+    const getPosts = new Endpoint(
+      function ({ page }: { page: number }) {
+        signals.push(this.signal);
+        return new Promise<string[]>(() => {});
+      },
+      { name: 'getPosts', signal: undefined as AbortSignal | undefined },
+    );
+    const { result, rerender } = renderHook(
+      ({ page }: { page: number }) => useCancelling(getPosts, { page }),
+      { initialProps: { page: 1 } },
+    );
+    result.current({ page: 1 });
+    act(() => rerender({ page: 2 }));
+    result.current({ page: 2 });
+    expect(signals.map(signal => signal?.aborted)).toEqual([true, false]);
+    expect(result.current.key({ page: 2 })).toBe(getPosts.key({ page: 2 }));
   });
 
   describe('with real timers', () => {
