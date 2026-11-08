@@ -14,7 +14,6 @@ jest.mock('react', () => {
   return { ...wrapped, default: wrapped };
 });
 
-import { Endpoint } from '@data-client/endpoint';
 import {
   DataProvider,
   getDefaultManagers,
@@ -24,7 +23,12 @@ import {
   useSuspense,
 } from '@data-client/react';
 import { act, fireEvent, render } from '@testing-library/react';
-import { makeGetTodo, mockTodoState, Todo } from '__tests__/concurrentFixtures';
+import {
+  makeGetTodo,
+  makeUpdateTodo,
+  mockTodoState,
+} from '__tests__/concurrentFixtures';
+import type { TodoItem } from '__tests__/concurrentFixtures';
 import {
   expectAllCommitsPriority,
   expectNoImmediateCommit,
@@ -275,18 +279,12 @@ describeConcurrent('startTransition over useSuspense', () => {
   });
 
   describe('optimistic fetch from a click', () => {
-    let resolveUpdate: (value: { id: string; title: string }) => void;
-    const updateTodo = new Endpoint(
-      (_body: { id: string; title: string }) =>
-        new Promise<{ id: string; title: string }>(resolve => {
+    let resolveUpdate: (value: TodoItem) => void;
+    const updateTodo = makeUpdateTodo(
+      () =>
+        new Promise<TodoItem>(resolve => {
           resolveUpdate = resolve;
         }),
-      {
-        schema: Todo,
-        sideEffect: true,
-        name: 'updateTodo',
-        getOptimisticResponse: (_snap, body) => body,
-      },
     );
     const renderTodoA = (onClick: () => void) =>
       render(
@@ -338,7 +336,7 @@ describeConcurrent('startTransition over useSuspense', () => {
       expect(getByTestId('todo').textContent).toBe('server A');
     });
 
-    it('a response that lands before the transition renders still wins', async () => {
+    it('a response that resolves before the optimistic render still wins', async () => {
       const { getByTestId } = renderTodoA(() => {
         controller.fetch(updateTodo, { id: 'A', title: 'optimistic A' });
         resolveUpdate({ id: 'A', title: 'server A' });

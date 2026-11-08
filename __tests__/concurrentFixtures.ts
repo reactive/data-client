@@ -19,6 +19,18 @@ export function makeGetTodo(
   });
 }
 
+/** Optimistically sets the Todo to the request body */
+export function makeUpdateTodo(
+  fetchTodo: (body: TodoItem) => Promise<TodoItem>,
+) {
+  return new Endpoint(fetchTodo, {
+    schema: Todo,
+    sideEffect: true,
+    name: 'updateTodo',
+    getOptimisticResponse: (_snap, body: TodoItem) => body,
+  });
+}
+
 export function mockTodoState(
   getTodo: ReturnType<typeof makeGetTodo>,
   ids: readonly string[],
