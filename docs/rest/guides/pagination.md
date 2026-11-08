@@ -263,6 +263,45 @@ render(<ValidatorList />);
 
 </FrameworkPlayground>
 
+### Page numbers in an envelope {#envelope}
+
+Many APIs wrap each list in an envelope: an outer object that holds the data next to metadata, like
+`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Keep the
+envelope as the schema rather than unwrapping it in [process()](../api/RestEndpoint.md#process), put the
+[Collection](../api/Collection.md) where the list is, and set [paginationField](../api/RestEndpoint.md#paginationfield)
+to the page parameter:
+
+```ts title="Comment"
+import { Collection, Entity, RestEndpoint } from '@data-client/rest';
+
+export class Comment extends Entity {
+  id = '';
+  body = '';
+}
+
+export const getComments = new RestEndpoint({
+  path: '/comments',
+  searchParams: {} as { discussionId: string; page?: number },
+  paginationField: 'page',
+  schema: {
+    data: new Collection([Comment]),
+    meta: { page: 0, totalPages: 0 },
+  },
+});
+```
+
+- **Leave the page out of the first fetch**: `useSuspense(getComments, { discussionId })`. `getPage` drops the
+  `paginationField` from its args to find the list to extend, so a first fetch with `page: 1` makes a different list
+  that `getPage` never extends.
+- **Load more with `getPage`**: `ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 })`, where `ctrl`
+  is `useController()` and `meta` comes from the `useSuspense()` result. It appends to `data` and replaces `meta` with
+  the new page's, so `meta.page < meta.totalPages` tells whether there is more.
+- **Creates join the same list**: `ctrl.fetch(getComments.push, { discussionId }, { body })`.
+  [push](../api/RestEndpoint.md#push) sends a `POST` to the same path and adds its response (one `Comment`, not an envelope) to the list whose args match. A separate create endpoint works too: give it
+  `schema: getComments.schema.data.push` and call it with `{ discussionId }`.
+- **Single items use the same envelope.** A detail endpoint returning `{ "data": {...} }` takes
+  `schema: { data: Comment }`.
+
 ### Infinite Scrolling
 
 Since UI behaviors vary widely, and implementations vary from platform (react-native or web),

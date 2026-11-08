@@ -191,8 +191,8 @@ with `useFetch()` and read them with `use()` ([parallel data loading](../api/use
 
 ### Envelope responses
 
-When the API wraps responses, like `{ "results": [...], "pagination": {...} }`, describe the envelope in the schema
-instead of unwrapping it, so components keep reading `pagination`:
+When the API wraps responses in an envelope (an outer object that holds the data next to metadata), like
+`{ "results": [...], "pagination": {...} }`, describe the envelope in the schema instead of unwrapping it, so components keep reading `pagination`:
 
 ```ts title="resources/Issue.ts"
 import { Entity, resource } from '@data-client/rest';
