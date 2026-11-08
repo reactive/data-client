@@ -239,14 +239,12 @@ function stablePath(dir, pkg, found, dest) {
   // Windows resolves `..` before following links, so it gets the store path
   const inStore = d => d.split(path.sep).includes('.pnpm');
   if (!inStore(dir) || process.platform === 'win32') return relative(dir);
-  const real = fs.realpathSync(dir);
   const name = pkg.split('/')[1];
   for (const direct of found) {
     if (inStore(direct.dir)) continue;
-    // pnpm links each dependency next to its dependent, into its own store folder
+    // pnpm puts a link to each dependency inside its dependent's store folder
     const sibling = path.join(path.dirname(fs.realpathSync(direct.dir)), name);
-    if (fs.existsSync(sibling) && fs.realpathSync(sibling) === real)
-      return `${relative(direct.dir)}/../${name}`;
+    if (sameDir(sibling, dir)) return `${relative(direct.dir)}/../${name}`;
   }
   return relative(dir);
 }

@@ -527,6 +527,13 @@ test('pnpm links transitive packages through a direct one, so upgrades follow', 
       .includes('@0.19.1');
   assert.ok(text('data-client-manager') && text('data-client-react'));
   assert.deepEqual(syncSkills(dir).added, []);
+  // without a link beside react, only the store path reaches core
+  fs.rmSync(path.join(dir, store('0.19.1'), 'core'));
+  syncSkills(dir);
+  assert.match(
+    links(dir)['data-client-manager'],
+    /\.pnpm\/@data-client\+core@/,
+  );
 });
 
 test('pnpm workspaces, with comments, flow lists and CRLF', () => {
