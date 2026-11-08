@@ -9,6 +9,8 @@
  */
 import { Prism } from 'prism-react-renderer';
 
+import { isComponentName } from './jsxTokens';
+
 type Token = string | Prism.Token;
 
 // Monaco's keyword lists (monaco-editor/esm/vs/languages/definitions/)
@@ -97,33 +99,52 @@ const isPunctuation = (token: Token | undefined, text: string) =>
   token.content === text;
 
 /**
- * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
- * With `jsx`, tag names, attribute names and text get the colors TypeScript
- * gives Monaco (./jsxTokens.ts).
+ * Collects code in order, then lexes it as Monaco's grammar does. JSX text
+ * goes in with the code around it, as Monaco's grammar reads it, but comes
+ * out plain, as TypeScript colors it, except for the brackets Monaco still
+ * colors.
  */
-function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
-  const tokens: Token[] = [];
-  let code = '';
-  /** Where JSX nests: an element's children, a tag's attributes, `{}` code */
-  const nesting: ('children' | 'tag' | 'code')[] = [];
+class MonacoLexer {
+  private readonly tokens: Token[] = [];
+  private code = '';
   /** Where JSX text is in `code`: [from, to] */
-  let text: (readonly [number, number])[] = [];
-  /**
-   * Lexes `code` as Monaco's grammar does, with its JSX text plain as
-   * TypeScript colors it, but for the brackets Monaco still colors
-   */
-  const flush = () => {
+  private text: (readonly [number, number])[] = [];
+
+  constructor(private readonly keywords: Set<string>) {}
+
+  addCode(code: string) {
+    this.code += code;
+  }
+
+  addText(text: string) {
+    this.text.push([this.code.length, this.code.length + text.length]);
+    this.code += text;
+  }
+
+  /** A token colored already */
+  addToken(token: Token) {
+    this.flush();
+    this.tokens.push(token);
+  }
+
+  result() {
+    this.flush();
+    return this.tokens;
+  }
+
+  private flush() {
+    const { code, text } = this;
     const cuts = text.flat();
     const inText = (at: number) =>
       text.some(([from, to]) => at >= from && at < to);
     let offset = 0;
     // a loop, as spreading a long run of tokens overflows the stack
-    for (const token of lex(code, keywords)) {
+    for (const token of lex(code, this.keywords)) {
       const end = offset + textOf(token).length;
       const inner = cuts.filter(cut => cut > offset && cut < end);
       for (const [from, to] of pairs([offset, ...inner, end])) {
         const part = code.slice(from, to);
-        tokens.push(
+        this.tokens.push(
           (
             typeof token === 'string' ||
               (inText(from) && !TS_BRACKETS.test(part))
@@ -134,26 +155,35 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
       }
       offset = end;
     }
-    code = '';
-    text = [];
-  };
-  const push = (token: Token) => {
-    flush();
-    tokens.push(token);
-  };
+    this.code = '';
+    this.text = [];
+  }
+}
+
+/**
+ * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
+ * With `jsx`, tag names, attribute names and text get the colors TypeScript
+ * gives Monaco (./jsxTokens.ts).
+ */
+function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
+  const lexer = new MonacoLexer(keywords);
+  /** Where JSX nests: an element's children, a tag's attributes, `{}` code */
+  const nesting: ('children' | 'tag' | 'code')[] = [];
   /** `<Name attr="value">` or `</Name>`, maybe without a name */
   const walkTag = (tag: Prism.Token) => {
     const [head, ...attributes] = contentOf(tag);
     const [open, name] = contentOf(head as Prism.Token);
-    code += textOf(open);
+    lexer.addCode(textOf(open));
     if (name) {
       const tagName = textOf(name);
-      push(typed(/^[A-Z]/.test(tagName) ? 'class-name' : 'tag', tagName));
+      lexer.addToken(
+        typed(isComponentName(tagName) ? 'class-name' : 'tag', tagName),
+      );
     }
     nesting.push('tag');
     for (const part of attributes) {
       if (typeof part === 'object' && part.type === 'attr-name')
-        push(typed('attr-name', textOf(part)));
+        lexer.addToken(typed('attr-name', textOf(part)));
       else walk(part);
     }
     nesting.pop();
@@ -169,31 +199,23 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
         return walkTag(token);
       if (isPunctuation(token, '{')) {
         nesting.push('code');
-        code += '{';
-        return;
+        return lexer.addCode('{');
       }
       if (isPunctuation(token, '}') && nesting.at(-1) === 'code') {
         nesting.pop();
-        code += '}';
-        return;
+        return lexer.addCode('}');
       }
-      // text: Monaco's grammar reads it with the code around it
-      if (nesting.at(-1) === 'children') {
-        const part = textOf(token);
-        text.push([code.length, code.length + part.length]);
-        code += part;
-        return;
-      }
+      if (nesting.at(-1) === 'children') return lexer.addText(textOf(token));
     }
     if (typeof token === 'string') {
-      code += token;
+      lexer.addCode(token);
     } else if (Object.hasOwn(KEPT, token.type)) {
-      push(typed(KEPT[token.type], textOf(token)));
+      lexer.addToken(typed(KEPT[token.type], textOf(token)));
     } else if (token.type === 'attr-value') {
       // a JSX attribute: `="value"`
       const [equals, value] = splitEquals(token);
-      code += equals;
-      push(typed('string', value));
+      lexer.addCode(equals);
+      lexer.addToken(typed('string', value));
     } else walkAll(contentOf(token));
   };
   const walkAll = (list: Token[]) => {
@@ -201,7 +223,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
       if (jsx && isPunctuation(list[i], '<')) {
         // Prism reads a fragment's `<>` as two operators
         if (isPunctuation(list[i + 1], '>')) {
-          code += '<>';
+          lexer.addCode('<>');
           nesting.push('children');
           i++;
           continue;
@@ -221,8 +243,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
     }
   };
   walkAll(stream);
-  flush();
-  return tokens;
+  return lexer.result();
 }
 
 /**
