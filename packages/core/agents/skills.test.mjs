@@ -8,7 +8,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import zlib from 'node:zlib';
 
-import { PACKAGES, syncSkills } from './skills.mjs';
+import { main, PACKAGES, syncSkills } from './skills.mjs';
 
 /** Writes `files` (path -> JSON object or text) under a new project dir */
 function project(files) {
@@ -171,6 +171,7 @@ test('does nothing without Data Client', () => {
     removed: [],
     outdated: [],
     kept: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });
@@ -217,9 +218,73 @@ test('running again changes nothing', () => {
     removed: [],
     outdated: [],
     kept: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });
+});
+
+test('links upgrade skills only with upgrade, and removes them after', () => {
+  const dir = hoisted();
+  write(
+    dir,
+    pkg('node_modules/@data-client/rest', '@data-client/rest', '0.19.0', [
+      'data-client-rest',
+      'path-to-regexp-v8-migration',
+    ]),
+  );
+  const fresh = syncSkills(dir);
+  assert.ok(!fresh.added.includes('path-to-regexp-v8-migration'));
+  assert.deepEqual(fresh.skippedUpgrades, ['path-to-regexp-v8-migration']);
+  assert.deepEqual(syncSkills(dir, { upgrade: true }), {
+    added: ['path-to-regexp-v8-migration'],
+    removed: [],
+    outdated: [],
+    kept: [],
+    skippedUpgrades: [],
+    junctions: false,
+    dir: '.agents/skills',
+  });
+  assert.match(
+    skillText(dir, 'path-to-regexp-v8-migration'),
+    /path-to-regexp-v8-migration skill/,
+  );
+  assert.deepEqual(syncSkills(dir).removed, ['path-to-regexp-v8-migration']);
+});
+
+test('main names the upgrade skills it leaves out, except ones it just removed', t => {
+  const dir = hoisted();
+  write(
+    dir,
+    pkg('node_modules/@data-client/rest', '@data-client/rest', '0.19.0', [
+      'data-client-rest',
+      'path-to-regexp-v8-migration',
+    ]),
+  );
+  const log = t.mock.method(console, 'log', () => {});
+  const output = args => {
+    log.mock.resetCalls();
+    main(dir, args);
+    return log.mock.calls.map(call => call.arguments[0]);
+  };
+  assert.match(
+    output([]).at(-1),
+    /Add --upgrade to also link path-to-regexp-v8-migration/,
+  );
+  assert.deepEqual(output(['--upgrade']), [
+    'Added path-to-regexp-v8-migration',
+  ]);
+  assert.deepEqual(output([]), ['Removed path-to-regexp-v8-migration']);
+});
+
+test('main rejects unknown options without syncing', t => {
+  const dir = hoisted();
+  const error = t.mock.method(console, 'error', () => {});
+  main(dir, ['--upgrad']);
+  assert.equal(process.exitCode, 1);
+  process.exitCode = undefined;
+  assert.match(error.mock.calls[0].arguments[0], /Unknown option --upgrad/);
+  assert.ok(!fs.existsSync(path.join(dir, '.agents')));
 });
 
 test('reports a skill something else holds instead of up to date', () => {
@@ -477,6 +542,7 @@ for (const field of [
       // graphql ships no skills of its own
       outdated: [],
       kept: [],
+      skippedUpgrades: [],
       junctions: false,
       dir: '.agents/skills',
     });
@@ -484,13 +550,16 @@ for (const field of [
 }
 
 test('pnpm links transitive packages through a direct one, so upgrades follow', () => {
-  const store = version =>
-    `node_modules/.pnpm/@data-client+react@${version}/node_modules/@data-client`;
+  // as pnpm lays it out: each package in its own store folder, with its
+  // dependencies linked next to it
+  const folder = (name, version) =>
+    `node_modules/.pnpm/@data-client+${name}@${version}/node_modules/@data-client`;
+  const store = version => folder('react', version);
   const install = version => ({
     ...pkg(`${store(version)}/react`, '@data-client/react', version, [
       'data-client-react',
     ]),
-    ...pkg(`${store(version)}/core`, '@data-client/core', version, [
+    ...pkg(`${folder('core', version)}/core`, '@data-client/core', version, [
       'data-client-manager',
     ]),
   });
@@ -499,6 +568,12 @@ test('pnpm links transitive packages through a direct one, so upgrades follow', 
     ...install('0.19.0'),
     ...install('0.19.1'),
   });
+  for (const version of ['0.19.0', '0.19.1'])
+    fs.symlinkSync(
+      path.join(dir, folder('core', version), 'core'),
+      path.join(dir, store(version), 'core'),
+      'junction',
+    );
   const use = version => {
     const linked = path.join(dir, 'node_modules/@data-client/react');
     fs.rmSync(linked, { force: true });
@@ -518,6 +593,13 @@ test('pnpm links transitive packages through a direct one, so upgrades follow', 
       .includes('@0.19.1');
   assert.ok(text('data-client-manager') && text('data-client-react'));
   assert.deepEqual(syncSkills(dir).added, []);
+  // without a link beside react, only the store path reaches core
+  fs.rmSync(path.join(dir, store('0.19.1'), 'core'));
+  syncSkills(dir);
+  assert.match(
+    links(dir)['data-client-manager'],
+    /\.pnpm\/@data-client\+core@/,
+  );
 });
 
 test('pnpm workspaces, with comments, flow lists and CRLF', () => {
@@ -628,6 +710,63 @@ for (const method of [0, 8]) {
   });
 }
 
+/**
+ * What `yarn data-client-skills` runs under, for test `t`: Yarn's patched fs
+ * reports paths inside zips as existing, and Node's own fs.cpSync can't read them
+ */
+function yarnRuntime(t) {
+  const { existsSync } = fs;
+  t.mock.method(
+    fs,
+    'existsSync',
+    file => /\.zip[\\/]/.test(String(file)) || existsSync(file),
+  );
+  // put back whatever was there, in case the suite itself runs under Yarn
+  const versions = Object.getOwnPropertyDescriptor(process.versions, 'pnp');
+  Object.defineProperty(process.versions, 'pnp', {
+    value: '3',
+    configurable: true,
+  });
+  t.after(() => {
+    if (versions) Object.defineProperty(process.versions, 'pnp', versions);
+    else delete process.versions.pnp;
+  });
+}
+
+test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t => {
+  const { dir } = zippedReact('0.19.0', {
+    'skills/data-client-react/SKILL.md': 'React skill.',
+  });
+  yarnRuntime(t);
+  assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
+  const skill = path.join(skillsDir(dir), 'data-client-react');
+  assert.ok(!fs.lstatSync(skill).isSymbolicLink());
+  assert.equal(
+    fs.readFileSync(path.join(skill, 'SKILL.md'), 'utf8'),
+    'React skill.',
+  );
+});
+
+test("Yarn PnP skips a zip without the package, under Yarn's runtime too", t => {
+  const inZip = 'node_modules/@data-client/react/';
+  const { dir } = pnpProject(
+    [['@data-client/react', `./.yarn/cache/react.zip/${inZip}`]],
+    { '.yarn/cache/react.zip': zip({ [`${inZip}other.txt`]: '' }, 0) },
+  );
+  yarnRuntime(t);
+  assert.deepEqual(syncSkills(dir).added, []);
+});
+
+test('Yarn PnP reads unzipped packages in a folder named like a zip', () => {
+  for (const location of ['apps.zip/react', 'apps.zip/node_modules/react']) {
+    const { dir } = pnpProject(
+      [['@data-client/react', `./${location}/`]],
+      pkg(location, '@data-client/react', '0.19.0', ['data-client-react']),
+    );
+    assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
+  }
+});
+
 test('Yarn PnP copies are replaced on upgrade and removed with the package', () => {
   const { dir } = zippedReact('0.19.0', {
     'skills/data-client-react/SKILL.md': 'old',
@@ -645,6 +784,7 @@ test('Yarn PnP copies are replaced on upgrade and removed with the package', () 
     removed: [],
     outdated: [],
     kept: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });

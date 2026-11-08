@@ -65,9 +65,9 @@ Override only what the app does today:
 
 | Behavior | Override |
 |----------|----------|
-| Auth or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
+| Auth, CSRF or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
 | Auth token from React context (Okta, Auth0) | [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md); a base class can't read context |
-| Cookies, CSRF, other `RequestInit` | `getRequestInit(body)`, spreading `super.getRequestInit(body)` |
+| Cookies (axios `withCredentials`), other `RequestInit` | `async getRequestInit(body)` returning `{ ...(await super.getRequestInit(body)), credentials: 'include' }`. Without `await`, the spread drops `method`, `body` and headers, so every mutation is sent as a GET |
 | Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed |
 | Date fields | Not `process()`: the Entity's `static schema`, e.g. `createdAt: Temporal.Instant.from` (skill "data-client-schema") |
 | Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow ([Server error messages](./data-client-rest-setup/references/axios-migration.md#server-error-messages) shows it) |
