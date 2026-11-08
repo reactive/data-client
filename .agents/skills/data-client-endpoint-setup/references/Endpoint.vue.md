@@ -169,11 +169,12 @@ Limits:
 
 - The request stops only if the fetch function passes the signal on, and the SDK hands it to
   `fetch()`.
-- Reads (no `sideEffect`) with the same params share one request, so the signal only cancels a
-  request that this call started.
+- Reads (no `sideEffect`) with the same params share one request. A signal only cancels a request
+  its own call started, and that cancels it for every call sharing it.
 - Data Client ignores a rejection named `AbortError`, which is what `fetch()` throws. If your SDK
   wraps the abort in another error, rethrow one named `AbortError`; otherwise it is stored as a
-  failed fetch, and the next render with those params throws it.
+  failed fetch, and renders with those params throw it until it [expires](#errorexpirylength).
+- Aborting a mutation undoes its optimistic update, but the server may already have applied it.
 
 ## Lifecycle
 
