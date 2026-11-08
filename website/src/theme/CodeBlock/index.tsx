@@ -48,7 +48,7 @@ export default function CodeBlockWrapper(props: Props) {
 
 /** Code not shown (an unselected tab, a closed details) renders as `text`
  * (no highlighting, so no Prism work, and no shell layout: ./Layout) until
- * the page is idle; then it is highlighted ahead of being shown */
+ * it shows or the page is idle, whichever comes first */
 function IdleCodeBlock(props: Props) {
   const [hidden] = useHiddenUntilIdle(useContext(HiddenContext));
   // a tab switch re-renders only this, not the code block
