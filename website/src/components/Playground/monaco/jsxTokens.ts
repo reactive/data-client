@@ -1,6 +1,6 @@
 import type * as Monaco from 'monaco-editor';
 
-import { isComponentName } from './language';
+import { isComponentName, isTypeScript } from './language';
 
 /**
  * JSX colors. Monaco's TypeScript grammar doesn't know JSX, so TypeScript
@@ -28,10 +28,10 @@ const painted = new WeakMap<Monaco.editor.ITextModel, number>();
 export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
   !takesJsx(model) || painted.get(model) === model.getVersionId();
 
-/** TypeScript parses JSX only in .tsx files, and the provider serves only
- * typescript models (a fence's language can differ from its title's) */
+/** TypeScript parses JSX only in .tsx files, and the provider never sees
+ * other languages' models, so a js fence titled App.tsx has no JSX colors */
 const takesJsx = (model: Monaco.editor.ITextModel) =>
-  model.uri.path.endsWith('.tsx') && model.getLanguageId() === 'typescript';
+  model.uri.path.endsWith('.tsx') && isTypeScript(model);
 
 export function registerJsxColors(monaco: typeof Monaco) {
   monaco.languages.registerDocumentSemanticTokensProvider('typescript', {

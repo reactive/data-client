@@ -60,7 +60,7 @@ test('JSX spans become one semantic token per line', async () => {
   expect(hasJsxColors(model)).toBe(true);
 });
 
-test('files that cannot hold JSX have none to wait for', () => {
+test('models that get no JSX colors have none to wait for', () => {
   expect(hasJsxColors(fakeModel('<T>x', '/1/a.ts'))).toBe(true);
   // a js fence titled App.tsx
   expect(hasJsxColors(fakeModel('<a />', '/1/App.tsx', 'javascript'))).toBe(
