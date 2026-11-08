@@ -16,30 +16,12 @@ import TabItem from '@theme/TabItem';
 
 Manages state, providing all context needed to use the hooks. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
-in the React tree.
+in the React tree. Keep it above your [Suspense boundaries](../getting-started/data-dependency.md#boundaries) too: its
+backup `<Suspense>`, which shows "Uncaught Suspense" in development, catches before any boundary above it.
 
 Prefer placing it above [`<Activity>`](https://react.dev/reference/react/Activity). `<Activity>` above `DataProvider`
 also works, like when a tab or route that `<Activity>` hides has its own `DataProvider`. Hiding it
 [pauses its Managers](./Manager.md#cleanup), so polling stops. Its store keeps applying responses.
-
-Put your [Suspense boundaries](../getting-started/data-dependency.md#boundaries), like
-[`<AsyncBoundary>`](./AsyncBoundary.md), inside `DataProvider`. It wraps its children in a backup `<Suspense>`
-that shows "Uncaught Suspense" in development, so a boundary above `DataProvider` never catches a component below it.
-
-```tsx
-import { AsyncBoundary, DataProvider } from '@data-client/react';
-import App from './App';
-
-export default function Root() {
-  return (
-    <DataProvider>
-      <AsyncBoundary fallback={<Loading />}>
-        <App />
-      </AsyncBoundary>
-    </DataProvider>
-  );
-}
-```
 
 <Installation />
 

@@ -133,9 +133,8 @@ pnpm add @data-client/vue
 
 ## Provider Setup
 
-After installing, add the provider at the top-level component. In React, keep Suspense boundaries inside `DataProvider`:
-its backup `<Suspense>` catches any suspend no inner boundary does, so a boundary above it (common in React Query
-setups) never shows its fallback.
+After installing, put the provider at the root, outside every other provider and boundary, not where the replaced
+library's provider was. React's `DataProvider` has a backup `<Suspense>`, so a Suspense boundary above it never catches.
 
 ### NextJS (App Router)
 
@@ -279,10 +278,9 @@ yet, and finish setup without replacing it.
 After setup, verify:
 
 - [ ] Core packages installed in `package.json`
-- [ ] Provider/Plugin wraps the app at root level
+- [ ] Provider/Plugin is at the root, outside every other provider and Suspense boundary
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
-- [ ] React: a `<Suspense>` or `<AsyncBoundary>` is inside `DataProvider` and above the components that call `useSuspense()`
 - [ ] Protocol-specific setup completed via its guide
 - [ ] Migrating from TanStack Query: the guide's "Check the migration" list passes
 
@@ -299,11 +297,6 @@ import { DataProvider } from '@data-client/react';
 ```tsx
 import { DataProvider } from '@data-client/react/nextjs';
 ```
-
-### Provider Not at Root
-
-The `DataProvider` must wrap all components that use data-client hooks. Place it at the topmost level possible.
-In Vue, call `app.use(DataClientPlugin)` on the root app before `app.mount()`.
 
 ## Next Steps
 

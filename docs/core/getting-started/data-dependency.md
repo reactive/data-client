@@ -270,8 +270,7 @@ routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
 :::react
 
-Place them inside [&lt;DataProvider /\>](../api/DataProvider.md): its own backup `<Suspense>` catches any suspend no
-closer boundary does, so a loading fallback above `DataProvider` never shows.
+Place them below [&lt;DataProvider /\>](../api/DataProvider.md), which belongs at the app root.
 
 :::
 
