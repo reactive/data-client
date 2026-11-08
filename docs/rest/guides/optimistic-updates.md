@@ -328,16 +328,26 @@ slow. First make the render cheaper, for example with [React Compiler](https://r
 
 ```tsx
 import { startTransition } from 'react';
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './TodoResource';
 
-const toggle = () => {
-  startTransition(() => {
-    ctrl.fetch(TodoResource.partialUpdate, { id }, { completed: !completed });
-  });
-};
+export function ToggleTodo({ todo }: { todo: Todo }) {
+  const ctrl = useController();
+  const toggle = () => {
+    startTransition(() => {
+      ctrl.fetch(
+        TodoResource.partialUpdate,
+        { id: todo.id },
+        { completed: !todo.completed },
+      );
+    });
+  };
+  return <input type="checkbox" checked={todo.completed} onChange={toggle} />;
+}
 ```
 
-React then renders the optimistic update in chunks that don't block input, a frame or two later. If it makes a
-component suspend, React keeps the current UI until that data loads.
+React then renders the optimistic update at transition priority, which yields to input. If it makes a component
+suspend, React keeps the current UI until that data loads.
 
 Use a block body, as above. A callback that returns the `fetch()` promise is an async Action in React 19, so React
 holds the optimistic update until the server responds.
