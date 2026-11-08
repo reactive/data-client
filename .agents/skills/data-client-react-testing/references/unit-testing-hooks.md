@@ -20,9 +20,9 @@ adds `result.error` and `waitForNextUpdate()`. Otherwise it uses
 Each call to `renderDataHook()` creates a new store and new manager instances, so no state carries over between tests.
 Use `initialFixtures` to prime the cache. Cleanup runs automatically after each test.
 
-### Polyfill fetch in node < 18
+### Polyfill fetch
 
-Node 18 and later include `fetch`. For older versions, add a polyfill:
+Jest's `jsdom` environment has no global `fetch`, even on Node 18 and later. Add a polyfill:
 
 ```bash
 npm install --save-dev whatwg-fetch
