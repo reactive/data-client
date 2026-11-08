@@ -268,12 +268,6 @@ us to make error/loading disjoint from data usage.
 Instead we place :react[[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md)]:vue[Vue's built-in [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) along with [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)] to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
-:::react
-
-Place them below [&lt;DataProvider /\>](../api/DataProvider.md), which belongs at the app root.
-
-:::
-
 <AsyncBoundaryExamples />
 
 :::react
