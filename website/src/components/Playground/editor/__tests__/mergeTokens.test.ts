@@ -82,7 +82,7 @@ describe('mergeTokens', () => {
     expect(isPlainToken(line[0])).toBe(false);
   });
 
-  it('compares against the plain style it is given', () => {
+  it("compares against its theme's plain style", () => {
     const line = [tok('punctuation', '('), tok('string', "'a'")];
     expect(mergeTokens(line, getTokenProps, plain)[0].types).toEqual(['plain']);
     // another theme: another getTokenProps

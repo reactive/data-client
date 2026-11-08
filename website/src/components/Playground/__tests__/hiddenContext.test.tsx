@@ -55,6 +55,15 @@ describe('useHiddenUntilIdle', () => {
     expect(second.result.current[0]).toBe(false);
   });
 
+  it('still shows the rest when one waiting unmounts', () => {
+    const first = renderHook(() => useHiddenUntilIdle(true));
+    const second = renderHook(() => useHiddenUntilIdle(true));
+    first.unmount();
+    expect(cancelIdle()).not.toHaveBeenCalled();
+    runIdle();
+    expect(second.result.current[0]).toBe(false);
+  });
+
   it('never waits for what is shown', () => {
     renderHook(() => useHiddenUntilIdle(false));
     expect(whenIdle).not.toHaveBeenCalled();
