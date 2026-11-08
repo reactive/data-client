@@ -162,6 +162,9 @@ controller.fetchIfStale(CommentResource.getList, { issueId });
 await controller.fetchIfStale(IssueResource.get, { id: issueId });
 ```
 
+It returns a Promise even for fresh data, so `.catch()` and `await` work the same either way. To check whether data is
+cached and fresh without fetching, read [getResponse()](#getResponse) synchronously.
+
 An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
 
 ```ts
