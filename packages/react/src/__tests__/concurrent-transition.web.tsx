@@ -346,5 +346,53 @@ describeConcurrent('startTransition over useSuspense', () => {
       });
       expect(getByTestId('todo').textContent).toBe('server A');
     });
+
+    it('keeps the shown UI while the optimistic render suspends', async () => {
+      function Linked() {
+        const todo = useSuspense(getTodo, { id: 'B' });
+        return <span data-testid="linked">{todo.title}</span>;
+      }
+      function TodoWithLink() {
+        const todo = useSuspense(getTodo, { id: 'A' });
+        return (
+          <div>
+            <span data-testid="todo">{todo.title}</span>
+            {todo.title === 'optimistic A' && <Linked />}
+          </div>
+        );
+      }
+      const { getByTestId, queryByTestId, queryByText } = render(
+        <DataProvider
+          initialState={stateA}
+          devButton={null}
+          managers={noDevManagers}
+        >
+          <Probe />
+          <button
+            data-testid="save"
+            onClick={() => {
+              controller.fetch(updateTodo, { id: 'A', title: 'optimistic A' });
+            }}
+          >
+            save
+          </button>
+          <Suspense fallback={<p>loading</p>}>
+            <TodoWithLink />
+          </Suspense>
+        </DataProvider>,
+      );
+      act(() => {
+        fireEvent.click(getByTestId('save'));
+      });
+      expect(queryByText('loading')).toBeNull();
+      expect(getByTestId('todo').textContent).toBe('todo A');
+      expect(queryByTestId('linked')).toBeNull();
+
+      await act(async () => {
+        resolvers.B({ id: 'B', title: 'todo B' });
+      });
+      expect(getByTestId('todo').textContent).toBe('optimistic A');
+      expect(getByTestId('linked').textContent).toBe('todo B');
+    });
   });
 });
