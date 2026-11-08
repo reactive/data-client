@@ -1,17 +1,18 @@
 import type * as Monaco from 'monaco-editor';
 
-import { isComponentName, isTypeScript } from './language';
-import { JSX_ATTRIBUTE, JSX_TEXT, jsxSpans } from './tokenize';
+import { isComponentName, JSX_ATTRIBUTE, JSX_TEXT } from './spans';
 
 /**
- * JSX colors. Monaco's TypeScript grammar doesn't know JSX, so Monaco paints
- * tag names, attribute names and text over the grammar's colors as semantic
- * tokens. They come at once from ./tokenize.ts's reading, the one that colors
- * the server's copy. TypeScript itself then checks them, in the playground's
- * worker (./surfaceWorker.js), where they would otherwise wait behind every
- * editor's type check, and repaints them where it reads the code otherwise.
- * ./theme.ts colors these token types.
+ * JSX colors for Monaco (see ./README.md). Monaco's TypeScript grammar doesn't
+ * know JSX, so Monaco paints tag names, attribute names and text over the
+ * grammar's colors as semantic tokens. They come at once from a quick reading
+ * of the code. TypeScript itself then checks them in its worker
+ * (./worker.js), where they would otherwise wait behind every editor's type
+ * check, and repaints them where it reads the code otherwise.
  */
+
+/** A file's JSX spans (./spans.ts) */
+export type ReadJsx = (code: string) => number[];
 
 /** Semantic token types, by index */
 const TYPES = ['jsxTag', 'jsxComponent', 'jsxAttribute', 'jsxText'];
@@ -20,8 +21,7 @@ interface JsxWorker {
   getJsxSpans(fileName: string): Promise<number[]>;
 }
 
-/** Each model's latest tokens, handed to Monaco: tokenize.ts's, until
- * TypeScript's replace them */
+/** Each model's latest tokens: readJsx's, until TypeScript's replace them */
 const latest = new WeakMap<
   Monaco.editor.ITextModel,
   { version: number; data: number[] }
@@ -34,9 +34,11 @@ export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
 /** TypeScript parses JSX only in .tsx files, and the provider never sees
  * other languages' models, so a js fence titled App.tsx has no JSX colors */
 const takesJsx = (model: Monaco.editor.ITextModel) =>
-  model.uri.path.endsWith('.tsx') && isTypeScript(model);
+  model.uri.path.endsWith('.tsx') && model.getLanguageId() === 'typescript';
 
-export function registerJsxColors(monaco: typeof Monaco) {
+/** Paints JSX in Monaco's typescript models, from `readJsx` at once and then
+ * from TypeScript */
+export function registerJsxColors(monaco: typeof Monaco, readJsx: ReadJsx) {
   const recheck = new monaco.Emitter<void>();
 
   /** Repaints `model` if TypeScript reads its JSX unlike `data` */
@@ -65,9 +67,9 @@ export function registerJsxColors(monaco: typeof Monaco) {
       const version = model.getVersionId();
       let known = latest.get(model);
       if (known?.version !== version) {
-        known = { version, data: encode(model, jsxSpans(model.getValue())) };
+        known = { version, data: encode(model, readJsx(model.getValue())) };
         latest.set(model, known);
-        // if TypeScript can't check, tokenize.ts's colors stay
+        // if TypeScript can't check, readJsx's colors stay
         check(model, version, known.data).catch(() => undefined);
       }
       return { data: new Uint32Array(known.data) };

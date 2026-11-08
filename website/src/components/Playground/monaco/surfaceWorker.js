@@ -15,18 +15,14 @@
 /** Scope of the modules-only surfaces */
 const MODULES = '';
 
-/** ts.ClassificationType of JSX tag names (open, close, self-closing),
- * attribute names and text, as ./tokenize.ts's kinds: JSX_TAG (0),
- * JSX_ATTRIBUTE (1), JSX_TEXT (2) */
-const JSX_KINDS = { 19: 0, 20: 0, 21: 0, 22: 1, 23: 2 };
-
 /** `file:///123/api.ts` → `/123/` (undefined outside a surface) */
 function surfaceOf(fileName) {
   return /^\w+:\/\/(\/\d+\/)/.exec(fileName)?.[1];
 }
 
+// with getJsxSpans (./jsxColors/worker.js, loaded first)
 self.customTSWorkerFactory = TypeScriptWorker =>
-  class SurfaceWorker extends TypeScriptWorker {
+  class SurfaceWorker extends self.withJsxSpans(TypeScriptWorker) {
     constructor(ctx, createData) {
       super(ctx, createData);
       // lib files are parsed once, for all programs
@@ -123,23 +119,5 @@ self.customTSWorkerFactory = TypeScriptWorker =>
               serviceFor(fileName)[method](fileName, ...rest)
           : target[method],
       });
-    }
-
-    /** TypeScript's reading of the JSX in `fileName`: a start, length and
-     * kind (JSX_KINDS) for each tag name, attribute name and text (see
-     * ./jsxTokens.ts) */
-    getJsxSpans(fileName) {
-      const length = this._getScriptText(fileName)?.length;
-      if (!length) return [];
-      const { spans } =
-        this._languageService.getEncodedSyntacticClassifications(fileName, {
-          start: 0,
-          length,
-        });
-      const jsx = [];
-      for (let i = 0; i < spans.length; i += 3)
-        if (spans[i + 2] in JSX_KINDS)
-          jsx.push(spans[i], spans[i + 1], JSX_KINDS[spans[i + 2]]);
-      return jsx;
     }
   };

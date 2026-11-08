@@ -1,7 +1,8 @@
 /// <reference types="jest" />
 import type * as Monaco from 'monaco-editor';
 
-import { hasJsxColors, registerJsxColors } from '../jsxTokens';
+import { hasJsxColors, registerJsxColors } from '..';
+import { jsxSpans } from '../../tokenize';
 
 /** A model of `code` at `path`, with the position helpers the provider uses */
 function fakeModel(code: string, path: string, language = 'typescript') {
@@ -29,21 +30,24 @@ function fakeModel(code: string, path: string, language = 'typescript') {
 function provider(spans: number[]) {
   let registered: any;
   const asked = { again: 0 };
-  registerJsxColors({
-    Emitter: class {
-      event = () => {};
-      fire = () => asked.again++;
-    },
-    languages: {
-      registerDocumentSemanticTokensProvider: (_: string, p: unknown) =>
-        (registered = p),
-    },
-    typescript: {
-      getTypeScriptWorker: async () => async () => ({
-        getJsxSpans: async () => [...spans],
-      }),
-    },
-  } as unknown as typeof Monaco);
+  registerJsxColors(
+    {
+      Emitter: class {
+        event = () => {};
+        fire = () => asked.again++;
+      },
+      languages: {
+        registerDocumentSemanticTokensProvider: (_: string, p: unknown) =>
+          (registered = p),
+      },
+      typescript: {
+        getTypeScriptWorker: async () => async () => ({
+          getJsxSpans: async () => [...spans],
+        }),
+      },
+    } as unknown as typeof Monaco,
+    jsxSpans,
+  );
   return { provider: registered, asked };
 }
 

@@ -8,10 +8,6 @@ export function extensionToMonacoLanguage(language: string) {
   return id;
 }
 
-/** Whether a JSX tag name (or its first letter) names a component, colored
- * apart from HTML tags */
-export const isComponentName = (name: string) => /^[A-Z]/.test(name);
-
 /** Whether Monaco's TypeScript serves `model` */
 export const isTypeScript = (model: Monaco.editor.ITextModel) =>
   model.getLanguageId() === 'typescript';

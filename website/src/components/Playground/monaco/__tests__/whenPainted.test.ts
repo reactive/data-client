@@ -6,7 +6,7 @@ import { whenPainted } from '../whenPainted';
 
 jest.mock('../whenIdle', () => ({ holdIdle: jest.fn(() => jest.fn()) }));
 let mockJsxColored = true;
-jest.mock('../jsxTokens', () => ({ hasJsxColors: () => mockJsxColored }));
+jest.mock('../jsxColors', () => ({ hasJsxColors: () => mockJsxColored }));
 
 /** An editor `width` wide; `draw(lines)` renders its view lines, each a
  * list of token classes */

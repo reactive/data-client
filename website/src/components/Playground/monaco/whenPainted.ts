@@ -1,6 +1,6 @@
 import type * as Monaco from 'monaco-editor';
 
-import { hasJsxColors } from './jsxTokens';
+import { hasJsxColors } from './jsxColors';
 import { hasLayoutWidth } from './layout';
 import { holdIdle } from './whenIdle';
 

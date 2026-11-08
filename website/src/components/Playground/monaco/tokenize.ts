@@ -9,7 +9,12 @@
  */
 import { Prism } from 'prism-react-renderer';
 
-import { isComponentName } from './language';
+import {
+  isComponentName,
+  JSX_ATTRIBUTE,
+  JSX_TAG,
+  JSX_TEXT,
+} from './jsxColors/spans';
 
 type Token = string | Prism.Token;
 
@@ -212,11 +217,6 @@ function isTypeParameters(
   );
 }
 
-/** What a JSX span holds, in `jsxSpans()` */
-export const JSX_TAG = 0;
-export const JSX_ATTRIBUTE = 1;
-export const JSX_TEXT = 2;
-
 /** How `recolor` reads tsx `code`'s JSX */
 interface JsxReading {
   code: string;
@@ -407,7 +407,7 @@ export const monacoPrism = {
 } as typeof Prism;
 
 /**
- * Where `code`'s JSX tag names, attribute names and text are, by the same
- * reading that colors them above: a start, length and kind (`JSX_TAG`…) each
+ * `code`'s JSX spans (./jsxColors/spans.ts), by the same reading that colors
+ * them above
  */
 export const jsxSpans = (code: string) => recolorTsx(code).spans;
