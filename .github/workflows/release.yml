@@ -118,6 +118,9 @@ jobs:
         run: ./scripts/ci-install.sh
 
       - name: Version
+        env:
+          # the changelog generator looks up each changeset's PR and author
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn changeset:version:beta
           # every packages/* workspace is public: if none was bumped, publishing skips every
