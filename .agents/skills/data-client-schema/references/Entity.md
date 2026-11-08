@@ -161,6 +161,43 @@ export class Issue extends Entity {
 }
 ```
 
+#### Primary key in a nested object
+
+Some APIs put the key inside a nested object, such as `{ post: { id, title }, creator, saved }`
+with no top-level `id`. Copy the key to `id` in [process()](#process). The default `pk()` then
+works, and lookups take `{ id }` like any other Entity.
+
+```typescript
+export class Post extends Entity {
+  id = 0;
+  title = '';
+}
+
+export class PostView extends Entity {
+  id = 0; // copied from post.id
+  post = Post.fromJS();
+  saved = false;
+
+  static key = 'PostView';
+  static schema = { post: Post };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    processed.id = processed.post.id;
+    return processed;
+  }
+}
+```
+
+Now `useQuery(PostView, { id })` finds the stored `PostView`. Overriding `pk()` to return
+`this.post.id` instead makes lookups awkward: `{ id }` throws because the lookup has no `post`,
+and `{ post: { id } }` fails to type-check because it lacks the other fields of `Post`.
+
 #### Singleton Entities
 
 What if there is only ever once instance of a Entity for your entire application? You
