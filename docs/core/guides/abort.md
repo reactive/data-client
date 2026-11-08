@@ -22,36 +22,8 @@ abort.abort();
 
 ## Endpoint
 
-Additionally similar functionality can easily be added to any endpoint using custom members.
-
-```typescript
-type Params = { id: string };
-
-const UserDetail = new Endpoint(
-  function ({ id }: Params) {
-    const init: RequestInit = {};
-    if (this.signal) {
-      init.signal = this.signal;
-    }
-    return fetch(this.url({ id }), init).then(res => res.json()) as Promise<
-      typeof payload
-    >;
-  },
-  {
-    url({ id }: Params) { return `/users/${id}` },
-    signal: undefined as AbortSignal | undefined,
-  },
-);
-```
-
-```typescript
-const abort = new AbortController();
-const AbortableUserDetail = UserDetail.extend({
-  signal: abort.signal,
-});
-// ...somewhere later trigger cancellation
-abort.abort();
-```
+Any [Endpoint](/rest/api/Endpoint#members-not-args) can take a `signal` member the same way: read
+`this.signal` in its fetch function.
 
 ::::react
 

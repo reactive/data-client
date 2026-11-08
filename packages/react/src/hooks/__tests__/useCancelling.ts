@@ -82,11 +82,12 @@ describe('useCancelling()', () => {
   });
 
   it('aborts a plain Endpoint that reads its signal member, keeping its key', () => {
-    const signals: (AbortSignal | undefined)[] = [];
+    const calls: { page: number; signal?: AbortSignal }[] = [];
     const getPosts = new Endpoint(
       function ({ page }: { page: number }) {
-        signals.push(this.signal);
-        return new Promise<string[]>(() => {});
+        calls.push({ page, signal: this.signal });
+        // never settles: the test only checks which signals abort
+        return new Promise<string[]>(() => undefined);
       },
       { name: 'getPosts', signal: undefined as AbortSignal | undefined },
     );
@@ -97,7 +98,10 @@ describe('useCancelling()', () => {
     result.current({ page: 1 });
     act(() => rerender({ page: 2 }));
     result.current({ page: 2 });
-    expect(signals.map(signal => signal?.aborted)).toEqual([true, false]);
+    expect(calls.map(({ page, signal }) => [page, signal?.aborted])).toEqual([
+      [1, true],
+      [2, false],
+    ]);
     expect(result.current.key({ page: 2 })).toBe(getPosts.key({ page: 2 }));
   });
 

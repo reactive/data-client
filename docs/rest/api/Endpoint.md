@@ -184,9 +184,11 @@ export const getPosts = new Endpoint(
 );
 ```
 
-Set the member for one call with [extend()](#extend), so other calls keep their own:
+Set the member for one call with [extend()](#extend), so other calls keep their own. Calls with the
+same params share one request, so the signal only cancels a request that this call started.
 
 ```ts
+// ctrl is the Controller, from useController() or a router loader
 const abort = new AbortController();
 ctrl.fetch(getPosts.extend({ signal: abort.signal }), { page: 2 });
 ```
