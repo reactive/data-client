@@ -240,14 +240,13 @@ function isTypeParameters(name: string, attributes: Token[]) {
  * colors TypeScript gives them.
  */
 function recolor(stream: Token[], keywords: Set<string>, code?: string) {
-  const jsx = code !== undefined;
   /** Where each tag name, attribute name and text is: a start, length and kind */
   const spans: number[] = [];
   const lexer = new MonacoLexer(keywords);
   /** Where JSX nests: an element's children, or code (`{}`, a tag's attributes) */
   const nesting: ('children' | 'code')[] = [];
   /** `<Name attr="value">` or `</Name>`, maybe without a name */
-  const walkTag = (tag: Prism.Token) => {
+  const walkTag = (tag: Prism.Token, code: string) => {
     const [head, ...attributes] = contentOf(tag);
     // a name can come in parts: `svg:` (namespace) and `path`
     const [open, ...nameParts] = contentOf(head as Prism.Token);
@@ -256,7 +255,7 @@ function recolor(stream: Token[], keywords: Set<string>, code?: string) {
     // in JSX children, `<` always starts an element
     if (
       nesting.at(-1) !== 'children' &&
-      ((opener === '<' && isTypeArguments(code ?? '', lexer.at, name)) ||
+      ((opener === '<' && isTypeArguments(code, lexer.at, name)) ||
         isTypeParameters(name, attributes))
     ) {
       // read again as TypeScript, so numbers in a constraint keep their color
@@ -283,9 +282,9 @@ function recolor(stream: Token[], keywords: Set<string>, code?: string) {
     }
   };
   const walk = (token: Token) => {
-    if (jsx) {
+    if (code !== undefined) {
       if (typeof token === 'object' && token.type === 'tag')
-        return walkTag(token);
+        return walkTag(token, code);
       if (isPunctuation(token, '{')) {
         nesting.push('code');
         return lexer.addCode('{');
