@@ -180,7 +180,8 @@ class MonacoLexer {
   }
 }
 
-const NAME_CHAR = /[\p{ID_Continue}$]/u;
+/** One identifier character, which may be two UTF-16 code units */
+const NAME_CHAR = /^[\p{ID_Continue}$]$/u;
 
 /** Words after which `<` starts an expression: a JSX element. `of` isn't
  * one, as `of<T>()` calls a function more often than `for (x of <a />)`
@@ -235,8 +236,8 @@ function isTypeParameters(name: string, attributes: Token[]) {
 
 /**
  * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
- * With `jsx`, tag names, attribute names and text get the colors TypeScript
- * gives them.
+ * Given the tsx source `code`, tag names, attribute names and text get the
+ * colors TypeScript gives them.
  */
 function recolor(stream: Token[], keywords: Set<string>, code?: string) {
   const jsx = code !== undefined;
@@ -255,7 +256,7 @@ function recolor(stream: Token[], keywords: Set<string>, code?: string) {
     // in JSX children, `<` always starts an element
     if (
       nesting.at(-1) !== 'children' &&
-      ((opener === '<' && isTypeArguments(code!, lexer.at, name)) ||
+      ((opener === '<' && isTypeArguments(code ?? '', lexer.at, name)) ||
         isTypeParameters(name, attributes))
     ) {
       // read again as TypeScript, so numbers in a constraint keep their color
