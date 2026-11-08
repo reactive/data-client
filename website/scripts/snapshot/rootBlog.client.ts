@@ -5,7 +5,7 @@
 import siteConfig from '@generated/docusaurus.config';
 
 // Client code sees only the generated config, not the DOCS_NEXT flag
-const isNext = siteConfig.baseUrl.startsWith('/next/');
+export const isNext = siteConfig.baseUrl.startsWith('/next/');
 const rootPath =
   isNext ?
     // /next/ keeps its lists (blog, tags, pages) and sends only posts,
@@ -19,9 +19,38 @@ export function onRouteUpdate({ location }: { location: Location }) {
   const { pathname, search, hash } = location;
   const page = pathname.slice(baseUrl.length);
   if (rootPath.test(page)) {
-    // This locale on production's root site: /next/es/ -> /es/ (archives are
-    // at their own hosts' roots)
-    const root = `https://dataclient.io${baseUrl.replace(/^\/next\//, '/')}`;
-    window.location.replace(`${root}${page}${search}${hash}`);
+    window.location.replace(`${rootUrl(pathname)}${search}${hash}`);
   }
+}
+
+// This page on production's root site: /next/es/blog/x -> /es/blog/x
+// (archives are at their own hosts' roots)
+export function rootUrl(pathname: string): string {
+  return `https://dataclient.io${pathname.replace(/^\/next\//, '/')}`;
+}
+
+// /next/ links its lists' posts to the root's (src/utils/rootPost.ts), and
+// Docusaurus opens absolute URLs in a new tab. Those posts are this site's,
+// so a plain click opens them here; modified clicks keep the browser's default.
+const rootPostUrl = /^https:\/\/dataclient\.io(\/[^/]+)?\/blog\/\d{4}\//;
+if (isNext && typeof document !== 'undefined') {
+  document.addEventListener('click', event => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    const link =
+      event.target instanceof Element ?
+        event.target.closest('a[target="_blank"]')
+      : null;
+    if (link instanceof HTMLAnchorElement && rootPostUrl.test(link.href)) {
+      event.preventDefault();
+      window.location.assign(link.href);
+    }
+  });
 }

@@ -55,7 +55,8 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
   `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,
-  pages), but its links to a post go to the root's (`rootBlog.client.ts`). It shows an "unreleased" banner
+  pages), but they link each post to the root's copy (`src/utils/rootPost.ts`), and other links to a
+  post load the root's (`rootBlog.client.ts`). It shows an "unreleased" banner
   linking to the current version's docs (from a PR preview, built alone at its root, production's).
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
   (the wrapper keeps the blog and every
