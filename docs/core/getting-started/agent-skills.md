@@ -43,11 +43,12 @@ and running it again picks up skills from packages you add or upgrade. On Window
 `git config core.symlinks true`; otherwise leave them uncommitted and rerun the command after installing.
 Upgrade skills, like the v0.18 migration, aren't linked by default, since a new app has nothing to upgrade from. When
 upgrading from an older version, run `npx --no data-client-skills --upgrade` to link them too, then run it again without
-`--upgrade` once you're done to remove them.
+`--upgrade` once you're done to remove them. The Claude Code, Cursor and Codex plugins set up apps that don't have Data
+Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
+
 In a workspace monorepo, it links them at the workspace root, even when run from a workspace package. For an app in a
 subfolder of a repo without workspaces, it links them in the app's folder; start your agent there, since Claude Code
-and Cursor started at the repository root load them only once they work on the app's files. The Claude Code, Cursor and Codex plugins set up apps that don't have Data
-Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
+and Cursor started at the repository root load them only once they work on the app's files.
 
 ### Available Skills
 

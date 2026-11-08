@@ -84,7 +84,7 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
  * for a workspace package whose skills now live at the workspace root
  * @returns the names it removed
  */
-export function unlinkSkills(projectDir) {
+function unlinkSkills(projectDir) {
   const dirs = skillsDirs(projectDir);
   if (!dirs || !fs.existsSync(dirs.dest)) return [];
   const result = { removed: [], kept: [] };

@@ -82,10 +82,10 @@ function* ancestors(dir) {
 function declaresWorkspace(parent, target) {
   try {
     return workspaceDirs(parent).some(found => realpath(found) === target);
-  } catch (error) {
-    // a manifest this command never needed, such as JSONC, isn't its problem
-    if (error instanceof SyntaxError) return false;
-    throw error;
+  } catch {
+    // a manifest this command never needed, such as JSONC or an odd
+    // workspaces field, isn't its problem
+    return false;
   }
 }
 
