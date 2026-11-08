@@ -210,11 +210,36 @@ describe('monacoPrism colors as Monaco does', () => {
       ['punctuation', '{'],
       ['punctuation', '}'],
     ]);
+    expect(spans('<const T extends 1>() => 2', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['keyword', 'const'],
+      ['class-name', 'T'],
+      ['keyword', 'extends'],
+      ['number', '1'],
+      ['punctuation', '>'],
+      ['punctuation', '('],
+      ['punctuation', ')'],
+      ['punctuation', '=>'],
+      ['number', '2'],
+    ]);
     // but a tag with an extends attribute is one
-    expect(spans('<A extends="b">c</A>', 'tsx').slice(0, 3)).toEqual([
+    expect(spans('<A extends="b" />', 'tsx')).toEqual([
       ['punctuation', '<'],
       ['class-name', 'A'],
       ['attr-name', 'extends'],
+      ['punctuation', '='],
+      ['string', '"b"'],
+      [null, '/>'],
+    ]);
+    expect(spans('<A extends>c</A>', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'A'],
+      ['attr-name', 'extends'],
+      ['punctuation', '>'],
+      [null, 'c'],
+      ['punctuation', '</'],
+      ['class-name', 'A'],
+      ['punctuation', '>'],
     ]);
   });
 

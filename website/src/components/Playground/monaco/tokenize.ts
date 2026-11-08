@@ -167,16 +167,20 @@ class MonacoLexer {
 }
 
 /**
- * Whether a tag's attributes start `extends T`: TypeScript reads `<T extends U>`
- * as type parameters (a generic arrow function), unless `extends` takes a value
+ * Whether a tag is type parameters, as TypeScript decides in .tsx: `<T extends`
+ * (maybe `<const T extends`) starts a generic arrow function, unless the next
+ * token makes `extends` an attribute (`=`, `>` or `/`)
  */
-function isTypeParameters(attributes: Token[]) {
-  const [first, next] = attributes.filter(part => textOf(part).trim());
+function isTypeParameters(name: Token | undefined, attributes: Token[]) {
+  const parts = attributes.filter(part => textOf(part).trim());
+  if (name && textOf(name) === 'const') parts.shift();
+  const [first, next] = parts;
   return (
     typeof first === 'object' &&
     first.type === 'attr-name' &&
     textOf(first) === 'extends' &&
-    !/^[=>/]/.test(textOf(next ?? '>'))
+    next !== undefined &&
+    !/^[=>/]/.test(textOf(next))
   );
 }
 
@@ -192,8 +196,11 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
   /** `<Name attr="value">` or `</Name>`, maybe without a name */
   const walkTag = (tag: Prism.Token) => {
     const [head, ...attributes] = contentOf(tag);
-    if (isTypeParameters(attributes)) return lexer.addCode(textOf(tag));
     const [open, name] = contentOf(head as Prism.Token);
+    if (isTypeParameters(name, attributes)) {
+      // read again as TypeScript, so numbers in a constraint keep their color
+      return walkAll(Prism.tokenize(textOf(tag), Prism.languages.typescript));
+    }
     lexer.addCode(textOf(open));
     if (name) {
       const tagName = textOf(name);
