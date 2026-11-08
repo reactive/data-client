@@ -236,7 +236,12 @@ function bundleSkill(sourceDir, skillDir, out) {
       out.set(path.join(dest, path.relative(sourceDir, file)), content);
   for (const name of walk(sourceDir)) {
     const file = path.join(sourceDir, name);
-    if (name === 'SKILL.md' || name === MANIFEST || sourceGenerated.has(file))
+    if (
+      name === 'SKILL.md' ||
+      name === MANIFEST ||
+      name.startsWith('evals/') ||
+      sourceGenerated.has(file)
+    )
       continue;
     const content = readFollowingLinks(file);
     // a generated reference its manifest no longer lists
