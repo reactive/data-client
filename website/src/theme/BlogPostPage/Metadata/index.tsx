@@ -17,14 +17,16 @@ export default function MetadataWrapper(props: Props): React.ReactElement {
   // On /next/, a post from before the cut is the root's: page loads go there
   // (rootBlog.client.ts sends in-app routes)
   const root = rootPost(metadata.permalink);
+  const isRoot = root !== metadata.permalink;
   return (
     <>
       <Metadata {...props} />
       <Head>
         {image && <meta name="twitter:card" content="summary_large_image" />}
-        {root !== metadata.permalink && (
-          <meta httpEquiv="refresh" content={`0; url=${root}`} />
-        )}
+        {/* Helmet drops fragments, so each tag is its own child */}
+        {isRoot && <meta httpEquiv="refresh" content={`0; url=${root}`} />}
+        {isRoot && <meta name="robots" content="noindex" />}
+        {isRoot && <link rel="canonical" href={root} />}
       </Head>
     </>
   );

@@ -51,7 +51,7 @@ when that file changes.
 While master takes the next major's breaking changes, the root keeps the released version's docs
 and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/maintenance/README.md)
 starts this by cutting a `<version>.x` maintenance branch and adding `website/versionCurrent.json`
-(`{ "version", "ref" }`) to master. While that file exists:
+(`{ "version", "ref", "cut" }`, `cut` being the branch base's date) to master. While that file exists:
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
   `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,

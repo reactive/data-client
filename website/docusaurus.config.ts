@@ -350,6 +350,8 @@ const config: Config = {
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
+          // The root's feeds carry every post at its lasting URL
+          ...(isNext && { feedOptions: { type: null } }),
         },
         theme: {
           customCss: [
