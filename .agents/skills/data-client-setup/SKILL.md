@@ -80,7 +80,7 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the app's folder; in a workspace monorepo it links them at the workspace root. If the app sits below the repository root without workspaces, tell the user to start their agent in the app's folder, since agents started at the root load nested skills only once they touch its files. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
+In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills by running the command below in the app's folder (in a workspace monorepo, it links them at the workspace root from any package). If the app sits below the repository root without workspaces, tell the user to start their agent in the app's folder, since agents started at the root load nested skills only once they touch its files. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
 
 ```bash
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills

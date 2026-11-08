@@ -50,30 +50,45 @@ function declaredPackages(dir) {
 }
 
 /**
- * The nearest parent of `dir` whose workspaces include it, searching up to the
- * repository root; undefined when `dir` is no workspace package
+ * The nearest parent of `dir` whose workspaces include it, up to the
+ * repository root; undefined outside a repository or a workspace package
  */
 export function workspaceRoot(dir) {
+  const repo = repoRoot(dir);
+  if (!repo || repo === dir) return;
   const target = realpath(dir);
-  for (let parent = dir; !isRepoRoot(parent);) {
-    const next = path.dirname(parent);
-    if (next === parent) return;
-    parent = next;
-    if (workspaceDirs(parent).some(found => realpath(found) === target))
-      return parent;
+  for (const parent of ancestors(path.dirname(dir))) {
+    if (declaresWorkspace(parent, target)) return parent;
+    if (parent === repo) return;
   }
 }
 
 /** The folder holding `dir`'s git repository, or undefined outside one */
 export function repoRoot(dir) {
+  for (const parent of ancestors(dir)) {
+    // .git is a folder, or a file in worktrees and submodules
+    if (fs.existsSync(path.join(parent, '.git'))) return parent;
+  }
+}
+
+/** `dir`, then each folder above it up to the filesystem root */
+function* ancestors(dir) {
   for (let parent = dir; ; parent = path.dirname(parent)) {
-    if (isRepoRoot(parent)) return parent;
+    yield parent;
     if (path.dirname(parent) === parent) return;
   }
 }
 
-// .git is a folder, or a file in worktrees and submodules
-const isRepoRoot = dir => fs.existsSync(path.join(dir, '.git'));
+/** Whether `parent`'s workspaces include the real directory `target` */
+function declaresWorkspace(parent, target) {
+  try {
+    return workspaceDirs(parent).some(found => realpath(found) === target);
+  } catch (error) {
+    // a manifest this command never needed, such as JSONC, isn't its problem
+    if (error instanceof SyntaxError) return false;
+    throw error;
+  }
+}
 
 /** Workspace packages declared by package.json or pnpm-workspace.yaml */
 function workspaceDirs(dir) {

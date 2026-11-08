@@ -587,6 +587,16 @@ test('workspaceRoot stops at the repository root', () => {
   assert.equal(workspaceRoot(path.join(dir, 'repo/apps/web')), undefined);
 });
 
+test('workspaceRoot needs a repository, and skips manifests it cannot parse', () => {
+  const dir = project({
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), undefined);
+  write(dir, { '.git/HEAD': 'ref', 'apps/package.json': '// JSONC' });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+});
+
 /** Runs main() from `cwd`, returning what it logged */
 function run(t, cwd) {
   const log = t.mock.method(console, 'log', () => {});

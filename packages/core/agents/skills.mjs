@@ -323,6 +323,8 @@ export function main(cwd = process.cwd()) {
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
     );
+  // nothing to point at when no skill folder was synced
+  if (!dir || !fs.existsSync(path.join(cwd, dir))) return;
   if (workspace) {
     console.log(
       `Synced ${dir} at the workspace root, which covers every workspace package`,
@@ -332,10 +334,10 @@ export function main(cwd = process.cwd()) {
   // agents load skills from where they start and its parents, but a nested
   // folder's only once they touch its files
   const repo = repoRoot(cwd);
-  if (repo && repo !== cwd && dir && fs.existsSync(path.join(cwd, dir))) {
+  if (repo && repo !== cwd) {
     const here = posix(path.relative(repo, cwd));
     console.log(
-      `Claude Code and Cursor started at the repository root load ${here}/${result.dir} only once they work on files in ${here}; start your agent in ${here} to have them from the start.`,
+      `Claude Code and Cursor started at the repository root load ${here}/${dir} only once they work on files in ${here}; start your agent in ${here} to have them from the start.`,
     );
   }
 }
