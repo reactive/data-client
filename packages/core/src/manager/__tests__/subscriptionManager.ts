@@ -23,6 +23,7 @@ describe('SubscriptionManager', () => {
     add = jest.fn();
     remove = jest.fn(() => true);
     cleanup = jest.fn();
+    init = jest.fn();
   }
   const manager = new SubscriptionManager(TestSubscription);
   const getState = () => initialState;
@@ -42,6 +43,39 @@ describe('SubscriptionManager', () => {
       ] = sub;
       manager.cleanup();
       expect(sub.cleanup.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe('init()', () => {
+    it('resumes every tracked Subscription', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const sub = new TestSubscription();
+      (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ] = sub;
+      manager.cleanup();
+      manager.init();
+      expect(sub.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops a Subscription created while paused until init()', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const next = manager.middleware(new Controller())(() =>
+        Promise.resolve(),
+      );
+      manager.cleanup();
+      next({
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction);
+      const sub: TestSubscription = (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ];
+      expect(sub.cleanup).toHaveBeenCalledTimes(1);
+      manager.init();
+      expect(sub.init).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -13,7 +13,10 @@ type Actions = UnsubscribeAction | SubscribeAction;
 export interface Subscription {
   add(frequency?: number): void;
   remove(frequency?: number): boolean;
+  /** Stops background work, like timers. `init()` may resume it. */
   cleanup(): void;
+  /** Resumes background work stopped by `cleanup()`. Does nothing while already running. */
+  init?(): void;
 }
 
 /** The static class that constructs Subscription */
@@ -40,6 +43,8 @@ export default class SubscriptionManager<
 
   declare protected readonly Subscription: S;
   protected controller: Controller = new Controller();
+  /** Between `cleanup()` and `init()`: subscriptions are tracked but do not run. */
+  protected paused = false;
 
   constructor(Subscription: S) {
     this.Subscription = Subscription;
@@ -65,8 +70,17 @@ export default class SubscriptionManager<
     };
   };
 
-  /** Ensures all subscriptions are cleaned up. */
+  /** Resumes every subscription stopped by `cleanup()`. */
+  init() {
+    this.paused = false;
+    for (const key in this.subscriptions) {
+      this.subscriptions[key].init?.();
+    }
+  }
+
+  /** Pauses every subscription. They stay tracked, so `init()` resumes them. */
   cleanup() {
+    this.paused = true;
     for (const key in this.subscriptions) {
       this.subscriptions[key].cleanup();
     }
@@ -82,10 +96,13 @@ export default class SubscriptionManager<
       const frequency = action.endpoint.pollFrequency;
       this.subscriptions[key].add(frequency);
     } else {
-      this.subscriptions[key] = new this.Subscription(
+      const subscription = new this.Subscription(
         action,
         this.controller,
       ) as InstanceType<S>;
+      // a subscription starts in its constructor; while paused it waits for init()
+      if (this.paused) subscription.cleanup();
+      this.subscriptions[key] = subscription;
     }
   }
 
