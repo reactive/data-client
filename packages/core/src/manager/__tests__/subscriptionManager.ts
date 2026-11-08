@@ -77,6 +77,31 @@ describe('SubscriptionManager', () => {
       manager.init();
       expect(sub.init).toHaveBeenCalledTimes(1);
     });
+
+    it('keeps a Subscription without init() created while paused running', () => {
+      class NoInitSubscription implements Subscription {
+        add = jest.fn();
+        remove = jest.fn(() => true);
+        cleanup = jest.fn();
+      }
+      const manager = new SubscriptionManager(NoInitSubscription);
+      const next = manager.middleware(new Controller())(() =>
+        Promise.resolve(),
+      );
+      manager.cleanup();
+      next({
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction);
+      const sub: NoInitSubscription = (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ];
+      expect(sub.cleanup).not.toHaveBeenCalled();
+      manager.init();
+      expect(sub.cleanup).not.toHaveBeenCalled();
+    });
   });
 
   describe('middleware', () => {
