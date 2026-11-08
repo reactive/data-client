@@ -7,6 +7,9 @@ import zlib from 'node:zlib';
 
 import { escapes, posix, readJSON } from './node-modules.mjs';
 
+/** A package in Yarn's zip cache: the archive, then the package's path inside it */
+const ZIPPED = /^(.*?\.zip)[\\/](node_modules[\\/].*)$/;
+
 /**
  * Each installed version of the `names` packages in the PnP project holding
  * `projectDir`. Packages in the zip cache get their package.json and skills
@@ -32,9 +35,6 @@ export function pnpPackages(projectDir, names, extractTo) {
   }
   return found;
 }
-
-/** A path inside a zip archive: the archive, then the path within it */
-const ZIPPED = /^(.*?\.zip)[\\/](.*)$/;
 
 /** The nearest directory with a PnP install map, the project's Yarn root */
 function pnpRoot(dir) {

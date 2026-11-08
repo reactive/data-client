@@ -628,32 +628,42 @@ for (const method of [0, 8]) {
   });
 }
 
-test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", () => {
+test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t => {
   const { dir } = zippedReact('0.19.0', {
     'skills/data-client-react/SKILL.md': 'React skill.',
   });
   // what `yarn data-client-skills` runs under: Yarn's patched fs reports paths
   // inside zips as existing, and Node's own fs.cpSync can't read them
   const { existsSync } = fs;
-  const versions = Object.getOwnPropertyDescriptor(process.versions, 'pnp');
-  fs.existsSync = file => /\.zip[\\/]/.test(String(file)) || existsSync(file);
+  t.mock.method(
+    fs,
+    'existsSync',
+    file => /\.zip[\\/]/.test(String(file)) || existsSync(file),
+  );
+  // tests never run under Yarn's runtime, so pnp starts out unset
   Object.defineProperty(process.versions, 'pnp', {
     value: '3',
     configurable: true,
   });
-  try {
-    assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
-  } finally {
-    fs.existsSync = existsSync;
-    if (versions) Object.defineProperty(process.versions, 'pnp', versions);
-    else delete process.versions.pnp;
-  }
+  t.after(() => delete process.versions.pnp);
+  assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
+  t.mock.restoreAll();
   const skill = path.join(skillsDir(dir), 'data-client-react');
   assert.ok(!fs.lstatSync(skill).isSymbolicLink());
   assert.equal(
     fs.readFileSync(path.join(skill, 'SKILL.md'), 'utf8'),
     'React skill.',
   );
+});
+
+test('Yarn PnP reads workspace packages in a folder named like a zip', () => {
+  const { dir } = pnpProject(
+    [['@data-client/react', './apps.zip/react/']],
+    pkg('apps.zip/react', '@data-client/react', '0.19.0', [
+      'data-client-react',
+    ]),
+  );
+  assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
 });
 
 test('Yarn PnP copies are replaced on upgrade and removed with the package', () => {
