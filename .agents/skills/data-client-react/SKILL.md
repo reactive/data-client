@@ -105,6 +105,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 | One endpoint+args | `ctrl.fetch(endpoint, args)` |
 | All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching hooks refetch; `useCache`/`useQuery` don't |
 | Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |
+| Another entity's server-computed field after a mutation (a parent's count) | Put that entity in the mutation's response schema, else fetch its endpoint after the mutation without awaiting it: skill "data-client-schema", side-effects reference (Counts and other server-computed fields). Never pass counts or callbacks between components |
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 

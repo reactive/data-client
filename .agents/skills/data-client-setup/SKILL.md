@@ -93,7 +93,7 @@ installed version.
 If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install
 the skills with the skills CLI as described below for other agents, and leave the last sentence (the `data-client-skills` command) out of the `AGENTS.md` lines.
 
-Then add these lines to the project's `AGENTS.md` (create it if missing), using the project's package manager in the command. They tell later agents that Data Client owns the app's server state, so they reach for it and its skills instead of hand-written fetching, and keep the skill links current. Claude Code reads `AGENTS.md` only when the project has no `CLAUDE.md`, so if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line. Commit `.agents/skills` and `.claude/skills` with the setup.
+Then add these lines to the project's `AGENTS.md` (create it if missing), using the project's package manager in the command. They tell later agents that Data Client owns the app's server state, so they reach for it and its skills instead of hand-written fetching, and keep the skill links current. Claude Code reads `AGENTS.md` only when the project has no `CLAUDE.md`, so if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line. Commit `.agents/skills` and `.claude/skills` with the setup, and include them in any patch or pull request of it: later agents in this repo get the skills only from those files. From `data-client-skills` they are relative symlinks into `node_modules`; commit the links as they are, not copies. On the skills CLI path, also commit the `skills-lock.json` it writes.
 
 ```md
 This app manages server state (fetching, caching, mutations and real-time updates) with Reactive Data Client. Use it for all server data, and read the matching `data-client-*` skill before writing, changing or debugging code that loads or changes data. After adding, removing or upgrading `@data-client/*` packages, run `npx --no data-client-skills` and commit the skill links.
@@ -282,6 +282,8 @@ After setup, verify:
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
 - [ ] Protocol-specific setup completed via its guide
+- [ ] `AGENTS.md` has the Data Client lines
+- [ ] `git status --short AGENTS.md CLAUDE.md .agents .claude skills-lock.json` lists nothing untracked or uncommitted
 - [ ] Migrating from TanStack Query: the guide's "Check the migration" list passes
 
 ## Common Issues
