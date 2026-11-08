@@ -36,6 +36,7 @@ export default class RestEndpoint extends Endpoint {
           const urlParams =
             this.#hasBody && args.length < 2 ? {} : args[0] || {};
           const body = this.#hasBody ? args[args.length - 1] : undefined;
+          const url = this.url(urlParams);
           const init = await this.getRequestInit(body);
           /* istanbul ignore else */
           if (process.env.NODE_ENV !== 'production') {
@@ -45,7 +46,7 @@ export default class RestEndpoint extends Endpoint {
               );
             }
           }
-          return this.fetchResponse(this.url(urlParams), init)
+          return this.fetchResponse(url, init)
             .then(response => this.parseResponse(response))
             .then(res => this.process(res, ...args));
         },
