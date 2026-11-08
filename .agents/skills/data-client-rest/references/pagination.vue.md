@@ -270,7 +270,8 @@ export const getValidators = new RestEndpoint({
 
 ### Page numbers in an envelope {#envelope}
 
-Many APIs wrap each list in an envelope, like `{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Keep the
+Many APIs wrap each list in an envelope: an outer object that holds the data next to metadata, like
+`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Keep the
 envelope as the schema rather than unwrapping it in [process()](./RestEndpoint.vue.md#process), put the
 [Collection](https://dataclient.io/rest/api/Collection) where the list is, and set [paginationField](./RestEndpoint.vue.md#paginationfield)
 to the page parameter:
