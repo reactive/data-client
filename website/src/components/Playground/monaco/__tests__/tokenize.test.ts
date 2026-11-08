@@ -258,6 +258,10 @@ describe('monacoPrism colors as Monaco does', () => {
         ['attr-name', 'c'],
       ]);
     }
+    expect(spans('<const a.b extends c />', 'tsx')[1]).toEqual([
+      'tag',
+      'const',
+    ]);
     // in JSX children, `<T extends U>` is always a tag
     expect(spans('<a><T extends U /></a>', 'tsx')).toEqual([
       ['punctuation', '<'],

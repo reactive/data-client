@@ -50,8 +50,8 @@ function provider(spans: number[]) {
 const settle = () => new Promise(resolve => setTimeout(resolve));
 
 const code = 'x = <A b="c">\n  hi\n</A>;';
-// TypeScript: A (open tag), b (attribute), text over two lines, A (close)
-const typeScriptSpans = [5, 1, 19, 7, 1, 22, 13, 6, 23, 21, 1, 20];
+// TypeScript: A (tag), b (attribute), text over two lines, A (tag)
+const typeScriptSpans = [5, 1, 0, 7, 1, 1, 13, 6, 2, 21, 1, 0];
 // line delta, column delta, length, type (0 tag, 1 component, 2 attribute,
 // 3 text), modifiers
 const tokens = [
@@ -76,7 +76,7 @@ test('JSX colors come at once, one semantic token per line', async () => {
 test("TypeScript's reading repaints where it differs", async () => {
   const model = fakeModel(code, '/1/a.tsx');
   // TypeScript reads `b` as text
-  const { provider: p, asked } = provider([5, 1, 19, 7, 1, 23]);
+  const { provider: p, asked } = provider([5, 1, 0, 7, 1, 2]);
   expect([...p.provideDocumentSemanticTokens(model).data]).toEqual(tokens);
   await settle();
   expect(asked.again).toBe(1);

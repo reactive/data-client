@@ -215,7 +215,7 @@ function recolor(
   stream: Token[],
   keywords: Set<string>,
   jsx = false,
-  jsxSpans: number[] = [],
+  spans: number[] = [],
 ) {
   const lexer = new MonacoLexer(keywords);
   /** Where JSX nests: an element's children, or code (`{}`, a tag's attributes) */
@@ -232,14 +232,14 @@ function recolor(
     }
     lexer.addCode(textOf(open));
     if (name) {
-      jsxSpans.push(lexer.at, name.length, JSX_TAG);
+      spans.push(lexer.at, name.length, JSX_TAG);
       lexer.addToken(typed(isComponentName(name) ? 'class-name' : 'tag', name));
     }
     nesting.push('code');
     for (const part of attributes) {
       if (typeof part === 'object' && part.type === 'attr-name') {
         const attribute = textOf(part);
-        jsxSpans.push(lexer.at, attribute.length, JSX_ATTRIBUTE);
+        spans.push(lexer.at, attribute.length, JSX_ATTRIBUTE);
         lexer.addToken(typed('attr-name', attribute));
       } else walk(part);
     }
@@ -264,7 +264,7 @@ function recolor(
       }
       if (nesting.at(-1) === 'children') {
         const text = textOf(token);
-        jsxSpans.push(lexer.at, text.length, JSX_TEXT);
+        spans.push(lexer.at, text.length, JSX_TEXT);
         return lexer.addText(text);
       }
     }
@@ -290,10 +290,10 @@ function recolor(
           i++;
           continue;
         }
-        // and misses a tag right after another's `>`, but finds it when it
+        // and misses a tag right after text (`by<b>`), but finds it when it
         // reads on from there
         if (nesting.at(-1) === 'children') {
-          const again = Prism.tokenize(
+          const again = prismTokens(
             list.slice(i).map(textOf).join(''),
             Prism.languages.tsx,
           );
@@ -364,6 +364,39 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
   });
 }
 
+/** Put between `>` and `<` so Prism's tsx tag pattern, which needs a
+ * character before the `<` that isn't in the tag before, finds the tag */
+const MARK = '\u0001';
+
+/** `tokens` without `MARK` */
+function unmark(tokens: Token[]): Token[] {
+  const out: Token[] = [];
+  for (const token of tokens) {
+    if (typeof token === 'string') {
+      const text = token.replaceAll(MARK, '');
+      if (text) out.push(text);
+    } else {
+      token.content =
+        typeof token.content === 'string' ?
+          token.content.replaceAll(MARK, '')
+        : unmark(contentOf(token));
+      out.push(token);
+    }
+  }
+  return out;
+}
+
+/**
+ * Prism's tokens for `code`. In tsx, Prism misses a tag right after another's
+ * `>` (`<li><b>`) unless something stands between them; reading on from each
+ * miss instead costs time that grows with the square of the code's length.
+ */
+function prismTokens(code: string, grammar: Prism.Grammar) {
+  if (grammar !== Prism.languages.tsx || code.includes(MARK))
+    return Prism.tokenize(code, grammar);
+  return unmark(Prism.tokenize(code.replaceAll('><', `>${MARK}<`), grammar));
+}
+
 /** Monaco's JavaScript grammar is its TypeScript one with fewer keywords */
 const keywordsFor = (grammar: Prism.Grammar) =>
   grammar === Prism.languages.javascript || grammar === Prism.languages.jsx ?
@@ -380,7 +413,7 @@ export const monacoPrism = {
     grammar === Prism.languages.markup ?
       recolorHtml(Prism.tokenize(code, grammar))
     : recolor(
-        Prism.tokenize(code, grammar),
+        prismTokens(code, grammar),
         keywordsFor(grammar),
         grammar === Prism.languages.tsx,
       ),
@@ -392,6 +425,7 @@ export const monacoPrism = {
  */
 export function jsxSpans(code: string) {
   const spans: number[] = [];
-  recolor(Prism.tokenize(code, Prism.languages.tsx), TS_KEYWORDS, true, spans);
+  const { tsx } = Prism.languages;
+  recolor(prismTokens(code, tsx), keywordsFor(tsx), true, spans);
   return spans;
 }

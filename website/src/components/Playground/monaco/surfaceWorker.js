@@ -15,9 +15,10 @@
 /** Scope of the modules-only surfaces */
 const MODULES = '';
 
-/** ts.ClassificationType: JSX tag names (open, close, self-closing),
- * attribute names and text */
-const JSX_CLASSIFICATIONS = new Set([19, 20, 21, 22, 23]);
+/** ts.ClassificationType of JSX tag names (open, close, self-closing),
+ * attribute names and text, as ./tokenize.ts's kinds: JSX_TAG (0),
+ * JSX_ATTRIBUTE (1), JSX_TEXT (2) */
+const JSX_KINDS = { 19: 0, 20: 0, 21: 0, 22: 1, 23: 2 };
 
 /** `file:///123/api.ts` → `/123/` (undefined outside a surface) */
 function surfaceOf(fileName) {
@@ -124,9 +125,9 @@ self.customTSWorkerFactory = TypeScriptWorker =>
       });
     }
 
-    /** TypeScript's classifications of the JSX in `fileName`: a start,
-     * length and ClassificationType for each tag name, attribute name and
-     * text (see ./jsxTokens.ts) */
+    /** TypeScript's reading of the JSX in `fileName`: a start, length and
+     * kind (JSX_KINDS) for each tag name, attribute name and text (see
+     * ./jsxTokens.ts) */
     getJsxSpans(fileName) {
       const length = this._getScriptText(fileName)?.length;
       if (!length) return [];
@@ -137,8 +138,8 @@ self.customTSWorkerFactory = TypeScriptWorker =>
         });
       const jsx = [];
       for (let i = 0; i < spans.length; i += 3)
-        if (JSX_CLASSIFICATIONS.has(spans[i + 2]))
-          jsx.push(spans[i], spans[i + 1], spans[i + 2]);
+        if (spans[i + 2] in JSX_KINDS)
+          jsx.push(spans[i], spans[i + 1], JSX_KINDS[spans[i + 2]]);
       return jsx;
     }
   };
