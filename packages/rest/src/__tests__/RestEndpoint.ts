@@ -2033,6 +2033,13 @@ describe('content property', () => {
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
+    it('builds the url before calling getRequestInit()', async () => {
+      const getRequestInit = jest.fn();
+      const get = new RecordingEndpoint({ path: '/user/:id', getRequestInit });
+      await expect(get({} as any)).rejects.toThrow();
+      expect(getRequestInit).not.toHaveBeenCalled();
+    });
+
     it('does not warn for GET', async () => {
       const get = new RecordingEndpoint({
         path: '/user/:id',

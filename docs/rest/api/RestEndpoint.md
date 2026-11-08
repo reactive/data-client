@@ -760,7 +760,7 @@ A plain object or array `body` is JSON-encoded, with a `Content-Type: applicatio
 :::tip async
 
 `getRequestInit()` is async, so `await` it before spreading. Spreading the Promise drops `method`, `body`
-and headers, which sends every mutation as a GET; development builds log an error when this happens.
+and headers, which sends every mutation as a GET; in development, the default fetch logs an error when `method` is missing.
 
 <TypeScriptEditor>
 
