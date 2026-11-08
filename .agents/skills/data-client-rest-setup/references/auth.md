@@ -312,12 +312,12 @@ function PostDetail({ id }) {
 >
 > function CreatePost() {
 >   const controller = useController();
->   const createPost = PostResource.useCreate();
+>   const createPost = PostResource.useGetList().push;
 >
 >   return (
 >     <form
 >       onSubmit={e =>
->         controller.fetch(createPost, new FormData(e.currentTarget))
+>         controller.fetch(createPost, {}, new FormData(e.currentTarget))
 >       }
 >     >
 >       {/* ... */}
@@ -374,7 +374,7 @@ function useEndpoint(endpoint: IRestEndpoint) {
 >
 > function CreatePost() {
 >   const controller = useController();
->   const createPost = useEndpoint(PostResource.create);
+>   const createPost = useEndpoint(PostResource.getList.push);
 >
 >   return (
 >     <form

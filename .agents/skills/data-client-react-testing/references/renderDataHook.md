@@ -43,8 +43,9 @@ type RenderDataHook = {
       options?: waitForOptions,
     ): Promise<T>;
   };
-  /** cleanup is automatic; only needed for ordering (e.g., before jest.useRealTimers()) */
+  /** @deprecated use cleanup() from the renderDataHook() return value */
   cleanup(): void;
+  /** @deprecated use allSettled() from the renderDataHook() return value */
   allSettled(): Promise<unknown>;
 };
 ```
@@ -202,29 +203,30 @@ it('should update', async () => {
 
 ### cleanup()
 
-Cleans up all managers used in this render.
-This is especially important when mocking timers, as Reactive Data Client's internals rely on real timers to
-avoid race conditions.
+Cleans up the managers of this render. Reactive Data Client's internals use real timers to avoid race conditions, so
+this matters when you mock timers.
 
-Cleanup runs automatically after each test via a module-level `afterEach` hook (similar to `@testing-library/react`).
-Manual calls are only needed when you must control cleanup ordering within a test body -- for example,
-cleaning up before switching from fake timers to real timers:
+Cleanup runs after each test in an `afterEach` hook, like `@testing-library/react`. Call it yourself only to control
+its order in a test. For example, clean up before you switch from fake timers to real timers:
 
 ```ts
 it('should handle polling', async () => {
   jest.useFakeTimers();
-  const { result } = renderDataHook(/* ... */);
+  const { result, cleanup } = renderDataHook(/* ... */);
   // ... assertions ...
-  renderDataHook.cleanup(); // must run while fake timers are still active
+  cleanup(); // must run while fake timers are still active
   jest.useRealTimers();
 });
 ```
 
 ### allSettled()
 
-Returns a promise that resolves once all inflight requests are completed.
+Returns a promise that resolves when all inflight requests of this render complete.
 
-Also available on the return value of each `renderDataHook()` call.
+> **Warning: Deprecated**
+>
+> `renderDataHook.cleanup()` and `renderDataHook.allSettled()` act only on the latest render. Use the ones each
+> `renderDataHook()` call returns.
 
 ### result
 

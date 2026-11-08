@@ -2,27 +2,26 @@
 
 # Endpoint Expiry Policy
 
-By default, Reactive Data Client cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
-This means that when data is available it can avoid blocking the application by using the stale data. However, in the background
-it will still refresh the data if old enough.
+By default, Reactive Data Client uses [stale-while-revalidate](https://web.dev/stale-while-revalidate/). When data is
+available, components render it immediately. If the data is old enough, Data Client refetches it in the background.
 
 ## Expiry status
 
 ### Fresh
 
-Data in this state is considered new enough that it doesn't need to fetch.
+The data is new enough. Data Client does not fetch it.
 
 ### Stale
 
-Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
+Components can show the data. Data Client fetches it again when a component needs it.
 
 ### Invalid
 
-Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
-data no action will be taken.
+Components cannot show the data. A component that needs it fetches it and suspends. If no component needs the
+data, nothing happens.
 
-[useSuspense()](https://dataclient.io/docs/api/useSuspense) considers fetching on mount as well as when its parameters change.
-In these cases it will fetch if the data is considered stale.
+[useSuspense()](https://dataclient.io/docs/api/useSuspense) checks the data on mount and when its parameters change. It fetches if the
+data is stale.
 
 > **Info: React Native**
 >
@@ -32,12 +31,12 @@ In these cases it will fetch if the data is considered stale.
 
 ### Endpoint.dataExpiryLength
 
-[Endpoint.dataExpiryLength](https://dataclient.io/rest/api/Endpoint#dataexpirylength) sets how long (in milliseconds) it takes for data
-to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
-to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
+[Endpoint.dataExpiryLength](https://dataclient.io/rest/api/Endpoint#dataexpirylength) sets how many milliseconds data stays
+'[fresh](#fresh)' before it becomes '[stale](#stale)'. Set it to a low number like `50` to make data
+[stale](#stale) almost immediately, or to a large number to keep it fresh for a long time.
 
-Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
-you will continue to see the old time without any refresh.
+Toggling between 'first' and 'second' changes the parameters. While the data is fresh,
+the old time stays without a refetch.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
@@ -139,7 +138,7 @@ const NoRetryResource = resource({
 that expires immediately be considered '[invalid](#invalid)'.
 
 This is demonstrated by the page suspending once its data goes stale (navigation waits on the progress bar).
-If the data is still within the expiry time it just continues to display it.
+While the data is fresh, the page shows it.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
@@ -190,12 +189,12 @@ export default function TimePage({ id }: { id: string }) {
 
 ## Force refresh
 
-We sometimes want to fetch new data; while continuing to show the old (stale) data.
+To fetch new data while you show the old data:
 
 ### A specific endpoint
 
-[Controller.fetch](https://dataclient.io/docs/api/Controller#fetch) can be used to trigger a fetch while still showing
-the previous data. This can be done even with 'fresh' data.
+[Controller.fetch](https://dataclient.io/docs/api/Controller#fetch) fetches while components show the previous data. It fetches even
+when the data is 'fresh'.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -321,7 +320,7 @@ render(<Demo />);
 
 ## Invalidate (re-suspend) {#invalidate}
 
-Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](https://dataclient.io/rest/api/Entity) can be targetted to be invalidated.
+Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](https://dataclient.io/rest/api/Entity) can be invalidated.
 
 ### A specific endpoint {#invalidate-endpoint}
 
@@ -406,8 +405,9 @@ render(<Demo />);
 
 ### Any endpoint with an entity {#invalidate-entity}
 
-Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](https://dataclient.io/rest/api/Entity) in their
-response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
+The [Invalidate schema](https://dataclient.io/rest/api/Invalidate) invalidates _every_ endpoint whose response includes that
+[entity](https://dataclient.io/rest/api/Entity). If the endpoint has the entity in an [Array](https://dataclient.io/rest/api/Array), Data Client removes it from
+that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
 import { Entity, Invalidate, RestEndpoint } from '@data-client/rest';
@@ -512,14 +512,12 @@ function ShowTime() {
 render(<ShowTime />);
 ```
 
-[Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) lets us update the server and store.
-We can use [Controller.setResponse()](https://dataclient.io/docs/api/Controller#setResponse) or [Controller.set()](https://dataclient.io/docs/api/Controller#set)
-when we want to change the local store directly.
+[Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) updates the server and the store. To change only the store, use
+[Controller.setResponse()](https://dataclient.io/docs/api/Controller#setResponse) or [Controller.set()](https://dataclient.io/docs/api/Controller#set).
 
 #### Conditional Invalidation based on data
 
-If `invalidation` should happen only sometimes, based on the response data, we can
-return `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process).
+To invalidate only for some responses, return `undefined` from [Entity.process](https://dataclient.io/rest/api/Entity#process).
 
 ```ts
 class PriceLevel extends Entity {
