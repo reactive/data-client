@@ -80,6 +80,54 @@ describe('useQuery()', () => {
     () => useQuery(ArticleWithSlug, '5');
   });
 
+  it('should skip with null and resume when args are given', () => {
+    const { result, rerender } = renderDataClient(
+      ({ id }: { id: number | null }) => {
+        return useQuery(ArticleWithSlug, id !== null ? { id } : null);
+      },
+      {
+        initialProps: { id: null as number | null },
+        initialFixtures: [
+          {
+            endpoint: ArticleSlugResource.get,
+            args: [{ id: 5 }],
+            response: payloadSlug,
+          },
+        ],
+      },
+    );
+    expect(result.current).toBeUndefined();
+    rerender({ id: payloadSlug.id });
+    expect(result.current).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+    rerender({ id: null });
+    expect(result.current).toBeUndefined();
+
+    // @ts-expect-error null only replaces all args
+    () => useQuery(ArticleWithSlug, null, 5);
+  });
+
+  it('should skip schemas without args using null', () => {
+    const { result } = renderDataClient(
+      () => {
+        return {
+          all: useQuery(new All(Article), null),
+          list: useQuery(ArticleResource.getList.schema, null),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: ArticleResource.getList,
+            args: [],
+            response: nested,
+          },
+        ],
+      },
+    );
+    expect(result.current.all).toBeUndefined();
+    expect(result.current.list).toBeUndefined();
+  });
+
   it('should find Entity by slug', async () => {
     const { result } = renderDataClient(
       () => {

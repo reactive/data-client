@@ -592,7 +592,7 @@ export default class Controller<
   get<S extends Queryable>(
     schema: S,
     ...rest: readonly [
-      ...SchemaArgs<S>,
+      ...(SchemaArgs<S> | readonly [null]),
       Pick<State<unknown>, 'entities' | 'indexes'>,
     ]
   ): DenormalizeNullable<S> | undefined {
@@ -609,7 +609,7 @@ export default class Controller<
   getQueryMeta<S extends Queryable>(
     schema: S,
     ...rest: readonly [
-      ...SchemaArgs<S>,
+      ...(SchemaArgs<S> | readonly [null]),
       Pick<State<unknown>, 'entities' | 'indexes'>,
     ]
   ): {
@@ -813,7 +813,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
    */
   get<S extends Queryable>(
     schema: S,
-    ...args: SchemaArgs<S>
+    ...args: SchemaArgs<S> | readonly [null]
   ): DenormalizeNullable<S> | undefined {
     return this.controller.get(schema, ...args, this.state);
   }
@@ -824,7 +824,7 @@ class Snapshot<T = unknown> implements SnapshotInterface {
    */
   getQueryMeta<S extends Queryable>(
     schema: S,
-    ...args: SchemaArgs<S>
+    ...args: SchemaArgs<S> | readonly [null]
   ): {
     data: DenormalizeNullable<S> | undefined;
     countRef: () => () => void;

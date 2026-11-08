@@ -34,7 +34,7 @@ Access any [Queryable Schema](/rest/api/schema#queryable)'s store value; like [E
 If the value does not exist, returns `undefined`.
 
 `useQuery()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary. Returns `undefined`
-when data is [Invalid](../concepts/expiry-policy#invalid).
+when data is [Invalid](../concepts/expiry-policy#invalid), or when `null` is the second argument.
 
 :::tip
 
@@ -50,6 +50,8 @@ when data is [Invalid](../concepts/expiry-policy#invalid).
 See [truthiness narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing) for
 more information about type handling
 
+<ConditionalDependencies hook="useQuery" target="Todo" />
+
 ## Types
 
 :::react
@@ -59,14 +61,14 @@ more information about type handling
 ```typescript
 function useQuery(
   schema: Queryable,
-  ...args: SchemaArgs<typeof schema>
+  ...args: SchemaArgs<typeof schema> | [null]
 ): DenormalizeNullable<typeof endpoint.schema> | undefined;
 ```
 
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: SchemaArgs<S>
+  ...args: SchemaArgs<S> | [null]
 ): DenormalizeNullable<S> | undefined;
 ```
 
@@ -79,7 +81,7 @@ function useQuery<S extends Queryable>(
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: MaybeRefsOrGetters<SchemaArgs<S>>
+  ...args: MaybeRefsOrGetters<SchemaArgs<S>> | [null]
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 ```
 

@@ -89,7 +89,7 @@ export interface SnapshotInterface {
    */
   get<S extends Queryable>(
     schema: S,
-    ...args: SchemaArgs<S>
+    ...args: SchemaArgs<S> | readonly [null]
   ): DenormalizeNullable<S> | undefined;
 }
 

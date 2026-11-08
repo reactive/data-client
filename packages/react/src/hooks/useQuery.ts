@@ -17,7 +17,7 @@ import useController from './useController.js';
  */
 export default function useQuery<S extends Queryable>(
   schema: S,
-  ...args: NI<SchemaArgs<S>>
+  ...args: NI<SchemaArgs<S> | readonly [null]>
   // INVALID results in undefined regardless of DenormalizeNullable
 ): DenormalizeNullable<S> | undefined {
   const state = useCacheState();
