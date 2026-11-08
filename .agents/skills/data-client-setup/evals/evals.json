@@ -90,6 +90,41 @@
         "A `<Suspense>` or `<AsyncBoundary>` sits between `DataProvider` and `<App />`.",
         "Says why: `DataProvider` has its own backup Suspense, so a boundary above it never catches."
       ]
+    },
+    {
+      "id": 8,
+      "name": "redux-full-app",
+      "source": "G1 in the Voyager migration (aeharding/voyager@6a15757): no Redux guidance. Held-out fixture, not Voyager.",
+      "prompt": "Migrate this app's server state from Redux to Reactive Data Client.",
+      "setup": "Copy evals/files/redux-tunes (Redux Toolkit slices with createEntityAdapter, a likes override slice, a search thunk that upserts into the tracks slice, a websocket push, a thunk that fetches then changes client state, sign-out reset). Install the skills under test into .claude/skills. No network: tell the agent to skip installs and checks. Run it on the mid model at medium effort.",
+      "expected_output": "Server data moves to Entities and SDK-wrapping Endpoints with schemas; Redux keeps auth and queue.",
+      "files": [
+        "evals/files/redux-tunes"
+      ],
+      "assertions": [
+        "`tracksSlice`, `likesSlice` and `searchSlice` are deleted; Redux keeps only client state (`auth`, `queue`), and `DataProvider` is outside the Redux `Provider`.",
+        "Search, album and track calls are Endpoints whose `schema` includes `Track` (and `Album`), each with a `name`; nothing copies their results into a store by hand.",
+        "No placeholder endpoint is filled with `ctrl.setResponse()`, and no module variable holds a Controller.",
+        "`likedById` overrides become Entity fields set by the like endpoint's `getOptimisticResponse()`.",
+        "The websocket push writes with `ctrl.set()` from a Manager (listening in `init()`, stopping in `cleanup()`).",
+        "Queuing a track gets the Controller from the thunk extra argument, a thunk argument, or a hook with `useController()`, and loads it with `ctrl.fetchIfStale()` or `ctrl.fetch()`.",
+        "Sign-out calls `ctrl.resetEntireStore()`.",
+        "Components read with `useSuspense()` (or `useQuery()` for Entities already loaded); none dispatches a fetch in `useEffect()`."
+      ]
+    },
+    {
+      "id": 9,
+      "name": "redux-partial-thunk-and-push",
+      "source": "G1 in the Voyager migration: data arriving from non-endpoint code, reaching the Controller outside React.",
+      "prompt": "We're partway through moving a React app's server state from Redux Toolkit to Reactive Data Client. Don't create or edit any files; reply with the new code and a one-line reason for each choice.\n\nAlready done: `Track` Entity and `getTrack`/`likeTrack` endpoints in `src/resources/` (they wrap the `tunes-sdk` client: `client.getTrack({ id })`, `client.getHistory(): Promise<{ tracks: Track[]; playedAt: string[] }>`); `DataProvider` wraps the app at the root; `TrackRow` reads `useQuery(Track, { id })`. The `tracks` slice is gone. The Redux store is still created at module level in `src/app/store.ts` and holds client state (queue, settings); other modules import it.\n\nConvert these two remaining pieces so the tracks they receive end up in Data Client's store and `TrackRow` shows them:\n\n```ts\n// src/features/history/historySlice.ts\nexport const fetchHistory = createAsyncThunk('history/fetch', async (_: void, { dispatch }) => {\n  const { tracks, playedAt } = await client.getHistory();\n  dispatch(tracksReceived(tracks)); // used to upsert into the tracks slice\n  return tracks.map((t, i) => ({ id: t.id, playedAt: playedAt[i] }));\n});\n// reducer stores the returned rows in state.history.rows\n\n// src/features/history/HistoryPage.tsx\nexport function HistoryPage() {\n  const dispatch = useAppDispatch();\n  const rows = useAppSelector(s => s.history.rows);\n  useEffect(() => { dispatch(fetchHistory()); }, [dispatch]);\n  return <ol>{rows.map(r => <li key={r.id + r.playedAt}><TrackRow id={r.id} /> {r.playedAt}</li>)}</ol>;\n}\n\n// src/push.ts (imported once from main.tsx)\nimport { store } from './app/store';\nnavigator.serviceWorker.addEventListener('message', e => {\n  if (e.data.type === 'track-changed') store.dispatch(tracksReceived([e.data.track]));\n});\n```\n",
+      "expected_output": "History becomes an Endpoint with a Track schema read by useSuspense; the service worker listener becomes a Manager calling ctrl.set().",
+      "files": [],
+      "assertions": [
+        "`getHistory` is an Endpoint (with a `name`) whose `schema` contains `[Track]`, read with `useSuspense()`; the history slice and `tracksReceived` are deleted.",
+        "No endpoint exists only to be filled with `ctrl.setResponse()`.",
+        "The service-worker listener moves into a Manager that keeps the Controller from `middleware`, adds the listener in `init()`, removes it in `cleanup()`, and writes with `controller.set(Track, ...)`; `managers` is a function passed to `DataProvider`.",
+        "No module variable holds a Controller, and `push.ts` no longer imports the Redux store."
+      ]
     }
   ]
 }

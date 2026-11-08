@@ -66,6 +66,7 @@ For async operations that don't match REST or GraphQL:
 | Check `package.json` | Then |
 |----------------------|------|
 | `@tanstack/react-query` or `react-query` (React) | After setup, migrate per [Replacing TanStack Query](#replacing-tanstack-query) |
+| `@reduxjs/toolkit` or `redux` holding API data (React) | After setup, migrate per [Replacing Redux server state](#replacing-redux-server-state) |
 
 ### 5. Install the Skills This Project Needs
 
@@ -273,6 +274,13 @@ Data Client's own `useQuery` reads the store and never fetches, so it is not the
 The guide is React only. For a Vue app on `@tanstack/vue-query`, tell the user this skill has no Vue migration guide
 yet, and finish setup without replacing it.
 
+## Replacing Redux server state
+
+When a React app keeps API data in Redux (item maps, `createEntityAdapter()`, thunks that fetch, or RTK Query), a
+request to set up or migrate to Data Client includes moving that data: follow
+[Redux migration](references/redux-migration.md) as the TanStack guide above (Steps, API map, Check the migration).
+Redux keeps client state (settings, drafts, UI).
+
 ## Verification Checklist
 
 After setup, verify:
@@ -283,6 +291,7 @@ After setup, verify:
 - [ ] No duplicate providers in component tree
 - [ ] Protocol-specific setup completed via its guide
 - [ ] Migrating from TanStack Query: the guide's "Check the migration" list passes
+- [ ] Migrating from Redux: the guide's "Check the migration" list passes
 
 ## Common Issues
 
@@ -319,3 +328,4 @@ For detailed API documentation, see the [references](references/) directory:
 - [GraphQL setup](references/data-client-graphql-setup.md) - `@data-client/graphql` setup
 - [Custom endpoint setup](references/data-client-endpoint-setup.md) - Wrapping other async functions with `@data-client/endpoint`
 - [TanStack Query migration](references/tanstack-query-migration.md) - Replace `useQuery`, `useMutation`, query invalidation and `QueryClient` (React)
+- [Redux migration](references/redux-migration.md) - Move server data out of Redux slices, thunks and RTK Query (React)
