@@ -5,6 +5,7 @@ import path from 'path';
 import ts from 'typescript';
 
 import { modelPath } from '../modelPath';
+import { JSX_ATTRIBUTE, JSX_TAG, JSX_TEXT } from '../tokenize';
 
 /** A model's file name, as Monaco's worker gets it */
 const uri = (id: string, file: string) => `file://${modelPath(id, file)}`;
@@ -42,6 +43,7 @@ class FakeWorker {
   getDefaultLibFileName = () => 'lib.d.ts';
   fileExists = (name: string) => name in this.files;
   readFile = (name: string) => this.files[name];
+  _getScriptText = (name: string) => this.files[name];
 }
 
 function surfaceWorker(
@@ -127,6 +129,18 @@ describe('surfaceWorker', () => {
     });
     expect(check(uri('1', 'b.ts'))).toEqual([
       "Cannot redeclare block-scoped variable 'getTodo'.",
+    ]);
+  });
+
+  it("gives JSX's tag names, attribute names and text", () => {
+    const file = uri('1', 'a.tsx');
+    const { worker } = surfaceWorker({ [file]: 'x = <A b="c">hi</A>;' });
+    // start, length, kind
+    expect(worker.getJsxSpans(file)).toEqual([
+      ...[5, 1, JSX_TAG],
+      ...[7, 1, JSX_ATTRIBUTE],
+      ...[13, 2, JSX_TEXT],
+      ...[17, 1, JSX_TAG],
     ]);
   });
 });

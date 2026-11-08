@@ -171,6 +171,26 @@ describe('monacoPrism colors as Monaco does', () => {
     ]);
   });
 
+  test('tags right after text', () => {
+    const tags = (code: string) =>
+      spans(code, 'tsx')
+        .filter(([type]) => type === 'tag')
+        .map(([, text]) => text);
+    expect(tags('<p>a<b>x</b>c<i>y<br/>z</i>d<b c="e">f</b></p>')).toEqual([
+      'p',
+      'b',
+      'b',
+      'i',
+      'br',
+      'i',
+      'b',
+      'b',
+      'p',
+    ]);
+    // `a<b>` in code is a type argument
+    expect(tags('<p>{a<b>(c)}</p>')).toEqual(['p', 'p']);
+  });
+
   test('code after a fragment is code again', () => {
     for (const fragment of [
       '<>a</>',
