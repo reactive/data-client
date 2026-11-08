@@ -52,7 +52,7 @@
     "remark-mdx": "^3.0.0",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
-    "serve": "14.2.6",
+    "serve": "14.2.7",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
     "vue": "^3.4.0",
