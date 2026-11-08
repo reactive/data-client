@@ -1,7 +1,8 @@
 // Added to archives by withoutBlog.ts and to /next/ by docusaurus.config.ts.
 // A post's URL is the root's (posts publish on the maintenance branch too:
 // scripts/maintenance/README.md), so in-app links to one load the root site's;
-// vercel.json does the same for page loads.
+// vercel.json does the same for page loads. On /next/, it also opens the
+// lists' direct links to the root's posts in the same tab (below).
 import siteConfig from '@generated/docusaurus.config';
 
 // Client code sees only the generated config, not the DOCS_NEXT flag

@@ -12,7 +12,8 @@ type Content = Props['items'][number]['content'];
 const linked = new WeakMap<Content, Content>();
 
 // The post with its permalink on the root (rootPost), so its title and
-// "Read more" link there
+// "Read more" link there. Object.assign keeps the fields Docusaurus reads off
+// the content component (frontMatter, assets, toc, contentTitle).
 function linkToRoot(Post: Content, toRoot: (permalink: string) => string) {
   let RootPost = linked.get(Post);
   if (!RootPost) {
