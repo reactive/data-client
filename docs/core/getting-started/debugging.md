@@ -129,7 +129,7 @@ straightforward as each change is traceable and descriptive.
 
 ### State Inspection
 
-Whens [schemas](/rest/api/schema) are used, responses are [normalized](../concepts/normalization.md) into `entities`
+When [schemas](/rest/api/schema) are used, responses are [normalized](../concepts/normalization.md) into `entities`
 and `endpoints` tables. This enables automatic performance advantages over simpler key-value fetch caches; especially
 beneficial with dynamic (changing) data. This also eliminates data-inconsistency bugs.
 
@@ -150,9 +150,9 @@ Here we toggled the 'completed' status of a todo using an [optimistic update](/r
 
 ### Action Tracing
 
-Tracing is not enabled by default as it is very computationally expensive. However, it can be very useful
-in tracking down where [actions](../api/Actions.md) are dispatched from. Customize [DevToolsManager](../api/DevToolsManager.md)
-by setting the trace option to `true` with [getDefaultManagers](../api/getDefaultManagers.md):
+Tracing shows where each [action](../api/Actions.md) was dispatched from. It is off by default because it records a stack trace for every action. To
+turn it on, set [DevToolsManager](../api/DevToolsManager.md)'s `trace` option with
+[getDefaultManagers](../api/getDefaultManagers.md):
 
 :::react
 
