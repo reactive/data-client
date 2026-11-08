@@ -250,6 +250,14 @@ describe('monacoPrism colors as Monaco does', () => {
       ['keyword', 'extends'],
       ['class-name', 'U'],
     ]);
+    // and so is a tag whose name isn't plain
+    for (const tag of ['a.B', 'svg:a', 'my-el']) {
+      expect(spans(`<${tag} extends c />`, 'tsx').slice(1, 4)).toEqual([
+        ['tag', tag],
+        ['attr-name', 'extends'],
+        ['attr-name', 'c'],
+      ]);
+    }
     // in JSX children, `<T extends U>` is always a tag
     expect(spans('<a><T extends U /></a>', 'tsx')).toEqual([
       ['punctuation', '<'],

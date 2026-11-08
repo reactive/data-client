@@ -186,9 +186,11 @@ function isTypeParameters(
   attributes: Token[],
   inChildren: boolean,
 ) {
-  if (inChildren) return false;
+  // only a plain name: `<a.B extends` and `<svg:a extends` are tags
+  const isName = (text: string) => /^[A-Za-z_$][\w$]*$/.test(text);
+  if (inChildren || !isName(name)) return false;
   const parts = attributes.filter(part => textOf(part).trim());
-  if (name === 'const') parts.shift();
+  if (name === 'const' && !isName(textOf(parts.shift() ?? ''))) return false;
   const [first, next] = parts;
   return (
     typeof first === 'object' &&
