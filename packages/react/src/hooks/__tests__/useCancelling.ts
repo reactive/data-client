@@ -89,7 +89,7 @@ describe('useCancelling()', () => {
         // never settles: the test only checks which signals abort
         return new Promise<string[]>(() => undefined);
       },
-      { name: 'getPosts', signal: undefined as AbortSignal | undefined },
+      { name: 'getPosts' },
     );
     const { result, rerender } = renderHook(
       ({ page }: { page: number }) => useCancelling(getPosts, { page }),

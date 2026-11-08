@@ -22,7 +22,7 @@ abort.abort();
 
 ## Endpoint
 
-Any [Endpoint](/rest/api/Endpoint#members-not-args) can take a `signal` member the same way: read
+Any [Endpoint](/rest/api/Endpoint#signal) takes a `signal` member the same way: read
 `this.signal` in its fetch function.
 
 ::::react

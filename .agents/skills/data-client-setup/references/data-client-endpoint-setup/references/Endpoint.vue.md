@@ -139,8 +139,9 @@ const getTodoUpdatingEveryFiveSeconds = getTodo.extend({ pollFrequency: 5000 });
 The arguments are the [key](#key): they say which data the store holds. Keep values that don't
 choose the data, like an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
 or an SDK client, out of them. As arguments, every hook call would need one, and calls with and
-without one get different keys, so they don't share data. Make such a value a member instead:
-declare it in the options and read it from `this` in the fetch function.
+without one get different keys, so they don't share data. Make such a value a member instead, and
+read it from `this` in the fetch function. [signal](#signal) is already typed; declare any other
+member in the options.
 
 ```ts title="getPosts"
 import { Endpoint } from '@data-client/endpoint';
@@ -152,11 +153,7 @@ export const getPosts = new Endpoint(
   function ({ page }: { page: number }) {
     return client.getPosts({ page, signal: this.signal });
   },
-  {
-    name: 'getPosts',
-    schema: [Post],
-    signal: undefined as AbortSignal | undefined,
-  },
+  { name: 'getPosts', schema: [Post] },
 );
 ```
 
@@ -283,6 +280,12 @@ Defaults to `this.fetch.name`
 > This is often know as [function name mangling](https://terser.org/docs/api-reference#mangle-options).
 >
 > In these cases you can override `name` or disable function mangling.
+
+### signal?: AbortSignal {#signal}
+
+Cancels the fetch. Read it as `this.signal` in the fetch function and pass it on, like
+`fetch(url, { signal: this.signal })`. Set it for one call with [extend()](#extend). See
+[cancellation](#members-not-args).
 
 ### sideEffect: boolean {#sideeffect}
 

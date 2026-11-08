@@ -15,6 +15,8 @@ export interface EndpointOptions<
   key?: (...args: Parameters<F>) => string;
   sideEffect?: M;
   schema?: S;
+  /** @see https://dataclient.io/rest/api/Endpoint#signal */
+  signal?: AbortSignal | undefined;
   [k: string]: any;
 }
 
@@ -140,6 +142,11 @@ export interface EndpointInstanceInterface<
   readonly sideEffect: M;
 
   readonly schema: S;
+
+  /** Cancels the fetch: read it as `this.signal`, set it with `extend({ signal })`
+   * @see https://dataclient.io/rest/api/Endpoint#signal
+   */
+  readonly signal?: AbortSignal | undefined;
 
   fetch: F;
 
