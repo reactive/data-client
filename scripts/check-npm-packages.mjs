@@ -44,7 +44,7 @@ const status = await Promise.all(
       getTag(name, 'latest'),
       getTag(name, 'beta'),
     ]);
-    if (!latest) return 'missing';
+    if (!latest && !beta) return 'missing';
     return [latest, beta].some(v => v?._npmUser?.trustedPublisher) ? 'ok' : (
         'untrusted'
       );
