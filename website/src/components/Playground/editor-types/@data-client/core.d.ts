@@ -1311,7 +1311,10 @@ type Actions = UnsubscribeAction | SubscribeAction;
 interface Subscription {
     add(frequency?: number): void;
     remove(frequency?: number): boolean;
+    /** Stops background work, like timers. `init()` may resume it. */
     cleanup(): void;
+    /** Resumes background work stopped by `cleanup()`. Does nothing while already running. */
+    init?(): void;
 }
 /** The static class that constructs Subscription */
 interface SubscriptionConstructable {
@@ -1330,9 +1333,13 @@ declare class SubscriptionManager<S extends SubscriptionConstructable = Subscrip
     };
     protected readonly Subscription: S;
     protected controller: Controller;
+    /** Between `cleanup()` and `init()`: subscriptions are tracked but do not run. */
+    protected paused: boolean;
     constructor(Subscription: S);
     middleware: Middleware;
-    /** Ensures all subscriptions are cleaned up. */
+    /** Resumes every subscription stopped by `cleanup()`. */
+    init(): void;
+    /** Pauses every subscription. They stay tracked, so `init()` resumes them. */
     cleanup(): void;
     /** Called when middleware intercepts 'rdc/subscribe' action.
      *
@@ -1362,13 +1369,19 @@ declare class PollingSubscription implements Subscription {
     protected lastIntervalId?: ReturnType<typeof setInterval>;
     protected startId?: ReturnType<typeof setTimeout>;
     private connectionListener;
+    /** Stopped by `cleanup()` until `init()` */
+    private stopped;
     constructor(action: Omit<SubscribeAction, 'type'>, controller: Controller, connectionListener?: ConnectionListener);
+    /** Resumes polling stopped by `cleanup()` */
+    init(): void;
+    protected start(): void;
     /** Subscribe to a frequency */
     add(frequency?: number): void;
     /** Unsubscribe from a frequency */
     remove(frequency?: number): boolean;
-    /** Cleanup means clearing out background interval. */
+    /** Cleanup means clearing out background interval. `init()` resumes it. */
     cleanup(): void;
+    protected clear(): void;
     /** Trigger request for latest resource */
     protected update(): void;
     /** What happens when browser goes offline */
