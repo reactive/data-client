@@ -652,8 +652,9 @@ test("links skills in the package when the workspace root can't take them", t =>
   const web = path.join(dir, 'apps/web');
   const output = run(t, web);
   assert.ok(links(web)['data-client-react']);
-  assert.deepEqual(output.slice(1), [
-    "The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills",
+  assert.deepEqual(output, [
+    'Added data-client-react',
+    "The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills; remove those links to have them at the root",
     'Claude Code and Cursor started at the repository root load apps/web/.agents/skills only once they work on files in apps/web; start your agent in apps/web to have them from the start.',
   ]);
 });

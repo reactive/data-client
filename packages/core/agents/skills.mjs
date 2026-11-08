@@ -349,12 +349,12 @@ export function main(cwd = process.cwd()) {
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
     );
-  if (root && !workspace)
-    console.log(
-      `The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills`,
-    );
   // nothing to point at when no skill folder was synced
   if (!dir || !fs.existsSync(path.join(cwd, dir))) return;
+  if (root && !workspace)
+    console.log(
+      `The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills; remove those links to have them at the root`,
+    );
   for (const line of whereAgentsLoad(
     dir,
     projectDir,
