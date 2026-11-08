@@ -188,15 +188,20 @@ export class PostView extends Entity {
     args: any[],
   ) {
     const processed = super.process(input, parent, key, args);
-    processed.id = processed.post.id;
+    processed.id = processed.post?.id ?? processed.id;
     return processed;
   }
 }
 ```
 
-Now `useQuery(PostView, { id })` finds the stored `PostView`. Overriding `pk()` to return
-`this.post.id` instead makes lookups awkward: `{ id }` throws because the lookup has no `post`,
-and `{ post: { id } }` fails to type-check because it lacks the other fields of `Post`.
+Now `useQuery(PostView, { id })` finds the stored `PostView`. Keep the incoming `id` when there is
+no `post`: [Invalidate](./Invalidate.md) (a [resource](https://dataclient.io/rest/api/resource) delete), `getList.remove`, and
+partial or optimistic updates such as `{ id, saved }` pass only the key. `fromJS()` does not call
+`process()`, so set `id` yourself when you build a `PostView` with it.
+
+Overriding `pk()` to return `this.post.id` instead breaks wherever only `{ id }` is known: lookups,
+deletes and removes throw because there is no `post`, and `{ post: { id } }` fails to type-check
+because it lacks the other fields of `Post`.
 
 #### Singleton Entities
 
