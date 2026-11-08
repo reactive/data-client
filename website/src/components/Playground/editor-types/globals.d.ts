@@ -196,7 +196,7 @@ interface SnapshotInterface {
      * Retrieved memoized value for any Querable schema
      * @see https://dataclient.io/docs/api/Snapshot#get
      */
-    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S>): DenormalizeNullable<S> | undefined;
+    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): DenormalizeNullable<S> | undefined;
 }
 type ExpiryStatusInterface = 1 | 2 | 3;
 
@@ -2439,7 +2439,7 @@ declare function useCache<E extends Pick<EndpointInterface$1<FetchFunction$1, Sc
  * `useQuery` results are globally memoized.
  * @see https://dataclient.io/docs/api/useQuery
  */
-declare function useQuery<S extends Queryable$1>(schema: S, ...args: NI$1<SchemaArgs$1<S>>): DenormalizeNullable$1<S> | undefined;
+declare function useQuery<S extends Queryable$1>(schema: S, ...args: NI$1<SchemaArgs$1<S> | readonly [null]>): DenormalizeNullable$1<S> | undefined;
 
 type ErrorTypes = NetworkError$2 | UnknownError$1;
 /**
