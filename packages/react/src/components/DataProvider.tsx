@@ -114,8 +114,9 @@ See https://dataclient.io/docs/guides/ssr.`,
   return next(action);
 };
 
-/** Puts fetches that reach the store in a transition, so a click or submit paints before React re-renders
- * every data consumer. NetworkManager forwards only optimistic fetches; keep this after the managers. */
+/** Puts fetches that reach the store in a transition, so a click or submit paints before React
+ * re-renders every data consumer. NetworkManager forwards only optimistic side-effect fetches, so
+ * keep this after the managers. */
 const fetchTransition: GenericMiddleware = () => next => action => {
   if (action.type !== actionTypes.FETCH) return next(action);
   let dispatched!: ReturnType<typeof next>;

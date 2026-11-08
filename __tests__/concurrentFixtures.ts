@@ -21,9 +21,9 @@ export function makeGetTodo(
 
 /** Optimistically sets the Todo to the request body */
 export function makeUpdateTodo(
-  fetchTodo: (body: TodoItem) => Promise<TodoItem>,
+  sendUpdate: (body: TodoItem) => Promise<TodoItem>,
 ) {
-  return new Endpoint(fetchTodo, {
+  return new Endpoint(sendUpdate, {
     schema: Todo,
     sideEffect: true,
     name: 'updateTodo',

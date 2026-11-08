@@ -8,7 +8,11 @@ import {
 } from '@data-client/react';
 import { mockInitialState } from '@data-client/test';
 import { act, render } from '@testing-library/react';
-import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
+import {
+  makeGetTodo,
+  makeUpdateTodo,
+  Todo,
+} from '__tests__/concurrentFixtures';
 import type { TodoItem } from '__tests__/concurrentFixtures';
 import React, {
   Suspense,
@@ -81,16 +85,8 @@ const getDetail = new Endpoint(({ id }: { id: string }) => hold(id), {
   name: 'getDetail',
 });
 const updateKey = (id: string, title: string) => `update ${id} ${title}`;
-const updateTodo = new Endpoint(
-  ({ id, title }: { id: string; title: string }) => hold(updateKey(id, title)),
-  {
-    schema: Todo,
-    sideEffect: true,
-    name: 'updateTodo',
-    getOptimisticResponse(_snap, { id, title }) {
-      return { id, title };
-    },
-  },
+const updateTodo = makeUpdateTodo(({ id, title }) =>
+  hold(updateKey(id, title)),
 );
 const noDevManagers = () => getDefaultManagers({ devToolsManager: null });
 
