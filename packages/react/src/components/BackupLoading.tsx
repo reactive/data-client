@@ -9,7 +9,7 @@ export default function BackupLoading() {
     useEffect(() => {
       console.warn(
         `Uncaught suspense.
-Make sure to add your own Suspense boundaries: https://dataclient.io/docs/getting-started/data-dependency#boundaries`,
+Make sure to add your own Suspense boundaries inside <DataProvider>; one above it never catches: https://dataclient.io/docs/getting-started/data-dependency#boundaries`,
       );
     }, []);
 

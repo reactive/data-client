@@ -133,7 +133,8 @@ pnpm add @data-client/vue
 
 ## Provider Setup
 
-After installing, add the provider at the top-level component.
+After installing, put the provider at the root, outside every other provider and boundary, not where the replaced
+library's provider was. React's `DataProvider` has a backup `<Suspense>`, so a Suspense boundary above it never catches.
 
 ### NextJS (App Router)
 
@@ -197,12 +198,14 @@ AppRegistry.registerComponent('MyApp', () => Root);
 Edit entry file (e.g., `index.tsx`, `main.tsx`, or `src/index.tsx`):
 
 ```tsx
-import { DataProvider } from '@data-client/react';
+import { AsyncBoundary, DataProvider } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
 createRoot(document.getElementById('root')!).render(
   <DataProvider>
-    <App />
+    <AsyncBoundary fallback={<Spinner />}>
+      <App />
+    </AsyncBoundary>
   </DataProvider>,
 );
 ```
@@ -275,7 +278,7 @@ yet, and finish setup without replacing it.
 After setup, verify:
 
 - [ ] Core packages installed in `package.json`
-- [ ] Provider/Plugin wraps the app at root level
+- [ ] Provider/Plugin is at the root, outside every other provider and Suspense boundary
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
 - [ ] Protocol-specific setup completed via its guide
@@ -294,11 +297,6 @@ import { DataProvider } from '@data-client/react';
 ```tsx
 import { DataProvider } from '@data-client/react/nextjs';
 ```
-
-### Provider Not at Root
-
-The `DataProvider` must wrap all components that use data-client hooks. Place it at the topmost level possible.
-In Vue, call `app.use(DataClientPlugin)` on the root app before `app.mount()`.
 
 ## Next Steps
 

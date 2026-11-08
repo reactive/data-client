@@ -77,6 +77,19 @@
         "`AuthLoader` is removed; loading is left to a Suspense boundary that sits inside `DataProvider`.",
         "No `react-query-auth` or `@tanstack/react-query` import remains in the converted files."
       ]
+    },
+    {
+      "id": 6,
+      "name": "suspense-inside-provider",
+      "source": "Migration of alan2207/bulletproof-react@9506629 (apps/react-vite), problem record in https://github.com/reactive/data-client/pull/4607 (.agents/projects/migrations/bulletproof-react/problems.md) P3",
+      "prompt": "Set up @data-client/react in this Vite app. Its src/main.tsx renders `<React.Suspense fallback={<Spinner />}><ErrorBoundary FallbackComponent={MainErrorFallback}><QueryClientProvider client={queryClient}><App /></QueryClientProvider></ErrorBoundary></React.Suspense>`. Replace React Query's provider with Data Client's; components will call useSuspense().",
+      "expected_output": "DataProvider moves above the app's Suspense instead of taking QueryClientProvider's place (at the root, or inside the ErrorBoundary, which is fine); the Suspense ends up between DataProvider and App. DataProvider's own backup Suspense would otherwise catch every suspend and show 'Uncaught Suspense'. Library check: the 'should not let a Suspense above DataProvider catch its children' test in packages/react/src/components/__tests__/provider.tsx.",
+      "files": [],
+      "assertions": [
+        "`DataProvider` is above every Suspense boundary in the result, not left where `QueryClientProvider` was. An `ErrorBoundary` wrapping it is fine.",
+        "A `<Suspense>` or `<AsyncBoundary>` sits between `DataProvider` and `<App />`.",
+        "Says why: `DataProvider` has its own backup Suspense, so a boundary above it never catches."
+      ]
     }
   ]
 }

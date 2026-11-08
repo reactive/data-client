@@ -4,7 +4,8 @@
 
 Manages state, providing all context needed to use the hooks. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
-in the React tree.
+in the React tree. Keep it above your [Suspense boundaries](./data-dependency.md#boundaries) too: its
+backup `<Suspense>`, which shows "Uncaught Suspense" in development, catches before any boundary above it.
 
 Prefer placing it above [`<Activity>`](https://react.dev/reference/react/Activity). `<Activity>` above `DataProvider`
 also works, like when a tab or route that `<Activity>` hides has its own `DataProvider`. Hiding it
