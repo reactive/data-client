@@ -25,8 +25,8 @@ import playgroundstyles from '../Playground/styles.module.css';
  * `response` its response. */
 export default function EndpointPlayground(props: Props) {
   const model = useCodeDocuments(props.children);
-  // not shown yet (an unselected tab, a closed details): the code is plain
-  // text until first shown
+  // hidden (an unselected tab, or a closed details until the page is idle):
+  // the code is plain text until then
   const hidden = useContext(HiddenContext);
   const [interactive, setInteractive] = useState(!hidden);
   if (!hidden && !interactive) setInteractive(true);

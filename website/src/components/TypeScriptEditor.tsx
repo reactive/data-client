@@ -16,9 +16,9 @@ export default function TypeScriptEditor({
   defaultTab?: string;
 }) {
   const model = useCodeDocuments(children, defaultTab);
-  // Not shown yet (an unselected tab, a closed details): plain text until
-  // first shown, then Monaco stays so undo survives switching back. Same
-  // latch as Playground.
+  // Hidden (an unselected tab, or a closed details until the page is idle):
+  // plain text until then, after which Monaco stays so undo survives
+  // switching back. Same latch as Playground.
   const hidden = useContext(HiddenContext);
   const [interactive, setInteractive] = useState(!hidden);
   if (!hidden && !interactive) setInteractive(true);
