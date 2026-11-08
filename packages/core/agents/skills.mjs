@@ -70,6 +70,21 @@ export function syncSkills(projectDir) {
 }
 
 /**
+ * Removes the skills this command made in `projectDir`, leaving anyone else's,
+ * for a workspace package whose skills now live at the workspace root
+ * @returns the names it removed
+ */
+export function unlinkSkills(projectDir) {
+  const dirs = skillsDirs(projectDir);
+  if (!dirs || !fs.existsSync(dirs.dest)) return [];
+  const result = { removed: [], kept: [] };
+  syncDir(dirs.dest, new Map(), false, result);
+  if (lstat(dirs.other)?.isDirectory())
+    mirrorLinks(dirs.dest, dirs.other, result);
+  return result.removed;
+}
+
+/**
  * Where the links go (`dest`) and the other folder agents read (`other`),
  * which syncSkills links to it or mirrors it into. Codex reads
  * .agents/skills, Claude Code reads .claude/skills and Cursor reads both, so
@@ -305,6 +320,8 @@ export function main(cwd = process.cwd()) {
   const projectDir = workspace ?? cwd;
   const { added, removed, outdated, kept, junctions, ...result } =
     syncSkills(projectDir);
+  // an earlier run in the package linked them there
+  const moved = workspace ? unlinkSkills(cwd) : [];
   // where the skills are, from where the command ran
   const dir =
     result.dir && posix(path.relative(cwd, path.join(projectDir, result.dir)));
@@ -314,7 +331,11 @@ export function main(cwd = process.cwd()) {
     console.log(
       `Kept ${dir}/${skill} (not a link data-client-skills made); delete it to get the installed version`,
     );
-  if (!added.length && !removed.length && !kept.length)
+  if (moved.length)
+    console.log(
+      `Removed ${moved.join(', ')} from this package; the workspace root has them`,
+    );
+  if (!added.length && !removed.length && !kept.length && !moved.length)
     console.log('Data Client skills are up to date');
   if (junctions)
     console.log(

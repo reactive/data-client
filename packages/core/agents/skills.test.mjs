@@ -617,6 +617,25 @@ test('run in a workspace package, it links at the workspace root', t => {
   ]);
 });
 
+test('run in a workspace package, it removes the skills an earlier run linked there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'apps/web/.agents/skills/mine/SKILL.md': 'my own skill',
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web);
+  const output = run(t, web);
+  assert.ok(
+    output.includes(
+      'Removed data-client-react from this package; the workspace root has them',
+    ),
+  );
+  assert.deepEqual(fs.readdirSync(path.join(web, '.agents/skills')), ['mine']);
+  assert.ok(links(dir)['data-client-react']);
+});
+
 test('run in a workspace below the repository root, it says to start the agent there', t => {
   const dir = project({
     '.git/HEAD': 'ref',
