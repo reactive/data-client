@@ -5,6 +5,8 @@ import { holdIdle } from '../whenIdle';
 import { whenPainted } from '../whenPainted';
 
 jest.mock('../whenIdle', () => ({ holdIdle: jest.fn(() => jest.fn()) }));
+let mockJsxColored = true;
+jest.mock('../jsxColors', () => ({ hasJsxColors: () => mockJsxColored }));
 
 /** An editor `width` wide; `draw(lines)` renders its view lines, each a
  * list of token classes */
@@ -48,7 +50,10 @@ function fakeEditor(width: number, value = 'code') {
 }
 
 describe('whenPainted', () => {
-  beforeEach(() => jest.useFakeTimers());
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockJsxColored = true;
+  });
   afterEach(() => jest.useRealTimers());
   const frames = (n: number) => jest.advanceTimersByTime(n * 16);
 
@@ -67,6 +72,19 @@ describe('whenPainted', () => {
     frames(1);
     expect(done).toHaveBeenCalledTimes(1);
     frames(4);
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  test('not before its JSX colors', () => {
+    const { editor, draw } = fakeEditor(600);
+    const done = jest.fn();
+    mockJsxColored = false;
+    whenPainted(editor, done);
+    draw([['mtk5'], ['mtk6']]);
+    frames(4);
+    expect(done).not.toHaveBeenCalled();
+    mockJsxColored = true;
+    frames(2);
     expect(done).toHaveBeenCalledTimes(1);
   });
 

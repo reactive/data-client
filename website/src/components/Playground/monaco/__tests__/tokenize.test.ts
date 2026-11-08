@@ -2,9 +2,10 @@
 
 import { Prism } from 'prism-react-renderer';
 
+import { JSX_ATTRIBUTE, JSX_TAG, JSX_TEXT } from '../jsxColors/spans';
 import { extensionToMonacoLanguage, isMonacoTokenized } from '../language';
 import { codePrismTheme } from '../theme';
-import { monacoPrism, textOf } from '../tokenize';
+import { jsxSpans, monacoPrism, textOf } from '../tokenize';
 
 /** Each token's theme type (null for plain) and text, whitespace left out */
 function spans(code: string, language: string) {
@@ -18,6 +19,12 @@ function spans(code: string, language: string) {
     .map(([type, text]) => [type, text?.trim()])
     .filter(([, text]) => text);
 }
+
+/** The text of tsx `code`'s spans that have one of `types` */
+const textsOf = (code: string, ...types: string[]) =>
+  spans(code, 'tsx')
+    .filter(([type]) => types.includes(type as string))
+    .map(([, text]) => text);
 
 describe('monacoPrism colors as Monaco does', () => {
   test('TypeScript keywords, capitalized names and delimiters', () => {
@@ -62,6 +69,15 @@ describe('monacoPrism colors as Monaco does', () => {
     ]);
   });
 
+  test('doc comments', () => {
+    expect(spans('/** a `b` */\nlet c;', 'ts')).toEqual([
+      ['comment', '/** a `b` */'],
+      ['keyword', 'let'],
+      [null, 'c'],
+      ['punctuation', ';'],
+    ]);
+  });
+
   test('symbol runs that are not operators stay plain', () => {
     expect(spans('!!a => <b /></b>', 'tsx')).toEqual([
       ['punctuation', '!'],
@@ -69,9 +85,9 @@ describe('monacoPrism colors as Monaco does', () => {
       [null, 'a'],
       ['punctuation', '=>'],
       ['punctuation', '<'],
-      [null, 'b'],
+      ['tag', 'b'],
       [null, '/></'],
-      [null, 'b'],
+      ['tag', 'b'],
       ['punctuation', '>'],
     ]);
   });
@@ -80,10 +96,10 @@ describe('monacoPrism colors as Monaco does', () => {
     expect(spans('<Avatar src="x" alt={`a${b}`} />', 'tsx')).toEqual([
       ['punctuation', '<'],
       ['class-name', 'Avatar'],
-      [null, 'src'],
+      ['attr-name', 'src'],
       ['punctuation', '='],
       ['string', '"x"'],
-      [null, 'alt'],
+      ['attr-name', 'alt'],
       ['punctuation', '='],
       ['punctuation', '{'],
       ['string', '`'],
@@ -94,6 +110,230 @@ describe('monacoPrism colors as Monaco does', () => {
       ['string', '`'],
       ['punctuation', '}'],
       [null, '/>'],
+    ]);
+  });
+
+  test('JSX tag names, attribute names and text as TypeScript classifies them', () => {
+    expect(
+      spans(
+        '<>\n  <a.B on aria-x="y">Don\'t (for) {c && <i>d</i>}</a.B>\n</>',
+        'tsx',
+      ),
+    ).toEqual([
+      [null, '<>'],
+      ['punctuation', '<'],
+      ['tag', 'a.B'],
+      ['attr-name', 'on'],
+      ['attr-name', 'aria-x'],
+      ['punctuation', '='],
+      ['string', '"y"'],
+      ['punctuation', '>'],
+      // text is plain, but Monaco colors its brackets
+      [null, 'Don'],
+      [null, "'"],
+      [null, 't'],
+      ['punctuation', '('],
+      [null, 'for'],
+      ['punctuation', ')'],
+      ['punctuation', '{'],
+      [null, 'c'],
+      ['punctuation', '&&'],
+      ['punctuation', '<'],
+      ['tag', 'i'],
+      ['punctuation', '>'],
+      [null, 'd'],
+      ['punctuation', '</'],
+      ['tag', 'i'],
+      ['punctuation', '>'],
+      ['punctuation', '}'],
+      ['punctuation', '</'],
+      ['tag', 'a.B'],
+      ['punctuation', '>'],
+      [null, '</>'],
+    ]);
+  });
+
+  test("JSX text's symbols join the tag's symbol run, as in Monaco's grammar", () => {
+    expect(spans('<p><b>x</b>: y=<i /></p>', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['tag', 'p'],
+      // `><` is no operator
+      [null, '><'],
+      ['tag', 'b'],
+      ['punctuation', '>'],
+      [null, 'x'],
+      ['punctuation', '</'],
+      ['tag', 'b'],
+      // `>:` is no operator, and `:` is text
+      [null, '>'],
+      [null, ':'],
+      [null, 'y'],
+      // `=<` is no operator, and `=` is text
+      [null, '='],
+      [null, '<'],
+      ['tag', 'i'],
+      [null, '/></'],
+      ['tag', 'p'],
+      ['punctuation', '>'],
+    ]);
+  });
+
+  test('tags right after text', () => {
+    const tags = (code: string) => textsOf(code, 'tag');
+    expect(tags('<p>a<b>x</b>c<i>y<br/>z</i>d<b c="e">f</b></p>')).toEqual([
+      'p',
+      'b',
+      'b',
+      'i',
+      'br',
+      'i',
+      'b',
+      'b',
+      'p',
+    ]);
+    // however long the tag
+    expect(tags(`<p>a<b c="${'d'.repeat(5000)}">e</b>f<i /></p>`)).toEqual([
+      'p',
+      'b',
+      'b',
+      'i',
+      'p',
+    ]);
+    // `a<b>` in code is a type argument
+    expect(tags('<p>{a<b>(c)}</p>')).toEqual(['p', 'p']);
+  });
+
+  test('a tag right after a name in code is type arguments', () => {
+    const tagsAndKeywords = (code: string) => textsOf(code, 'tag', 'keyword');
+    for (const call of [
+      'f<T>(1)',
+      'f <T>(1)',
+      'fé<T>(1)',
+      '取得<T>(1)',
+      '𝒇<T>(1)',
+      `${'f'.repeat(100)} <T>(1)`,
+    ]) {
+      expect(tagsAndKeywords(`x = ${call};\nconst y = 1;`)).toEqual(['const']);
+    }
+    // `of` is a keyword only in `for…of`
+    expect(tagsAndKeywords('x = of<T>(1);\nconst y = 1;')).toEqual([
+      'of',
+      'const',
+    ]);
+    // but after a word that starts an expression, or on a new line, it is JSX
+    expect(tagsAndKeywords('x = (\n  // a line\n  <a />\n);')).toEqual(['a']);
+    expect(tagsAndKeywords('return<a>b</a>;')).toEqual(['return', 'a', 'a']);
+    expect(spans('return<>b</>;', 'tsx')).toEqual([
+      ['keyword', 'return'],
+      [null, '<>'],
+      [null, 'b'],
+      [null, '</>'],
+      ['punctuation', ';'],
+    ]);
+  });
+
+  test('code after a fragment is code again', () => {
+    for (const fragment of [
+      '<>a</>',
+      '<div>{c && <>a</>}</div>',
+      '<p>\n  <>\n    a\n  </>\n</p>',
+    ]) {
+      expect(spans(`x = ${fragment};\nif (b) {}`, 'tsx').slice(-6)).toEqual([
+        ['keyword', 'if'],
+        ['punctuation', '('],
+        [null, 'b'],
+        ['punctuation', ')'],
+        ['punctuation', '{'],
+        ['punctuation', '}'],
+      ]);
+    }
+  });
+
+  test('a generic arrow function is no tag', () => {
+    expect(spans('<T extends U>(a: T) => a;\nif (b) {}', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'T'],
+      ['keyword', 'extends'],
+      ['class-name', 'U'],
+      ['punctuation', '>'],
+      ['punctuation', '('],
+      [null, 'a'],
+      ['punctuation', ':'],
+      ['class-name', 'T'],
+      ['punctuation', ')'],
+      ['punctuation', '=>'],
+      [null, 'a'],
+      ['punctuation', ';'],
+      ['keyword', 'if'],
+      ['punctuation', '('],
+      [null, 'b'],
+      ['punctuation', ')'],
+      ['punctuation', '{'],
+      ['punctuation', '}'],
+    ]);
+    expect(spans('<const T extends 1>() => 2', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['keyword', 'const'],
+      ['class-name', 'T'],
+      ['keyword', 'extends'],
+      ['number', '1'],
+      ['punctuation', '>'],
+      ['punctuation', '('],
+      ['punctuation', ')'],
+      ['punctuation', '=>'],
+      ['number', '2'],
+    ]);
+    // but a tag with an extends attribute is one
+    expect(spans('<A extends="b" />', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'A'],
+      ['attr-name', 'extends'],
+      ['punctuation', '='],
+      ['string', '"b"'],
+      [null, '/>'],
+    ]);
+    expect(spans('<A extends>c</A>', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'A'],
+      ['attr-name', 'extends'],
+      ['punctuation', '>'],
+      [null, 'c'],
+      ['punctuation', '</'],
+      ['class-name', 'A'],
+      ['punctuation', '>'],
+    ]);
+    // but in code inside them, type parameters again
+    expect(spans('<a>{<T extends U>() => 1}</a>', 'tsx').slice(2, 8)).toEqual([
+      ['punctuation', '>'],
+      ['punctuation', '{'],
+      ['punctuation', '<'],
+      ['class-name', 'T'],
+      ['keyword', 'extends'],
+      ['class-name', 'U'],
+    ]);
+    // and so is a tag whose name isn't plain
+    for (const tag of ['a.B', 'svg:a', 'my-el']) {
+      expect(spans(`<${tag} extends c />`, 'tsx').slice(1, 4)).toEqual([
+        ['tag', tag],
+        ['attr-name', 'extends'],
+        ['attr-name', 'c'],
+      ]);
+    }
+    expect(spans('<const a.b extends c />', 'tsx')[1]).toEqual([
+      'tag',
+      'const',
+    ]);
+    // in JSX children, `<T extends U>` is always a tag
+    expect(spans('<a><T extends U /></a>', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['tag', 'a'],
+      [null, '><'],
+      ['class-name', 'T'],
+      ['attr-name', 'extends'],
+      ['attr-name', 'U'],
+      [null, '/></'],
+      ['tag', 'a'],
+      ['punctuation', '>'],
     ]);
   });
 
@@ -161,6 +401,7 @@ describe('monacoPrism colors as Monaco does', () => {
 
   test.each([
     ['tsx', 'const a = /x+/g.test(`${b}`); // c\n/* d */'],
+    ['tsx', '<svg:path d="a" /><a:b>c</a:b>'],
     ['html', '<!-- a --><div class="b">c</div>'],
     ['json', '{"a": [1, null]}'],
   ])('keeps every character of %s', (language, code) => {
@@ -189,6 +430,16 @@ describe('monacoPrism colors as Monaco does', () => {
       if (type) expect(styled).toContain(type);
     }
   });
+});
+
+test("jsxSpans gives where JSX is, as TypeScript's classes do", () => {
+  // start, length, kind
+  expect(jsxSpans('x = <A b="c">\n  hi\n</A>;')).toEqual([
+    ...[5, 1, JSX_TAG],
+    ...[7, 1, JSX_ATTRIBUTE],
+    ...[13, 6, JSX_TEXT],
+    ...[21, 1, JSX_TAG],
+  ]);
 });
 
 test('isMonacoTokenized covers the fence languages Monaco highlights', () => {

@@ -1,5 +1,6 @@
 import type * as Monaco from 'monaco-editor';
 
+import { isTypeScript } from './language';
 import { isSameSurface } from './modelPath';
 
 /** Monaco's own wait after an edit before it re-checks the edited file */
@@ -92,10 +93,6 @@ async function recheck(
     MARKER_OWNER,
     diagnostics.map(diagnostic => toMarker(monaco, model, diagnostic)),
   );
-}
-
-function isTypeScript(model: Monaco.editor.ITextModel) {
-  return model.getLanguageId() === 'typescript';
 }
 
 /** Mirrors Monaco's own conversion (DiagnosticsAdapter in its TS language features, 0.57) */

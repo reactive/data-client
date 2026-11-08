@@ -1,3 +1,5 @@
+import type * as Monaco from 'monaco-editor';
+
 /** Monaco's language id for a code fence's language */
 export function extensionToMonacoLanguage(language: string) {
   const id = language.toLowerCase();
@@ -5,6 +7,10 @@ export function extensionToMonacoLanguage(language: string) {
   if (id === 'jsx' || id === 'js') return 'javascript';
   return id;
 }
+
+/** Whether Monaco's TypeScript serves `model` */
+export const isTypeScript = (model: Monaco.editor.ITextModel) =>
+  model.getLanguageId() === 'typescript';
 
 /** Monaco languages that `monaco/tokenize.ts` colors as Monaco does */
 const TOKENIZED = new Set(['typescript', 'javascript', 'html', 'json']);

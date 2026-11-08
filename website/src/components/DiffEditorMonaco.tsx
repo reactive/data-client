@@ -5,7 +5,7 @@ import {
 } from '@monaco-editor/react';
 import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 
 import type { DiffSide } from './Playground/editor/callouts';
 import StaticEditor from './Playground/editor/StaticEditor';
@@ -22,6 +22,9 @@ import { isMobileOrBot } from './Playground/userAgent';
 export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
   const original = sides[0].editorValue;
   const modified = sides[1].editorValue;
+  // named by the fence's extension, so TypeScript reads JSX in tsx sides;
+  // not modelPath()'s numeric surface shape, so each side is its own program
+  const modelPath = `inmemory://diff/${useId().replace(/\W/g, '')}/`;
 
   const { height, handleMount } = useAutoHeight({
     initialContentHeight:
@@ -121,9 +124,16 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
                 <div className={styles.playgroundEditor}>
                   <div className={clsx(styles.editorHost, styles.diffHost)}>
                     <BaseDiffEditor
-                      language={extensionToMonacoLanguage(sides[0].language)}
+                      originalLanguage={extensionToMonacoLanguage(
+                        sides[0].language,
+                      )}
+                      modifiedLanguage={extensionToMonacoLanguage(
+                        sides[1].language,
+                      )}
                       original={original}
                       modified={modified}
+                      originalModelPath={`${modelPath}original.${sides[0].language.toLowerCase()}`}
+                      modifiedModelPath={`${modelPath}modified.${sides[1].language.toLowerCase()}`}
                       options={diffOptions}
                       onMount={handleDiffMount}
                       height={height}

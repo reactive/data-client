@@ -49,10 +49,10 @@ function surfaceWorker(
   createLanguageService = ts.createLanguageService,
 ) {
   const self: any = { ts: { ...ts, createLanguageService } };
-  const source = fs.readFileSync(
-    path.join(__dirname, '../surfaceWorker.js'),
-    'utf8',
-  );
+  // as ../setup.ts loads them
+  const source = ['../jsxColors/worker.js', '../surfaceWorker.js']
+    .map(file => fs.readFileSync(path.join(__dirname, file), 'utf8'))
+    .join('');
   new Function('self', source)(self);
   const Worker = self.customTSWorkerFactory(FakeWorker);
   // Monaco passes (ctx, createData); here FakeWorker's files

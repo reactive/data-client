@@ -9,16 +9,19 @@
 import { loader } from '@monaco-editor/react';
 
 import { isMobileOrBot } from '../userAgent';
+import { registerJsxColors } from './jsxColors';
 import { registerImportCompletions } from './navigation';
 import { MONACO_CDN_VS } from './preloadManifest';
 import { injectMonacoResourceHints } from './resourceHints';
 import { shieldEditorsFromSearchHotkey } from './searchHotkey';
 import { recheckSiblingsOnChange } from './siblingDiagnostics';
 import { definePrismTheme } from './theme';
+import { jsxSpans } from './tokenize';
 import { ignoreTopLevelAwaitWhereAllowed } from './topLevelAwait';
 import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
+import jsxWorker from '!!raw-loader!./jsxColors/worker.js';
 import surfaceWorker from '!!raw-loader!./surfaceWorker.js';
 
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
@@ -52,9 +55,10 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
     });
     // each playground is checked as its own program
     monaco.typescript.typescriptDefaults.setWorkerOptions({
-      customWorkerPath: `data:text/javascript;charset=utf-8,${encodeURIComponent(surfaceWorker)}`,
+      customWorkerPath: `data:text/javascript;charset=utf-8,${encodeURIComponent(jsxWorker + surfaceWorker)}`,
     });
     definePrismTheme(monaco);
+    registerJsxColors(monaco, jsxSpans);
     registerImportCompletions(monaco);
     recheckSiblingsOnChange(monaco);
     ignoreTopLevelAwaitWhereAllowed(monaco);

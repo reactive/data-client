@@ -20,8 +20,9 @@ function surfaceOf(fileName) {
   return /^\w+:\/\/(\/\d+\/)/.exec(fileName)?.[1];
 }
 
+// with getJsxSpans (./jsxColors/worker.js, loaded first)
 self.customTSWorkerFactory = TypeScriptWorker =>
-  class SurfaceWorker extends TypeScriptWorker {
+  class SurfaceWorker extends self.withJsxSpans(TypeScriptWorker) {
     constructor(ctx, createData) {
       super(ctx, createData);
       // lib files are parsed once, for all programs
