@@ -14,6 +14,7 @@ What you may notice:
 
 - The optimistic update can show a frame or two later than before, still long before the server responds.
 - A `setState` in the same handler, like a pending flag, now commits one render before the optimistic update.
+- If the optimistic update makes a component suspend and no new `<Suspense>` boundary wraps it, React keeps the current UI until that data loads, instead of showing the fallback.
 - [`controller.getState()`](https://dataclient.io/docs/api/Controller#getState) returns committed state, so a second handler that runs before that render does not see the optimistic update yet.
 
 `controller.fetch()` itself is unchanged, and so are tests that use `act()`. The redux `DataProvider` from `@data-client/react/redux` still renders optimistic updates at the handler's priority.
