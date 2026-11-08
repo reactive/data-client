@@ -53,6 +53,22 @@ test('sampled: compares raw samples and keeps the row fields', () => {
   assert.deepEqual([row.group, row.baseline, row.migrated], ['g', 1, 3]);
 });
 
+test('sampled: speed ratio for durations only', () => {
+  const slow = [1000, 1010, 990, 1000];
+  const fast = [250, 252, 248, 250];
+  assert.equal(sampled('g', 'id', 'l', 'ms', slow, fast).speed, 4);
+  assert.equal(sampled('g', 'id', 'l', 'ms', fast, slow).speed, 0.25);
+  assert.equal(
+    sampled('g', 'id', 'l', 'ms', slow, fast, { speed: false }).speed,
+    undefined,
+  );
+  assert.equal(sampled('g', 'id', 'l', 'kB', slow, fast).speed, undefined);
+  assert.equal(
+    sampled('g', 'id', 'l', 'ms', slow, [0, 0, 0, 0]).speed,
+    undefined,
+  );
+});
+
 test('compare: a change that prints as 0 is never a direction', () => {
   const b = [1.001, 1.002, 1.003, 1.001];
   const a = [1.004, 1.004, 1.004, 1.004];

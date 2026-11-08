@@ -2,14 +2,15 @@
 // One command for a full before/after impact report.
 //
 //   node measure.mjs --config <app>/impact.config.mjs --baseline <checkout> --migrated <checkout> \
-//     [--runs 10] [--cpu 4] [--feature] [--feature-runs 3] [--no-build] [--out <dir>] \
-//     [--baseline-label react-query] [--migrated-label data-client]
+//     [--runs 10] [--cpu 4] [--latency 400,100,1500] [--feature] [--feature-runs 3] [--no-build] \
+//     [--out <dir>] [--baseline-label react-query] [--migrated-label data-client]
 //
 // 1. applies config.prep patches to each checkout (skipped when already applied)
-// 2. builds both (config.build, default `npx vite build`) unless --no-build
-// 3. serves both (config.serve, {port} replaced) and runs flow.mjs against them
-// 4. runs static.mjs, and feature-cost.mjs when --feature is given (it spends model tokens)
-// 5. writes <out>/impact.json and <out>/impact.md with report.mjs
+// 2. for each mock API latency (config.latency.profiles or --latency; the first is the primary):
+//    builds both with config.latency.env set (config.build, default `npx vite build`) unless
+//    --no-build, serves both (config.serve, {port} replaced) and runs flow.mjs against them
+// 3. runs static.mjs, and feature-cost.mjs when --feature is given (it spends model tokens)
+// 4. writes <out>/impact.json and <out>/impact.md with report.mjs
 import { execFileSync, execSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -26,6 +27,7 @@ const { values: opt } = parseArgs({
     migrated: { type: 'string' },
     runs: { type: 'string', default: '10' },
     cpu: { type: 'string', default: '4' },
+    latency: { type: 'string' },
     feature: { type: 'boolean', default: false },
     'feature-runs': { type: 'string', default: '3' },
     'no-build': { type: 'boolean', default: false },
@@ -49,6 +51,28 @@ const checkouts = {
   migrated: resolve(opt.migrated),
 };
 const rootOf = v => join(checkouts[v], config.root ?? '.');
+// Mock API latencies in ms. The first is the primary run behind every table; the others repeat the
+// flow for the latency sweep. [undefined] when the config has no latency section: one run, env untouched.
+const profiles =
+  opt.latency ?
+    opt.latency.split(',').map(Number)
+  : (config.latency?.profiles ?? [undefined]);
+if (profiles[0] !== undefined && !config.latency?.env) {
+  console.error(
+    '--latency needs config.latency.env, the variable the app reads its mock delay from',
+  );
+  process.exit(2);
+}
+if (profiles.length > 1 && opt['no-build']) {
+  console.error(
+    'a latency sweep rebuilds for each latency; drop --no-build or pass one --latency',
+  );
+  process.exit(2);
+}
+const envFor = ms =>
+  ms === undefined ?
+    process.env
+  : { ...process.env, [config.latency.env]: String(ms) };
 const node = (script, args) =>
   execFileSync(process.execPath, [join(here, script), ...args], {
     stdio: 'inherit',
@@ -68,12 +92,17 @@ for (const v of Object.keys(checkouts)) {
       console.error(`${v}: applied ${patch}`);
     }
   }
-  if (!opt['no-build']) {
-    const build = config.build ?? 'npx vite build';
-    console.error(`${v}: ${build}`);
-    execSync(build, { cwd: rootOf(v), stdio: 'inherit' });
-  }
 }
+const build = ms => {
+  if (opt['no-build']) return;
+  const cmd = config.build ?? 'npx vite build';
+  for (const v of Object.keys(checkouts)) {
+    console.error(
+      `${v}: ${cmd}${ms === undefined ? '' : ` (${config.latency.env}=${ms})`}`,
+    );
+    execSync(cmd, { cwd: rootOf(v), stdio: 'inherit', env: envFor(ms) });
+  }
+};
 
 // What was measured, so a committed report can be traced to exact commits and tools.
 const sh = (cmd, cwd) => {
@@ -134,6 +163,10 @@ function installedVersions(root, checkout, libs) {
 const meta = {
   config: relative(process.cwd(), configPath),
   prep: config.prep ?? [],
+  latency:
+    profiles[0] === undefined ?
+      null
+    : { env: config.latency.env, profilesMs: profiles },
   runs: +opt.runs,
   cpuThrottle: +opt.cpu,
   node: process.version,
@@ -190,22 +223,17 @@ const waitForPort = async (port, child, ms = 60_000) => {
   throw new Error(`nothing listening on ${port} after ${ms}ms`);
 };
 
-const servers = [];
-const urls = {};
+let servers = [];
 const stopServers = () => {
   for (const s of servers) {
     try {
       process.kill(-s.pid);
     } catch {}
   }
+  servers = [];
 };
-for (const sig of ['SIGINT', 'SIGTERM']) {
-  process.on(sig, () => {
-    stopServers();
-    process.exit(130);
-  });
-}
-try {
+async function serveBoth(ms) {
+  const urls = {};
   for (const v of Object.keys(checkouts)) {
     const port = await freePort();
     const cmd = (
@@ -215,29 +243,54 @@ try {
       cwd: rootOf(v),
       stdio: 'ignore',
       detached: true,
+      env: envFor(ms),
     });
     servers.push(child);
     await waitForPort(port, child);
     urls[v] = `http://localhost:${port}`;
   }
-  const reports = [];
-  if (config.flow) {
-    node('flow.mjs', [
-      '--config',
-      configPath,
-      '--baseline',
-      urls.baseline,
-      '--migrated',
-      urls.migrated,
-      '--runs',
-      opt.runs,
-      '--cpu',
-      opt.cpu,
-      '--out',
-      join(out, 'flow.json'),
-    ]);
-    reports.push(join(out, 'flow.json'));
+  return urls;
+}
+for (const sig of ['SIGINT', 'SIGTERM']) {
+  process.on(sig, () => {
+    stopServers();
+    process.exit(130);
+  });
+}
+try {
+  const flows = [];
+  // The primary latency goes last, so the dist folder static.mjs reads is its build.
+  for (const ms of [...profiles.slice(1), profiles[0]]) {
+    build(ms);
+    if (!config.flow) continue;
+    const file = join(
+      out,
+      ms === profiles[0] ? 'flow.json' : `flow-${ms}ms.json`,
+    );
+    const urls = await serveBoth(ms);
+    try {
+      node('flow.mjs', [
+        '--config',
+        configPath,
+        '--baseline',
+        urls.baseline,
+        '--migrated',
+        urls.migrated,
+        '--runs',
+        opt.runs,
+        '--cpu',
+        opt.cpu,
+        '--out',
+        file,
+        ...(ms === undefined ? [] : ['--latency-ms', String(ms)]),
+      ]);
+    } finally {
+      stopServers();
+    }
+    flows.push(file);
   }
+  // report.mjs treats the first flow file as the primary run.
+  const reports = flows.reverse();
   if (config.static) {
     node('static.mjs', [
       '--config',

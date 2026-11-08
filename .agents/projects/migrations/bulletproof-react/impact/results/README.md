@@ -1,11 +1,44 @@
 # bulletproof-react impact results
 
-Measured 2026-11-07 with [`../impact.config.mjs`](../impact.config.mjs), 8 interleaved runs per pair at 4x
-CPU throttle, mock API latency fixed at 400ms ([`../fixed-latency.patch`](../fixed-latency.patch)).
+Each report runs 8 interleaved runs per pair at 4x CPU throttle with [`../impact.config.mjs`](../impact.config.mjs),
+and the mock API latency fixed by [`../fixed-latency.patch`](../fixed-latency.patch). Speed is react-query time
+divided by data-client time: 1.2x means data-client is 20% faster, 0.8x means 20% slower.
 
-**These are `@data-client/react` 0.18.2 results.** The migration targets 0.19; all of these get
-re-measured on the 0.19 beta. None of the numbers are verified on 0.19 yet; bundle size and tokens per
-feature are the ones most likely to change.
+## 0.19 beta
+
+Measured 2026-11-08 by the 0.19 re-run, on `@data-client/react` and `@data-client/rest`
+`0.19.0-beta-20261108175612`, with every mutation optimistic. The re-run's checkouts are local commits
+(`18d155d` and `9c8de5a`); its `migration.patch` also applies cleanly to upstream
+`alan2207/bulletproof-react` @ `9506629`.
+Report: [react-query vs data-client 0.19](react-query-vs-data-client-0.19/impact.md).
+
+| Metric                                       | react-query | data-client 0.19 | Speed or change    |
+| -------------------------------------------- | ----------- | ---------------- | ------------------ |
+| Mutation submit to UI updated, sum of 6 (ms) | 8,516       | 2,014            | 4.2x (323% faster) |
+| All 13 steps, action to ready (ms)           | 11,492      | 4,959            | 2.3x (132% faster) |
+| Cold load, first screen ready (ms)           | 1,801       | 1,818            | ≈1x (within noise) |
+| Slowest interaction (ms)                     | 56          | 92               | 0.61x (39% slower) |
+| Reads triggered by mutations                 | 6           | 2                | -4                 |
+| Stale views after a mutation                 | 2           | 0                | -2                 |
+| Entry JS, gzip (kB)                          | 178         | 163              | -8%                |
+| Data layer lines of code                     | 514         | 174              | -66%               |
+
+Per mutation: delete discussion 16.3x, delete comment 13.9x, update discussion 11.9x, update profile
+11.2x, create comment 9.2x, and create discussion ≈1x, because it still waits for the server to return
+the new row.
+
+**Interaction cost.** Each optimistic mutation's click now takes longer to paint: create comment 32 →
+84ms, update discussion 28 → 56ms, delete comment 16 → 44ms. The optimistic dispatch renders
+synchronously inside the click (discrete priority). A CPU profile of the 0.18.2 build put about a third
+of create comment's click in bulletproof's unmemoized `MDPreview` (marked and DOMPurify).
+
+LATENCY_SWEEP_PLACEHOLDER
+
+## 0.18.2
+
+**These are `@data-client/react` 0.18.2 results**, measured 2026-11-07 before the 0.19 beta existed. They are
+kept for comparison; the 0.19 numbers above replace them. Each 0.18.2 report's flow rows were recomputed from
+the saved samples to add the speed column and the newer rows; no numbers changed.
 
 | Variant                  | Source                                                                                                                                                                                       |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -18,7 +51,7 @@ these runs, before the kit recorded them), the checkout's own HEAD, its uncommit
 fingerprint. The optimistic checkout has a local commit; the table above names the patch each variant
 applied.
 
-## Mutations
+### Mutations
 
 Time from submit until the UI shows the change, median of 8 runs (ms).
 
@@ -45,10 +78,10 @@ click: the confirmation dialog hid the row from the accessibility tree, so the c
 passed at once. The flow now waits for the row itself to go.
 
 The optimistic version's slowest interaction is 76ms, against 40 to 52ms in the other two builds, and
-its total blocking time is 15 to 18ms against 0 to 1. A likely cause is that the optimistic update renders
-inside the click handler's task; no trace confirms it yet.
+its total blocking time is 15 to 18ms against 0 to 1. The optimistic update renders inside the click
+handler's task; see Interaction cost above.
 
-## Tokens per feature
+### Tokens per feature
 
 [`../feature.config.mjs`](../feature.config.mjs) asks an agent (Sonnet, medium effort) to add comment counts
 to the discussions list and page and keep them correct after creating or deleting a comment. A hidden
@@ -74,9 +107,10 @@ the discussion. This is a skill gap to re-measure on 0.19, not a property of the
 
 ## Reports
 
-- [react-query vs data-client](react-query-vs-data-client/impact.md)
-- [react-query vs data-client + optimistic](react-query-vs-data-client-optimistic/impact.md) (includes tokens per feature)
-- [data-client vs data-client + optimistic](data-client-vs-data-client-optimistic/impact.md)
+- [react-query vs data-client 0.19](react-query-vs-data-client-0.19/impact.md)
+- [react-query vs data-client](react-query-vs-data-client/impact.md) (0.18.2)
+- [react-query vs data-client + optimistic](react-query-vs-data-client-optimistic/impact.md) (0.18.2, includes tokens per feature)
+- [data-client vs data-client + optimistic](data-client-vs-data-client-optimistic/impact.md) (0.18.2)
 
 Each folder also holds `impact.json` (all rows), `flow.json`, `static.json` and `feature.json` (raw samples) and
 `meta.json`.

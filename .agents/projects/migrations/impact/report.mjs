@@ -31,9 +31,41 @@ const inputs = files.map(f => ({
   ...JSON.parse(readFileSync(f, 'utf8')),
 }));
 const app = inputs.find(i => i.app)?.app ?? 'app';
-const metrics = inputs.flatMap(i =>
-  i.metrics.map(m => ({ source: i.kind, ...m })),
-);
+// The first flow file is the primary run; further flow files (other mock latencies) feed only the
+// latency sweep table.
+const flows = inputs.filter(i => i.kind === 'flow');
+const SWEEP_IDS = ['mutationReflectMs', 'flowMs', 'maxInteractionMs'];
+const sweep =
+  flows.length > 1 ?
+    flows
+      .toSorted((a, b) => a.latencyMs - b.latencyMs)
+      .flatMap(f =>
+        f.metrics
+          .filter(m => SWEEP_IDS.includes(m.id))
+          .map(m => ({
+            ...m,
+            group: 'latency sweep',
+            id: `${m.id}@${f.latencyMs}`,
+            latencyMs: f.latencyMs,
+            label: `${m.label}, ${f.latencyMs} ms latency`,
+          })),
+      )
+  : [];
+const metrics = [
+  ...inputs
+    .filter(i => i.kind !== 'flow' || i === flows[0])
+    .flatMap(i => i.metrics.map(m => ({ source: i.kind, ...m }))),
+  ...sweep.map(m => ({ source: 'flow', ...m })),
+];
+
+function speedText(m) {
+  if (m.speed === undefined) return '';
+  if (m.verdict === 'same' || m.verdict === 'noise') return '≈1x';
+  const r = m.speed;
+  const x = r >= 2 ? r.toFixed(1) : r.toFixed(2);
+  const pct = Math.round(Math.abs(r - 1) * 100).toLocaleString('en-US');
+  return `${x}x (${pct}% ${r >= 1 ? 'faster' : 'slower'})`;
+}
 
 const fmt = x => {
   if (x === null || x === undefined || Number.isNaN(x)) return '–';
@@ -81,7 +113,7 @@ const countFailures = failures =>
 const meta = opt.meta ? JSON.parse(readFileSync(opt.meta, 'utf8')) : null;
 const lines = [`# ${opt.title ?? `${app}: impact report`}`, ''];
 
-const flow = inputs.find(i => i.kind === 'flow');
+const flow = flows[0];
 const feature = inputs.find(i => i.kind === 'feature');
 const notes = [];
 if (flow) {
@@ -107,7 +139,14 @@ if (feature) {
 }
 notes.push(
   'Sampled rows show median (interquartile range); the change column adds a 95% bootstrap interval in brackets. "Within noise" means that interval includes zero.',
+  'Speed is baseline time divided by migrated time: 1.2x means the migrated build is 20% faster, 0.8x means 20% slower. Rows within noise show ≈1x.',
 );
+if (flows.length > 1)
+  notes.push(
+    `Mock API latency: ${flows[0].latencyMs} ms for every table except the latency sweep, which repeats the flow at ${flows.map(f => `${f.latencyMs} ms`).join(', ')}.`,
+  );
+else if (flows[0]?.latencyMs !== undefined)
+  notes.push(`Mock API latency: ${flows[0].latencyMs} ms.`);
 lines.push(...notes.map(n => `- ${n}`), '');
 
 if (meta) {
@@ -127,17 +166,20 @@ if (meta) {
 }
 
 for (const g of groups) {
-  lines.push(`## ${g[0].toUpperCase() + g.slice(1)}`, '');
+  const rows = metrics.filter(x => x.group === g);
+  // Only tables with a duration get a speed column.
+  const withSpeed = rows.some(m => m.speed !== undefined);
   lines.push(
-    `| Metric | Unit | ${LABEL.baseline} | ${LABEL.migrated} | Change | Verdict |`,
-    '| --- | --- | --- | --- | --- | --- |',
+    `## ${g[0].toUpperCase() + g.slice(1)}`,
+    '',
+    `| Metric | Unit | ${LABEL.baseline} | ${LABEL.migrated} | Change |${withSpeed ? ' Speed |' : ''} Verdict |`,
+    `| --- | --- | --- | --- | --- |${withSpeed ? ' --- |' : ''} --- |`,
+    ...rows.map(
+      m =>
+        `| ${m.label} | ${m.unit} | ${cell(m, 'baseline')} | ${cell(m, 'migrated')} | ${change(m)} |${withSpeed ? ` ${speedText(m)} |` : ''} ${verdictText(m.verdict)} |`,
+    ),
+    '',
   );
-  for (const m of metrics.filter(x => x.group === g)) {
-    lines.push(
-      `| ${m.label} | ${m.unit} | ${cell(m, 'baseline')} | ${cell(m, 'migrated')} | ${change(m)} | ${verdictText(m.verdict)} |`,
-    );
-  }
-  lines.push('');
 }
 
 writeFileSync(
@@ -150,7 +192,12 @@ writeFileSync(
       labels: LABEL,
       generated: new Date().toISOString(),
       meta,
-      inputs: inputs.map(i => ({ file: i.file, kind: i.kind, date: i.date })),
+      inputs: inputs.map(i => ({
+        file: i.file,
+        kind: i.kind,
+        date: i.date,
+        latencyMs: i.latencyMs,
+      })),
       metrics,
     },
     null,

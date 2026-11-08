@@ -4,6 +4,7 @@
  "date": "2026-11-07T06:32:29.046Z",
  "runs": 8,
  "cpuThrottle": 4,
+ "latencyMs": 400,
  "steps": [
   {
    "name": "open discussions",
@@ -116,7 +117,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 3.045
   },
   {
    "group": "flow",
@@ -206,7 +208,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 2.01
   },
   {
    "group": "flow",
@@ -360,6 +363,36 @@
   },
   {
    "group": "flow",
+   "id": "navsWithoutReads",
+   "label": "Navigations served from cache, no reads (of 7)",
+   "unit": "navs",
+   "lowerIsBetter": false,
+   "baseline": 5,
+   "migrated": 5,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     5,
+     5
+    ],
+    "migrated": [
+     5,
+     5
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
    "id": "loadingShown",
    "label": "Loading indicators shown",
    "unit": "count",
@@ -476,7 +509,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "worse"
+   "verdict": "worse",
+   "speed": 0.526
   },
   {
    "group": "flow",
@@ -596,7 +630,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.02
   },
   {
    "group": "cold load",
@@ -626,7 +661,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.036
   },
   {
    "group": "cold load",
@@ -656,7 +692,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.05
   },
   {
    "group": "cold load",
@@ -686,7 +723,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.107
   },
   {
    "group": "cold load",
@@ -716,7 +754,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.068
   },
   {
    "group": "cold load",
@@ -746,7 +785,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.121
   },
   {
    "group": "cold load",
@@ -866,7 +906,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.002
   },
   {
    "group": "nav steps",
@@ -926,7 +967,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.007
   },
   {
    "group": "mutation steps",
@@ -959,6 +1001,37 @@
    "verdict": "same"
   },
   {
+   "group": "mutation steps",
+   "id": "create discussion.maxInteractionMs",
+   "label": "create discussion: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 32,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    -4,
+    16
+   ],
+   "spread": {
+    "baseline": [
+     32,
+     34
+    ],
+    "migrated": [
+     32,
+     48
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1
+  },
+  {
    "group": "nav steps",
    "id": "open discussion.readyMs",
    "label": "open discussion: action to ready",
@@ -986,7 +1059,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.001
   },
   {
    "group": "nav steps",
@@ -1046,7 +1120,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 12.644
   },
   {
    "group": "mutation steps",
@@ -1080,6 +1155,37 @@
   },
   {
    "group": "mutation steps",
+   "id": "update discussion.maxInteractionMs",
+   "label": "update discussion: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 48,
+   "delta": 16,
+   "pct": 50,
+   "ci95": [
+    8,
+    32
+   ],
+   "spread": {
+    "baseline": [
+     32,
+     32
+    ],
+    "migrated": [
+     46,
+     58
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.667
+  },
+  {
+   "group": "mutation steps",
    "id": "create comment.readyMs",
    "label": "create comment: submit to UI updated",
    "unit": "ms",
@@ -1106,7 +1212,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 9.655
   },
   {
    "group": "mutation steps",
@@ -1140,6 +1247,37 @@
   },
   {
    "group": "mutation steps",
+   "id": "create comment.maxInteractionMs",
+   "label": "create comment: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 76,
+   "delta": 44,
+   "pct": 137.5,
+   "ci95": [
+    40,
+    60
+   ],
+   "spread": {
+    "baseline": [
+     24,
+     32
+    ],
+    "migrated": [
+     72,
+     82
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.421
+  },
+  {
+   "group": "mutation steps",
    "id": "delete comment.readyMs",
    "label": "delete comment: submit to UI updated",
    "unit": "ms",
@@ -1166,7 +1304,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 15.027
   },
   {
    "group": "mutation steps",
@@ -1199,6 +1338,37 @@
    "verdict": "better"
   },
   {
+   "group": "mutation steps",
+   "id": "delete comment.maxInteractionMs",
+   "label": "delete comment: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 8,
+   "migrated": 40,
+   "delta": 32,
+   "pct": 400,
+   "ci95": [
+    16,
+    48
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     16
+    ],
+    "migrated": [
+     32,
+     48
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.2
+  },
+  {
    "group": "nav steps",
    "id": "back to list (shows rename?).readyMs",
    "label": "back to list (shows rename?): action to ready",
@@ -1226,7 +1396,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.183
   },
   {
    "group": "nav steps",
@@ -1316,7 +1487,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.034
   },
   {
    "group": "nav steps",
@@ -1406,7 +1578,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 0.962
   },
   {
    "group": "nav steps",
@@ -1466,7 +1639,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 13.524
   },
   {
    "group": "mutation steps",
@@ -1499,6 +1673,37 @@
    "verdict": "better"
   },
   {
+   "group": "mutation steps",
+   "id": "update profile.maxInteractionMs",
+   "label": "update profile: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 40,
+   "delta": 8,
+   "pct": 25,
+   "ci95": [
+    0,
+    8
+   ],
+   "spread": {
+    "baseline": [
+     32,
+     32
+    ],
+    "migrated": [
+     32,
+     40
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.8
+  },
+  {
    "group": "nav steps",
    "id": "dashboard (shows new name?).readyMs",
    "label": "dashboard (shows new name?): action to ready",
@@ -1526,7 +1731,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 0.964
   },
   {
    "group": "nav steps",
@@ -1616,7 +1822,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "noise"
+   "verdict": "noise",
+   "speed": 1.17
   },
   {
    "group": "nav steps",
@@ -1706,7 +1913,8 @@
     "baseline": 8,
     "migrated": 8
    },
-   "verdict": "better"
+   "verdict": "better",
+   "speed": 1.579
   },
   {
    "group": "mutation steps",
@@ -1737,6 +1945,37 @@
     "migrated": 8
    },
    "verdict": "same"
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete discussion.maxInteractionMs",
+   "label": "delete discussion: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 16,
+   "migrated": 24,
+   "delta": 8,
+   "pct": 50,
+   "ci95": [
+    8,
+    24
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     16
+    ],
+    "migrated": [
+     24,
+     26
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.667
   }
  ],
  "samples": {
@@ -5912,6 +6151,28 @@
       34,
       21,
       4
+     ]
+    },
+    "navsWithoutReads": {
+     "baseline": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+     ],
+     "migrated": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
      ]
     }
    }

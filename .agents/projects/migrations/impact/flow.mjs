@@ -4,7 +4,7 @@
 // mutation-to-UI time, main-thread blocking and cold-load JS cost.
 //
 //   node flow.mjs --config <app>/impact.config.mjs --baseline <url> --migrated <url> \
-//     [--runs 10] [--cpu 4] [--out flow.json] [--headed]
+//     [--runs 10] [--cpu 4] [--out flow.json] [--headed] [--latency-ms 400]
 //   node flow.mjs --config <app>/impact.config.mjs --from flow.json [--out flow.json]
 //
 // --from recomputes the metric rows from an earlier flow.json's samples without running anything.
@@ -33,6 +33,8 @@ const { values: opt } = parseArgs({
     out: { type: 'string', default: 'flow.json' },
     headed: { type: 'boolean', default: false },
     from: { type: 'string' },
+    // Recorded only: the mock API latency the builds were made with (measure.mjs sets it).
+    'latency-ms': { type: 'string' },
   },
 });
 if (!opt.config || (!opt.from && (!opt.baseline || !opt.migrated))) {
@@ -347,7 +349,25 @@ for (let i = 0; !previous && i < runs; i++) {
 await browser?.close();
 
 const navs = steps.filter(s => s.kind === 'nav').length;
-// [label, unit, lowerIsBetter = true]
+// Derived from the step samples (aligned by run), so --from adds it to older flow.json files too.
+// A navigation that needed no read rendered from data the client already had: a cache hit.
+const navSamples = steps
+  .filter(s => s.kind === 'nav')
+  .map(s => samples.steps[s.name]?.reads);
+if (samples.totals.flow && navSamples.length && navSamples.every(Boolean)) {
+  const hits = v =>
+    navSamples[0][v].map(
+      (_, run) => navSamples.filter(r => r[v][run] === 0).length,
+    );
+  samples.totals.flow.navsWithoutReads = {
+    baseline: hits('baseline'),
+    migrated: hits('migrated'),
+  };
+}
+// [label, unit, sampled() options]
+// Blocked and spinner time are costs, not how long an action took, and a ratio of two small numbers
+// (1ms against 22ms) reads as a huge slowdown, so they get no speed ratio.
+const NOT_A_DURATION = { speed: false };
 const LABELS = {
   landing: {
     readyMs: ['First screen ready', 'ms'],
@@ -356,8 +376,8 @@ const LABELS = {
     parseCompileMs: ['JS parse + compile', 'ms'],
     evaluateMs: ['JS module evaluation', 'ms'],
     scriptMs: ['Main-thread JS', 'ms'],
-    tbtMs: ['Total blocking time', 'ms'],
-    loadingMs: ['Loading indicator visible', 'ms'],
+    tbtMs: ['Total blocking time', 'ms', NOT_A_DURATION],
+    loadingMs: ['Loading indicator visible', 'ms', NOT_A_DURATION],
     heapMb: ['JS heap', 'MB'],
   },
   totals: {
@@ -375,21 +395,28 @@ const LABELS = {
     navsWithoutLoading: [
       `Navigations with no loading indicator (of ${navs})`,
       'navs',
-      false,
+      { lowerIsBetter: false },
+    ],
+    navsWithoutReads: [
+      `Navigations served from cache, no reads (of ${navs})`,
+      'navs',
+      { lowerIsBetter: false },
     ],
     loadingShown: ['Loading indicators shown', 'count'],
-    loadingMs: ['Loading indicator visible', 'ms'],
+    loadingMs: ['Loading indicator visible', 'ms', NOT_A_DURATION],
     longTasks: ['Long tasks (>50ms)', 'count'],
     maxInteractionMs: ['Slowest interaction (input to next paint)', 'ms'],
     cls: ['Layout shift (CLS sum)', 'score'],
     unhashedReads: ['Reads the redundancy check could not hash', 'requests'],
-    tbtMs: ['Total blocking time', 'ms'],
+    tbtMs: ['Total blocking time', 'ms', NOT_A_DURATION],
   },
 };
 const STEP_METRICS = {
   mutation: {
     readyMs: ['submit to UI updated', 'ms'],
     reads: ['follow-up reads', 'requests'],
+    // Optimistic updates render inside the click; this shows which mutation pays for it.
+    maxInteractionMs: ['slowest interaction', 'ms'],
   },
   nav: { readyMs: ['action to ready', 'ms'], reads: ['reads', 'requests'] },
 };
@@ -404,20 +431,11 @@ const metrics = [
     failures.migrated.length,
   ),
 ];
-const row = (
-  group,
-  id,
-  [label, unit, lowerIsBetter = true],
-  section,
-  name,
-  key,
-) => {
+const row = (group, id, [label, unit, options], section, name, key) => {
   const v = samples[section][name]?.[key];
   if (v)
     metrics.push(
-      sampled(group, id, label, unit, v.baseline, v.migrated, {
-        lowerIsBetter,
-      }),
+      sampled(group, id, label, unit, v.baseline, v.migrated, options),
     );
 };
 for (const [section, name, group] of [
@@ -449,12 +467,15 @@ for (const step of steps) {
       'stale',
     );
 }
+const latencyMs = opt['latency-ms'] ?? previous?.latencyMs;
 const result = {
   kind: 'flow',
   app: config.name,
-  date: new Date().toISOString(),
+  // When the samples were taken; --from keeps the original date.
+  date: previous?.date ?? new Date().toISOString(),
   runs,
   cpuThrottle: cpu,
+  latencyMs: latencyMs === undefined ? undefined : Number(latencyMs),
   steps: steps.map(s => ({ name: s.name, kind: s.kind, fresh: !!s.fresh })),
   failures,
   metrics,

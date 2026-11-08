@@ -7,7 +7,7 @@ and after. One config file per app, one command, one report.
 node .agents/projects/migrations/impact/measure.mjs \
   --config .agents/projects/migrations/<app>/impact/impact.config.mjs \
   --baseline <checkout before> --migrated <checkout after> \
-  --baseline-label react-query --migrated-label data-client [--feature]
+  --baseline-label react-query --migrated-label data-client [--latency 400,100,1000] [--feature]
 ```
 
 It writes `impact-results/impact.md` (tables) and `impact-results/impact.json` (every row, one schema),
@@ -40,9 +40,12 @@ Each step of the flow records:
   Reads whose body could not be read are counted separately, so a zero is never a silent detector failure.
 - **Stale views**: steps with a `fresh` check poll it for `staleTimeoutMs` (3s). If it never passes, the
   view showed old data after a change made elsewhere.
-- **Loading indicators**: how many elements matching `loading` appeared, and for how long. A navigation
-  with no loading indicator was served from the cache.
+- **Loading indicators**: how many elements matching `loading` appeared, and for how long.
+- **Cache hits**: a navigation that made no reads rendered from data the client already had. The flow
+  table counts these out of all navigations.
 - **Stutter**: long tasks, total blocking time, slowest interaction (Event Timing) and layout shift.
+  Mutation steps also report their own slowest interaction, so an optimistic update that renders inside
+  the click shows on the mutation that pays for it.
 
 The cold load of the landing page adds JS parse and compile time and module evaluation time (from a
 V8 trace), LCP, total blocking time and heap size.
@@ -50,6 +53,19 @@ V8 trace), LCP, total blocking time and heap size.
 Every sampled metric reports the median, the interquartile range and a 95% bootstrap interval for the
 change. The verdict is "within noise" when that interval includes zero. Before and after runs
 alternate, so drift on the machine affects both equally.
+
+Durations also get a speed column: baseline time divided by migrated time, so 1.2x means the migrated
+build is 20% faster and 0.8x means 20% slower. Rows within noise show ≈1x. Blocking time and spinner
+time get no speed, because a ratio of two small numbers (1ms against 22ms) reads as a huge slowdown.
+
+### Latency sweep
+
+Optimistic updates and cache hits save round trips, so their gain grows with server latency, and a
+single latency can't show that. With `latency` in the config, `measure.mjs` builds, serves and runs the
+flow once per latency, with `latency.env` set to the delay in ms. The first latency is the primary run
+behind every table. The report adds a latency sweep table with the mutation total, the flow total and
+the slowest interaction at each latency. `--latency 400` runs one latency; `--latency 100,400` replaces
+the list. Each latency costs a full flow run.
 
 `node flow.mjs --config <impact.config.mjs> --from flow.json` recomputes the rows from saved samples
 without running the browser, for example after a change to the statistics.
@@ -89,6 +105,8 @@ export default {
   name: 'my-app',
   root: 'apps/web', // folder inside each checkout
   prep: ['fixed-latency.patch'], // optional patches applied to both checkouts
+  // Optional: the mock API reads its delay from `env`. The first latency is the primary run.
+  latency: { env: 'VITE_MOCK_DELAY_MS', profiles: [400, 100, 1000] },
   build: 'npx vite build', // default
   serve: 'npx vite preview --port {port} --strictPort', // default
   flow: {
@@ -148,7 +166,8 @@ the kit measures production builds, where it is absent, so it does not use it.
 ## Getting numbers you can trust
 
 - **Fix the network latency.** Mock APIs often add random delays. Random latency hides real
-  differences, so make it a constant in both checkouts with a `prep` patch.
+  differences, so make it a constant in both checkouts with a `prep` patch, read from an environment
+  variable so `latency` can sweep it.
 - **Count before you time.** Request counts, redundant reads, stale views and loading indicators are
   deterministic, so a single run shows them. Timings need 10 or more runs.
 - **Write flows that tolerate stale data.** Find rows by an id that does not change, so the before
