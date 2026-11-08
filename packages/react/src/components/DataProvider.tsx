@@ -8,13 +8,13 @@ import {
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
 import type { Middleware as GenericMiddleware } from '@data-client/use-enhanced-reducer';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { startTransition, useCallback, useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
 import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
-import { SSR } from './LegacyReact.js';
+import { LegacyReact, SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
 import { ControllerContext } from '../context.js';
 import { DevToolsManager } from '../managers/index.js';
@@ -74,6 +74,8 @@ export default function DataProvider({
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && SSR)
         middlewares.unshift(warnFetchDuringSSR);
+      /* istanbul ignore else */
+      if (!LegacyReact) middlewares.push(fetchTransition);
       return middlewares;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,4 +112,15 @@ See https://dataclient.io/docs/guides/ssr.`,
     );
   }
   return next(action);
+};
+
+/** Puts fetches in a transition. An optimistic fetch from a click or submit would otherwise re-render
+ * every data consumer before the browser can paint that input. */
+const fetchTransition: GenericMiddleware = () => next => action => {
+  if (action.type !== actionTypes.FETCH) return next(action);
+  let dispatched!: ReturnType<typeof next>;
+  startTransition(() => {
+    dispatched = next(action);
+  });
+  return dispatched;
 };

@@ -14,6 +14,7 @@ jest.mock('react', () => {
   return { ...wrapped, default: wrapped };
 });
 
+import { Endpoint } from '@data-client/endpoint';
 import {
   DataProvider,
   getDefaultManagers,
@@ -23,10 +24,12 @@ import {
   useSuspense,
 } from '@data-client/react';
 import { act, fireEvent, render } from '@testing-library/react';
-import { makeGetTodo, mockTodoState } from '__tests__/concurrentFixtures';
+import { makeGetTodo, mockTodoState, Todo } from '__tests__/concurrentFixtures';
 import {
+  expectAllCommitsPriority,
   expectNoImmediateCommit,
   expectOnlyNormalCommits,
+  ImmediatePriority,
   resetCommits,
 } from '__tests__/reactCommitProbe';
 import { recordConsoleErrors } from '__tests__/streamingHarness';
@@ -269,5 +272,81 @@ describeConcurrent('startTransition over useSuspense', () => {
     expect(getByTestId('cache').textContent).toBe('todo A v2');
     expect(getByTestId('live').textContent).toBe('todo A v2');
     expectOnlyNormalCommits('transition publish to useCache/useLive');
+  });
+
+  describe('optimistic fetch from a click', () => {
+    let resolveUpdate: (value: { id: string; title: string }) => void;
+    const updateTodo = new Endpoint(
+      (_body: { id: string; title: string }) =>
+        new Promise<{ id: string; title: string }>(resolve => {
+          resolveUpdate = resolve;
+        }),
+      {
+        schema: Todo,
+        sideEffect: true,
+        name: 'updateTodo',
+        getOptimisticResponse: (_snap, body) => body,
+      },
+    );
+    const renderTodoA = (onClick: () => void) =>
+      render(
+        <DataProvider
+          initialState={stateA}
+          devButton={null}
+          managers={noDevManagers}
+        >
+          <Probe />
+          <button data-testid="save" onClick={onClick}>
+            save
+          </button>
+          <Suspense fallback={<p>loading</p>}>
+            <TodoView id="A" />
+          </Suspense>
+        </DataProvider>,
+      );
+
+    it('a click without optimistic updates commits at Immediate priority (calibration)', () => {
+      const { getByTestId } = renderTodoA(() => {
+        controller.setResponse(
+          getTodo,
+          { id: 'A' },
+          { id: 'A', title: 'todo A v2' },
+        );
+      });
+      resetCommits();
+      act(() => {
+        fireEvent.click(getByTestId('save'));
+      });
+      expect(getByTestId('todo').textContent).toBe('todo A v2');
+      expectAllCommitsPriority('discrete click calibration', ImmediatePriority);
+    });
+
+    it('commits the optimistic update at transition priority, then the server response', async () => {
+      const { getByTestId } = renderTodoA(() => {
+        controller.fetch(updateTodo, { id: 'A', title: 'optimistic A' });
+      });
+      resetCommits();
+      act(() => {
+        fireEvent.click(getByTestId('save'));
+      });
+      expect(getByTestId('todo').textContent).toBe('optimistic A');
+      expectOnlyNormalCommits('optimistic fetch from a click');
+
+      await act(async () => {
+        resolveUpdate({ id: 'A', title: 'server A' });
+      });
+      expect(getByTestId('todo').textContent).toBe('server A');
+    });
+
+    it('a response that lands before the transition renders still wins', async () => {
+      const { getByTestId } = renderTodoA(() => {
+        controller.fetch(updateTodo, { id: 'A', title: 'optimistic A' });
+        resolveUpdate({ id: 'A', title: 'server A' });
+      });
+      await act(async () => {
+        fireEvent.click(getByTestId('save'));
+      });
+      expect(getByTestId('todo').textContent).toBe('server A');
+    });
   });
 });
