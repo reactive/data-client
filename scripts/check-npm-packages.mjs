@@ -37,30 +37,30 @@ async function getTag(name, tag) {
   return res.json();
 }
 
-const missing = [];
-const untrusted = [];
-for (const name of names) {
-  const latest = await getTag(name, 'latest');
-  if (!latest) {
-    missing.push(name);
-    continue;
-  }
-  const beta = await getTag(name, 'beta');
-  if (![latest, beta].some(v => v?._npmUser?.trustedPublisher))
-    untrusted.push(name);
-}
+// All requests at once: the check adds well under a second to the publish
+const status = await Promise.all(
+  names.map(async name => {
+    const [latest, beta] = await Promise.all([
+      getTag(name, 'latest'),
+      getTag(name, 'beta'),
+    ]);
+    if (!latest) return 'missing';
+    return [latest, beta].some(v => v?._npmUser?.trustedPublisher) ? 'ok' : (
+        'untrusted'
+      );
+  }),
+);
+const having = want => names.filter((_, i) => status[i] === want).join(', ');
 
-if (untrusted.length) {
+// ::warning:: and ::error:: show as annotations on the run's summary page
+if (having('untrusted')) {
   console.warn(
-    `::warning title=Maybe no trusted publisher::CI has not published ${untrusted.join(', ')}. If the publish fails with "No authentication configured", add reactive/data-client release.yml as its trusted publisher on npmjs.com.`,
+    `::warning title=Maybe no trusted publisher::CI has never published ${having('untrusted')}. If its publish fails with "No authentication configured", add reactive/data-client release.yml as its trusted publisher on npmjs.com.`,
   );
 }
-if (missing.length) {
+if (having('missing')) {
   console.error(
-    `Not on npm yet: ${missing.join(', ')}
-CI can't publish a package's first version. Publish each once by hand
-(cd packages/<name> && npm publish --access public), then add
-reactive/data-client release.yml as its trusted publisher on npmjs.com.`,
+    `::error title=Package not on npm::CI can't publish the first version of ${having('missing')}. Publish it once by hand (cd packages/<name> && npm publish --access public), then add reactive/data-client release.yml as its trusted publisher on npmjs.com.`,
   );
   process.exit(1);
 }
