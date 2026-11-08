@@ -321,6 +321,16 @@ describe('DevToolsManager', () => {
       expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(2);
     });
 
+    it('forgets polling keys when bound to a new store', () => {
+      const { manager, dispatch } = pollingSetup();
+      dispatch(subscribe('a'));
+      manager.cleanup();
+      const { dispatch: newDispatch } = setup(manager);
+      manager.init(initialState);
+      for (let i = 1; i <= 3; i++) newDispatch(fetchAction('a', i));
+      expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(3);
+    });
+
     it('does not cap subscriptions without pollFrequency', () => {
       const { dispatch } = pollingSetup();
       dispatch({ ...subscribe('a'), endpoint: { name: 'live' } });

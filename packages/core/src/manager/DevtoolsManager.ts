@@ -229,8 +229,11 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
       this.prototype.middleware = function (controller) {
-        // a reused manager starts a fresh log for a new store
-        if (controller !== this.controller) this.actionLog = [];
+        // a reused manager starts fresh for a new store; SubscriptionManager drops its polls too
+        if (controller !== this.controller) {
+          this.actionLog = [];
+          this.pollingSubscribers = new Map();
+        }
         this.controller = controller;
         const reducer = getExtension() && createReducer(controller as any);
         let state = controller.getState();
