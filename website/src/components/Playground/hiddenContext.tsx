@@ -9,11 +9,12 @@ import React, {
 
 import { whenIdle } from './monaco/whenIdle';
 
-/** True anywhere under content not shown: a tab that is not selected
- * (theme/TabItem, PlaygroundTabs included), or a closed `<details>` until it
- * opens or the page is idle (theme/Details), nested ones included. Playgrounds there
- * run hidden (Playground `hidden`); code blocks there are plain text until
- * the page is idle (theme/CodeBlock). */
+/** True anywhere under content not shown, nested ones included: a tab that
+ * is not selected (theme/TabItem, PlaygroundTabs included), or a closed
+ * `<details>` until its summary is clicked or the page is idle
+ * (theme/Details). Playgrounds there run hidden (Playground `hidden`); code
+ * blocks there are plain text until shown or the page is idle
+ * (theme/CodeBlock). */
 export const HiddenContext = createContext(false);
 
 /** Marks its children hidden while `hidden`, or while an ancestor is */
