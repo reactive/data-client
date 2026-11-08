@@ -65,10 +65,10 @@ describe('Controller', () => {
         id: payload.id,
       });
       // fresh data still comes as a Promise, so prefetch code can chain .catch()
-      expect(pending).toBeInstanceOf(Promise);
-      const article = await pending.catch(() => undefined);
+      expect(() => pending.catch(() => {})).not.toThrow();
+      const article = await pending;
       expect(dispatch.mock.calls.length).toBe(0);
-      expect(article?.title).toBe(payload.title);
+      expect(article.title).toBe(payload.title);
     });
     it('should fetch if result stale', () => {
       const payload = {
@@ -111,15 +111,12 @@ describe('Controller', () => {
     });
     describe('when the fetch fails', () => {
       const error = new Error('network down');
-      let controller: Controller;
-      beforeEach(() => {
-        controller = new Controller({
-          dispatch: (action: any) => {
-            action.meta.reject(error);
-            return Promise.resolve();
-          },
-          getState: () => initialState,
-        });
+      const controller = new Controller({
+        dispatch: (action: any) => {
+          action.meta.reject(error);
+          return Promise.resolve();
+        },
+        getState: () => initialState,
       });
 
       it('rejects when awaited', async () => {

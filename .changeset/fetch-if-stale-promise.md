@@ -22,8 +22,7 @@ async function issueLoader(ctrl: Controller, id: number) {
 
 Why a Promise even for fresh data: one call can't both return data synchronously and support `.catch()`, and the
 synchronous value was rarely usable. Its type was a union, so code had to check `instanceof Promise` first, and router
-loaders (React Router, TanStack Router) await whatever they get anyway. Meanwhile the natural prefetch code,
-`fetchIfStale().catch()` or a bare call, crashed or leaked a rejection.
+loaders (React Router, TanStack Router) await whatever they get anyway.
 
 To check whether data is cached and fresh without fetching, use
 [Controller.getResponse()](https://dataclient.io/docs/api/Controller#getResponse), which is synchronous:
