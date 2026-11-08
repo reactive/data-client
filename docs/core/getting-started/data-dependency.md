@@ -271,14 +271,14 @@ reading an endpoint: [useDLE()](../api/useDLE.md), [useCache()](../api/useCache.
 
 :::react
 
-In the [React benchmarks](../concepts/performance.md), switching between a list and its items is 21× faster than
-TanStack Query, which keys the detail query separately and fetches it.
+In the [React benchmarks](../concepts/performance.md), with a simulated 40 ms network delay, switching between a list
+and its items is 21× faster than TanStack Query, which keys the detail query separately and fetches it.
 
 :::
 
-When list items lack fields the detail page shows, make those fields required with
-[Entity.validate()](/rest/api/Entity#validate) ([Partial entities](/rest/guides/partial-entities)): the detail page
-then fetches until it has them.
+When list items lack fields the detail page shows, give the list a summary Entity with the same `key` and fewer fields,
+and make the detail Entity require the rest with [Entity.validate()](/rest/api/Entity#validate)
+([Partial entities](/rest/guides/partial-entities)): the detail page then fetches until it has them.
 
 ## Loading and Error {#async-fallbacks}
 

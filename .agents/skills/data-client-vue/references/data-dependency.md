@@ -161,9 +161,9 @@ This works for any schema that holds the Entity, such as an envelope like `{ dat
 reading an endpoint: [useDLE()](./useDLE.md), [useCache()](./useCache.md) and
 [Controller.fetchIfStale()](./Controller.md#fetchIfStale) in router loaders.
 
-When list items lack fields the detail page shows, make those fields required with
-[Entity.validate()](https://dataclient.io/rest/api/Entity#validate) ([Partial entities](https://dataclient.io/rest/guides/partial-entities)): the detail page
-then fetches until it has them.
+When list items lack fields the detail page shows, give the list a summary Entity with the same `key` and fewer fields,
+and make the detail Entity require the rest with [Entity.validate()](https://dataclient.io/rest/api/Entity#validate)
+([Partial entities](https://dataclient.io/rest/guides/partial-entities)): the detail page then fetches until it has them.
 
 ## Loading and Error {#async-fallbacks}
 
