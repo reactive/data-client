@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794117059456,
+  "lastUpdate": 1794160249355,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -13649,6 +13649,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 381.68,
             "range": "± 3.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+          "message": "fix(react): Don't crash Expo native builds that lack React Navigation (#4640)\n\n* fix(react): Don't crash Expo native builds that lack React Navigation\n\nuseFocusEffect.native imported @react-navigation/native when the module\nloaded. Expo's native asyncRequire throws synchronously for a module the app\ndoes not have, so @data-client/react failed to load in Expo Router release\nbuilds. Defer the import so the error becomes a rejection the catch handles.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9ziZLXvEhvQd1y4Yx\n\n* fix(react): keep the React Navigation import optional for Metro\n\nMetro only bundles an unresolved import() as optional when it sits in a try\nblock. Inside Promise.then() it fails the build.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5Z9ziZLXvEhvQd1y4Yx\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T17:47:28Z",
+          "tree_id": "abcd5d5875b2deaf9087a22907d35c9c9c80e5e5",
+          "url": "https://github.com/reactive/data-client/commit/3ae266bf35a5a44fec04d951fc8503e0cb578dda"
+        },
+        "date": 1794160246103,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 388.35,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 110.68,
+            "range": "± 2.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 819.67,
+            "range": "± 1.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 766.33,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 104.33,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 609.85,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 568.19,
+            "range": "± 1.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 27.95,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 141.4,
+            "range": "± 3.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 125.83,
+            "range": "± 2.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 19.94,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 414.94,
+            "range": "± 1.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 655.77,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 388.35,
+            "range": "± 1.6%",
             "unit": "ops/s"
           }
         ]
