@@ -640,6 +640,7 @@ test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t 
     'existsSync',
     file => /\.zip[\\/]/.test(String(file)) || existsSync(file),
   );
+  // put back whatever was there, in case the suite itself runs under Yarn
   const versions = Object.getOwnPropertyDescriptor(process.versions, 'pnp');
   Object.defineProperty(process.versions, 'pnp', {
     value: '3',
@@ -650,6 +651,13 @@ test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t 
     else delete process.versions.pnp;
   });
   assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
+  // a zip without the package is skipped, not read through Yarn's fs
+  const broken = zippedReact('0.19.0', {}).dir;
+  fs.writeFileSync(
+    path.join(broken, '.yarn/cache/react.zip'),
+    zip({ 'node_modules/@data-client/react/other.txt': '' }, 0),
+  );
+  assert.deepEqual(syncSkills(broken).added, []);
   const skill = path.join(skillsDir(dir), 'data-client-react');
   assert.ok(!fs.lstatSync(skill).isSymbolicLink());
   assert.equal(

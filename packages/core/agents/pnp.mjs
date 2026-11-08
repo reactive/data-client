@@ -28,11 +28,14 @@ export function pnpPackages(projectDir, names, extractTo) {
     if (!names.includes(pkg)) continue;
     for (const [, { packageLocation }] of versions) {
       const location = path.resolve(root, packageLocation);
-      // a zip first: under Yarn's runtime (`yarn data-client-skills`) a path
-      // inside one looks like a folder, but only its patched fs can read it
+      // check for a zip before the folder: under Yarn's runtime
+      // (`yarn data-client-skills`) a path inside one looks like a folder,
+      // but only its patched fs can read it
+      const zipped = inArchive(location);
       const dir =
-        extract(location, path.join(extractTo, String(found.length))) ??
-        (fs.existsSync(location) ? location : undefined);
+        zipped ? extract(zipped, path.join(extractTo, String(found.length)))
+        : fs.existsSync(location) ? location
+        : undefined;
       if (dir) found.push({ pkg, dir });
     }
   }
@@ -72,11 +75,16 @@ function runtimeState(root) {
   );
 }
 
+/** `location`'s archive and path inside it, when a zip file holds it */
+function inArchive(location) {
+  const match = ZIPPED.exec(location);
+  return match && fs.statSync(match[1], { throwIfNoEntry: false })?.isFile() ?
+      { zipFile: match[1], inner: match[2] }
+    : undefined;
+}
+
 /** Extracts a zipped package's package.json and skills into `dir` */
-function extract(location, dir) {
-  const [, zipFile, inner] = ZIPPED.exec(location) ?? [];
-  if (!zipFile || !fs.statSync(zipFile, { throwIfNoEntry: false })?.isFile())
-    return undefined;
+function extract({ zipFile, inner }, dir) {
   const prefix = posix(inner).replace(/\/?$/, '/');
   const entries = zipEntries(fs.readFileSync(zipFile));
   const manifest = entries.get(`${prefix}package.json`)?.();
