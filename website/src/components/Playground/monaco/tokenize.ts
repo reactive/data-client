@@ -99,16 +99,16 @@ const isPunctuation = (token: Token | undefined, text: string) =>
   token.content === text;
 
 /**
- * Collects code in order, then lexes it as Monaco's grammar does. JSX text
- * goes in with the code around it, as Monaco's grammar reads it, but comes
- * out plain, as TypeScript colors it, except for the brackets Monaco still
- * colors.
+ * Lexes code as Monaco's grammar does, in runs between tokens colored
+ * already. JSX text goes in with the code around it, as Monaco's grammar
+ * reads it, but comes out plain, as TypeScript colors it, except for the
+ * brackets Monaco still colors.
  */
 class MonacoLexer {
   private readonly tokens: Token[] = [];
   private code = '';
   /** Where JSX text is in `code`: [from, to] */
-  private text: (readonly [number, number])[] = [];
+  private textRanges: (readonly [number, number])[] = [];
 
   constructor(private readonly keywords: Set<string>) {}
 
@@ -117,7 +117,7 @@ class MonacoLexer {
   }
 
   addText(text: string) {
-    this.text.push([this.code.length, this.code.length + text.length]);
+    this.textRanges.push([this.code.length, this.code.length + text.length]);
     this.code += text;
   }
 
@@ -133,10 +133,10 @@ class MonacoLexer {
   }
 
   private flush() {
-    const { code, text } = this;
-    const cuts = text.flat();
+    const { code, textRanges } = this;
+    const cuts = textRanges.flat();
     const inText = (at: number) =>
-      text.some(([from, to]) => at >= from && at < to);
+      textRanges.some(([from, to]) => at >= from && at < to);
     let offset = 0;
     // a loop, as spreading a long run of tokens overflows the stack
     for (const token of lex(code, this.keywords)) {
@@ -156,7 +156,7 @@ class MonacoLexer {
       offset = end;
     }
     this.code = '';
-    this.text = [];
+    this.textRanges = [];
   }
 }
 

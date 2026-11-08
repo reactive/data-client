@@ -31,7 +31,8 @@ export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
 const takesJsx = (model: Monaco.editor.ITextModel) =>
   model.uri.path.endsWith('.tsx') && model.getLanguageId() === 'typescript';
 
-/** A JSX tag name that names a component, colored apart from HTML tags */
+/** Whether a JSX tag name (or its first letter) names a component, colored
+ * apart from HTML tags */
 export const isComponentName = (name: string) => /^[A-Z]/.test(name);
 
 export function registerJsxColors(monaco: typeof Monaco) {
@@ -72,7 +73,7 @@ function encode(
     const type =
       spans[i + 2] === TEXT ? 3
       : spans[i + 2] === ATTRIBUTE ? 2
-      : isComponentName(code.slice(spans[i], spans[i] + spans[i + 1])) ? 1
+      : isComponentName(code[spans[i]]) ? 1
       : 0;
     for (let line = start.lineNumber; line <= end.lineNumber; line++) {
       const from = line === start.lineNumber ? start.column : 1;
