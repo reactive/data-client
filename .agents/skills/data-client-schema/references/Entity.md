@@ -294,6 +294,33 @@ class User extends Entity {
 }
 ```
 
+If an API marks a missing related entity with something other than `null`, such as `{}` or
+`{ id: null }`, normalizing it throws `Missing usable primary key`. Turn that value into `undefined`
+in the parent's [process()](#process). For an API that sends `{}`:
+
+```typescript
+class Post extends Entity {
+  id = '';
+  author?: User = undefined;
+  static schema = { author: User };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    const { author } = processed;
+    if (author && typeof author === 'object' && !Object.keys(author).length)
+      processed.author = undefined;
+    return processed;
+  }
+}
+```
+
+`post.author` is then `undefined`, and a stored author is cleared the same way `null` clears it.
+
 ### static indexes?: (keyof this)\[] {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add

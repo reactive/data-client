@@ -110,6 +110,88 @@ describe(`${Entity.name} normalization`, () => {
     expect(entities.MyEntity['1']).toBe(secondEntities.MyEntity['1']);
   });
 
+  describe('empty nested object', () => {
+    // Eval for migration problem P5 (bulletproof-react, #4607): the API sends
+    // `author: {}` when the author was deleted. The documented fix is process()
+    // (docs/rest/api/Entity.md#optional-members).
+    class User extends Entity {
+      id = '';
+      name = '';
+    }
+    class Discussion extends Entity {
+      id = '';
+      title = '';
+      author?: User = undefined;
+      static schema = { author: User };
+    }
+    class SafeDiscussion extends Discussion {
+      static process(
+        input: any,
+        parent: any,
+        key: string | undefined,
+        args: any[],
+      ) {
+        const processed = super.process(input, parent, key, args);
+        const { author } = processed;
+        if (author && typeof author === 'object' && !Object.keys(author).length)
+          processed.author = undefined;
+        return processed;
+      }
+    }
+
+    it('throws without the process() recipe', () => {
+      expect(() =>
+        normalize(Discussion, { id: '1', title: 'hi', author: {} }),
+      ).toThrow('Missing usable primary key');
+    });
+
+    it('process() recipe normalizes `{}` to undefined', () => {
+      const { result, entities } = normalize(SafeDiscussion, {
+        id: '1',
+        title: 'hi',
+        author: {},
+      });
+      expect(entities.SafeDiscussion['1'].author).toBeUndefined();
+      const discussion = plainDenormalize(SafeDiscussion, result, entities);
+      expect(discussion).toBeInstanceOf(SafeDiscussion);
+      expect((discussion as SafeDiscussion).author).toBeUndefined();
+    });
+
+    it('process() recipe keeps an author whose id is 0', () => {
+      const { entities } = normalize(SafeDiscussion, {
+        id: '1',
+        author: { id: 0, name: 'zero' },
+      });
+      expect(entities.SafeDiscussion['1'].author).toBe('0');
+    });
+
+    it('process() recipe keeps a numeric author reference', () => {
+      const { entities } = normalize(SafeDiscussion, { id: '1', author: 2 });
+      expect(entities.SafeDiscussion['1'].author).toBe('2');
+    });
+
+    it('process() recipe still throws for an author with data but no pk', () => {
+      expect(() =>
+        normalize(SafeDiscussion, { id: '1', author: { name: 'Ann' } }),
+      ).toThrow('Missing usable primary key');
+    });
+
+    it('process() recipe clears a stored author', () => {
+      const first = normalize(SafeDiscussion, {
+        id: '1',
+        author: { id: '2', name: 'b' },
+      });
+      expect(first.entities.SafeDiscussion['1'].author).toBe('2');
+      const { entities } = normalize(
+        SafeDiscussion,
+        { id: '1', author: {} },
+        [],
+        first,
+      );
+      expect(entities.SafeDiscussion['1'].author).toBeUndefined();
+    });
+  });
+
   it('should throw a custom error if data does not include pk', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
