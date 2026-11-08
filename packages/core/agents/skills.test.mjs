@@ -617,6 +617,20 @@ test('run in a workspace package, it links at the workspace root', t => {
   ]);
 });
 
+test('run in a workspace below the repository root, it says to start the agent there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'web/package.json': { workspaces: ['apps/*'] },
+    ...app('site', '0.19.0', 'web/apps'),
+  });
+  const output = run(t, path.join(dir, 'web/apps/site'));
+  assert.ok(links(path.join(dir, 'web'))['data-client-react']);
+  assert.deepEqual(output.slice(-2), [
+    'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
+    'Claude Code and Cursor started at the repository root load web/.agents/skills only once they work on files in web; start your agent in web to have them from the start.',
+  ]);
+});
+
 test('run in an app below the repository root, it says where agents load the skills', t => {
   const dir = project({ '.git/HEAD': 'ref', ...app('web', '0.19.0') });
   const output = run(t, path.join(dir, 'apps/web'));
