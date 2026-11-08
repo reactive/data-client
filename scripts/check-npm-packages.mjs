@@ -30,20 +30,29 @@ const names = execFileSync(
   .map(line => JSON.parse(line).name);
 
 async function getTag(name, tag) {
-  const res = await fetch(`${registry}/${name.replace('/', '%2F')}/${tag}`);
+  const res = await fetch(`${registry}/${name.replace('/', '%2F')}/${tag}`, {
+    signal: AbortSignal.timeout(10_000),
+  });
   if (res.status === 404) return undefined;
-  if (!res.ok)
-    throw new Error(`${registry} answered ${res.status} for ${name}`);
+  if (!res.ok) throw new Error(`${registry} answered ${res.status}`);
   return res.json();
 }
 
 // All requests at once: the check adds well under a second to the publish
 const status = await Promise.all(
   names.map(async name => {
-    const [latest, beta] = await Promise.all([
-      getTag(name, 'latest'),
-      getTag(name, 'beta'),
-    ]);
+    let latest, beta;
+    try {
+      [latest, beta] = await Promise.all([
+        getTag(name, 'latest'),
+        getTag(name, 'beta'),
+      ]);
+    } catch (e) {
+      // Only a 404 proves a package is missing. If npm is down or slow, let
+      // the publish run: it reports its own errors
+      console.warn(`::warning title=npm check skipped::${name}: ${e.message}`);
+      return 'unchecked';
+    }
     if (!latest && !beta) return 'missing';
     return [latest, beta].some(v => v?._npmUser?.trustedPublisher) ? 'ok' : (
         'untrusted'
@@ -64,4 +73,4 @@ if (having('missing')) {
   );
   process.exit(1);
 }
-console.log(`All ${names.length} public packages exist on npm`);
+if (!having('unchecked')) console.log(`All ${names.length} public packages exist on npm`);
