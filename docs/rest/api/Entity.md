@@ -393,8 +393,9 @@ class User extends Entity {
 }
 ```
 
-Some APIs send `{}` instead of `null` for a missing related entity. `{}` has no primary key, so
-normalizing it throws `Missing usable primary key`. Clear it in the parent's [process()](#process):
+If an API marks a missing related entity with something other than `null`, such as `{}` or
+`{ id: null }`, normalizing it throws `Missing usable primary key`. Turn that value into `undefined`
+in the parent's [process()](#process). For an API that sends `{}`:
 
 ```typescript
 class Post extends Entity {
