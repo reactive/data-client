@@ -331,6 +331,20 @@ describe('DevToolsManager', () => {
       expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(3);
     });
 
+    it('ignores actions from a previous store', () => {
+      const { manager, dispatch: oldDispatch } = pollingSetup();
+      manager.cleanup();
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      oldDispatch(subscribe('a'));
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [FETCH, 'a'],
+        [FETCH, 'a'],
+      ]);
+    });
+
     it('does not cap subscriptions without pollFrequency', () => {
       const { dispatch } = pollingSetup();
       dispatch({ ...subscribe('a'), endpoint: { name: 'live' } });
