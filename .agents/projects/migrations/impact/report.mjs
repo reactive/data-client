@@ -147,7 +147,7 @@ notes.push(
 );
 if (sweep.length)
   notes.push(
-    `Mock API latency: ${flows[0].latencyMs} ms for every table except the latency sweep, which repeats the flow at ${sweepFlows.map(f => `${f.latencyMs} ms`).join(', ')}.`,
+    `Mock API latency: ${flows[0].latencyMs} ms for every table; the latency sweep compares runs at ${sweepFlows.map(f => `${f.latencyMs} ms`).join(', ')}.`,
   );
 else if (flows[0]?.latencyMs !== undefined)
   notes.push(`Mock API latency: ${flows[0].latencyMs} ms.`);

@@ -3,7 +3,7 @@
 - Flow: 8 interleaved runs per variant at 4x CPU throttle; 13 steps (6 mutations).
 - Sampled rows show median (interquartile range); the change column adds a 95% bootstrap interval in brackets. "Within noise" means that interval includes zero.
 - Speed is baseline time divided by migrated time: 1.2x means the migrated build is 20% faster, 0.8x means 20% slower. Rows within noise show ≈1x.
-- Mock API latency: 400 ms for every table except the latency sweep, which repeats the flow at 100 ms, 400 ms, 1000 ms.
+- Mock API latency: 400 ms for every table; the latency sweep compares runs at 100 ms, 400 ms, 1000 ms.
 
 ## Setup
 

@@ -32,8 +32,10 @@ the new row.
 synchronously inside the click (discrete priority). A CPU profile of the 0.18.2 build put about a third
 of create comment's click in bulletproof's unmemoized `MDPreview` (marked and DOMPurify).
 
-**Latency sweep.** The same pair re-measured on 2026-11-08 at three mock API latencies with `--sweep`
-([report](react-query-vs-data-client-0.19-sweep/impact.md)). Its 400ms run reproduces the numbers above
+**Latency sweep.** The same migration re-measured on 2026-11-08 at three mock API latencies with `--sweep`
+([report](react-query-vs-data-client-0.19-sweep/impact.md)). These checkouts are fresh: the re-run's
+`migration.patch` applied to upstream `9506629`, with the same 0.19 beta installed, so their commits differ
+from the ones above. Its 400ms run matches the numbers above
 within 2%.
 
 | Mock API latency | Mutations, react-query (ms) | Mutations, data-client 0.19 (ms) | Mutation speed | All steps speed |

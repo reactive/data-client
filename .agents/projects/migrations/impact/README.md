@@ -169,7 +169,7 @@ the kit measures production builds, where it is absent, so it does not use it.
   differences, so make it a constant in both checkouts with a `prep` patch, read from an environment
   variable so `latency` can set and sweep it.
 - **Count before you time.** Request counts, redundant reads, stale views and loading indicators are
-  deterministic, so a single run shows them. Timings need 10 or more runs.
+  deterministic, so a single run shows them. Timings need 8 or more runs; check that the interquartile ranges are narrow.
 - **Write flows that tolerate stale data.** Find rows by an id that does not change, so the before
   build can finish a flow even while it shows stale data. The `fresh` check records the staleness.
 - **Write mutation steps in three parts.** `prepare` opens the form and types the input, `trigger`

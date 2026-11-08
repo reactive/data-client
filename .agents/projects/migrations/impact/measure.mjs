@@ -60,24 +60,35 @@ const fail = msg => {
   process.exit(2);
 };
 const latencyMs = opt.latency ?? config.latency?.ms;
-if (latencyMs !== undefined && !config.latency?.env)
-  fail(
-    '--latency needs config.latency.env, the variable the app reads its mock delay from',
-  );
 const sweepMs = opt.sweep ? (config.latency?.sweep ?? []) : [];
+if ((latencyMs !== undefined || opt.sweep) && !config.latency?.env)
+  fail(
+    'a latency needs config.latency.env, the variable the app reads its mock delay from',
+  );
 if (opt.sweep && !sweepMs.length) fail('--sweep needs config.latency.sweep');
+// The sweep table compares against the primary run, so it needs a primary latency.
+if (opt.sweep && latencyMs === undefined)
+  fail('--sweep needs config.latency.ms or --latency');
 // Without a build the dist keeps whatever latency it was built with, so none is recorded.
 if (opt.sweep && opt['no-build'])
   fail('--sweep rebuilds for each latency; drop --no-build');
 const latencies = [
   ...new Set(
-    [latencyMs, ...sweepMs].map(ms => (ms === undefined ? ms : Number(ms))),
+    // '' and null would become 0 ms, so they stay invalid.
+    [latencyMs, ...sweepMs].map(ms =>
+      ms === undefined ? ms
+      : ms === '' || ms === null ? NaN
+      : Number(ms),
+    ),
   ),
 ];
 if (
   latencies.some(ms => ms !== undefined && !(Number.isInteger(ms) && ms >= 0))
 )
-  fail(`latencies must be whole milliseconds, got ${latencies.join(', ')}`);
+  fail(
+    `latencies must be whole milliseconds, got ${latencies.join(', ')} (--latency takes one value; --sweep adds config.latency.sweep)`,
+  );
+// --no-build keeps the existing dist, so no latency is set or recorded and nothing is swept.
 const [primaryMs, ...sweepOnlyMs] = opt['no-build'] ? [undefined] : latencies;
 const envFor = ms =>
   ms === undefined ?
