@@ -157,15 +157,23 @@ export const getPosts = new Endpoint(
 );
 ```
 
-Set the member for one call with [extend()](#extend), so other calls keep their own. Reads (no
-`sideEffect`) with the same params share one request, so the signal only cancels a request that
-this call started.
+Set the member for one call with [extend()](#extend), so other calls keep their own.
 
 ```ts
 // ctrl is the Controller, from useController() or a router loader
 const abort = new AbortController();
 ctrl.fetch(getPosts.extend({ signal: abort.signal }), { page: 2 });
 ```
+
+Limits:
+
+- The request stops only if the fetch function passes the signal on, and the SDK hands it to
+  `fetch()`.
+- Reads (no `sideEffect`) with the same params share one request, so the signal only cancels a
+  request that this call started.
+- Data Client ignores a rejection named `AbortError`, which is what `fetch()` throws. If your SDK
+  wraps the abort in another error, rethrow one named `AbortError`; otherwise it is stored as a
+  failed fetch, and the next render with those params throws it.
 
 ## Lifecycle
 
