@@ -12,9 +12,9 @@
   ],
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
-    "changeset:publish": "run build && yarn workspaces foreach -A --no-private --topological npm publish --tolerate-republish --access public",
+    "changeset:publish": "node scripts/check-npm-packages.mjs && run build && yarn workspaces foreach -A --no-private --topological npm publish --tolerate-republish --access public",
     "changeset:version:beta": "run changeset version --snapshot beta && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
-    "changeset:publish:beta": "run build && yarn workspaces foreach -A --no-private --topological npm publish --tolerate-republish --access public --tag beta",
+    "changeset:publish:beta": "node scripts/check-npm-packages.mjs && run build && yarn workspaces foreach -A --no-private --topological npm publish --tolerate-republish --access public --tag beta",
     "lint": "eslint",
     "check:typeperf": "node scripts/typeperf/check.mjs",
     "check:package-exports": "node scripts/check-package-exports.mjs",
