@@ -60,7 +60,7 @@ import { useSuspense, useFetch } from '@data-client/react';
 import { Img, getImage } from '@data-client/img';
 
 export default function Profile({ username }: { username: string }) {
-  const imageSrc = `/profile_images/${username}}`;
+  const imageSrc = `/profile_images/${username}`;
   useFetch(getImage, { src: imageSrc });
   const user = useSuspense(UserResource.get, { username });
   return (

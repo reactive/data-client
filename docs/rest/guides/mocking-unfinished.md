@@ -75,4 +75,4 @@ typed `RatingResource` as usual.
 
 When the API is ready, remove the `fetch` override. Remove the whole `getList` override if `fetch` is all it changes.
 
-`dataExpiryLength: Infinity` keeps the data fresh, so Data Client does not refetch it and replace the random values.
+`dataExpiryLength: Infinity` stops the data from [expiring](../../core/concepts/expiry-policy.md), so Data Client does not refetch it and replace the random values.
