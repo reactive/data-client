@@ -100,8 +100,9 @@ export default class SubscriptionManager<
         action,
         this.controller,
       ) as InstanceType<S>;
-      // a subscription starts in its constructor; while paused it waits for init()
-      if (this.paused) subscription.cleanup();
+      // a subscription starts in its constructor; while paused it waits for init().
+      // One without init() could never resume, so it keeps running.
+      if (this.paused && subscription.init) subscription.cleanup();
       this.subscriptions[key] = subscription;
     }
   }
