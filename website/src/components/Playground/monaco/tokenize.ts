@@ -171,9 +171,9 @@ class MonacoLexer {
  * (maybe `<const T extends`) starts a generic arrow function, unless the next
  * token makes `extends` an attribute (`=`, `>` or `/`)
  */
-function isTypeParameters(name: Token | undefined, attributes: Token[]) {
+function isTypeParameters(name: string, attributes: Token[]) {
   const parts = attributes.filter(part => textOf(part).trim());
-  if (name && textOf(name) === 'const') parts.shift();
+  if (name === 'const') parts.shift();
   const [first, next] = parts;
   return (
     typeof first === 'object' &&
@@ -196,18 +196,16 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
   /** `<Name attr="value">` or `</Name>`, maybe without a name */
   const walkTag = (tag: Prism.Token) => {
     const [head, ...attributes] = contentOf(tag);
-    const [open, name] = contentOf(head as Prism.Token);
+    // a name can come in parts: `svg:` (namespace) and `path`
+    const [open, ...nameParts] = contentOf(head as Prism.Token);
+    const name = textOf(nameParts);
     if (isTypeParameters(name, attributes)) {
       // read again as TypeScript, so numbers in a constraint keep their color
       return walkAll(Prism.tokenize(textOf(tag), Prism.languages.typescript));
     }
     lexer.addCode(textOf(open));
-    if (name) {
-      const tagName = textOf(name);
-      lexer.addToken(
-        typed(isComponentName(tagName) ? 'class-name' : 'tag', tagName),
-      );
-    }
+    if (name)
+      lexer.addToken(typed(isComponentName(name) ? 'class-name' : 'tag', name));
     nesting.push('code');
     for (const part of attributes) {
       if (typeof part === 'object' && part.type === 'attr-name')

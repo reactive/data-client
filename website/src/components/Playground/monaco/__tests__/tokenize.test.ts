@@ -307,6 +307,7 @@ describe('monacoPrism colors as Monaco does', () => {
 
   test.each([
     ['tsx', 'const a = /x+/g.test(`${b}`); // c\n/* d */'],
+    ['tsx', '<svg:path d="a" /><a:b>c</a:b>'],
     ['html', '<!-- a --><div class="b">c</div>'],
     ['json', '{"a": [1, null]}'],
   ])('keeps every character of %s', (language, code) => {
