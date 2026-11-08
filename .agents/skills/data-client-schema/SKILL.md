@@ -51,7 +51,7 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
 
 - Every `Entity` subclass **defines defaults** for _all_ non-optional serialised fields: bare TS field types emit no
   runtime value, so schema inference breaks.
-- Override `pk()` only when the primary key is a top-level field other than `id`. For a key in a nested object
+- Override `pk()` only when the primary key is another top-level field or a combination of them. For a key in a nested object
   (`{ post: { id } }`), copy it to `id` in `process()` instead, so lookups take `{ id }`
   ([example](references/Entity.md#primary-key-in-a-nested-object))
 - [`static indexes = ['username' as const]`](references/Entity.md#indexes) to look up by a unique non-pk field with `useQuery(User, { username })`, instead of building lookup `Map`s
