@@ -2,7 +2,6 @@
 import type * as Monaco from 'monaco-editor';
 
 import { hasJsxColors, registerJsxColors } from '..';
-import { jsxSpans } from '../../tokenize';
 
 /** A model of `code` at `path`, with the position helpers the provider uses */
 function fakeModel(code: string, path: string, language = 'typescript') {
@@ -25,8 +24,9 @@ function fakeModel(code: string, path: string, language = 'typescript') {
   } as unknown as Monaco.editor.ITextModel;
 }
 
-/** The provider registerJsxColors gives Monaco, with a worker answering
- * `spans`, and how often it asked Monaco to ask again */
+/** The provider registerJsxColors gives Monaco, with a quick reading that
+ * agrees with TypeScript on `code` and a worker answering `spans`, and how
+ * often it asked Monaco to ask again */
 function provider(spans: number[]) {
   let registered: any;
   const asked = { again: 0 };
@@ -46,7 +46,7 @@ function provider(spans: number[]) {
         }),
       },
     } as unknown as typeof Monaco,
-    jsxSpans,
+    () => typeScriptSpans,
   );
   return { provider: registered, asked };
 }

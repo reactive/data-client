@@ -182,7 +182,7 @@ class MonacoLexer {
 
 /** Words after which `<` starts an expression: a JSX element */
 const BEFORE_EXPRESSION = new Set(
-  'await case default delete do else in instanceof new return throw typeof void yield'.split(
+  'await case default delete do else in instanceof new of return throw typeof void yield'.split(
     ' ',
   ),
 );
@@ -199,9 +199,9 @@ function isTypeArguments(
   inChildren: boolean,
 ) {
   if (inChildren || !name) return false;
-  const before = code.slice(Math.max(0, at - 64), at);
   // on the same line: a name ending the line before can end a comment
-  const word = /([\p{ID_Continue}$]+)[ \t]*$/u.exec(before)?.[1];
+  const line = code.slice(code.lastIndexOf('\n', at - 1) + 1, at);
+  const word = /([\p{ID_Continue}$]+)[ \t]*$/u.exec(line)?.[1];
   return word !== undefined && !BEFORE_EXPRESSION.has(word);
 }
 

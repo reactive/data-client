@@ -4,7 +4,7 @@ import { Prism } from 'prism-react-renderer';
 
 import { extensionToMonacoLanguage, isMonacoTokenized } from '../language';
 import { codePrismTheme } from '../theme';
-import { monacoPrism, textOf } from '../tokenize';
+import { jsxSpans, monacoPrism, textOf } from '../tokenize';
 
 /** Each token's theme type (null for plain) and text, whitespace left out */
 function spans(code: string, language: string) {
@@ -208,6 +208,12 @@ describe('monacoPrism colors as Monaco does', () => {
       expect(tagsAndKeywords(`x = ${call};\nconst y = 1;`)).toEqual(['const']);
     }
     // but after a word that starts an expression, or on a new line, it is JSX
+    expect(tagsAndKeywords('for (const x of <a />) {}')).toEqual([
+      'for',
+      'const',
+      'of',
+      'a',
+    ]);
     expect(tagsAndKeywords('x = (\n  // a line\n  <a />\n);')).toEqual(['a']);
     expect(tagsAndKeywords('return<a>b</a>;')).toEqual(['return', 'a', 'a']);
     expect(spans('return<>b</>;', 'tsx')).toEqual([
@@ -216,6 +222,16 @@ describe('monacoPrism colors as Monaco does', () => {
       [null, 'b'],
       [null, '</>'],
       ['punctuation', ';'],
+    ]);
+  });
+
+  test("jsxSpans gives where JSX is, as TypeScript's classes do", () => {
+    // start, length, kind (tag 0, attribute 1, text 2)
+    expect(jsxSpans('x = <A b="c">\n  hi\n</A>;')).toEqual([
+      ...[5, 1, 0],
+      ...[7, 1, 1],
+      ...[13, 6, 2],
+      ...[21, 1, 0],
     ]);
   });
 
