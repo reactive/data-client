@@ -13,6 +13,19 @@
         "Never runs a command that fetches from dataclient.io.",
         "Runs it on the source folder, not the repo root."
       ]
+    },
+    {
+      "id": 2,
+      "name": "axios-withcredentials-request-init",
+      "source": "N1 in the 0.19 beta re-run of alan2207/bulletproof-react@9506629 (apps/react-vite): following the table's `getRequestInit` row literally spread the un-awaited Promise, so every mutation was sent as a GET.",
+      "prompt": "Replace this axios instance with a data-client base endpoint class in src/lib/api-client.ts, keeping its behavior. Other files will import it as `ApiEndpoint`; leave the endpoint definitions for later.\n\n```ts\nimport Axios, { InternalAxiosRequestConfig } from 'axios';\nimport { env } from '@/config/env';\n\nfunction authRequestInterceptor(config: InternalAxiosRequestConfig) {\n  if (config.headers) {\n    config.headers.Accept = 'application/json';\n  }\n  config.withCredentials = true;\n  return config;\n}\n\nexport const api = Axios.create({ baseURL: env.API_URL });\napi.interceptors.request.use(authRequestInterceptor);\n```\n\nThe app later calls `api.patch('/users/profile', data)` and `api.post('/discussions', data)` through it.",
+      "expected_output": "A `RestEndpoint` subclass with `urlPrefix = env.API_URL`, the Accept header from `getHeaders()`, and cookies sent with `credentials: 'include'` without losing the method, body or headers of each request.",
+      "files": [],
+      "assertions": [
+        "Requests are sent with `credentials: 'include'` (axios `withCredentials`), from `getRequestInit()` or the `requestInit` member.",
+        "Any `getRequestInit()` override awaits `super.getRequestInit(body)` before spreading or reading it; the code never spreads the un-awaited call.",
+        "`urlPrefix` is `env.API_URL` and the `Accept` header comes from `getHeaders()` (or `requestInit.headers`) without dropping the headers passed in."
+      ]
     }
   ]
 }
