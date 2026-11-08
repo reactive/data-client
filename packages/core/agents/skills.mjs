@@ -27,19 +27,23 @@ export const PACKAGES = [
 ];
 // marks a copied skill as ours, and records which version it came from
 const MARKER = '.data-client';
+/** Skills that upgrade from an older version, linked only with `--upgrade` */
+export const isUpgradeSkill = skill => skill.endsWith('-migration');
 
 /**
  * Makes the project's skill folder hold exactly the skills the installed
- * packages ship. Only touches entries it made: links into
- * node_modules/@data-client, or copies holding its marker.
+ * packages ship, leaving out the upgrade skills unless `upgrade` is set. Only
+ * touches entries it made: links into node_modules/@data-client, or copies
+ * holding its marker.
  */
-export function syncSkills(projectDir) {
+export function syncSkills(projectDir, { upgrade = false } = {}) {
   const dirs = skillsDirs(projectDir);
   const result = {
     added: [],
     removed: [],
     outdated: [],
     kept: [],
+    upgrades: [],
     junctions: false,
     dir: dirs && posix(path.relative(projectDir, dirs.dest)),
   };
@@ -47,7 +51,13 @@ export function syncSkills(projectDir) {
   const { dest, other } = dirs;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
-    const { want, copy } = wantedSkills(projectDir, dest, extracted, result);
+    const { want, copy } = wantedSkills(
+      projectDir,
+      dest,
+      extracted,
+      result,
+      upgrade,
+    );
     if (!want.size && !fs.existsSync(dest)) return result;
     fs.mkdirSync(dest, { recursive: true });
     // let the agents that read the other folder see it too: link the folder
@@ -182,9 +192,9 @@ function mirrorLinks(dest, mirror, result) {
 /**
  * Skill name -> its directory and id: the link target from `dest`, or
  * `pkg@version` for copies, which Yarn Plug'n'Play needs since it has no
- * node_modules
+ * node_modules. Upgrade skills left out go in `result.upgrades`.
  */
-function wantedSkills(projectDir, dest, extracted, result) {
+function wantedSkills(projectDir, dest, extracted, result, upgrade) {
   // under Yarn's runtime (`yarn data-client-skills`) resolving lands inside
   // zip archives, which no link can reach
   let found =
@@ -206,6 +216,11 @@ function wantedSkills(projectDir, dest, extracted, result) {
       // workspaces can install several versions; the first one found wins
       if (want.has(skill)) continue;
       if (!fs.existsSync(path.join(shipped, skill, 'SKILL.md'))) continue;
+      // a new install has nothing to upgrade from
+      if (!upgrade && isUpgradeSkill(skill)) {
+        if (!result.upgrades.includes(skill)) result.upgrades.push(skill);
+        continue;
+      }
       want.set(skill, {
         dir: path.join(shipped, skill),
         id: copy ? version : `${base}/skills/${skill}`,
@@ -297,10 +312,19 @@ function holdsJunction(target, dir) {
   }
 }
 
-/** The `data-client-skills` command */
-export function main(projectDir = process.cwd()) {
-  const { added, removed, outdated, kept, dir, junctions } =
-    syncSkills(projectDir);
+/** The `data-client-skills` command: `data-client-skills [--upgrade]` */
+export function main(projectDir = process.cwd(), args = process.argv.slice(2)) {
+  const unknown = args.filter(arg => arg !== '--upgrade');
+  if (unknown.length) {
+    console.error(
+      `Unknown option ${unknown.join(' ')}. Usage: data-client-skills [--upgrade]`,
+    );
+    process.exitCode = 1;
+    return;
+  }
+  const upgrade = args.includes('--upgrade');
+  const { added, removed, outdated, kept, upgrades, dir, junctions } =
+    syncSkills(projectDir, { upgrade });
   if (added.length) console.log(`Added ${added.join(', ')}`);
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
   for (const skill of kept)
@@ -316,5 +340,9 @@ export function main(projectDir = process.cwd()) {
   if (outdated.length)
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
+    );
+  if (upgrades.length)
+    console.log(
+      `Upgrading from an older Data Client? Add --upgrade to also link ${upgrades.join(', ')}, then run it again without --upgrade once done.`,
     );
 }

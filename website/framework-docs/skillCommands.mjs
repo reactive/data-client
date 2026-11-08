@@ -131,13 +131,16 @@ function pluginSkills(plugin) {
 }
 
 /** Skills of every package a framework's app installs, plus the protocol
- * setup skills that data-client-setup bundles instead of a package owning */
+ * setup skills that data-client-setup bundles instead of a package owning.
+ * Upgrade skills (`*-migration`) are left out, as `data-client-skills` does
+ * without `--upgrade`: a new app has nothing to upgrade from */
 function frameworkSkills(framework, skillPackages, setupSkills) {
   const other = framework === 'react' ? 'vue' : 'react';
   return [
     ...Object.entries(skillPackages)
       .filter(([pkg]) => pkg !== `@data-client/${other}`)
-      .flatMap(([, skills]) => skills),
+      .flatMap(([, skills]) => skills)
+      .filter(skill => !skill.endsWith('-migration')),
     ...setupSkills,
   ];
 }

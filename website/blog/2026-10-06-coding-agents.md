@@ -150,3 +150,6 @@ registering [`argsKey`](/rest/api/SchemaSimple) for schemas whose output depends
 [path syntax](/blog/2026/04/01/v0.16-parallel-fetching-collection-move-lazy#path-to-regexp-v8) in your endpoints.
 
 <SkillTabs skills={['data-client-v0.18-migration', 'path-to-regexp-v8-migration']} />
+
+The packages ship them too. `npx --no data-client-skills` leaves them out, since a new app has nothing to upgrade
+from; add `--upgrade` to link them, and run it again without it once the upgrade is done.
