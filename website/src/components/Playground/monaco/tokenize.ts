@@ -199,7 +199,8 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
     // a name can come in parts: `svg:` (namespace) and `path`
     const [open, ...nameParts] = contentOf(head as Prism.Token);
     const name = textOf(nameParts);
-    if (isTypeParameters(name, attributes)) {
+    // JSX children have no type parameters, as TypeScript reads them
+    if (nesting.at(-1) !== 'children' && isTypeParameters(name, attributes)) {
       // read again as TypeScript, so numbers in a constraint keep their color
       return walkAll(Prism.tokenize(textOf(tag), Prism.languages.typescript));
     }

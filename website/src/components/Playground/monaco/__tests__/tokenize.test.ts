@@ -241,6 +241,18 @@ describe('monacoPrism colors as Monaco does', () => {
       ['class-name', 'A'],
       ['punctuation', '>'],
     ]);
+    // in JSX children, `<T extends U>` is always a tag
+    expect(spans('<a><T extends U /></a>', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['tag', 'a'],
+      [null, '><'],
+      ['class-name', 'T'],
+      ['attr-name', 'extends'],
+      ['attr-name', 'U'],
+      [null, '/></'],
+      ['tag', 'a'],
+      ['punctuation', '>'],
+    ]);
   });
 
   test('HTML with embedded JavaScript, as in Vue files', () => {
