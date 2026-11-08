@@ -23,7 +23,12 @@ import {
   useSuspense,
 } from '@data-client/react';
 import { act, fireEvent, render } from '@testing-library/react';
-import { makeGetTodo, mockTodoState } from '__tests__/concurrentFixtures';
+import {
+  makeGetTodo,
+  makeUpdateTodo,
+  mockTodoState,
+} from '__tests__/concurrentFixtures';
+import type { TodoItem } from '__tests__/concurrentFixtures';
 import {
   expectNoImmediateCommit,
   expectOnlyNormalCommits,
@@ -269,5 +274,55 @@ describeConcurrent('startTransition over useSuspense', () => {
     expect(getByTestId('cache').textContent).toBe('todo A v2');
     expect(getByTestId('live').textContent).toBe('todo A v2');
     expectOnlyNormalCommits('transition publish to useCache/useLive');
+  });
+
+  describe('optimistic fetch in startTransition (opt-in for heavy trees)', () => {
+    let resolveUpdate: (value: TodoItem) => void;
+    const updateTodo = makeUpdateTodo(
+      () =>
+        new Promise<TodoItem>(resolve => {
+          resolveUpdate = resolve;
+        }),
+    );
+    it('commits the optimistic update at transition priority before the response', async () => {
+      const { getByTestId } = render(
+        <DataProvider
+          initialState={stateA}
+          devButton={null}
+          managers={noDevManagers}
+        >
+          <Probe />
+          <button
+            data-testid="save"
+            onClick={() => {
+              // a block body: returning the promise would make this an async action in React 19,
+              // which holds the optimistic update until the response
+              startTransition(() => {
+                controller.fetch(updateTodo, {
+                  id: 'A',
+                  title: 'optimistic A',
+                });
+              });
+            }}
+          >
+            save
+          </button>
+          <Suspense fallback={<p>loading</p>}>
+            <TodoView id="A" />
+          </Suspense>
+        </DataProvider>,
+      );
+      resetCommits();
+      act(() => {
+        fireEvent.click(getByTestId('save'));
+      });
+      expect(getByTestId('todo').textContent).toBe('optimistic A');
+      expectOnlyNormalCommits('optimistic fetch in startTransition');
+
+      await act(async () => {
+        resolveUpdate({ id: 'A', title: 'server A' });
+      });
+      expect(getByTestId('todo').textContent).toBe('server A');
+    });
   });
 });

@@ -316,6 +316,34 @@ To make only some endpoints optimistic, or to match an unusual API, set
 [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) with
 [Resource.extend()](../api/resource.md#extend).
 
+## Heavy screens {#transition}
+
+:::react
+
+Like React's [useOptimistic()](https://react.dev/reference/react/useOptimistic), an optimistic update renders
+before the browser paints the click. If many components read the changed data, that render can make the click feel
+slow. First make the render cheaper, for example with [React Compiler](https://react.dev/learn/react-compiler) or
+`memo()` on expensive components. If the click still feels slow, put the call in
+[startTransition()](https://react.dev/reference/react/startTransition), so the click paints first:
+
+```tsx
+import { startTransition } from 'react';
+
+const toggle = () => {
+  startTransition(() => {
+    ctrl.fetch(TodoResource.partialUpdate, { id }, { completed: !completed });
+  });
+};
+```
+
+React then renders the optimistic update in chunks that don't block input, a frame or two later. If it makes a
+component suspend, React keeps the current UI until that data loads.
+
+Use a block body, as above. A callback that returns the `fetch()` promise is an async Action in React 19, so React
+holds the optimistic update until the server responds.
+
+:::
+
 ## Optimistic Transforms
 
 Some updates depend on the previous value, such as toggling a boolean or incrementing a counter. This example uses a
