@@ -199,6 +199,26 @@ describe('monacoPrism colors as Monaco does', () => {
     expect(tags('<p>{a<b>(c)}</p>')).toEqual(['p', 'p']);
   });
 
+  test('a tag right after a name in code is type arguments', () => {
+    const tagsAndKeywords = (code: string) =>
+      spans(code, 'tsx')
+        .filter(([type]) => type === 'tag' || type === 'keyword')
+        .map(([, text]) => text);
+    for (const call of ['f<T>(1)', 'f <T>(1)', 'fé<T>(1)', '取得<T>(1)']) {
+      expect(tagsAndKeywords(`x = ${call};\nconst y = 1;`)).toEqual(['const']);
+    }
+    // but after a word that starts an expression, or on a new line, it is JSX
+    expect(tagsAndKeywords('x = (\n  // a line\n  <a />\n);')).toEqual(['a']);
+    expect(tagsAndKeywords('return<a>b</a>;')).toEqual(['return', 'a', 'a']);
+    expect(spans('return<>b</>;', 'tsx')).toEqual([
+      ['keyword', 'return'],
+      [null, '<>'],
+      [null, 'b'],
+      [null, '</>'],
+      ['punctuation', ';'],
+    ]);
+  });
+
   test('code after a fragment is code again', () => {
     for (const fragment of [
       '<>a</>',

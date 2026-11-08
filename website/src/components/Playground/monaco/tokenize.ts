@@ -180,16 +180,30 @@ class MonacoLexer {
   }
 }
 
+/** Words after which `<` starts an expression: a JSX element */
+const BEFORE_EXPRESSION = new Set(
+  'await case default delete do else in instanceof new return throw typeof void yield'.split(
+    ' ',
+  ),
+);
+
 /**
- * Whether a tag Prism found at `at` in `code` (its `open` is `<` or `</`)
- * reads as type arguments, as `f<T>()` does: in code, right after a name
+ * Whether an opening tag Prism found at `at` in `code` reads as type
+ * arguments, as `f<T>()` and `f <T>()` do: in code, after a name that isn't
+ * a word like `return`. A fragment (no `name`) never does.
  */
-const isTypeArguments = (
+function isTypeArguments(
   code: string,
   at: number,
-  open: string,
+  name: string,
   inChildren: boolean,
-) => !inChildren && open === '<' && /[\w$]/.test(code[at - 1] ?? '');
+) {
+  if (inChildren || !name) return false;
+  const before = code.slice(Math.max(0, at - 64), at);
+  // on the same line: a name ending the line before can end a comment
+  const word = /([\p{ID_Continue}$]+)[ \t]*$/u.exec(before)?.[1];
+  return word !== undefined && !BEFORE_EXPRESSION.has(word);
+}
 
 /**
  * Whether a tag is type parameters, as TypeScript decides in .tsx: `<T extends`
@@ -242,7 +256,8 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
     const name = textOf(nameParts);
     const inChildren = nesting.at(-1) === 'children';
     if (
-      isTypeArguments(code, lexer.at, textOf(open), inChildren) ||
+      (textOf(open) === '<' &&
+        isTypeArguments(code, lexer.at, name, inChildren)) ||
       isTypeParameters(name, attributes, inChildren)
     ) {
       // read again as TypeScript, so numbers in a constraint keep their color
@@ -298,9 +313,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
     } else walkAll(contentOf(token));
   };
   const walkAll = (list: Token[]) => {
-    for (let i = 0; i < list.length; i++) {
-      walk(list[i]);
-    }
+    for (const token of list) walk(token);
   };
   walkAll(stream);
   return lexer.result();
@@ -367,11 +380,11 @@ const tagOf = (language: 'jsx' | 'tsx') =>
 
 /**
  * Prism's tsx grammar, but with jsx's tag pattern, which finds a tag right
- * after another's `>` (`<li><b>`) or after text (`by<b>`). tsx's needs a
- * character before the `<` that isn't a word's, so it misses those, and
- * `isTypeArguments` takes over that check where it holds: in code. Without
- * `generic-function`, which can run from `f<` over JSX to a later `>(`, and
- * whose color isn't kept anyway.
+ * after another's `>` (`<li><b>`) or after text (`by<b>`). tsx's pattern
+ * needs a character before the `<` that isn't a word's, so it misses those;
+ * `isTypeArguments` makes that call instead, where it holds: in code. The
+ * copy also drops `generic-function`, which can run from `f<` over JSX to a
+ * later `>(`. It isn't in `KEPT`, so its color was lexed again anyway.
  */
 const TSX = Prism.languages.extend('tsx', {
   tag: { ...tagOf('tsx'), pattern: tagOf('jsx').pattern, lookbehind: false },
