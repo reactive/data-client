@@ -4,11 +4,15 @@ import type { DependencyList, EffectCallback } from 'react';
 
 const fakeNavigation = { addListener(name: string) {} } as any;
 let _useNavigation: typeof useNavigation = () => fakeNavigation;
-import('@react-navigation/native')
-  .then(rn => {
-    _useNavigation = rn.useNavigation;
-  })
-  .catch(() => {});
+// Inside try: Metro bundles an import() in a try block as optional (a null module id),
+// and Expo's native asyncRequire throws synchronously for it
+(async () => {
+  try {
+    _useNavigation = (await import('@react-navigation/native')).useNavigation;
+  } catch {
+    // no React Navigation: focus events stay off
+  }
+})();
 
 function useFocusEffect(
   effect: EffectCallback,
