@@ -628,6 +628,63 @@ for (const method of [0, 8]) {
   });
 }
 
+/**
+ * What `yarn data-client-skills` runs under, for test `t`: Yarn's patched fs
+ * reports paths inside zips as existing, and Node's own fs.cpSync can't read them
+ */
+function yarnRuntime(t) {
+  const { existsSync } = fs;
+  t.mock.method(
+    fs,
+    'existsSync',
+    file => /\.zip[\\/]/.test(String(file)) || existsSync(file),
+  );
+  // put back whatever was there, in case the suite itself runs under Yarn
+  const versions = Object.getOwnPropertyDescriptor(process.versions, 'pnp');
+  Object.defineProperty(process.versions, 'pnp', {
+    value: '3',
+    configurable: true,
+  });
+  t.after(() => {
+    if (versions) Object.defineProperty(process.versions, 'pnp', versions);
+    else delete process.versions.pnp;
+  });
+}
+
+test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t => {
+  const { dir } = zippedReact('0.19.0', {
+    'skills/data-client-react/SKILL.md': 'React skill.',
+  });
+  yarnRuntime(t);
+  assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
+  const skill = path.join(skillsDir(dir), 'data-client-react');
+  assert.ok(!fs.lstatSync(skill).isSymbolicLink());
+  assert.equal(
+    fs.readFileSync(path.join(skill, 'SKILL.md'), 'utf8'),
+    'React skill.',
+  );
+});
+
+test("Yarn PnP skips a zip without the package, under Yarn's runtime too", t => {
+  const inZip = 'node_modules/@data-client/react/';
+  const { dir } = pnpProject(
+    [['@data-client/react', `./.yarn/cache/react.zip/${inZip}`]],
+    { '.yarn/cache/react.zip': zip({ [`${inZip}other.txt`]: '' }, 0) },
+  );
+  yarnRuntime(t);
+  assert.deepEqual(syncSkills(dir).added, []);
+});
+
+test('Yarn PnP reads unzipped packages in a folder named like a zip', () => {
+  for (const location of ['apps.zip/react', 'apps.zip/node_modules/react']) {
+    const { dir } = pnpProject(
+      [['@data-client/react', `./${location}/`]],
+      pkg(location, '@data-client/react', '0.19.0', ['data-client-react']),
+    );
+    assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
+  }
+});
+
 test('Yarn PnP copies are replaced on upgrade and removed with the package', () => {
   const { dir } = zippedReact('0.19.0', {
     'skills/data-client-react/SKILL.md': 'old',
