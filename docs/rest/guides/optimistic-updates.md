@@ -331,23 +331,25 @@ import { startTransition } from 'react';
 import { useController } from '@data-client/react';
 import { TodoResource, type Todo } from './TodoResource';
 
-export function ToggleTodo({ todo }: { todo: Todo }) {
+export function CompleteButton({ todo }: { todo: Todo }) {
   const ctrl = useController();
-  const toggle = () => {
+  const complete = () => {
     startTransition(() => {
       ctrl.fetch(
         TodoResource.partialUpdate,
         { id: todo.id },
-        { completed: !todo.completed },
+        { completed: true },
       );
     });
   };
-  return <input type="checkbox" checked={todo.completed} onChange={toggle} />;
+  return <button onClick={complete}>Complete</button>;
 }
 ```
 
 React then renders the optimistic update at transition priority, which yields to input. If it makes a component
-suspend, React keeps the current UI until that data loads.
+suspend, React keeps the current UI until that data loads. Keep controlled inputs, like `TodoItem`'s checkbox, out of
+the transition: React resets an input to its last rendered value, so the checkbox would flip back until the transition
+renders (see the [startTransition() caveats](https://react.dev/reference/react/startTransition#caveats)).
 
 Use a block body, as above. A callback that returns the `fetch()` promise is an async Action in React 19, so React
 holds the optimistic update until the server responds.
