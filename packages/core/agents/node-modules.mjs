@@ -49,6 +49,32 @@ function declaredPackages(dir) {
     .filter(Boolean);
 }
 
+/**
+ * The nearest parent of `dir` whose workspaces include it, searching up to the
+ * repository root; undefined when `dir` is no workspace package
+ */
+export function workspaceRoot(dir) {
+  const target = realpath(dir);
+  for (let parent = dir; !isRepoRoot(parent);) {
+    const next = path.dirname(parent);
+    if (next === parent) return;
+    parent = next;
+    if (workspaceDirs(parent).some(found => realpath(found) === target))
+      return parent;
+  }
+}
+
+/** The folder holding `dir`'s git repository, or undefined outside one */
+export function repoRoot(dir) {
+  for (let parent = dir; ; parent = path.dirname(parent)) {
+    if (isRepoRoot(parent)) return parent;
+    if (path.dirname(parent) === parent) return;
+  }
+}
+
+// .git is a folder, or a file in worktrees and submodules
+const isRepoRoot = dir => fs.existsSync(path.join(dir, '.git'));
+
 /** Workspace packages declared by package.json or pnpm-workspace.yaml */
 function workspaceDirs(dir) {
   const manifest = path.join(dir, 'package.json');

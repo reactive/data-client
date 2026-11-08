@@ -13,6 +13,8 @@ import {
   nodeModulesPackages,
   posix,
   readJSON,
+  repoRoot,
+  workspaceRoot,
 } from './node-modules.mjs';
 import { pnpPackages } from './pnp.mjs';
 
@@ -293,10 +295,18 @@ function holdsJunction(target, dir) {
   }
 }
 
-/** The `data-client-skills` command */
-export function main(projectDir = process.cwd()) {
-  const { added, removed, outdated, kept, dir, junctions } =
+/**
+ * The `data-client-skills` command. Run in a workspace package, it syncs the
+ * workspace root, where agents started at the root load the skills.
+ */
+export function main(cwd = process.cwd()) {
+  const workspace = workspaceRoot(cwd);
+  const projectDir = workspace ?? cwd;
+  const { added, removed, outdated, kept, junctions, ...result } =
     syncSkills(projectDir);
+  // where the skills are, from where the command ran
+  const dir =
+    result.dir && posix(path.relative(cwd, path.join(projectDir, result.dir)));
   if (added.length) console.log(`Added ${added.join(', ')}`);
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
   for (const skill of kept)
@@ -313,4 +323,19 @@ export function main(projectDir = process.cwd()) {
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
     );
+  if (workspace) {
+    console.log(
+      `Synced ${dir} at the workspace root, which covers every workspace package`,
+    );
+    return;
+  }
+  // agents load skills from where they start and its parents, but a nested
+  // folder's only once they touch its files
+  const repo = repoRoot(cwd);
+  if (repo && repo !== cwd && dir && fs.existsSync(path.join(cwd, dir))) {
+    const here = posix(path.relative(repo, cwd));
+    console.log(
+      `Claude Code and Cursor started at the repository root load ${here}/${result.dir} only once they work on files in ${here}; start your agent in ${here} to have them from the start.`,
+    );
+  }
 }

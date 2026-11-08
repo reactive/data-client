@@ -8,7 +8,8 @@ import path from 'node:path';
 import { test } from 'node:test';
 import zlib from 'node:zlib';
 
-import { PACKAGES, syncSkills } from './skills.mjs';
+import { workspaceRoot } from './node-modules.mjs';
+import { main, PACKAGES, syncSkills } from './skills.mjs';
 
 /** Writes `files` (path -> JSON object or text) under a new project dir */
 function project(files) {
@@ -558,6 +559,68 @@ const app = (name, version) => ({
     version,
     ['data-client-react'],
   ),
+});
+
+test('workspaceRoot finds the root whose workspaces include a package', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'tools/package.json': { name: 'tools' },
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+  assert.equal(workspaceRoot(path.join(dir, 'tools')), undefined);
+  assert.equal(workspaceRoot(dir), undefined);
+});
+
+test('workspaceRoot stops at the repository root', () => {
+  const dir = project({
+    'package.json': { workspaces: ['repo/apps/*'] },
+    'repo/.git': 'gitdir: elsewhere',
+    ...Object.fromEntries(
+      Object.entries(app('web', '0.19.0')).map(([file, v]) => [
+        `repo/${file}`,
+        v,
+      ]),
+    ),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'repo/apps/web')), undefined);
+});
+
+/** Runs main() from `cwd`, returning what it logged */
+function run(t, cwd) {
+  const log = t.mock.method(console, 'log', () => {});
+  main(cwd);
+  return log.mock.calls.map(call => call.arguments[0]);
+}
+
+test('run in a workspace package, it links at the workspace root', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+  });
+  const output = run(t, path.join(dir, 'apps/web'));
+  assert.equal(
+    links(dir)['data-client-react'],
+    '../../apps/web/node_modules/@data-client/react/skills/data-client-react',
+  );
+  assert.ok(!fs.existsSync(path.join(dir, 'apps/web/.agents')));
+  assert.deepEqual(output, [
+    'Added data-client-react',
+    'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
+  ]);
+});
+
+test('run in an app below the repository root, it says where agents load the skills', t => {
+  const dir = project({ '.git/HEAD': 'ref', ...app('web', '0.19.0') });
+  const output = run(t, path.join(dir, 'apps/web'));
+  assert.ok(links(path.join(dir, 'apps/web'))['data-client-react']);
+  assert.match(
+    output.at(-1),
+    /load apps\/web\/\.agents\/skills only once they work on files in apps\/web; start your agent in apps\/web/,
+  );
+  assert.equal(run(t, dir).length, 1);
 });
 
 test('workspace exclusions skip their packages', () => {
