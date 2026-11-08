@@ -46,6 +46,15 @@ describe('useHiddenUntilIdle', () => {
     expect(result.current[0]).toBe(false);
   });
 
+  it('shows everything waiting in one idle period', () => {
+    const first = renderHook(() => useHiddenUntilIdle(true));
+    const second = renderHook(() => useHiddenUntilIdle(true));
+    expect(whenIdle).toHaveBeenCalledTimes(1);
+    runIdle();
+    expect(first.result.current[0]).toBe(false);
+    expect(second.result.current[0]).toBe(false);
+  });
+
   it('never waits for what is shown', () => {
     renderHook(() => useHiddenUntilIdle(false));
     expect(whenIdle).not.toHaveBeenCalled();

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useContext, useDeferredValue, useMemo, useState } from 'react';
+import React, { useContext, useDeferredValue, useMemo } from 'react';
 
 import LiveFolder from './LiveFolder';
 import Request from './Request';
@@ -10,7 +10,7 @@ import {
   useCodeDocuments,
 } from '../Playground/editor/codeModel';
 import EditorSurface from '../Playground/editor/EditorSurface';
-import { HiddenContext } from '../Playground/hiddenContext';
+import { HiddenContext, useShownOnce } from '../Playground/hiddenContext';
 import type { LiveProps } from '../Playground/preview/exchange/LiveExchange';
 import playgroundstyles from '../Playground/styles.module.css';
 
@@ -26,9 +26,7 @@ import playgroundstyles from '../Playground/styles.module.css';
 export default function EndpointPlayground(props: Props) {
   const model = useCodeDocuments(props.children);
   // the code is plain text while hidden (HiddenContext), then stays live
-  const hidden = useContext(HiddenContext);
-  const [interactive, setInteractive] = useState(!hidden);
-  if (!hidden && !interactive) setInteractive(true);
+  const [interactive] = useShownOnce(useContext(HiddenContext));
   // the editor stays responsive while the exchange reruns
   const documents = useDeferredValue(model.documents);
   const setup = 'setup' in props ? props.setup : undefined;

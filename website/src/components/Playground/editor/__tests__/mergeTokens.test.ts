@@ -85,8 +85,10 @@ describe('mergeTokens', () => {
   it('compares against the plain style it is given', () => {
     const line = [tok('punctuation', '('), tok('string', "'a'")];
     expect(mergeTokens(line, getTokenProps, plain)[0].types).toEqual(['plain']);
+    // another theme: another getTokenProps
+    const otherGetTokenProps = (input: TokenInputProps) => getTokenProps(input);
     expect(
-      mergeTokens(line, getTokenProps, { color: '#fff' })[0].types,
+      mergeTokens(line, otherGetTokenProps, { color: '#fff' })[0].types,
     ).toEqual(['punctuation']);
   });
 

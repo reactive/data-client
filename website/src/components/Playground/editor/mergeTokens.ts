@@ -17,7 +17,8 @@ const UNSEEN_ON_SPACE = new Set(['color', 'fontStyle', 'fontWeight']);
  * Highlighting costs an element per token, and most of Prism's tokens are
  * whitespace or plain, so this halves the elements a page's code adds.
  *
- * @param plain the theme's `plain` style, which the `<pre>` draws
+ * @param plain the `plain` style of getTokenProps's theme, which the `<pre>`
+ *   draws
  */
 export function mergeTokens(
   line: readonly Token[],
@@ -42,7 +43,7 @@ export function mergeTokens(
       continue;
     }
     lastLook = blank ? '' : look;
-    lastUnseenOnSpace = blank || unseenOnSpace;
+    lastUnseenOnSpace = unseenOnSpace;
     merged.push({
       types: lastLook ? token.types : ['plain'],
       content: token.content,
@@ -64,29 +65,23 @@ interface Appearance {
   unseenOnSpace: boolean;
 }
 
-// A token's style depends only on its types, getTokenProps and the plain
-// style, so compare each types once per getTokenProps (one per Highlight
-// render), starting over when the plain style changes.
-const appearances = new WeakMap<
-  GetTokenProps,
-  { plain: CSSProperties | undefined; byTypes: Map<string, Appearance> }
->();
+// A token's style depends only on its types and getTokenProps (plain comes
+// from the same theme), so compare each types once per getTokenProps (one
+// per Highlight render).
+const appearances = new WeakMap<GetTokenProps, Map<string, Appearance>>();
 
 function appearance(
   token: Token,
   getTokenProps: GetTokenProps,
   plain: CSSProperties | undefined,
 ): Appearance {
-  let cache = appearances.get(getTokenProps);
-  if (!cache || cache.plain !== plain) {
-    cache = { plain, byTypes: new Map() };
-    appearances.set(getTokenProps, cache);
-  }
+  let byTypes = appearances.get(getTokenProps);
+  if (!byTypes) appearances.set(getTokenProps, (byTypes = new Map()));
   const typesKey = token.types.join(' ');
-  let found = cache.byTypes.get(typesKey);
+  let found = byTypes.get(typesKey);
   if (!found) {
     found = compareStyle(getTokenProps({ token }).style, plain);
-    cache.byTypes.set(typesKey, found);
+    byTypes.set(typesKey, found);
   }
   return found;
 }

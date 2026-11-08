@@ -5,7 +5,7 @@ import {
 } from '@docusaurus/theme-common/internal';
 import type { Props } from '@theme/CodeBlock';
 import CodeBlock from '@theme-original/CodeBlock';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 
 import { SHELLS } from './shells';
 import AgentPrompt from '../../components/AgentPrompt';
@@ -19,9 +19,6 @@ import { metaFlag } from '../../utils/fenceMeta';
  * they render as the agent prompt chip (shell blocks: ./Layout).
  * `framed` in the meta (```bash framed) gives both a header, where the page has room. */
 export default function CodeBlockWrapper(props: Props) {
-  // not shown (an unselected tab, a closed details): plain text (./Line)
-  // until the page is idle, then highlighted ahead of being shown
-  const [hidden] = useHiddenUntilIdle(useContext(HiddenContext));
   const language = props.language ?? parseLanguage(props.className);
   // a title in the meta wins, as in Docusaurus's own CodeBlock
   const title =
@@ -46,9 +43,17 @@ export default function CodeBlockWrapper(props: Props) {
         description: 'Header of framed code blocks of shell commands',
       })
     : undefined;
-  return (
-    <HiddenContext.Provider value={hidden}>
-      <CodeBlock {...props} title={terminalTitle ?? props.title} />
-    </HiddenContext.Provider>
+  return <IdleCodeBlock {...props} title={terminalTitle ?? props.title} />;
+}
+
+/** Code not shown (an unselected tab, a closed details) is not highlighted,
+ * so Prism does no work for it, until the page is idle; then it is
+ * highlighted ahead of being shown */
+function IdleCodeBlock(props: Props) {
+  const [hidden] = useHiddenUntilIdle(useContext(HiddenContext));
+  // a tab switch re-renders only this, not the code block
+  return useMemo(
+    () => <CodeBlock {...props} language={hidden ? 'text' : props.language} />,
+    [props, hidden],
   );
 }
