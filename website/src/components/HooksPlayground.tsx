@@ -22,7 +22,7 @@ const HooksPlayground = ({
   autoRun,
   getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => {
-  const notShownYet = useContext(HiddenContext);
+  const inHiddenContent = useContext(HiddenContext);
   return (
     <Playground
       groupId={groupId}
@@ -32,7 +32,7 @@ const HooksPlayground = ({
       demo={demo}
       before={before}
       beforeLabel={beforeLabel}
-      hidden={hidden ?? notShownYet}
+      hidden={hidden ?? inHiddenContent}
       fixtures={fixtures}
       getInitialInterceptorData={getInitialInterceptorData}
       defaultTab={defaultTab}
