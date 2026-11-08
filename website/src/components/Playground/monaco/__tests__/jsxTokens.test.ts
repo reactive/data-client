@@ -4,11 +4,12 @@ import type * as Monaco from 'monaco-editor';
 import { hasJsxColors, registerJsxColors } from '../jsxTokens';
 
 /** A model of `code` at `path`, with the position helpers the provider uses */
-function fakeModel(code: string, path: string) {
+function fakeModel(code: string, path: string, language = 'typescript') {
   const lines = code.split('\n');
   return {
     uri: { path, toString: () => `file://${path}` },
     getValue: () => code,
+    getLanguageId: () => language,
     getVersionId: () => 1,
     isDisposed: () => false,
     getLineMaxColumn: (line: number) => lines[line - 1].length + 1,
@@ -61,4 +62,8 @@ test('JSX spans become one semantic token per line', async () => {
 
 test('files that cannot hold JSX have none to wait for', () => {
   expect(hasJsxColors(fakeModel('<T>x', '/1/a.ts'))).toBe(true);
+  // a js fence titled App.tsx
+  expect(hasJsxColors(fakeModel('<a />', '/1/App.tsx', 'javascript'))).toBe(
+    true,
+  );
 });

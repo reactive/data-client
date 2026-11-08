@@ -92,8 +92,8 @@ Gotchas:
   JSX): `monaco/jsxTokens.ts` asks the worker (`monaco/surfaceWorker.js`)
   for tag names, attribute names and text and paints them as semantic
   tokens, which arrive after the grammar's colors, so `whenPainted` waits
-  for them. Only `.tsx` models get JSX colors: diff sides get paths named by
-  their fence's extension. `tokenize.ts` colors Prism's JSX to match.
+  for them. Only typescript models with a `.tsx` path get JSX colors: diff
+  sides get paths named by their fence's extension. `tokenize.ts` colors Prism's JSX to match.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and
