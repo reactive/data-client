@@ -51,6 +51,14 @@ export default class SubscriptionManager<
   }
 
   middleware: Middleware = controller => {
+    // Managers shared by a remounted DataProvider: subscriptions from the old store
+    // would keep fetching for it, so drop them
+    if (controller !== this.controller) {
+      for (const key in this.subscriptions) {
+        this.subscriptions[key].cleanup();
+      }
+      this.subscriptions = {};
+    }
     this.controller = controller;
     return next => action => {
       switch (action.type) {

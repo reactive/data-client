@@ -311,13 +311,14 @@ describe('DevToolsManager', () => {
       expect(actionLogs().get('App')).toHaveLength(4);
     });
 
-    it('forgets polling keys on cleanup', () => {
+    it('keeps capping a polling key after cleanup() and init()', () => {
       const { manager, dispatch } = pollingSetup();
       dispatch(subscribe('a'));
+      // SubscriptionManager.init() resumes the poll without a new SUBSCRIBE
       manager.cleanup();
       manager.init(initialState);
       for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
-      expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(3);
+      expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(2);
     });
 
     it('does not cap subscriptions without pollFrequency', () => {

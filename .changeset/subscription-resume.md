@@ -12,6 +12,9 @@ never restarted it. Subscriptions from [useSubscription()](https://dataclient.io
 recovered, because their component subscribes again. A subscription made with
 [controller.subscribe()](https://dataclient.io/docs/api/Controller#subscribe) now resumes polling too.
 
+When a remounted `DataProvider` reuses the same Managers, SubscriptionManager now drops the subscriptions of the old
+store, so the new store polls for itself.
+
 A custom [Subscription](https://dataclient.io/docs/api/SubscriptionManager#subscription) can add `init()` to resume
 work that `cleanup()` stopped:
 

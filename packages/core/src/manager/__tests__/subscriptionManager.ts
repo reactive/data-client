@@ -78,6 +78,29 @@ describe('SubscriptionManager', () => {
       expect(sub.init).toHaveBeenCalledTimes(1);
     });
 
+    it('drops subscriptions from a previous store when bound to a new one', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const action = {
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction;
+      manager.middleware(new Controller())(() => Promise.resolve())(action);
+      const old: TestSubscription = (manager as any).subscriptions[action.key];
+      manager.cleanup();
+
+      manager.middleware(new Controller())(() => Promise.resolve())(action);
+      manager.init();
+      const current: TestSubscription = (manager as any).subscriptions[
+        action.key
+      ];
+      expect(current).not.toBe(old);
+      expect(old.add).not.toHaveBeenCalled();
+      expect(old.init).not.toHaveBeenCalled();
+      expect(current.init).toHaveBeenCalledTimes(1);
+    });
+
     it('keeps a Subscription without init() created while paused running', () => {
       class NoInitSubscription implements Subscription {
         add = jest.fn();
