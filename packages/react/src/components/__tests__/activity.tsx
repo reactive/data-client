@@ -198,6 +198,32 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
     await wait(60);
     expect(calls).toBeGreaterThan(hiddenAt);
   });
+
+  it('resumes polling from controller.subscribe() after showing', async () => {
+    let calls = 0;
+    const endpoint = CoolerArticleResource.get.extend({
+      pollFrequency: 20,
+      fetch() {
+        calls++;
+        return Promise.resolve({ id: 5, title: `poll ${calls}`, content: 'x' });
+      },
+    });
+    const { hide, show } = renderTabs(<Fetcher />);
+    // no component unsubscribes this, so it outlives the hide
+    await act(() => ctrl.subscribe(endpoint, { id: 5 }));
+    await wait(50);
+    expect(calls).toBeGreaterThan(0);
+
+    await hide();
+    const hiddenAt = calls;
+    await wait(60);
+    expect(calls).toBe(hiddenAt);
+
+    await show();
+    await wait(60);
+    expect(calls).toBeGreaterThan(hiddenAt);
+    await act(() => ctrl.unsubscribe(endpoint, { id: 5 }));
+  });
 });
 
 describe('<DataProvider> remounted with the same managers', () => {
