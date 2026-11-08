@@ -104,7 +104,7 @@ under an unselected tab (`theme/TabItem`, so `PlaygroundTabs` and Docusaurus
 `<Tabs>` alike), nested groups included, and under a closed `<details>`
 (`theme/Details`) until its summary is clicked or the page is idle. An
 explicit prop wins. `TypeScriptEditor` there latches the same way (plain
-text while hidden). The site's code blocks there are plain text until shown
+text until no longer hidden, then Monaco stays). The site's code blocks there are plain text until shown
 or the page is idle (`theme/CodeBlock`), then highlight in a transition, so
 neither the hydration nor a later tab switch waits on them.
 In `row` (not stacked), the result never shrinks below its tallest
