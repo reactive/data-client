@@ -20,6 +20,12 @@ function spans(code: string, language: string) {
     .filter(([, text]) => text);
 }
 
+/** The text of tsx `code`'s spans that have one of `types` */
+const textsOf = (code: string, ...types: string[]) =>
+  spans(code, 'tsx')
+    .filter(([type]) => types.includes(type as string))
+    .map(([, text]) => text);
+
 describe('monacoPrism colors as Monaco does', () => {
   test('TypeScript keywords, capitalized names and delimiters', () => {
     expect(
@@ -173,10 +179,7 @@ describe('monacoPrism colors as Monaco does', () => {
   });
 
   test('tags right after text', () => {
-    const tags = (code: string) =>
-      spans(code, 'tsx')
-        .filter(([type]) => type === 'tag')
-        .map(([, text]) => text);
+    const tags = (code: string) => textsOf(code, 'tag');
     expect(tags('<p>a<b>x</b>c<i>y<br/>z</i>d<b c="e">f</b></p>')).toEqual([
       'p',
       'b',
@@ -201,15 +204,13 @@ describe('monacoPrism colors as Monaco does', () => {
   });
 
   test('a tag right after a name in code is type arguments', () => {
-    const tagsAndKeywords = (code: string) =>
-      spans(code, 'tsx')
-        .filter(([type]) => type === 'tag' || type === 'keyword')
-        .map(([, text]) => text);
+    const tagsAndKeywords = (code: string) => textsOf(code, 'tag', 'keyword');
     for (const call of [
       'f<T>(1)',
       'f <T>(1)',
       'fé<T>(1)',
       '取得<T>(1)',
+      '𝒇<T>(1)',
       `${'f'.repeat(100)} <T>(1)`,
     ]) {
       expect(tagsAndKeywords(`x = ${call};\nconst y = 1;`)).toEqual(['const']);

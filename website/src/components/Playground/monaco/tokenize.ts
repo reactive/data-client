@@ -100,7 +100,7 @@ const pairs = (cuts: number[]) =>
 
 const isPunctuation = (token: Token | undefined, text: string) =>
   typeof token === 'object' &&
-  /^(punctuation|operator)$/.test(token.type) &&
+  token.type === 'punctuation' &&
   token.content === text;
 
 /**
@@ -196,18 +196,18 @@ const BEFORE_EXPRESSION = new Set(
  * arguments, as `f<T>()` and `f <T>()` do: in code, after a name that isn't
  * a word like `return`. A fragment (no `name`) never does.
  */
-function isTypeArguments(
-  code: string,
-  at: number,
-  name: string,
-  inChildren: boolean,
-) {
-  if (inChildren || !name) return false;
+function isTypeArguments(code: string, at: number, name: string) {
+  if (!name) return false;
   // spaces on the same line: a name ending the line before can end a comment
   let end = at;
   while (code[end - 1] === ' ' || code[end - 1] === '\t') end--;
   let start = end;
-  while (start > 0 && NAME_CHAR.test(code[start - 1])) start--;
+  while (start > 0) {
+    // a character past U+FFFF is two code units: test them together
+    const step = start > 1 && /[\uDC00-\uDFFF]/.test(code[start - 1]) ? 2 : 1;
+    if (!NAME_CHAR.test(code.slice(start - step, start))) break;
+    start -= step;
+  }
   return start < end && !BEFORE_EXPRESSION.has(code.slice(start, end));
 }
 
@@ -217,14 +217,10 @@ function isTypeArguments(
  * token makes `extends` an attribute (`=`, `>` or `/`). JSX children have
  * none: there `<` always starts an element.
  */
-function isTypeParameters(
-  name: string,
-  attributes: Token[],
-  inChildren: boolean,
-) {
+function isTypeParameters(name: string, attributes: Token[]) {
   // only a plain name: `<a.B extends` and `<svg:a extends` are tags
   const isName = (text: string) => /^[A-Za-z_$][\w$]*$/.test(text);
-  if (inChildren || !isName(name)) return false;
+  if (!isName(name)) return false;
   const parts = attributes.filter(part => textOf(part).trim());
   if (name === 'const' && !isName(textOf(parts.shift() ?? ''))) return false;
   const [first, next] = parts;
@@ -237,20 +233,15 @@ function isTypeParameters(
   );
 }
 
-/** How `recolor` reads tsx `code`'s JSX */
-interface JsxReading {
-  code: string;
-  /** Where each tag name, attribute name and text is: a start, length and kind */
-  spans: number[];
-}
-
 /**
  * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
  * With `jsx`, tag names, attribute names and text get the colors TypeScript
  * gives them.
  */
-function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
-  const { code, spans } = jsx ?? { code: '', spans: [] };
+function recolor(stream: Token[], keywords: Set<string>, code?: string) {
+  const jsx = code !== undefined;
+  /** Where each tag name, attribute name and text is: a start, length and kind */
+  const spans: number[] = [];
   const lexer = new MonacoLexer(keywords);
   /** Where JSX nests: an element's children, or code (`{}`, a tag's attributes) */
   const nesting: ('children' | 'code')[] = [];
@@ -260,16 +251,17 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
     // a name can come in parts: `svg:` (namespace) and `path`
     const [open, ...nameParts] = contentOf(head as Prism.Token);
     const name = textOf(nameParts);
-    const inChildren = nesting.at(-1) === 'children';
+    const opener = textOf(open);
+    // in JSX children, `<` always starts an element
     if (
-      (textOf(open) === '<' &&
-        isTypeArguments(code, lexer.at, name, inChildren)) ||
-      isTypeParameters(name, attributes, inChildren)
+      nesting.at(-1) !== 'children' &&
+      ((opener === '<' && isTypeArguments(code!, lexer.at, name)) ||
+        isTypeParameters(name, attributes))
     ) {
       // read again as TypeScript, so numbers in a constraint keep their color
       return walkAll(Prism.tokenize(textOf(tag), Prism.languages.typescript));
     }
-    lexer.addCode(textOf(open));
+    lexer.addCode(opener);
     if (name) {
       spans.push(lexer.at, name.length, JSX_TAG);
       lexer.addToken(typed(isComponentName(name) ? 'class-name' : 'tag', name));
@@ -283,7 +275,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
       } else walk(part);
     }
     nesting.pop();
-    if (textOf(open) === '</') {
+    if (opener === '</') {
       if (nesting.at(-1) === 'children') nesting.pop();
     } else if (textOf(attributes.at(-1) ?? '') !== '/>') {
       nesting.push('children');
@@ -322,7 +314,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
     for (const token of list) walk(token);
   };
   walkAll(stream);
-  return lexer.result();
+  return { tokens: lexer.result(), spans };
 }
 
 /**
@@ -350,7 +342,7 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
       case 'punctuation':
         return [token];
       case 'script':
-        return recolor([token], JS_KEYWORDS);
+        return recolor([token], JS_KEYWORDS).tokens;
       case 'attr-name': {
         // Vue's `:` and `@` prefixes stay plain
         const [, prefix, name] = textOf(token).match(/^([^\w-]*)([\s\S]*)$/)!;
@@ -393,18 +385,13 @@ const tagOf = (language: 'jsx' | 'tsx') =>
  * later `>(`. It isn't in `KEPT`, so its color was lexed again anyway.
  */
 const TSX = Prism.languages.extend('tsx', {
-  tag: { ...tagOf('tsx'), pattern: tagOf('jsx').pattern, lookbehind: false },
+  tag: { ...tagOf('tsx'), pattern: tagOf('jsx').pattern },
 });
 delete (TSX as Record<string, unknown>)['generic-function'];
 
 /** tsx `code` recolored, and where its JSX is */
-function recolorTsx(code: string) {
-  const jsx: JsxReading = { code, spans: [] };
-  return {
-    tokens: recolor(Prism.tokenize(code, TSX), TS_KEYWORDS, jsx),
-    spans: jsx.spans,
-  };
-}
+const recolorTsx = (code: string) =>
+  recolor(Prism.tokenize(code, TSX), TS_KEYWORDS, code);
 
 /** Monaco's JavaScript grammar is its TypeScript one with fewer keywords */
 const keywordsFor = (grammar: Prism.Grammar) =>
@@ -422,7 +409,7 @@ export const monacoPrism = {
     grammar === Prism.languages.markup ?
       recolorHtml(Prism.tokenize(code, grammar))
     : grammar === Prism.languages.tsx ? recolorTsx(code).tokens
-    : recolor(Prism.tokenize(code, grammar), keywordsFor(grammar)),
+    : recolor(Prism.tokenize(code, grammar), keywordsFor(grammar)).tokens,
 } as typeof Prism;
 
 /**
