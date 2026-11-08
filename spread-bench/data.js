@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794069923951,
+  "lastUpdate": 1794114130508,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -897,6 +897,37 @@ window.BENCHMARK_DATA = {
             "name": "setOneEntity in 10k entity store",
             "value": 169,
             "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "77c9e2fc66b9e68f3a0ff9f033aaef2f279aae5c",
+          "message": "pkg: Update react-native packages (#4632)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-11-08T04:57:27Z",
+          "tree_id": "5f435daa57667b459abce435e736e48550b954d4",
+          "url": "https://github.com/reactive/data-client/commit/77c9e2fc66b9e68f3a0ff9f033aaef2f279aae5c"
+        },
+        "date": 1794114126967,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 152,
+            "range": "±0.82%",
             "unit": "ops/sec",
             "extra": "86 samples"
           }
