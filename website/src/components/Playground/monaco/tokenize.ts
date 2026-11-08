@@ -107,10 +107,17 @@ const isPunctuation = (token: Token | undefined, text: string) =>
 class MonacoLexer {
   private readonly tokens: Token[] = [];
   private code = '';
+  /** Length of the code in `tokens` */
+  private lexed = 0;
   /** Where JSX text is in `code`: [from, to] */
   private textRanges: (readonly [number, number])[] = [];
 
   constructor(private readonly keywords: Set<string>) {}
+
+  /** Where the next code goes in the whole */
+  get at() {
+    return this.lexed + this.code.length;
+  }
 
   addCode(code: string) {
     this.code += code;
@@ -125,6 +132,7 @@ class MonacoLexer {
   addToken(token: Token) {
     this.flush();
     this.tokens.push(token);
+    this.lexed += textOf(token).length;
   }
 
   result() {
@@ -134,6 +142,7 @@ class MonacoLexer {
 
   private flush() {
     const { code, textRanges } = this;
+    this.lexed += code.length;
     if (!textRanges.length) {
       // a loop, as spreading a long run of tokens overflows the stack
       for (const token of lex(code, this.keywords)) this.tokens.push(token);
@@ -169,9 +178,15 @@ class MonacoLexer {
 /**
  * Whether a tag is type parameters, as TypeScript decides in .tsx: `<T extends`
  * (maybe `<const T extends`) starts a generic arrow function, unless the next
- * token makes `extends` an attribute (`=`, `>` or `/`)
+ * token makes `extends` an attribute (`=`, `>` or `/`). JSX children have
+ * none: there `<` always starts an element.
  */
-function isTypeParameters(name: string, attributes: Token[]) {
+function isTypeParameters(
+  name: string,
+  attributes: Token[],
+  inChildren: boolean,
+) {
+  if (inChildren) return false;
   const parts = attributes.filter(part => textOf(part).trim());
   if (name === 'const') parts.shift();
   const [first, next] = parts;
@@ -184,12 +199,22 @@ function isTypeParameters(name: string, attributes: Token[]) {
   );
 }
 
+/** What a JSX span holds, in `jsxSpans()` */
+export const JSX_TAG = 0;
+export const JSX_ATTRIBUTE = 1;
+export const JSX_TEXT = 2;
+
 /**
  * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
  * With `jsx`, tag names, attribute names and text get the colors TypeScript
- * gives Monaco (./jsxTokens.ts).
+ * gives them, and `jsxSpans` gets where each is: a start, length and kind.
  */
-function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
+function recolor(
+  stream: Token[],
+  keywords: Set<string>,
+  jsx = false,
+  jsxSpans: number[] = [],
+) {
   const lexer = new MonacoLexer(keywords);
   /** Where JSX nests: an element's children, or code (`{}`, a tag's attributes) */
   const nesting: ('children' | 'code')[] = [];
@@ -199,19 +224,22 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
     // a name can come in parts: `svg:` (namespace) and `path`
     const [open, ...nameParts] = contentOf(head as Prism.Token);
     const name = textOf(nameParts);
-    // JSX children have no type parameters, as TypeScript reads them
-    if (nesting.at(-1) !== 'children' && isTypeParameters(name, attributes)) {
+    if (isTypeParameters(name, attributes, nesting.at(-1) === 'children')) {
       // read again as TypeScript, so numbers in a constraint keep their color
       return walkAll(Prism.tokenize(textOf(tag), Prism.languages.typescript));
     }
     lexer.addCode(textOf(open));
-    if (name)
+    if (name) {
+      jsxSpans.push(lexer.at, name.length, JSX_TAG);
       lexer.addToken(typed(isComponentName(name) ? 'class-name' : 'tag', name));
+    }
     nesting.push('code');
     for (const part of attributes) {
-      if (typeof part === 'object' && part.type === 'attr-name')
-        lexer.addToken(typed('attr-name', textOf(part)));
-      else walk(part);
+      if (typeof part === 'object' && part.type === 'attr-name') {
+        const attribute = textOf(part);
+        jsxSpans.push(lexer.at, attribute.length, JSX_ATTRIBUTE);
+        lexer.addToken(typed('attr-name', attribute));
+      } else walk(part);
     }
     nesting.pop();
     if (textOf(open) === '</') {
@@ -232,7 +260,11 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
         nesting.pop();
         return lexer.addCode('}');
       }
-      if (nesting.at(-1) === 'children') return lexer.addText(textOf(token));
+      if (nesting.at(-1) === 'children') {
+        const text = textOf(token);
+        jsxSpans.push(lexer.at, text.length, JSX_TEXT);
+        return lexer.addText(text);
+      }
     }
     if (typeof token === 'string') {
       lexer.addCode(token);
@@ -351,3 +383,13 @@ export const monacoPrism = {
         grammar === Prism.languages.tsx,
       ),
 } as typeof Prism;
+
+/**
+ * Where `code`'s JSX tag names, attribute names and text are, by the same
+ * reading that colors them above: a start, length and kind (`JSX_TAG`…) each
+ */
+export function jsxSpans(code: string) {
+  const spans: number[] = [];
+  recolor(Prism.tokenize(code, Prism.languages.tsx), TS_KEYWORDS, true, spans);
+  return spans;
+}

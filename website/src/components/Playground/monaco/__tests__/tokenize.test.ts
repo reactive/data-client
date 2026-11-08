@@ -241,6 +241,15 @@ describe('monacoPrism colors as Monaco does', () => {
       ['class-name', 'A'],
       ['punctuation', '>'],
     ]);
+    // but in code inside them, type parameters again
+    expect(spans('<a>{<T extends U>() => 1}</a>', 'tsx').slice(2, 8)).toEqual([
+      ['punctuation', '>'],
+      ['punctuation', '{'],
+      ['punctuation', '<'],
+      ['class-name', 'T'],
+      ['keyword', 'extends'],
+      ['class-name', 'U'],
+    ]);
     // in JSX children, `<T extends U>` is always a tag
     expect(spans('<a><T extends U /></a>', 'tsx')).toEqual([
       ['punctuation', '<'],

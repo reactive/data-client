@@ -88,13 +88,14 @@ Gotchas:
   of code. `editor/mergeTokens.ts` draws the same colors with half of them
   (whitespace and plain text bare, neighbors that look alike in one span),
   for `StaticEditor` and the site's code blocks (`theme/CodeBlock/Line`).
-- JSX colors come from TypeScript, not Monaco's grammar (which has no
-  JSX): `monaco/jsxTokens.ts` asks the worker (`monaco/surfaceWorker.js`)
-  for tag names, attribute names and text and paints them as semantic
-  tokens, which arrive after the grammar's colors, so `whenPainted` waits
-  for them. Only typescript models with a `.tsx` path get JSX colors: diff
-  sides get paths named by their fence's extension. `tokenize.ts` colors
-  Prism's JSX to match.
+- JSX colors aren't in Monaco's grammar (which has no JSX):
+  `monaco/jsxTokens.ts` paints tag names, attribute names and text as
+  semantic tokens, at once from `tokenize.ts`'s reading (the server's), so
+  `whenPainted` waits only a moment for them. TypeScript then checks them in
+  the worker (`monaco/surfaceWorker.js`), where they would otherwise wait
+  behind every editor's type check, and repaints any it reads otherwise.
+  Only typescript models with a `.tsx` path get JSX colors: diff sides get
+  paths named by their fence's extension.
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and

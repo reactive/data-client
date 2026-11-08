@@ -46,7 +46,7 @@ const rules: CodeRule[] = [
   // type definitions variables like const X or class X
   { token: 'type', color: color.type },
   { token: 'delimiter', color: color.delimiter },
-  // JSX, from TypeScript (./jsxTokens.ts)
+  // JSX (./jsxTokens.ts)
   { token: 'jsxTag', color: color.tag },
   { token: 'jsxComponent', color: color.type },
   { token: 'jsxAttribute', color: color.type },
