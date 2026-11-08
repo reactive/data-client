@@ -72,6 +72,23 @@ describe('<DataProvider />', () => {
     expect(warnspy.mock.calls).toMatchSnapshot();
   });
 
+  it('should not let a Suspense above DataProvider catch its children', () => {
+    const Component = () => {
+      const article = useSuspense(CoolerArticleResource.get, { id: 5 });
+      return <div>{article.title}</div>;
+    };
+    const tree = (
+      <Suspense fallback="outer loading">
+        <DataProvider>
+          <Component />
+        </DataProvider>
+      </Suspense>
+    );
+    const { getByText, queryByText } = render(tree);
+    expect(getByText('Uncaught Suspense.')).toBeDefined();
+    expect(queryByText('outer loading')).toBeNull();
+  });
+
   it('should not warn if Suspense is provided', () => {
     const Component = () => {
       const article = useSuspense(CoolerArticleResource.get, { id: 5 });

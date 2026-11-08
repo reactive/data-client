@@ -81,7 +81,7 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 ## Provider {#provider}
 
 Put `DataProvider` where `QueryClientProvider` was, and the app's `<Suspense>` boundary inside it.
-`DataProvider` has its own backup boundary, which shows "Uncaught Suspense", so a boundary above `DataProvider` never shows its fallback.
+`DataProvider` has its own backup boundary, which shows "Uncaught Suspense" in development, so a boundary above `DataProvider` never shows its fallback.
 
 ```tsx title="provider.tsx"
 import { DataProvider } from '@data-client/react';

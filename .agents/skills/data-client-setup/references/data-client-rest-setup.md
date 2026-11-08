@@ -38,7 +38,7 @@ Check `package.json` and imports. Several libraries can coexist: migrate each on
 Axios:
 
 1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
-2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`. It turns each axios call into a call to an endpoint (usually a module-level `const` when the call is in a function), turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
+2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx @data-client/codemods axios-to-rest src/` (it reads TypeScript and skips `node_modules`). It turns each axios call into a call to an endpoint (usually a module-level `const` when the call is in a function), turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
 3. The codemod doesn't format its output, so run the fixers the project already uses on the changed files: its `format` or `lint --fix` script, or the tool its config names (such as `prettier --write`, `eslint --fix` or `biome check --write`).
 4. Search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
 5. Follow the reference's remaining steps. Callers keep loading data the way they did; only the call changes.
@@ -68,7 +68,7 @@ Override only what the app does today:
 | Auth or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
 | Auth token from React context (Okta, Auth0) | [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md); a base class can't read context |
 | Cookies, CSRF, other `RequestInit` | `getRequestInit(body)`, spreading `super.getRequestInit(body)` |
-| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed |
+| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed. If the app reads `meta` (page counts, totals), keep the envelope as the schema instead, and don't unwrap in a base class, whose `process()` runs for every endpoint ("Page numbers in an envelope" in skill "data-client-rest"'s pagination reference) |
 | Date fields | Not `process()`: the Entity's `static schema`, e.g. `createdAt: Temporal.Instant.from` (skill "data-client-schema") |
 | Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow ([Server error messages](./data-client-rest-setup/references/axios-migration.md#server-error-messages) shows it) |
 | Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |

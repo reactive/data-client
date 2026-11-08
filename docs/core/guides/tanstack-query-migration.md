@@ -115,7 +115,7 @@ fetches. Replace TanStack Query's `useQuery()` with `useSuspense()` or `useDLE()
 ## Provider {#provider}
 
 Put `DataProvider` where `QueryClientProvider` was, and the app's `<Suspense>` boundary inside it.
-`DataProvider` has its own backup boundary, which shows "Uncaught Suspense", so a boundary above `DataProvider` never shows its fallback.
+`DataProvider` has its own backup boundary, which shows "Uncaught Suspense" in development, so a boundary above `DataProvider` never shows its fallback.
 
 ```tsx title="provider.tsx"
 import { DataProvider } from '@data-client/react';

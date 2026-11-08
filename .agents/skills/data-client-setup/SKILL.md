@@ -133,7 +133,9 @@ pnpm add @data-client/vue
 
 ## Provider Setup
 
-After installing, add the provider at the top-level component.
+After installing, add the provider at the top-level component. In React, keep Suspense boundaries inside `DataProvider`:
+its backup `<Suspense>` catches any suspend no inner boundary does, so a boundary above it (common in React Query
+setups) never shows its fallback.
 
 ### NextJS (App Router)
 
@@ -197,12 +199,14 @@ AppRegistry.registerComponent('MyApp', () => Root);
 Edit entry file (e.g., `index.tsx`, `main.tsx`, or `src/index.tsx`):
 
 ```tsx
-import { DataProvider } from '@data-client/react';
+import { AsyncBoundary, DataProvider } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
 createRoot(document.getElementById('root')!).render(
   <DataProvider>
-    <App />
+    <AsyncBoundary fallback={<Spinner />}>
+      <App />
+    </AsyncBoundary>
   </DataProvider>,
 );
 ```
@@ -278,6 +282,7 @@ After setup, verify:
 - [ ] Provider/Plugin wraps the app at root level
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
+- [ ] React: a `<Suspense>` or `<AsyncBoundary>` is inside `DataProvider` and above the components that call `useSuspense()`
 - [ ] Protocol-specific setup completed via its guide
 - [ ] Migrating from TanStack Query: the guide's "Check the migration" list passes
 

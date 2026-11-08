@@ -38,10 +38,10 @@ The pre-check intentionally ignores `Entity` overrides of `pk`, `process`, and `
 Otherwise, commit first so you can diff, then run the codemod against your source roots — `src/` is the conventional location, but App Router (`app/`), Vue (`src/`), monorepo packages (`packages/`), and library (`lib/`) layouts all need the path adjusted:
 
 ```bash
-npx jscodeshift -t https://dataclient.io/codemods/v0.18.js --extensions=ts,tsx,js,jsx <source-root>
+npx @data-client/codemods v0.18 <source-root>
 ```
 
-Do **not** point jscodeshift at the repo root — it doesn't respect `.gitignore` and will walk into `node_modules`.
+Do **not** point it at the repo root — it doesn't respect `.gitignore` (it skips only `node_modules`).
 
 A clean run looks like `0 errors, N unmodified, 0 skipped` — that's expected, not a failure. The codemod rewrites parameter lists, body references (`unvisit(…)`, `visit(…)`, bare `args`), pass-through calls, TS method/property signatures, and adds `IDenormalizeDelegate` / `INormalizeDelegate` imports. After it runs, only the cases below need hand work.
 
