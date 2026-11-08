@@ -150,6 +150,9 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 | Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                                                                 |
 |               | no              | no      | no                | `null` used as second argument                                                                                                                                                                                   |
 
+"In store" includes Entities that other responses stored. When the endpoint's schema holds an Entity, `useSuspense()`
+finds it by its args, so a detail page opened from a list renders without a fetch ([Lists to details](./data-dependency.md#list-detail)).
+
 > **Note**
 >
 > 1. Identical fetches are automatically deduplicated

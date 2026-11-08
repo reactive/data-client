@@ -140,6 +140,25 @@ and free to change independently of the view.
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
 bound components immediately upon [data change](./mutations.md). This is known as _reactive programming_.
 
+## Lists to details {#list-detail}
+
+Open a post from `PostList` above, and `PostDetail` renders it without a fetch. `PostResource.get`'s schema is the
+`Post` [Entity](https://dataclient.io/rest/api/Entity), so `useSuspense()` first looks for that post in the store by its `id` argument
+([Entity.queryKey](https://dataclient.io/rest/api/Entity#queryKey)). The list response already put every post there. `useSuspense()`
+fetches only when the post is missing; when it is [stale](https://dataclient.io/docs/concepts/expiry-policy), it renders the stored post
+and refetches in the background.
+
+This works for any schema that holds the Entity, such as an envelope like `{ data: Post }`, and for every way of
+reading an endpoint: [useDLE()](./useDLE.md), [useCache()](./useCache.md) and
+[Controller.fetchIfStale()](./Controller.md#fetchIfStale) in router loaders.
+
+In the [React benchmarks](https://dataclient.io/docs/concepts/performance), switching between a list and its items is 21× faster than
+TanStack Query, which keys the detail query separately and fetches it.
+
+When list items lack fields the detail page shows, make those fields required with
+[Entity.validate()](https://dataclient.io/rest/api/Entity#validate) ([Partial entities](https://dataclient.io/rest/guides/partial-entities)): the detail page
+then fetches until it has them.
+
 ## Loading and Error {#async-fallbacks}
 
 You might have noticed the return type shows the value is always there. [useSuspense()](./useSuspense.md) operates very much

@@ -89,7 +89,7 @@ or change what users see, like adding optimistic updates the app did not have, a
 | `refetchInterval` | `pollFrequency` on the endpoint, read with [useLive()](../api/useLive.md) |
 | `refetchOnWindowFocus` | Delete it: Data Client doesn't refetch on window focus |
 | `placeholderData: keepPreviousData` | Change the args inside `startTransition()` (or [useDebounce()](../api/useDebounce.md) for typed input): React keeps showing the current data while the next loads |
-| `initialData` from a list query | Delete it: while the list's data is fresh, an Entity it loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity |
+| `initialData` from a list query | Delete it: while the list's data is fresh, an Entity it loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity or holds it, like `{ data: Issue }` |
 | `useMutation()` | `ctrl.fetch(endpoint, ...args)` in the event handler, from [useController()](../api/useController.md) |
 | `isPending`, `error` of a mutation | [useLoading()](../api/useLoading.md): `const [run, isPending, error] = useLoading(fn, deps)` |
 | `isSuccess`, `onSuccess`, `onError` | Code after or around `await ctrl.fetch()` ([Mutations](#mutations)) |
