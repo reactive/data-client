@@ -187,6 +187,14 @@ describe('monacoPrism colors as Monaco does', () => {
       'b',
       'p',
     ]);
+    // however long the tag
+    expect(tags(`<p>a<b c="${'d'.repeat(5000)}">e</b>f<i /></p>`)).toEqual([
+      'p',
+      'b',
+      'b',
+      'i',
+      'p',
+    ]);
     // `a<b>` in code is a type argument
     expect(tags('<p>{a<b>(c)}</p>')).toEqual(['p', 'p']);
   });

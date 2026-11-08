@@ -20,9 +20,8 @@ interface JsxWorker {
   getJsxSpans(fileName: string): Promise<number[]>;
 }
 
-/** Each model's version whose JSX colors were last handed to Monaco */
-const painted = new WeakMap<Monaco.editor.ITextModel, number>();
-/** Each model's latest tokens: tokenize.ts's, until TypeScript's replace them */
+/** Each model's latest tokens, handed to Monaco: tokenize.ts's, until
+ * TypeScript's replace them */
 const latest = new WeakMap<
   Monaco.editor.ITextModel,
   { version: number; data: number[] }
@@ -30,7 +29,7 @@ const latest = new WeakMap<
 
 /** Whether `model` shows its JSX colors, or has none to wait for */
 export const hasJsxColors = (model: Monaco.editor.ITextModel) =>
-  !takesJsx(model) || painted.get(model) === model.getVersionId();
+  !takesJsx(model) || latest.get(model)?.version === model.getVersionId();
 
 /** TypeScript parses JSX only in .tsx files, and the provider never sees
  * other languages' models, so a js fence titled App.tsx has no JSX colors */
@@ -48,8 +47,10 @@ export function registerJsxColors(monaco: typeof Monaco) {
   ) => {
     const getWorker = await monaco.typescript.getTypeScriptWorker();
     const worker = (await getWorker(model.uri)) as unknown as JsxWorker;
+    const stale = () => model.isDisposed() || model.getVersionId() !== version;
+    if (stale()) return;
     const spans = await worker.getJsxSpans(model.uri.toString());
-    if (model.isDisposed() || model.getVersionId() !== version) return;
+    if (stale()) return;
     const exact = encode(model, spans);
     latest.set(model, { version, data: exact });
     // Monaco asks again for every model, and gets each one's latest
@@ -69,7 +70,6 @@ export function registerJsxColors(monaco: typeof Monaco) {
         // if TypeScript can't check, tokenize.ts's colors stay
         check(model, version, known.data).catch(() => undefined);
       }
-      painted.set(model, version);
       return { data: new Uint32Array(known.data) };
     },
     releaseDocumentSemanticTokens() {},
