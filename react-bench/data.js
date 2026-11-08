@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794114870182,
+  "lastUpdate": 1794117059456,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -13541,6 +13541,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 392.16,
             "range": "± 2.2%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "f6307ea9d551e149639aa0f38f1c79d60d8264c6",
+          "message": "docs(skills): Put DataProvider at the root, above Suspense boundaries (#4609)\n\n* docs(skills): Fix setup gaps found migrating bulletproof-react\n\nP2: run the axios codemod from npm (`npx @data-client/codemods`).\nP3: keep Suspense boundaries inside DataProvider (docs, setup skill,\ndev warning, regression test).\nP7: document { data, meta } envelopes with getPage and push (pagination\nguide, REST skills, integration test).\nAdds reusable evals for each problem and stops bundling evals/ into\nskill references.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* docs(skills): Move codemod command changes to their own PR\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* docs(skills): Say DataProvider goes at the root instead of repeating the Suspense rule\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* docs(skills): Move envelope pagination (P7) to its own PR\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* docs: Drop the DataProvider note from the boundaries section\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* docs(skills): Drop the DataProvider placement note from the react skill index\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* docs(skills): Let the P3 eval accept an ErrorBoundary around DataProvider\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T05:45:10Z",
+          "tree_id": "9d20dc68e972b20676388f4ba911a7ad5c11f75b",
+          "url": "https://github.com/reactive/data-client/commit/f6307ea9d551e149639aa0f38f1c79d60d8264c6"
+        },
+        "date": 1794117056602,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 305.59,
+            "range": "± 2.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 92.02,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 913.24,
+            "range": "± 2.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 739.37,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 84.66,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 364.96,
+            "range": "± 0.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 611.63,
+            "range": "± 1.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 21.05,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 131.76,
+            "range": "± 1.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 103.25,
+            "range": "± 1.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 15.9,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 427.35,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 595.24,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 381.68,
+            "range": "± 3.1%",
             "unit": "ops/s"
           }
         ]
