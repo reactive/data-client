@@ -277,7 +277,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
 :::react
-- [DataProvider](references/DataProvider.md) - Root provider; keep it above other providers and Suspense boundaries
+- [DataProvider](references/DataProvider.md) - Root provider
 :::
 :::vue
 - [DataClientPlugin](references/DataClientPlugin.md) - Plugin options (managers, initialState, gcPolicy) and `$dataClient`

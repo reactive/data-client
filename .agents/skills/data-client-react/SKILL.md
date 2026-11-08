@@ -170,7 +170,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [AsyncBoundary](references/AsyncBoundary.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Error/loading boundary
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
-- [DataProvider](references/DataProvider.md) - Root provider; keep it above other providers and Suspense boundaries
+- [DataProvider](references/DataProvider.md) - Root provider
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
