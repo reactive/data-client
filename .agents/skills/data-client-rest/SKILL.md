@@ -146,7 +146,7 @@ step that owns the change, never `fetch` itself (that replaces the whole lifecyc
 | To change | Override |
 |---|---|
 | Headers (auth) | `getHeaders(headers)` |
-| Other request options or body encoding | `getRequestInit(body)` |
+| Other request options or body encoding | `async getRequestInit(body)`, spreading `await super.getRequestInit(body)` |
 | Query string format | `searchToString(searchParams)` |
 | The network call (retries, another client) | `fetchResponse(input, init)` |
 | Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |

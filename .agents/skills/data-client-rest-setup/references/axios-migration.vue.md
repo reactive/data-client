@@ -500,6 +500,7 @@ npm uninstall axios
 | `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                        |
 | `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                               |
 | `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                               |
+| `withCredentials: true`                  | [`credentials: 'include'`](./auth.vue.md#cookie-auth-credentials) in `getRequestInit()`                     |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                |
 | `params` / `paramsSerializer`            | [`searchParams`](./RestEndpoint.vue.md#searchParams) / [`searchToString()`](#query-serialization)           |
 | `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                             |
