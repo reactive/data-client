@@ -43,7 +43,7 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
     removed: [],
     outdated: [],
     kept: [],
-    upgrades: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: dirs && posix(path.relative(projectDir, dirs.dest)),
   };
@@ -192,7 +192,7 @@ function mirrorLinks(dest, mirror, result) {
 /**
  * Skill name -> its directory and id: the link target from `dest`, or
  * `pkg@version` for copies, which Yarn Plug'n'Play needs since it has no
- * node_modules. Upgrade skills left out go in `result.upgrades`.
+ * node_modules. Upgrade skills left out go in `result.skippedUpgrades`.
  */
 function wantedSkills(projectDir, dest, extracted, result, upgrade) {
   // under Yarn's runtime (`yarn data-client-skills`) resolving lands inside
@@ -218,7 +218,9 @@ function wantedSkills(projectDir, dest, extracted, result, upgrade) {
       if (!fs.existsSync(path.join(shipped, skill, 'SKILL.md'))) continue;
       // a new install has nothing to upgrade from
       if (!upgrade && isUpgradeSkill(skill)) {
-        if (!result.upgrades.includes(skill)) result.upgrades.push(skill);
+        // several installed versions can ship the same one
+        if (!result.skippedUpgrades.includes(skill))
+          result.skippedUpgrades.push(skill);
         continue;
       }
       want.set(skill, {
@@ -323,7 +325,7 @@ export function main(projectDir = process.cwd(), args = process.argv.slice(2)) {
     return;
   }
   const upgrade = args.includes('--upgrade');
-  const { added, removed, outdated, kept, upgrades, dir, junctions } =
+  const { added, removed, outdated, kept, skippedUpgrades, dir, junctions } =
     syncSkills(projectDir, { upgrade });
   if (added.length) console.log(`Added ${added.join(', ')}`);
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
@@ -341,6 +343,8 @@ export function main(projectDir = process.cwd(), args = process.argv.slice(2)) {
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
     );
+  // the Removed line already names the ones this run unlinked
+  const upgrades = skippedUpgrades.filter(skill => !removed.includes(skill));
   if (upgrades.length)
     console.log(
       `Upgrading from an older Data Client? Add --upgrade to also link ${upgrades.join(', ')}, then run it again without --upgrade once done.`,

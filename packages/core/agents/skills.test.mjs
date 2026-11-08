@@ -171,7 +171,7 @@ test('does nothing without Data Client', () => {
     removed: [],
     outdated: [],
     kept: [],
-    upgrades: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });
@@ -218,7 +218,7 @@ test('running again changes nothing', () => {
     removed: [],
     outdated: [],
     kept: [],
-    upgrades: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });
@@ -235,13 +235,13 @@ test('links upgrade skills only with upgrade, and removes them after', () => {
   );
   const fresh = syncSkills(dir);
   assert.ok(!fresh.added.includes('path-to-regexp-v8-migration'));
-  assert.deepEqual(fresh.upgrades, ['path-to-regexp-v8-migration']);
+  assert.deepEqual(fresh.skippedUpgrades, ['path-to-regexp-v8-migration']);
   assert.deepEqual(syncSkills(dir, { upgrade: true }), {
     added: ['path-to-regexp-v8-migration'],
     removed: [],
     outdated: [],
     kept: [],
-    upgrades: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });
@@ -250,6 +250,31 @@ test('links upgrade skills only with upgrade, and removes them after', () => {
     /path-to-regexp-v8-migration skill/,
   );
   assert.deepEqual(syncSkills(dir).removed, ['path-to-regexp-v8-migration']);
+});
+
+test('main names the upgrade skills it leaves out, except ones it just removed', t => {
+  const dir = hoisted();
+  write(
+    dir,
+    pkg('node_modules/@data-client/rest', '@data-client/rest', '0.19.0', [
+      'data-client-rest',
+      'path-to-regexp-v8-migration',
+    ]),
+  );
+  const log = t.mock.method(console, 'log', () => {});
+  const output = args => {
+    log.mock.resetCalls();
+    main(dir, args);
+    return log.mock.calls.map(call => call.arguments[0]);
+  };
+  assert.match(
+    output([]).at(-1),
+    /Add --upgrade to also link path-to-regexp-v8-migration/,
+  );
+  assert.deepEqual(output(['--upgrade']), [
+    'Added path-to-regexp-v8-migration',
+  ]);
+  assert.deepEqual(output([]), ['Removed path-to-regexp-v8-migration']);
 });
 
 test('main rejects unknown options without syncing', t => {
@@ -517,7 +542,7 @@ for (const field of [
       // graphql ships no skills of its own
       outdated: [],
       kept: [],
-      upgrades: [],
+      skippedUpgrades: [],
       junctions: false,
       dir: '.agents/skills',
     });
@@ -759,7 +784,7 @@ test('Yarn PnP copies are replaced on upgrade and removed with the package', () 
     removed: [],
     outdated: [],
     kept: [],
-    upgrades: [],
+    skippedUpgrades: [],
     junctions: false,
     dir: '.agents/skills',
   });

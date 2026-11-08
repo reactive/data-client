@@ -152,4 +152,4 @@ registering [`argsKey`](/rest/api/SchemaSimple) for schemas whose output depends
 <SkillTabs skills={['data-client-v0.18-migration', 'path-to-regexp-v8-migration']} />
 
 The packages ship them too. `npx --no data-client-skills` leaves them out, since a new app has nothing to upgrade
-from; add `--upgrade` to link them, and run it again without it once the upgrade is done.
+from; add `--upgrade` to link them, and run it again without it once the upgrade is done ([Agent Skills](/docs/getting-started/agent-skills#install-all-skills-up-front)).
