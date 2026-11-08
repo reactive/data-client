@@ -36,10 +36,16 @@ export default class RestEndpoint extends Endpoint {
           const urlParams =
             this.#hasBody && args.length < 2 ? {} : args[0] || {};
           const body = this.#hasBody ? args[args.length - 1] : undefined;
-          return this.fetchResponse(
-            this.url(urlParams),
-            await this.getRequestInit(body),
-          )
+          const init = await this.getRequestInit(body);
+          /* istanbul ignore else */
+          if (process.env.NODE_ENV !== 'production') {
+            if (init?.method === undefined && this.method !== 'GET') {
+              console.error(
+                `${this.name}: getRequestInit() returned no method, so fetch() sends GET instead of ${this.method}. Did an override spread super.getRequestInit() without await?`,
+              );
+            }
+          }
+          return this.fetchResponse(this.url(urlParams), init)
             .then(response => this.parseResponse(response))
             .then(res => this.process(res, ...args));
         },
