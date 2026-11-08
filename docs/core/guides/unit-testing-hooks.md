@@ -18,13 +18,14 @@ Use a [partial mock](https://jestjs.io/docs/mock-functions#mocking-partials) ins
 
 :::
 
-[renderDataHook()](../api/renderDataHook.md) renders a hook inside a `DataProvider` and a `Suspense` boundary. It wraps
-[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()` (React
-18 and later) or [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)
-(React 17), and adds `result.error`, `waitFor()` and `waitForNextUpdate()`.
+[renderDataHook()](../api/renderDataHook.md) renders a hook inside a `DataProvider` and a `Suspense` boundary. With React
+18 or later in a DOM environment, it wraps
+[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()` and
+adds `result.error` and `waitForNextUpdate()`. Otherwise it uses
+[@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library), which has them built in.
 
-Each call to `renderDataHook()` creates new manager instances, so every test starts with an empty cache. Cleanup runs
-automatically after each test.
+Each call to `renderDataHook()` creates a new store and new manager instances, so no state carries over between tests.
+Use `initialFixtures` to prime the cache. Cleanup runs automatically after each test.
 
 ### Polyfill fetch in node &lt; 18
 
