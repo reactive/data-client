@@ -367,8 +367,6 @@ export default class DevToolsManager implements Manager {
     if (process.env.NODE_ENV !== 'production') {
       this.unsubscribeExtension?.();
       this.unsubscribeExtension = undefined;
-      // SubscriptionManager.cleanup() stops polling without dispatching unsubscribes
-      this.pollingSubscribers.clear();
       const key = this.registryKey;
       const registry: DebugStore['registry'] | undefined = (globalThis as any)
         .__DC__?.registry;
