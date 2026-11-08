@@ -32,7 +32,20 @@ the new row.
 synchronously inside the click (discrete priority). A CPU profile of the 0.18.2 build put about a third
 of create comment's click in bulletproof's unmemoized `MDPreview` (marked and DOMPurify).
 
-LATENCY_SWEEP_PLACEHOLDER
+**Latency sweep.** The same pair re-measured on 2026-11-08 at three mock API latencies with `--sweep`
+([report](react-query-vs-data-client-0.19-sweep/impact.md)). Its 400ms run reproduces the numbers above
+within 2%.
+
+| Mock API latency | Mutations, react-query (ms) | Mutations, data-client 0.19 (ms) | Mutation speed | All steps speed |
+| ---------------- | --------------------------- | -------------------------------- | -------------- | --------------- |
+| 100ms            | 3,018                       | 1,496                            | 2.0x           | 1.51x           |
+| 400ms            | 8,578                       | 1,984                            | 4.3x           | 2.4x            |
+| 1000ms           | 14,573                      | 2,992                            | 4.9x           | 2.7x            |
+
+Each optimistic mutation shows its change in 86 to 155ms at every latency, while react-query's grow with
+the server's response time. Create discussion is the one that still waits for the server in both builds,
+so it scales with latency and most of data-client's growing total comes from it. The slowest interaction
+is 0.52x to 0.60x at every latency, because it is CPU work in the click, not network.
 
 ## 0.18.2
 
@@ -108,6 +121,7 @@ the discussion. This is a skill gap to re-measure on 0.19, not a property of the
 ## Reports
 
 - [react-query vs data-client 0.19](react-query-vs-data-client-0.19/impact.md)
+- [react-query vs data-client 0.19, latency sweep](react-query-vs-data-client-0.19-sweep/impact.md)
 - [react-query vs data-client](react-query-vs-data-client/impact.md) (0.18.2)
 - [react-query vs data-client + optimistic](react-query-vs-data-client-optimistic/impact.md) (0.18.2, includes tokens per feature)
 - [data-client vs data-client + optimistic](data-client-vs-data-client-optimistic/impact.md) (0.18.2)

@@ -34,22 +34,25 @@ const app = inputs.find(i => i.app)?.app ?? 'app';
 // The first flow file is the primary run; further flow files (other mock latencies) feed only the
 // latency sweep table.
 const flows = inputs.filter(i => i.kind === 'flow');
+// Ids of flow.mjs's LABELS.totals rows.
 const SWEEP_IDS = ['mutationReflectMs', 'flowMs', 'maxInteractionMs'];
+// A flow file without a recorded latency (older kits, --no-build) cannot be placed on the sweep.
+const sweepFlows = flows
+  .filter(f => f.latencyMs !== undefined)
+  .toSorted((a, b) => a.latencyMs - b.latencyMs);
 const sweep =
-  flows.length > 1 ?
-    flows
-      .toSorted((a, b) => a.latencyMs - b.latencyMs)
-      .flatMap(f =>
-        f.metrics
-          .filter(m => SWEEP_IDS.includes(m.id))
-          .map(m => ({
-            ...m,
-            group: 'latency sweep',
-            id: `${m.id}@${f.latencyMs}`,
-            latencyMs: f.latencyMs,
-            label: `${m.label}, ${f.latencyMs} ms latency`,
-          })),
-      )
+  sweepFlows.length > 1 ?
+    sweepFlows.flatMap(f =>
+      f.metrics
+        .filter(m => SWEEP_IDS.includes(m.id))
+        .map(m => ({
+          ...m,
+          group: 'latency sweep',
+          id: `${m.id}@${f.latencyMs}`,
+          latencyMs: f.latencyMs,
+          label: `${m.label}, ${f.latencyMs} ms latency`,
+        })),
+    )
   : [];
 const metrics = [
   ...inputs
@@ -62,9 +65,10 @@ function speedText(m) {
   if (m.speed === undefined) return '';
   if (m.verdict === 'same' || m.verdict === 'noise') return '≈1x';
   const r = m.speed;
+  const pct = Math.round(Math.abs(r - 1) * 100);
+  if (pct === 0) return '≈1x';
   const x = r >= 2 ? r.toFixed(1) : r.toFixed(2);
-  const pct = Math.round(Math.abs(r - 1) * 100).toLocaleString('en-US');
-  return `${x}x (${pct}% ${r >= 1 ? 'faster' : 'slower'})`;
+  return `${x}x (${fmt(pct)}% ${r >= 1 ? 'faster' : 'slower'})`;
 }
 
 const fmt = x => {
@@ -141,9 +145,9 @@ notes.push(
   'Sampled rows show median (interquartile range); the change column adds a 95% bootstrap interval in brackets. "Within noise" means that interval includes zero.',
   'Speed is baseline time divided by migrated time: 1.2x means the migrated build is 20% faster, 0.8x means 20% slower. Rows within noise show ≈1x.',
 );
-if (flows.length > 1)
+if (sweep.length)
   notes.push(
-    `Mock API latency: ${flows[0].latencyMs} ms for every table except the latency sweep, which repeats the flow at ${flows.map(f => `${f.latencyMs} ms`).join(', ')}.`,
+    `Mock API latency: ${flows[0].latencyMs} ms for every table except the latency sweep, which repeats the flow at ${sweepFlows.map(f => `${f.latencyMs} ms`).join(', ')}.`,
   );
 else if (flows[0]?.latencyMs !== undefined)
   notes.push(`Mock API latency: ${flows[0].latencyMs} ms.`);

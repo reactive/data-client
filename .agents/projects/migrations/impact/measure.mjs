@@ -2,13 +2,14 @@
 // One command for a full before/after impact report.
 //
 //   node measure.mjs --config <app>/impact.config.mjs --baseline <checkout> --migrated <checkout> \
-//     [--runs 10] [--cpu 4] [--latency 400,100,1500] [--feature] [--feature-runs 3] [--no-build] \
+//     [--runs 10] [--cpu 4] [--latency 400] [--sweep] [--feature] [--feature-runs 3] [--no-build] \
 //     [--out <dir>] [--baseline-label react-query] [--migrated-label data-client]
 //
 // 1. applies config.prep patches to each checkout (skipped when already applied)
-// 2. for each mock API latency (config.latency.profiles or --latency; the first is the primary):
-//    builds both with config.latency.env set (config.build, default `npx vite build`) unless
-//    --no-build, serves both (config.serve, {port} replaced) and runs flow.mjs against them
+// 2. builds both (config.build, default `npx vite build`) unless --no-build, with config.latency.env
+//    set to the mock API latency (--latency, default config.latency.ms), serves both (config.serve,
+//    {port} replaced) and runs flow.mjs against them
+//    --sweep repeats step 2 at each config.latency.sweep latency for the report's latency sweep
 // 3. runs static.mjs, and feature-cost.mjs when --feature is given (it spends model tokens)
 // 4. writes <out>/impact.json and <out>/impact.md with report.mjs
 import { execFileSync, execSync, spawn } from 'node:child_process';
@@ -28,6 +29,7 @@ const { values: opt } = parseArgs({
     runs: { type: 'string', default: '10' },
     cpu: { type: 'string', default: '4' },
     latency: { type: 'string' },
+    sweep: { type: 'boolean', default: false },
     feature: { type: 'boolean', default: false },
     'feature-runs': { type: 'string', default: '3' },
     'no-build': { type: 'boolean', default: false },
@@ -51,24 +53,32 @@ const checkouts = {
   migrated: resolve(opt.migrated),
 };
 const rootOf = v => join(checkouts[v], config.root ?? '.');
-// Mock API latencies in ms. The first is the primary run behind every table; the others repeat the
-// flow for the latency sweep. [undefined] when the config has no latency section: one run, env untouched.
-const profiles =
-  opt.latency ?
-    opt.latency.split(',').map(Number)
-  : (config.latency?.profiles ?? [undefined]);
-if (profiles[0] !== undefined && !config.latency?.env) {
-  console.error(
+// Mock API latency in ms for the primary run (behind every table), and the extra latencies --sweep
+// repeats the flow at. undefined when the config has no latency section: the env is left alone.
+const fail = msg => {
+  console.error(msg);
+  process.exit(2);
+};
+const latencyMs = opt.latency ?? config.latency?.ms;
+if (latencyMs !== undefined && !config.latency?.env)
+  fail(
     '--latency needs config.latency.env, the variable the app reads its mock delay from',
   );
-  process.exit(2);
-}
-if (profiles.length > 1 && opt['no-build']) {
-  console.error(
-    'a latency sweep rebuilds for each latency; drop --no-build or pass one --latency',
-  );
-  process.exit(2);
-}
+const sweepMs = opt.sweep ? (config.latency?.sweep ?? []) : [];
+if (opt.sweep && !sweepMs.length) fail('--sweep needs config.latency.sweep');
+// Without a build the dist keeps whatever latency it was built with, so none is recorded.
+if (opt.sweep && opt['no-build'])
+  fail('--sweep rebuilds for each latency; drop --no-build');
+const latencies = [
+  ...new Set(
+    [latencyMs, ...sweepMs].map(ms => (ms === undefined ? ms : Number(ms))),
+  ),
+];
+if (
+  latencies.some(ms => ms !== undefined && !(Number.isInteger(ms) && ms >= 0))
+)
+  fail(`latencies must be whole milliseconds, got ${latencies.join(', ')}`);
+const [primaryMs, ...sweepOnlyMs] = opt['no-build'] ? [undefined] : latencies;
 const envFor = ms =>
   ms === undefined ?
     process.env
@@ -161,12 +171,16 @@ function installedVersions(root, checkout, libs) {
   return versions;
 }
 const meta = {
-  config: relative(process.cwd(), configPath),
+  // Relative to the config's repository, so the path resolves from any clone.
+  config: relative(
+    sh('git rev-parse --show-toplevel', dirname(configPath)) ?? process.cwd(),
+    configPath,
+  ),
   prep: config.prep ?? [],
   latency:
-    profiles[0] === undefined ?
-      null
-    : { env: config.latency.env, profilesMs: profiles },
+    primaryMs === undefined ? null : (
+      { env: config.latency.env, ms: primaryMs, sweepMs: sweepOnlyMs }
+    ),
   runs: +opt.runs,
   cpuThrottle: +opt.cpu,
   node: process.version,
@@ -258,15 +272,9 @@ for (const sig of ['SIGINT', 'SIGTERM']) {
   });
 }
 try {
-  const flows = [];
-  // The primary latency goes last, so the dist folder static.mjs reads is its build.
-  for (const ms of [...profiles.slice(1), profiles[0]]) {
+  const runFlow = async (ms, file) => {
     build(ms);
-    if (!config.flow) continue;
-    const file = join(
-      out,
-      ms === profiles[0] ? 'flow.json' : `flow-${ms}ms.json`,
-    );
+    if (!config.flow) return [];
     const urls = await serveBoth(ms);
     try {
       node('flow.mjs', [
@@ -287,10 +295,15 @@ try {
     } finally {
       stopServers();
     }
-    flows.push(file);
-  }
+    return [file];
+  };
+  const sweepFlows = [];
+  for (const ms of sweepOnlyMs)
+    sweepFlows.push(...(await runFlow(ms, join(out, `flow-${ms}ms.json`))));
+  // The primary runs last, so the dist folder static.mjs reads is its build.
+  const primaryFlow = await runFlow(primaryMs, join(out, 'flow.json'));
   // report.mjs treats the first flow file as the primary run.
-  const reports = flows.reverse();
+  const reportInputs = [...primaryFlow, ...sweepFlows];
   if (config.static) {
     node('static.mjs', [
       '--config',
@@ -302,7 +315,7 @@ try {
       '--out',
       join(out, 'static.json'),
     ]);
-    reports.push(join(out, 'static.json'));
+    reportInputs.push(join(out, 'static.json'));
   }
   if (opt.feature && config.feature) {
     node('feature-cost.mjs', [
@@ -317,7 +330,7 @@ try {
       '--out',
       join(out, 'feature.json'),
     ]);
-    reports.push(join(out, 'feature.json'));
+    reportInputs.push(join(out, 'feature.json'));
   }
   node('report.mjs', [
     '--title',
@@ -330,7 +343,7 @@ try {
     join(out, 'meta.json'),
     '--out',
     join(out, 'impact'),
-    ...reports,
+    ...reportInputs,
   ]);
 } finally {
   stopServers();

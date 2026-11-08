@@ -13,9 +13,9 @@ export default {
   root: 'apps/react-vite',
   // Applied to both checkouts before building: the mock API's random 300-1000ms latency becomes a fixed 400ms.
   prep: ['fixed-latency.patch'],
-  // The patch reads its delay from this variable at build time. The first latency is the primary
-  // run; the others repeat the flow, since optimistic updates gain more the slower the server.
-  latency: { env: 'VITE_MOCK_DELAY_MS', profiles: [400, 100, 1000] },
+  // The patch reads its delay from this variable at build time. --sweep repeats the flow at each
+  // sweep latency, since optimistic updates gain more the slower the server.
+  latency: { env: 'VITE_MOCK_DELAY_MS', ms: 400, sweep: [100, 1000] },
   build: 'npx vite build --base=/',
   flow,
   static: {

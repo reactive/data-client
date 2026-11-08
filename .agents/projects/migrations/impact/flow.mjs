@@ -238,6 +238,8 @@ async function flow(base, variant) {
     flowMs: 0,
     staleViews: 0,
     navsWithoutLoading: 0,
+    // A navigation that needed no read rendered from data the client already had: a cache hit.
+    navsWithoutReads: 0,
     mutationFollowupReads: 0,
     mutationReflectMs: 0,
     maxInteractionMs: 0,
@@ -320,6 +322,7 @@ async function flow(base, variant) {
       }
       if (step.kind === 'nav' && m.loadingShown === 0)
         totals.navsWithoutLoading++;
+      if (step.kind === 'nav' && m.reads === 0) totals.navsWithoutReads++;
     }
   } finally {
     await bctx.close().catch(() => {});
@@ -349,21 +352,6 @@ for (let i = 0; !previous && i < runs; i++) {
 await browser?.close();
 
 const navs = steps.filter(s => s.kind === 'nav').length;
-// Derived from the step samples (aligned by run), so --from adds it to older flow.json files too.
-// A navigation that needed no read rendered from data the client already had: a cache hit.
-const navSamples = steps
-  .filter(s => s.kind === 'nav')
-  .map(s => samples.steps[s.name]?.reads);
-if (samples.totals.flow && navSamples.length && navSamples.every(Boolean)) {
-  const hits = v =>
-    navSamples[0][v].map(
-      (_, run) => navSamples.filter(r => r[v][run] === 0).length,
-    );
-  samples.totals.flow.navsWithoutReads = {
-    baseline: hits('baseline'),
-    migrated: hits('migrated'),
-  };
-}
 // [label, unit, sampled() options]
 // Blocked and spinner time are costs, not how long an action took, and a ratio of two small numbers
 // (1ms against 22ms) reads as a huge slowdown, so they get no speed ratio.

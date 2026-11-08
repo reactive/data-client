@@ -7,7 +7,7 @@ and after. One config file per app, one command, one report.
 node .agents/projects/migrations/impact/measure.mjs \
   --config .agents/projects/migrations/<app>/impact/impact.config.mjs \
   --baseline <checkout before> --migrated <checkout after> \
-  --baseline-label react-query --migrated-label data-client [--latency 400,100,1000] [--feature]
+  --baseline-label react-query --migrated-label data-client [--sweep] [--feature]
 ```
 
 It writes `impact-results/impact.md` (tables) and `impact-results/impact.json` (every row, one schema),
@@ -61,11 +61,11 @@ time get no speed, because a ratio of two small numbers (1ms against 22ms) reads
 ### Latency sweep
 
 Optimistic updates and cache hits save round trips, so their gain grows with server latency, and a
-single latency can't show that. With `latency` in the config, `measure.mjs` builds, serves and runs the
-flow once per latency, with `latency.env` set to the delay in ms. The first latency is the primary run
-behind every table. The report adds a latency sweep table with the mutation total, the flow total and
-the slowest interaction at each latency. `--latency 400` runs one latency; `--latency 100,400` replaces
-the list. Each latency costs a full flow run.
+single latency can't show that. With `latency` in the config, `measure.mjs` builds both checkouts with
+`latency.env` set to `latency.ms` (or `--latency`), and every table uses that run. `--sweep` also
+builds, serves and runs the flow at each `latency.sweep` latency, and the report adds a latency sweep
+table with the mutation total, the flow total and the slowest interaction at each latency. Each sweep
+latency costs a full flow run, so the sweep is opt-in.
 
 `node flow.mjs --config <impact.config.mjs> --from flow.json` recomputes the rows from saved samples
 without running the browser, for example after a change to the statistics.
@@ -105,8 +105,8 @@ export default {
   name: 'my-app',
   root: 'apps/web', // folder inside each checkout
   prep: ['fixed-latency.patch'], // optional patches applied to both checkouts
-  // Optional: the mock API reads its delay from `env`. The first latency is the primary run.
-  latency: { env: 'VITE_MOCK_DELAY_MS', profiles: [400, 100, 1000] },
+  // Optional: the mock API reads its delay (ms) from `env`; --sweep adds runs at `sweep`.
+  latency: { env: 'VITE_MOCK_DELAY_MS', ms: 400, sweep: [100, 1000] },
   build: 'npx vite build', // default
   serve: 'npx vite preview --port {port} --strictPort', // default
   flow: {
@@ -167,7 +167,7 @@ the kit measures production builds, where it is absent, so it does not use it.
 
 - **Fix the network latency.** Mock APIs often add random delays. Random latency hides real
   differences, so make it a constant in both checkouts with a `prep` patch, read from an environment
-  variable so `latency` can sweep it.
+  variable so `latency` can set and sweep it.
 - **Count before you time.** Request counts, redundant reads, stale views and loading indicators are
   deterministic, so a single run shows them. Timings need 10 or more runs.
 - **Write flows that tolerate stale data.** Find rows by an id that does not change, so the before

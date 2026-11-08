@@ -6,7 +6,7 @@
   "baseline": "react-query",
   "migrated": "data-client + optimistic"
  },
- "generated": "2026-11-08T21:49:46.594Z",
+ "generated": "2026-11-08T22:10:33.600Z",
  "meta": {
   "config": "../data-client/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
   "prep": [
