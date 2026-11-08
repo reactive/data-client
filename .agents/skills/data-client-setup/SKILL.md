@@ -87,7 +87,7 @@ npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-s
 ```
 
 If it reports `Kept` for `data-client-setup`, that's the copy the skills CLI installed to start this setup.
-Remove it with `npx skills remove data-client-setup -y` and run the command again, so this skill too follows the
+Remove it with `npx skills remove data-client-setup -y`, run from the folder that holds that `.agents`, and run the command again, so this skill too follows the
 installed version.
 
 If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install

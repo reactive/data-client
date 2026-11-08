@@ -81,22 +81,38 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
 
 /**
  * Removes the skills this command made in `projectDir`, leaving anyone else's,
- * for a workspace package whose skills now live in `rootSkills`
- * @returns the names it removed, and the folders it left that shadow the root's
+ * for a workspace package whose skills now live at the workspace root
+ * @returns the names it removed
  */
-function unlinkSkills(projectDir, rootSkills) {
+function unlinkSkills(projectDir) {
   const dirs = skillsDirs(projectDir);
-  if (!dirs || !fs.existsSync(dirs.dest)) return { removed: [], shadowing: [] };
+  if (!dirs || !fs.existsSync(dirs.dest)) return [];
   const result = { removed: [], kept: [] };
   syncDir(dirs.dest, new Map(), false, result);
   if (lstat(dirs.other)?.isDirectory())
     mirrorLinks(dirs.dest, dirs.other, result);
-  // such as the copy the skills CLI installed to start setup
-  const shadowing = fs
-    .readdirSync(dirs.dest)
-    .filter(skill => fs.existsSync(path.join(rootSkills, skill)))
-    .map(skill => path.join(dirs.dest, skill));
-  return { removed: result.removed, shadowing };
+  return result.removed;
+}
+
+/**
+ * The package's own folders named like a skill this command links at the
+ * root, such as the copy the skills CLI installed to start setup: agents
+ * working in the package load those instead of the installed version
+ * @returns their paths
+ */
+function shadowingSkills(projectDir, rootSkills) {
+  const dest = skillsDirs(projectDir)?.dest;
+  if (!dest || !fs.existsSync(dest)) return [];
+  return fs
+    .readdirSync(dest, { withFileTypes: true })
+    .filter(entry => {
+      const root = path.join(rootSkills, entry.name);
+      const rootEntry = lstat(root);
+      return (
+        entry.isDirectory() && rootEntry && owned(root, rootEntry) !== undefined
+      );
+    })
+    .map(entry => path.join(dest, entry.name));
 }
 
 /**
@@ -368,11 +384,11 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   // an earlier run in the package linked them there; keep them unless the
   // root now has its own
   const synced = result.dir && fs.existsSync(path.join(projectDir, result.dir));
-  const pkg =
+  const moved = workspace && synced ? unlinkSkills(cwd) : [];
+  const shadowing =
     workspace && synced ?
-      unlinkSkills(cwd, path.join(projectDir, result.dir))
-    : { removed: [], shadowing: [] };
-  const moved = pkg.removed;
+      shadowingSkills(cwd, path.join(projectDir, result.dir))
+    : [];
   // where the skills are, from where the command ran
   const dir =
     result.dir && posix(path.relative(cwd, path.join(projectDir, result.dir)));
@@ -380,7 +396,7 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
   const keptPaths = [
     ...kept.map(skill => `${dir}/${skill}`),
-    ...pkg.shadowing.map(file => posix(path.relative(cwd, file))),
+    ...shadowing.map(file => posix(path.relative(cwd, file))),
   ];
   for (const file of keptPaths)
     console.log(

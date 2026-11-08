@@ -724,12 +724,18 @@ test("run in a workspace package, it reports the package's own copy of a skill t
     'package.json': { workspaces: ['apps/*'] },
     ...app('web', '0.19.0'),
     'apps/web/.agents/skills/data-client-react/SKILL.md': 'skills CLI copy',
+    'apps/web/.agents/skills/mine/SKILL.md': 'my own skill',
+    '.agents/skills/mine/SKILL.md': 'my own skill at the root',
   });
-  assert.deepEqual(run(t, path.join(dir, 'apps/web')), [
+  const web = path.join(dir, 'apps/web');
+  assert.deepEqual(run(t, web), [
     'Added data-client-react',
     'Kept .agents/skills/data-client-react (not a link data-client-skills made); delete it to get the installed version',
     'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
   ]);
+  assert.ok(
+    fs.existsSync(path.join(web, '.agents/skills/data-client-react/SKILL.md')),
+  );
 });
 
 test("links skills in the package when the workspace root can't take them", t => {
