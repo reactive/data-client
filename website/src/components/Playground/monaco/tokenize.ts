@@ -167,6 +167,20 @@ class MonacoLexer {
 }
 
 /**
+ * Whether a tag's attributes start `extends T`: TypeScript reads `<T extends U>`
+ * as type parameters (a generic arrow function), unless `extends` takes a value
+ */
+function isTypeParameters(attributes: Token[]) {
+  const [first, next] = attributes.filter(part => textOf(part).trim());
+  return (
+    typeof first === 'object' &&
+    first.type === 'attr-name' &&
+    textOf(first) === 'extends' &&
+    !/^[=>/]/.test(textOf(next ?? '>'))
+  );
+}
+
+/**
  * Prism's tokens with all but the `KEPT` ones lexed again as Monaco does.
  * With `jsx`, tag names, attribute names and text get the colors TypeScript
  * gives Monaco (./jsxTokens.ts).
@@ -178,6 +192,7 @@ function recolor(stream: Token[], keywords: Set<string>, jsx = false) {
   /** `<Name attr="value">` or `</Name>`, maybe without a name */
   const walkTag = (tag: Prism.Token) => {
     const [head, ...attributes] = contentOf(tag);
+    if (isTypeParameters(attributes)) return lexer.addCode(textOf(tag));
     const [open, name] = contentOf(head as Prism.Token);
     lexer.addCode(textOf(open));
     if (name) {

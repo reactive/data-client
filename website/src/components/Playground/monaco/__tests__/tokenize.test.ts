@@ -188,6 +188,36 @@ describe('monacoPrism colors as Monaco does', () => {
     }
   });
 
+  test('a generic arrow function is no tag', () => {
+    expect(spans('<T extends U>(a: T) => a;\nif (b) {}', 'tsx')).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'T'],
+      ['keyword', 'extends'],
+      ['class-name', 'U'],
+      ['punctuation', '>'],
+      ['punctuation', '('],
+      [null, 'a'],
+      ['punctuation', ':'],
+      ['class-name', 'T'],
+      ['punctuation', ')'],
+      ['punctuation', '=>'],
+      [null, 'a'],
+      ['punctuation', ';'],
+      ['keyword', 'if'],
+      ['punctuation', '('],
+      [null, 'b'],
+      ['punctuation', ')'],
+      ['punctuation', '{'],
+      ['punctuation', '}'],
+    ]);
+    // but a tag with an extends attribute is one
+    expect(spans('<A extends="b">c</A>', 'tsx').slice(0, 3)).toEqual([
+      ['punctuation', '<'],
+      ['class-name', 'A'],
+      ['attr-name', 'extends'],
+    ]);
+  });
+
   test('HTML with embedded JavaScript, as in Vue files', () => {
     expect(
       spans(
