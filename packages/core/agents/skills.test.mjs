@@ -718,6 +718,20 @@ test('run in a workspace package, it removes the skills an earlier run linked th
   assert.ok(links(dir)['data-client-react']);
 });
 
+test("run in a workspace package, it reports the package's own copy of a skill the root links", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'apps/web/.agents/skills/data-client-react/SKILL.md': 'skills CLI copy',
+  });
+  assert.deepEqual(run(t, path.join(dir, 'apps/web')), [
+    'Added data-client-react',
+    'Kept .agents/skills/data-client-react (not a link data-client-skills made); delete it to get the installed version',
+    'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
+  ]);
+});
+
 test("links skills in the package when the workspace root can't take them", t => {
   const dir = project({
     '.git/HEAD': 'ref',

@@ -81,17 +81,22 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
 
 /**
  * Removes the skills this command made in `projectDir`, leaving anyone else's,
- * for a workspace package whose skills now live at the workspace root
- * @returns the names it removed
+ * for a workspace package whose skills now live in `rootSkills`
+ * @returns the names it removed, and the folders it left that shadow the root's
  */
-function unlinkSkills(projectDir) {
+function unlinkSkills(projectDir, rootSkills) {
   const dirs = skillsDirs(projectDir);
-  if (!dirs || !fs.existsSync(dirs.dest)) return [];
+  if (!dirs || !fs.existsSync(dirs.dest)) return { removed: [], shadowing: [] };
   const result = { removed: [], kept: [] };
   syncDir(dirs.dest, new Map(), false, result);
   if (lstat(dirs.other)?.isDirectory())
     mirrorLinks(dirs.dest, dirs.other, result);
-  return result.removed;
+  // such as the copy the skills CLI installed to start setup
+  const shadowing = fs
+    .readdirSync(dirs.dest)
+    .filter(skill => fs.existsSync(path.join(rootSkills, skill)))
+    .map(skill => path.join(dirs.dest, skill));
+  return { removed: result.removed, shadowing };
 }
 
 /**
@@ -363,21 +368,29 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   // an earlier run in the package linked them there; keep them unless the
   // root now has its own
   const synced = result.dir && fs.existsSync(path.join(projectDir, result.dir));
-  const moved = workspace && synced ? unlinkSkills(cwd) : [];
+  const pkg =
+    workspace && synced ?
+      unlinkSkills(cwd, path.join(projectDir, result.dir))
+    : { removed: [], shadowing: [] };
+  const moved = pkg.removed;
   // where the skills are, from where the command ran
   const dir =
     result.dir && posix(path.relative(cwd, path.join(projectDir, result.dir)));
   if (added.length) console.log(`Added ${added.join(', ')}`);
   if (removed.length) console.log(`Removed ${removed.join(', ')}`);
-  for (const skill of kept)
+  const keptPaths = [
+    ...kept.map(skill => `${dir}/${skill}`),
+    ...pkg.shadowing.map(file => posix(path.relative(cwd, file))),
+  ];
+  for (const file of keptPaths)
     console.log(
-      `Kept ${dir}/${skill} (not a link data-client-skills made); delete it to get the installed version`,
+      `Kept ${file} (not a link data-client-skills made); delete it to get the installed version`,
     );
   if (moved.length)
     console.log(
       `Removed ${moved.join(', ')} from this package; the workspace root has them`,
     );
-  if (!added.length && !removed.length && !kept.length && !moved.length)
+  if (!added.length && !removed.length && !keptPaths.length && !moved.length)
     console.log('Data Client skills are up to date');
   if (junctions)
     console.log(

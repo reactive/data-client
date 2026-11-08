@@ -86,7 +86,7 @@ In Claude Code, Cursor and Codex, install nothing now: each skill ships inside t
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
 ```
 
-If it reports `Kept .agents/skills/data-client-setup`, that's the copy the skills CLI installed to start this setup.
+If it reports `Kept` for `data-client-setup`, that's the copy the skills CLI installed to start this setup.
 Remove it with `npx skills remove data-client-setup -y` and run the command again, so this skill too follows the
 installed version.
 
