@@ -14,17 +14,15 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 # Server Side Rendering
 
-Server Side Rendering (SSR) can improve the first-load performance of your application. Reactive Data
-Client takes this one step further by pre-populating the data store. Unlike other SSR methodologies,
-Reactive Data Client becomes interactive the moment the page is visible, making [data mutations](../getting-started/mutations.md) instantaneous. Additionally there is no need for additional data fetches that increase server
-load and slow client hydration, potentially causing application stutters.
+Server Side Rendering (SSR) makes the first page load faster. Reactive Data Client also sends the data store with the
+page. So the page is interactive as soon as it is visible, and [data mutations](../getting-started/mutations.md) are
+immediate. The client does not fetch the data again, which would add server load and slow hydration.
 
 ## NextJS SSR {#nextjs}
 
 ### App Router
 
-NextJS 12 includes a new way of routing in the '/app' directory. This allows further
-performance improvements, as well as dynamic and nested routing.
+Next.js 13 added the App Router in the `/app` directory. It adds nested layouts and React Server Components.
 
 #### Root Layout
 
@@ -53,7 +51,7 @@ export default function RootLayout({ children }) {
 
 #### Client Components
 
-To keep your data fresh and performant, you can use client components and [useSuspense()](../api/useSuspense.md)
+To keep data fresh, use client components with [useSuspense()](../api/useSuspense.md).
 
 ```tsx title="app/todos/[userId]/page.tsx"
 'use client';
@@ -67,13 +65,11 @@ export default function InteractivePage({ params }: { params: { userId: number }
 }
 ```
 
-Note that this is identical to how you would write components without SSR. This makes
-makes the components usable across platforms.
+This is the same code as without SSR, so the components work on every platform.
 
 #### Server Components
 
-However, if your data never changes, you can slightly decrease the javascript bundle sent, by
-using a server component. Simply `await` the endpoint:
+If the data never changes, a server component sends slightly less JavaScript. `await` the endpoint:
 
 ```tsx title="app/todos/[userId]/page.tsx"
 import { TodoResource } from '@/resources/Todo';
@@ -91,9 +87,8 @@ export default async function StaticPage({ params }: { params: { userId: number 
 
 #### Class mangling and Entity.key
 
-NextJS will rename classes for production builds. Due to this, it's critical to
-define [Entity.key](/rest/api/Entity#key) as its default implementation is based on
-the class name.
+Next.js renames classes in production builds. The default [Entity.key](/rest/api/Entity#key) is the class name, so
+always define `key`.
 
 ```ts
 class User extends Entity {
@@ -107,8 +102,8 @@ class User extends Entity {
 
 ### Pages Router
 
-With NextJS &lt; 14, you might be using the pages router. For this we have [Document](https://nextjs.org/docs/advanced-features/custom-document)
-and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
+For the Pages Router, use the Next.js [Document](https://nextjs.org/docs/advanced-features/custom-document) and
+[App](https://nextjs.org/docs/advanced-features/custom-app) wrappers:
 
 <PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
 
@@ -133,12 +128,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
 :::warning
 
-When fetching from parameters from [useRouter()](https://nextjs.org/docs/api-reference/next/router#userouter), you will need to
-add getServerSideProps to avoid [NextJS setting router.query to nothing](https://nextjs.org/docs/advanced-features/automatic-static-optimization)
+To fetch with parameters from [useRouter()](https://nextjs.org/docs/api-reference/next/router#userouter), add
+`getServerSideProps`. Otherwise [Next.js leaves router.query empty](https://nextjs.org/docs/advanced-features/automatic-static-optimization)
+during prerendering.
 
 ```typescript
 export default function MyComponent() {
-  const id: string; = useRouter().query.id;
+  const id = useRouter().query.id as string;
   const post = useSuspense(getPost, { id });
   // etc
 }
@@ -150,10 +146,8 @@ export const getServerSideProps = () => ({ props: {} });
 
 #### Further customizing Document
 
-To further customize Document, simply extend from the provided document.
-
-Make sure you use `super.getInitialProps()` instead of `Document.getInitialProps()`
-or the Reactive Data Client code won't run!
+To customize Document, extend `DataClientDocument`. Call `super.getInitialProps()`, not `Document.getInitialProps()`,
+or Reactive Data Client's code does not run.
 
 ```tsx title="pages/_document.tsx"
 import { Html, Head, Main, NextScript } from 'next/document';
@@ -194,13 +188,10 @@ export default class MyDocument extends DataClientDocument {
 
 #### CSP Nonce
 
-Reactive Data Client Document serializes the store state in a script tag. In case you have
-Content Security Policy restrictions that require use of a nonce, you can override
-`DataClientDocument.getNonce`.
-
-Since there is no standard way of handling [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
-in NextJS, this allows you
-to retrieve any nonce you created in the DocumentContext to use with Reactive Data Client.
+`DataClientDocument` serializes the store in a script tag. If your Content Security Policy requires a
+[nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce), override
+`DataClientDocument.getNonce`. Next.js has no standard nonce API, so return the nonce you created in the
+`DocumentContext`.
 
 ```tsx title="pages/_document.tsx"
 import { DataClientDocument } from '@data-client/ssr/nextjs';
@@ -216,7 +207,7 @@ export default class MyDocument extends DataClientDocument {
 
 ## Express JS SSR
 
-When implementing your own server using express.
+Use this setup for your own Express server.
 
 ### Server side
 
