@@ -102,11 +102,11 @@ container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
 `HiddenContext` (`hiddenContext.tsx`) sets it for every playground
 under an unselected tab (`theme/TabItem`, so `PlaygroundTabs` and Docusaurus
 `<Tabs>` alike), nested groups included, and under a closed `<details>`
-(`theme/Details`) until the page is idle. An explicit prop wins.
-`TypeScriptEditor` there latches the same way (plain text until first
-shown). The site's code blocks there are plain text until the page is idle
-(`theme/CodeBlock`), then highlight in a transition, so neither the
-hydration nor a later tab switch waits on them.
+(`theme/Details`) until its summary is clicked or the page is idle. An
+explicit prop wins. `TypeScriptEditor` there latches the same way (plain
+text while hidden). The site's code blocks there are plain text until shown
+or the page is idle (`theme/CodeBlock`), then highlight in a transition, so
+neither the hydration nor a later tab switch waits on them.
 In `row` (not stacked), the result never shrinks below its tallest
 (`useHeightRatchet`), shared by the playgrounds under one
 `data-playground-group` (the homepage's protocol switch, `PlaygroundTabs`),
