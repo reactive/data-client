@@ -180,9 +180,13 @@ class MonacoLexer {
   }
 }
 
-/** Words after which `<` starts an expression: a JSX element */
+const NAME_CHAR = /[\p{ID_Continue}$]/u;
+
+/** Words after which `<` starts an expression: a JSX element. `of` isn't
+ * one, as `of<T>()` calls a function more often than `for (x of <a />)`
+ * loops over an element */
 const BEFORE_EXPRESSION = new Set(
-  'await case default delete do else in instanceof new of return throw typeof void yield'.split(
+  'await case default delete do else in instanceof new return throw typeof void yield'.split(
     ' ',
   ),
 );
@@ -199,10 +203,12 @@ function isTypeArguments(
   inChildren: boolean,
 ) {
   if (inChildren || !name) return false;
-  // on the same line: a name ending the line before can end a comment
-  const line = code.slice(code.lastIndexOf('\n', at - 1) + 1, at);
-  const word = /([\p{ID_Continue}$]+)[ \t]*$/u.exec(line)?.[1];
-  return word !== undefined && !BEFORE_EXPRESSION.has(word);
+  // spaces on the same line: a name ending the line before can end a comment
+  let end = at;
+  while (code[end - 1] === ' ' || code[end - 1] === '\t') end--;
+  let start = end;
+  while (start > 0 && NAME_CHAR.test(code[start - 1])) start--;
+  return start < end && !BEFORE_EXPRESSION.has(code.slice(start, end));
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { Prism } from 'prism-react-renderer';
 
+import { JSX_ATTRIBUTE, JSX_TAG, JSX_TEXT } from '../jsxColors/spans';
 import { extensionToMonacoLanguage, isMonacoTokenized } from '../language';
 import { codePrismTheme } from '../theme';
 import { jsxSpans, monacoPrism, textOf } from '../tokenize';
@@ -204,16 +205,21 @@ describe('monacoPrism colors as Monaco does', () => {
       spans(code, 'tsx')
         .filter(([type]) => type === 'tag' || type === 'keyword')
         .map(([, text]) => text);
-    for (const call of ['f<T>(1)', 'f <T>(1)', 'fé<T>(1)', '取得<T>(1)']) {
+    for (const call of [
+      'f<T>(1)',
+      'f <T>(1)',
+      'fé<T>(1)',
+      '取得<T>(1)',
+      `${'f'.repeat(100)} <T>(1)`,
+    ]) {
       expect(tagsAndKeywords(`x = ${call};\nconst y = 1;`)).toEqual(['const']);
     }
-    // but after a word that starts an expression, or on a new line, it is JSX
-    expect(tagsAndKeywords('for (const x of <a />) {}')).toEqual([
-      'for',
-      'const',
+    // `of` is a keyword only in `for…of`
+    expect(tagsAndKeywords('x = of<T>(1);\nconst y = 1;')).toEqual([
       'of',
-      'a',
+      'const',
     ]);
+    // but after a word that starts an expression, or on a new line, it is JSX
     expect(tagsAndKeywords('x = (\n  // a line\n  <a />\n);')).toEqual(['a']);
     expect(tagsAndKeywords('return<a>b</a>;')).toEqual(['return', 'a', 'a']);
     expect(spans('return<>b</>;', 'tsx')).toEqual([
@@ -222,16 +228,6 @@ describe('monacoPrism colors as Monaco does', () => {
       [null, 'b'],
       [null, '</>'],
       ['punctuation', ';'],
-    ]);
-  });
-
-  test("jsxSpans gives where JSX is, as TypeScript's classes do", () => {
-    // start, length, kind (tag 0, attribute 1, text 2)
-    expect(jsxSpans('x = <A b="c">\n  hi\n</A>;')).toEqual([
-      ...[5, 1, 0],
-      ...[7, 1, 1],
-      ...[13, 6, 2],
-      ...[21, 1, 0],
     ]);
   });
 
@@ -433,6 +429,16 @@ describe('monacoPrism colors as Monaco does', () => {
       if (type) expect(styled).toContain(type);
     }
   });
+});
+
+test("jsxSpans gives where JSX is, as TypeScript's classes do", () => {
+  // start, length, kind
+  expect(jsxSpans('x = <A b="c">\n  hi\n</A>;')).toEqual([
+    ...[5, 1, JSX_TAG],
+    ...[7, 1, JSX_ATTRIBUTE],
+    ...[13, 6, JSX_TEXT],
+    ...[21, 1, JSX_TAG],
+  ]);
 });
 
 test('isMonacoTokenized covers the fence languages Monaco highlights', () => {
