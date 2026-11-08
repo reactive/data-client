@@ -4,7 +4,10 @@ import type { DependencyList, EffectCallback } from 'react';
 
 const fakeNavigation = { addListener(name: string) {} } as any;
 let _useNavigation: typeof useNavigation = () => fakeNavigation;
-import('@react-navigation/native')
+// Deferred: Expo's native asyncRequire throws synchronously when the module is missing,
+// which would crash the app while @data-client/react loads
+Promise.resolve()
+  .then(() => import('@react-navigation/native'))
   .then(rn => {
     _useNavigation = rn.useNavigation;
   })
