@@ -5,7 +5,6 @@ title: Renderizado del lado del servidor con NextJS, Express y más
 sidebar_label: Renderizado del lado del servidor
 ---
 
-import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 <head>
@@ -14,17 +13,16 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 # Renderizado del lado del servidor
 
-El renderizado del lado del servidor (SSR) puede mejorar el rendimiento de la primera carga de tu aplicación. Reactive Data
-Client da un paso más al rellenar previamente el store de datos. A diferencia de otras metodologías de SSR,
-Reactive Data Client se vuelve interactivo en el momento en que la página es visible, lo que hace que las [mutaciones de datos](../getting-started/mutations.md) sean instantáneas. Además, no hacen falta fetches de datos adicionales que aumenten la carga
-del servidor y ralenticen la hidratación del cliente, lo que podría provocar tirones en la aplicación.
+El renderizado del lado del servidor (SSR) hace que la primera carga de la página sea más rápida. Reactive Data Client además envía el store de datos con la
+página. Así la página es interactiva en cuanto es visible, y las [mutaciones de datos](../getting-started/mutations.md) son
+inmediatas. El cliente no vuelve a hacer fetch de los datos, lo que aumentaría la carga del servidor y ralentizaría la hidratación.
 
 ## NextJS SSR {#nextjs}
 
 ### App Router {#app-router}
 
-NextJS 12 incluye una nueva forma de enrutamiento en el directorio '/app'. Esto permite más
-mejoras de rendimiento, así como enrutamiento dinámico y anidado.
+Reactive Data Client es compatible con el App Router de Next.js (el directorio `/app`, Next.js 13 y posteriores). No es compatible con el
+Pages Router.
 
 #### Layout raíz {#root-layout}
 
@@ -53,7 +51,7 @@ export default function RootLayout({ children }) {
 
 #### Componentes de cliente {#client-components}
 
-Para mantener tus datos actualizados y con buen rendimiento, puedes usar componentes de cliente y [useSuspense()](../api/useSuspense.md)
+Para mantener los datos actualizados, usa componentes de cliente con [useSuspense()](../api/useSuspense.md).
 
 ```tsx title="app/todos/[userId]/page.tsx"
 'use client';
@@ -67,13 +65,11 @@ export default function InteractivePage({ params }: { params: { userId: number }
 }
 ```
 
-Ten en cuenta que esto es idéntico a cómo escribirías los componentes sin SSR. Esto hace
-que los componentes se puedan usar en distintas plataformas.
+Es el mismo código que sin SSR, así que los componentes funcionan en todas las plataformas.
 
 #### Componentes de servidor {#server-components}
 
-Sin embargo, si tus datos nunca cambian, puedes reducir ligeramente el bundle de javascript enviado
-usando un componente de servidor. Simplemente usa `await` con el endpoint:
+Si los datos nunca cambian, un componente de servidor envía algo menos de JavaScript. Usa `await` con el endpoint:
 
 ```tsx title="app/todos/[userId]/page.tsx"
 import { TodoResource } from '@/resources/Todo';
@@ -91,9 +87,8 @@ export default async function StaticPage({ params }: { params: { userId: number 
 
 #### Alteración de nombres de clases y Entity.key {#class-mangling-and-entitykey}
 
-NextJS renombra las clases en las compilaciones de producción. Por eso, es fundamental
-definir [Entity.key](/rest/api/Entity#key), ya que su implementación predeterminada se basa en
-el nombre de la clase.
+Next.js renombra las clases en las compilaciones de producción. El [Entity.key](/rest/api/Entity#key) predeterminado es el nombre de la clase, así que
+define siempre `key`.
 
 ```ts
 class User extends Entity {
@@ -105,118 +100,9 @@ class User extends Entity {
 }
 ```
 
-### Pages Router {#pages-router}
-
-Con NextJS &lt; 14, es posible que uses el pages router. Para ello tenemos [Document](https://nextjs.org/docs/advanced-features/custom-document)
-y un wrapper específico de NextJS para [App](https://nextjs.org/docs/advanced-features/custom-app)
-
-<PkgTabs pkgs="@data-client/ssr @data-client/redux redux" />
-
-```tsx title="pages/_document.tsx"
-import { DataClientDocument } from '@data-client/ssr/nextjs';
-
-export default DataClientDocument;
-```
-
-```tsx title="pages/_app.tsx"
-import { AppDataProvider } from '@data-client/ssr/nextjs';
-import type { AppProps } from 'next/app';
-
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <AppDataProvider>
-      <Component {...pageProps} />
-    </AppDataProvider>
-  );
-}
-```
-
-:::warning
-
-Al obtener datos a partir de parámetros de [useRouter()](https://nextjs.org/docs/api-reference/next/router#userouter), necesitarás
-agregar getServerSideProps para evitar que [NextJS deje router.query vacío](https://nextjs.org/docs/advanced-features/automatic-static-optimization)
-
-```typescript
-export default function MyComponent() {
-  const id: string; = useRouter().query.id;
-  const post = useSuspense(getPost, { id });
-  // etc
-}
-// highlight-next-line
-export const getServerSideProps = () => ({ props: {} });
-```
-
-:::
-
-#### Personalizar Document aún más {#further-customizing-document}
-
-Para personalizar Document aún más, simplemente extiende el documento proporcionado.
-
-Asegúrate de usar `super.getInitialProps()` en lugar de `Document.getInitialProps()`
-o el código de Reactive Data Client no se ejecutará.
-
-```tsx title="pages/_document.tsx"
-import { Html, Head, Main, NextScript } from 'next/document';
-import { DataClientDocument } from '@data-client/ssr/nextjs';
-
-export default class MyDocument extends DataClientDocument {
-  static async getInitialProps(ctx) {
-    const originalRenderPage = ctx.renderPage;
-
-    // Run the React rendering logic synchronously
-    ctx.renderPage = () =>
-      originalRenderPage({
-        // Useful for wrapping the whole react tree
-        enhanceApp: App => App,
-        // Useful for wrapping in a per-page basis
-        enhanceComponent: Component => Component,
-      });
-
-    // Run the parent `getInitialProps`, it now includes the custom `renderPage`
-    const initialProps = await super.getInitialProps(ctx);
-
-    return initialProps;
-  }
-
-  render() {
-    return (
-      <Html>
-        <Head />
-        <body>
-          <Main />
-          <NextScript />
-        </body>
-      </Html>
-    );
-  }
-}
-```
-
-#### Nonce de CSP {#csp-nonce}
-
-El Document de Reactive Data Client serializa el estado del store en una etiqueta script. Si tienes
-restricciones de Content Security Policy que exigen el uso de un nonce, puedes sobrescribir
-`DataClientDocument.getNonce`.
-
-Como no existe una forma estándar de manejar el [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
-en NextJS, esto te permite
-recuperar cualquier nonce que hayas creado en el DocumentContext para usarlo con Reactive Data Client.
-
-```tsx title="pages/_document.tsx"
-import { DataClientDocument } from '@data-client/ssr/nextjs';
-import type { DocumentContext } from 'next/document.js';
-
-export default class MyDocument extends DataClientDocument {
-  static getNonce(ctx: DocumentContext & { res: { nonce?: string } }) {
-    // this assumes nonce has been added here - customize as you need
-    return ctx?.res?.nonce;
-  }
-}
-```
-
 ## SSR con Express JS {#express-js-ssr}
 
-Al implementar tu propio servidor con express.
+Usa esta configuración para tu propio servidor Express.
 
 ### Lado del servidor {#server-side}
 

@@ -190,10 +190,11 @@ export default function useLoading<
 >(func: F): [F, Ref<boolean>, Ref<Error | undefined>];
 ```
 
-`loading` é `true` enquanto a promise retornada estiver pendente. Se `func` for rejeitada, a rejeição é
-capturada e armazenada em `error`; ela é limpa novamente na próxima chamada.
-
 :::
+
+`loading` é `true` enquanto a promise retornada estiver pendente. Se `func` for rejeitada, a rejeição é
+capturada e armazenada em `error`; ela é limpa novamente na próxima chamada. Quando as chamadas se sobrepõem, `loading` e
+`error` seguem a chamada mais recente, então uma chamada anterior que termina depois não os altera.
 
 ## Exemplos {#examples}
 

@@ -675,40 +675,51 @@ Reactive Data Client 能[在任何可能的网络故障或竞态条件下确保�
 <summary><b>StreamManager</b></summary>
 
 ```typescript framework-imports
-import type { Manager, Middleware, ActionTypes } from '@data-client/react';
-import { Controller, actionTypes } from '@data-client/react';
+import type { Manager, Middleware } from '@data-client/react';
+import { Controller } from '@data-client/react';
 import type { EntityInterface } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
-  declare protected evtSource: WebSocket | EventSource;
+  declare protected controller: Controller;
+  declare protected evtSource?: WebSocket | EventSource;
+  declare protected createEventSource: () => WebSocket | EventSource;
   declare protected entities: Record<string, EntityInterface>;
 
   constructor(
-    evtSource: WebSocket | EventSource,
+    createEventSource: () => WebSocket | EventSource,
     entities: Record<string, EntityInterface>,
   ) {
-    this.evtSource = evtSource;
+    this.createEventSource = createEventSource;
     this.entities = entities;
   }
 
   middleware: Middleware = controller => {
-    this.evtSource.onmessage = event => {
+    this.controller = controller;
+    return next => async action => next(action);
+  };
+
+  init() {
+    this.evtSource = this.createEventSource();
+    this.evtSource.onmessage = (event: MessageEvent) => {
       try {
         const msg: { type: string; args: [any]; data: any } = JSON.parse(
           event.data,
         );
         if (msg.type in this.entities)
-          controller.set(this.entities[msg.type], ...msg.args, msg.data);
+          this.controller.set(
+            this.entities[msg.type],
+            ...msg.args,
+            msg.data,
+          );
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
       }
     };
-    return next => async action => next(action);
-  };
+  }
 
   cleanup() {
-    this.evtSource.close();
+    this.evtSource?.close();
   }
 }
 ```

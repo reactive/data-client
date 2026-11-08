@@ -104,10 +104,13 @@ getComments({ userId: user.id, postId: post.id, sort: 'newest' });
 你的源码目录上运行它，不要在仓库根目录运行：
 
 ```bash
-npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
+npx @data-client/codemods axios-to-rest src/
 ```
 
-<DiffEditor caption="每个 axios 调用都会变成对 endpoint 的调用。路径参数、`params` 和 body 成为它的参数，它会解析为 body，因此 `.data` 不再需要。">
+codemod 不会格式化它写入的代码。之后请对改动过的文件运行项目所用的格式化工具或 lint 修复工具，
+比如 `prettier --write`、`eslint --fix` 或 `biome check --write`。
+
+<DiffEditor caption="每个 axios 调用都会变成对 endpoint 的调用，该 endpoint 在模块顶层只构建一次。路径参数、`params` 和 body 成为它的参数，它会解析为 body，因此 `.data` 不再需要。">
 
 ```ts title="Before"
 import axios from 'axios';
@@ -132,15 +135,20 @@ class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   urlPrefix = 'https://api.example.com';
 }
 
+const getPostEndpoint = new ApiEndpoint({ path: '/posts/:id' });
+
+const createPostEndpoint = new ApiEndpoint({
+  path: '/posts',
+  method: 'POST',
+});
+
 export async function getPost(id: string) {
-  const res = await new ApiEndpoint({ path: '/posts/:id' })({ id });
+  const res = await getPostEndpoint({ id });
   return res;
 }
 
 export async function createPost(body: { title: string }) {
-  const data = await new ApiEndpoint({ path: '/posts', method: 'POST' })(
-    body,
-  );
+  const data = await createPostEndpoint(body);
   return data;
 }
 ```
@@ -151,13 +159,19 @@ export async function createPost(body: { title: string }) {
 响应返回给调用方的函数，会得到一条 `// TODO(data-client):` 注释，链接到下文中对应的章节。搜索
 `TODO(data-client)`，并在完成后续步骤时逐一解决。
 
+codemod 移到模块顶层的 endpoint 会在其模块加载时构建。当定义基类的模块导入了它们所在的文件时，codemod
+会把它们留在原函数中，但它无法发现更长的导入循环。如果存在这样的循环，那个导入会先运行，并以
+`Cannot access 'ApiEndpoint' before initialization` 失败。请打破这个导入循环，或者把
+这些 endpoint 移到定义基类的模块中。
+
 如果项目把 axios 封装在自己的类或函数中，从不直接调用 `axios.get()` 或 `.post()`，或者只
 调用 `axios(config)`，codemod 就没什么可做的。跳过它，从[第 3 步](#base-endpoint)开始。
 
 ### 3. 把 interceptor 移到基础 endpoint 中 {#base-endpoint}
 
 Axios 的 interceptor 和实例配置会变成一个 `RestEndpoint` 子类上的方法，所有 endpoint 都继承这个子类。
-codemod 会根据 `axios.create()` 创建这个类；把 interceptor 移到其中。
+codemod 会根据 `axios.create()` 创建这个类。由于 `api` 已不存在，它会把模块中 `api.interceptors` 和 `api.defaults`
+的设置注释掉，并给每一处加上 `TODO(data-client)` 标记；把每一处都移到这个类中。
 
 <DiffEditor caption="`RestEndpoint` 会自行解析 JSON，因此只用于解包 `response.data` 的 interceptor 已无事可做。">
 
@@ -546,6 +560,7 @@ npm uninstall axios
 | `isAxiosError` / `error.response`        | 带有 `.status` 和 `.response` 的 [`NetworkError`](#error-handling)                                                  |
 | `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                         |
 | `timeout`                                | 在 `getRequestInit()` 中使用 [`AbortSignal.timeout()`](#timeout)                                                    |
+| `withCredentials: true`                  | 在 `getRequestInit()` 中使用 [`credentials: 'include'`](./auth.md#cookie-auth-credentials)                          |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
 | `auth: { username, password }`           | [配合 `btoa()` 使用 `getHeaders()`](#basic-auth)                                                                  |

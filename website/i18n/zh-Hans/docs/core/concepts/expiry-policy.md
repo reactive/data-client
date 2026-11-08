@@ -1,7 +1,7 @@
 ---
 title: 用声明式过期策略控制自动获取行为
 sidebar_label: 过期策略
-description: 数据何时被视为新鲜、过时或无效，以及这些状态如何影响获取和渲染。
+description: 数据何时处于新鲜、过时或无效状态，以及每种状态如何影响获取和渲染。
 ---
 
 <head>
@@ -14,9 +14,8 @@ import {RestEndpoint} from '@data-client/rest';
 
 # Endpoint 过期策略
 
-默认情况下，Reactive Data Client 的缓存策略可以描述为 [stale-while-revalidate](https://web.dev/stale-while-revalidate/)。
-这意味着当数据可用时，它可以使用过时的数据，从而避免阻塞应用。不过在后台，
-如果数据足够旧，它仍然会刷新数据。
+默认情况下，Reactive Data Client 使用 [stale-while-revalidate](https://web.dev/stale-while-revalidate/)。当数据
+可用时，组件会立即渲染它。如果数据足够旧，Data Client 会在后台重新获取它。
 
 ## 过期状态 {#expiry-status}
 
@@ -24,22 +23,22 @@ import {RestEndpoint} from '@data-client/rest';
 
 ### 新鲜（Fresh） {#fresh}
 
-处于这种状态的数据被认为足够新，无需获取。
+数据足够新。Data Client 不会获取它。
 
 ### 过时（Stale） {#stale}
 
-数据仍然可以展示，但 Reactive Data Client 可能会尝试重新获取以重新验证。
+组件可以展示这些数据。当有组件需要它时，Data Client 会再次获取它。
 
 ### 无效（Invalid） {#invalid}
 
-数据不应展示。任何需要这些数据的组件都会触发获取:react[并挂起]:vue[
-（在获取完成之前，[已挂载的组件会保留其数据](#invalidate)）]。如果没有组件关心这些
-数据，则不会执行任何操作。
+组件不能展示这些数据。需要它的组件会获取它:react[并挂起]:vue[
+（在获取完成之前，[已挂载的组件会保留其数据](#invalidate)）]。如果没有组件需要这些
+数据，则什么也不会发生。
 
 </ExpiryTimeline>
 
-[useSuspense()](../api/useSuspense.md) 会在挂载时以及参数变化时考虑是否获取。
-在这些情况下，如果数据被视为过时，它就会发起获取。
+[useSuspense()](../api/useSuspense.md) 会在挂载时以及参数变化时检查数据。如果
+数据已过时，它就会发起获取。
 
 ::::react
 
@@ -55,12 +54,12 @@ import {RestEndpoint} from '@data-client/rest';
 
 ### Endpoint.dataExpiryLength {#endpointdataexpirylength}
 
-[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) 用于设置数据从“[新鲜](#fresh)”状态转变为“[过时](#stale)”状态
-所需的时间（毫秒）。试着把它设置为很小的数字，比如 '50'，
-让数据几乎立即变为[过时](#stale)；或者设置为很大的数字，让数据保留很长时间。
+[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) 用于设置数据保持“[新鲜](#fresh)”多少毫秒后
+变为“[过时](#stale)”。把它设置为很小的数字，比如 `50`，可以让数据
+几乎立即变为[过时](#stale)；设置为很大的数字，则可以让数据长时间保持新鲜。
 
-在 'first' 和 'second' 之间切换会改变参数。如果数据仍被视为新鲜，
-你会一直看到旧的时间，而不会发生任何刷新。
+在 'first' 和 'second' 之间切换会改变参数。在数据新鲜期间，
+旧的时间会保持不变，不会重新获取。
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
@@ -244,7 +243,7 @@ const NoRetryResource = resource({
 过期的数据立即被视为“[无效](#invalid)”。
 
 在演示中，页面的数据一旦过时，页面就会挂起:react[（导航会在进度条上等待）]。
-如果数据仍在过期时间之内，就会继续展示它。
+在数据新鲜期间，页面会展示它。
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
@@ -378,12 +377,12 @@ export default function Navigator({ children }) {
 
 ## 强制刷新 {#force-refresh}
 
-有时我们想要获取新数据，同时继续展示旧的（过时的）数据。
+要在展示旧数据的同时获取新数据：
 
 ### 某个特定的 endpoint {#a-specific-endpoint}
 
-[Controller.fetch](../api/Controller#fetch) 可以用来触发获取，同时仍展示
-之前的数据。即使数据是“新鲜”的，也可以这样做。
+[Controller.fetch](../api/Controller.md#fetch) 会在组件展示之前数据的同时发起获取。即使
+数据是“新鲜”的，它也会获取。
 
 <FrameworkPlayground row fixtures={[
 {
@@ -637,7 +636,7 @@ render(<Demo />);
 
 ## :react[使失效（重新挂起）]:vue[使失效] {#invalidate}
 
-[endpoint](/rest/api/Endpoint) 和 [Entity](/rest/api/Entity) 都可以作为失效的目标。
+[endpoint](/rest/api/Endpoint) 和 [Entity](/rest/api/Entity) 都可以被设为失效。
 
 :::vue
 
@@ -816,8 +815,9 @@ render(<Demo />);
 
 ### 包含某个 Entity 的任意 endpoint {#invalidate-entity}
 
-使用 [Invalidate schema](/rest/api/Invalidate)，我们可以让响应中依赖该 [Entity](/rest/api/Entity) 的_任意_ endpoint
-失效。如果 endpoint 在 [Array](/rest/api/Array) 中使用了该 Entity，它只会被从该 [Array](/rest/api/Array) 中移除。
+[Invalidate schema](/rest/api/Invalidate) 会让响应中包含该
+[Entity](/rest/api/Entity) 的_每个_ endpoint 失效。如果 endpoint 在 [Array](/rest/api/Array) 中包含该 Entity，Data Client 会把它从
+该 [Array](/rest/api/Array) 中移除。
 
 <FrameworkPlayground row fixtures={[
 {
@@ -1032,13 +1032,12 @@ render(<ShowTime />);
 
 </FrameworkPlayground>
 
-[Controller.fetch()](../api/Controller.md#fetch) 让我们可以同时更新服务器和 store。
-当我们想直接修改本地 store 时，可以使用 [Controller.setResponse()](../api/Controller.md#setResponse) 或 [Controller.set()](../api/Controller.md#set)。
+[Controller.fetch()](../api/Controller.md#fetch) 会同时更新服务器和 store。如果只想修改 store，请使用
+[Controller.setResponse()](../api/Controller.md#setResponse) 或 [Controller.set()](../api/Controller.md#set)。
 
 #### 根据数据有条件地失效 {#conditional-invalidation-based-on-data}
 
-如果 `invalidation` 只应在某些情况下根据响应数据发生，我们可以
-从 [Entity.process](/rest/api/Entity#process) 返回 `undefined`。
+如果只想对部分响应进行失效，请从 [Entity.process](/rest/api/Entity#process) 返回 `undefined`。
 
 ```ts
 class PriceLevel extends Entity {

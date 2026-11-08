@@ -16,7 +16,12 @@ import TabItem from '@theme/TabItem';
 
 Gerencia o estado, fornecendo todo o contexto necessário para usar os hooks. Deve ser colocado o mais alto possível
 na árvore da aplicação, pois qualquer uso dos hooks só é possível em componentes abaixo do provider
-na árvore do React.
+na árvore do React. Mantenha-o acima também dos seus [limites de Suspense](../getting-started/data-dependency.md#boundaries): o
+`<Suspense>` de reserva dele, que mostra "Uncaught Suspense" em desenvolvimento, captura antes de qualquer limite acima dele.
+
+Prefira colocá-lo acima de [`<Activity>`](https://react.dev/reference/react/Activity). `<Activity>` acima de `DataProvider`
+também funciona, como quando uma aba ou rota que o `<Activity>` oculta tem seu próprio `DataProvider`. Ocultá-lo
+[pausa seus Managers](./Manager.md#cleanup), então o polling para. O store dele continua aplicando respostas.
 
 <Installation />
 
@@ -25,7 +30,7 @@ na árvore do React.
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
@@ -45,11 +50,12 @@ interface ProviderProps {
 Em vez de começar com um cache vazio, você pode fornecer seu próprio estado inicial. Isso pode
 ser útil para testes ou para reidratar o estado do cache ao usar renderização no servidor (server side rendering).
 
-### managers?: Manager[] {#managers}
+### managers?: () => Manager[] {#managers}
 
-Lista de [Manager](./Manager.md)s a serem usados. Este é o principal ponto de extensibilidade do provider.
+Uma função que retorna os [Managers](./Manager.md) a serem usados. Este é o principal ponto de extensibilidade do provider.
 
-[getDefaultManagers()](./getDefaultManagers.md) pode ser usado para estender os managers padrão.
+Ela é executada uma vez para cada store, então cada `DataProvider` recebe seus próprios Managers. Defina-a no nível do módulo e
+[adicione seus próprios Managers](./Manager.md#adding) com [getDefaultManagers()](./getDefaultManagers.md).
 
 Padrão em produção:
 

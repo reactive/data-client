@@ -5,28 +5,24 @@ title: Transformando dados no fetch
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
-Todas as requisições de rede passam pelo método `fetch()`, então qualquer transformação necessária pode simplesmente
-ser feita sobrescrevendo-o com uma chamada a super.
+Transforme dados nos membros do [RestEndpoint](../api/RestEndpoint.md): [process()](../api/RestEndpoint.md#process) para
+respostas, [getRequestInit()](../api/RestEndpoint.md#getRequestInit) para corpos de requisição e
+[parseResponse()](../api/RestEndpoint.md#parseResponse) para headers e corpos brutos.
 
 :::tip
 
-Observação: se você mantém o controle sobre o design da API, geralmente é preferível
-atualizar os dados enviados pela rede. Manter o cliente o mais enxuto (`thin`) possível
-ajuda tanto no desempenho quanto na complexidade.
-
-Dito isso, em muitos casos você quer consumir APIs sobre as quais não tem controle -
-seja por serem APIs públicas ou por causa da estrutura organizacional interna.
+Se você controla a API, altere os dados que ela envia. Um cliente enxuto é mais rápido e simples. Use estas transformações
+para APIs que você não controla.
 
 :::
 
 ## De snake para camel {#snakes-to-camels}
 
-É comum que APIs sejam projetadas com chaves em `snake_case`, mas muitos em typescript/javascript
-preferem `camelCase`. Este trecho nos permite fazer a transformação necessária.
+Muitas APIs usam chaves em `snake_case`. Para usar `camelCase` no TypeScript, transforme as chaves nos dois sentidos.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
-import { RestEndpoint, RestGenerics  } from '@data-client/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -40,7 +36,7 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   return ret;
 }
 
-class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
+class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   getRequestInit(body) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body) {
@@ -56,14 +52,12 @@ class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
 
 ## Desserializando campos {#deserializing-fields}
 
-Em muitos casos, os dados enviados via JSON são serializados como strings, já que o JSON
-tem apenas alguns tipos primitivos. Exemplos comuns incluem [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
-para datas ou até strings para decimais que exigem alta precisão ([floats podem perder precisão](https://floating-point-gui.de/)).
-Manter os dados na forma serializada costuma ser aceitável, especialmente se forem usados apenas para
-exibição. No entanto, isso pode ser problemático quando dados derivados são computados, como somar tempo a uma data
-ou multiplicar dois números.
+O JSON tem poucos tipos, então as APIs enviam muitos valores como strings. Exemplos são datas em [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+e decimais de alta precisão ([floats podem perder precisão](https://floating-point-gui.de/)). Não há problema em exibir strings.
+Para fazer cálculos com elas, como somar tempo a uma data ou multiplicar dois números, desserialize-as.
 
-Nesse caso, basta usar o [static schema](../api/Entity.md#schema) com [Temporal.Instant](https://tc39.es/proposal-temporal/) e [BigNumber](https://github.com/MikeMcl/bignumber.js)
+Use [Entity.schema](../api/Entity.md#schema) com [Temporal.Instant](https://tc39.es/proposal-temporal/) e
+[BigNumber](https://github.com/MikeMcl/bignumber.js):
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -167,8 +161,8 @@ render(<PricePage />);
 
 ### Desserializando Date {#deserializing-date}
 
-Caso queira usar o [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) legado,
-você pode transformar o construtor em um [schema](../api/schema.md) de função.
+Para usar o [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) legado,
+envolva o construtor dele em um [schema](../api/schema.md) de função.
 
 ```ts
 export class ExchangePrice extends Entity {
@@ -190,14 +184,10 @@ export class ExchangePrice extends Entity {
 
 ## O caso do `Id` ausente {#case-of-the-missing-id}
 
-Agora você quer se integrar a um ótimo site de streaming novo chamado `mystreamsite.tv`. Ele tem
-uma API simples para obter informações sobre as transmissões atuais. Você pode obter uma transmissão com o
-padrão de url `https://mystreamsite.tv/[username]/`. No entanto, por algum motivo, eles não
-retornam o username no corpo da resposta! Você quer poder se referir a ele, e ele é
-o único identificador que define a classe de forma única.
+Algumas APIs deixam a chave primária fora da resposta. Por exemplo, `https://mystreamsite.tv/[username]/` retorna uma
+transmissão sem o seu `username`, que é o único identificador único da transmissão.
 
-Podemos simplesmente extrair o username da própria url da requisição e adicioná-lo à
-resposta.
+Adicione o `username` a partir dos argumentos do endpoint em [RestEndpoint.process()](../api/RestEndpoint.md#process).
 
 ```json title="GET https://mystreamsite.tv/ntucker/"
 {
@@ -209,8 +199,6 @@ resposta.
 ```
 
 ```typescript title="api/Stream.ts"
-const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
-
 class Stream extends Entity {
   username = '';
   title = '';
@@ -239,9 +227,8 @@ const getStream = new RestEndpoint({
 
 ### Preços de ticker {#ticker-prices}
 
-Aqui está um exemplo do mundo real de uma API em que os dados do ticker não incluem sua chave primária `product_id`.
-
-Usamos [RestEndpoint.process()](../api/RestEndpoint.md#process) para adicionar o membro `product_id` a partir do seu argumento.
+A resposta de ticker da Coinbase não inclui sua chave primária `product_id`.
+[RestEndpoint.process()](../api/RestEndpoint.md#process) a adiciona a partir do argumento `productId`.
 
 <FrameworkPlayground row>
 
@@ -349,11 +336,10 @@ render(<AssetPrice productId="BTC-USD" />);
 
 ## Usando headers HTTP {#using-http-headers}
 
-Os [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) HTTP são acessíveis na
-[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) do fetch. [RestEndpoint.fetchResponse()](../api/RestEndpoint.md#fetchResponse)
-pode ser usado para construir um [RestEndpoint](../api/RestEndpoint.md).
-
-Às vezes isso é usado para [paginação](./pagination.md#tokens-in-http-headers) baseada em cursor.
+Para ler os [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) HTTP, sobrescreva
+[RestEndpoint.parseResponse()](../api/RestEndpoint.md#parseResponse). Ele recebe a
+[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) do fetch. Por exemplo, a
+[paginação](./pagination.md#tokens-in-http-headers) baseada em cursor pode enviar seu cursor em um header.
 
 ```typescript
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
@@ -475,9 +461,7 @@ Para respostas `ArrayBuffer` (úteis para processar dados binários em memória)
 
 ## Renomeando campos {#name-calling}
 
-Às vezes uma API pode mudar o nome de uma chave ou escolher um de que você não gosta. Claro que
-você tem padrões de nomenclatura muito melhores, então, em vez de alterar a definição da sua classe `Resource`
-e todo o seu código, você quer apenas remapear essa chave.
+Para renomear uma chave que a API usa, mapeie-a nos dois sentidos. Sua Entity e seus componentes passam a usar apenas o seu nome.
 
 ```typescript title="ArticleResource.ts"
 class RenamedEndpoint<
@@ -487,7 +471,7 @@ class RenamedEndpoint<
     if (body && 'carrotsUsed' in body) {
       const newBody = {
         ...body,
-        carrotsUSedIsThisNameTooLong: carrotsUsed,
+        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
       };
       delete newBody.carrotsUsed;
       return super.getRequestInit(newBody);

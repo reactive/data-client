@@ -16,13 +16,13 @@ import { validatorFixtures } from '@site/src/fixtures/validators';
 
 ## 扩展列表 {#expanding-lists}
 
-如果你想把结果追加到现有列表中，而不是跳转到另一页，
-只要提供了 [paginationField](../api/resource.md#paginationfield)，就可以使用 [Resource.getList.getPage](../api/resource.md#getpage)。
+要把结果追加到列表中而不是跳转到另一页，请使用
+[Resource.getList.getPage](../api/resource.md#getpage)。它需要 [paginationField](../api/resource.md#paginationfield)。
 
 <PaginationDemo />
 
-别忘了为 [Resource](../api/resource.md) 定义 [paginationField](../api/resource.md#paginationfield) 以及
-正确的 [schema](../api/resource.md#schema)！
+设置 [Resource](../api/resource.md) 的 [paginationField](../api/resource.md#paginationfield) 和
+[schema](../api/resource.md#schema)：
 
 ```ts title="Post"
 export const PostResource = resource({
@@ -38,17 +38,17 @@ export const PostResource = resource({
 
 ### Github Issues 演示 {#github-issues-demo}
 
-`NextPage` 组件有一个点击处理函数，它会调用 [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)。
-滚动到预览底部，点击 _"Load more"_ 即可追加下一页 issue。
+`NextPage` 会在点击时调用 [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)。滚动到预览底部，
+点击 _"Load more"_ 即可追加下一页 issue。
 
 <StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" height={700} />
 
 ### 直接使用 RestEndpoint {#using-restendpoint-directly}
 
-下面我们使用 [Cosmos Hub 验证者列表](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators)来探索一个真实的示例。
-
-由于验证者只有一个 Endpoint，我们使用 [RestEndpoint](../api/RestEndpoint.md) 而不是 [resource](../api/resource.md)。借助 [Collections](../api/Collection.md) 和 [paginationField](../api/RestEndpoint.md#paginationfield)，我们可以调用 [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)，
-将下一页验证者追加到列表中。
+这个示例使用 [Cosmos Hub 验证者列表](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators)。
+它只有一个 endpoint，因此使用 [RestEndpoint](../api/RestEndpoint.md) 而不是 [resource](../api/resource.md)。
+借助 [Collection](../api/Collection.md) 和 [paginationField](../api/RestEndpoint.md#paginationfield)，
+[RestEndpoint.getPage](../api/RestEndpoint.md#getpage) 会把下一页验证者追加到列表中。
 
 <FrameworkPlayground defaultOpen="n" row fixtures={validatorFixtures}>
 
@@ -149,11 +149,11 @@ export default function LoadMore({ next_key, limit }) {
   );
   if (!next_key) return null;
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={handleLoadMore} disabled={isPending}>
         {isPending ? '...' : 'Load more'}
       </button>
-    </center>
+    </div>
   );
 }
 ```
@@ -225,7 +225,7 @@ render(<ValidatorList />);
 </script>
 
 <template>
-  <div v-if="next_key" style="text-align: center">
+  <div v-if="next_key" class="loadMore">
     <button @click="handleLoadMore" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
@@ -265,9 +265,9 @@ render(<ValidatorList />);
 
 ### 无限滚动 {#infinite-scrolling}
 
-由于 UI 行为差异很大，实现方式也因平台（react-native 或 web）而异，
-这里我们只假设已经构建好了一个 `Pagination` 组件，它通过回调来触发
-下一页的获取。在 web 上，推荐使用基于 [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) 的方案
+无限滚动的 UI 因应用和平台（React Native 或 web）而异。这个示例使用一个 `Pagination` 组件，它
+通过调用回调来获取下一页。在 web 上，请基于
+[Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) 来构建它。
 
 :::react
 
@@ -321,16 +321,12 @@ function NewsList() {
 
 ## HTTP 头中的 token {#tokens-in-http-headers}
 
-在某些情况下，分页 token 会嵌在 HTTP 头中，而不是作为响应体的一部分。这时
-你需要为 [getList](../api/resource.md#getlist) 自定义 [parseResponse()](../api/RestEndpoint.md#parseResponse) 函数，
-让分页头包含在获取到的对象中。
-
-下面展示自定义的 `getList`。上述示例的其余部分保持不变。
-
-在本例中，分页 token 存储在 `link` 头中。
+有些 API 会在 HTTP 头而不是响应体中发送分页 token。覆盖
+[getList](../api/resource.md#getlist) 的 [parseResponse()](../api/RestEndpoint.md#parseResponse)，把该头添加到
+响应中。在本例中，token 位于 `link` 头中。上面示例的其余部分保持不变。
 
 ```typescript
-import { Collection, Resource } from '@data-client/rest';
+import { resource } from '@data-client/rest';
 
 export const ArticleResource = resource({
   path: '/articles/:id',
@@ -357,8 +353,7 @@ export const ArticleResource = resource({
 
 ### 代码组织 {#code-organization}
 
-如果你的大部分 API 都采用类似的分页方式，
-可以尝试用一个自定义的 Endpoint 类来共享这段逻辑。
+如果许多 endpoint 采用相同的分页方式，请把这段逻辑放进一个自定义的 Endpoint 类中。
 
 ```ts title="resources/PagingEndpoint.ts"
 import { Collection, RestEndpoint, type RestGenerics } from '@data-client/rest';

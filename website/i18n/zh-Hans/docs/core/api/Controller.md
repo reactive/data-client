@@ -580,7 +580,7 @@ import { unAuth } from '../authentication';
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined
@@ -847,6 +847,9 @@ resolve 某次特定的获取，并把 `response` 存入缓存。
 
 [NetworkManager](./NetworkManager.md) 中使用了它，处理获取请求时
 也应当使用它。
+
+把获取 action 的 `action.meta.fetchedAt` 作为 `fetchedAt` 传入。这样 store 会丢弃在
+[resetEntireStore()](#resetEntireStore) 之前发起的获取的响应，旧的响应也不会让同一个键上更新的获取完成。
 
 ### subscribe(endpoint, ...args) {#subscribe}
 

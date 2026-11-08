@@ -43,15 +43,14 @@ export const timingDemo = [
 
 # Actualizaciones optimistas
 
-Las actualizaciones optimistas permiten interfaces muy receptivas y rápidas al evitar los tiempos de espera de la red.
-Una actualización es optimista porque asume que la red tendrá éxito.
+Una actualización optimista muestra el resultado de una mutación antes de que responda el servidor. Asume que la petición tiene éxito, así que
+la interfaz no espera a la red.
 
-Hacerlo amplifica y crea nuevas condiciones de carrera; por suerte, Reactive Data Client las
-maneja automáticamente por ti.
+Las actualizaciones optimistas añaden nuevas condiciones de carrera. Reactive Data Client las maneja por ti.
 
 ## Resources {#resources}
 
-[resource()](../api/resource.md) se puede configurar estableciendo [optimistic: true](../api/resource.md#optimistic).
+Para hacer optimista un [resource()](../api/resource.md), establece [optimistic: true](../api/resource.md#optimistic).
 
 <FrameworkPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
@@ -253,7 +252,7 @@ render(<TodoList />);
 
 </FrameworkPlayground>
 
-Esto hace que todas las mutaciones sean optimistas usando algunas implementaciones por defecto razonables que cubren la mayoría de los casos.
+Todas sus mutaciones usan entonces estas respuestas optimistas por defecto:
 
 ### update/getList.push/getList.unshift {#updategetlistpushgetlistunshift}
 
@@ -276,13 +275,11 @@ function ensureBodyPojo(body: any) {
 }
 ```
 
-En las creaciones (push/unshift) esto normalmente da como resultado que la respuesta no tenga `id` con el que calcular una pk.
-<abbr title="Reactive Data Client">Data Client</abbr> creará una `pk` aleatoria para que esto funcione.
+El cuerpo de una creación (push/unshift) normalmente no tiene un `id` con el que calcular una pk. Por eso
+<abbr title="Reactive Data Client">Data Client</abbr> crea una `pk` aleatoria.
 
-Hasta que el objeto se crea realmente, hacer mutaciones sobre ese objeto generalmente no funciona.
-Por lo tanto, en estos casos puede ser prudente deshabilitar nuevas mutaciones hasta que el
-`POST` real se complete. Una forma de determinarlo es simplemente comprobar la existencia de
-un `id` real en la entidad.
+Las mutaciones sobre el nuevo objeto suelen fallar hasta que el servidor lo crea. Por eso deshabilita las demás mutaciones sobre él hasta que el
+`POST` se complete. Por ejemplo, comprueba que la entidad tenga un `id` real.
 
 ### partialUpdate {#partialupdate}
 
@@ -301,10 +298,11 @@ function optimisticPartial(schema: Queryable) {
 }
 ```
 
-Las actualizaciones parciales no envían el cuerpo completo, por lo que podemos usar la entidad del
-store para calcular la respuesta esperada. Los [Snapshots](/docs/api/Snapshot)
-nos dan acceso seguro al valor existente del store, a prueba de cualquier
-condición de carrera.
+Las actualizaciones parciales no envían el cuerpo completo. Los campos que la respuesta esperada omite conservan sus
+valores en caché, así que una Entity solo necesita su [clave primaria](../api/Entity.md#pk) y los campos modificados.
+Si la entidad aún no está en el store, la actualización [se aborta](/docs/api/Snapshot#abort) en lugar de mostrar una Entity
+formada solo por los campos modificados. Los [Snapshots](/docs/api/Snapshot) leen de forma segura el valor actual del store, sin condiciones
+de carrera.
 
 ### delete {#delete}
 
@@ -314,29 +312,25 @@ function optimisticDelete(snap: SnapshotInterface, params: any) {
 }
 ```
 
-Si no quieres que todos los endpoints sean optimistas, o si tienes diseños de API poco habituales,
-puedes definir [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) usando
-[Resource.extend()](../api/resource.md#extend)
+Para hacer optimistas solo algunos endpoints, o para ajustarte a una API poco habitual, define
+[getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) con
+[Resource.extend()](../api/resource.md#extend).
 
 ## Transformaciones optimistas {#optimistic-transforms}
 
-A veces las acciones del usuario deben producir transformaciones de datos que dependen del estado anterior de los datos.
-Los ejemplos más simples son alternar un booleano o incrementar un contador; pero el mismo principio se aplica a
-transformaciones más complicadas. Para que sea más evidente, aquí usamos un contador simple.
+Algunas actualizaciones dependen del valor anterior, como alternar un booleano o incrementar un contador. Este ejemplo usa un
+contador.
 
 <OptimisticTransform />
 
-Reactive Data Client maneja automáticamente todas las condiciones de carrera debidas a los tiempos de red. Reactive Data Client
-registra los tiempos de los fetches, empareja las respuestas con su respectiva actualización optimista y la revierte cuando se resuelve o
-se rechaza/falla.
+Reactive Data Client maneja las condiciones de carrera debidas a los tiempos de red. Registra cuándo empieza cada fetch, empareja cada
+respuesta con su actualización optimista y revierte la actualización cuando la petición se resuelve o falla.
 
-Puedes ver lo problemático que esto resulta para otras librerías incluso sin actualizaciones optimistas;
-pero las actualizaciones optimistas lo empeoran aún más.
+Otras bibliotecas tienen estas condiciones de carrera incluso sin actualizaciones optimistas. Las actualizaciones optimistas las empeoran.
 
 ### Ejemplo de condición de carrera {#example-race-condition}
 
-Este es un ejemplo de la condición de carrera. Aquí solicitamos un incremento dos veces; pero la primera respuesta llega al
-cliente después de la segunda.
+Este ejemplo solicita dos incrementos. La primera respuesta llega después de la segunda.
 
 <OptimisticRace />
 
@@ -354,26 +348,26 @@ sequenceDiagram
     Server->>Client: Response timing
 ```
 
-Hay tres tiempos que pueden variar en una mutación asíncrona.
+Tres tiempos pueden variar en una mutación asíncrona:
 
 1. Tiempo de la petición
 1. Tiempo del servidor
 1. Tiempo de la respuesta
 
-Reactive Data Client es capaz de manejar automáticamente los tiempos de red, es decir, los tiempos de la petición y de la respuesta. Normalmente esto
-es suficiente, ya que los servidores tienden a procesar primero las peticiones que reciben antes. Sin embargo, si el orden de persistencia
-en el servidor varía respecto al orden de las peticiones, esto podría causar otra condición de carrera.
+Reactive Data Client maneja por ti los tiempos de la petición y de la respuesta. Normalmente esto es suficiente, porque los servidores
+suelen procesar las peticiones en el orden en que llegan. Si el servidor las guarda en un orden distinto, sigue existiendo una condición
+de carrera.
 
-Esto se puede resolver manteniendo un [orden total](https://en.wikipedia.org/wiki/Total_order). Como los
-servidores y los clientes pueden tener relojes distintos, necesitamos registrar el tiempo desde una perspectiva consistente.
-Dado que realizamos actualizaciones optimistas, esto significa que debemos usar el reloj del cliente. Es decir, enviaremos el tiempo
-de la petición al servidor en un header `updatedAt` mediante [getRequestInit()](../api/RestEndpoint.md#getRequestInit). El servidor debe entonces garantizar el procesamiento según ese orden y
-luego almacenar este `updatedAt` en la entidad para devolverlo en cualquier petición.
+Para resolverlo, mantén un [orden total](https://en.wikipedia.org/wiki/Total_order) con un único reloj. Los relojes del servidor y del cliente
+pueden diferir, y las actualizaciones optimistas ocurren en el cliente, así que usa el reloj del cliente:
 
-Sobrescribiendo [shouldReorder](../api/Entity.md#shouldreorder), podemos reordenar las respuestas que llegan desordenadas según la
-marca de tiempo del servidor.
+1. Envía el tiempo de la petición en un header `updatedAt` con [getRequestInit()](../api/RestEndpoint.md#getRequestInit).
+1. El servidor procesa las peticiones en el orden de `updatedAt`, almacena `updatedAt` en la entidad y lo devuelve en cada
+   respuesta.
+1. Sobrescribe [shouldReorder](../api/Entity.md#shouldreorder) para reordenar por `updatedAt` las respuestas que llegan desordenadas.
 
-Usamos [snap.fetchedAt](/docs/api/Snapshot#fetchedat) en nuestro [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse). Esto representa el momento en que se dispara el fetch, que será el mismo instante en que se calcula el header `updatedAt`.
+[getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) usa [snap.fetchedAt](/docs/api/Snapshot#fetchedat).
+Es el momento en que empieza el fetch, el mismo instante en que se calcula el header `updatedAt`.
 
 <FrameworkPlayground fixtures={[
 {

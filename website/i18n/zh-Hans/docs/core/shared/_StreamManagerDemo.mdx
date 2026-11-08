@@ -83,7 +83,7 @@ export default class StreamManager implements Manager {
 import { getDefaultManagers } from '@data-client/react';
 import StreamManager from './StreamManager';
 
-// passed to <DataProvider managers={getManagers()}>
+// passed to <DataProvider managers={getManagers}>
 export default function getManagers() {
   return [new StreamManager(), ...getDefaultManagers()];
 }

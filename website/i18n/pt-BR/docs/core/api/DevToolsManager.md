@@ -34,7 +34,7 @@ Por exemplo, podemos habilitar a opção [trace](https://github.com/reduxjs/redu
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
@@ -54,7 +54,7 @@ Por padrão, ignora as [fetch actions](./Controller.md#fetch) em andamento
 
 ```ts
 // production builds leave out DevToolsManager
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: new DevToolsManager(undefined, () => true),
 });
@@ -72,7 +72,7 @@ filtrar tipos de action ou schemas específicos:
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: {
     // Increase latency buffer for high-frequency updates
     latency: 1000,
@@ -116,7 +116,7 @@ o navegador integrado do Cursor, o [Chrome DevTools MCP](https://developer.chrom
 ou o [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) para inspecionar e interagir programaticamente
 com a store. Cada :react[[DataProvider](/docs/api/DataProvider)]:vue[[DataClientPlugin](./DataClientPlugin.md) instalado] se registra de forma independente, portanto
 vários :react[providers]:vue[apps] na mesma página são suportados. Quando um nome já está em uso, o próximo
-se registra como `'Data Client: My App (2)'`, e assim por diante; defina `name` para dar a cada um uma chave reconhecível. Onde não há `window`, como na
+se registra como `'Data Client: My App (2)'`, e assim por diante; defina `name` para dar a cada um uma chave reconhecível. A extensão Redux DevTools também lista cada store sob a sua chave. Onde não há `window`, como na
 renderização no servidor, um store substitui o anterior com o mesmo nome, já que os stores por requisição nunca são limpos.
 
 O log de ações mantém até o dobro de [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage)
@@ -128,7 +128,7 @@ de erro e os `args` de endpoints sem efeitos colaterais. Enquanto um endpoint fa
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { maxPollingActions: 10 },
 });
