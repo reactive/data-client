@@ -2,46 +2,41 @@
 
 What you would get wrong from the source alone when changing `src/memo/`, `src/denormalize/`, `src/interface.ts`, or a schema's `denormalize`.
 
-The memo has two builds. Each section below is labeled **Both**, **Web** or **React Native**; read the ones for the files you change.
+The memo has a web build and a React Native build. Sections are labeled **Both**, **Web** or **React Native**. Read every section labeled Both, then the row below that matches your change:
 
-| You change                                                                            | Build it ships in | Read                                                                                                     |
-| ------------------------------------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------- |
-| `src/memo/*.native.ts`, `packages/react/src/components/DataStore.native.tsx`          | React Native only | The sections labeled Both, then "React Native memo"                                                      |
-| `src/memo/MemoCache.ts`, `WeakDependencyMap.ts`, `globalCache.ts`                     | Web, and Node     | The sections labeled Both, then "Web memo"; then check the native twin (see "Keeping the pairs in step") |
-| Anything else in `src/` (schemas, `denormalize/`, `interface.ts`, `entitiesCache.ts`) | Both              | The sections labeled Both                                                                                |
+| You change                                                                         | Then read                                            | Jest projects                                                                |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Schemas (here or `packages/endpoint/src/schemas/`), `denormalize/`, `interface.ts` | "Args-dependent schemas" if output depends on `args` | ReactDOM, Node and ReactNative (ReactNative runs it against the native memo) |
+| `src/memo/MemoCache.ts`, `WeakDependencyMap.ts`, `globalCache.ts`                  | "Web memo", "Keeping the pairs in step"              | ReactDOM and Node                                                            |
+| `src/memo/*.native.ts`, `packages/react/src/components/DataStore.native.tsx`       | "React Native memo", "Keeping the pairs in step"     | ReactNative                                                                  |
 
-The builds have different goals, so a fix that suits one can be wrong for the other:
-
-|                     | Web                                          | React Native                                     |
-| ------------------- | -------------------------------------------- | ------------------------------------------------ |
-| Misses              | None: a result stays while its entities live | Only the documented cases in "React Native memo" |
-| Retention           | Every version whose entities are alive       | The newest entry plus what commits pin, per node |
-| Priority after that | Smallest bundle, then speed                  | Speed, then memory                               |
+Goals: the web memo has no avoidable misses (a result lives while its entities do), a small bundle, and speed. The React Native memo allows only the misses listed in "React Native memo", and aims for speed and low memory.
 
 ## Data flow of a read (Both)
 
-`MemoCache.query(schema, args, state)` → `buildQueryKey` (cached in `queryKeys`) → `MemoCache.denormalize(schema, input, entities, args)`:
+`MemoCache.query(schema, args, state)` → the query-key cache (`queryKeys`) → `MemoCache.denormalize(schema, input, entities, args)`:
 
 1. `policy.getEntities(entities)` makes one `getEntity` for the whole read.
 2. One `GlobalCache` per read. `unvisit` walks the schema; each `Entity` goes through `GlobalCache.getEntity`, which looks up `_getCache` (one `WeakDependencyMap` per entity) and, on a miss, runs `denormalize` and records every dep it reads (`dependencies.push`, `argsKey`).
 3. `getResults` looks up `endpoints` (the top-level `WeakDependencyMap`, keyed by `input`); on a miss it computes, then stores the value with its deps.
 4. Returns `{ data, paths }`. `paths` drive subscriptions and GC.
 
-The maps differ by build: on web each `WeakDependencyMap` nests one `WeakMap` level per dep; on React Native it has one level (see "React Native memo"). Lookup always comes before traversal: pick a map, look up, and on a miss traverse and write. You cannot choose the map from what the traversal finds.
+Each `WeakDependencyMap` nests one `WeakMap` level per dep on web, and has one level on React Native.
 
 ## Memo invariants
 
-**Both.** Every change to `src/memo/`, or to a schema's `denormalize`, keeps these, in either build:
+**Both.** Every change to `src/memo/`, or to a schema's `denormalize`, keeps these in either build:
 
 1. **Sound hits.** A hit returns only a value computed from exactly these entity objects (`===`; `undefined`, `null` and `INVALID` compare by value) and these `argsKey` results.
 2. **Complete dependencies.** Every entity and `argsKey` a computation reads is recorded, including deps replayed from a nested hit, and entities that are missing, `null` or `INVALID`.
 3. **Deterministic.** The same reads lead to the same further reads and an equal result. All dependence on args goes through a pure, referentially stable `argsKey` fn.
 4. **Complete journey.** A hit's `paths` cover every entity the value depends on. Callers never mutate them.
-5. **Weak retention.** A cached value lives only while what it is keyed on is reachable. On web that is the only bound; React Native also caps entries per node (see "React Native memo").
+5. **Weak retention.** A cached value lives only while what it is keyed on is reachable. React Native also caps entries per node.
 6. **Stable identity.** The same reads return the same object while it is cached. `useSuspense`, `useCache` and `useQuery` skip re-renders on `===` and tests assert `toBe`, so a cache that writes to a throwaway map and repopulates on the next call breaks this.
 
 What breaks them in practice:
 
+- **Choosing a map from what traversal finds.** Lookup comes first: pick a map, look up, and only on a miss traverse and write.
 - **Wrapping or proxying entities on read.** Deps are keyed by entity identity, so every chain misses. A new cache must share the read's one `getEntity`.
 - **A new caching dimension on one tier only.** `endpoints` and `_getCache` walk the same store; add it to both, or top-level hits return stale nested values.
 - **Several logical cells under one `pk`.** A new object at `entities[key][pk]` invalidates every chain through it, so a write to one cell busts them all.
@@ -55,74 +50,53 @@ Accepted limitations; don't "fix" them:
 
 A schema whose output depends on `args` registers that in `denormalize` with `delegate.argsKey(fn)`. Reference: `packages/endpoint/src/schemas/Scalar.ts`.
 
-- `fn(args)` is pure and returns `string | undefined`.
-- `fn` is the cache path key: bind it in the constructor or at module level. An inline arrow makes every lookup miss.
+- `fn(args)` is pure, cheap, and returns `string | undefined`. On React Native it also runs during lookups with args meant for other branches; a throw counts as no match.
+- `fn` is the cache path key: bind it in the constructor or at module level. An inline arrow makes every lookup miss, and on React Native it also adds a branch per call until the node is dropped.
 - Reading `delegate.args` directly adds no dep.
 - Store data so `denormalize` can recover the cell from the key, usually by encoding it in `pk` at normalize time.
-- Reads with no `argsKey` take the entity-only fast path (`GlobalCache._hasArgsKey`, `WeakDependencyMap.hasStringDeps`).
-
-## Web memo
-
-**Web only**: `MemoCache.ts`, `WeakDependencyMap.ts` and `globalCache.ts`, which ship in the browser and Node builds.
-
-- `WeakDependencyMap` nests one `WeakMap` per dep, so a result stays cached exactly while every entity it read is alive. Nothing evicts it, and nothing tells it which store committed: there is no `commit()`, `keep()`, `children` or `track()`.
-- Keep it that way. Recency caps, pins or commit tracking from the native build don't belong here: they add bundle size and can miss, and web has no GC marking problem to trade for.
-- Bundle size counts here (brotli, see the PR's compressed-size comment); the native files never ship to web, so they don't affect it.
-
-## Keeping the pairs in step
-
-**Both.** With `COMPILE_TARGET=native`, `WeakDependencyMap.native.ts`, `MemoCache.native.ts` and `globalCache.native.ts` replace the web files, and `@data-client/react` uses `DataStore.native.tsx`.
-
-- Each pair has the same public API, except that the native `MemoCache` adds `commit()`. Internally the native files also pass `out`, `children` and `records` pairs to `keep()`; the web files have none of these.
-- A change to one file of a pair needs the same change in the other, or a reason it does not apply. Typical reasons: the change is about retention or commits (native only), or about the nested `WeakMap` chain (web only).
-- Web output must stay byte-identical when you change only native files; check by building both.
-
-## React Native memo
-
-**React Native only.** None of this applies to the web files.
-
-**Why.** Hermes resolves nested `WeakMap`s one level per stop-the-world marking pass, and each pass rescans every `WeakMap` entry. The web memo nests one `WeakMap` per dep, so a deep result stalls old-generation GC for seconds. Native keeps one level: the first dep is the key, the other deps are stored on the entry and compared with `===`, and `argsKey` results branch on a `Map`.
-
-**Data flow on native:**
-
-1. Each node (a first dep plus its `argsKey` results) keeps at most three entries: the newest, `committed` and `settled`.
-2. Each entry lists the (node, entry) pairs it was built from (`children`); `globalCache.native` records them on every hit and write.
-3. `MemoCache` collects each read's own pairs (the result's entry and its query key's) and calls `track()`. If the read's `entities` is the committed one, `track()` pins them at once. Otherwise it buffers them in `reads`: weakly keyed by `entities`, one per node, at most `MAX_PENDING` (256) per store, dropping the earliest past that.
-4. `DataStore.native` calls `commit(entities, settled)` from an effect, so only committed renders reach it. `commit()` pins that store's buffered reads with `keep()`, which walks `children` once per entry per commit (`gen`).
-5. `settled` is true when no optimistic update is in flight. That pin is what lets the read after an optimistic rollback hit.
-
-**Native invariants**, on top of the six memo invariants:
-
-- A committed read's result, every nested value in it, and its query key stay pinned until a later commit replaces them. A pinned entry that was evicted goes back.
-- Commit state lives only on one `MemoCache` instance. Metro loads two normalizr copies (core requires the CJS one, the app imports the ESM one), so module-level identity is a bug unless it is shared the way `INVALID` is (`dist/symbol.native.js`).
-- Without `commit()` (a custom `DataProvider`, or `MemoCache` used directly), only the newest entry stays.
-
-**When a native read gets a new, equal object** (one recompute; the data is never wrong):
-
-1. Reads that alternate between two or more store versions that never committed, such as discarded renders, or `getResponse()` outside render against a store other than the rendered one.
-2. More than `MAX_FORKS` (8) extra `argsKey` branches under one first dep. This happens only when missing entities change which `argsKey` comes first; that node is then dropped.
-3. More than 256 reads of one uncommitted store; the earliest lose their buffered pin.
-
-`packages/react/src/__tests__/concurrent-memo.web.tsx` with the native memo: it must report 0 committed and 0 nested committed misses.
-
-**Build.** `babel.config.js` rewrites `./x.js` to `./x.native.js` when `COMPILE_TARGET=native` and that file exists, so a native file cannot import its own web twin. This builds `native/` (ESM, for Metro) and `dist/normalizr.native.js` (CJS, for core and Jest). The `react-native` export condition comes before `import` and `require`, because Metro takes the first match.
 
 ## Gotchas (Both)
 
 - **Entity classes are functions.** Schema walkers that return early on `typeof !== 'object'` skip every `Entity`; guard with `t === 'object' || t === 'function'`. Walk order: arrays → entries; anything with `.schema` → `.schema` (`EntityMixin`, `Collection`, `Union`, `Query`); plain objects → values; otherwise stop. A walker over definitions that can cycle needs its own visited set (normalize uses `getCheckLoop`).
 - **Storage shape is API.** Snapshot tests, SSR payloads and devtools read `entities[key][pk]`; changing it is breaking even if round-trips pass.
-- **Hot path.** `getEntity`, `dependencies.push` and the map walk run once per entity, thousands of times per read. One optional field on `EntityPath`/`Dep` cost 5–10% on `getSmallResponse`. Keep one object shape per push site, and hoist `WeakMap.get` out of inner loops. Aim for at most 2% on cached benchmarks.
+- **Hot path.** `getEntity`, `dependencies.push` and the map walk run once per entity, thousands of times per read. One optional field on `EntityPath`/`Dep` cost 5–10% on `getSmallResponse`. Keep one object shape per push site, and hoist `WeakMap.get` out of inner loops.
 - **New exports.** After adding one to `src/index.ts`, run `yarn build:types`: Jest stays green while dependents' `tsc` fails.
 - **A failing `toBe`** in this package or `packages/endpoint` usually means broken identity, not wrong values.
+- **Benchmarks** (thresholds are in the benchmarking rule): build base and head in separate worktrees and alternate runs in one session. Node numbers don't show Hermes GC pauses, so confirm a native speed change on Hermes.
 
-## Testing and benchmarks (Both)
+## Web memo
 
-- Memo changes need all three Jest projects. ReactNative runs only `*.native.*` test files, against the native memo. ReactDOM runs the other test files, against the web memo, and Node runs `*.node.*` files.
+`WeakDependencyMap` nests one `WeakMap` per dep, so a result stays cached exactly while every entity it read is alive. Nothing evicts it, and nothing tells it which store committed. Keep it that way: recency caps or commit tracking add bundle size and can miss, and V8 has no nested-`WeakMap` GC cost to trade them for. CI's compressed-size comment on the PR reports bundle size (`yarn ci:build:bundlesize` locally).
 
-  | Tests                                                              | Memo they cover                                                                                 |
-  | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-  | `src/__tests__/WeakDependencyMap.test.ts`, `MemoCache.ts`          | Web                                                                                             |
-  | `src/__tests__/WeakDependencyMap.native.ts`, `MemoCache.native.ts` | React Native                                                                                    |
-  | `packages/react/src/__tests__/concurrent-memo.web.tsx`             | Web as written; React Native when its memo files are swapped in (the 0-miss stress check above) |
+## Keeping the pairs in step
 
-- Benchmarks: `yarn workspace example-benchmark start normalizr` (or `core`). Build base and head in separate worktrees, run them alternately in one session (5 runs each), and compare trimmed means (drop min and max). Differences up to 3% in one session are noise; never compare with an earlier session. For native code, build with `COMPILE_TARGET=native`; Node numbers don't show Hermes GC pauses, so confirm native speed changes on Hermes.
+**Web and React Native memo files.** With `COMPILE_TARGET=native`, `WeakDependencyMap.native.ts`, `MemoCache.native.ts` and `globalCache.native.ts` replace the web files, and `@data-client/react` uses `DataStore.native.tsx`.
+
+- Port a change to its twin unless it is about retention, commits or `argsKey` forks (React Native only) or the nested `WeakMap` chain (web only); say which in the PR. Much code is shared verbatim, such as `depKey` and most of `GlobalCache`.
+- The pairs export the same API, plus on React Native: `MemoCache.commit()`, an exported `keep()`, and trailing `out`, `children` and `records` parameters that carry (node, entry) pairs for `keep()`.
+- `babel.config.js` rewrites `./x.js` to `./x.native.js` when that file exists, so a native file can't import its web twin's values. Type imports are erased, so they're fine.
+- After changing `rollup.config.mjs` or `babel.config.js`, build before and after and diff the web `dist/` and `lib/` output; it must not change.
+
+## React Native memo
+
+**Why.** Hermes resolves nested `WeakMap`s one level per stop-the-world marking pass, and each pass rescans every `WeakMap` entry. The web memo nests one `WeakMap` per dep, so a deep result stalls old-generation GC for seconds. Native keeps one level: the first dep is the key, the other deps are stored on the entry and compared with `===`, and `argsKey` results branch on a `Map`.
+
+**Data flow:**
+
+1. Each node (a first dep plus its `argsKey` results) keeps at most three entries: the newest, `committed` and `settled`.
+2. Each entry lists the (node, entry) pairs it was built from (`children`); `globalCache.native` records them on every hit and write.
+3. `MemoCache` collects each read's own pairs (the result's entry and its query key's) and calls `track()`. If the read's `entities` is the committed one, `track()` pins them at once. Otherwise it buffers them in `reads`: weakly keyed by `entities`, one per node, at most `MAX_PENDING` per store, dropping the earliest past that.
+4. `DataStore.native` calls `commit(entities, settled)` from an effect, so only committed renders reach it. `commit()` pins that store's buffered reads with `keep()`, which walks `children` once per entry per commit (`gen`).
+5. `settled` is true when no optimistic update is in flight. That pin is what lets the read after an optimistic rollback hit.
+
+**Native invariants**, on top of the memo invariants:
+
+- A committed read's result, every nested value in it, and its query key stay pinned until a later commit replaces them. A pinned entry that was evicted goes back.
+- Commit state lives only on one `MemoCache` instance. Don't rely on module-level identity: an app can load both the ESM (`native/`) and CJS (`dist/normalizr.native.js`) builds, which is why `INVALID` is shared through `dist/symbol.native.js`.
+- Without `commit()` (a custom `DataProvider`, or `MemoCache` used directly), each node keeps only its newest entry, plus up to `MAX_PENDING` buffered pins per live store.
+
+**When a native read gets a new, equal object** (one recompute; the data is never wrong). A change that adds a case lists it here and tests it in `src/__tests__/MemoCache.native.ts`:
+
+1. Reads that alternate between two or more store versions that never committed, such as discarded renders, or `getResponse()` outside render against a store other than the rendered one.
+2. More than `MAX_FORKS` extra `argsKey` branches below one first dep. This happens when missing entities change which `argsKey` comes next; the whole first-dep node is then dropped and rebuilt from this write.
+3. More than `MAX_PENDING` distinct results read from one store before it commits; the earliest lose their buffered pin.
