@@ -106,6 +106,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      # the changelog generator reads each changeset's PR
+      pull-requests: read
 
     steps:
       - uses: actions/checkout@v7
