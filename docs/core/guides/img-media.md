@@ -10,8 +10,8 @@ import TabItem from '@theme/TabItem';
 
 # Images and other Media
 
-Fetch media with Reactive Data Client to get Suspense and [render-as-you-fetch](/docs/guides/render-as-you-fetch)
-for it too.
+Reactive Data Client can also fetch media, so images and other binary data get Suspense and
+[render-as-you-fetch](/docs/guides/render-as-you-fetch).
 
 ## Storing ArrayBuffer
 
@@ -65,7 +65,7 @@ const photo = await getPhoto({ userId });
 
 ## Just Images
 
-Images can suspend too, so a page shows when its images are ready. This works best with
+Images can suspend as well, so a Suspense boundary waits for them to load. This works best with
 [render-as-you-fetch](/docs/guides/render-as-you-fetch).
 
 [@data-client/img](https://www.npmjs.com/package/@data-client/img) has an `<Img />` component that suspends, and a
@@ -78,7 +78,7 @@ Images can suspend too, so a page shows when its images are ready. This works be
 ## Usage
 
 ```tsx title="Profile.tsx"
-import React, { ImgHTMLAttributes } from 'react';
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { Img } from '@data-client/img';
 import { UserResource } from './resources/User';
@@ -104,7 +104,7 @@ The example above waits for the user before the image request starts. If you can
 parameters, start both requests at the same time:
 
 ```tsx title="Profile.tsx"
-import React, { ImgHTMLAttributes } from 'react';
+import React from 'react';
 import { useSuspense, useFetch } from '@data-client/react';
 import { Img, getImage } from '@data-client/img';
 import { UserResource } from './resources/User';
@@ -126,5 +126,5 @@ export default function Profile({ username }: { username: string }) {
 }
 ```
 
-With [render-as-you-fetch](../guides/render-as-you-fetch), call [Controller.fetch()](../api/Controller.md#fetch) with
+With [render-as-you-fetch](/docs/guides/render-as-you-fetch), call [Controller.fetch()](../api/Controller.md#fetch) with
 the `getImage` [Endpoint](/rest/api/Endpoint) to preload the image.

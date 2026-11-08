@@ -150,7 +150,7 @@ Here we toggled the 'completed' status of a todo using an [optimistic update](/r
 
 ### Action Tracing
 
-Tracing shows where each [action](../api/Actions.md) was dispatched from. It is off by default because it is slow. To
+Tracing shows where each [action](../api/Actions.md) was dispatched from. It is off by default because it records a stack trace for every action. To
 turn it on, set [DevToolsManager](../api/DevToolsManager.md)'s `trace` option with
 [getDefaultManagers](../api/getDefaultManagers.md):
 

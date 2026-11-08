@@ -26,9 +26,10 @@ Here, Data Client is simply used to track resource loading - only storing the `s
 <details open><summary><b>Profile.tsx</b></summary>
 
 ```tsx
-import React, { ImgHTMLAttributes } from 'react';
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { Img } from '@data-client/img';
+import { UserResource } from './resources/User';
 
 export default function Profile({ username }: { username: string }) {
   const user = useSuspense(UserResource.get, { username });
@@ -49,15 +50,16 @@ export default function Profile({ username }: { username: string }) {
 
 #### Prefetching
 
-Note this will cascade the requests, waiting for user to resolve before
-the image request can start. If the image url is deterministic based on the same parameters, we can start that request at the same time as the user request:
+The example above waits for the user before the image request starts. If you can compute the image URL from the same
+parameters, start both requests at the same time:
 
 <details open><summary><b>Profile.tsx</b></summary>
 
 ```tsx
-import React, { ImgHTMLAttributes } from 'react';
+import React from 'react';
 import { useSuspense, useFetch } from '@data-client/react';
 import { Img, getImage } from '@data-client/img';
+import { UserResource } from './resources/User';
 
 export default function Profile({ username }: { username: string }) {
   const imageSrc = `/profile_images/${username}`;
@@ -79,5 +81,6 @@ export default function Profile({ username }: { username: string }) {
 </details>
 
 
-When using the [fetch as you render](https://dataclient.io/docs/guides/render-as-you-fetch) pattern in concurrent mode, [useController().fetch](https://dataclient.io/docs/api/Controller#fetch) with the `getImage`
-[Endpoint](https://dataclient.io/docs/api/Endpoint) to preload the image.
+With [render-as-you-fetch](https://dataclient.io/docs/guides/render-as-you-fetch), call
+[Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) with the `getImage`
+[Endpoint](https://dataclient.io/rest/api/Endpoint) to preload the image.

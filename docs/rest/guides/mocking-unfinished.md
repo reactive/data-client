@@ -73,6 +73,6 @@ render(<Demo />);
 The `fetch` override on the [RestEndpoint](../api/RestEndpoint.md) returns fake data. The rest of the code uses the
 typed `RatingResource` as usual.
 
-When the API is ready, remove the `fetch` override. Remove the whole `getList` override if `fetch` is all it changes.
+When the API is ready, remove the whole `getList` override. Both `fetch` and `dataExpiryLength` exist only for the mock.
 
-`dataExpiryLength: Infinity` stops the data from [expiring](/docs/concepts/expiry-policy), so Data Client does not refetch it and replace the random values.
+`dataExpiryLength: Infinity` stops the data from [expiring](/docs/concepts/expiry-policy), so Data Client does not refetch it on its own and replace the random values.

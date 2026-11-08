@@ -16,8 +16,8 @@ import TabItem from '@theme/TabItem';
 [Storybook](https://storybook.js.org/) renders components in isolation for development and testing.
 
 [&lt;MockResolver /\>](../api/MockResolver.md) loads [fixtures or interceptors](../api/Fixtures.md), so stories show
-different network responses. You can nest and compose it. It also resolves [imperative fetches](../api/Controller.md#fetch),
-such as [getList.push](/rest/api/resource#push) and [update](/rest/api/resource#update).
+different network responses. It also resolves [imperative fetches](../api/Controller.md#fetch) of side-effect
+endpoints, such as [getList.push](/rest/api/resource#push) and [update](/rest/api/resource#update).
 
 ## Setup
 
@@ -30,6 +30,9 @@ values={[
 <TabItem value="ArticleResource.ts">
 
 ```typescript title="ArticleResource.ts"
+import { Entity, resource } from '@data-client/rest';
+import type { Fixture } from '@data-client/test';
+
 export class Article extends Entity {
   id: number | undefined = undefined;
   content = '';
@@ -77,8 +80,8 @@ export default function ArticleList({
 
 ## Fixtures
 
-These [fixtures and interceptors](../api/Fixtures.md) cover three cases: a list with results, an empty list, and no
-data, which shows the loading fallback.
+These [fixtures and interceptors](../api/Fixtures.md) cover four cases: a full list, an empty list, an error, and no
+fixture, which leaves the loading fallback showing.
 
 ```typescript title="ArticleResource.ts"
 // leave out in production so we don't bloat the bundle
