@@ -636,7 +636,7 @@ test('run in a workspace package, it removes the skills an earlier run linked th
   assert.ok(links(dir)['data-client-react']);
 });
 
-test("keeps a package's skills when the workspace root can't take them", t => {
+test("links skills in the package when the workspace root can't take them", t => {
   const dir = project({
     '.git/HEAD': 'ref',
     'package.json': { workspaces: ['apps/*'] },
@@ -650,9 +650,12 @@ test("keeps a package's skills when the workspace root can't take them", t => {
     'junction',
   );
   const web = path.join(dir, 'apps/web');
-  syncSkills(web);
-  run(t, web);
+  const output = run(t, web);
   assert.ok(links(web)['data-client-react']);
+  assert.deepEqual(output.slice(1), [
+    "The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills",
+    'Claude Code and Cursor started at the repository root load apps/web/.agents/skills only once they work on files in apps/web; start your agent in apps/web to have them from the start.',
+  ]);
 });
 
 test('run in a workspace below the repository root, it says to start the agent there', t => {

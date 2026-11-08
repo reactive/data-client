@@ -316,7 +316,9 @@ function holdsJunction(target, dir) {
  */
 export function main(cwd = process.cwd()) {
   const repo = repoRoot(cwd);
-  const workspace = workspaceRoot(cwd, repo);
+  const root = workspaceRoot(cwd, repo);
+  // a root whose skill folder the user manages can't take them
+  const workspace = root && skillsDirs(root) ? root : undefined;
   const projectDir = workspace ?? cwd;
   const { added, removed, outdated, kept, junctions, ...result } =
     syncSkills(projectDir);
@@ -346,6 +348,10 @@ export function main(cwd = process.cwd()) {
   if (outdated.length)
     console.log(
       `${outdated.join(', ')} ships no skills; upgrade to 0.19 or later to get them`,
+    );
+  if (root && !workspace)
+    console.log(
+      `The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills`,
     );
   // nothing to point at when no skill folder was synced
   if (!dir || !fs.existsSync(path.join(cwd, dir))) return;
