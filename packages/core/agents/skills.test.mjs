@@ -628,12 +628,11 @@ for (const method of [0, 8]) {
   });
 }
 
-test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t => {
-  const { dir } = zippedReact('0.19.0', {
-    'skills/data-client-react/SKILL.md': 'React skill.',
-  });
-  // what `yarn data-client-skills` runs under: Yarn's patched fs reports paths
-  // inside zips as existing, and Node's own fs.cpSync can't read them
+/**
+ * What `yarn data-client-skills` runs under, for test `t`: Yarn's patched fs
+ * reports paths inside zips as existing, and Node's own fs.cpSync can't read them
+ */
+function yarnRuntime(t) {
   const { existsSync } = fs;
   t.mock.method(
     fs,
@@ -650,20 +649,30 @@ test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t 
     if (versions) Object.defineProperty(process.versions, 'pnp', versions);
     else delete process.versions.pnp;
   });
+}
+
+test("Yarn PnP copies under Yarn's own runtime, which shows zips as folders", t => {
+  const { dir } = zippedReact('0.19.0', {
+    'skills/data-client-react/SKILL.md': 'React skill.',
+  });
+  yarnRuntime(t);
   assert.deepEqual(syncSkills(dir).added, ['data-client-react']);
-  // a zip without the package is skipped, not read through Yarn's fs
-  const broken = zippedReact('0.19.0', {}).dir;
-  fs.writeFileSync(
-    path.join(broken, '.yarn/cache/react.zip'),
-    zip({ 'node_modules/@data-client/react/other.txt': '' }, 0),
-  );
-  assert.deepEqual(syncSkills(broken).added, []);
   const skill = path.join(skillsDir(dir), 'data-client-react');
   assert.ok(!fs.lstatSync(skill).isSymbolicLink());
   assert.equal(
     fs.readFileSync(path.join(skill, 'SKILL.md'), 'utf8'),
     'React skill.',
   );
+});
+
+test("Yarn PnP skips a zip without the package, under Yarn's runtime too", t => {
+  const inZip = 'node_modules/@data-client/react/';
+  const { dir } = pnpProject(
+    [['@data-client/react', `./.yarn/cache/react.zip/${inZip}`]],
+    { '.yarn/cache/react.zip': zip({ [`${inZip}other.txt`]: '' }, 0) },
+  );
+  yarnRuntime(t);
+  assert.deepEqual(syncSkills(dir).added, []);
 });
 
 test('Yarn PnP reads unzipped packages in a folder named like a zip', () => {
