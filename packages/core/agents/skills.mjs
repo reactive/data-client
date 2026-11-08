@@ -185,7 +185,10 @@ function mirrorLinks(dest, mirror, result) {
  * node_modules
  */
 function wantedSkills(projectDir, dest, extracted, result) {
-  let found = nodeModulesPackages(projectDir, PACKAGES);
+  // under Yarn's runtime (`yarn data-client-skills`) resolving lands inside
+  // zip archives, which no link can reach
+  let found =
+    process.versions.pnp ? [] : nodeModulesPackages(projectDir, PACKAGES);
   // a project that moved off Plug'n'Play can keep a stale .pnp.cjs, so its
   // map counts only when node_modules holds no @data-client package
   const copy = !found.length;

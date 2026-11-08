@@ -21,15 +21,20 @@ export function pnpPackages(projectDir, names, extractTo) {
     if (!names.includes(pkg)) continue;
     for (const [, { packageLocation }] of versions) {
       const location = path.resolve(root, packageLocation);
+      // under Yarn's runtime (`yarn data-client-skills`) a path inside a zip
+      // looks like a folder, but only its patched fs can read it
       const dir =
-        fs.existsSync(location) ? location : (
-          extract(location, path.join(extractTo, String(found.length)))
-        );
+        !ZIPPED.test(location) && fs.existsSync(location) ?
+          location
+        : extract(location, path.join(extractTo, String(found.length)));
       if (dir) found.push({ pkg, dir });
     }
   }
   return found;
 }
+
+/** A path inside a zip archive: the archive, then the path within it */
+const ZIPPED = /^(.*?\.zip)[\\/](.*)$/;
 
 /** The nearest directory with a PnP install map, the project's Yarn root */
 function pnpRoot(dir) {
@@ -66,7 +71,7 @@ function runtimeState(root) {
 
 /** Extracts a zipped package's package.json and skills into `dir` */
 function extract(location, dir) {
-  const [, zipFile, inner] = /^(.*?\.zip)[\\/](.*)$/.exec(location) ?? [];
+  const [, zipFile, inner] = ZIPPED.exec(location) ?? [];
   if (!zipFile || !fs.existsSync(zipFile)) return undefined;
   const prefix = posix(inner).replace(/\/?$/, '/');
   const entries = zipEntries(fs.readFileSync(zipFile));
