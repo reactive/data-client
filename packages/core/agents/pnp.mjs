@@ -28,12 +28,13 @@ export function pnpPackages(projectDir, names, extractTo) {
     if (!names.includes(pkg)) continue;
     for (const [, { packageLocation }] of versions) {
       const location = path.resolve(root, packageLocation);
-      // check for a zip before the folder: under Yarn's runtime
-      // (`yarn data-client-skills`) a path inside one looks like a folder,
-      // but only its patched fs can read it
-      const zipped = inArchive(location);
+      // read a path inside a zip only by extracting, never as a folder, even
+      // when extracting finds nothing: under Yarn's runtime
+      // (`yarn data-client-skills`) it looks like a folder, but only Yarn's
+      // patched fs can read it
+      const zip = zipLocation(location);
       const dir =
-        zipped ? extract(zipped, path.join(extractTo, String(found.length)))
+        zip ? extract(zip, path.join(extractTo, String(found.length)))
         : fs.existsSync(location) ? location
         : undefined;
       if (dir) found.push({ pkg, dir });
@@ -76,7 +77,7 @@ function runtimeState(root) {
 }
 
 /** `location`'s archive and path inside it, when a zip file holds it */
-function inArchive(location) {
+function zipLocation(location) {
   const match = ZIPPED.exec(location);
   return match && fs.statSync(match[1], { throwIfNoEntry: false })?.isFile() ?
       { zipFile: match[1], inner: match[2] }
