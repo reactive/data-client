@@ -28,7 +28,7 @@ export const PACKAGES = [
 // marks a copied skill as ours, and records which version it came from
 const MARKER = '.data-client';
 /** Skills that upgrade from an older version, linked only with `--upgrade` */
-export const isUpgradeSkill = skill => skill.endsWith('-migration');
+const isUpgradeSkill = skill => skill.endsWith('-migration');
 
 /**
  * Makes the project's skill folder hold exactly the skills the installed
