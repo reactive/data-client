@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794070406623,
+  "lastUpdate": 1794109867307,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -141935,6 +141935,366 @@ window.BENCHMARK_DATA = {
             "name": "setMany 500 batch",
             "value": 1376,
             "range": "±2.77%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1e5fd6ac8a2e5bcab402b8aee7a9b24804cee05f",
+          "message": "fix(normalizr): Keep React Native memo WeakMaps one level deep (#4594)\n\n* fix(normalizr): Keep React Native memo WeakMaps one level deep\n\nReact Native gets WeakDependencyMap.native.ts, based on #4459: one\nWeakMap entry per first dependency, with a short list of entries.\nHermes marks nested WeakMaps one level per GC pass, so the old chain\ncaused long GC pauses with large results. Web keeps WeakDependencyMap.ts.\n\nBuild dist/normalizr.native.js with COMPILE_TARGET=native, and point the\nreact-native condition (first, before import and require) and the\nreact-native field at it, so Metro and the React Native Jest preset\nload it.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* test(normalizr): Run the one-level memo tests against the React Native build\n\nPort the WeakDependencyMap tests from #4459 to __tests__/WeakDependencyMap.native.ts,\nwhich the ReactNative Jest project runs and which resolves the .native file.\nList dist/normalizr.native.js in sideEffects.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(normalizr): Keep six memo entries per result on React Native\n\nSix is the smallest cap where every scripted concurrent-memo scenario but\none has no committed miss, and committed-read misses in random runs drop\nfrom 0.027% (four) to 0.007%. Document when a native read can miss, and\nadd a changeset.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Note the memory cost of the React Native memo cap\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* internal(normalizr): Load the ESM native/ build for import in React Native\n\nFollow #4595: react-native is { import: native/index.js (Babel ESM),\nrequire: dist/normalizr.native.js (CommonJS for React Native Jest and\n@data-client/core) }. INVALID lives in one CommonJS file,\ndist/symbol.native.js, that both native builds load, so an app that\nimports @data-client/normalizr while core requires it still has one\nINVALID.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Describe the React Native native/ build and shared INVALID\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(normalizr): Keep the newest and committed memo entries on React Native\n\nEach React Native memo node now keeps its newest entry plus up to two\npinned entries: the one a committed render last read, and the one a\ncommitted render of a store with no optimistic updates last read. It no\nlonger keeps six entries by recency.\n\nMemoCache.native.ts and globalCache.native.ts are the web files plus the\ntracking for MemoCache.commit(). DataStore.native.tsx calls commit()\nfrom an effect, so only committed renders pin entries. Web files do not\nchange.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Describe the committed-entry React Native memo\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(normalizr): Keep nested values and query keys of committed React Native results\n\nA commit now pins every value a committed result was computed from, not\nonly the result's own entry: each memo entry lists the entries it read,\nand keep() walks them once per commit. A detail read of a list row, or\nany nested object, gets the object the committed result holds.\n\nQuery keys that committed reads used are pinned the same way, so a\ncommitted query keeps its input. A store that never commits remembers at\nmost 256 results, so MemoCache without commit() does not keep results\nalive without bound. A pinned entry that was evicted before its commit\ngoes back.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Add nested misses to the React Native memo numbers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* refactor(normalizr): Share the native memo eviction rule\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* refactor(normalizr): Simplify the React Native memo\n\nSkip re-pinning when a commit repeats the committed store, share an empty\nchildren list for leaf entities, create a root node in one place, and drop\nper-call arrays on commit and query-key reads.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(normalizr): Keep every read of a React Native store until it commits\n\nReads were capped at 256 per uncommitted store, so a screen with more hooks\ncould drop some before its commit. The buffer is weakly keyed by the store\nentities, so it is freed with them.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* perf(normalizr): Build a new native memo root with its entry in place\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* fix(normalizr): Keep at most 256 reads per uncommitted React Native store\n\nA long-lived store that never commits, read with many new inputs, kept\nevery result alive (381 MB after 4,000 passes of the suite's\nwithEntityCacheOnly case). The size is now checked once per track() call.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Rewrite agent notes around data flow and invariants\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs: Add PR diagram for the React Native memo (temporary)\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs: Remove the temporary PR diagram\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* perf(normalizr): Track a React Native query key and its result in one call\n\nquery() collects the query key pair and the result pairs in one records\narray and calls track() once. buildQueryKey empties its reused array with\npop(), so V8 keeps its backing store.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* refactor(normalizr): Simplify the React Native memo bookkeeping\n\nWeakDependencyMap.set() now gives childless entries the shared empty\narray, so callers pass children as-is. The native file reuses the web\nfile's KeyFn, GetDependency and Dep types. The two GC tests share one\nhelper.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* perf(normalizr): Skip re-pinning entries a React Native commit already pinned\n\npin() returns early when the entry is already its node's committed (and,\nfor a settled store, settled) entry: set() keeps a node's entries to the\nnewest and the pins, so nothing is left to add or evict. keep() reuses\none walk stack.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* test(normalizr): Trim duplicated React Native memo tests\n\nDrop a frequency-era eviction test that commit pins made redundant, merge\nthe settled and unsettled late-read tests, and share the custom-memo\nController in the provider tests. Remove commented-out code carried into\nMemoCache.native.ts and correct two AGENTS.md lines.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* internal(normalizr): Build the React Native INVALID as an entry of one rollup build\n\nFollow #4626: like react's native context, symbol is an entry beside\nnormalizr in one build with nodeOutput, so rollup has normalizr require\nit instead of the external and paths workaround. Web output is\nbyte-identical; the native output differs only in a variable name.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Label agent notes by web and React Native build\n\nA routing table says which sections apply to the file being changed,\nand every section is marked Both, Web or React Native. Adds the web\nmemo's own rules and which Jest project covers which memo.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n* docs(normalizr): Fix agent notes after an adversarial review\n\nRoute by changed file to sections and Jest projects (schemas in endpoint\nincluded), group the shared sections first, and state when to port a\nchange between the web and native twins. Remove the unrunnable native\nconcurrent-memo check, the wrong brotli note and the benchmark threshold\nthat conflicted with the benchmarking rule. Correct the native API list,\nthe MAX_PENDING unit, the MAX_FORKS drop and the two-builds identity note,\nand add how argsKey fns behave on native.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Opus 5.5 <noreply@anthropic.com>",
+          "timestamp": "2026-11-08T03:41:18Z",
+          "tree_id": "f34130fea75a78c72c8eee39555c76023e90b186",
+          "url": "https://github.com/reactive/data-client/commit/1e5fd6ac8a2e5bcab402b8aee7a9b24804cee05f"
+        },
+        "date": 1794109863482,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 501,
+            "range": "±0.72%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 432,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 412,
+            "range": "±3.25%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 848,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 270,
+            "range": "±6.71%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 241,
+            "range": "±5.66%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1127,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 330,
+            "range": "±6.34%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 356,
+            "range": "±4.73%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 329,
+            "range": "±5.51%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 782,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1087,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1533,
+            "range": "±0.82%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 707,
+            "range": "±6.83%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 8021,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3900,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 61994,
+            "range": "±0.61%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 7008,
+            "range": "±3.60%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 243,
+            "range": "±8.45%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 7660,
+            "range": "±0.64%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 7575,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 7772,
+            "range": "±0.87%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 7842,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 8772,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5042,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 6126,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 2893,
+            "range": "±0.73%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6598,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 7702,
+            "range": "±4.40%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1938,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 5767,
+            "range": "±12.34%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 55805,
+            "range": "±0.61%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4943,
+            "range": "±5.57%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 14013967,
+            "range": "±0.68%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 271,
+            "range": "±9.56%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 5193,
+            "range": "±0.52%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 4000,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4837,
+            "range": "±5.24%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 3952,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5623,
+            "range": "±2.29%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 526,
+            "range": "±1.15%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 301,
+            "range": "±1.46%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 316,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1179,
+            "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 286,
+            "range": "±1.04%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 4716,
+            "range": "±1.39%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 29.68,
+            "range": "±1.47%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1621,
+            "range": "±0.42%",
             "unit": "ops/sec",
             "extra": "96 samples"
           }
