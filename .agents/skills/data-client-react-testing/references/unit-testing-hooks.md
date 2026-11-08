@@ -4,34 +4,24 @@
 
 > **Warning**
 >
-> Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like Reactive Data Client. Eliminating expected
-> exports can lead to hard-to trace
-> errors like `TypeError: Class extends value undefined is not a function or null`.
+> Be careful with [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on Reactive Data
+> Client modules. A mock that removes exports causes errors that are hard to trace, such as
+> `TypeError: Class extends value undefined is not a function or null`.
 >
-> Instead either do a [partial mock](https://jestjs.io/docs/mock-functions#mocking-partials),
-> or better [mockResolvedValue](https://jestjs.io/docs/mock-functions#mocking-modules) on your
-> endpoints.
+> Use a [partial mock](https://jestjs.io/docs/mock-functions#mocking-partials) instead, or better,
+> [mockResolvedValue](https://jestjs.io/docs/mock-functions#mocking-modules) on your endpoints.
 
-Hooks allow you to pull complex behaviors out of your components into succinct,
-composable functions. This makes testing component behavior potentially much
-easier. But how does this work if you want to use hooks from `Reactive Data Client`?
+[renderDataHook()](./renderDataHook.md) renders a hook inside a `DataProvider` and a `Suspense` boundary. It wraps
+[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()` (React
+18 and later) or [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)
+(React 17), and adds `result.error`, `waitFor()` and `waitForNextUpdate()`.
 
-We have provided some simple utilities to reduce boilerplate for unit tests
-that are wrappers around [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options).
-
-We want a [renderDataHook()](./renderDataHook.md) function that renders in the context of both
-a `Provider` and `Suspense` boundary.
-
-These will generally be done during test setup. Cleanup runs automatically after each test.
-
-> **Note**
->
-> `renderDataHook()` creates a Provider context with new manager instances. This means each call
-> to `renderDataHook()` will result in a completely fresh cache state as well as manager state.
+Each call to `renderDataHook()` creates new manager instances, so every test starts with an empty cache. Cleanup runs
+automatically after each test.
 
 ### Polyfill fetch in node < 18
 
-Node doesn't come with fetch out of the box, so we need to be sure to polyfill it.
+Node 18 and later include `fetch`. For older versions, add a polyfill:
 
 ```bash
 npm install --save-dev whatwg-fetch
@@ -52,7 +42,7 @@ module.exports = {
 require('whatwg-fetch');
 ```
 
-### Example:
+### Example
 
 **@data-client/react**
 

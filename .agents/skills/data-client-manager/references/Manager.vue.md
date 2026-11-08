@@ -2,16 +2,15 @@
 
 # Manager
 
-`Managers` handle global side-effects. Kind of like [watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect) for the central data
+`Managers` handle global side effects. They are like [watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect), but for the central data
 store.
 
-The default managers orchestrate the complex asynchronous behavior that Data Client
-provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.vue.md), and
-extended with your own custom `Managers`.
+The default managers run the asynchronous behavior that Data Client provides,
+such as fetching and subscriptions. Configure them with [getDefaultManagers()](./getDefaultManagers.vue.md), and add your
+own `Managers`.
 
-Managers must implement [middleware](#middleware), which hooks them into the central store's
-[control flow](#control-flow). Additionally, [cleanup()](#cleanup) and [init()](#init) hook into the
-store's lifecycle for setup/teardown behaviors.
+Each Manager implements [middleware](#middleware), which connects it to the store's [control flow](#control-flow).
+[init()](#init) and [cleanup()](#cleanup) connect it to the store's lifecycle, for setup and teardown.
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
@@ -41,18 +40,17 @@ So a constructor only stores its options.&#x20;
 
 ### middleware
 
-`middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
-The only differences is that the `next()` function returns a `Promise`.
+`middleware` works like a [redux middleware](https://redux.js.org/advanced/middleware), except that `next()` returns a
+`Promise`.
 
-This promise resolves when the reducer update is committed to the
-[DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) store. This enables building managers that perform work with the
-newly computed state.
+This promise resolves when the [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) store commits the update, so a Manager can
+await `next()` to work with the new state.
 
-Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
-ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
+Redux is synchronous, so Data Client middleware needs an adapter in front of it to receive a promise. Redux middleware
+must pass promises through.
 
-Middlewares will [intercept actions](#reading-and-consuming-actions) that are dispatched and then potentially [dispatch their own actions](#dispatching-actions) as well.
-To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
+Middleware can [read actions](#reading-and-consuming-actions) as they are dispatched, and
+[dispatch its own](#dispatching-actions).
 
 ### init(state) {#init}
 
@@ -87,8 +85,8 @@ resolves most FETCH actions itself instead of passing them on.
 
 ## Control flow
 
-Managers integrate with the DataClientPlugin store with their lifecycles and middleware. They orchestrate complex control
-flows by interfacing via intercepting and dispatching [actions](./Actions.vue.md), as well as reading the internal state.
+Managers connect to the DataClientPlugin store through their lifecycle methods and
+middleware. They read and dispatch [actions](./Actions.vue.md), and read the store's state.
 
 The job of `middleware` is to dispatch actions, respond to [actions](./Actions.vue.md), or both.
 
@@ -171,10 +169,10 @@ export default class LoggingManager implements Manager {
 }
 ```
 
-In conditional blocks, the action [type narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
-encouraging safe access to its members.
+Inside each `case`, TypeScript [narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
+the action's type, so you can access its members safely.
 
-In case we want to 'handle' a certain [action](./Actions.vue.md), we can 'consume' it by not calling next.
+To consume an [action](./Actions.vue.md), don't call `next()`.
 
 ```ts title="isEntity"
 import type { Schema, EntityInterface } from '@data-client/vue';
@@ -226,8 +224,8 @@ export default class CustomSubsManager implements Manager {
 }
 ```
 
-By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
-after this one from seeing that [action](./Actions.vue.md).
+`return Promise.resolve();` instead of `next(action)` stops managers listed after this one from seeing the
+[action](./Actions.vue.md).
 
 Types: [`FETCH`](./Actions.vue.md#fetch), [`SET`](./Actions.vue.md#set), [`SET_RESPONSE`](./Actions.vue.md#set_response),
 [`RESET`](./Actions.vue.md#reset), [`SUBSCRIBE`](./Actions.vue.md#subscribe), [`UNSUBSCRIBE`](./Actions.vue.md#unsubscribe),
