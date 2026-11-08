@@ -278,8 +278,8 @@ yet, and finish setup without replacing it.
 
 When a React app keeps API data in Redux (item maps, `createEntityAdapter()`, thunks that fetch, or RTK Query), a
 request to set up or migrate to Data Client includes moving that data: follow
-[Redux migration](references/redux-migration.md) as the TanStack guide above (Steps, API map, Check the migration).
-Redux keeps client state (settings, drafts, UI).
+[Redux migration](references/redux-migration.md) from its "Steps", using its "API map" and "Check the migration" as
+with the TanStack guide. Redux keeps client state (settings, drafts, UI).
 
 ## Verification Checklist
 

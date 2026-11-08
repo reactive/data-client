@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../../app/store';
 import { fetchTrack, selectTrackById } from '../tracks/tracksSlice';
 
-// Client state: what plays next. Persisted by redux-persist.
+// Client state: what plays next.
 const queueSlice = createSlice({
   name: 'queue',
   initialState: { trackIds: [] as string[], totalMs: 0 },

@@ -121,6 +121,7 @@
       "files": [],
       "assertions": [
         "`getHistory` is an Endpoint (with a `name`) whose `schema` contains `[Track]`, read with `useSuspense()`; the history slice and `tracksReceived` are deleted.",
+        "Each history row still shows its own `playedAt`: the response keeps `playedAt` next to `tracks`, or the endpoint pairs them into rows before normalizing.",
         "No endpoint exists only to be filled with `ctrl.setResponse()`.",
         "The service-worker listener moves into a Manager that keeps the Controller from `middleware`, adds the listener in `init()`, removes it in `cleanup()`, and writes with `controller.set(Track, ...)`; `managers` is a function passed to `DataProvider`.",
         "No module variable holds a Controller, and `push.ts` no longer imports the Redux store."

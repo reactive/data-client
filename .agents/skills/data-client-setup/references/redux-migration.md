@@ -239,8 +239,11 @@ component's effect. Don't copy `useController()`
 into a module variable from a component: it is unset until that component mounts, and tests that mount several
 `DataProvider`s share it.
 
-Endpoint functions run outside React too, so they can't call hooks like `useClient()`. Give them the API client or
-token the way the app's other non-React code gets it, such as a module that sign-in updates.
+When the store and Controller must both exist at module level, [Redux integration](https://dataclient.io/docs/guides/redux)'s `prepareStore()`
+creates them together, with Data Client's state inside the Redux store.
+
+Endpoint functions run outside React too, so they can't call the app's hooks. Give them the API client or token the
+way the app's other non-React code gets it, such as a module that sign-in updates.
 
 ## Sign-out and account switches {#sign-out}
 
