@@ -78,7 +78,7 @@ import { useSuspense, useDebounce } from '@data-client/react';
 import { UserResource } from './resources/User';
 
 function useProfile({ id }: { id: number }) {
-  const debouncedId = useDebounce(id, 150);
+  const [debouncedId] = useDebounce(id, 150);
 
   const user = useSuspense(UserResource.get, { id: debouncedId });
   const friends = useSuspense(UserResource.getList, { friendid: debouncedId });
