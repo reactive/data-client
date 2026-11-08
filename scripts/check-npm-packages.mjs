@@ -73,4 +73,5 @@ if (having('missing')) {
   );
   process.exit(1);
 }
-if (!having('unchecked')) console.log(`All ${names.length} public packages exist on npm`);
+if (!having('unchecked'))
+  console.log(`All ${names.length} public packages exist on npm`);
