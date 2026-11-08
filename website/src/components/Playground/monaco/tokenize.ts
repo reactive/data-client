@@ -176,6 +176,17 @@ class MonacoLexer {
 }
 
 /**
+ * Whether a tag Prism found at `at` in `code` (its `open` is `<` or `</`)
+ * reads as type arguments, as `f<T>()` does: in code, right after a name
+ */
+const isTypeArguments = (
+  code: string,
+  at: number,
+  open: string,
+  inChildren: boolean,
+) => !inChildren && open === '<' && /[\w$]/.test(code[at - 1] ?? '');
+
+/**
  * Whether a tag is type parameters, as TypeScript decides in .tsx: `<T extends`
  * (maybe `<const T extends`) starts a generic arrow function, unless the next
  * token makes `extends` an attribute (`=`, `>` or `/`). JSX children have
@@ -211,8 +222,6 @@ interface JsxReading {
   code: string;
   /** Where each tag name, attribute name and text is: a start, length and kind */
   spans: number[];
-  /** Given, it gets where Prism missed a tag, which isn't read again here */
-  misses?: number[];
 }
 
 /**
@@ -221,7 +230,7 @@ interface JsxReading {
  * gives them.
  */
 function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
-  const spans = jsx?.spans ?? [];
+  const { code, spans } = jsx ?? { code: '', spans: [] };
   const lexer = new MonacoLexer(keywords);
   /** Where JSX nests: an element's children, or code (`{}`, a tag's attributes) */
   const nesting: ('children' | 'code')[] = [];
@@ -231,7 +240,11 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
     // a name can come in parts: `svg:` (namespace) and `path`
     const [open, ...nameParts] = contentOf(head as Prism.Token);
     const name = textOf(nameParts);
-    if (isTypeParameters(name, attributes, nesting.at(-1) === 'children')) {
+    const inChildren = nesting.at(-1) === 'children';
+    if (
+      isTypeArguments(code, lexer.at, textOf(open), inChildren) ||
+      isTypeParameters(name, attributes, inChildren)
+    ) {
       // read again as TypeScript, so numbers in a constraint keep their color
       return walkAll(Prism.tokenize(textOf(tag), Prism.languages.typescript));
     }
@@ -286,28 +299,6 @@ function recolor(stream: Token[], keywords: Set<string>, jsx?: JsxReading) {
   };
   const walkAll = (list: Token[]) => {
     for (let i = 0; i < list.length; i++) {
-      if (jsx && isPunctuation(list[i], '<')) {
-        // Prism can read a fragment's `<>` as two operators (`by<>`)
-        if (isPunctuation(list[i + 1], '>')) {
-          lexer.addCode('<>');
-          nesting.push('children');
-          i++;
-          continue;
-        }
-        // and misses a tag right after text (`by<b>`), but finds it when it
-        // reads on from there
-        const tag = nesting.at(-1) === 'children' && tagAt(jsx.code, lexer.at);
-        if (tag && jsx.misses) {
-          // Prism reads it with the rest next time (recolorTsx)
-          jsx.misses.push(lexer.at);
-          // so its closing tag doesn't end the children around it
-          if (!tag.endsWith('/>')) nesting.push('children');
-        } else if (tag) {
-          const again = prismTokens(list.slice(i).map(textOf).join(''));
-          if (typeof again[0] === 'object' && again[0].type === 'tag')
-            return walkAll(again);
-        }
-      }
       walk(list[i]);
     }
   };
@@ -371,76 +362,29 @@ function recolorHtml(stream: Token[], inTagName = false): Token[] {
   });
 }
 
-/** Put before a tag's `<` so Prism's tsx tag pattern, which needs a
- * character before the `<` that isn't a word's or a tag's, finds the tag */
-const MARK = '\u0001';
-
-/** `tokens` without `MARK` */
-function unmark(tokens: Token[]): Token[] {
-  const out: Token[] = [];
-  for (const token of tokens) {
-    if (typeof token === 'string') {
-      const text = token.replaceAll(MARK, '');
-      if (text) out.push(text);
-    } else {
-      token.content =
-        typeof token.content === 'string' ?
-          token.content.replaceAll(MARK, '')
-        : unmark(contentOf(token));
-      out.push(token);
-    }
-  }
-  return out;
-}
+const tagOf = (language: 'jsx' | 'tsx') =>
+  (Prism.languages[language] as unknown as { tag: { pattern: RegExp } }).tag;
 
 /**
- * Prism's tokens for `code`. In tsx, Prism misses a tag right after another's
- * `>` (`<li><b>`) or after text (`by<b>`) unless something stands between
- * them, so `MARK` goes between each `><` and at each of `marks`. Reading on
- * from each miss instead costs time that grows with the square of the code's
- * length.
+ * Prism's tsx grammar, but with jsx's tag pattern, which finds a tag right
+ * after another's `>` (`<li><b>`) or after text (`by<b>`). tsx's needs a
+ * character before the `<` that isn't a word's, so it misses those, and
+ * `isTypeArguments` takes over that check where it holds: in code. Without
+ * `generic-function`, which can run from `f<` over JSX to a later `>(`, and
+ * whose color isn't kept anyway.
  */
-function prismTokens(code: string, marks: number[] = []) {
-  const { tsx } = Prism.languages;
-  if (code.includes(MARK)) return Prism.tokenize(code, tsx);
-  let marked = '';
-  let from = 0;
-  for (const at of marks) {
-    marked += code.slice(from, at) + MARK;
-    from = at;
-  }
-  marked += code.slice(from);
-  return unmark(Prism.tokenize(marked.replaceAll('><', `>${MARK}<`), tsx));
-}
+const TSX = Prism.languages.extend('tsx', {
+  tag: { ...tagOf('tsx'), pattern: tagOf('jsx').pattern, lookbehind: false },
+});
+delete (TSX as Record<string, unknown>)['generic-function'];
 
-/** Prism's tsx tag pattern, matched only where it starts (sticky) */
-const TAG = new RegExp(
-  (Prism.languages.tsx as unknown as { tag: { pattern: RegExp } }).tag.pattern
-    .source,
-  'y',
-);
-
-/** The tsx tag that starts at `at` in `code`, if one does */
-function tagAt(code: string, at: number) {
-  // from the slice's start, the pattern's `^` stands for the text before
-  TAG.lastIndex = 0;
-  return TAG.exec(code.slice(at))?.[0];
-}
-
-/**
- * tsx `code` recolored, and where its JSX is. A first reading notes where
- * Prism misses a tag after text, if it does, so a second reads them all.
- */
+/** tsx `code` recolored, and where its JSX is */
 function recolorTsx(code: string) {
-  const keywords = keywordsFor(Prism.languages.tsx);
-  const misses: number[] = [];
-  let jsx: JsxReading = { code, spans: [], misses };
-  let tokens = recolor(prismTokens(code), keywords, jsx);
-  if (misses.length) {
-    jsx = { code, spans: [] };
-    tokens = recolor(prismTokens(code, misses), keywords, jsx);
-  }
-  return { tokens, spans: jsx.spans };
+  const jsx: JsxReading = { code, spans: [] };
+  return {
+    tokens: recolor(Prism.tokenize(code, TSX), TS_KEYWORDS, jsx),
+    spans: jsx.spans,
+  };
 }
 
 /** Monaco's JavaScript grammar is its TypeScript one with fewer keywords */
