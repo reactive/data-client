@@ -104,7 +104,7 @@ A [jscodeshift](https://github.com/facebook/jscodeshift) codemod does the mechan
 your source folders, never the repo root:
 
 ```bash
-npx @data-client/codemods axios-to-rest src/
+npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
 ```
 
 The codemod doesn't format what it writes. Afterward, run the formatter or lint fixer your project uses on the changed

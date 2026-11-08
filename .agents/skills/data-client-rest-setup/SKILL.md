@@ -42,7 +42,7 @@ Check `package.json` and imports. Several libraries can coexist: migrate each on
 Axios:
 
 1. Check `git status` is clean (commit or ask first), so the codemod's changes can be reviewed on their own.
-2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx @data-client/codemods axios-to-rest src/` (it reads TypeScript and skips `node_modules`). It turns each axios call into a call to an endpoint (usually a module-level `const` when the call is in a function), turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
+2. Run the codemod before any manual edits, on the source folders (never the repo root): `npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`. It turns each axios call into a call to an endpoint (usually a module-level `const` when the call is in a function), turns each `axios.create()` instance into a base endpoint class, and drops `.data` unless a response interceptor may have unwrapped it.
 3. The codemod doesn't format its output, so run the fixers the project already uses on the changed files: its `format` or `lint --fix` script, or the tool its config names (such as `prettier --write`, `eslint --fix` or `biome check --write`).
 4. Search the source for `TODO(data-client)`. Each comment names one thing to finish and links its guide section, which is in the reference under the same heading. Resolve it, then delete the comment.
 5. Follow the reference's remaining steps. Callers keep loading data the way they did; only the call changes.
