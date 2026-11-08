@@ -80,7 +80,8 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | A list of ids for a query, page cursors | The endpoint's `schema`: `[Post]`, or a [Collection](/rest/api/Collection) that new items join |
 | `createAsyncThunk()` or a thunk that fetches | An endpoint with a `schema` |
 | `useEffect(() => dispatch(fetchX(id)))` + `useSelector(selectX)` | `useSuspense(endpoint, args)` |
-| `useSelector(selectXById(id))`, adapter `selectById()` / `selectAll()`, for items another request loaded | [useQuery(Entity, \{ id })](../api/useQuery.md): reads the store, never fetches |
+| `useSelector(selectXById(id))` or adapter `selectById()` for an item another request loaded | [useQuery(Entity, \{ id })](../api/useQuery.md): reads the store, never fetches |
+| Adapter `selectAll()` | The endpoint's list with `useSuspense()`, or [useQuery(new schema.All(Post))](/rest/api/All) for every stored item |
 | `status`, `loading`, `error` fields of a fetch | `<Suspense>` and an error boundary, or [useDLE()](../api/useDLE.md) |
 | `status`, `error` of a mutation | [useLoading()](../api/useLoading.md): `const [run, isPending, error] = useLoading(fn, deps)` |
 | Fetch timestamps, "skip if already loaded" checks | Delete them: endpoints refetch only when stale. Set [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength); call `ctrl.fetchIfStale()` outside components |
