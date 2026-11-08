@@ -72,21 +72,19 @@ if (opt.sweep && latencyMs === undefined)
 // Without a build the dist keeps whatever latency it was built with, so none is recorded.
 if (opt.sweep && opt['no-build'])
   fail('--sweep rebuilds for each latency; drop --no-build');
+if (opt.latency !== undefined && opt['no-build'])
+  fail('--latency is applied at build time; drop --no-build');
+// Whole milliseconds only: blank, false or 1.5 is a mistake, not 0 ms.
+const toMs = ms => (/^\d+$/.test(String(ms).trim()) ? Number(ms) : NaN);
 const latencies = [
-  ...new Set(
-    // '' and null would become 0 ms, so they stay invalid.
-    [latencyMs, ...sweepMs].map(ms =>
-      ms === undefined ? ms
-      : ms === '' || ms === null ? NaN
-      : Number(ms),
-    ),
-  ),
+  ...new Set([
+    latencyMs === undefined ? undefined : toMs(latencyMs),
+    ...sweepMs.map(toMs),
+  ]),
 ];
-if (
-  latencies.some(ms => ms !== undefined && !(Number.isInteger(ms) && ms >= 0))
-)
+if (latencies.some(Number.isNaN))
   fail(
-    `latencies must be whole milliseconds, got ${latencies.join(', ')} (--latency takes one value; --sweep adds config.latency.sweep)`,
+    `latencies must be whole milliseconds, got ${[latencyMs, ...sweepMs].join(', ')} (--latency takes one value; --sweep adds config.latency.sweep)`,
   );
 // --no-build keeps the existing dist, so no latency is set or recorded and nothing is swept.
 const [primaryMs, ...sweepOnlyMs] = opt['no-build'] ? [undefined] : latencies;
