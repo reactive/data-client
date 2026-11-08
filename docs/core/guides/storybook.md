@@ -16,8 +16,8 @@ import TabItem from '@theme/TabItem';
 [Storybook](https://storybook.js.org/) renders components in isolation for development and testing.
 
 [&lt;MockResolver /\>](../api/MockResolver.md) loads [fixtures or interceptors](../api/Fixtures.md), so stories show
-different network responses. Nest a `<MockResolver>` to override the fixtures for part of the tree. The inner one
-replaces the outer one's fixtures rather than adding to them. It also resolves [imperative fetches](../api/Controller.md#fetch) of side-effect
+different network responses. Nest a `<MockResolver>` to override the fixtures for part of the tree. Inside it,
+only the inner fixtures apply: a request they don't match goes to the network, not to the outer one's fixtures. It also resolves [imperative fetches](../api/Controller.md#fetch) of side-effect
 endpoints, such as [getList.push](/rest/api/resource#push) and [update](/rest/api/resource#update).
 
 ## Setup
