@@ -1,9 +1,9 @@
 import clsx from 'clsx';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 
 import { useCodeDocuments } from './Playground/editor/codeModel';
 import EditorSurface from './Playground/editor/EditorSurface';
-import { PlaygroundHiddenContext } from './Playground/hiddenContext';
+import { HiddenContext, useShownOnce } from './Playground/hiddenContext';
 import styles from './Playground/styles.module.css';
 
 export default function TypeScriptEditor({
@@ -16,11 +16,9 @@ export default function TypeScriptEditor({
   defaultTab?: string;
 }) {
   const model = useCodeDocuments(children, defaultTab);
-  // A PlaygroundTabs tab that is not selected: plain text until first shown,
-  // then Monaco stays so undo survives switching back. Same latch as Playground.
-  const hidden = useContext(PlaygroundHiddenContext);
-  const [interactive, setInteractive] = useState(!hidden);
-  if (!hidden && !interactive) setInteractive(true);
+  // Plain text while hidden (HiddenContext), then Monaco stays so undo
+  // survives switching back. Same latch as Playground.
+  const [interactive] = useShownOnce(useContext(HiddenContext));
 
   return (
     <div className={styles.playgroundQueryContainer}>

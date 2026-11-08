@@ -21,6 +21,7 @@ and `editor/callouts.ts`.
 | Editor chrome, SSR markup                    | `editor/EditorSurface.tsx`, `editor/StaticEditor.tsx`, `editor/InteractiveEditor.tsx`                           |
 | Monaco: types, completions, go-to-definition | `monaco/` (`preloadManifest.ts` and `../editor-types/` are generated)                                           |
 | Code colors                                  | `monaco/theme.ts` (Monaco and server HTML), `monaco/tokenize.ts` (Prism's tokens in Monaco's colors)            |
+| Which languages get Monaco's colors          | `editor/useCodeTheme.ts`                                                                                        |
 | Running the code, scope globals              | `preview/LivePreview.tsx`, `preview/useCodeManagers.ts`, `preview/transformCode.ts`, `preview/scope.ts`         |
 | Preview frame, Store open state and motion   | `preview/PreviewWrapper.tsx`, `preview/StoreToggle.tsx`, `preview/StoreInspector.tsx`                           |
 | Drawer state, demo view, Actions grouping    | `preview/inspector.ts`                                                                                          |
@@ -83,6 +84,10 @@ Gotchas:
   JSX text, which starts a string in Monaco. The keyword and operator lists
   in `tokenize.ts` are copied from Monaco's grammars; recheck them when
   upgrading Monaco. `monaco/language.ts` lists the languages it covers.
+- Highlighting costs an element per token, most of the elements on a page
+  of code. `editor/mergeTokens.ts` draws the same colors with half of them
+  (whitespace and plain text bare, neighbors that look alike in one span),
+  for `StaticEditor` and the site's code blocks (`theme/CodeBlock/Line`).
 
 `hidden` (unselected protocol tabs): every tab stays mounted, so all sources
 are in the HTML. The editor latches interactive on first show, so undo and
@@ -94,10 +99,15 @@ running; only the app's Effects pause. Keep that `<Activity>` inside
 `LiveProvider` (`preview/Preview.tsx`), so a show doesn't remount the app. The row Store folder
 stays out of the `<Activity>`, which would detach `setStoreHost`; the
 container's `.hidden` hides it. The homepage passes `hidden`; in MDX,
-`PlaygroundTabs` sets it through `PlaygroundHiddenContext`
-(`hiddenContext.ts`) for every playground under an unselected tab, nested
-groups included. An explicit prop wins. `TypeScriptEditor` in one of those
-tabs latches the same way (plain text until first shown).
+`HiddenContext` (`hiddenContext.tsx`) sets it for every playground
+under an unselected tab (`theme/TabItem`, so `PlaygroundTabs` and Docusaurus
+`<Tabs>` alike), nested groups included, and under a closed `<details>`
+(`theme/Details`) until its summary is clicked or the page is idle. An
+explicit prop wins. `TypeScriptEditor` there latches the same way: plain
+text while hidden, then Monaco stays. The site's code blocks there are plain
+text until shown or the page is idle (`theme/CodeBlock`), then highlight in
+a transition, so neither the hydration nor a later tab switch waits on
+them.
 In `row` (not stacked), the result never shrinks below its tallest
 (`useHeightRatchet`), shared by the playgrounds under one
 `data-playground-group` (the homepage's protocol switch, `PlaygroundTabs`),

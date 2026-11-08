@@ -24,6 +24,7 @@ import {
   type CodeOpener,
   type CodeTarget,
 } from './editor/openCode';
+import { useShownOnce } from './hiddenContext';
 import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import {
@@ -239,8 +240,7 @@ export default function Playground<T>({
   // code is plain text in the HTML; then Monaco hydrates and stays
   // (preserves undo / go-to-def).
   const codeVisible = !hidden && (!codeClosed || codeShown);
-  const [editorInteractive, setEditorInteractive] = useState(codeVisible);
-  if (codeVisible && !editorInteractive) setEditorInteractive(true);
+  const [editorInteractive] = useShownOnce(!codeVisible);
   const toggleCode = useCallback(() => setCodeShown(shown => !shown), []);
   // a `before` replay's: its end screen's Show code, and the replay's tab
   // before the files', each hidden by what it shows, so focus moves on to
@@ -299,8 +299,7 @@ export default function Playground<T>({
     demo ? { shown: codeShown, toggle: toggleCode } : undefined;
   // Live preview from its first show (hidden till then, not even its frame
   // is in the HTML), then kept, its app in an `<Activity>` (README: `hidden`)
-  const [kept, setKept] = useState(!hidden);
-  if (!hidden && !kept) setKept(true);
+  const [kept] = useShownOnce(hidden);
   const activity = hidden ? 'hidden' : 'visible';
   const preview =
     kept ?

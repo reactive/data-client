@@ -5,10 +5,14 @@ import {
 } from '@docusaurus/theme-common/internal';
 import type { Props } from '@theme/CodeBlock';
 import CodeBlock from '@theme-original/CodeBlock';
-import React from 'react';
+import React, { useContext, useMemo } from 'react';
 
 import { SHELLS } from './shells';
 import AgentPrompt from '../../components/AgentPrompt';
+import {
+  HiddenContext,
+  useHiddenUntilIdle,
+} from '../../components/Playground/hiddenContext';
 import { metaFlag } from '../../utils/fenceMeta';
 
 /** ```prompt fences are typed into a coding agent's chat, not a terminal, so
@@ -31,17 +35,25 @@ export default function CodeBlockWrapper(props: Props) {
     );
   }
   // ./Title gives shell titles the terminal icon
-  if (framed && language && SHELLS.has(language) && !title) {
-    return (
-      <CodeBlock
-        {...props}
-        title={translate({
-          id: 'theme.CodeBlock.terminalTitle',
-          message: 'Terminal',
-          description: 'Header of framed code blocks of shell commands',
-        })}
-      />
-    );
-  }
-  return <CodeBlock {...props} />;
+  const terminalTitle =
+    framed && language && SHELLS.has(language) && !title ?
+      translate({
+        id: 'theme.CodeBlock.terminalTitle',
+        message: 'Terminal',
+        description: 'Header of framed code blocks of shell commands',
+      })
+    : undefined;
+  return <IdleCodeBlock {...props} title={terminalTitle ?? props.title} />;
+}
+
+/** Code not shown (an unselected tab, a closed details) renders as `text`
+ * (no highlighting, so no Prism work, and no shell layout: ./Layout) until
+ * it shows or the page is idle, whichever comes first */
+function IdleCodeBlock(props: Props) {
+  const [hidden] = useHiddenUntilIdle(useContext(HiddenContext));
+  // a tab switch re-renders only this, not the code block
+  return useMemo(
+    () => <CodeBlock {...props} language={hidden ? 'text' : props.language} />,
+    [props, hidden],
+  );
 }
