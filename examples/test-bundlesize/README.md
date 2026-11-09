@@ -23,17 +23,19 @@ Next.js 16.4 (Turbopack and webpack). Bundlers change, so re-measure before reve
 
 Total brotli JS (quality 11) for a two-page app with lazy routes (`scripts/bundler-compare`), at #4487 with and
 without its `sideEffects` and react index changes, leaving out the `Object.hasOwn` fallback in the entry files.
-Re-measured 2026-11-09 with rspack 2.3, Vite 8.3 and Next.js 16.4:
+Re-measured 2026-11-09 with webpack 5.112, rspack 2.3, Vite 8.3 and Next.js 16.4:
 
 | Bundler                |  Before |   After | Diff |
 | ---------------------- | ------: | ------: | ---: |
+| webpack 5              |  77 834 |  76 957 | −877 |
 | rspack 2               |  77 608 |  76 812 | −796 |
 | Vite 8                 |  76 674 |  76 674 |    0 |
 | Next.js 16 (Turbopack) | 174 688 | 174 016 | −672 |
+| Next.js 16 (webpack)   | 261 526 | 260 618 | −908 |
 
-On 2026-11-01, webpack 5 and Next.js 16 with webpack saved about as much as rspack. Vite (Rollup and Rolldown)
-already concatenates each chunk into one scope, so `sideEffects` doesn't change its output. Single-chunk rspack
-builds change by under 50 B.
+The webpack rows build the same app with webpack's defaults and `swc-loader`. Vite (Rollup and Rolldown) already
+concatenates each chunk into one scope, so `sideEffects` doesn't change its output. Single-chunk rspack builds change
+by under 50 B.
 
 To re-measure, run `scripts/bundler-compare/measure.sh` on a branch that changes the `sideEffects` arrays and on
 its base, then `--compare` the two runs. It covers rspack, Vite 8 and Turbopack. For webpack, build this app with

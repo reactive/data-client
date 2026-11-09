@@ -11,13 +11,16 @@ repo=$(git -C "$here" rev-parse --show-toplevel)
 mkdir -p "$here/results"
 
 if [ "${1:-}" = --compare ]; then
+  # each line is "<bundler> <brotli bytes>"; older runs also printed gzip, so they can't be compared
+  for run in "$2" "$3"; do
+    if [ ! -s "$here/results/$run.txt" ] || grep -qvE '^[a-z0-9]+ [0-9]+$' "$here/results/$run.txt"; then
+      echo "error: results/$run.txt is missing or from an older format; measure $run again" >&2
+      exit 1
+    fi
+  done
   if ! cmp -s "$here/results/$2.versions" "$here/results/$3.versions"; then
     echo "warning: $2 and $3 used different bundler versions:"
     paste "$here/results/$2.versions" "$here/results/$3.versions"
-  fi
-  if grep -q -- '-gzip ' "$here/results/$2.txt" "$here/results/$3.txt"; then
-    echo "error: a run predates the switch to brotli-only output; measure it again" >&2
-    exit 1
   fi
   join <(sort "$here/results/$2.txt") <(sort "$here/results/$3.txt") |
     awk -v a="$2" -v b="$3" 'BEGIN { printf "%-16s %10s %10s %7s\n", "bundler", a, b, "diff" }
