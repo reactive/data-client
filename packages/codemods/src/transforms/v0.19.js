@@ -15,9 +15,12 @@
  *      are wrapped where they are passed: `managers={() => managers}`. Exported variables are
  *      wrapped too, since other modules wrap them where they pass them.
  *   2. Drops `initManager()`'s third argument, which 0.19 removed.
- *   3. `fetchIfStale()` always returns a Promise: `Promise.resolve(ctrl.fetchIfStale(...))` becomes
- *      the bare call, and a statement that checks its result with `instanceof Promise` gets a
- *      `// TODO(data-client):` comment, since that check is now always true and the code needs `await`.
+ *   3. `fetchIfStale()` always returns a Promise:
+ *      - `Promise.resolve(ctrl.fetchIfStale(...))` becomes the bare call.
+ *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
+ *      - A statement that reads its result as the data (a member other than then/catch/finally,
+ *        `instanceof`, `typeof`, `!`, a condition, destructuring, a spread or a template) gets a
+ *        `// TODO(data-client):` comment, since where to `await` depends on the code around it.
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
@@ -216,20 +219,80 @@ function transformInitManager(j, root) {
 }
 
 const FETCH_IF_STALE_TODO =
-  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19, so this check is always true; await it: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise';
+  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise';
+// Promise methods; reading any other member of the result means the code expected the data
+const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+// wrappers that pass the value through unchanged
+const PASS_THROUGH = new Set([
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSNonNullExpression',
+  'TSTypeAssertion',
+  'ParenthesizedExpression',
+]);
 
 const isFetchIfStaleCall = node =>
   node?.type === 'CallExpression' && calleeName(node) === 'fetchIfStale';
 
-/** A `fetchIfStale()` call, or a variable initialized with one */
-function isFetchIfStaleResult(path) {
-  if (isFetchIfStaleCall(path.node)) return true;
-  if (path.node.type !== 'Identifier') return false;
-  const declaration = bindingOf(path)?.parent.node;
-  return (
-    declaration?.type === 'VariableDeclarator' &&
-    isFetchIfStaleCall(declaration.init)
-  );
+const unwrap = node =>
+  PASS_THROUGH.has(node?.type) ? unwrap(node.expression) : node;
+
+/** Whether the value at `path` is used as if it were the data, not a Promise */
+function readsSynchronously(path) {
+  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  const { node } = path;
+  const parent = path.parent.node;
+  switch (parent.type) {
+    case 'MemberExpression':
+    case 'OptionalMemberExpression':
+      if (parent.object !== node) return false;
+      return !(
+        !parent.computed &&
+        PROMISE_METHODS.has(parent.property.name) &&
+        path.parent.parent.node.type.endsWith('CallExpression') &&
+        path.parent.parent.node.callee === parent
+      );
+    case 'BinaryExpression':
+    case 'TemplateLiteral':
+    case 'SpreadElement':
+    case 'JSXSpreadAttribute':
+      return true;
+    case 'UnaryExpression':
+      return parent.operator !== 'void';
+    case 'LogicalExpression':
+      return parent.left === node;
+    case 'IfStatement':
+    case 'ConditionalExpression':
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+      return parent.test === node;
+    case 'VariableDeclarator':
+      return parent.init === node && parent.id.type.endsWith('Pattern');
+    default:
+      return false;
+  }
+}
+
+/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a variable holding it */
+function findSyncReads(j, root) {
+  const reads = [];
+  root.find(j.CallExpression).forEach(call => {
+    if (!isFetchIfStaleCall(call.node)) return;
+    if (readsSynchronously(call)) reads.push(call);
+  });
+  root.find(j.Identifier).forEach(ref => {
+    if (ref.node.type !== 'Identifier' || isOtherName(ref)) return;
+    const binding = bindingOf(ref);
+    if (!binding || binding.node === ref.node) return;
+    const declaration = binding.parent.node;
+    if (
+      declaration.type === 'VariableDeclarator' &&
+      isFetchIfStaleCall(unwrap(declaration.init)) &&
+      readsSynchronously(ref)
+    )
+      reads.push(ref);
+  });
+  return reads;
 }
 
 /** The statement to comment on; for `else if`, the whole `if` chain */
@@ -241,6 +304,21 @@ function statementOf(j, path) {
   )
     statement = statement.parent;
   return statement;
+}
+
+/** The `spyOn(obj, 'fetchIfStale')` call under a chain of `.mock*()` calls, if any */
+function spiesOnFetchIfStale(node) {
+  while (
+    node?.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property.name?.startsWith('mock')
+  )
+    node = node.callee.object;
+  return (
+    node?.type === 'CallExpression' &&
+    calleeName(node) === 'spyOn' &&
+    node.arguments[1]?.value === 'fetchIfStale'
+  );
 }
 
 function transformFetchIfStale(j, root) {
@@ -260,19 +338,28 @@ function transformFetchIfStale(j, root) {
       dirty = true;
     });
 
-  root
-    .find(j.BinaryExpression, {
-      operator: 'instanceof',
-      right: { name: 'Promise' },
-    })
-    .filter(check => isFetchIfStaleResult(check.get('left')))
-    .forEach(check => {
-      const { node } = statementOf(j, check);
-      const comments = node.comments || (node.comments = []);
-      if (comments.some(c => c.value === FETCH_IF_STALE_TODO)) return;
-      comments.push(j.commentLine(FETCH_IF_STALE_TODO, true, false));
-      dirty = true;
-    });
+  // mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)`
+  root.find(j.CallExpression).forEach(call => {
+    const { callee } = call.node;
+    if (
+      callee.type !== 'MemberExpression' ||
+      !/^mockReturnValue(Once)?$/.test(callee.property.name) ||
+      !spiesOnFetchIfStale(callee.object)
+    )
+      return;
+    callee.property = j.identifier(
+      callee.property.name.replace('ReturnValue', 'ResolvedValue'),
+    );
+    dirty = true;
+  });
+
+  findSyncReads(j, root).forEach(read => {
+    const { node } = statementOf(j, read);
+    const comments = node.comments || (node.comments = []);
+    if (comments.some(c => c.value === FETCH_IF_STALE_TODO)) return;
+    comments.push(j.commentLine(FETCH_IF_STALE_TODO, true, false));
+    dirty = true;
+  });
   return dirty;
 }
 

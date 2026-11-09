@@ -10,10 +10,6 @@ BREAKING: [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#
 call you don't await can't reject unhandled, because the error is already stored like any fetch error, so components
 reading that endpoint handle it as usual.
 
-These failures no longer reach global unhandled-rejection handlers: the browser console's "Uncaught (in promise)" error,
-error trackers that capture unhandled rejections (like Sentry), and Node's `unhandledRejection` event. To report every
-failed fetch, awaited or not, add an [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting).
-
 | Question | Before | After |
 | --- | --- | --- |
 | What does the call return? | The data when fresh, a Promise when stale | Always a Promise |
@@ -49,8 +45,23 @@ const { data, expiryStatus, expiresAt } = ctrl.getResponse(
 const fresh = expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt;
 ```
 
-If you read the result without awaiting it, `await` it. The `v0.19` codemod marks `instanceof Promise` checks of the
-result with a `TODO(data-client)` comment, and unwraps `Promise.resolve(ctrl.fetchIfStale(...))`:
+What to check when upgrading. `npx @data-client/codemods v0.19 src/` handles the first three:
+
+- **Code that reads the result as data**, such as `instanceof Promise`, `.title`, destructuring or an `if` on it:
+  `await` it. The codemod adds a `TODO(data-client)` comment above each one it finds. The type checker flags property
+  reads it misses, like results passed through other functions.
+- **Tests that mock the old return**: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes
+  `.mockResolvedValue(data)`.
+- **`Promise.resolve(ctrl.fetchIfStale(...))`** wrappers are no longer needed, and the codemod removes them.
+- **Error monitoring**: failures of calls you don't await no longer reach global unhandled-rejection handlers: the
+  browser console's "Uncaught (in promise)" error, error trackers that capture unhandled rejections (like Sentry), and
+  Node's `unhandledRejection` event. To report every failed fetch, awaited or not, add an
+  [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting).
+- **Loaders that await it** now reject when the latest fetch failed within errorExpiryLength, as they already did when
+  a stale fetch failed, so the router's error UI shows the error instead of the component's error boundary. To keep
+  waiting but leave the error to the component, add `.catch(() => {})` to that call.
+- **`.then()` chains**: a `.then()` on the result makes a new Promise, so end the chain with `.catch()` as usual.
+- **Controller subclasses** that override `fetchIfStale()` must return a Promise.
 
 #### Before
 

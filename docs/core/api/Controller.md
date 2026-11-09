@@ -275,6 +275,7 @@ This can be useful when prefetching data, as it avoids overfetching fresh data.
 Prefetches don't need to be awaited or caught. A failed fetch is stored like any fetch error, so components reading that
 endpoint handle it as usual. Calls that `await` the result still reject with it. Unawaited failures don't reach global
 unhandled-rejection handlers, so report fetch errors with an [error reporting Manager](../concepts/managers.md#error-reporting).
+A `.then()` chained onto the result makes a new Promise, so end that chain with `.catch()`.
 
 ```ts
 // start a secondary request without waiting for it
