@@ -1,0 +1,472 @@
+{
+ "kind": "static",
+ "app": "bulletproof-react",
+ "date": "2026-11-08T21:36:50.664Z",
+ "metrics": [
+  {
+   "group": "bundle",
+   "id": "entry.gzip",
+   "label": "Entry JS, gzip",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 177.88,
+   "migrated": 163.1,
+   "delta": -14.78,
+   "pct": -8.3,
+   "verdict": "better"
+  },
+  {
+   "group": "bundle",
+   "id": "entry.brotli",
+   "label": "Entry JS, brotli",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 153.46,
+   "migrated": 140.25,
+   "delta": -13.21,
+   "pct": -8.6,
+   "verdict": "better"
+  },
+  {
+   "group": "bundle",
+   "id": "entry.raw",
+   "label": "Entry JS, raw",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 552.88,
+   "migrated": 512.82,
+   "delta": -40.06,
+   "pct": -7.2,
+   "verdict": "better"
+  },
+  {
+   "group": "bundle",
+   "id": "total.gzip",
+   "label": "All JS, gzip",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 232.59,
+   "migrated": 215.42,
+   "delta": -17.17,
+   "pct": -7.4,
+   "verdict": "better"
+  },
+  {
+   "group": "bundle",
+   "id": "total.brotli",
+   "label": "All JS, brotli",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 202.51,
+   "migrated": 187.22,
+   "delta": -15.29,
+   "pct": -7.6,
+   "verdict": "better"
+  },
+  {
+   "group": "bundle",
+   "id": "total.raw",
+   "label": "All JS, raw",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 702.27,
+   "migrated": 655.5,
+   "delta": -46.77,
+   "pct": -6.7,
+   "verdict": "better"
+  },
+  {
+   "group": "bundle",
+   "id": "css.gzip",
+   "label": "CSS, gzip",
+   "unit": "kB",
+   "lowerIsBetter": true,
+   "baseline": 7.68,
+   "migrated": 7.68,
+   "delta": 0,
+   "pct": 0,
+   "verdict": "same"
+  },
+  {
+   "group": "code",
+   "id": "app.loc",
+   "label": "app LoC",
+   "unit": "lines",
+   "lowerIsBetter": true,
+   "baseline": 3451,
+   "migrated": 3482,
+   "delta": 31,
+   "pct": 0.9,
+   "verdict": "worse"
+  },
+  {
+   "group": "code",
+   "id": "app.files",
+   "label": "app files",
+   "unit": "files",
+   "lowerIsBetter": true,
+   "baseline": 76,
+   "migrated": 78,
+   "delta": 2,
+   "pct": 2.6,
+   "verdict": "worse"
+  },
+  {
+   "group": "code",
+   "id": "app.complexity",
+   "label": "app decision points",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 97,
+   "migrated": 90,
+   "delta": -7,
+   "pct": -7.2,
+   "verdict": "better"
+  },
+  {
+   "group": "code",
+   "id": "test.loc",
+   "label": "test LoC",
+   "unit": "lines",
+   "lowerIsBetter": null,
+   "baseline": 2174,
+   "migrated": 2174,
+   "delta": 0,
+   "pct": 0,
+   "verdict": "same"
+  },
+  {
+   "group": "code",
+   "id": "test.files",
+   "label": "test files",
+   "unit": "files",
+   "lowerIsBetter": null,
+   "baseline": 42,
+   "migrated": 42,
+   "delta": 0,
+   "pct": 0,
+   "verdict": "same"
+  },
+  {
+   "group": "code",
+   "id": "test.complexity",
+   "label": "test decision points",
+   "unit": "count",
+   "lowerIsBetter": null,
+   "baseline": 82,
+   "migrated": 83,
+   "delta": 1,
+   "pct": 1.2,
+   "verdict": "changed"
+  },
+  {
+   "group": "code",
+   "id": "data.loc",
+   "label": "data LoC",
+   "unit": "lines",
+   "lowerIsBetter": true,
+   "baseline": 514,
+   "migrated": 174,
+   "delta": -340,
+   "pct": -66.1,
+   "verdict": "better"
+  },
+  {
+   "group": "code",
+   "id": "data.files",
+   "label": "data files",
+   "unit": "files",
+   "lowerIsBetter": true,
+   "baseline": 15,
+   "migrated": 7,
+   "delta": -8,
+   "pct": -53.3,
+   "verdict": "better"
+  },
+  {
+   "group": "code",
+   "id": "data.complexity",
+   "label": "data decision points",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 14,
+   "migrated": 6,
+   "delta": -8,
+   "pct": -57.1,
+   "verdict": "better"
+  },
+  {
+   "group": "plumbing",
+   "id": "useEffect",
+   "label": "useEffect",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 5,
+   "migrated": 5,
+   "delta": 0,
+   "pct": 0,
+   "verdict": "same"
+  },
+  {
+   "group": "plumbing",
+   "id": "useState",
+   "label": "useState",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 4,
+   "migrated": 4,
+   "delta": 0,
+   "pct": 0,
+   "verdict": "same"
+  },
+  {
+   "group": "plumbing",
+   "id": "loadingFlags",
+   "label": "loadingFlags",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 45,
+   "migrated": 39,
+   "delta": -6,
+   "pct": -13.3,
+   "verdict": "better"
+  },
+  {
+   "group": "plumbing",
+   "id": "cacheCalls",
+   "label": "cacheCalls",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 24,
+   "migrated": 11,
+   "delta": -13,
+   "pct": -54.2,
+   "verdict": "better"
+  },
+  {
+   "group": "plumbing",
+   "id": "cacheKeys",
+   "label": "cacheKeys",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 11,
+   "migrated": 0,
+   "delta": -11,
+   "pct": -100,
+   "verdict": "better"
+  },
+  {
+   "group": "plumbing",
+   "id": "tryCatch",
+   "label": "tryCatch",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 2,
+   "delta": 2,
+   "pct": null,
+   "verdict": "worse"
+  },
+  {
+   "group": "plumbing",
+   "id": "imports.@tanstack/react-query",
+   "label": "files importing @tanstack/react-query",
+   "unit": "files",
+   "lowerIsBetter": null,
+   "baseline": 19,
+   "migrated": 0,
+   "delta": -19,
+   "pct": -100,
+   "verdict": "changed"
+  },
+  {
+   "group": "plumbing",
+   "id": "imports.react-query-auth",
+   "label": "files importing react-query-auth",
+   "unit": "files",
+   "lowerIsBetter": null,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "verdict": "changed"
+  },
+  {
+   "group": "plumbing",
+   "id": "imports.@data-client/react",
+   "label": "files importing @data-client/react",
+   "unit": "files",
+   "lowerIsBetter": null,
+   "baseline": 0,
+   "migrated": 19,
+   "delta": 19,
+   "pct": null,
+   "verdict": "changed"
+  },
+  {
+   "group": "plumbing",
+   "id": "imports.@data-client/rest",
+   "label": "files importing @data-client/rest",
+   "unit": "files",
+   "lowerIsBetter": null,
+   "baseline": 0,
+   "migrated": 3,
+   "delta": 3,
+   "pct": null,
+   "verdict": "changed"
+  },
+  {
+   "group": "plumbing",
+   "id": "imports.axios",
+   "label": "files importing axios",
+   "unit": "files",
+   "lowerIsBetter": null,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "verdict": "changed"
+  }
+ ],
+ "raw": {
+  "baseline": {
+   "root": "",
+   "source": {
+    "cats": {
+     "app": {
+      "files": 76,
+      "loc": 3451,
+      "complexity": 97,
+      "plumbing": {
+       "useEffect": 5,
+       "useState": 4,
+       "loadingFlags": 43,
+       "cacheCalls": 18,
+       "cacheKeys": 0,
+       "tryCatch": 0
+      }
+     },
+     "test": {
+      "files": 42,
+      "loc": 2174,
+      "complexity": 82,
+      "plumbing": {
+       "useEffect": 0,
+       "useState": 3,
+       "loadingFlags": 34,
+       "cacheCalls": 0,
+       "cacheKeys": 0,
+       "tryCatch": 17
+      }
+     },
+     "data": {
+      "files": 15,
+      "loc": 514,
+      "complexity": 14,
+      "plumbing": {
+       "useEffect": 0,
+       "useState": 0,
+       "loadingFlags": 2,
+       "cacheCalls": 6,
+       "cacheKeys": 11,
+       "tryCatch": 0
+      }
+     }
+    },
+    "importers": {
+     "axios": 1,
+     "@tanstack/react-query": 19,
+     "react-query-auth": 1
+    },
+    "complexityAvailable": true
+   },
+   "bundle": {
+    "entry": {
+     "raw": 566151,
+     "gzip": 182145,
+     "brotli": 157147
+    },
+    "total": {
+     "raw": 719121,
+     "gzip": 238175,
+     "brotli": 207366
+    },
+    "css": {
+     "raw": 43390,
+     "gzip": 7869,
+     "brotli": 6926
+    },
+    "chunks": 12
+   }
+  },
+  "migrated": {
+   "root": "../../../mig/apps/react-vite",
+   "source": {
+    "cats": {
+     "app": {
+      "files": 78,
+      "loc": 3482,
+      "complexity": 90,
+      "plumbing": {
+       "useEffect": 5,
+       "useState": 3,
+       "loadingFlags": 38,
+       "cacheCalls": 8,
+       "cacheKeys": 0,
+       "tryCatch": 0
+      }
+     },
+     "test": {
+      "files": 42,
+      "loc": 2174,
+      "complexity": 83,
+      "plumbing": {
+       "useEffect": 0,
+       "useState": 3,
+       "loadingFlags": 34,
+       "cacheCalls": 0,
+       "cacheKeys": 0,
+       "tryCatch": 17
+      }
+     },
+     "data": {
+      "files": 7,
+      "loc": 174,
+      "complexity": 6,
+      "plumbing": {
+       "useEffect": 0,
+       "useState": 1,
+       "loadingFlags": 1,
+       "cacheCalls": 3,
+       "cacheKeys": 0,
+       "tryCatch": 2
+      }
+     }
+    },
+    "importers": {
+     "@data-client/rest": 3,
+     "@data-client/react": 19
+    },
+    "complexityAvailable": true
+   },
+   "bundle": {
+    "entry": {
+     "raw": 525123,
+     "gzip": 167013,
+     "brotli": 143617
+    },
+    "total": {
+     "raw": 671227,
+     "gzip": 220595,
+     "brotli": 191718
+    },
+    "css": {
+     "raw": 43395,
+     "gzip": 7866,
+     "brotli": 6925
+    },
+    "chunks": 11
+   }
+  }
+ }
+}
