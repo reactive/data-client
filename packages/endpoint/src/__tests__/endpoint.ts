@@ -575,6 +575,16 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
       expect(user.username).toBe(payload.username);
     });
 
+    it('types signal without declaring it', () => {
+      const getUser = new Endpoint(function ({ id }: { id: string }) {
+        const signal: AbortSignal | undefined = this.signal;
+        return fetch(url({ id }), { signal }).then(res => res.json());
+      });
+      getUser.extend({ signal: new AbortController().signal });
+      // @ts-expect-error signal must be an AbortSignal
+      () => getUser.extend({ signal: 5 });
+    });
+
     it('should reject when aborted', async () => {
       const abort = new AbortController();
       const AbortUser = UserDetail.extend({ signal: abort.signal });
