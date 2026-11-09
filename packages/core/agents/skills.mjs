@@ -70,7 +70,7 @@ function sync(projectDir, { upgrade, inherited = new Map() }) {
       upgrade,
     );
     const provides = sources(want, copy);
-    for (const [skill, { version }] of provides)
+    for (const [skill, { version }] of want)
       if (inherited.get(skill)?.version === version) want.delete(skill);
     if (!want.size && !fs.existsSync(dest)) return { result, provides };
     fs.mkdirSync(dest, { recursive: true });
