@@ -129,13 +129,13 @@ several stores, set `__DC__.store = name` first.
 
 ## Step 8: deprecated APIs
 
-They still work, but a later release removes them. The codemod renamed what has an equivalent (`Resource.create` to
-`Resource.getList.push` for a `resource()` in the same file; DevTools `actionsBlacklist`/`actionsWhitelist`) and left a
+They still work, but a later release removes them. The codemod renamed DevTools `actionsBlacklist`/`actionsWhitelist`,
+and `Resource.create` to `Resource.getList.push` where it runs on a `resource()` declared in the same file. It left a
 `TODO(data-client)` comment naming the replacement on the rest. Fix each, then delete the comment. Gotchas:
 
-- `*Resource.create` from another file, or whose `extend()` replaces `create` or `getList`: if `extend()` replaces
-  either, check that the call keeps its path and options before switching to `getList.push`. Resources not named
-  `*Resource` get no TODO, so also check `rg -n '\.create\b' <source-root>`.
+- `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `key` or
+  `name`, never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and
+  options. Resources not named `*Resource` get no TODO, so also check `rg -n '\.create\b' <source-root>`.
 - `waitForNextUpdate()` in `renderDataCompose()` tests: `await result` for the first load, `await allSettled()` after
   changing props or calling the controller.
 

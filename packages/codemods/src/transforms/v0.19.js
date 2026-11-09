@@ -865,21 +865,27 @@ const DEVTOOLS_RENAMES = new Map([
   ['actionsBlacklist', 'actionsDenylist'],
   ['actionsWhitelist', 'actionsAllowlist'],
 ]);
-const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push`;
-const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) in renderDataHook() tests, or \`await result\` / allSettled() in renderDataCompose() tests: https://dataclient.io/docs/api/renderDataHook#waitfor`;
+const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push`;
+const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) on what the test waits for: https://dataclient.io/docs/api/renderDataHook#waitfor`;
+const VUE_WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api`;
 const SHARED_TEST_HELPER_TODO = ` TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled`;
-const CREATE_DATA_CLIENT_TODO = ` TODO(data-client): createDataClient() and ProvidedDataClient are deprecated; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin`;
+const CREATE_DATA_CLIENT_TODO = ` TODO(data-client): createDataClient() and ProvidedDataClient are deprecated and will stop being exported; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin`;
 
 /** DevTools options: `new DevToolsManager({...})`, or `getDefaultManagers({ devToolsManager: {...} })` */
 function isDevToolsConfig(path) {
   const parent = path.parent.node;
-  return (
-    (parent.type === 'NewExpression' &&
+  if (parent.type === 'NewExpression')
+    return (
       parent.arguments[0] === path.node &&
-      /DevToolsManager$/.test(nameOf(parent.callee) ?? '')) ||
-    (isProperty(parent) &&
-      parent.value === path.node &&
-      keyName(parent) === 'devToolsManager')
+      /DevToolsManager$/.test(nameOf(parent.callee) ?? '')
+    );
+  const call = path.parent.parent?.parent?.node;
+  return (
+    isProperty(parent) &&
+    parent.value === path.node &&
+    keyName(parent) === 'devToolsManager' &&
+    call?.type === 'CallExpression' &&
+    calleeName(call) === 'getDefaultManagers'
   );
 }
 
@@ -890,9 +896,11 @@ function renameDevToolsOptions(j, root) {
     .find(j.ObjectExpression)
     .filter(isDevToolsConfig)
     .forEach(({ node }) => {
-      const keys = new Set(node.properties.filter(isProperty).map(keyName));
+      // a spread may hold the new name
+      if (!node.properties.every(isProperty)) return;
+      const keys = new Set(node.properties.map(keyName));
       for (const prop of node.properties) {
-        if (!isProperty(prop) || prop.computed) continue;
+        if (prop.computed) continue;
         const renamed = DEVTOOLS_RENAMES.get(keyName(prop));
         if (!renamed || keys.has(renamed)) continue;
         // `{ actionsBlacklist }` shorthand keeps its value under the new key
@@ -904,14 +912,33 @@ function renameDevToolsOptions(j, root) {
   return dirty;
 }
 
-/** Whether `node` is a `resource(...)` call, through `.extend()` calls that keep `create` the same as
- * `getList.push`; `extend()` replacing either, or a function `extend()`, can make them differ */
-function isPlainResource(j, root, node) {
+/** The path under `as`, `!` and parentheses */
+function unwrapPath(path) {
+  while (PASS_THROUGH.has(path.node?.type)) path = path.get('expression');
+  return path;
+}
+
+/** Whether `path` is an identifier bound to an import of `name` from `source` */
+function isImportOf(path, name, source) {
+  const specifier = bindingOf(path)?.parent;
+  return (
+    specifier?.node.type === 'ImportSpecifier' &&
+    (specifier.node.imported?.name ?? specifier.node.imported?.value) ===
+      name &&
+    specifier.parent.node.source.value === source
+  );
+}
+
+/** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
+ * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
+ * differ, and so can a custom `Endpoint` class */
+function isPlainResource(path) {
+  path = unwrapPath(path);
   while (
-    node?.type === 'CallExpression' &&
-    memberName(node.callee) === 'extend'
+    path.node?.type === 'CallExpression' &&
+    memberName(path.node.callee) === 'extend'
   ) {
-    const [first] = node.arguments;
+    const [first] = path.node.arguments;
     if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
       if (['create', 'getList'].includes(first.value)) return false;
     } else if (first?.type === 'ObjectExpression') {
@@ -926,42 +953,133 @@ function isPlainResource(j, root, node) {
       )
         return false;
     } else return false;
-    node = node.callee.object;
+    path = unwrapPath(path.get('callee', 'object'));
   }
+  const [options] = path.node?.arguments ?? [];
   return (
-    node?.type === 'CallExpression' &&
-    isId(node.callee, 'resource') &&
-    importOf(j, root, 'resource')?.declaration.source.value ===
-      '@data-client/rest'
+    path.node?.type === 'CallExpression' &&
+    path.node.callee.type === 'Identifier' &&
+    isImportOf(path.get('callee'), 'resource', '@data-client/rest') &&
+    options?.type === 'ObjectExpression' &&
+    options.properties.every(p => isProperty(p) && keyName(p) !== 'Endpoint')
   );
 }
 
-/** `Resource.create` -> `Resource.getList.push` for a `resource()` declared in this file; a
- * `*Resource.create` declared elsewhere gets a TODO */
+/** The outermost member of `X.a.b`, starting at the identifier `X` */
+function memberChainOf(path) {
+  while (isMember(path.parent.node) && path.parent.node.object === path.node)
+    path = path.parent;
+  return path;
+}
+
+const isMutated = path => {
+  const parent = path.parent.node;
+  return (
+    (parent.type === 'AssignmentExpression' && parent.left === path.node) ||
+    parent.type === 'UpdateExpression' ||
+    (parent.type === 'UnaryExpression' && parent.operator === 'delete')
+  );
+};
+
+/** Whether every use of a `const` resource reads its members without changing them or passing the
+ * resource itself on, so its `create` and `getList` stay what its declaration made them */
+function isReadOnlyResource(j, root, binding) {
+  const declarator = binding.parent;
+  if (
+    declarator.node.type !== 'VariableDeclarator' ||
+    declarator.parent.node.kind !== 'const' ||
+    !isPlainResource(declarator.get('init'))
+  )
+    return false;
+  return root
+    .find(j.Identifier, { name: binding.node.name })
+    .filter(
+      p =>
+        p.node !== binding.node && !isOtherName(p) && bindingOf(p) === binding,
+    )
+    .every(p => {
+      // `typeof X` in a type
+      if (p.parent.node.type === 'TSTypeQuery') return true;
+      const parent = p.parent.node;
+      return (
+        isMember(parent) &&
+        parent.object === p.node &&
+        !parent.computed &&
+        !isMutated(memberChainOf(p))
+      );
+    });
+}
+
+// calls whose first argument picks an endpoint to run, so a new endpoint object there runs the same
+const ENDPOINT_RUNNERS = new Set([
+  'fetch',
+  'useFetch',
+  'useSuspense',
+  'useDLE',
+  'useCache',
+  'useLive',
+  'useSubscription',
+]);
+
+/** Whether `X.create` at `path` is run (called, or passed to fetch() or a data hook), where a new endpoint
+ * object behaves the same; elsewhere code may compare it by identity, which getList.push breaks */
+function isRun(path) {
+  const parent = path.parent.node;
+  return (
+    (parent.type === 'CallExpression' ||
+      parent.type === 'OptionalCallExpression') &&
+    (parent.callee === path.node ||
+      (parent.arguments[0] === path.node &&
+        ENDPOINT_RUNNERS.has(calleeName(parent))))
+  );
+}
+
+/** `Resource.create` -> `Resource.getList.push` where it runs, for a `resource()` declared in this file and
+ * never changed; other `*Resource.create` get a TODO */
 function migrateResourceCreate(j, root) {
   let dirty = false;
-  const unresolved = [];
+  const marked = [];
+  const readOnly = new Map();
   root
     .find(j.MemberExpression, { object: { type: 'Identifier' } })
     .filter(({ node }) => !node.computed && memberName(node) === 'create')
     .forEach(path => {
-      const declarator = bindingOf(path.get('object'))?.parent.node;
+      const binding = bindingOf(path.get('object'));
+      const declaration = binding?.parent.node;
+      // a class or function declared here is not a resource
       if (
-        declarator?.type === 'VariableDeclarator' &&
-        isPlainResource(j, root, unwrap(declarator.init))
-      ) {
-        const getList = j.memberExpression(
+        binding &&
+        declaration.id === binding.node &&
+        declaration.type !== 'VariableDeclarator'
+      )
+        return;
+      if (binding && !readOnly.has(binding))
+        readOnly.set(binding, isReadOnlyResource(j, root, binding));
+      if (binding && readOnly.get(binding) && isRun(path)) {
+        path.node.object = j.memberExpression(
           path.node.object,
           j.identifier('getList'),
         );
-        path.replace(j.memberExpression(getList, j.identifier('push')));
+        path.node.property = j.identifier('push');
         dirty = true;
-      } else if (/Resource$/.test(path.node.object.name)) {
-        unresolved.push(path);
+      } else if (
+        (binding && readOnly.get(binding)) ||
+        isPlainResourceDeclarator(binding) ||
+        /Resource$/.test(path.node.object.name)
+      ) {
+        marked.push(path);
       }
     });
-  return addTodos(j, unresolved, CREATE_TODO) || dirty;
+  return addTodos(j, marked, CREATE_TODO) || dirty;
 }
+
+const isPlainResourceDeclarator = binding =>
+  binding?.parent.node.type === 'VariableDeclarator' &&
+  isPlainResource(binding.parent.get('init'));
+
+/** Whether the file imports from one of `sources` */
+const importsFrom = (root, sources) =>
+  importsOf(root).some(d => sources.includes(d.source.value));
 
 /** Deprecated test helpers and Vue setup, whose replacements depend on how the code uses them */
 function markDeprecatedCalls(j, root) {
@@ -981,22 +1099,30 @@ function markDeprecatedCalls(j, root) {
       p =>
         ['createDataClient', 'ProvidedDataClient'].includes(p.node.name) &&
         !isOtherName(p) &&
-        importOf(j, root, p.node.name)?.declaration.source.value ===
-          '@data-client/vue' &&
-        !j(p).closest(j.ImportDeclaration).size(),
+        !j(p).closest(j.ImportDeclaration).size() &&
+        isImportOf(p, p.node.name, '@data-client/vue'),
     )
     .paths();
-  const waitForNextUpdate = [
-    ...members('waitForNextUpdate'),
-    // `const { waitForNextUpdate } = renderDataHook(...)` and its calls
-    ...root
-      .find(j.CallExpression, {
-        callee: { type: 'Identifier', name: 'waitForNextUpdate' },
-      })
-      .paths(),
-  ];
+  // other test libraries have a waitForNextUpdate() too
+  const isVueTest = importsFrom(root, ['@data-client/vue/test']);
+  const waitForNextUpdate =
+    isVueTest || importsFrom(root, ['@data-client/test']) ?
+      [
+        ...members('waitForNextUpdate'),
+        // `const { waitForNextUpdate } = renderDataHook(...)` and its calls
+        ...root
+          .find(j.CallExpression, {
+            callee: { type: 'Identifier', name: 'waitForNextUpdate' },
+          })
+          .paths(),
+      ]
+    : [];
   return [
-    addTodos(j, waitForNextUpdate, WAIT_FOR_NEXT_UPDATE_TODO),
+    addTodos(
+      j,
+      waitForNextUpdate,
+      isVueTest ? VUE_WAIT_FOR_NEXT_UPDATE_TODO : WAIT_FOR_NEXT_UPDATE_TODO,
+    ),
     addTodos(j, sharedHelpers, SHARED_TEST_HELPER_TODO),
     addTodos(j, vueSetup, CREATE_DATA_CLIENT_TODO),
   ].some(Boolean);
