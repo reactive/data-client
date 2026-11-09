@@ -151,7 +151,8 @@ function skillsDirs(projectDir) {
         { dest: shared, other: claude }
       : { dest: claude, other: shared };
   }
-  if (isLink(shared)) return;
+  // a link, or one checked out as a file, that someone committed
+  if (isLink(shared) || lstat(shared)?.isFile()) return;
   // a committed .claude/skills link checks out as a file without
   // core.symlinks; .agents/skills still serves Codex and Cursor
   if (!stat?.isSymbolicLink()) return { dest: shared, other: claude };

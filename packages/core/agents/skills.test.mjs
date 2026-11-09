@@ -835,6 +835,18 @@ test("run in a workspace package, it keeps its links when an entry of the user's
   }
 });
 
+test("links skills in the package when the workspace root's .agents/skills link checked out as a file", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    '.agents/skills': '../custom',
+  });
+  const web = path.join(dir, 'apps/web');
+  run(t, web);
+  assert.ok(links(web)['data-client-react']);
+});
+
 /** Runs main() from `cwd`, returning what it logged */
 function run(t, cwd) {
   const log = t.mock.method(console, 'log', () => {});
