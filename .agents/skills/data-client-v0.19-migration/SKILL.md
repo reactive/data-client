@@ -16,8 +16,8 @@ Bump every `@data-client/*` package to `^0.19.0` together.
 - React Native: tests with `@data-client/test` need `@testing-library/react-native`. Apps now load the native build, so
   with React Navigation, stale data refetches on screen focus.
 - If `@data-client/ssr` is installed, read Step 3 first.
-- If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  other data-client skills match 0.19.
+- If the repo links skills with `data-client-skills`, run it again after the bump so the linked skills match 0.19. Once
+  the upgrade is done, a run without `--upgrade` removes the migration skills.
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`):
@@ -77,8 +77,7 @@ else uses it). Moving pages to the App Router is a routing migration, so confirm
 
 Skip this step if
 `rg -n 'managers|implements Manager|extends \w*Manager|: Manager\b|getMiddleware|cleanupDate' <source-root>` finds
-nothing. Otherwise bring each custom Manager to the lifecycle in skill "data-client-manager": every Manager defines
-`middleware`, `cleanup()` pauses without ending the store, and each store gets new Managers. What upgrading code gets
+nothing. Otherwise bring each custom Manager to the lifecycle in skill "data-client-manager". What upgrading code gets
 wrong:
 
 - **Rename `getMiddleware()` to a `middleware` property**; it's removed. A Manager without `middleware` throws when
@@ -98,9 +97,9 @@ wrong:
 
 ## Step 5: test helpers
 
-- **`renderDataHook()` now runs its `managers`**; before, it ignored them. The list replaces the defaults, so it must
-  include a `NetworkManager` (it throws otherwise), plus a `SubscriptionManager` if the hook polls, and the test's
-  Managers now act on its actions.
+- **[renderDataHook()](https://dataclient.io/docs/api/renderDataHook) now runs its `managers`**; before, it ignored
+  them. The list replaces the defaults, so it must include a `NetworkManager` (it throws otherwise), plus a
+  `SubscriptionManager` if the hook polls, and the test's Managers now act on its actions.
 - **A custom Provider passed to `makeRenderDataHook()`** must accept `managers: () => Manager[]`, like `DataProvider`.
   [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#test-react-0.19).
 
@@ -108,7 +107,8 @@ wrong:
 
 Skip this step unless the app uses `@data-client/vue`.
 
-- **`renderDataCompose()` takes `managers` as a function** too; the codemod converts only `mountDataClient()`.
+- **[renderDataCompose()](https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api) takes
+  `managers` as a function** too, and the codemod skips it.
 - **`DataClientPlugin` garbage-collects unused data by default.** Code that reads `useCache()` after long idle can get
   `undefined`; pass a custom `gcPolicy` only if the app needs data kept longer.
 - **`useFetch()` is typed as a `Ref`**: `promise.resolved` becomes `promise.value.resolved`.
@@ -124,14 +124,15 @@ Skip this step if `rg -n '__DC_CONTROLLERS__' <source-root>` finds nothing. Repl
 1. Search for `TODO(data-client)`: none should remain. Search for `instanceof Promise`, `isPromise` and `.then ===` near
    `fetchIfStale`: each one is a sync-data branch that no longer runs.
 2. Run the type checker. Property reads on a `fetchIfStale()` result now fail to type-check, since it is a Promise. A
-   Manager without `middleware` fails too (Step 4). Schemas now type `ctrl.set()` values, `process(value, params)`
-   params (possibly `undefined`; read `params?.page`), `getOptimisticResponse()` returns and
-   `ctrl.set(getList.schema.push, args, rows)`: fix the value or param name instead of casting, since the old code was
-   writing data its schema doesn't describe.
+   Manager without `middleware` fails too (Step 4). Schemas now type more calls; fix the value or param name instead of
+   casting, since the old code wrote data its schema doesn't describe:
+   - `ctrl.set()` values, including `ctrl.set(getList.schema.push, args, rows)`
+   - `process(value, params)` params, which can be `undefined`: read `params?.page`
+   - `getOptimisticResponse()` return values
 3. Run the tests. The codemod turns `spyOn(ctrl, 'fetchIfStale').mockReturnValue()` into `.mockResolvedValue()`; make
-   other `fetchIfStale` mocks, such as `{ fetchIfStale: jest.fn(() => data) }`, resolve their value the same way.
-   Assertions that relied on `useLoading()` keeping an old error, aborted fixtures resolving, or Managers not running
-   `init()` in a suspended `renderDataHook()` now fail by design: update the assertion.
+   other `fetchIfStale` mocks, such as `{ fetchIfStale: jest.fn(() => data) }`, resolve their value the same way. Some
+   assertions now fail by design; update them. `useLoading()` no longer keeps an old error, a fixture whose request is
+   aborted now rejects with an `AbortError`, and a suspended `renderDataHook()` now runs its Managers' `init()`.
 
 Optional, same PR: the blog's [future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases)
 lists changes that will break later.
