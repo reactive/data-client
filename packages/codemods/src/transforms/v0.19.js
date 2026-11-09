@@ -792,13 +792,27 @@ function addDefaultManagers(j, root) {
   return dirty;
 
   function addTo(prop) {
-    let fn = prop.node.value;
+    let value = prop.node.value;
     // `const managers = () => [...]`, as transformManagers() leaves a variable used only here
-    if (fn.type === 'Identifier') {
+    if (value.type === 'Identifier') {
       const declarator = bindingOf(prop.get('value'))?.parent.node;
-      fn = declarator?.type === 'VariableDeclarator' && declarator.init;
+      value = declarator?.type === 'VariableDeclarator' && declarator.init;
     }
-    const list = isFunction(fn) && unwrap(fn.body);
+    functionsOf(unwrap(value)).forEach(fn => addToList(unwrap(fn.body)));
+  }
+
+  /** the functions a `managers` value can be, through `cond ? () => [...] : undefined` */
+  function functionsOf(node) {
+    if (!node) return [];
+    if (node.type === 'ConditionalExpression')
+      return [
+        ...functionsOf(unwrap(node.consequent)),
+        ...functionsOf(unwrap(node.alternate)),
+      ];
+    return isFunction(node) ? [node] : [];
+  }
+
+  function addToList(list) {
     // only a list of `new` Managers shows which defaults it lacks
     if (
       list?.type !== 'ArrayExpression' ||
