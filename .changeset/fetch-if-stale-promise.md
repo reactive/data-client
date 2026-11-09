@@ -26,9 +26,6 @@ async function issueLoader(ctrl: Controller, id: number) {
 }
 ```
 
-Awaited, it works like TanStack Query's [fetchQuery()](https://tanstack.com/query/latest/docs/reference/QueryClient#queryclientfetchquery);
-left unawaited, like [prefetchQuery()](https://tanstack.com/query/latest/docs/reference/QueryClient#queryclientprefetchquery).
-
 Why the synchronous return went away: `fetchIfStale()` first returned `undefined` for fresh data
 ([#2743](https://github.com/reactive/data-client/pull/2743)). [#2745](https://github.com/reactive/data-client/pull/2745)
 returned the cached data instead, so that `await fetchIfStale()` resolves the data either way. The synchronous value was
