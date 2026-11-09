@@ -478,12 +478,22 @@ const isGetMiddlewareCall = node =>
 /** `getMiddleware` members and calls become `middleware` */
 function renameGetMiddleware(j, root) {
   let dirty = false;
-  let unconverted = false;
+  // a reference other than a call, such as `this.getMiddleware.bind(this)`, needs the member
+  const otherRefs = root
+    .find(j.MemberExpression, {
+      computed: false,
+      property: { name: 'getMiddleware' },
+    })
+    .filter(p => !isGetMiddlewareCall(p.parent.node));
+  otherRefs.forEach(ref => {
+    dirty = addTodo(j, ref, GET_MIDDLEWARE_TODO) || dirty;
+  });
+  let unconverted = otherRefs.size() > 0;
   root
     .find(j.Node)
     .filter(p => isGetMiddleware(p.node))
     .forEach(member => {
-      const middleware = returnedMiddleware(member.node);
+      const middleware = !otherRefs.size() && returnedMiddleware(member.node);
       if (!middleware) {
         unconverted = true;
         dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
@@ -644,28 +654,35 @@ function addNetworkManager(j, root) {
   root
     .find(j.CallExpression)
     .filter(call => RENDER_HOOK_CALLS.has(calleeName(call.node)))
-    .find(j.Node)
-    .filter(p => isManagersProperty(p.node))
-    .forEach(prop => {
-      let fn = prop.node.value;
-      // `const managers = () => [...]`, as transformManagers() leaves a variable used only here
-      if (fn.type === 'Identifier') {
-        const declarator = bindingOf(prop.get('value'))?.parent.node;
-        fn = declarator?.type === 'VariableDeclarator' && declarator.init;
-      }
-      const list = isFunction(fn) && fn.body;
-      // only a list of `new` Managers shows that none is a NetworkManager
-      if (
-        list?.type !== 'ArrayExpression' ||
-        !list.elements.every(e => e?.type === 'NewExpression') ||
-        list.elements.some(e => isNetworkManagerClass(j, root, calleeName(e)))
-      )
-        return;
-      list.elements.push(j.newExpression(j.identifier('NetworkManager'), []));
-      ensureImport(j, root, 'NetworkManager', { source: '@data-client/react' });
-      dirty = true;
+    .forEach(call => {
+      // only the options argument's own `managers`, not a nested one such as initialProps'
+      const options = call.get('arguments', 1);
+      if (options.node?.type !== 'ObjectExpression') return;
+      options.get('properties').each(prop => {
+        if (isManagersProperty(prop.node)) addTo(prop);
+      });
     });
   return dirty;
+
+  function addTo(prop) {
+    let fn = prop.node.value;
+    // `const managers = () => [...]`, as transformManagers() leaves a variable used only here
+    if (fn.type === 'Identifier') {
+      const declarator = bindingOf(prop.get('value'))?.parent.node;
+      fn = declarator?.type === 'VariableDeclarator' && declarator.init;
+    }
+    const list = isFunction(fn) && fn.body;
+    // only a list of `new` Managers shows that none is a NetworkManager
+    if (
+      list?.type !== 'ArrayExpression' ||
+      !list.elements.every(e => e?.type === 'NewExpression') ||
+      list.elements.some(e => isNetworkManagerClass(j, root, calleeName(e)))
+    )
+      return;
+    list.elements.push(j.newExpression(j.identifier('NetworkManager'), []));
+    ensureImport(j, root, 'NetworkManager', { source: '@data-client/react' });
+    dirty = true;
+  }
 }
 
 /** `NetworkManager.cleanupDate` is gone; what replaces it depends on why the code read it */

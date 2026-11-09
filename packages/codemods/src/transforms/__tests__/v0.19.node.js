@@ -294,6 +294,7 @@ renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
 renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
 renderDataHook(() => useThing(), { managers: [new DC.NetworkManager()] });
 renderDataHook(() => useThing(), { 'managers': [new LoggingManager()] });
+renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingManager()] } });
       `,
       `
 import * as DC from '@data-client/react';
@@ -305,6 +306,7 @@ renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new Ne
 renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
 renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager()] });
 renderDataHook(() => useThing(), { 'managers': () => [new LoggingManager(), new NetworkManager()] });
+renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingManager()] } });
       `,
       'imports NetworkManager once, and sees a namespaced one',
     );
@@ -519,6 +521,38 @@ class C implements Manager {
 }
       `,
       'marks getMiddleware members that hold no function to move',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'LiveManager.js' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+class LiveManager {
+  constructor() {
+    this.getMiddleware = this.getMiddleware.bind(this);
+  }
+  getMiddleware() {
+    return controller => next => next;
+  }
+}
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+class LiveManager {
+  constructor() {
+    // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+    this.getMiddleware = this.getMiddleware.bind(this);
+  }
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware() {
+    return controller => next => next;
+  }
+}
+      `,
+      'keeps getMiddleware with a TODO when other code references it',
     );
 
     defineInlineTest(
