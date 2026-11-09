@@ -817,6 +817,22 @@ test("run in a workspace package that doesn't install a skill, it reports its ow
   );
 });
 
+test("run in a workspace package, it keeps its link when the user's own entry blocks the root's .claude/skills mirror", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    '.agents/skills/mine/SKILL.md': 'my own skill',
+    '.claude/skills/data-client-react': 'committed link checked out as a file',
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web);
+  run(t, web);
+  assert.ok(
+    fs.existsSync(path.join(web, '.agents/skills/data-client-react/SKILL.md')),
+  );
+});
+
 /** Runs main() from `cwd`, returning what it logged */
 function run(t, cwd) {
   const log = t.mock.method(console, 'log', () => {});
