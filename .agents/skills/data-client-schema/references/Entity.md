@@ -195,7 +195,7 @@ export class PostView extends Entity {
 
 Now `useQuery(PostView, { id })` finds the stored `PostView`. Lookups, [Invalidate](./Invalidate.md)
 (a [resource](https://dataclient.io/rest/api/resource) delete), `getList.remove`, and partial or optimistic updates such as
-`{ id, saved }` know only the key. The default `pk()` reads it from `id`, and `?? processed.id`
+`{ id, saved }` often carry the key but no `post`. The default `pk()` reads it from `id`, and `?? processed.id`
 keeps it when there is no `post`. A `pk()` that returns `this.post.id` throws on all of them, and
 `{ post: { id } }` fails to type-check because it lacks the other fields of `Post`.
 
