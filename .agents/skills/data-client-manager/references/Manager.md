@@ -49,8 +49,8 @@ With \<DataProvider />, this promise resolves when React
 the update. React schedules commits asynchronously, so a Manager can await `next()` to work with the new state after the
 DOM updates.
 
-Redux is synchronous, so Data Client middleware needs an adapter in front of it to receive a promise. Redux middleware
-must pass promises through.
+Redux dispatches synchronously, so a redux store needs an adapter after the Managers that returns a `Promise` from
+`next()`. [prepareStore](https://dataclient.io/docs/guides/redux) adds one, and places redux middleware after it.
 
 Middleware can [read actions](#reading-and-consuming-actions) as they are dispatched, and
 [dispatch its own](#dispatching-actions).

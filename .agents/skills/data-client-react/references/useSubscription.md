@@ -2,10 +2,11 @@
 
 # useSubscription()
 
-Keeps data up to date while it changes often.
+Keeps data that changes often up to date.
 
 The default [polling subscriptions](https://dataclient.io/docs/api/PollingSubscription) need
-[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](https://dataclient.io/rest/api/Endpoint).
+[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](https://dataclient.io/rest/api/Endpoint). Without it, subscribing
+logs an error and does nothing.
 
 > **Tip**
 >

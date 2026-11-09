@@ -46,9 +46,6 @@ So a constructor only stores its options.&#x20;
 This promise resolves when the [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) store commits the update, so a Manager can
 await `next()` to work with the new state.
 
-Redux is synchronous, so Data Client middleware needs an adapter in front of it to receive a promise. Redux middleware
-must pass promises through.
-
 Middleware can [read actions](#reading-and-consuming-actions) as they are dispatched, and
 [dispatch its own](#dispatching-actions).
 

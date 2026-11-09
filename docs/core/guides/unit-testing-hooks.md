@@ -19,10 +19,11 @@ Use a [partial mock](https://jestjs.io/docs/mock-functions#mocking-partials) ins
 :::
 
 [renderDataHook()](../api/renderDataHook.md) renders a hook inside a `DataProvider` and a `Suspense` boundary. With React
-18 or later in a DOM environment, it wraps
-[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()` and
-adds `result.error` and `waitForNextUpdate()`. Otherwise it uses
-[@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library), which has them built in.
+18 or later, it wraps [@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s
+`renderHook()` in a DOM environment, or [@testing-library/react-native](https://github.com/callstack/react-native-testing-library)'s on React Native. Otherwise it uses
+[@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library).
+
+`result.current` is `undefined` while the hook suspends, and `result.error` holds any error it throws.
 
 Each call to `renderDataHook()` creates a new store and new manager instances, so no state carries over between tests.
 Use `initialFixtures` to prime the cache. Cleanup runs automatically after each test.

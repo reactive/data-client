@@ -4,11 +4,12 @@ framework_equivalent: guides/unit-testing-composables
 title: renderDataHook()
 ---
 
-`renderDataHook()` tests hooks that use Reactive Data Client. It renders the hook inside a `DataProvider` and a
-`<Suspense/>` boundary. With React 18 or later in a DOM environment, it wraps
-[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()`;
-otherwise it uses [@testing-library/react-hooks](https://react-hooks-testing-library.com/reference/api#renderhook-options).
-Both return the same result shape.
+`renderDataHook()` renders a hook that uses Reactive Data Client for a test. It renders the hook inside a
+`DataProvider` and a `<Suspense/>` boundary. With React 18 or later, it wraps
+[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()` in a DOM
+environment, or [@testing-library/react-native](https://github.com/callstack/react-native-testing-library)'s on React Native. Otherwise it uses
+[@testing-library/react-hooks](https://react-hooks-testing-library.com/reference/api#renderhook-options). All of them
+give the result documented below.
 
 :::note
 

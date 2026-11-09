@@ -14,10 +14,11 @@ import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
 
-Keeps data up to date while it changes often.
+Keeps data that changes often up to date.
 
 The default [polling subscriptions](./PollingSubscription.md) need
-[pollFrequency](/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](/rest/api/Endpoint).
+[pollFrequency](/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](/rest/api/Endpoint). Without it, subscribing
+logs an error and does nothing.
 
 :::tip
 
