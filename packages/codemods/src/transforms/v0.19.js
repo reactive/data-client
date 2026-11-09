@@ -180,9 +180,9 @@ function toFunctionType(j, typeAnnotation) {
   return j.tsTypeAnnotation(fn);
 }
 
-/** Whether `node` makes new Managers each time it runs: `getDefaultManagers(...)`, or a list
- * holding no name, which may hold a shared instance. A name may also already be a function, and a
- * call may be a hook or memoized. */
+/** Whether `node` makes new Managers each time it runs: `getDefaultManagers(...)`, or a list of
+ * `new` Managers and `...getDefaultManagers()`. Anything else may hold a shared instance, already
+ * be a function, or be a hook or memoized call. */
 function createsNewManagers(node) {
   node = unwrap(node);
   if (isGetDefaultManagersCall(node)) return true;
@@ -190,11 +190,7 @@ function createsNewManagers(node) {
     node.type === 'ArrayExpression' &&
     node.elements.every(e => {
       const value = unwrap(e?.type === 'SpreadElement' ? e.argument : e);
-      return (
-        value?.type !== 'Identifier' &&
-        value?.type !== 'MemberExpression' &&
-        (value?.type !== 'CallExpression' || isGetDefaultManagersCall(value))
-      );
+      return value?.type === 'NewExpression' || isGetDefaultManagersCall(value);
     })
   );
 }

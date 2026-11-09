@@ -817,6 +817,7 @@ const App = () => (
   <>
     <DataProvider managers={[network, new MyManager()]} />
     <DataProvider managers={[new MyManager()] as Manager[]} />
+    <DataProvider managers={[options?.network]} />
   </>
 );
       `,
@@ -829,6 +830,7 @@ const App = () => (
   <>
     <DataProvider managers={() => [network, new MyManager()]} />
     <DataProvider managers={() => [new MyManager()] as Manager[]} />
+    <DataProvider managers={() => [options?.network]} />
   </>
 );
       `,
