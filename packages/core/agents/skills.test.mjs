@@ -685,6 +685,22 @@ test("run at a nested workspace root, it links its packages' skills at the outer
   assert.ok(links(dir)['data-client-react']);
 });
 
+test('run in a workspace package, it removes package links whose package is gone', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+  });
+  const web = path.join(dir, 'apps/web');
+  fs.mkdirSync(path.join(web, '.agents/skills'), { recursive: true });
+  fs.symlinkSync(
+    '../../node_modules/@data-client/rest/skills/data-client-rest',
+    path.join(web, '.agents/skills/data-client-rest'),
+  );
+  run(t, web);
+  assert.ok(!fs.existsSync(path.join(web, '.agents/skills/data-client-rest')));
+});
+
 test('run in a workspace package, it keeps package links the root does not hold', t => {
   const dir = project({
     '.git/HEAD': 'ref',

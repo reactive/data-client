@@ -92,7 +92,9 @@ function unlinkSkills(projectDir, rootSkills) {
     const file = path.join(dirs.dest, skill);
     const source = skillSource(file);
     if (source === undefined) return false;
-    if (source !== skillSource(path.join(rootSkills, skill))) return false;
+    // a link whose package is gone serves no one
+    if (source !== null && source !== skillSource(path.join(rootSkills, skill)))
+      return false;
     fs.rmSync(file, { recursive: true, force: true });
     return true;
   });
@@ -102,8 +104,8 @@ function unlinkSkills(projectDir, rootSkills) {
 }
 
 /**
- * What a skill entry this command made holds: the folder a link reaches, or a
- * copy's version; undefined for anything else
+ * What a skill entry this command made holds: the folder a link reaches (null
+ * when that's gone), or a copy's version; undefined for anything else
  */
 function skillSource(file) {
   const entry = lstat(file);
@@ -112,7 +114,7 @@ function skillSource(file) {
   try {
     return fs.realpathSync(file);
   } catch {
-    return undefined;
+    return null;
   }
 }
 
