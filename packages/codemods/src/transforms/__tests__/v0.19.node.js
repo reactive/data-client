@@ -106,6 +106,7 @@ const network = managers.find(m => m instanceof NetworkManager);
 
 export function App() {
   const memoized = useMemo(() => getDefaultManagers(), []);
+  // TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
   return (
     <>
       <DataProvider managers={() => managers} />
@@ -167,6 +168,7 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 
 const managers = getDefaultManagers();
 
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
 export const A = () => (
   <DataProvider managers={() => managers}>
     <ManagerList list={managers} />
@@ -215,6 +217,7 @@ import { DataClientPlugin } from '@data-client/vue';
 import { mountDataClient } from '@data-client/vue/test';
 
 const customManagers = [new NetworkManager()];
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
 mount(Comp, { global: { plugins: [[DataClientPlugin, { managers: () => customManagers }]] } });
 customManagers[0].cleanup();
 mountDataClient(Comp, { managers: () => [new NetworkManager()] });
@@ -238,6 +241,62 @@ renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger
 renderDataClient(() => useThing(), { managers: () => [new NetworkManager()] });
       `,
       'converts renderDataHook() managers',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataHook } from '@data-client/test';
+
+renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
+renderDataHook(() => useThing(), { managers: [new AuditNetworkManager()] });
+renderDataHook(() => useThing(), { managers: [logger] });
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+
+import { NetworkManager } from '@data-client/react';
+
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [new AuditNetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [logger] });
+      `,
+      'adds a NetworkManager to renderDataHook() lists of new Managers without one',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { useController } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+renderDataHook(() => useController(), { managers: [new LoggingManager()] });
+      `,
+      `
+import { useController, NetworkManager } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+renderDataHook(() => useController(), { managers: () => [new LoggingManager(), new NetworkManager()] });
+      `,
+      'imports NetworkManager next to an existing @data-client/react import',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+await renderDataCompose(() => useThing(), { managers: [new NetworkManager()] });
+      `,
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+await renderDataCompose(() => useThing(), { managers: () => [new NetworkManager()] });
+      `,
+      'converts renderDataCompose() managers',
     );
   });
 
@@ -285,9 +344,123 @@ const [CustomProvider] = createPersistedStore(useCustom ? custom : undefined);
 import { createPersistedStore } from '@data-client/react';
 
 const [ServerProvider] = createPersistedStore(undefined, false);
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
 const [CustomProvider] = createPersistedStore(useCustom ? () => custom : undefined);
       `,
       'leaves undefined managers arguments alone, including conditional ones',
+    );
+  });
+
+  describe('Manager classes', () => {
+    defineInlineTest(
+      transform,
+      { path: 'LoggingManager.ts' },
+      `
+import type { Manager, Middleware } from '@data-client/react';
+
+export class LoggingManager implements Manager {
+  getMiddleware = (): Middleware => controller => next => async action => next(action);
+  cleanup() {}
+}
+export class TimeManager implements Manager {
+  getMiddleware() {
+    return controller => next => action => next(action);
+  }
+  cleanup() {}
+}
+const mw = manager.getMiddleware();
+      `,
+      `
+import type { Manager, Middleware } from '@data-client/react';
+
+export class LoggingManager implements Manager {
+  middleware: Middleware = controller => next => async action => next(action);
+  cleanup() {}
+}
+export class TimeManager implements Manager {
+  middleware = controller => next => action => next(action);
+  cleanup() {}
+}
+const mw = manager.middleware;
+      `,
+      'turns getMiddleware into a middleware property',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Managers.ts' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+class Lazy extends NetworkManager {
+  getMiddleware() {
+    const mw = super.getMiddleware();
+    return mw;
+  }
+}
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+class Lazy extends NetworkManager {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware() {
+    const mw = super.getMiddleware();
+    return mw;
+  }
+}
+      `,
+      'marks getMiddleware code that does more than return a function',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'PresenceManager.ts' },
+      `
+import { type Manager } from '@data-client/react';
+
+export default class PresenceManager implements Manager {
+  init() {}
+  cleanup() {}
+}
+      `,
+      `
+import { type Manager, type Middleware } from '@data-client/react';
+
+export default class PresenceManager implements Manager {
+  middleware: Middleware = () => next => next;
+  init() {}
+  cleanup() {}
+}
+      `,
+      'gives a Manager class without middleware a pass-through',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'AuditNetworkManager.ts' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+export default class AuditNetworkManager extends NetworkManager {
+  cleanup() {
+    super.cleanup();
+    console.info(this.cleanupDate);
+  }
+}
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+export default class AuditNetworkManager extends NetworkManager {
+  cleanup() {
+    super.cleanup();
+    // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+    console.info(this.cleanupDate);
+  }
+}
+      `,
+      'marks reads of cleanupDate',
     );
   });
 
@@ -307,9 +480,10 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 
 export const managers = [new MyManager(), ...getDefaultManagers()];
 
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
 export const App = () => <DataProvider managers={() => managers} />;
       `,
-      'wraps exported arrays where they are passed, as their importers are',
+      'wraps exported arrays where they are passed, as their importers are, with a TODO',
     );
 
     defineInlineTest(

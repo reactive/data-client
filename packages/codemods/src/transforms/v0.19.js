@@ -12,10 +12,22 @@
  *      - `prepareStore(initialState, managers, ...)`, `createPersistedStore(managers)`
  *      `getDefaultManagers()` becomes `getDefaultManagers`. A variable holding an array literal or
  *      `getDefaultManagers(...)` becomes a function when it is only used as `managers`; other values
- *      are wrapped where they are passed: `managers={() => managers}`. Exported variables are
- *      wrapped too, since other modules wrap them where they pass them.
+ *      are wrapped where they are passed: `managers={() => managers}`, with a `// TODO(data-client):`
+ *      comment, since every store would share those instances. Exported variables are wrapped too,
+ *      since other modules wrap them where they pass them. `renderDataCompose()` (Vue) takes
+ *      `managers` too.
  *   2. Drops `initManager()`'s third argument, which 0.19 removed.
- *   3. `fetchIfStale()` always returns a Promise:
+ *   3. `renderDataHook()` ran its default Managers before 0.19, ignoring `managers`; now `managers`
+ *      replaces them and must include a NetworkManager, so a list of `new` Managers without one
+ *      gets `new NetworkManager()`.
+ *   4. Managers:
+ *      - `getMiddleware = () => middleware` and `getMiddleware() { return middleware; }` become a
+ *        `middleware` property; `manager.getMiddleware()` becomes `manager.middleware`.
+ *      - A class that `implements Manager` without middleware gets a pass-through
+ *        `middleware: Middleware = () => next => next`.
+ *      - Reads of the removed `NetworkManager.cleanupDate`, and `getMiddleware` code it can't
+ *        rewrite, get a `// TODO(data-client):` comment.
+ *   5. `fetchIfStale()` always returns a Promise:
  *      - `Promise.resolve(ctrl.fetchIfStale(...))` becomes the bare call.
  *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
  *      - A statement that reads its result as the data gets a `// TODO(data-client):` comment.
@@ -27,7 +39,8 @@
 const DATA_CLIENT_PREFIX = '@data-client/';
 // every rewrite needs one of these names in the file
 const NAMES =
-  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale/;
+  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b/;
+const BLOG = 'https://dataclient.io/blog/2026/10/03/v0.19-batch-set';
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
   'createDataClient',
@@ -35,7 +48,10 @@ const OPTION_CALLS = new Set([
   'renderDataHook',
   // makeRenderDataHook() docs name its result renderDataClient()
   'renderDataClient',
+  'renderDataCompose',
 ]);
+// test helpers that ran their default Managers, ignoring `managers`, before 0.19
+const RENDER_HOOK_CALLS = new Set(['renderDataHook', 'renderDataClient']);
 // calls that take managers as a positional argument, and its index
 const POSITIONAL_CALLS = new Map([
   ['prepareStore', 1],
@@ -193,6 +209,10 @@ function transformManagers(j, root) {
       }
     }
     replace(path, j.arrowFunctionExpression([], node));
+    // a call or `getDefaultManagers(...)` creates new Managers on each call; a name may hold
+    // shared instances, or already be a function
+    if (node.type === 'Identifier' || node.type === 'MemberExpression')
+      addTodo(j, path, SHARED_MANAGERS_TODO);
     return true;
   };
 
@@ -216,9 +236,12 @@ function transformInitManager(j, root) {
   return dirty;
 }
 
+const SHARED_MANAGERS_TODO =
+  ' TODO(data-client): managers runs once per store since 0.19; create the Managers inside this ' +
+  `function so stores don't share them, or pass the function itself if it already is one: ${BLOG}#managers-function`;
 const FETCH_IF_STALE_TODO =
   ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: ' +
-  'https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise';
+  `${BLOG}#fetch-if-stale-promise`;
 // Promise methods; reading any other member of the result means the code expected the data
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
 const MOCK_RENAMES = new Map([
@@ -309,12 +332,26 @@ function findSyncReads(j, root) {
   return reads;
 }
 
-/** The statement to comment on; for `else if`, the whole `if` chain */
+/** Comments `text` above the statement holding `path`; returns whether it added the comment */
+function addTodo(j, path, text) {
+  const { node } = statementOf(j, path);
+  const comments = node.comments || (node.comments = []);
+  // a statement can need it several times, and the codemod can run again
+  if (comments.some(c => c.value === text)) return false;
+  comments.push(j.commentLine(text, true, false));
+  return true;
+}
+
+const CLASS_MEMBERS = new Set(['ClassMethod', 'ClassProperty']);
+
+/** The statement or class member to comment on; for `else if`, the whole `if` chain */
 function statementOf(j, path) {
+  if (CLASS_MEMBERS.has(path.node.type)) return path;
   let statement = j(path).closest(j.Statement).paths()[0];
   while (
-    statement.parent.node.type === 'IfStatement' &&
-    statement.parent.node.alternate === statement.node
+    (statement.parent.node.type === 'IfStatement' &&
+      statement.parent.node.alternate === statement.node) ||
+    statement.parent.node.type.startsWith('Export')
   )
     statement = statement.parent;
   return statement;
@@ -374,12 +411,7 @@ function renameFetchIfStaleMocks(j, root) {
 function markSyncReads(j, root) {
   let dirty = false;
   findSyncReads(j, root).forEach(read => {
-    const { node } = statementOf(j, read);
-    const comments = node.comments || (node.comments = []);
-    // a statement can read several times, and the codemod can run again
-    if (comments.some(c => c.value === FETCH_IF_STALE_TODO)) return;
-    comments.push(j.commentLine(FETCH_IF_STALE_TODO, true, false));
-    dirty = true;
+    if (addTodo(j, read, FETCH_IF_STALE_TODO)) dirty = true;
   });
   return dirty;
 }
@@ -389,6 +421,205 @@ function transformFetchIfStale(j, root, source) {
   let dirty = unwrapPromiseResolve(j, root);
   dirty = renameFetchIfStaleMocks(j, root) || dirty;
   dirty = markSyncReads(j, root) || dirty;
+  return dirty;
+}
+
+const CLEANUP_DATE_TODO = ` TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: ${BLOG}#manager-cleanup`;
+const GET_MIDDLEWARE_TODO = ` TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: ${BLOG}#manager-middleware`;
+
+const keyName = node => node.key?.name ?? node.key?.value;
+
+/** The function of a `getMiddleware() {}` method or a `getMiddleware = () => {}` property */
+const getterOf = member =>
+  member.type === 'ClassMethod' ? member
+  : isFunction(member.value) ? member.value
+  : undefined;
+
+/** The middleware a `getMiddleware` member returns, when it is a function the property can hold */
+function returnedMiddleware(member) {
+  const fn = getterOf(member);
+  if (!fn || fn.params.length) return;
+  let body = fn.body;
+  if (body.type === 'BlockStatement') {
+    if (body.body.length !== 1 || body.body[0].type !== 'ReturnStatement')
+      return;
+    body = body.body[0].argument;
+  }
+  // a property initializer runs at construction, while getMiddleware() ran at mount, so only
+  // move a function, whose body still runs later
+  return isFunction(body) ? body : undefined;
+}
+
+const isGetMiddleware = node =>
+  CLASS_MEMBERS.has(node.type) &&
+  !node.computed &&
+  keyName(node) === 'getMiddleware';
+
+/** `getMiddleware` members and calls become `middleware` */
+function renameGetMiddleware(j, root) {
+  let dirty = false;
+  root
+    .find(j.Node)
+    .filter(p => isGetMiddleware(p.node))
+    .forEach(member => {
+      const middleware = returnedMiddleware(member.node);
+      if (!middleware) {
+        dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
+        return;
+      }
+      const property = j.classProperty(
+        j.identifier('middleware'),
+        middleware,
+        getterOf(member.node).returnType ?? null,
+      );
+      property.comments = member.node.comments;
+      member.replace(property);
+      dirty = true;
+    });
+  root
+    .find(j.CallExpression, {
+      arguments: [],
+      callee: { type: 'MemberExpression', property: { name: 'getMiddleware' } },
+    })
+    .forEach(call => {
+      // a subclass's middleware property is not on the prototype, so super can't reach it
+      if (call.node.callee.object.type === 'Super') {
+        // an unconverted getMiddleware member already carries the TODO
+        const member = j(call).closest(j.Node, isGetMiddleware).paths()[0];
+        if (!member) dirty = addTodo(j, call, GET_MIDDLEWARE_TODO) || dirty;
+        return;
+      }
+      call.replace(
+        j.memberExpression(call.node.callee.object, j.identifier('middleware')),
+      );
+      dirty = true;
+    });
+  return dirty;
+}
+
+/** The import specifier that brings `name` into the file, if any */
+function importOf(j, root, name) {
+  return root
+    .find(j.ImportSpecifier, { local: { name } })
+    .paths()
+    .find(p => p.parent.node.type === 'ImportDeclaration');
+}
+
+/** Imports `name` next to the import of `sibling` or from an existing import of `source`, else adds an import */
+function ensureImport(j, root, name, { sibling, source, type = false }) {
+  if (importOf(j, root, name)) return;
+  const specifier = j.importSpecifier(j.identifier(name));
+  const next = sibling && importOf(j, root, sibling);
+  if (next) {
+    specifier.importKind = next.node.importKind;
+    next.parent.node.specifiers.push(specifier);
+    return;
+  }
+  const existing = root
+    .find(j.ImportDeclaration, { source: { value: source } })
+    .filter(
+      p =>
+        (p.node.importKind === 'type') === type &&
+        p.node.specifiers.every(s => s.type === 'ImportSpecifier'),
+    )
+    .paths()[0];
+  if (existing) {
+    existing.node.specifiers.push(specifier);
+    return;
+  }
+  const declaration = j.importDeclaration([specifier], j.literal(source));
+  if (type) declaration.importKind = 'type';
+  const { body } = root.get().node.program;
+  body.splice(body.findLastIndex(isImport) + 1, 0, declaration);
+}
+
+const isImport = node => node.type === 'ImportDeclaration';
+
+const implementsManager = node =>
+  node.implements?.some(i => isId(i.expression, 'Manager'));
+
+/** A Manager class without middleware throws on mount since 0.19, so give it a pass-through */
+function addPassThroughMiddleware(j, root) {
+  let dirty = false;
+  root
+    .find(j.Node)
+    .filter(
+      p =>
+        (p.node.type === 'ClassDeclaration' ||
+          p.node.type === 'ClassExpression') &&
+        !p.node.superClass &&
+        implementsManager(p.node) &&
+        !p.node.body.body.some(m =>
+          ['middleware', 'getMiddleware'].includes(keyName(m)),
+        ),
+    )
+    .forEach(cls => {
+      const next = j.identifier('next');
+      const property = j.classProperty(
+        j.identifier('middleware'),
+        j.arrowFunctionExpression([], j.arrowFunctionExpression([next], next)),
+        j.tsTypeAnnotation(j.tsTypeReference(j.identifier('Middleware'))),
+      );
+      cls.node.body.body.unshift(property);
+      ensureImport(j, root, 'Middleware', {
+        sibling: 'Manager',
+        source: '@data-client/react',
+        type: true,
+      });
+      dirty = true;
+    });
+  return dirty;
+}
+
+/** `renderDataHook()` managers must include a NetworkManager since they replace the defaults */
+function addNetworkManager(j, root) {
+  let dirty = false;
+  root
+    .find(j.CallExpression)
+    .filter(call => RENDER_HOOK_CALLS.has(calleeName(call.node)))
+    .find(j.ObjectProperty, { key: { name: 'managers' } })
+    .forEach(prop => {
+      const fn = prop.node.value;
+      const list = isFunction(fn) && fn.body;
+      // only a list of `new` Managers shows that none is a NetworkManager
+      if (
+        list?.type !== 'ArrayExpression' ||
+        !list.elements.every(e => e?.type === 'NewExpression') ||
+        list.elements.some(e => /NetworkManager$/.test(e.callee.name ?? ''))
+      )
+        return;
+      list.elements.push(j.newExpression(j.identifier('NetworkManager'), []));
+      ensureImport(j, root, 'NetworkManager', { source: '@data-client/react' });
+      dirty = true;
+    });
+  return dirty;
+}
+
+/** `NetworkManager.cleanupDate` is gone; what replaces it depends on why the code read it */
+function markCleanupDate(j, root) {
+  let dirty = false;
+  root
+    .find(j.Node)
+    .filter(
+      p =>
+        ((p.node.type === 'MemberExpression' ||
+          p.node.type === 'OptionalMemberExpression') &&
+          !p.node.computed &&
+          isId(p.node.property, 'cleanupDate')) ||
+        (p.node.type === 'MemberExpression' &&
+          p.node.computed &&
+          p.node.property.value === 'cleanupDate'),
+    )
+    .forEach(member => {
+      dirty = addTodo(j, member, CLEANUP_DATE_TODO) || dirty;
+    });
+  return dirty;
+}
+
+function transformManagerClasses(j, root) {
+  let dirty = renameGetMiddleware(j, root);
+  dirty = addPassThroughMiddleware(j, root) || dirty;
+  dirty = markCleanupDate(j, root) || dirty;
   return dirty;
 }
 
@@ -409,7 +640,9 @@ module.exports = function transformer(fileInfo, api) {
 
   let dirty = false;
   dirty = transformManagers(j, root) || dirty;
+  dirty = addNetworkManager(j, root) || dirty;
   dirty = transformInitManager(j, root) || dirty;
+  dirty = transformManagerClasses(j, root) || dirty;
   dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
 
   return dirty ? root.toSource({ quote: 'single' }) : fileInfo.source;

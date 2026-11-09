@@ -5,7 +5,7 @@
       "id": 1,
       "name": "fetch-if-stale-upgrade",
       "prompt": "hey, we bumped @data-client to 0.19 in our issue tracker (it's installed already). can you finish the upgrade so everything works like before? it's a git repo, commit is fine to leave to me.",
-      "setup": "Copy files/issue-tracker to a temp dir outside any skills root and `git init` + commit it. In node_modules, symlink @data-client/{core,endpoint,react,rest,codemods} to this repo's packages, plus react, @types/react, @types/jest and typescript (.bin/tsc) from the repo's node_modules. Run `yarn build:types` first. No jest runner: the agent can't run tests.",
+      "setup": "Copy files/issue-tracker to a temp dir outside any skills root and `git init` + commit it. In node_modules, symlink @data-client/{core,endpoint,react,rest,codemods} to this repo's packages, with a node_modules/.bin/data-client-codemods link to the codemods bin, plus react, @types/react, @types/jest and typescript (.bin/tsc) from the repo's node_modules. Run `yarn build:types` first. No jest runner: the agent can't run tests.",
       "expected_output": "Codemod run; issueLoader awaits fetchIfStale and drops the instanceof branch; warmIssue (behind an isPromise() helper the codemod can't see) uses the resolved data; settingsLoader keeps its DEFAULT_SETTINGS fallback via catch, since the awaited call now rejects; the test mock resolves; the owner is told Sentry's global handlers no longer see unawaited failures.",
       "files": ["files/issue-tracker"],
       "assertions": [
@@ -29,8 +29,8 @@
       "assertions": [
         "LiveManager defines a `middleware` property and no `getMiddleware`.",
         "LiveManager opens the WebSocket in `init()`, not in the constructor or `middleware`, and closes it in `cleanup()`.",
-        "LiveManager's `cleanup()` no longer clears `received`, and the send in `middleware` is guarded against a closed or missing socket (e.g. `this.socket?.send`).",
-        "PresenceManager defines a pass-through `middleware`.",
+        "LiveManager's `cleanup()` no longer clears `received`, and the send in `middleware` is guarded by a field `cleanup()` clears (e.g. `this.socket?.send` with `this.socket = undefined` in cleanup) or by checking `readyState`.",
+        "PresenceManager defines a pass-through `middleware`, and its `cleanup()` still clears the interval.",
         "Each store gets new Manager instances: `managers` is a function that constructs them, and App does not pass `() => managers` around a module-level array.",
         "AuditNetworkManager no longer reads `cleanupDate`.",
         "The renderDataHook test's `managers` function includes a `NetworkManager`.",
