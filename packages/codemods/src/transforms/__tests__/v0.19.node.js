@@ -1192,9 +1192,15 @@ import { resource } from '@data-client/rest';
 
 const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote', { path: '/posts/:id/vote', method: 'POST' });
 const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
+const TeamResource = resource({ path: '/teams/:id', schema: Team }).extend({ [key]: { path: '/orgs/teams' } });
+const TagListResource = resource({ path: '/tags/:id', schema: Tag }).extend('create', { path: '/tags/new' });
+const NoteResource = resource({ path: '/notes/:id', schema: Note }) as NoteResourceType;
 
 export const createPost = (ctrl, body) => ctrl.fetch(PostResource.create, body);
 export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+export const createTeam = (ctrl, body) => ctrl.fetch(TeamResource.create, body);
+export const createTagList = (ctrl, body) => ctrl.fetch(TagListResource.create, body);
+export const createNote = (ctrl, body) => ctrl.fetch(NoteResource.create, body);
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
 export const clone = Object.create(null);
       `,
@@ -1203,10 +1209,18 @@ import { resource } from '@data-client/rest';
 
 const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote', { path: '/posts/:id/vote', method: 'POST' });
 const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
+const TeamResource = resource({ path: '/teams/:id', schema: Team }).extend({ [key]: { path: '/orgs/teams' } });
+const TagListResource = resource({ path: '/tags/:id', schema: Tag }).extend('create', { path: '/tags/new' });
+const NoteResource = resource({ path: '/notes/:id', schema: Note }) as NoteResourceType;
 
 export const createPost = (ctrl, body) => ctrl.fetch(PostResource.getList.push, body);
 // TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push
 export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push
+export const createTeam = (ctrl, body) => ctrl.fetch(TeamResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push
+export const createTagList = (ctrl, body) => ctrl.fetch(TagListResource.create, body);
+export const createNote = (ctrl, body) => ctrl.fetch(NoteResource.getList.push, body);
 // TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
 export const clone = Object.create(null);
@@ -1222,12 +1236,16 @@ import { DevToolsManager } from '@data-client/react';
 
 const devtools = new DevToolsManager({ actionsBlacklist: ['rdc/gc'], actionsWhitelist: ['rdc/fetch'] });
 const both = new DevToolsManager({ actionsBlacklist: ['a'], actionsDenylist: ['b'] });
+const defaults = getDefaultManagers({ devToolsManager: { actionsBlacklist: ['c'] } });
+const payload = JSON.stringify({ actionsBlacklist: ['d'] });
       `,
       `
 import { DevToolsManager } from '@data-client/react';
 
 const devtools = new DevToolsManager({ actionsDenylist: ['rdc/gc'], actionsAllowlist: ['rdc/fetch'] });
 const both = new DevToolsManager({ actionsBlacklist: ['a'], actionsDenylist: ['b'] });
+const defaults = getDefaultManagers({ devToolsManager: { actionsDenylist: ['c'] } });
+const payload = JSON.stringify({ actionsBlacklist: ['d'] });
       `,
       'renames the DevTools action filter options',
     );

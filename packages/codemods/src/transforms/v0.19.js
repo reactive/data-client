@@ -870,21 +870,37 @@ const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is de
 const SHARED_TEST_HELPER_TODO = ` TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled`;
 const CREATE_DATA_CLIENT_TODO = ` TODO(data-client): createDataClient() and ProvidedDataClient are deprecated; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin`;
 
-/** `actionsBlacklist` -> `actionsDenylist`, unless the object already has the new name */
+/** DevTools options: `new DevToolsManager({...})`, or `getDefaultManagers({ devToolsManager: {...} })` */
+function isDevToolsConfig(path) {
+  const parent = path.parent.node;
+  return (
+    (parent.type === 'NewExpression' &&
+      parent.arguments[0] === path.node &&
+      /DevToolsManager$/.test(nameOf(parent.callee) ?? '')) ||
+    (isProperty(parent) &&
+      parent.value === path.node &&
+      keyName(parent) === 'devToolsManager')
+  );
+}
+
+/** `actionsBlacklist` -> `actionsDenylist` in DevTools options, unless they already have the new name */
 function renameDevToolsOptions(j, root) {
   let dirty = false;
-  root.find(j.ObjectExpression).forEach(({ node }) => {
-    const keys = new Set(node.properties.filter(isProperty).map(keyName));
-    for (const prop of node.properties) {
-      if (!isProperty(prop) || prop.computed) continue;
-      const renamed = DEVTOOLS_RENAMES.get(keyName(prop));
-      if (!renamed || keys.has(renamed)) continue;
-      // `{ actionsBlacklist }` shorthand keeps its value under the new key
-      prop.shorthand = false;
-      prop.key = j.identifier(renamed);
-      dirty = true;
-    }
-  });
+  root
+    .find(j.ObjectExpression)
+    .filter(isDevToolsConfig)
+    .forEach(({ node }) => {
+      const keys = new Set(node.properties.filter(isProperty).map(keyName));
+      for (const prop of node.properties) {
+        if (!isProperty(prop) || prop.computed) continue;
+        const renamed = DEVTOOLS_RENAMES.get(keyName(prop));
+        if (!renamed || keys.has(renamed)) continue;
+        // `{ actionsBlacklist }` shorthand keeps its value under the new key
+        prop.shorthand = false;
+        prop.key = j.identifier(renamed);
+        dirty = true;
+      }
+    });
   return dirty;
 }
 
@@ -901,7 +917,11 @@ function isPlainResource(j, root, node) {
     } else if (first?.type === 'ObjectExpression') {
       if (
         first.properties.some(
-          p => !isProperty(p) || ['create', 'getList'].includes(keyName(p)),
+          p =>
+            !isProperty(p) ||
+            // a computed key could name either
+            keyName(p) === undefined ||
+            ['create', 'getList'].includes(keyName(p)),
         )
       )
         return false;
@@ -928,10 +948,13 @@ function migrateResourceCreate(j, root) {
       const declarator = bindingOf(path.get('object'))?.parent.node;
       if (
         declarator?.type === 'VariableDeclarator' &&
-        isPlainResource(j, root, declarator.init)
+        isPlainResource(j, root, unwrap(declarator.init))
       ) {
-        path.node.property = j.identifier('getList');
-        path.replace(j.memberExpression(path.node, j.identifier('push')));
+        const getList = j.memberExpression(
+          path.node.object,
+          j.identifier('getList'),
+        );
+        path.replace(j.memberExpression(getList, j.identifier('push')));
         dirty = true;
       } else if (/Resource$/.test(path.node.object.name)) {
         unresolved.push(path);
@@ -940,7 +963,7 @@ function migrateResourceCreate(j, root) {
   return addTodos(j, unresolved, CREATE_TODO) || dirty;
 }
 
-/** Deprecated test helpers and Vue setup whose replacement depends on what the code waits for */
+/** Deprecated test helpers and Vue setup, whose replacements depend on how the code uses them */
 function markDeprecatedCalls(j, root) {
   const members = name =>
     root
