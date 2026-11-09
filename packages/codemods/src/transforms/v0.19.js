@@ -34,8 +34,9 @@
  *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
  *      - A statement that reads its result as the data gets a `// TODO(data-client):` comment.
  *   6. Deprecated APIs:
- *      - `Resource.create` becomes `Resource.getList.push` for a `resource()` declared in the file;
- *        DevTools `actionsBlacklist`/`actionsWhitelist` become `actionsDenylist`/`actionsAllowlist`.
+ *      - `Resource.create` becomes `Resource.getList.push` where it runs, for an unchanged `const`
+ *        `resource()` declared in the file; DevTools `actionsBlacklist`/`actionsWhitelist` options
+ *        become `actionsDenylist`/`actionsAllowlist`.
  *      - Other `*Resource.create`, `waitForNextUpdate()`, `renderDataHook.cleanup()`/`.allSettled()`
  *        and Vue `createDataClient()` get a `// TODO(data-client):` comment.
  *
@@ -972,23 +973,22 @@ function memberChainOf(path) {
   return path;
 }
 
-const isMutated = path => {
+/** Whether the expression at `path` is assigned, incremented or deleted */
+function isMutated(path) {
   const parent = path.parent.node;
   return (
     (parent.type === 'AssignmentExpression' && parent.left === path.node) ||
     parent.type === 'UpdateExpression' ||
     (parent.type === 'UnaryExpression' && parent.operator === 'delete')
   );
-};
+}
 
 /** Whether every use of a `const` resource reads its members without changing them or passing the
  * resource itself on, so its `create` and `getList` stay what its declaration made them */
 function isReadOnlyResource(j, root, binding) {
-  const declarator = binding.parent;
   if (
-    declarator.node.type !== 'VariableDeclarator' ||
-    declarator.parent.node.kind !== 'const' ||
-    !isPlainResource(declarator.get('init'))
+    !isPlainResourceDeclarator(binding) ||
+    binding.parent.parent.node.kind !== 'const'
   )
     return false;
   return root
@@ -998,9 +998,9 @@ function isReadOnlyResource(j, root, binding) {
         p.node !== binding.node && !isOtherName(p) && bindingOf(p) === binding,
     )
     .every(p => {
-      // `typeof X` in a type
-      if (p.parent.node.type === 'TSTypeQuery') return true;
       const parent = p.parent.node;
+      // `typeof X` in a type
+      if (parent.type === 'TSTypeQuery') return true;
       return (
         isMember(parent) &&
         parent.object === p.node &&
@@ -1055,7 +1055,7 @@ function migrateResourceCreate(j, root) {
         return;
       if (binding && !readOnly.has(binding))
         readOnly.set(binding, isReadOnlyResource(j, root, binding));
-      if (binding && readOnly.get(binding) && isRun(path)) {
+      if (readOnly.get(binding) && isRun(path)) {
         path.node.object = j.memberExpression(
           path.node.object,
           j.identifier('getList'),
@@ -1063,7 +1063,6 @@ function migrateResourceCreate(j, root) {
         path.node.property = j.identifier('push');
         dirty = true;
       } else if (
-        (binding && readOnly.get(binding)) ||
         isPlainResourceDeclarator(binding) ||
         /Resource$/.test(path.node.object.name)
       ) {
@@ -1077,9 +1076,8 @@ const isPlainResourceDeclarator = binding =>
   binding?.parent.node.type === 'VariableDeclarator' &&
   isPlainResource(binding.parent.get('init'));
 
-/** Whether the file imports from one of `sources` */
-const importsFrom = (root, sources) =>
-  importsOf(root).some(d => sources.includes(d.source.value));
+const importsFrom = (root, source) =>
+  importsOf(root).some(d => d.source.value === source);
 
 /** Deprecated test helpers and Vue setup, whose replacements depend on how the code uses them */
 function markDeprecatedCalls(j, root) {
@@ -1104,9 +1102,9 @@ function markDeprecatedCalls(j, root) {
     )
     .paths();
   // other test libraries have a waitForNextUpdate() too
-  const isVueTest = importsFrom(root, ['@data-client/vue/test']);
+  const isVueTest = importsFrom(root, '@data-client/vue/test');
   const waitForNextUpdate =
-    isVueTest || importsFrom(root, ['@data-client/test']) ?
+    isVueTest || importsFrom(root, '@data-client/test') ?
       [
         ...members('waitForNextUpdate'),
         // `const { waitForNextUpdate } = renderDataHook(...)` and its calls
