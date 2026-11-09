@@ -151,11 +151,11 @@ several stores, set `__DC__.store = name` first.
    - A `DELETE` endpoint that declares `body` now sends its last argument as the body, not url params. If callers pass
      no body, remove `body` from the endpoint.
 
-## Step 9: deprecated APIs (optional, own commit)
+## Step 9: deprecated APIs (own commit)
 
-They still work, but a later release removes them. Ask the user whether to move off them now, unless they already said
-or you can't wait for an answer (then do it). Commit Steps 1-8 first and make this its own commit, so it reverts
-alone; if the user makes the commits, list the files this step changed instead.
+They still work, but a later release removes them, so do this step unless the user opts out. Ask first when the user
+can answer mid-task; otherwise go ahead. Commit Steps 1-8 first and make this its own commit, so it reverts alone; if
+the user makes the commits, list the files this step changed instead.
 
 ```bash
 npx @data-client/codemods v0.19 <source-root> --deprecations=only
