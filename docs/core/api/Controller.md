@@ -779,7 +779,7 @@ receive `[]`) and no updater function. Rows that share a pk merge in list order,
 
 Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
 
-Components suspending on this [Endpoint](/rest/api/Endpoint) and args resolve. Existing data for that Endpoint and args is replaced.
+Components suspending on this [Endpoint](/rest/api/Endpoint) and args resolve. Existing data for that Endpoint and args is updated; entities merge with their stored fields.
 
 :::react
 
