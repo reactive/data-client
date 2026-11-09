@@ -787,21 +787,6 @@ test('run in a workspace package, it removes a copy an earlier run left at anoth
   assert.ok(links(dir)['data-client-react']);
 });
 
-test("run in a workspace package, it keeps its link when the user's own entry blocks the root's", t => {
-  const dir = project({
-    '.git/HEAD': 'ref',
-    'package.json': { workspaces: ['apps/*'] },
-    ...app('web', '0.19.0'),
-    '.agents/skills/data-client-react': 'committed link checked out as a file',
-  });
-  const web = path.join(dir, 'apps/web');
-  syncSkills(web);
-  run(t, web);
-  assert.ok(
-    fs.existsSync(path.join(web, '.agents/skills/data-client-react/SKILL.md')),
-  );
-});
-
 test("run in a workspace package that doesn't install a skill, it reports its own copy shadowing the root's", t => {
   const dir = project({
     '.git/HEAD': 'ref',
@@ -817,35 +802,37 @@ test("run in a workspace package that doesn't install a skill, it reports its ow
   );
 });
 
-test("run in a workspace package, it keeps its link when the user's own entry blocks the root's .claude/skills mirror", t => {
-  const dir = project({
-    '.git/HEAD': 'ref',
-    'package.json': { workspaces: ['apps/*'] },
-    ...app('web', '0.19.0'),
-    '.agents/skills/mine/SKILL.md': 'my own skill',
-    '.claude/skills/data-client-react': 'committed link checked out as a file',
-  });
-  const web = path.join(dir, 'apps/web');
-  syncSkills(web);
-  run(t, web);
-  assert.ok(
-    fs.existsSync(path.join(web, '.agents/skills/data-client-react/SKILL.md')),
-  );
-});
-
-test("run in a workspace package, it keeps its links when the root's .claude/skills link checked out as a file", t => {
-  const dir = project({
-    '.git/HEAD': 'ref',
-    'package.json': { workspaces: ['apps/*'] },
-    ...app('web', '0.19.0'),
-    '.claude/skills': '../.agents/skills',
-  });
-  const web = path.join(dir, 'apps/web');
-  syncSkills(web);
-  run(t, web);
-  assert.ok(
-    fs.existsSync(path.join(web, '.claude/skills/data-client-react/SKILL.md')),
-  );
+test("run in a workspace package, it keeps its links when an entry of the user's blocks the root's", t => {
+  for (const [rootFiles, folder] of [
+    [
+      { '.agents/skills/data-client-react': 'link checked out as a file' },
+      '.agents',
+    ],
+    [
+      {
+        '.agents/skills/mine/SKILL.md': 'my own skill',
+        '.claude/skills/data-client-react': 'link checked out as a file',
+      },
+      '.claude',
+    ],
+    [{ '.claude/skills': '../.agents/skills' }, '.claude'],
+  ]) {
+    const dir = project({
+      '.git/HEAD': 'ref',
+      'package.json': { workspaces: ['apps/*'] },
+      ...app('web', '0.19.0'),
+      ...rootFiles,
+    });
+    const web = path.join(dir, 'apps/web');
+    syncSkills(web);
+    run(t, web);
+    assert.ok(
+      fs.existsSync(
+        path.join(web, folder, 'skills/data-client-react/SKILL.md'),
+      ),
+      JSON.stringify(rootFiles),
+    );
+  }
 });
 
 /** Runs main() from `cwd`, returning what it logged */

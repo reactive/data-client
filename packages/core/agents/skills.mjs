@@ -48,7 +48,7 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
  * result and `provides`: each skill it wants, with the source that decides
  * whether a package needs its own.
  */
-function sync(projectDir, { upgrade = false, inherited = new Map() }) {
+function sync(projectDir, { upgrade, inherited = new Map() }) {
   const dirs = skillsDirs(projectDir);
   const result = {
     added: [],
@@ -86,12 +86,11 @@ function sync(projectDir, { upgrade = false, inherited = new Map() }) {
     }
     syncDir(dest, want, copy, result, inherited);
     if (otherStat?.isDirectory()) mirrorLinks(dest, other, result);
-    // it provides only the skills its links reach from both folders agents
-    // read: an entry of the user's, in either, blocks them
-    for (const skill of provides.keys())
+    // it provides only the skills agents load from both folders they read:
+    // an entry of the user's, in either, blocks them
+    for (const [skill, source] of provides)
       if (
-        result.kept.includes(skill) ||
-        !sameDir(path.join(other, skill), path.join(dest, skill))
+        ![dest, other].every(d => loads(path.join(d, skill), copy) === source)
       )
         provides.delete(skill);
     return { result, provides };
@@ -112,6 +111,17 @@ function sources(want, copy) {
       copy ? id : fs.realpathSync.native(dir),
     ]),
   );
+}
+
+/** The installed version agents load at `file`, as sources() names it */
+function loads(file, copy) {
+  try {
+    return copy ?
+        fs.readFileSync(path.join(file, MARKER), 'utf8')
+      : fs.realpathSync.native(file);
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -425,21 +435,26 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
  * What the root sync (`result`) and the package's (`local`) changed; `dir` is
  * the root's skills folder from where the command ran
  */
-function changeLines(result, local, provides, dir) {
+function changeLines(
+  result,
+  local = { added: [], removed: [], kept: [] },
+  provides,
+  dir,
+) {
   const { added, removed, kept } = result;
-  const moved = local?.removed.filter(skill => provides.has(skill)) ?? [];
-  const dropped = local?.removed.filter(skill => !provides.has(skill)) ?? [];
+  const moved = local.removed.filter(skill => provides.has(skill));
+  const dropped = local.removed.filter(skill => !provides.has(skill));
   return [
     added.length && `Added ${added.join(', ')}`,
     removed.length && `Removed ${removed.join(', ')}`,
     ...[
       ...kept.map(skill => `${dir}/${skill}`),
-      ...(local?.kept.map(skill => `${local.dir}/${skill}`) ?? []),
+      ...local.kept.map(skill => `${local.dir}/${skill}`),
     ].map(
       file =>
         `Kept ${file} (not a link data-client-skills made); delete it to get the installed version`,
     ),
-    local?.added.length &&
+    local.added.length &&
       `Added ${local.added.join(', ')} to this package, which installs versions the workspace root doesn't link`,
     moved.length &&
       `Removed ${moved.join(', ')} from this package; the workspace root has them`,
