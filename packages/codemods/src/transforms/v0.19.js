@@ -42,6 +42,8 @@
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
+ *   npx @data-client/codemods v0.19 src/ --deprecations=false  # skip section 6
+ *   npx @data-client/codemods v0.19 src/ --deprecations=only   # just section 6
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
@@ -1154,11 +1156,25 @@ function migrateDeprecations(j, root, source) {
   return dirty;
 }
 
-module.exports = function transformer(fileInfo, api) {
+/** `--deprecations=false` skips moving off deprecated APIs; `--deprecations=only` does just that */
+function passesFor(options) {
+  const deprecations = options?.deprecations;
+  return {
+    breaking: deprecations !== 'only',
+    deprecations: deprecations !== false && deprecations !== 'false',
+  };
+}
+
+module.exports = function transformer(fileInfo, api, options) {
+  const passes = passesFor(options);
+  const names = [
+    ...(passes.breaking ? [NAMES] : []),
+    ...(passes.deprecations ? DEPRECATED_NAMES : []),
+  ];
   // skip parsing files that have nothing to migrate
   if (
     !fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
-    ![NAMES, ...DEPRECATED_NAMES].some(names => names.test(fileInfo.source))
+    !names.some(name => name.test(fileInfo.source))
   )
     return fileInfo.source;
   const j = api.jscodeshift;
@@ -1170,13 +1186,16 @@ module.exports = function transformer(fileInfo, api) {
   if (!hasDataClientImport) return fileInfo.source;
 
   let dirty = false;
-  dirty = transformManagers(j, root) || dirty;
-  if (/renderData(Hook|Client)/.test(fileInfo.source))
-    dirty = addDefaultManagers(j, root) || dirty;
-  dirty = transformInitManager(j, root) || dirty;
-  dirty = transformManagerClasses(j, root, fileInfo.source) || dirty;
-  dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
-  dirty = migrateDeprecations(j, root, fileInfo.source) || dirty;
+  if (passes.breaking) {
+    dirty = transformManagers(j, root) || dirty;
+    if (/renderData(Hook|Client)/.test(fileInfo.source))
+      dirty = addDefaultManagers(j, root) || dirty;
+    dirty = transformInitManager(j, root) || dirty;
+    dirty = transformManagerClasses(j, root, fileInfo.source) || dirty;
+    dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
+  }
+  if (passes.deprecations)
+    dirty = migrateDeprecations(j, root, fileInfo.source) || dirty;
 
   // recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
   return dirty ?

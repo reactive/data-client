@@ -1289,6 +1289,55 @@ it('loads', async () => {
 
     defineInlineTest(
       transform,
+      { deprecations: false },
+      `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
+ctrl.fetch(PostResource.create, body);
+renderDataHook.cleanup();
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await ctrl.fetchIfStale(PostResource.get, { id });
+ctrl.fetch(PostResource.create, body);
+renderDataHook.cleanup();
+      `,
+      'skips deprecated APIs with --deprecations=false',
+    );
+
+    defineInlineTest(
+      transform,
+      { deprecations: 'only' },
+      `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
+ctrl.fetch(PostResource.create, body);
+renderDataHook.cleanup();
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
+ctrl.fetch(PostResource.getList.push, body);
+// TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled
+renderDataHook.cleanup();
+      `,
+      'migrates only deprecated APIs with --deprecations=only',
+    );
+
+    defineInlineTest(
+      transform,
       { path: 'useThing.test.ts' },
       `
 import { renderDataCompose } from '@data-client/vue/test';

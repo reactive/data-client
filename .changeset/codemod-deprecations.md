@@ -15,6 +15,9 @@ It adds a `TODO(data-client)` comment on the rest, whose replacement depends on 
 can't rename, `waitForNextUpdate()`, `renderDataHook.cleanup()` / `.allSettled()`, and Vue `createDataClient()` /
 `ProvidedDataClient`.
 
+Pass `--deprecations=false` to skip these, or `--deprecations=only` to run just these, for example as a separate
+commit after the 0.19 upgrade.
+
 ```ts
 ctrl.fetch(PostResource.create, body);
 // becomes
