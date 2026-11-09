@@ -110,6 +110,7 @@ export default class Controller<
     State<unknown>,
     State<unknown>
   >;
+  /** Applies optimistic updates; built on first use, then shared */
   declare private reducer?: ReturnType<typeof createReducer>;
 
   constructor({
@@ -184,7 +185,7 @@ export default class Controller<
     const { data, expiresAt, expiryStatus } = this.getResponseMeta(
       endpoint,
       ...args,
-      this.applyOptimistic(this.getState()),
+      this.getState(),
     );
     if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
       return data as any;

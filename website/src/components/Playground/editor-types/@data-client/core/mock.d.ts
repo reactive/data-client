@@ -829,6 +829,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     readonly gcPolicy: GCInterface;
     /** Optimistic states by the state they apply to; see applyOptimistic() */
     private readonly optimisticStates;
+    /** Applies optimistic updates; built on first use, then shared */
     private reducer?;
     constructor({ dispatch, getState, memo, gcPolicy, }?: ControllerConstructorProps<D>);
     set dispatch(dispatch: D);
