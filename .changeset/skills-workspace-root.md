@@ -1,4 +1,5 @@
 ---
+'@data-client/core': patch
 '@data-client/endpoint': patch
 '@data-client/graphql': patch
 '@data-client/react': patch

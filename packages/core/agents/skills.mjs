@@ -71,14 +71,12 @@ function sync(projectDir, { upgrade = false, inherited = new Map() }) {
       result,
       upgrade,
     );
-    const shared = new Set();
     for (const [skill, { dir, id }] of want) {
-      // a link's real folder, or a copy's version
-      const source = copy ? id : fs.realpathSync(dir);
+      // a link's real folder (native, like sameDir, so a junction's casing
+      // doesn't matter), or a copy's version
+      const source = copy ? id : fs.realpathSync.native(dir);
       provides.set(skill, source);
-      if (inherited.get(skill) !== source) continue;
-      want.delete(skill);
-      shared.add(skill);
+      if (inherited.get(skill) === source) want.delete(skill);
     }
     if (!want.size && !fs.existsSync(dest)) return { result, provides };
     fs.mkdirSync(dest, { recursive: true });
@@ -91,7 +89,9 @@ function sync(projectDir, { upgrade = false, inherited = new Map() }) {
       const target = posix(path.relative(path.dirname(other), dest));
       link(target, other, result);
     }
-    syncDir(dest, want, copy, result, shared);
+    syncDir(dest, want, copy, result, inherited);
+    // an entry of the user's blocks the link, so it provides nothing
+    for (const skill of result.kept) provides.delete(skill);
     if (otherStat?.isDirectory()) mirrorLinks(dest, other, result);
     return { result, provides };
   } finally {
@@ -156,8 +156,8 @@ function sameDir(a, b) {
   }
 }
 
-/** `shared`: skills a workspace root gives, which this folder should not hold */
-function syncDir(dest, want, copy, result, shared) {
+/** `inherited`: skills a workspace root gives, which agents here load unless this folder shadows them */
+function syncDir(dest, want, copy, result, inherited) {
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(dest, entry.name);
     const current = owned(file, entry);
@@ -165,7 +165,7 @@ function syncDir(dest, want, copy, result, shared) {
       // anything else holding a wanted name wins: the user's own skill, a
       // committed link git checked out as a file, copies committed from a
       // junction. Say so rather than report up to date.
-      if (want.delete(entry.name) || shared.has(entry.name))
+      if (want.delete(entry.name) || inherited.has(entry.name))
         result.kept.push(entry.name);
       continue;
     }
@@ -376,10 +376,11 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
     workspace && synced ?
       sync(cwd, { upgrade, inherited: provides }).result
     : undefined;
-  const junctions = result.junctions || local?.junctions;
   // where the skills are, from where the command ran
   const dir = skills && posix(path.relative(cwd, skills));
   const localDir = local?.dir;
+  // the folder holding junctions, if either sync made them
+  const junctions = result.junctions ? dir : local?.junctions && localDir;
   const moved = local?.removed.filter(skill => provides.has(skill)) ?? [];
   const dropped = local?.removed.filter(skill => !provides.has(skill)) ?? [];
   const changes = [
@@ -402,7 +403,7 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   if (!changes.length) console.log('Data Client skills are up to date');
   if (junctions)
     console.log(
-      `Windows denied symlinks, so ${dir} holds junctions, which git commits as copies. Don't commit them; to commit links, turn on Developer Mode, run git config core.symlinks true, delete ${dir} and rerun.`,
+      `Windows denied symlinks, so ${junctions} holds junctions, which git commits as copies. Don't commit them; to commit links, turn on Developer Mode, run git config core.symlinks true, delete ${junctions} and rerun.`,
     );
   if (outdated.length)
     console.log(

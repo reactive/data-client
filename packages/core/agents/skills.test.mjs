@@ -787,6 +787,36 @@ test('run in a workspace package, it removes a copy an earlier run left at anoth
   assert.ok(links(dir)['data-client-react']);
 });
 
+test("run in a workspace package, it keeps its link when the user's own entry blocks the root's", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    '.agents/skills/data-client-react': 'committed link checked out as a file',
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web);
+  run(t, web);
+  assert.ok(
+    fs.existsSync(path.join(web, '.agents/skills/data-client-react/SKILL.md')),
+  );
+});
+
+test("run in a workspace package that doesn't install a skill, it reports its own copy shadowing the root's", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'apps/docs/package.json': { name: 'docs' },
+    'apps/docs/.agents/skills/data-client-react/SKILL.md': 'skills CLI copy',
+  });
+  assert.ok(
+    run(t, path.join(dir, 'apps/docs')).includes(
+      'Kept .agents/skills/data-client-react (not a link data-client-skills made); delete it to get the installed version',
+    ),
+  );
+});
+
 /** Runs main() from `cwd`, returning what it logged */
 function run(t, cwd) {
   const log = t.mock.method(console, 'log', () => {});
