@@ -1,7 +1,7 @@
-// Prints "<name>-gzip <bytes>" and "<name>-brotli <bytes>" for the JS a browser loads from <dir>
+// Prints "<name> <bytes>": the brotli size (quality 11) of the JS a browser loads from <dir>
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { brotliCompressSync, constants, gzipSync } from 'zlib';
+import { brotliCompressSync, constants } from 'zlib';
 
 const [name, dir] = process.argv.slice(2);
 const files = readdirSync(dir, { recursive: true }).filter(file =>
@@ -9,13 +9,10 @@ const files = readdirSync(dir, { recursive: true }).filter(file =>
 );
 if (!files.length)
   throw new Error(`no JS in ${dir}: did the ${name} build fail?`);
-let gzip = 0;
 let brotli = 0;
 for (const file of files) {
-  const code = readFileSync(join(dir, file));
-  gzip += gzipSync(code, { level: 9 }).length;
-  brotli += brotliCompressSync(code, {
+  brotli += brotliCompressSync(readFileSync(join(dir, file)), {
     params: { [constants.BROTLI_PARAM_QUALITY]: 11 },
   }).length;
 }
-console.log(`${name}-gzip ${gzip}\n${name}-brotli ${brotli}`);
+console.log(`${name} ${brotli}`);

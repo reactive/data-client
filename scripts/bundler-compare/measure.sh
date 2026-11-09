@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gzipped and brotli JS of a two-page app (one lazy chunk per page) built from this checkout's packages
+# Brotli size (quality 11) of the JS of a two-page app (one lazy chunk per page) built from this checkout's packages
 # with one bundler per family: rspack (webpack), Vite 8 (Rolldown, Rollup) and Next.js Turbopack.
 #
 #   ./measure.sh [label]            build packages, then measure; saves results/<label>.txt
