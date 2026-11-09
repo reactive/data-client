@@ -10,7 +10,7 @@ import siteConfig from '@generated/docusaurus.config';
 // BlogArchivePage, BlogPostPage/Metadata) only save the redirect hop: if a
 // Docusaurus upgrade changes their props, delete the wrapper rather than
 // patch it.
-export const isNext = siteConfig.baseUrl.startsWith('/next/');
+// Set only on /next/ (docusaurus.config.ts), so elsewhere every post is its own
 const cut = siteConfig.customFields?.nextCut as string | undefined;
 
 /** The post's URL on the root when it predates the cut, else its permalink */
@@ -19,7 +19,7 @@ export function rootPost(permalink: string): string {
   const date = /^blog\/(\d{4})\/(\d{2})\/(\d{2})\//.exec(
     permalink.slice(siteConfig.baseUrl.length),
   );
-  return isNext && date && cut && date.slice(1).join('-') < cut ?
+  return date && cut && date.slice(1).join('-') < cut ?
       `https://dataclient.io${permalink.replace(/^\/next\//, '/')}`
     : permalink;
 }

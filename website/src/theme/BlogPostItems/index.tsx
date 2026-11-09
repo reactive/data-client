@@ -3,7 +3,7 @@ import type BlogPostItemsType from '@theme/BlogPostItems';
 import BlogPostItems from '@theme-original/BlogPostItems';
 import React from 'react';
 
-import { isNext, rootPost } from '../../utils/rootPost';
+import { rootPost } from '../../utils/rootPost';
 
 type Props = WrapperProps<typeof BlogPostItemsType>;
 type Content = Props['items'][number]['content'];
@@ -29,7 +29,6 @@ function linkToRoot(Post: Content): Content {
 }
 
 export default function BlogPostItemsWrapper(props: Props) {
-  if (!isNext) return <BlogPostItems {...props} />;
   return (
     <BlogPostItems
       {...props}

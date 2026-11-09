@@ -294,8 +294,8 @@ const config: Config = {
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
     require.resolve('./scripts/snapshot/versionMenu.client.ts'),
-    // /next/ lists its own posts, but sends in-app links to a post to the
-    // root's, as vercel.json does page loads: post URLs never change
+    // /next/ sends in-app routes to posts from before the cut to the root's
+    // copy, where their URLs stay
     ...(isNext ?
       [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
     : []),
