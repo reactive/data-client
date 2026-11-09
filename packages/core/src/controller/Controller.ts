@@ -65,6 +65,12 @@ const unsetDispatch = (action: unknown): Promise<void> => {
       `Other middleware would not be applied to this dispatch.`,
   );
 };
+/** Marks the promise handled, so callers that never await it can't cause an unhandled rejection; awaiting still rejects */
+function prehandled<T>(promise: Promise<T>): Promise<T> {
+  promise.catch(() => {});
+  return promise;
+}
+
 const unsetState = (): State<unknown> => {
   // This is only the value until it is set by the DataProvider
   /* istanbul ignore next */
@@ -164,7 +170,9 @@ export default class Controller<
   };
 
   /**
-   * Fetches only if endpoint is considered 'stale'; otherwise returns the cached data synchronously
+   * Fetches only if endpoint is considered 'stale'; otherwise settles with the cached data or error.
+   *
+   * Safe to call without awaiting: errors are stored like any fetch error, never an unhandled rejection.
    * @see https://dataclient.io/docs/api/Controller#fetchIfStale
    */
   fetchIfStale = <
@@ -172,16 +180,23 @@ export default class Controller<
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>]
-  ): E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E>
-  : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']> => {
+  ): Promise<
+    E['schema'] extends undefined | null ? ResolveType<E>
+    : Denormalize<E['schema']>
+  > => {
+    const state = this.getState();
     const { data, expiresAt, expiryStatus } = this.getResponseMeta(
       endpoint,
       ...args,
-      this.getState(),
+      state,
     );
-    if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
-      return data as any;
-    return this.fetch(endpoint, ...args);
+    if (expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt)
+      return prehandled(this.fetch(endpoint, ...args));
+    const error = this.getError(endpoint, ...args, state);
+    // the latest fetch failed within errorExpiryLength; reject like useSuspense() throws it
+    if (error) return prehandled(Promise.reject(error));
+    // a Promise even when fresh, so .catch() works on every call (#4657)
+    return Promise.resolve(data as any);
   };
 
   /**

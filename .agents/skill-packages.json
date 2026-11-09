@@ -2,7 +2,8 @@
   "@data-client/core": [
     "data-client",
     "data-client-setup",
-    "data-client-manager"
+    "data-client-manager",
+    "data-client-v0.19-migration"
   ],
   "@data-client/endpoint": [
     "data-client-schema",

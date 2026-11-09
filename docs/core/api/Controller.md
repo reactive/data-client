@@ -31,7 +31,7 @@ and retrieval performance.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
+  fetchIfStale(endpoint, ...args): Promise<Denormalize<E['schema']>>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -265,10 +265,28 @@ post.pk();
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)' or [invalid](../concepts/expiry-policy.md#invalid),
-returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
+Fetches only when the data is missing, [stale](../concepts/expiry-policy.md#stale) or [invalid](../concepts/expiry-policy.md#invalid),
+and always returns a Promise of the latest fetch's outcome. This avoids overfetching fresh data when prefetching.
 
-This can be useful when prefetching data, as it avoids overfetching fresh data.
+| Cache | Fetches | `await` gives | Not awaited |
+| --- | --- | --- | --- |
+| Missing, stale or invalid | Yes, like [fetch()](#fetch) | The fetched data, or rejects with its error | The error is stored; no unhandled rejection |
+| Fresh | No | The cached data | Nothing happens |
+| The latest fetch failed within [errorExpiryLength](/rest/api/Endpoint#errorexpirylength) | No | Rejects with that error, like [useSuspense()](./useSuspense.md) throws it | Nothing happens |
+
+So prefetches don't need to be awaited or caught: components reading that endpoint show a stored error as usual.
+Unawaited failures don't reach global unhandled-rejection handlers, so report fetch errors with an
+[error reporting Manager](../concepts/managers.md#error-reporting). A `.then()` chained onto the result makes a new
+Promise, so end that chain with `.catch()`.
+
+```ts
+// start a secondary request without waiting for it
+controller.fetchIfStale(CommentResource.getList, { issueId });
+// wait for the data the page needs first; rejects if that fetch fails
+await controller.fetchIfStale(IssueResource.get, { id: issueId });
+```
+
+To check whether data is cached and fresh without fetching, read [getResponse()](#getResponse) synchronously.
 
 An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
 

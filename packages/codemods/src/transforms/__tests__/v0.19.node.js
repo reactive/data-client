@@ -330,4 +330,157 @@ export const A = () => <Provider managers={managers} />;
       'leaves files without @data-client imports alone',
     );
   });
+
+  describe('fetchIfStale()', () => {
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number) {
+  Promise.resolve(ctrl.fetchIfStale(CommentResource.getList, { id })).catch(() => {});
+  return Promise.resolve(other());
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number) {
+  ctrl.fetchIfStale(CommentResource.getList, { id }).catch(() => {});
+  return Promise.resolve(other());
+}
+      `,
+      'unwraps Promise.resolve() around it',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number, value: unknown) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (!(issue instanceof Promise)) {
+    render(issue);
+  }
+  if (value) {
+    log(value);
+  } else if (ctrl.fetchIfStale(IssueResource.get, { id }) instanceof Promise) {
+    log(id);
+  }
+  return value instanceof Promise;
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number, value: unknown) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (!(issue instanceof Promise)) {
+    render(issue);
+  }
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (value) {
+    log(value);
+  } else if (ctrl.fetchIfStale(IssueResource.get, { id }) instanceof Promise) {
+    log(id);
+  }
+  return value instanceof Promise;
+}
+      `,
+      'marks instanceof Promise checks of its result with a TODO',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import { Controller } from '@data-client/react';
+
+export async function loader(ctrl, id) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  const { title } = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (ctrl.fetchIfStale(UserResource.get, { id })) {
+    log(title);
+  }
+  const user = ctrl.fetchIfStale(UserResource.get, { id }) as User;
+  return \`\${issue.title} by \${user.name}\`;
+}
+      `,
+      `
+import { Controller } from '@data-client/react';
+
+export async function loader(ctrl, id) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  const { title } = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (ctrl.fetchIfStale(UserResource.get, { id })) {
+    log(title);
+  }
+  const user = ctrl.fetchIfStale(UserResource.get, { id }) as User;
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  return \`\${issue.title} by \${user.name}\`;
+}
+      `,
+      'marks other reads of the result as data',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export async function loader(ctrl: Controller, id: number) {
+  ctrl.fetchIfStale(CommentResource.getList, { id });
+  const pending = ctrl.fetchIfStale(UserResource.get, { id });
+  pending.then(render).catch(log).finally(done);
+  await Promise.all([ctrl.fetchIfStale(A, { id }), pending]);
+  track(ctrl.fetchIfStale(B, { id }));
+  const issue = await ctrl.fetchIfStale(IssueResource.get, { id });
+  return issue.title;
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export async function loader(ctrl: Controller, id: number) {
+  ctrl.fetchIfStale(CommentResource.getList, { id });
+  const pending = ctrl.fetchIfStale(UserResource.get, { id });
+  pending.then(render).catch(log).finally(done);
+  await Promise.all([ctrl.fetchIfStale(A, { id }), pending]);
+  track(ctrl.fetchIfStale(B, { id }));
+  const issue = await ctrl.fetchIfStale(IssueResource.get, { id });
+  return issue.title;
+}
+      `,
+      'leaves Promise uses alone',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.test.ts' },
+      `
+import { Controller } from '@data-client/react';
+
+const ctrl = new Controller();
+jest.spyOn(ctrl, 'fetchIfStale').mockReturnValue(issue);
+vi.spyOn(ctrl, 'fetchIfStale').mockReturnValueOnce(a).mockReturnValueOnce(b);
+jest.spyOn(ctrl, 'fetch').mockReturnValue(other);
+      `,
+      `
+import { Controller } from '@data-client/react';
+
+const ctrl = new Controller();
+jest.spyOn(ctrl, 'fetchIfStale').mockResolvedValue(issue);
+vi.spyOn(ctrl, 'fetchIfStale').mockResolvedValueOnce(a).mockResolvedValueOnce(b);
+jest.spyOn(ctrl, 'fetch').mockReturnValue(other);
+      `,
+      'makes fetchIfStale() mocks resolve their value',
+    );
+  });
 });

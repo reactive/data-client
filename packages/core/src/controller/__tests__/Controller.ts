@@ -61,9 +61,12 @@ describe('Controller', () => {
         dispatch,
         getState,
       });
-      const article = await controller.fetchIfStale(CoolerArticleResource.get, {
+      const pending = controller.fetchIfStale(CoolerArticleResource.get, {
         id: payload.id,
       });
+      // fresh data still comes as a Promise, so prefetch code can chain .catch()
+      expect(() => pending.catch(() => {})).not.toThrow();
+      const article = await pending;
       expect(dispatch.mock.calls.length).toBe(0);
       expect(article.title).toBe(payload.title);
     });
@@ -105,6 +108,53 @@ describe('Controller', () => {
       });
 
       expect(dispatch.mock.calls.length).toBe(1);
+    });
+    const error = new Error('network down');
+    const key = CoolerArticleResource.get.key({ id: 5 });
+    describe.each([
+      [
+        'the fetch fails',
+        () =>
+          new Controller({
+            dispatch: (action: any) => {
+              action.meta.reject(error);
+              return Promise.resolve();
+            },
+            getState: () => initialState,
+          }),
+      ],
+      [
+        'the latest fetch failed within errorExpiryLength',
+        () =>
+          new Controller({
+            dispatch: () => {
+              throw new Error('should not fetch');
+            },
+            getState: () => ({
+              ...initialState,
+              meta: {
+                [key]: {
+                  date: Date.now(),
+                  fetchedAt: Date.now(),
+                  expiresAt: Date.now() + 10000,
+                  error,
+                },
+              },
+            }),
+          }),
+      ],
+    ])('when %s', (_, makeController) => {
+      it('rejects when awaited', async () => {
+        await expect(
+          makeController().fetchIfStale(CoolerArticleResource.get, { id: 5 }),
+        ).rejects.toBe(error);
+      });
+
+      // jest fails the running test on an unhandled rejection
+      it('is not an unhandled rejection when not awaited', async () => {
+        makeController().fetchIfStale(CoolerArticleResource.get, { id: 5 });
+        await new Promise(resolve => setTimeout(resolve, 10));
+      });
     });
   });
 });
