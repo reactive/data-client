@@ -68,7 +68,9 @@ export function createDataClient(
   // base state (no optimistic overlay) exposed to controller.getState via middleware API
   const baseStateRef = shallowRef<State<unknown>>(baseInitial);
   // optimistic/effective state provided to consumers
-  const stateRef = shallowRef<State<unknown>>(computeOptimistic(baseInitial));
+  const stateRef = shallowRef<State<unknown>>(
+    controller.applyOptimistic(baseInitial),
+  );
 
   type Dispatch = (action: any) => Promise<void>;
 
@@ -81,7 +83,7 @@ export function createDataClient(
   const realDispatch: Dispatch = async action => {
     const nextBase = reducer(baseStateRef.value, action);
     baseStateRef.value = nextBase;
-    stateRef.value = computeOptimistic(nextBase);
+    stateRef.value = controller.applyOptimistic(nextBase);
     if (resolveNext) {
       const r = resolveNext;
       resolveNext = null;
@@ -138,11 +140,4 @@ export function createDataClient(
     start,
     stop,
   };
-
-  function computeOptimistic(state: State<unknown>): State<unknown> {
-    // mirror React's optimistic overlay
-    // reduce over pending optimistic actions to derive the effective state
-    // reducer is stable from closure
-    return state.optimistic.reduce(reducer as any, state);
-  }
 }

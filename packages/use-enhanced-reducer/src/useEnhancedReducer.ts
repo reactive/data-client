@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useRef,
   useEffect,
+  useLayoutEffect,
   useCallback,
 } from 'react';
 
@@ -14,6 +15,13 @@ import usePromisifiedDispatch from './usePromisifiedDispatch.js';
 
 /* istanbul ignore next */
 const LegacyReact = parseInt(version) < 18;
+
+/* istanbul ignore next */
+const useCommitEffect: typeof useEffect =
+  // runs while React commits, before every layout and passive Effect; also under a hidden <Activity>
+  React.useInsertionEffect ??
+  // React 16/17: before every passive Effect; useLayoutEffect warns during SSR
+  (typeof window !== 'undefined' ? useLayoutEffect : useEffect);
 
 export const unsetDispatch = () => {
   throw new Error(
@@ -39,7 +47,8 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   const stateRef = useRef(startingState);
   const [state, realDispatch] = useReducer(reducer, startingState);
 
-  useEffect(() => {
+  // Before any other Effect of this commit, so children's Effects (which run first) read it too
+  useCommitEffect(() => {
     stateRef.current = state;
   }, [state]);
 

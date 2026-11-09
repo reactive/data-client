@@ -144,6 +144,11 @@ describeIfActivity('<Activity> above <DataProvider>', () => {
 
     await hide();
     await update.resolve(0, 'saved');
+    // reads outside render see the response while hidden
+    expect(
+      ctrl.get(CoolerArticleResource.get.schema, { id: 5 }, ctrl.getState())
+        ?.title,
+    ).toBe('saved');
     await show();
 
     expect(container.textContent).toBe('saved');

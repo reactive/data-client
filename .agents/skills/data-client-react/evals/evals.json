@@ -97,6 +97,18 @@
         "The boundary gets `key={selectedId}` (or the boundary otherwise resets when `selectedId` changes).",
         "No custom error-boundary class is written."
       ]
+    },
+    {
+      "id": 9,
+      "name": "optimistic-read-outside-render",
+      "prompt": "Write `markRead(ctrl, postId)` in src/features/post/markRead.ts. PostPage calls it from an Effect. It should send `markPostRead` unless the post is already read. Only write that file.\n\n```tsx\n// src/features/post/PostPage.tsx\nconst post = useSuspense(PostResource.get, { id });\nconst ctrl = useController();\nuseEffect(() => {\n  markRead(ctrl, post.id);\n}, [ctrl, post]);\n```\n\n```ts\n// src/resources/Post.ts\nexport class Post extends Entity {\n  id = 0;\n  title = '';\n  body = '';\n  read = false;\n  static key = 'Post';\n}\nexport const PostResource = resource({ urlPrefix: 'https://api.example.com', path: '/posts/:id', schema: Post });\nexport const markPostRead = new RestEndpoint({\n  urlPrefix: 'https://api.example.com',\n  path: '/posts/:id/read',\n  method: 'POST',\n  schema: Post,\n  getOptimisticResponse(snap, { id }: { id: number }) {\n    return { id, read: true };\n  },\n});\n```",
+      "expected_output": "Guards with ctrl.snapshot().get(Post, { id: postId })?.read, then ctrl.fetch(markPostRead, { id: postId }). The Effect re-runs on every store update, and the snapshot includes the pending optimistic read, so it sends once.",
+      "files": [],
+      "assertions": [
+        "The already-read check reads through `ctrl.snapshot()` (which includes pending optimistic updates), not `ctrl.get(..., ctrl.getState())` or other raw `getState()` reads.",
+        "No module-level or ref-based record of sent requests (Set, Map, flag) to stop repeat sends.",
+        "Sends with `ctrl.fetch(markPostRead, { id: postId })`."
+      ]
     }
   ]
 }

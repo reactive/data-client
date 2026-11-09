@@ -1,10 +1,5 @@
 'use client';
-import {
-  State,
-  ActionTypes,
-  Controller,
-  createReducer,
-} from '@data-client/core';
+import { State, ActionTypes, Controller } from '@data-client/core';
 import React, {
   useEffect,
   useState,
@@ -48,11 +43,10 @@ export default function ExternalDataProvider<S>({
   devButton = 'bottom-right',
   hasDevManager = false,
 }: Props<S>) {
-  const masterReducer = useMemo(() => createReducer(controller), [controller]);
-  const selectState = useCallback(() => {
-    const state = selector(store.getState());
-    return state.optimistic.reduce(masterReducer, state);
-  }, [masterReducer, selector, store]);
+  const selectState = useCallback(
+    () => controller.applyOptimistic(selector(store.getState())),
+    [controller, selector, store],
+  );
 
   const [state, setState] = useState(selectState);
 

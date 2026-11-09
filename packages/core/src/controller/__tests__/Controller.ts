@@ -2,7 +2,9 @@ import { normalize } from '@data-client/normalizr';
 import { CoolerArticleResource } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
 
-import { initialState } from '../../state/reducer/createReducer';
+import createReducer, { initialState } from '../../state/reducer/createReducer';
+import type { State } from '../../types';
+import { createFetch, createSetResponse } from '../actions';
 import Controller from '../Controller';
 
 function ignoreError(e: Event) {
@@ -25,6 +27,64 @@ describe('Controller', () => {
     ).toThrowErrorMatchingInlineSnapshot(
       `"Dispatching while constructing your middleware is not allowed. Other middleware would not be applied to this dispatch."`,
     );
+  });
+
+  describe('snapshot', () => {
+    const Article = CoolerArticleResource.get.schema;
+    let getOptimisticResponse: jest.Mock;
+    let controller: Controller;
+    let state: State<unknown>;
+
+    beforeEach(() => {
+      getOptimisticResponse = jest.fn((snap, params, body) => ({
+        ...params,
+        ...body,
+      }));
+      controller = new Controller({ getState: () => state });
+      const reducer = createReducer(controller);
+      state = reducer(
+        initialState,
+        createSetResponse(CoolerArticleResource.get, {
+          args: [{ id: 5 }],
+          response: { id: 5, title: 'saved' },
+        }),
+      );
+      state = reducer(
+        state,
+        createFetch(
+          CoolerArticleResource.partialUpdate.extend({ getOptimisticResponse }),
+          { args: [{ id: 5 }, { title: 'optimistic' }] },
+        ),
+      );
+    });
+
+    it('includes pending optimistic updates', () => {
+      expect(controller.snapshot().get(Article, { id: 5 })?.title).toBe(
+        'optimistic',
+      );
+      expect(
+        controller.snapshot(controller.getState()).get(Article, { id: 5 })
+          ?.title,
+      ).toBe('optimistic');
+      // getState(), which Managers read, leaves them out
+      expect(controller.getState().optimistic).toHaveLength(1);
+    });
+
+    it('applies optimistic updates once per state', () => {
+      const article = controller.snapshot().get(Article, { id: 5 });
+      // like the state components render, which has them applied already
+      const rendered = controller.applyOptimistic(state);
+      expect(controller.snapshot(rendered).get(Article, { id: 5 })).toBe(
+        article,
+      );
+      expect(controller.snapshot().get(Article, { id: 5 })).toBe(article);
+      expect(getOptimisticResponse).toHaveBeenCalledTimes(1);
+    });
+
+    it('applyOptimistic() returns the state itself when nothing is pending', () => {
+      const committed = { ...state, optimistic: [] };
+      expect(controller.applyOptimistic(committed)).toBe(committed);
+    });
   });
 
   describe('fetchIfStale', () => {
