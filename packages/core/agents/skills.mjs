@@ -47,7 +47,7 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
  * `provides`): workspace packages load the root's version. Returns the result
  * and `provides`: each skill agents load from its links, with its source.
  */
-function sync(projectDir, { upgrade, inherited = new Map() }) {
+function sync(projectDir, { upgrade, inherited = new Set() }) {
   const dirs = skillsDirs(projectDir);
   const result = {
     added: [],
@@ -70,7 +70,7 @@ function sync(projectDir, { upgrade, inherited = new Map() }) {
       upgrade,
     );
     const provides = sources(want, copy);
-    for (const skill of inherited.keys()) want.delete(skill);
+    for (const skill of inherited) want.delete(skill);
     if (!want.size && !fs.existsSync(dest)) return { result, provides };
     fs.mkdirSync(dest, { recursive: true });
     // let the agents that read the other folder see it too: link the folder
@@ -391,7 +391,7 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   // there, keeping only skills the root can't link
   const local =
     workspace && synced ?
-      sync(cwd, { upgrade, inherited: provides }).result
+      sync(cwd, { upgrade, inherited: new Set(provides.keys()) }).result
     : undefined;
   // where the skills are, from where the command ran
   const dir = skills && posix(path.relative(cwd, skills));

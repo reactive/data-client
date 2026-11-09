@@ -750,6 +750,7 @@ test("run in a workspace package installing another version, it uses the root's"
     ...app('beta', '0.19.1'),
   });
   const beta = path.join(dir, 'apps/beta');
+  // an earlier run linked beta's own version there
   syncSkills(beta);
   run(t, beta);
   assert.equal(
