@@ -23,7 +23,8 @@ Use a [partial mock](https://jestjs.io/docs/mock-functions#mocking-partials) ins
 `renderHook()` in a DOM environment, or [@testing-library/react-native](https://github.com/callstack/react-native-testing-library)'s on React Native. Otherwise it uses
 [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library).
 
-`result.current` is `undefined` while the hook suspends, and `result.error` holds any error it throws.
+`result.current` is `undefined` until the hook first returns. If it suspends again later, `result.current` keeps the last
+value. `result.error` holds any error the hook throws.
 
 Each call to `renderDataHook()` creates a new store and new manager instances, so no state carries over between tests.
 Use `initialFixtures` to prime the cache. Cleanup runs automatically after each test.
