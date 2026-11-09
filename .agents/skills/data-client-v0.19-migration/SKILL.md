@@ -133,9 +133,10 @@ They still work, but a later release removes them. The codemod renamed DevTools 
 and `Resource.create` to `Resource.getList.push` where it runs on a `resource()` declared in the same file. It left a
 `TODO(data-client)` comment naming the replacement on the rest. Fix each, then delete the comment. Gotchas:
 
-- `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `key` or
-  `name`, never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and
-  options. Resources not named `*Resource` get no TODO, so also check `rg -n '\.create\b' <source-root>`.
+- `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `name`,
+  never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and
+  options. Resources from another file not named `*Resource` get no TODO, so also check
+  `rg -n '\.create\b' <source-root>`.
 - `waitForNextUpdate()` in `renderDataCompose()` tests: `await result` for the first load, `await allSettled()` after
   changing props or calling the controller.
 

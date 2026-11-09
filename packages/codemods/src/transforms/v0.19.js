@@ -866,7 +866,7 @@ const DEVTOOLS_RENAMES = new Map([
   ['actionsBlacklist', 'actionsDenylist'],
   ['actionsWhitelist', 'actionsAllowlist'],
 ]);
-const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push`;
+const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push`;
 const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) on what the test waits for: https://dataclient.io/docs/api/renderDataHook#waitfor`;
 const VUE_WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api`;
 const SHARED_TEST_HELPER_TODO = ` TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled`;

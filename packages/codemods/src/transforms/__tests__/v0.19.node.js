@@ -1214,14 +1214,14 @@ const TagListResource = resource({ path: '/tags/:id', schema: Tag }).extend('cre
 const NoteResource = resource({ path: '/notes/:id', schema: Note }) as NoteResourceType;
 
 export const createPost = (ctrl, body) => ctrl.fetch(PostResource.getList.push, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 export const createTeam = (ctrl, body) => ctrl.fetch(TeamResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 export const createTagList = (ctrl, body) => ctrl.fetch(TagListResource.create, body);
 export const createNote = (ctrl, body) => ctrl.fetch(NoteResource.getList.push, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
 export const clone = Object.create(null);
       `,
@@ -1343,18 +1343,18 @@ class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.getList.push, body);
 PostResource.getList.push(body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 const isCreate = action.endpoint === PostResource.create;
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(DraftResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(NoteResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(TaskResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
-  // TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by key or name, not ===: https://dataclient.io/rest/api/resource#push
+  // TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
   return ShadowResource.create;
 }
       `,
