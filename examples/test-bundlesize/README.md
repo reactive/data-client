@@ -5,9 +5,9 @@ comments the brotli difference. The app puts `@data-client/*` in their own chunk
 
 ## Why packages list their entry files in `sideEffects`
 
-Found in #4487 (2026-11-01) with webpack 5, rspack 2, Vite 7 (Rollup), Vite 8 (Rolldown) and Next.js 16 (Turbopack
-and webpack). The numbers below were re-measured in brotli on 2026-11-09. Bundlers change, so re-measure before
-reverting any of this.
+Found in [#4487](https://github.com/reactive/data-client/pull/4487) (2026-11-01) with webpack 5, rspack 2, Vite 7
+(Rollup), Vite 8 (Rolldown) and Next.js 16 (Turbopack and webpack). The numbers below were re-measured in brotli on
+2026-11-09. Bundlers change, so re-measure before reverting any of this.
 
 - With `"sideEffects": false`, webpack and rspack skip a package's index and wire each import to the file that
   defines it. When the app and the package are in different chunks, every imported name becomes its own module
@@ -22,11 +22,11 @@ reverting any of this.
   entries re-export core directly and weren't measured. Doing the same in core's index made Turbopack's output
   larger, so measure rather than apply it everywhere.
 
-Total brotli JS (quality 11) for a two-page app with lazy routes (`scripts/bundler-compare`), at #4487 with and
-without its `sideEffects` and react index changes, leaving out the `Object.hasOwn` fallback in the entry files.
-Measured 2026-11-09 with webpack 5.112, rspack 2.3, Vite 8.3 and Next.js 16.4. The webpack rows were measured once,
-building the same app with webpack's defaults and `swc-loader`; they confirm rspack tracks webpack, so reports
-use rspack.
+Total brotli JS (quality 11) for a two-page app with lazy routes (`scripts/bundler-compare`), at
+[#4487](https://github.com/reactive/data-client/pull/4487) with and without its `sideEffects` and react index changes,
+leaving out the `Object.hasOwn` fallback in the entry files. Measured 2026-11-09 with webpack 5.112, rspack 2.3, Vite
+8.3 and Next.js 16.4. The webpack rows were measured once, building the same app with webpack's defaults and
+`swc-loader`; they confirm rspack tracks webpack, so reports use rspack.
 
 | Bundler                |  Before |   After | Diff |
 | ---------------------- | ------: | ------: | ---: |
