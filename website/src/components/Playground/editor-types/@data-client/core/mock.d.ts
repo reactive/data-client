@@ -780,9 +780,9 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: ControllerFetch;
     /**
-     * Fetches only if endpoint is considered 'stale'; otherwise resolves with the cached data.
+     * Fetches only if endpoint is considered 'stale'; otherwise settles with the cached data or error.
      *
-     * Safe to call without awaiting: a failed fetch is stored for useSuspense() and never an unhandled rejection.
+     * Safe to call without awaiting: errors are stored like any fetch error, never an unhandled rejection.
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
