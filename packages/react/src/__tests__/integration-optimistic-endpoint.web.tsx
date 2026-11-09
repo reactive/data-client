@@ -616,6 +616,60 @@ describe.each([
       await renderDataClient.allSettled();
     });
 
+    it('lets Effects read what renders with snapshot()', async () => {
+      const params = { id: payload.id };
+      const resolves: ((v: any) => void)[] = [];
+      const markRead = OptimisticArticleResource.partialUpdate.extend({
+        fetch: () => new Promise(resolve => resolves.push(resolve)),
+      });
+      const reads: { snapshot: unknown; committedTitle?: string }[] = [];
+      const { result, rerender, waitForNextUpdate } = renderDataClient(
+        ({ open }: { open: boolean }) => {
+          const ctrl = useController();
+          const article = useCache(OptimisticArticleResource.get, params);
+          // like marking a post read on open: runs again on every store update
+          useEffect(() => {
+            if (!open) return;
+            const snapshot = ctrl.snapshot().get(CoolerArticle, params);
+            reads.push({
+              snapshot,
+              committedTitle: ctrl.get(CoolerArticle, params, ctrl.getState())
+                ?.title,
+            });
+            if (snapshot?.title !== 'read')
+              ctrl.fetch(markRead, params, { title: 'read' });
+          }, [article, ctrl, open]);
+          return article;
+        },
+        {
+          initialProps: { open: false },
+          initialFixtures: [
+            {
+              endpoint: OptimisticArticleResource.get,
+              args: [params],
+              response: payload,
+            },
+          ],
+        },
+      );
+      rerender({ open: true });
+      expect(result.current?.title).toBe('read');
+      // the optimistic update rendered; getState() leaves it out
+      expect(reads[1]).toEqual({
+        snapshot: result.current,
+        committedTitle: payload.title,
+      });
+
+      act(() => resolves[0]({ ...payload, title: 'read' }));
+      await waitForNextUpdate();
+      // the Effect that ran for the response read it from getState() too
+      expect(reads[reads.length - 1]).toEqual({
+        snapshot: result.current,
+        committedTitle: 'read',
+      });
+      expect(resolves).toHaveLength(1);
+    });
+
     it('should clear optimistic when server response resolves in order', async () => {
       jest.useFakeTimers({ legacyFakeTimers: false });
       const params = { id: payload.id };

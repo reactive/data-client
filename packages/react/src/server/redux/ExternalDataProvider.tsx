@@ -1,6 +1,12 @@
 'use client';
-import { State, Controller, createReducer } from '@data-client/core';
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { State, Controller } from '@data-client/core';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 
 import type { DevToolsPosition } from '../../components/DevToolsButton.js';
 import { renderDevButton } from '../../components/renderDevButton.js';
@@ -37,20 +43,11 @@ export default function ExternalDataProvider<S>({
   devButton = 'bottom-right',
   hasDevManager = false,
 }: Props<S>) {
-  const masterReducer = useMemo(() => createReducer(controller), [controller]);
-  // returns the same object until our slice changes, so setState() skips no-op updates
-  const selectState = useMemo(() => {
-    let lastSlice: State<unknown> | undefined;
-    let lastState: State<unknown>;
-    return () => {
-      const slice = selector(store.getState());
-      if (slice !== lastSlice) {
-        lastState = slice.optimistic.reduce(masterReducer, slice);
-        lastSlice = slice;
-      }
-      return lastState;
-    };
-  }, [masterReducer, selector, store]);
+  // applyOptimistic() returns the same object until our slice changes, so setState() skips no-op updates
+  const selectState = useCallback(
+    () => controller.applyOptimistic(selector(store.getState())),
+    [controller, selector, store],
+  );
 
   const [state, setState] = useState(selectState);
 

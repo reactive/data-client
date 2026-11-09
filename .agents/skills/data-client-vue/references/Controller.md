@@ -32,7 +32,8 @@ class Controller {
   get(queryable, ...args, state): Denormalized<typeof queryable>;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
-  snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  snapshot(state?: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  applyOptimistic(state: State<unknown>): State<unknown>;
   getState(): State<unknown>;
 }
 ```
@@ -575,14 +576,14 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 This is used in [useQuery](./useQuery.md) and can be used in
 [Managers](https://dataclient.io/vue/api/Manager) to safely access the store.
 
-In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, pass
-[getState()](#getState) to read the latest store:
+In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, read with
+[snapshot()](#snapshot):
 
 ```ts
 const ctrl = useController();
 
 const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
+  const todo = ctrl.snapshot().get(Todo, { id });
   if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
 };
 ```
@@ -637,8 +638,7 @@ A number representing time when it expires. Compare to Date.now().
 This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and can be used in
 [Managers](https://dataclient.io/vue/api/Manager) to lookup a response with the state provided.
 
-In event handlers, pass [getState()](#getState) to read the latest store, as in the
-[getState() example](#getState).
+In event handlers, read with [snapshot()](#snapshot): `ctrl.snapshot().getResponse(endpoint, ...args)`.
 
 ```tsx title="MyManager.ts"
 import {
@@ -676,34 +676,38 @@ export default class MyManager implements Manager {
 
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
-### snapshot(state, fetchedAt) {#snapshot}
+### snapshot(state?, fetchedAt?) {#snapshot}
 
-Returns a [Snapshot](https://dataclient.io/vue/api/Snapshot).
+Returns a [Snapshot](https://dataclient.io/vue/api/Snapshot) of `state` (by default, the latest committed state) with its pending
+[optimistic updates](https://dataclient.io/rest/guides/optimistic-updates) applied, as components show it. Read the store this way in
+event handlers, Effects and other code outside render.
 
-### getState() {#getState}
-
-Gets the internal state of Reactive Data Client that has _already been [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)_.
-
-> **Warning**
->
-> This should only be used in event handlers or [Managers](https://dataclient.io/vue/api/Manager).
->
-> Using getState() in a `computed()` or template won't update when the store changes. Use
-> [useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.
+`controller.applyOptimistic(state)` returns that state itself; a custom store renders it so components and
+snapshots read the same objects.
 
 ```ts
-const controller = useController();
+const ctrl = useController();
 
-const handleShare = () => {
-  // reads the latest store without making this handler reactive
-  const { data: article } = controller.getResponse(
-    ArticleResource.get,
-    { id: props.id },
-    controller.getState(),
-  );
-  if (article) navigator.share({ title: article.title, url: article.url });
+const markRead = (id: string) => {
+  // includes a markRead still in flight, so calling this again doesn't send it twice
+  if (ctrl.snapshot().get(Post, { id })?.read) return;
+  return ctrl.fetch(PostResource.partialUpdate, { id }, { read: true });
 };
 ```
 
 [Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
-the value `fetch()` resolves with rather than `getState()`.
+the value `fetch()` resolves with rather than `snapshot()`.
+
+### getState() {#getState}
+
+Gets the internal state of Reactive Data Client that has _already been [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)_.
+Pending [optimistic updates](https://dataclient.io/rest/guides/optimistic-updates) are left out, so [Managers](https://dataclient.io/vue/api/Manager) see only
+data the server confirmed (for example, to persist it).
+
+> **Warning**
+>
+> Use this only in [Managers](https://dataclient.io/vue/api/Manager). Elsewhere, read with [snapshot()](#snapshot), which includes optimistic
+> updates; reads from getState() miss them.
+>
+> Using getState() in a `computed()` or template won't update when the store changes. Use
+> [useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.

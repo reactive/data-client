@@ -2,6 +2,7 @@ import { normalize } from '@data-client/normalizr';
 
 import { OPTIMISTIC } from '../../actionTypes.js';
 import AbortOptimistic from '../../controller/AbortOptimistic.js';
+import Snapshot from '../../controller/Snapshot.js';
 import type Controller from '../../controller/Controller.js';
 import type {
   State,
@@ -25,10 +26,11 @@ export function setResponseReducer(
       /* istanbul ignore if */
       if (!action.endpoint.getOptimisticResponse) return state;
       try {
-        // compute optimistic response based on current state
+        // compute optimistic response based on current state: committed plus earlier optimistic updates.
+        // Not controller.snapshot(), which would apply state.optimistic again, including this action.
         response = action.endpoint.getOptimisticResponse.call(
           action.endpoint,
-          controller.snapshot(state, action.meta.fetchedAt),
+          new Snapshot(controller, state, action.meta.fetchedAt),
           ...action.args,
         );
       } catch (e: any) {

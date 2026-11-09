@@ -94,7 +94,7 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | `invalidateQueries()` for data the response doesn't include (counts, totals) | `ctrl.expireAll(endpoint)`: mounted components refetch |
 | `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
 | `setQueryData()` | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)` |
-| `getQueryData()` | In a component, [useCache()](../api/useCache.md). Elsewhere, `ctrl.get(schema, args, ctrl.getState())` |
+| `getQueryData()` | In a component, [useCache()](../api/useCache.md). Elsewhere, `ctrl.snapshot().get(schema, args)` |
 | `prefetchQuery()`, `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | `ctrl.fetchIfStale(endpoint, args)` |
 | `fetchQuery()` | `ctrl.fetch(endpoint, args)` |
 | `onMutate` optimistic update and rollback | [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error |

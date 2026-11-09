@@ -1,6 +1,5 @@
 import type {
   ErrorTypes,
-  SnapshotInterface,
   Schema,
   Denormalize,
   Queryable,
@@ -23,7 +22,6 @@ import {
   validateQueryKey,
 } from '@data-client/normalizr';
 
-import AbortOptimistic from './AbortOptimistic.js';
 import {
   createUnsubscription,
   createSubscription,
@@ -38,12 +36,13 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
+import Snapshot from './Snapshot.js';
 import type { ControllerFetch } from './fetchTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
 import { ImmortalGCPolicy } from '../state/GCPolicy.js';
-import { initialState } from '../state/reducer/createReducer.js';
+import createReducer, { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
 
@@ -86,9 +85,9 @@ export default class Controller<
    */
   declare protected _dispatch: D;
   /**
-   * Gets the latest state snapshot that is fully committed.
+   * Gets the latest committed state, without pending optimistic updates.
    *
-   * This can be useful for imperative use-cases like event handlers.
+   * For Managers. Event handlers should read with snapshot(), which includes optimistic updates.
    * This should *not* be used to render; instead useSuspense() or useCache()
    * @see https://dataclient.io/docs/api/Controller#getState
    */
@@ -106,6 +105,14 @@ export default class Controller<
    */
   declare readonly gcPolicy: GCInterface;
 
+  /** Optimistic states by the state they apply to; see applyOptimistic() */
+  declare private readonly optimisticStates: WeakMap<
+    State<unknown>,
+    State<unknown>
+  >;
+  /** Applies optimistic updates; built on first use, then shared */
+  declare private reducer?: ReturnType<typeof createReducer>;
+
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
@@ -116,6 +123,7 @@ export default class Controller<
     this.getState = getState;
     this.memo = memo;
     this.gcPolicy = gcPolicy;
+    this.optimisticStates = new WeakMap();
   }
 
   // TODO: drop when drop support for destructuring (0.14 and below)
@@ -387,11 +395,35 @@ export default class Controller<
   */
 
   /**
-   * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
+   * Gets a snapshot (https://dataclient.io/docs/api/Snapshot) to read the store outside render
+   *
+   * Reads `state` (default: the latest committed) with its pending optimistic updates, like components show it.
    * @see https://dataclient.io/docs/api/Controller#snapshot
    */
-  snapshot = (state: State<unknown>, fetchedAt?: number): Snapshot<unknown> => {
-    return new Snapshot(this, state, fetchedAt);
+  snapshot = (
+    state: State<unknown> = this.getState(),
+    fetchedAt?: number,
+  ): Snapshot<unknown> => {
+    return new Snapshot(this, this.applyOptimistic(state), fetchedAt);
+  };
+
+  /**
+   * Applies `state`'s pending optimistic updates; the result is what components render.
+   *
+   * Providers render this, so snapshot() returns the same objects components show.
+   */
+  applyOptimistic = (state: State<unknown>): State<unknown> => {
+    if (state.optimistic.length === 0) return state;
+    let optimisticState = this.optimisticStates.get(state);
+    if (!optimisticState) {
+      // a getOptimisticResponse() that calls controller.snapshot() reads without optimistic updates instead of recursing;
+      // its `snap` argument is the right read there
+      this.optimisticStates.set(state, state);
+      this.reducer ??= createReducer(this);
+      optimisticState = state.optimistic.reduce(this.reducer, state);
+      this.optimisticStates.set(state, optimisticState);
+    }
+    return optimisticState;
   };
 
   /**
@@ -687,151 +719,6 @@ function requiresDenormalize(schema: Schema): boolean {
 }
 
 export type { ErrorTypes };
-
-class Snapshot<T = unknown> implements SnapshotInterface {
-  static readonly abort = new AbortOptimistic();
-
-  declare private state: State<T>;
-  declare private controller: Controller;
-  declare readonly fetchedAt: number;
-  readonly abort = Snapshot.abort;
-
-  constructor(controller: Controller, state: State<T>, fetchedAt = 0) {
-    this.state = state;
-    this.controller = controller;
-    this.fetchedAt = fetchedAt;
-  }
-
-  /*************** Data Access ***************/
-  /** @see https://dataclient.io/docs/api/Snapshot#getResponse */
-  getResponse<E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [null]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  };
-
-  getResponse<E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E>]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  };
-
-  getResponse<
-    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-  >(
-    endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  };
-
-  getResponse<
-    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-  >(
-    endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  } {
-    return this.controller.getResponse(endpoint, ...args, this.state);
-  }
-
-  /** @see https://dataclient.io/docs/api/Snapshot#getResponseMeta */
-  getResponseMeta<E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [null]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  };
-
-  getResponseMeta<E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E>]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  };
-
-  getResponseMeta<
-    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-  >(
-    endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  };
-
-  getResponseMeta<
-    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
-  >(
-    endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
-  ): {
-    data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
-    expiresAt: number;
-  } {
-    return this.controller.getResponseMeta(endpoint, ...args, this.state);
-  }
-
-  /** @see https://dataclient.io/docs/api/Snapshot#getError */
-  getError<E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E>] | readonly [null]
-  ): ErrorTypes | undefined;
-
-  getError<E extends Pick<EndpointInterface, 'key'>>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
-  ): ErrorTypes | undefined;
-
-  getError<E extends Pick<EndpointInterface, 'key'>>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
-  ): ErrorTypes | undefined {
-    return this.controller.getError(endpoint, ...args, this.state);
-  }
-
-  /**
-   * Retrieved memoized value for any Querable schema
-   * @see https://dataclient.io/docs/api/Snapshot#get
-   */
-  get<S extends Queryable>(
-    schema: S,
-    ...args: SchemaArgs<S> | readonly [null]
-  ): DenormalizeNullable<S> | undefined {
-    return this.controller.get(schema, ...args, this.state);
-  }
-
-  /**
-   * Queries the store for a Querable schema; providing related metadata
-   * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
-   */
-  getQueryMeta<S extends Queryable>(
-    schema: S,
-    ...args: SchemaArgs<S> | readonly [null]
-  ): {
-    data: DenormalizeNullable<S> | undefined;
-    countRef: () => () => void;
-  } {
-    return this.controller.getQueryMeta(schema, ...args, this.state);
-  }
-}
 
 /** Extract state and args from rest params, applying ensurePojo to args */
 function extractStateAndArgs(rest: readonly unknown[]): [State<any>, any[]] {

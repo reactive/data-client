@@ -47,7 +47,8 @@ class Controller {
   get(queryable, ...args, state): Denormalized<typeof queryable>;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
-  snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  snapshot(state?: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  applyOptimistic(state: State<unknown>): State<unknown>;
   getState(): State<unknown>;
 }
 ```
@@ -948,14 +949,14 @@ function useQuery<S extends Queryable>(
 
 :::vue
 
-In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, pass
-[getState()](#getState) to read the latest store:
+In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, read with
+[snapshot()](#snapshot):
 
 ```ts
 const ctrl = useController();
 
 const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
+  const todo = ctrl.snapshot().get(Todo, { id });
   if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
 };
 ```
@@ -1037,8 +1038,7 @@ function useCache<E extends EndpointInterface>(
 
 :::vue
 
-In event handlers, pass [getState()](#getState) to read the latest store, as in the
-[getState() example](#getState).
+In event handlers, read with [snapshot()](#snapshot): `ctrl.snapshot().getResponse(endpoint, ...args)`.
 
 :::
 
@@ -1078,17 +1078,42 @@ export default class MyManager implements Manager {
 
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
-### snapshot(state, fetchedAt) {#snapshot}
+### snapshot(state?, fetchedAt?) {#snapshot}
 
-Returns a [Snapshot](./Snapshot.md).
+Returns a [Snapshot](./Snapshot.md) of `state` (by default, the latest committed state) with its pending
+[optimistic updates](/rest/guides/optimistic-updates) applied, as components show it. Read the store this way in
+event handlers, Effects and other code outside render.
+
+`controller.applyOptimistic(state)` returns that state itself; a custom store renders it so components and
+snapshots read the same objects.
+
+```ts
+const ctrl = useController();
+
+const markRead = (id: string) => {
+  // includes a markRead still in flight, so calling this again doesn't send it twice
+  if (ctrl.snapshot().get(Post, { id })?.read) return;
+  return ctrl.fetch(PostResource.partialUpdate, { id }, { read: true });
+};
+```
+
+:::vue
+
+[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
+the value `fetch()` resolves with rather than `snapshot()`.
+
+:::
 
 ### getState() {#getState}
 
 Gets the internal state of Reactive Data Client that has _already been [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)_.
+Pending [optimistic updates](/rest/guides/optimistic-updates) are left out, so [Managers](./Manager.md) see only
+data the server confirmed (for example, to persist it).
 
 ::::warning
 
-This should only be used in event handlers or [Managers](./Manager.md).
+Use this only in [Managers](./Manager.md). Elsewhere, read with [snapshot()](#snapshot), which includes optimistic
+updates; reads from getState() miss them.
 
 :::react
 
@@ -1104,62 +1129,3 @@ Using getState() in a `computed()` or template won't update when the store chang
 :::
 
 ::::
-
-:::react
-
-```tsx
-import { useController } from '@data-client/react';
-import { useCallback } from 'react';
-import { MyResource } from './resources/MyResource';
-import { redirect } from './routing';
-
-function useUpdateHandler(id: string) {
-  const controller = useController();
-
-  return useCallback(
-    async updatePayload => {
-      const response = await controller.fetch(
-        MyResource.update,
-        { id },
-        updatePayload,
-      );
-      // the fetch has completed, but react has not yet re-rendered
-      // this lets use sequence after the next re-render
-      // we're working on a better solution to this specific case
-      setTimeout(() => {
-        const { data: denormalized } = controller.getResponse(
-          MyResource.update,
-          { id },
-          updatePayload,
-          controller.getState(),
-        );
-        redirect(denormalized.getterUrl);
-      }, 40);
-    },
-    [id],
-  );
-}
-```
-
-:::
-
-:::vue
-
-```ts
-const controller = useController();
-
-const handleShare = () => {
-  // reads the latest store without making this handler reactive
-  const { data: article } = controller.getResponse(
-    ArticleResource.get,
-    { id: props.id },
-    controller.getState(),
-  );
-  if (article) navigator.share({ title: article.title, url: article.url });
-};
-```
-
-[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
-the value `fetch()` resolves with rather than `getState()`.
-
-:::

@@ -202,6 +202,8 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 Write many entities without a fetch with one `ctrl.set([Entity], rows)`. Never loop `ctrl.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
+Outside render (event handlers, :react[Effects]:vue[watchers], thunks), read the store with `ctrl.snapshot().get(schema, args)` or `.getResponse(endpoint, args)`: it includes pending optimistic updates, like components show. Don't pass `ctrl.getState()` to `ctrl.get()`/`getResponse()`: it lacks them, so a guard like "already sent?" reads stale data and sends again.
+
 ## Programmatic queries
 
 ```ts

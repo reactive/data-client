@@ -481,86 +481,6 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 declare class AbortOptimistic extends Error {
 }
 
-type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
-type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
-    [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
-};
-
-/** Body members that are lists (ListBody true) or not (false) */
-type BodyPart<B, ListBody extends boolean> = ListBody extends true ? Extract<B, readonly any[]> : Exclude<B, readonly any[]>;
-/** Each args member ending in a body, (body) or (params, body) like RestEndpoint's, with the body
- * narrowed to its list or non-list members; never when it has none. Other args are kept as the
- * non-list signatures.
- *
- * Fixed lengths since TS < 4.2 has no leading-rest tuples. Indexes instead of `infer`, which
- * TS < 4.2 fails to resolve here while inferring a call, losing the list signatures */
-type BodyArgs<A, ListBody extends boolean> = A extends readonly [any] ? BodyTuple<[], A[0], ListBody> : A extends readonly [any, any] ? BodyTuple<[A[0]], A[1], ListBody> : ListBody extends true ? never : A;
-/** Params followed by the narrowed body; never when the body has no such members */
-type BodyTuple<Params extends readonly any[], B, ListBody extends boolean> = [
-    BodyPart<B, ListBody>
-] extends [never] ? never : readonly [...Params, BodyPart<B, ListBody>];
-/** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
-type NoCall = readonly [
-    never,
-    never,
-    never,
-    never,
-    never,
-    never,
-    never,
-    never,
-    never,
-    never
-];
-/** Adds an all-never twin of each args member, so a union that would collapse to one member
- * still reports errors over all args, like the endpoint's own union of signatures does */
-type KeepUnion<A> = A | {
-    readonly [K in keyof A]: never;
-};
-/** Args of an endpoint whose schema adds to a list (like Collection.push) and whose
- * body can be a list (like RestEndpoint.push); NoCall for every other endpoint
- *
- * ListBody: true for the signatures with a list body, false for the rest */
-type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> = E extends {
-    schema: {
-        _denormalizeList(): any;
-    };
-} ? [
-    BodyArgs<Parameters<E>, true>
-] extends [never] ? NoCall : KeepUnion<BodyArgs<Parameters<E>, ListBody>> : NoCall;
-/** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
-type SchemaResult<E extends (...args: any) => any> = E extends {
-    schema: infer S;
-} ? [
-    S
-] extends [undefined | null] ? ResolveType<E> : Denormalize<S> : ResolveType<E>;
-interface ControllerFetch {
-    /**
-     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
-     * @see https://dataclient.io/docs/api/Controller#fetch
-     */
-    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, false>): Promise<SchemaResult<E>>;
-    /**
-     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
-     *
-     * A list body on a schema that adds to a list (like Collection.push) resolves a list.
-     * The body is the last argument, after at most one params argument.
-     * @see https://dataclient.io/docs/api/Controller#fetch
-     */
-    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, true>): Promise<E extends {
-        schema: {
-            _denormalizeList(): infer L;
-        };
-    } ? L : SchemaResult<E>>;
-    /**
-     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
-     * @see https://dataclient.io/docs/api/Controller#fetch
-     */
-    <E extends EndpointInterface & {
-        update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
-}
-
 declare const FETCH: 'rdc/fetch';
 declare const SET: 'rdc/set';
 declare const SET_RESPONSE: 'rdc/setresponse';
@@ -572,6 +492,11 @@ declare const INVALIDATE: 'rdc/invalidate';
 declare const INVALIDATEALL: 'rdc/invalidateall';
 declare const EXPIREALL: 'rdc/expireall';
 declare const GC: 'rdc/gc';
+
+type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
+type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
+    [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
+};
 
 type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
@@ -710,6 +635,142 @@ interface State<T> {
     readonly lastReset: number;
 }
 
+/** Reads exactly `state` with the Controller getters; Controller.snapshot() applies optimistic updates first
+ * @see https://dataclient.io/docs/api/Snapshot
+ */
+declare class Snapshot<T = unknown> implements SnapshotInterface {
+    static readonly abort: AbortOptimistic;
+    private state;
+    private controller;
+    readonly fetchedAt: number;
+    readonly abort: AbortOptimistic;
+    constructor(controller: Controller, state: State<T>, fetchedAt?: number);
+    /*************** Data Access ***************/
+    /** @see https://dataclient.io/docs/api/Snapshot#getResponse */
+    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    /** @see https://dataclient.io/docs/api/Snapshot#getResponseMeta */
+    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    getResponseMeta<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
+        data: DenormalizeNullable<E['schema']>;
+        expiryStatus: ExpiryStatus;
+        expiresAt: number;
+    };
+    /** @see https://dataclient.io/docs/api/Snapshot#getError */
+    getError<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): ErrorTypes | undefined;
+    getError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes | undefined;
+    /**
+     * Retrieved memoized value for any Querable schema
+     * @see https://dataclient.io/docs/api/Snapshot#get
+     */
+    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): DenormalizeNullable<S> | undefined;
+    /**
+     * Queries the store for a Querable schema; providing related metadata
+     * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
+     */
+    getQueryMeta<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): {
+        data: DenormalizeNullable<S> | undefined;
+        countRef: () => () => void;
+    };
+}
+
+/** Body members that are lists (ListBody true) or not (false) */
+type BodyPart<B, ListBody extends boolean> = ListBody extends true ? Extract<B, readonly any[]> : Exclude<B, readonly any[]>;
+/** Each args member ending in a body, (body) or (params, body) like RestEndpoint's, with the body
+ * narrowed to its list or non-list members; never when it has none. Other args are kept as the
+ * non-list signatures.
+ *
+ * Fixed lengths since TS < 4.2 has no leading-rest tuples. Indexes instead of `infer`, which
+ * TS < 4.2 fails to resolve here while inferring a call, losing the list signatures */
+type BodyArgs<A, ListBody extends boolean> = A extends readonly [any] ? BodyTuple<[], A[0], ListBody> : A extends readonly [any, any] ? BodyTuple<[A[0]], A[1], ListBody> : ListBody extends true ? never : A;
+/** Params followed by the narrowed body; never when the body has no such members */
+type BodyTuple<Params extends readonly any[], B, ListBody extends boolean> = [
+    BodyPart<B, ListBody>
+] extends [never] ? never : readonly [...Params, BodyPart<B, ListBody>];
+/** Rest args longer than any endpoint call's, so a signature using them is skipped by arity instead of reporting errors */
+type NoCall = readonly [
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never,
+    never
+];
+/** Adds an all-never twin of each args member, so a union that would collapse to one member
+ * still reports errors over all args, like the endpoint's own union of signatures does */
+type KeepUnion<A> = A | {
+    readonly [K in keyof A]: never;
+};
+/** Args of an endpoint whose schema adds to a list (like Collection.push) and whose
+ * body can be a list (like RestEndpoint.push); NoCall for every other endpoint
+ *
+ * ListBody: true for the signatures with a list body, false for the rest */
+type AdderArgs<E extends (...args: any) => any, ListBody extends boolean> = E extends {
+    schema: {
+        _denormalizeList(): any;
+    };
+} ? [
+    BodyArgs<Parameters<E>, true>
+] extends [never] ? NoCall : KeepUnion<BodyArgs<Parameters<E>, ListBody>> : NoCall;
+/** Resolved value of a (union member) endpoint: its schema's, or its own when it has none */
+type SchemaResult<E extends (...args: any) => any> = E extends {
+    schema: infer S;
+} ? [
+    S
+] extends [undefined | null] ? ResolveType<E> : Denormalize<S> : ResolveType<E>;
+interface ControllerFetch {
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, false>): Promise<SchemaResult<E>>;
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     *
+     * A list body on a schema that adds to a list (like Collection.push) resolves a list.
+     * The body is the last argument, after at most one params argument.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends (...args: any) => any>(endpoint: E, ...args: AdderArgs<E, true>): Promise<E extends {
+        schema: {
+            _denormalizeList(): infer L;
+        };
+    } ? L : SchemaResult<E>>;
+    /**
+     * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     * @see https://dataclient.io/docs/api/Controller#fetch
+     */
+    <E extends EndpointInterface & {
+        update?: EndpointUpdateFunction<E>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
+}
+
 interface ReduxMiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
     getState: () => ReducerState<R>;
     dispatch: ReactDispatch<R>;
@@ -751,9 +812,9 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     protected _dispatch: D;
     /**
-     * Gets the latest state snapshot that is fully committed.
+     * Gets the latest committed state, without pending optimistic updates.
      *
-     * This can be useful for imperative use-cases like event handlers.
+     * For Managers. Event handlers should read with snapshot(), which includes optimistic updates.
      * This should *not* be used to render; instead useSuspense() or useCache()
      * @see https://dataclient.io/docs/api/Controller#getState
      */
@@ -766,6 +827,10 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Handles garbage collection
      */
     readonly gcPolicy: GCInterface;
+    /** Optimistic states by the state they apply to; see applyOptimistic() */
+    private readonly optimisticStates;
+    /** Applies optimistic updates; built on first use, then shared */
+    private reducer?;
     constructor({ dispatch, getState, memo, gcPolicy, }?: ControllerConstructorProps<D>);
     set dispatch(dispatch: D);
     get dispatch(): D;
@@ -873,10 +938,18 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /*************** More ***************/
     /**
-     * Gets a snapshot (https://dataclient.io/docs/api/Snapshot)
+     * Gets a snapshot (https://dataclient.io/docs/api/Snapshot) to read the store outside render
+     *
+     * Reads `state` (default: the latest committed) with its pending optimistic updates, like components show it.
      * @see https://dataclient.io/docs/api/Controller#snapshot
      */
-    snapshot: (state: State<unknown>, fetchedAt?: number) => Snapshot<unknown>;
+    snapshot: (state?: State<unknown>, fetchedAt?: number) => Snapshot<unknown>;
+    /**
+     * Applies `state`'s pending optimistic updates; the result is what components render.
+     *
+     * Providers render this, so snapshot() returns the same objects components show.
+     */
+    applyOptimistic: (state: State<unknown>) => State<unknown>;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
      * @see https://dataclient.io/docs/api/Controller#getError
@@ -941,64 +1014,6 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         countRef: () => () => void;
     };
     private getExpiryStatus;
-}
-
-declare class Snapshot<T = unknown> implements SnapshotInterface {
-    static readonly abort: AbortOptimistic;
-    private state;
-    private controller;
-    readonly fetchedAt: number;
-    readonly abort: AbortOptimistic;
-    constructor(controller: Controller, state: State<T>, fetchedAt?: number);
-    /*************** Data Access ***************/
-    /** @see https://dataclient.io/docs/api/Snapshot#getResponse */
-    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    getResponse<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    getResponse<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    /** @see https://dataclient.io/docs/api/Snapshot#getResponseMeta */
-    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...args: readonly [null]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    getResponseMeta<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    getResponseMeta<E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): {
-        data: DenormalizeNullable<E['schema']>;
-        expiryStatus: ExpiryStatus;
-        expiresAt: number;
-    };
-    /** @see https://dataclient.io/docs/api/Snapshot#getError */
-    getError<E extends EndpointInterface>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): ErrorTypes | undefined;
-    getError<E extends Pick<EndpointInterface, 'key'>>(endpoint: E, ...args: readonly [...Parameters<E['key']>] | readonly [null]): ErrorTypes | undefined;
-    /**
-     * Retrieved memoized value for any Querable schema
-     * @see https://dataclient.io/docs/api/Snapshot#get
-     */
-    get<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): DenormalizeNullable<S> | undefined;
-    /**
-     * Queries the store for a Querable schema; providing related metadata
-     * @see https://dataclient.io/docs/api/Snapshot#getQueryMeta
-     */
-    getQueryMeta<S extends Queryable>(schema: S, ...args: SchemaArgs<S> | readonly [null]): {
-        data: DenormalizeNullable<S> | undefined;
-        countRef: () => () => void;
-    };
 }
 
 type Updater = (result: any, ...args: any) => Record<string, (...args: any) => any>;

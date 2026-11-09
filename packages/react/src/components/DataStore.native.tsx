@@ -39,10 +39,7 @@ function DataStore({
   // we don't need `dispatch` here, since applyManager() assigns the dispatch to controller
   const [state] = useEnhancedReducer(masterReducer, initialState, middlewares);
 
-  const optimisticState = useMemo(
-    () => state.optimistic.reduce(masterReducer, state),
-    [masterReducer, state],
-  );
+  const optimisticState = controller.applyOptimistic(state);
 
   // only run once everything is prepared
   useEffect(mgrEffect, [mgrEffect]);
