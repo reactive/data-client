@@ -194,7 +194,9 @@ export default class Controller<
       return prehandled(this.fetch(endpoint, ...args));
     // a recent failure is still cached; reject with it like useSuspense() throws it
     const error = this.getError(endpoint, ...args, state);
-    return error ? prehandled(Promise.reject(error)) : Promise.resolve(data as any);
+    return error ?
+        prehandled(Promise.reject(error))
+      : Promise.resolve(data as any);
   };
 
   /**
