@@ -109,33 +109,51 @@ describe('Controller', () => {
 
       expect(dispatch.mock.calls.length).toBe(1);
     });
-    describe('when the fetch fails', () => {
-      const error = new Error('network down');
-      const controller = new Controller({
-        dispatch: (action: any) => {
-          action.meta.reject(error);
-          return Promise.resolve();
-        },
-        getState: () => initialState,
-      });
-
+    const error = new Error('network down');
+    const key = CoolerArticleResource.get.key({ id: 5 });
+    describe.each([
+      [
+        'the fetch fails',
+        () =>
+          new Controller({
+            dispatch: (action: any) => {
+              action.meta.reject(error);
+              return Promise.resolve();
+            },
+            getState: () => initialState,
+          }),
+      ],
+      [
+        'a recent failure is cached',
+        () =>
+          new Controller({
+            dispatch: () => {
+              throw new Error('should not fetch');
+            },
+            getState: () => ({
+              ...initialState,
+              meta: {
+                [key]: {
+                  date: Date.now(),
+                  fetchedAt: Date.now(),
+                  expiresAt: Date.now() + 10000,
+                  error,
+                },
+              },
+            }),
+          }),
+      ],
+    ])('when %s', (_, makeController) => {
       it('rejects when awaited', async () => {
         await expect(
-          controller.fetchIfStale(CoolerArticleResource.get, { id: 5 }),
+          makeController().fetchIfStale(CoolerArticleResource.get, { id: 5 }),
         ).rejects.toBe(error);
       });
 
+      // jest fails the running test on an unhandled rejection
       it('is not an unhandled rejection when not awaited', async () => {
-        const unhandled = jest.fn();
-        process.on('unhandledRejection', unhandled);
-        try {
-          controller.fetchIfStale(CoolerArticleResource.get, { id: 5 });
-          // unhandledRejection fires after the microtask queue drains
-          await new Promise(resolve => setTimeout(resolve, 10));
-        } finally {
-          process.off('unhandledRejection', unhandled);
-        }
-        expect(unhandled).not.toHaveBeenCalled();
+        makeController().fetchIfStale(CoolerArticleResource.get, { id: 5 });
+        await new Promise(resolve => setTimeout(resolve, 10));
       });
     });
   });

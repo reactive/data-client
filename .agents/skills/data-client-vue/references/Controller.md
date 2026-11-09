@@ -148,12 +148,13 @@ the response or error upon completion.
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
 Fetches only if endpoint is considered '[stale](https://dataclient.io/vue/concepts/expiry-policy#stale)' or [invalid](https://dataclient.io/vue/concepts/expiry-policy#invalid),
-resolving like [fetch()](#fetch). Otherwise resolves with the cached data, without fetching.
+resolving like [fetch()](#fetch). Otherwise settles without fetching: it resolves with the cached data, or rejects
+with the cached error while a recent failure is still fresh, like [useSuspense()](./useSuspense.md) throws it.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 
-Prefetches don't need to be awaited or caught. A failed fetch is stored, so components reading that endpoint render
-its error. Calls that `await` the result still reject with it.
+Prefetches don't need to be awaited or caught. A failed fetch is stored like any fetch error, so components reading that
+endpoint handle it as usual. Calls that `await` the result still reject with it.
 
 ```ts
 // start a secondary request without waiting for it

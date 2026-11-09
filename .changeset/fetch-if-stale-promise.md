@@ -8,8 +8,9 @@ BREAKING: [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#
 
 Prefetching a secondary request in a route loader or event handler now works the same whether the data is fresh or
 stale. Before, fresh data came back synchronously, so `.catch()` threw a `TypeError`; and a failed fetch that nobody
-awaited was an unhandled promise rejection. Now a call you don't await never rejects unhandled: the error is stored, so
-components reading that endpoint render it. Calls that `await` the result still reject.
+awaited was an unhandled promise rejection. Now a call you don't await never rejects unhandled: the error is stored like
+any fetch error, so components reading that endpoint handle it as usual. Calls that `await` the result still reject,
+including while a recent failure is cached (before, they got `undefined`).
 
 ```ts
 async function issueLoader(ctrl: Controller, id: number) {

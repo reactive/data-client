@@ -19,5 +19,4 @@ return <TodoItem title={todo.title.trim()} />;
 ```
 
 [Controller.getResponse()](https://dataclient.io/docs/api/Controller#getResponse) now also gives `undefined` there,
-and [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) resolves to it, like
-[Controller.get()](https://dataclient.io/docs/api/Controller#get) already did.
+like [Controller.get()](https://dataclient.io/docs/api/Controller#get) already did.

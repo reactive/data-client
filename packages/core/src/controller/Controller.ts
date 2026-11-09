@@ -65,6 +65,12 @@ const unsetDispatch = (action: unknown): Promise<void> => {
       `Other middleware would not be applied to this dispatch.`,
   );
 };
+/** Marks the promise handled, so callers that never await it can't cause an unhandled rejection; awaiting still rejects */
+function prehandled<T>(promise: Promise<T>): Promise<T> {
+  promise.catch(() => {});
+  return promise;
+}
+
 const unsetState = (): State<unknown> => {
   // This is only the value until it is set by the DataProvider
   /* istanbul ignore next */
@@ -164,9 +170,9 @@ export default class Controller<
   };
 
   /**
-   * Fetches only if endpoint is considered 'stale'; otherwise resolves with the cached data.
+   * Fetches only if endpoint is considered 'stale'; otherwise settles with the cached data or error.
    *
-   * Safe to call without awaiting: a failed fetch is stored for useSuspense() and never an unhandled rejection.
+   * Safe to call without awaiting: errors are stored like any fetch error, never an unhandled rejection.
    * @see https://dataclient.io/docs/api/Controller#fetchIfStale
    */
   fetchIfStale = <
@@ -178,17 +184,17 @@ export default class Controller<
     E['schema'] extends undefined | null ? ResolveType<E>
     : Denormalize<E['schema']>
   > => {
+    const state = this.getState();
     const { data, expiresAt, expiryStatus } = this.getResponseMeta(
       endpoint,
       ...args,
-      this.getState(),
+      state,
     );
-    if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
-      return Promise.resolve(data as any);
-    const promise: Promise<any> = this.fetch(endpoint, ...args);
-    // handled here, so prefetching without a .catch() can't crash; awaiting still rejects
-    promise.catch(() => {});
-    return promise;
+    if (expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt)
+      return prehandled(this.fetch(endpoint, ...args));
+    // a recent failure is still cached; reject with it like useSuspense() throws it
+    const error = this.getError(endpoint, ...args, state);
+    return error ? prehandled(Promise.reject(error)) : Promise.resolve(data as any);
   };
 
   /**

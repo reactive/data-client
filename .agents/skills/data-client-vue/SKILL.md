@@ -123,7 +123,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 |---|---|
 | You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
 | One endpoint+args | `ctrl.fetch(endpoint, args)` |
-| Prefetch (loader, hover), only if missing or stale | `ctrl.fetchIfStale(endpoint, args)`: a Promise; skip `await` and `.catch()` to not block, failures go to the store |
+| Prefetch (loader, hover), only if missing or stale | `ctrl.fetchIfStale(endpoint, args)`: a Promise; skip `await` and `.catch()` to not block; failures are stored like any fetch error |
 | All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching composables refetch; `useCache`/`useQuery` don't |
 | Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`, rendering `useDLE`'s `loading`; mounted `useSuspense` keeps its last data |
 
