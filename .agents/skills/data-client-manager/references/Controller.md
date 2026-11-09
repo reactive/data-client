@@ -2,9 +2,11 @@
 
 # Controller
 
-`Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
-`Controller` memoizes all store access, allowing a global referential equality guarantee and the fastest rendering
-and retrieval performance.
+`Controller` gives type-safe access to the Reactive Data Client [store and its lifecycle](./Manager.md#control-flow).
+Each store has one `Controller`.
+
+`Controller` memoizes all store reads, so equal data keeps the same object reference everywhere. This keeps rendering
+and lookups fast.
 
 `Controller` is provided:
 
@@ -41,8 +43,7 @@ class Controller {
 
 ### fetch(endpoint, ...args) {#fetch}
 
-Fetches the endpoint with given args, updating the Reactive Data Client cache with
-the response or error upon completion.
+Fetches the endpoint with the given args. When the fetch completes, the response or error goes into the cache.
 
 **Create**
 
@@ -118,7 +119,7 @@ function PostListItem({ post }: { post: Post }) {
 > **Tip**
 >
 > `fetch` has the same return value as the [Endpoint](https://dataclient.io/rest/api/Endpoint) passed to it.
-> When using schemas, the denormalized value is returned
+> With a schema, it returns the denormalized value.
 >
 > ```ts
 > const controller = useController();
@@ -133,25 +134,25 @@ function PostListItem({ post }: { post: Post }) {
 
 #### Endpoint.sideEffect
 
-[sideEffect](https://dataclient.io/rest/api/Endpoint#sideeffect) changes the behavior
+[sideEffect](https://dataclient.io/rest/api/Endpoint#sideeffect) changes how `fetch()` behaves:
 
 ##### true
 
-- Resolves _before_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates. (React 16, 17)
-- Each call will always cause a new fetch.
+- Resolves _before_ the cache update is [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
+- Every call starts a new fetch.
 
 ##### false | undefined
 
-- Resolves _after_ [committing](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client cache updates.
-- Identical requests are deduplicated globally; allowing only one inflight request at a time.
-  - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
+- Resolves _after_ the cache update is [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
+- Identical requests are deduplicated, so only one is in flight at a time.
+  - To start a _new_ request, abort the one in flight first.
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
 Fetches only if endpoint is considered '[stale](https://dataclient.io/docs/concepts/expiry-policy#stale)' or [invalid](https://dataclient.io/docs/concepts/expiry-policy#invalid),
 returning the same Promise as [fetch()](#fetch). Otherwise returns the cached data synchronously, without fetching.
 
-This can be useful when prefetching data, as it avoids overfetching fresh data.
+Use it to prefetch without refetching fresh data.
 
 An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
 
@@ -181,8 +182,7 @@ Example app: [github-app](https://github.com/reactive/data-client/tree/master/ex
 
 Sets all responses' [expiry status](https://dataclient.io/docs/concepts/expiry-policy) matching `testKey` to [Stale](https://dataclient.io/docs/concepts/expiry-policy#stale).
 
-This is sometimes useful to trigger refresh of only data presently shown
-when there are many parameterizations in cache.
+Use it to refresh only the data on screen when the cache holds many sets of args.
 
 ```tsx
 import { type Controller, useController } from '@data-client/react';
@@ -211,8 +211,8 @@ function CreateTrade({ userId }: { userId: string }) {
 
 > **Tip**
 >
-> To reduce load, improve performance, and improve state consistency; it can often be
-> better to [include mutation sideeffects in the mutation response](https://dataclient.io/rest/guides/side-effects).
+> Often it is better to [include mutation side effects in the mutation response](https://dataclient.io/rest/guides/side-effects). This
+> reduces load, improves performance and keeps state consistent.
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
@@ -240,13 +240,13 @@ function ArticleName({ id }: { id: string }) {
 
 > **Tip**
 >
-> To refresh while continuing to display stale data - [Controller.fetch](#fetch).
+> To refresh while still showing stale data, use [Controller.fetch](#fetch).
 
 > **Tip: Invalidate many endpoints at once**
 >
 > Use [schema.Invalidate](https://dataclient.io/rest/api/Invalidate) to invalidate every endpoint that contains a given entity.
 >
-> For REST try using [Resource.delete](https://dataclient.io/rest/api/resource#delete)
+> For REST, try [Resource.delete](https://dataclient.io/rest/api/resource#delete).
 >
 > ```ts
 > // deletes MyResource(5)
@@ -280,9 +280,9 @@ function ArticleName({ id }: { id: string }) {
 
 > **Tip**
 >
-> To refresh while continuing to display stale data - [Controller.expireAll](#expireAll) instead.
+> To refresh while still showing stale data, use [Controller.expireAll](#expireAll) instead.
 
-Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
+This clears only GET endpoints on the test.com domain. Other domains stay in the cache.
 
 ```ts
 const myDomain = 'http://test.com';
@@ -294,8 +294,7 @@ function useLogout() {
 }
 ```
 
-It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md)
-as well.
+Also clear the cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md).
 
 **Web**
 
@@ -451,9 +450,10 @@ export default function RootLayout() {
 
 ### resetEntireStore() {#resetEntireStore}
 
-Resets/clears the entire Reactive Data Client cache. All inflight requests will not resolve.
+Clears the entire Reactive Data Client cache. Fetches in flight reject with a `ResetError`, and their responses are not
+stored.
 
-This is typically used when logging out or changing authenticated users.
+Use it when a user logs out or the authenticated user changes.
 
 ```tsx
 import { useController, useSuspense } from '@data-client/react';
@@ -679,9 +679,7 @@ render(<PriceStream />);
 
 Stores `response` in cache for given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args.
 
-Any components suspending for the given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args will resolve.
-
-If data already exists for the given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args, it will be updated.
+Components suspending on this [Endpoint](https://dataclient.io/rest/api/Endpoint) and args resolve. Existing data for them is updated.
 
 ```tsx
 import { useController } from '@data-client/react';
@@ -704,33 +702,32 @@ function useWebsocketUpdates(url: string) {
 }
 ```
 
-This shows a proof of concept in React; however a [Manager websockets implementation](./managers.md#data-stream)
-would be much more robust.
+This is a proof of concept in React. A [Manager websockets implementation](./managers.md#data-stream)
+is more robust.
 
 ### setError(endpoint, ...args, error) {#setError}
 
-Stores the result of [Endpoint](https://dataclient.io/rest/api/Endpoint) and args as the error provided.
+Stores `error` as the result of the [Endpoint](https://dataclient.io/rest/api/Endpoint) and args.
 
 ### resolve(endpoint, { args, response, fetchedAt, error }) {#resolve}
 
 Resolves a specific fetch, storing the `response` in cache.
 
-This is similar to setResponse, except it triggers resolution of an inflight fetch.
-This means the corresponding optimistic update will no longer be applies.
+Like [setResponse](#setResponse), but it also settles the fetch in flight, so its optimistic update no longer
+applies.
 
-This is used in [NetworkManager](https://dataclient.io/docs/api/NetworkManager), and should be used when
-processing fetch requests.
+[NetworkManager](https://dataclient.io/docs/api/NetworkManager) uses it. Use it when a Manager processes fetch requests.
 
 Pass the fetch action's `action.meta.fetchedAt` as `fetchedAt`. Then the store drops responses to fetches started before
 [resetEntireStore()](#resetEntireStore), and an old response doesn't settle a newer fetch of the same key.
 
 ### subscribe(endpoint, ...args) {#subscribe}
 
-Marks a new subscription to a given [Endpoint](https://dataclient.io/rest/api/Endpoint). This should increment the subscription.
+Adds a subscription to the [Endpoint](https://dataclient.io/rest/api/Endpoint) and args. Each call increments its subscriber count.
 
 [useSubscription](https://dataclient.io/docs/api/useSubscription) and [useLive](https://dataclient.io/docs/api/useLive) call this on mount.
 
-This might be useful for custom hooks to sub/unsub based on other factors.
+Custom hooks can call it to subscribe based on other conditions.
 
 ```tsx
 import {
@@ -758,8 +755,8 @@ function useSubscribe<
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
 
-Marks completion of subscription to a given [Endpoint](https://dataclient.io/rest/api/Endpoint). This should
-decrement the subscription and if the count reaches 0, more updates won't be received automatically.
+Removes a subscription to the [Endpoint](https://dataclient.io/rest/api/Endpoint) and args. Each call decrements its subscriber count; at
+0, automatic updates stop.
 
 [useSubscription](https://dataclient.io/docs/api/useSubscription) and [useLive](https://dataclient.io/docs/api/useLive) call this on unmount.
 
@@ -771,8 +768,7 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 
 #### Example
 
-This is used in [useQuery](https://dataclient.io/docs/api/useQuery) and can be used in
-[Managers](./Manager.md) to safely access the store.
+[useQuery](https://dataclient.io/docs/api/useQuery) uses it, and [Managers](./Manager.md) can use it to read the store safely.
 
 ```tsx title="useQuery.ts"
 import {
@@ -806,11 +802,11 @@ function useQuery<S extends Queryable>(
 }
 ```
 
-Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+Gets the response for an endpoint and args from the given `state`. The result is referentially stable.
 
 #### data
 
-The denormalize response data. Guarantees global referential stability for all members.
+The denormalized response. Every member keeps the same reference while its data is unchanged.
 
 #### [expiryStatus](https://dataclient.io/docs/concepts/expiry-policy#expiry-status)
 
@@ -839,12 +835,12 @@ export enum ExpiryStatus {
 
 #### expiresAt
 
-A number representing time when it expires. Compare to Date.now().
+When the data expires, as a timestamp. Compare it to `Date.now()`.
 
 #### Example
 
-This is used in [useCache](https://dataclient.io/docs/api/useCache), [useSuspense](https://dataclient.io/docs/api/useSuspense) and can be used in
-[Managers](./Manager.md) to lookup a response with the state provided.
+[useCache](https://dataclient.io/docs/api/useCache) and [useSuspense](https://dataclient.io/docs/api/useSuspense) use it. [Managers](./Manager.md) can use it to look up a
+response in the given state.
 
 ```tsx title="useCache.ts"
 import {
@@ -899,7 +895,7 @@ export default class MyManager implements Manager {
 
 ### getError(endpoint, ...args, state) {#getError}
 
-Gets the error, if any, for a given endpoint. Returns undefined for no errors.
+Gets the error for an endpoint and args, or `undefined` if there is none.
 
 ### snapshot(state, fetchedAt) {#snapshot}
 
@@ -911,9 +907,9 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 
 > **Warning**
 >
-> This should only be used in event handlers or [Managers](./Manager.md).
+> Use it only in event handlers or [Managers](./Manager.md).
 >
-> Using getState() in React's render lifecycle can result in data tearing.
+> Calling getState() during render can cause data tearing.
 
 ```tsx
 import { useController } from '@data-client/react';
