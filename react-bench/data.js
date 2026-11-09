@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794180517221,
+  "lastUpdate": 1794244913604,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -13865,6 +13865,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 377.74,
             "range": "± 1.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7232cb088df49b4325fe284e7aef73a11e822940",
+          "message": "fix: Redux ExternalDataProvider renders updates dispatched while it mounts (#4663)\n\n* fix: Redux ExternalDataProvider renders updates dispatched while it mounts\n\nExternalDataProvider subscribed to the store in its own Effect, which runs\nafter its children's mount Effects. A dispatch from one of those (like an\noptimistic controller.fetch()) never rendered until the next store change.\nRe-read the store right after subscribing, and memoize the selected state by\nslice so the extra read (and unrelated reducer changes) don't re-render.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEAHQCq7RhJdVR8hta\n\n* docs: Note Redux provider mount-dispatch fix in v0.19 blog\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEAHQCq7RhJdVR8hta\n\n* fix: Address review: reduce before caching, test name, changeset wording\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEAHQCq7RhJdVR8hta\n\n* internal: Simplify regression tests\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEAHQCq7RhJdVR8hta\n\n* internal: Reuse shared Todo fixture in ExternalDataProvider test\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEAHQCq7RhJdVR8hta\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-09T17:14:16Z",
+          "tree_id": "de8e6d0a46a2b4beff5dcc3a134205dbc3e54562",
+          "url": "https://github.com/reactive/data-client/commit/7232cb088df49b4325fe284e7aef73a11e822940"
+        },
+        "date": 1794244910128,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 281.69,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 70.62,
+            "range": "± 2.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 665.56,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 773.72,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 69.25,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 593.48,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 459.77,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 14.62,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 105.47,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 87.68,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 12.38,
+            "range": "± 2.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 333.61,
+            "range": "± 1.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 484.26,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 258.07,
+            "range": "± 2.0%",
             "unit": "ops/s"
           }
         ]
