@@ -1,17 +1,6 @@
 'use client';
-import {
-  State,
-  ActionTypes,
-  Controller,
-  createReducer,
-} from '@data-client/core';
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-} from 'react';
+import { State, Controller, createReducer } from '@data-client/core';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 
 import type { DevToolsPosition } from '../../components/DevToolsButton.js';
 import { renderDevButton } from '../../components/renderDevButton.js';
@@ -49,9 +38,18 @@ export default function ExternalDataProvider<S>({
   hasDevManager = false,
 }: Props<S>) {
   const masterReducer = useMemo(() => createReducer(controller), [controller]);
-  const selectState = useCallback(() => {
-    const state = selector(store.getState());
-    return state.optimistic.reduce(masterReducer, state);
+  // returns the same object until our slice changes, so setState() skips no-op updates
+  const selectState = useMemo(() => {
+    let lastSlice: State<unknown> | undefined;
+    let lastState: State<unknown>;
+    return () => {
+      const slice = selector(store.getState());
+      if (slice !== lastSlice) {
+        lastState = slice.optimistic.reduce(masterReducer, slice);
+        lastSlice = slice;
+      }
+      return lastState;
+    };
   }, [masterReducer, selector, store]);
 
   const [state, setState] = useState(selectState);
@@ -65,9 +63,12 @@ export default function ExternalDataProvider<S>({
   }, []);
 
   useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
+    const updateState = () => {
       if (isMounted.current) setState(selectState());
-    });
+    };
+    const unsubscribe = store.subscribe(updateState);
+    // children's mount Effects run before ours, so catch what they dispatched
+    updateState();
     return unsubscribe;
   }, [selectState, store]);
 
