@@ -12,7 +12,8 @@ import TabItem from '@theme/TabItem';
 # Redux integration
 
 Using [redux](https://redux.js.org/) is completely optional. However, for many it means easy integration or migration
-with existing projects, or just a nice centralized state management abstraction.
+with existing projects, or just a nice centralized state management abstraction. To move server data out of Redux
+slices instead, see [Redux migration](./redux-migration.md).
 
 <Tabs
 defaultValue="data-client"

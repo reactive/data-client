@@ -8,7 +8,8 @@
     "DataProvider.md": "docs/core/api/DataProvider.md",
     "getDefaultManagers.md": "docs/core/api/getDefaultManagers.md",
     "installation.md": "docs/core/getting-started/installation.md",
-    "tanstack-query-migration.md": "docs/core/guides/tanstack-query-migration.md"
+    "tanstack-query-migration.md": "docs/core/guides/tanstack-query-migration.md",
+    "redux-migration.md": "docs/core/guides/redux-migration.md"
   },
   "skills": [
     "data-client-rest-setup",
