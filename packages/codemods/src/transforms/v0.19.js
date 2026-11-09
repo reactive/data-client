@@ -180,6 +180,25 @@ function toFunctionType(j, typeAnnotation) {
   return j.tsTypeAnnotation(fn);
 }
 
+/** Whether `node` makes new Managers each time it runs: `getDefaultManagers(...)`, or a list
+ * holding no name, which may hold a shared instance. A name may also already be a function, and a
+ * call may be a hook or memoized. */
+function createsNewManagers(node) {
+  node = unwrap(node);
+  if (isGetDefaultManagersCall(node)) return true;
+  return (
+    node.type === 'ArrayExpression' &&
+    node.elements.every(e => {
+      const value = unwrap(e?.type === 'SpreadElement' ? e.argument : e);
+      return (
+        value?.type !== 'Identifier' &&
+        value?.type !== 'MemberExpression' &&
+        (value?.type !== 'CallExpression' || isGetDefaultManagersCall(value))
+      );
+    })
+  );
+}
+
 /** Replaces a slot's expression, expanding `{ managers }` shorthand */
 function replace(path, node) {
   path.replace(node);
@@ -220,14 +239,13 @@ function transformManagers(j, root) {
             j,
             declaration.id.typeAnnotation,
           );
+        if (!createsNewManagers(init))
+          addTodo(j, binding, SHARED_MANAGERS_TODO);
         return true;
       }
     }
     replace(path, j.arrowFunctionExpression([], node));
-    // an inline list or `getDefaultManagers(...)` creates new Managers on each call; a name may
-    // hold shared instances or already be a function, and a call may be a hook or memoized
-    if (node.type !== 'ArrayExpression' && !isGetDefaultManagersCall(node))
-      addTodo(j, path, SHARED_MANAGERS_TODO);
+    if (!createsNewManagers(node)) addTodo(j, path, SHARED_MANAGERS_TODO);
     return true;
   };
 
@@ -364,8 +382,6 @@ const sourceTodos = new WeakMap();
 /** Whether a previous run left `text` on the line above `node`, or on its line, where the parser may
  * attach it to another node */
 function hasTodoAbove(j, path, node, text) {
-  const line = node.loc?.start.line;
-  if (!line) return false;
   const program = j(path).closest(j.Program).paths()[0].node;
   if (!sourceTodos.has(program)) {
     // read before this run adds any comment
@@ -374,11 +390,12 @@ function hasTodoAbove(j, path, node, text) {
       .find(j.Comment)
       // a comment's `node` is the node holding it; `value` is the comment
       .forEach(({ value: c }) => {
-        if (!c.value.startsWith(' TODO(data-client)')) return;
+        if (!c.loc || !c.value.startsWith(' TODO(data-client)')) return;
         todos.set(c.value, [...(todos.get(c.value) ?? []), c.loc.end.line]);
       });
     sourceTodos.set(program, todos);
   }
+  const line = node.loc?.start.line;
   return (sourceTodos.get(program).get(text) ?? []).some(
     end => end === line || end === line - 1,
   );
@@ -397,7 +414,10 @@ const MEMBERS = new Set([
  * `else if` the whole `if` chain, and for `if (x) return y;` the `if` */
 function statementOf(j, path) {
   if (MEMBERS.has(path.node.type)) return path;
-  let statement = j(path).closest(j.Statement).paths()[0];
+  let statement =
+    j.Statement.check(path.node) ?
+      path
+    : j(path).closest(j.Statement).paths()[0];
   while (
     j.Statement.check(statement.parent.node) &&
     statement.parent.node.type !== 'BlockStatement' &&
@@ -475,6 +495,7 @@ function transformFetchIfStale(j, root, source) {
 }
 
 const CLEANUP_DATE_TODO = ` TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: ${BLOG}#manager-cleanup`;
+const PASS_THROUGH_TODO = ` TODO(data-client): if this is a data-client Manager, it throws on mount without a middleware property since 0.19; add \`middleware: Middleware = () => next => next\`: ${BLOG}#manager-middleware`;
 const GET_MIDDLEWARE_TODO = ` TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: ${BLOG}#manager-middleware`;
 
 const keyName = node => staticName(node.key, node.computed);
@@ -487,20 +508,23 @@ const getterOf = member =>
 
 /** The middleware a `getMiddleware` member returns, when it is a function the property can hold */
 function returnedMiddleware(member) {
+  const value = returnedValue(member);
+  // a property initializer runs at construction, while getMiddleware() ran at mount, so only
+  // move a function, whose body still runs later
+  return isFunction(value) ? value : undefined;
+}
+
+/** What a `getMiddleware` member returns, when it only returns an expression */
+function returnedValue(member) {
   const fn = getterOf(member);
   // data-client never called a static getMiddleware(), and an async or generator one returns no
   // middleware
   if (!fn || fn.params.length || fn.async || fn.generator || member.static)
     return;
-  let body = fn.body;
-  if (body.type === 'BlockStatement') {
-    if (body.body.length !== 1 || body.body[0].type !== 'ReturnStatement')
-      return;
-    body = body.body[0].argument;
-  }
-  // a property initializer runs at construction, while getMiddleware() ran at mount, so only
-  // move a function, whose body still runs later
-  return isFunction(body) ? body : undefined;
+  const { body } = fn;
+  if (body.type !== 'BlockStatement') return body;
+  if (body.body.length === 1 && body.body[0].type === 'ReturnStatement')
+    return body.body[0].argument;
 }
 
 // object-literal and abstract members are found so calls to them aren't rewritten, but only class
@@ -515,17 +539,16 @@ const hasMember = (classBody, name) =>
       keyName(m) === name ||
       (m.kind === 'constructor' &&
         m.params.some(
-          p => p.type === 'TSParameterProperty' && isId(p.parameter, name),
+          p =>
+            p.type === 'TSParameterProperty' &&
+            // `middleware: Middleware = ...` is an AssignmentPattern
+            isId(p.parameter.left ?? p.parameter, name),
         )),
   );
 
 /** `getMiddleware() { return this.middleware; }`, a pre-0.19 shim around a `middleware` property */
 const returnsOwnMiddleware = member => {
-  const body = getterOf(member)?.body;
-  const value =
-    body?.type === 'BlockStatement' && body.body.length === 1 ?
-      body.body[0].argument
-    : body;
+  const value = returnedValue(member);
   return (
     value?.type === 'MemberExpression' &&
     value.object.type === 'ThisExpression' &&
@@ -533,24 +556,27 @@ const returnsOwnMiddleware = member => {
   );
 };
 
-/** `x.getMiddleware()` or `x?.getMiddleware()` */
+/** `x.getMiddleware`, `x?.getMiddleware` or `x['getMiddleware']` */
+const isGetMiddlewareRef = node =>
+  isMember(node) &&
+  staticName(node.property, node.computed) === 'getMiddleware';
+
+/** A call of a `getMiddleware` reference */
 const isGetMiddlewareCall = node =>
   (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') &&
   !node.arguments.length &&
-  isMember(node.callee) &&
-  !node.callee.computed &&
-  isId(node.callee.property, 'getMiddleware');
+  isGetMiddlewareRef(node.callee);
 
 /** `getMiddleware` members and calls become `middleware` */
 function renameGetMiddleware(j, root) {
   let dirty = false;
   // a reference other than a call, such as `this.getMiddleware.bind(this)`, needs the member
   const otherRefs = root
-    .find(j.MemberExpression, {
-      computed: false,
-      property: { name: 'getMiddleware' },
-    })
-    .filter(p => !isGetMiddlewareCall(p.parent.node));
+    .find(j.Node)
+    .filter(
+      ({ node, parent }) =>
+        isGetMiddlewareRef(node) && !isGetMiddlewareCall(parent.node),
+    );
   otherRefs.forEach(ref => {
     dirty = addTodo(j, ref, GET_MIDDLEWARE_TODO) || dirty;
   });
@@ -559,26 +585,12 @@ function renameGetMiddleware(j, root) {
     .find(j.Node)
     .filter(p => isGetMiddleware(p.node))
     .forEach(member => {
-      const classBody =
-        CLASS_MEMBERS.has(member.node.type) && member.parent.node;
-      const existing = classBody && hasMember(classBody, 'middleware');
-      if (existing && !otherRefs.size() && returnsOwnMiddleware(member.node)) {
-        member.prune();
+      if (!otherRefs.size() && migrateGetMiddleware(j, member)) {
         dirty = true;
         return;
       }
-      const middleware =
-        classBody &&
-        !existing &&
-        !otherRefs.size() &&
-        returnedMiddleware(member.node);
-      if (!middleware) {
-        unconverted = true;
-        dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
-        return;
-      }
-      member.replace(middlewareProperty(j, member.node, middleware));
-      dirty = true;
+      unconverted = true;
+      dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
     });
   root
     .find(j.Node)
@@ -596,6 +608,21 @@ function renameGetMiddleware(j, root) {
       dirty = true;
     });
   return dirty;
+}
+
+/** Replaces a class's `getMiddleware` member with a `middleware` property, or removes it when it
+ * only returns the class's own `middleware`; returns whether it did either */
+function migrateGetMiddleware(j, member) {
+  if (!CLASS_MEMBERS.has(member.node.type)) return false;
+  if (hasMember(member.parent.node, 'middleware')) {
+    if (!returnsOwnMiddleware(member.node)) return false;
+    member.prune();
+    return true;
+  }
+  const middleware = returnedMiddleware(member.node);
+  if (!middleware) return false;
+  member.replace(middlewareProperty(j, member.node, middleware));
+  return true;
 }
 
 /** `middleware = ...` keeping the `getMiddleware` member's visibility, return type and comments */
@@ -687,14 +714,22 @@ function toValueImport(declaration, specifier) {
     if (other !== specifier) other.importKind = 'type';
 }
 
-/** Whether a class `implements Manager` imported from `@data-client/*` */
-const implementsManager = (j, root, node) =>
-  node.implements?.some(i => isId(i.expression, 'Manager')) &&
-  String(importOf(j, root, 'Manager')?.declaration.source.value).startsWith(
-    DATA_CLIENT_PREFIX,
-  );
+/** For a class that `implements Manager`: 'data-client' when it imports Manager from
+ * `@data-client/*`, 'other' when Manager may still be one (such as re-exported by a local module) */
+function managerOrigin(j, root, node) {
+  if (!node.implements?.some(i => isId(i.expression, 'Manager'))) return;
+  const source = importOf(j, root, 'Manager')?.declaration.source.value;
+  if (String(source).startsWith(DATA_CLIENT_PREFIX)) return 'data-client';
+  const declaredHere = [
+    j.TSInterfaceDeclaration,
+    j.TSTypeAliasDeclaration,
+    j.ClassDeclaration,
+  ].some(type => root.find(type, { id: { name: 'Manager' } }).size());
+  if (!declaredHere) return 'other';
+}
 
-/** A Manager class without middleware throws on mount since 0.19, so give it a pass-through */
+/** A Manager class without middleware throws on mount since 0.19, so give it a pass-through; mark
+ * a class whose Manager comes from elsewhere */
 function addPassThroughMiddleware(j, root) {
   let dirty = false;
   root
@@ -704,11 +739,14 @@ function addPassThroughMiddleware(j, root) {
         (p.node.type === 'ClassDeclaration' ||
           p.node.type === 'ClassExpression') &&
         !p.node.superClass &&
-        implementsManager(j, root, p.node) &&
         !hasMember(p.node.body, 'middleware') &&
         !hasMember(p.node.body, 'getMiddleware'),
     )
     .forEach(cls => {
+      const origin = managerOrigin(j, root, cls.node);
+      if (origin === 'other')
+        dirty = addTodo(j, cls, PASS_THROUGH_TODO) || dirty;
+      if (origin !== 'data-client') return;
       const next = j.identifier('next');
       const property = j.classProperty(
         j.identifier('middleware'),
@@ -747,6 +785,7 @@ function isManagerClass(j, root, name, base, seen = new Set()) {
 
 // the Managers renderDataHook() ran before 0.19, ignoring `managers`
 const RENDER_HOOK_DEFAULTS = [
+  // [class, names of its constructor arguments]
   ['NetworkManager', []],
   ['SubscriptionManager', ['PollingSubscription']],
 ];
@@ -843,6 +882,7 @@ module.exports = function transformer(fileInfo, api) {
   dirty = transformManagerClasses(j, root) || dirty;
   dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
 
+  // recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
   return dirty ?
       root.toSource({ quote: 'single', wrapColumn: Infinity })
     : fileInfo.source;

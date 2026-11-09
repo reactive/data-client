@@ -241,6 +241,7 @@ import { renderDataHook } from '@data-client/test';
 
 import { SubscriptionManager, PollingSubscription } from '@data-client/react';
 
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
 renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger] });
 renderDataClient(() => useThing(), { managers: () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
       `,
@@ -264,6 +265,7 @@ import { NetworkManager, SubscriptionManager, PollingSubscription } from '@data-
 
 renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { managers: () => [new AuditNetworkManager(), new SubscriptionManager(PollingSubscription)] });
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
 renderDataHook(() => useThing(), { managers: () => [logger] });
       `,
       'adds the default Managers renderDataHook() lists of new Managers lack',
@@ -284,7 +286,7 @@ import { renderDataHook } from '@data-client/test';
 
 renderDataHook(() => useController(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
       `,
-      'imports NetworkManager next to an existing @data-client/react import',
+      'imports the default Managers next to an existing @data-client/react import',
     );
 
     defineInlineTest(
@@ -312,7 +314,7 @@ renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager(), new
 renderDataHook(() => useThing(), { 'managers': () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingManager()] } });
       `,
-      'imports NetworkManager once, and sees a namespaced one',
+      'imports the default Managers once, and sees a namespaced NetworkManager',
     );
 
     defineInlineTest(
@@ -658,9 +660,10 @@ class Boss implements Manager {}
 import { useSuspense } from '@data-client/react';
 import { Manager } from './types';
 
+// TODO(data-client): if this is a data-client Manager, it throws on mount without a middleware property since 0.19; add \`middleware: Middleware = () => next => next\`: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
 class Boss implements Manager {}
       `,
-      'leaves classes implementing another Manager',
+      'marks classes implementing a Manager from another module',
     );
 
     defineInlineTest(
@@ -711,6 +714,93 @@ function g(nm) {
 }
       `,
       'puts the TODO above an unbraced if',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Logging.js' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+class LoggingManager {
+  getMiddleware() {
+    return controller => next => next;
+  }
+  run() {
+    return this['getMiddleware']();
+  }
+}
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+class LoggingManager {
+  middleware = controller => next => next;
+  run() {
+    return this.middleware;
+  }
+}
+      `,
+      'rewrites computed getMiddleware calls',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Logging.ts' },
+      `
+import { Manager, Middleware, NetworkManager } from '@data-client/react';
+
+class Defaulted implements Manager {
+  constructor(private middleware: Middleware = () => next => next) {}
+}
+class Decorated extends NetworkManager {
+  @bound
+  getMiddleware(): Middleware {
+    return controller => next => next;
+  }
+}
+      `,
+      `
+import { Manager, Middleware, NetworkManager } from '@data-client/react';
+
+class Defaulted implements Manager {
+  constructor(private middleware: Middleware = () => next => next) {}
+}
+class Decorated extends NetworkManager {
+  @bound
+  middleware: Middleware = controller => next => next;
+}
+      `,
+      'sees a defaulted middleware parameter property, and keeps decorators',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'App.tsx' },
+      `
+import { DataProvider, NetworkManager, type Manager } from '@data-client/react';
+
+const network = new NetworkManager();
+const App = () => (
+  <>
+    <DataProvider managers={[network, new MyManager()]} />
+    <DataProvider managers={[new MyManager()] as Manager[]} />
+  </>
+);
+      `,
+      `
+import { DataProvider, NetworkManager, type Manager } from '@data-client/react';
+
+const network = new NetworkManager();
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+const App = () => (
+  <>
+    <DataProvider managers={() => [network, new MyManager()]} />
+    <DataProvider managers={() => [new MyManager()] as Manager[]} />
+  </>
+);
+      `,
+      'marks inline lists holding a shared instance',
     );
 
     defineInlineTest(
