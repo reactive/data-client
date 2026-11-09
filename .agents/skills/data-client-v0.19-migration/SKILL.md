@@ -83,9 +83,10 @@ ships at `node_modules/@data-client/core/skills/data-client-manager/SKILL.md`; o
 where it only returned a function, and gave Managers without middleware a pass-through. What's left:
 
 - **Fix each `TODO(data-client)` comment** about `getMiddleware()`, `managers` or `cleanupDate`, then delete it:
-  - `getMiddleware()` that does work first: move the work into `init()`, and define a `middleware` property. A subclass
-    can't reach the parent's property through `super`; read `this.middleware` in its own initializer, which runs after
-    the parent's.
+  - `getMiddleware()` that does work first: move the work into `init()`, and define a `middleware` property.
+  - `super.getMiddleware()`: `super` can't reach the parent's property, and a redeclared field can't read it (TS2729).
+    Wrap it in the constructor instead, without redeclaring the field:
+    `constructor() { super(); const parent = this.middleware; this.middleware = controller => ... }`.
   - `() => managers` around an array built elsewhere: it still shares those instances between stores. Make the array's
     definition the function, so each `new` runs per store, and pass that function.
   - `cleanupDate`: it's removed; delete the code that reads or sets it.
@@ -105,8 +106,8 @@ Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#mana
 ## Step 5: test helpers
 
 - **[renderDataHook()](https://dataclient.io/docs/api/renderDataHook) now runs its `managers`**; before, it ignored
-  them. The list replaces the defaults, so it needs a `NetworkManager` (the codemod adds one to lists of `new` calls),
-  plus a `SubscriptionManager` if the hook polls, and the test's Managers now act on its actions.
+  them. The list replaces the defaults, so it needs a `NetworkManager`, plus a `SubscriptionManager` if the hook polls
+  (the codemod adds both to lists of `new` calls), and the test's Managers now act on its actions.
 - **A custom Provider passed to [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook)** must accept
   `managers: () => Manager[]`, like `DataProvider`.
   [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#test-react-0.19).
@@ -147,6 +148,8 @@ several stores, set `__DC__.store = name` first.
    - A suspended `renderDataHook()` now runs its Managers' `init()`.
    - After `DataProvider` unmounts (React 18+), `set()`, `setResponse()`, `resetEntireStore()` and `fetch()` of an
      endpoint without `sideEffect` never resolve; don't `await` them there.
+   - A `DELETE` endpoint that declares `body` now sends its last argument as the body, not url params. If callers pass
+     no body, remove `body` from the endpoint.
 4. If you ran `data-client-skills --upgrade` in Step 1, run `npx --no data-client-skills` last, to unlink the migration
    skills. Not before: it removes this skill.
 

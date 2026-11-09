@@ -92,6 +92,7 @@ export function App() {
       <DataProvider managers={managers} />
       <DataProvider managers={memoized} />
       <DataProvider managers={sharedManagers} />
+      <DataProvider managers={useMemo(() => [new MyManager()], [])} />
     </>
   );
 }
@@ -112,6 +113,7 @@ export function App() {
       <DataProvider managers={() => managers} />
       <DataProvider managers={() => memoized} />
       <DataProvider managers={() => sharedManagers} />
+      <DataProvider managers={() => useMemo(() => [new MyManager()], [])} />
     </>
   );
 }
@@ -237,8 +239,10 @@ renderDataClient(() => useThing(), { managers: [new NetworkManager()] });
       `
 import { renderDataHook } from '@data-client/test';
 
+import { SubscriptionManager, PollingSubscription } from '@data-client/react';
+
 renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger] });
-renderDataClient(() => useThing(), { managers: () => [new NetworkManager()] });
+renderDataClient(() => useThing(), { managers: () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
       `,
       'converts renderDataHook() managers',
     );
@@ -256,13 +260,13 @@ renderDataHook(() => useThing(), { managers: [logger] });
       `
 import { renderDataHook } from '@data-client/test';
 
-import { NetworkManager } from '@data-client/react';
+import { NetworkManager, SubscriptionManager, PollingSubscription } from '@data-client/react';
 
-renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
-renderDataHook(() => useThing(), { managers: () => [new AuditNetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { managers: () => [new AuditNetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { managers: () => [logger] });
       `,
-      'adds a NetworkManager to renderDataHook() lists of new Managers without one',
+      'adds the default Managers renderDataHook() lists of new Managers lack',
     );
 
     defineInlineTest(
@@ -275,10 +279,10 @@ import { renderDataHook } from '@data-client/test';
 renderDataHook(() => useController(), { managers: [new LoggingManager()] });
       `,
       `
-import { useController, NetworkManager } from '@data-client/react';
+import { useController, NetworkManager, SubscriptionManager, PollingSubscription } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
-renderDataHook(() => useController(), { managers: () => [new LoggingManager(), new NetworkManager()] });
+renderDataHook(() => useController(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
       `,
       'imports NetworkManager next to an existing @data-client/react import',
     );
@@ -300,12 +304,12 @@ renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingM
 import * as DC from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
-import { NetworkManager } from '@data-client/react';
+import { NetworkManager, SubscriptionManager, PollingSubscription } from '@data-client/react';
 
-renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
-renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
-renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager()] });
-renderDataHook(() => useThing(), { 'managers': () => [new LoggingManager(), new NetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { 'managers': () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingManager()] } });
       `,
       'imports NetworkManager once, and sees a namespaced one',
@@ -327,16 +331,16 @@ renderDataHook(() => useThing(), { managers: [new Scoped()] });
 renderDataHook(() => useThing(), { managers: [new Loop()] });
       `,
       `
-import { NetworkManager as NM, NetworkManager } from '@data-client/react';
+import { NetworkManager as NM, SubscriptionManager, PollingSubscription, NetworkManager } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
 class AuditManager extends NM {}
 const Loop = class extends Loop {};
 const Scoped = class extends DC.NetworkManager {};
-renderDataHook(() => useThing(), { managers: () => [new NM()] });
-renderDataHook(() => useThing(), { managers: () => [new AuditManager()] });
-renderDataHook(() => useThing(), { managers: () => [new Scoped()] });
-renderDataHook(() => useThing(), { managers: () => [new Loop(), new NetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [new NM(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { managers: () => [new AuditManager(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { managers: () => [new Scoped(), new SubscriptionManager(PollingSubscription)] });
+renderDataHook(() => useThing(), { managers: () => [new Loop(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
       `,
       'sees a NetworkManager imported under another name or extended locally',
     );
@@ -358,15 +362,15 @@ it('b', () => {
 });
       `,
       `
-import { NetworkManager, type Manager } from '@data-client/react';
+import { NetworkManager, type Manager, SubscriptionManager, PollingSubscription } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
 it('a', () => {
-  const managers = () => [new NetworkManager()];
+  const managers = () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)];
   renderDataHook(() => useThing(), { managers });
 });
 it('b', () => {
-  const managers = () => [new LoggingManager(), new NetworkManager()];
+  const managers = () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)];
   renderDataHook(() => useThing(), { managers });
 });
       `,
@@ -553,6 +557,160 @@ class LiveManager {
 }
       `,
       'keeps getMiddleware with a TODO when other code references it',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Logging.ts' },
+      `
+import { Manager, Middleware } from '@data-client/react';
+
+class LoggingManager implements Manager {
+  middleware: Middleware = controller => next => action => next(action);
+  getMiddleware() {
+    return this.middleware;
+  }
+}
+class Both implements Manager {
+  middleware: Middleware = controller => next => action => next(action);
+  getMiddleware() {
+    return controller => next => next;
+  }
+}
+      `,
+      `
+import { Manager, Middleware } from '@data-client/react';
+
+class LoggingManager implements Manager {
+  middleware: Middleware = controller => next => action => next(action);
+}
+class Both implements Manager {
+  middleware: Middleware = controller => next => action => next(action);
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware() {
+    return controller => next => next;
+  }
+}
+      `,
+      'removes a getMiddleware() that returns the middleware property, and marks one beside it',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'manager.ts' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+const manager = {
+  getMiddleware() {
+    return controller => next => next;
+  },
+};
+const mw = manager.getMiddleware();
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+const manager = {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware() {
+    return controller => next => next;
+  },
+};
+// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+const mw = manager.getMiddleware();
+      `,
+      'marks object-literal getMiddleware and keeps its calls',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Boss.ts' },
+      `
+import { Manager, Middleware, useSuspense } from '@data-client/react';
+import type { Manager as Job } from './types';
+
+class Injected implements Manager {
+  constructor(public middleware: Middleware) {}
+}
+      `,
+      `
+import { Manager, Middleware, useSuspense } from '@data-client/react';
+import type { Manager as Job } from './types';
+
+class Injected implements Manager {
+  constructor(public middleware: Middleware) {}
+}
+      `,
+      'sees a middleware parameter property',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Boss.ts' },
+      `
+import { useSuspense } from '@data-client/react';
+import { Manager } from './types';
+
+class Boss implements Manager {}
+      `,
+      `
+import { useSuspense } from '@data-client/react';
+import { Manager } from './types';
+
+class Boss implements Manager {}
+      `,
+      'leaves classes implementing another Manager',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'f.ts' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+function f(nm) { foo(); // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+return nm.cleanupDate; }
+function g(nm) {
+  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+  if (nm)
+    return nm.cleanupDate;
+}
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+function f(nm) { foo(); // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+return nm.cleanupDate; }
+function g(nm) {
+  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+  if (nm)
+    return nm.cleanupDate;
+}
+      `,
+      'adds no TODO a previous run left, wherever the parser attached it',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'g.ts' },
+      `
+import { NetworkManager } from '@data-client/react';
+
+function g(nm) {
+  if (nm) return nm.cleanupDate;
+}
+      `,
+      `
+import { NetworkManager } from '@data-client/react';
+
+function g(nm) {
+  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+  if (nm)
+    return nm.cleanupDate;
+}
+      `,
+      'puts the TODO above an unbraced if',
     );
 
     defineInlineTest(
