@@ -16,8 +16,9 @@ codemod at your source roots, not the repo root (it skips only `node_modules`):
 npx @data-client/codemods v0.19 <source-root>
 ```
 
-It parses JavaScript and TypeScript only, and skips files without an `@data-client/*` import. The searches below find
-what it skipped, including `.vue` and other single-file components.
+`0 errors, N unmodified` is a clean run, not a failure. The codemod parses JavaScript and TypeScript only, and skips
+files without an `@data-client/*` import; the searches below find what it skipped, including `.vue` and other
+single-file components.
 
 ## Step 2: `Controller.fetchIfStale()` always returns a Promise
 
@@ -25,11 +26,15 @@ It used to return the data synchronously when fresh. Now it always returns a Pro
 rejects unhandled: the error is stored for components, like any fetch error.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise).
 
+Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
+
 - **Fix each `TODO(data-client): fetchIfStale()` comment** the codemod left. The code below it reads the result as data
   (`instanceof Promise`, a field, destructuring, an `if`). `await` the call where the data is needed, delete the branch
   that handled synchronous data, then delete the comment.
-- **Search `fetchIfStale(` for reads the codemod can't follow**: results passed to helpers such as `isPromise(x)`, or
-  stored on objects. To check freshness without fetching, use `ctrl.getResponse(endpoint, args, ctrl.getState())`.
+- **Check every other `fetchIfStale(` call for reads the codemod can't follow**: results passed to a function (such as
+  an `isPromise(x)` helper), stored on an object or class field, or in files and components it skipped. A sync-data
+  branch behind such a check now never runs, and nothing fails to type-check. To check freshness without fetching, use
+  `ctrl.getResponse(endpoint, args, ctrl.getState())`.
 - **Don't add `.catch()` to calls you don't await.** A `.then()` chain makes a new Promise, so it still ends in
   `.catch()`.
 - **Awaited calls now reject** when the latest fetch failed within errorExpiryLength; they used to resolve `undefined`.
@@ -52,7 +57,12 @@ render(issue);
 
 ## Step 3: verify
 
-1. Search for `TODO(data-client)`: none should remain.
+1. Search for `TODO(data-client)`: none should remain. Search for `instanceof Promise`, `isPromise` and `.then ===`
+   near `fetchIfStale`: each one is a sync-data branch that no longer runs.
 2. Run the type checker. Property reads on a `fetchIfStale()` result now fail to type-check, since it is a Promise.
 3. Run the tests. The codemod turns `spyOn(ctrl, 'fetchIfStale').mockReturnValue()` into `.mockResolvedValue()`; make
-   other `fetchIfStale` mocks resolve their value the same way.
+   other `fetchIfStale` mocks, such as `{ fetchIfStale: jest.fn(() => data) }`, resolve their value the same way.
+
+## Reference
+
+- Codemod source: [`packages/codemods/src/transforms/v0.19.js`](https://github.com/reactive/data-client/blob/master/packages/codemods/src/transforms/v0.19.js)

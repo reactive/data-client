@@ -18,9 +18,7 @@
  *   3. `fetchIfStale()` always returns a Promise:
  *      - `Promise.resolve(ctrl.fetchIfStale(...))` becomes the bare call.
  *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
- *      - A statement that reads its result as the data (a member other than then/catch/finally,
- *        `instanceof`, `typeof`, `!`, a condition, destructuring, a spread or a template) gets a
- *        `// TODO(data-client):` comment, since where to `await` depends on the code around it.
+ *      - A statement that reads its result as the data gets a `// TODO(data-client):` comment.
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
@@ -219,9 +217,14 @@ function transformInitManager(j, root) {
 }
 
 const FETCH_IF_STALE_TODO =
-  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise';
+  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: ' +
+  'https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise';
 // Promise methods; reading any other member of the result means the code expected the data
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+const MOCK_RENAMES = new Map([
+  ['mockReturnValue', 'mockResolvedValue'],
+  ['mockReturnValueOnce', 'mockResolvedValueOnce'],
+]);
 // wrappers that pass the value through unchanged
 const PASS_THROUGH = new Set([
   'TSAsExpression',
@@ -234,8 +237,20 @@ const PASS_THROUGH = new Set([
 const isFetchIfStaleCall = node =>
   node?.type === 'CallExpression' && calleeName(node) === 'fetchIfStale';
 
-const unwrap = node =>
-  PASS_THROUGH.has(node?.type) ? unwrap(node.expression) : node;
+function unwrap(node) {
+  while (PASS_THROUGH.has(node?.type)) node = node.expression;
+  return node;
+}
+
+/** Whether the member at `path` is the callee of `.then()`, `.catch()` or `.finally()` */
+function isPromiseMethodCall(path) {
+  const member = path.node;
+  return (
+    !member.computed &&
+    PROMISE_METHODS.has(member.property.name) &&
+    path.parent.node.callee === member
+  );
+}
 
 /** Whether the value at `path` is used as if it were the data, not a Promise */
 function readsSynchronously(path) {
@@ -245,13 +260,7 @@ function readsSynchronously(path) {
   switch (parent.type) {
     case 'MemberExpression':
     case 'OptionalMemberExpression':
-      if (parent.object !== node) return false;
-      return !(
-        !parent.computed &&
-        PROMISE_METHODS.has(parent.property.name) &&
-        path.parent.parent.node.type.endsWith('CallExpression') &&
-        path.parent.parent.node.callee === parent
-      );
+      return parent.object === node && !isPromiseMethodCall(path.parent);
     case 'BinaryExpression':
     case 'TemplateLiteral':
     case 'SpreadElement':
@@ -267,31 +276,36 @@ function readsSynchronously(path) {
     case 'DoWhileStatement':
       return parent.test === node;
     case 'VariableDeclarator':
+      // destructuring: ObjectPattern or ArrayPattern
       return parent.init === node && parent.id.type.endsWith('Pattern');
     default:
       return false;
   }
 }
 
-/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a variable holding it */
+/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a `const` holding it */
 function findSyncReads(j, root) {
-  const reads = [];
-  root.find(j.CallExpression).forEach(call => {
-    if (!isFetchIfStaleCall(call.node)) return;
-    if (readsSynchronously(call)) reads.push(call);
-  });
-  root.find(j.Identifier).forEach(ref => {
-    if (ref.node.type !== 'Identifier' || isOtherName(ref)) return;
-    const binding = bindingOf(ref);
-    if (!binding || binding.node === ref.node) return;
-    const declaration = binding.parent.node;
-    if (
-      declaration.type === 'VariableDeclarator' &&
-      isFetchIfStaleCall(unwrap(declaration.init)) &&
-      readsSynchronously(ref)
-    )
-      reads.push(ref);
-  });
+  const reads = root
+    .find(j.CallExpression)
+    .filter(call => isFetchIfStaleCall(call.node) && readsSynchronously(call))
+    .paths();
+  root
+    .find(j.VariableDeclarator, { id: { type: 'Identifier' } })
+    .filter(decl => isFetchIfStaleCall(unwrap(decl.node.init)))
+    .forEach(decl => {
+      const { name } = decl.node.id;
+      root.find(j.Identifier, { name }).forEach(ref => {
+        if (
+          // JSX names are JSXIdentifiers
+          ref.node.type === 'Identifier' &&
+          ref.node !== decl.node.id &&
+          !isOtherName(ref) &&
+          bindingOf(ref)?.parent.node === decl.node &&
+          readsSynchronously(ref)
+        )
+          reads.push(ref);
+      });
+    });
   return reads;
 }
 
@@ -321,45 +335,60 @@ function spiesOnFetchIfStale(node) {
   );
 }
 
-function transformFetchIfStale(j, root) {
+/** `Promise.resolve(ctrl.fetchIfStale(...))` made `.catch()` work on fresh data, which the call now does itself */
+function unwrapPromiseResolve(j, root) {
+  return (
+    root
+      .find(j.CallExpression, {
+        callee: { object: { name: 'Promise' }, property: { name: 'resolve' } },
+      })
+      .filter(
+        call =>
+          call.node.arguments.length === 1 &&
+          isFetchIfStaleCall(call.node.arguments[0]),
+      )
+      .forEach(call => call.replace(call.node.arguments[0]))
+      .size() > 0
+  );
+}
+
+/** Mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` */
+function renameFetchIfStaleMocks(j, root) {
+  return (
+    root
+      .find(j.CallExpression, { callee: { type: 'MemberExpression' } })
+      .filter(
+        call =>
+          MOCK_RENAMES.has(call.node.callee.property.name) &&
+          spiesOnFetchIfStale(call.node.callee.object),
+      )
+      .forEach(call => {
+        const { callee } = call.node;
+        callee.property = j.identifier(MOCK_RENAMES.get(callee.property.name));
+      })
+      .size() > 0
+  );
+}
+
+/** Where to `await` depends on the code around it, so mark the statement instead */
+function markSyncReads(j, root) {
   let dirty = false;
-  // the wrapper made `.catch()` work on fresh data, which the call now does itself
-  root
-    .find(j.CallExpression, {
-      callee: { object: { name: 'Promise' }, property: { name: 'resolve' } },
-    })
-    .filter(
-      call =>
-        call.node.arguments.length === 1 &&
-        isFetchIfStaleCall(call.node.arguments[0]),
-    )
-    .forEach(call => {
-      call.replace(call.node.arguments[0]);
-      dirty = true;
-    });
-
-  // mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)`
-  root.find(j.CallExpression).forEach(call => {
-    const { callee } = call.node;
-    if (
-      callee.type !== 'MemberExpression' ||
-      !/^mockReturnValue(Once)?$/.test(callee.property.name) ||
-      !spiesOnFetchIfStale(callee.object)
-    )
-      return;
-    callee.property = j.identifier(
-      callee.property.name.replace('ReturnValue', 'ResolvedValue'),
-    );
-    dirty = true;
-  });
-
   findSyncReads(j, root).forEach(read => {
     const { node } = statementOf(j, read);
     const comments = node.comments || (node.comments = []);
+    // a statement can read several times, and the codemod can run again
     if (comments.some(c => c.value === FETCH_IF_STALE_TODO)) return;
     comments.push(j.commentLine(FETCH_IF_STALE_TODO, true, false));
     dirty = true;
   });
+  return dirty;
+}
+
+function transformFetchIfStale(j, root, source) {
+  if (!source.includes('fetchIfStale')) return false;
+  let dirty = unwrapPromiseResolve(j, root);
+  dirty = renameFetchIfStaleMocks(j, root) || dirty;
+  dirty = markSyncReads(j, root) || dirty;
   return dirty;
 }
 
@@ -381,7 +410,7 @@ module.exports = function transformer(fileInfo, api) {
   let dirty = false;
   dirty = transformManagers(j, root) || dirty;
   dirty = transformInitManager(j, root) || dirty;
-  dirty = transformFetchIfStale(j, root) || dirty;
+  dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
 
   return dirty ? root.toSource({ quote: 'single' }) : fileInfo.source;
 };
