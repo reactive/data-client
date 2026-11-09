@@ -579,7 +579,7 @@ import { unAuth } from '../authentication';
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined
@@ -846,6 +846,9 @@ Isso significa que a atualização otimista correspondente deixará de ser aplic
 
 É usado no [NetworkManager](./NetworkManager.md) e deve ser usado ao
 processar requisições de fetch.
+
+Passe o `action.meta.fetchedAt` da action de fetch como `fetchedAt`. Assim, o store descarta respostas de fetches iniciados antes de
+[resetEntireStore()](#resetEntireStore), e uma resposta antiga não conclui um fetch mais recente da mesma chave.
 
 ### subscribe(endpoint, ...args) {#subscribe}
 

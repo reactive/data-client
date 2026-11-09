@@ -16,7 +16,12 @@ import TabItem from '@theme/TabItem';
 
 Gestiona el estado y proporciona todo el contexto necesario para usar los hooks. Debe colocarse lo más arriba posible
 en el árbol de la aplicación, ya que los hooks solo pueden usarse en los componentes que están por debajo del provider
-en el árbol de React.
+en el árbol de React. Mantenlo también por encima de tus [límites de Suspense](../getting-started/data-dependency.md#boundaries): su
+`<Suspense>` de respaldo, que muestra "Uncaught Suspense" en desarrollo, captura antes que cualquier límite que esté por encima.
+
+Es preferible colocarlo por encima de [`<Activity>`](https://react.dev/reference/react/Activity). Poner `<Activity>` por encima de `DataProvider`
+también funciona, por ejemplo cuando una pestaña o ruta que `<Activity>` oculta tiene su propio `DataProvider`. Al ocultarlo
+[se pausan sus Managers](./Manager.md#cleanup), por lo que el polling se detiene. Su store sigue aplicando respuestas.
 
 <Installation />
 
@@ -25,7 +30,7 @@ en el árbol de React.
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
@@ -45,11 +50,12 @@ interface ProviderProps {
 En lugar de empezar con una caché vacía, puedes proporcionar tu propio estado inicial. Esto puede
 ser útil para pruebas o para rehidratar el estado de la caché al usar renderizado del lado del servidor.
 
-### managers?: Manager[] {#managers}
+### managers?: () => Manager[] {#managers}
 
-Lista de [Manager](./Manager.md)s que se usarán. Es el principal punto de extensibilidad del provider.
+Una función que devuelve los [Managers](./Manager.md) que se usarán. Es el principal punto de extensibilidad del provider.
 
-[getDefaultManagers()](./getDefaultManagers.md) puede usarse para ampliar los managers predeterminados.
+Se ejecuta una vez por cada store, así que cada `DataProvider` obtiene sus propios Managers. Defínela a nivel de módulo y
+[añade tus propios Managers](./Manager.md#adding) con [getDefaultManagers()](./getDefaultManagers.md).
 
 Predeterminado en producción:
 

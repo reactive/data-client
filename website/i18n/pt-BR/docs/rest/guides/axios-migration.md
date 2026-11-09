@@ -105,10 +105,13 @@ Um codemod do [jscodeshift](https://github.com/facebook/jscodeshift) cuida da pa
 pastas de código-fonte, nunca na raiz do repositório:
 
 ```bash
-npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
+npx @data-client/codemods axios-to-rest src/
 ```
 
-<DiffEditor caption="Cada chamada do axios vira uma chamada a um endpoint. Os parâmetros do path, `params` e o body viram seus argumentos, e ele resolve para o body, então `.data` desaparece.">
+O codemod não formata o que escreve. Depois, execute o formatador ou o corretor de lint que o seu projeto usa nos arquivos
+alterados, como `prettier --write`, `eslint --fix` ou `biome check --write`.
+
+<DiffEditor caption="Cada chamada do axios vira uma chamada a um endpoint, criado uma única vez no nível do módulo. Os parâmetros do path, `params` e o body viram seus argumentos, e ele resolve para o body, então `.data` desaparece.">
 
 ```ts title="Before"
 import axios from 'axios';
@@ -133,15 +136,20 @@ class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   urlPrefix = 'https://api.example.com';
 }
 
+const getPostEndpoint = new ApiEndpoint({ path: '/posts/:id' });
+
+const createPostEndpoint = new ApiEndpoint({
+  path: '/posts',
+  method: 'POST',
+});
+
 export async function getPost(id: string) {
-  const res = await new ApiEndpoint({ path: '/posts/:id' })({ id });
+  const res = await getPostEndpoint({ id });
   return res;
 }
 
 export async function createPost(body: { title: string }) {
-  const data = await new ApiEndpoint({ path: '/posts', method: 'POST' })(
-    body,
-  );
+  const data = await createPostEndpoint(body);
   return data;
 }
 ```
@@ -152,13 +160,19 @@ O que ele não consegue converter, como interceptors, `timeout`, `isAxiosError()
 aos seus chamadores, recebe um comentário `// TODO(data-client):` com um link para a seção abaixo que trata do caso. Busque por
 `TODO(data-client)` e resolva cada um ao percorrer os próximos passos.
 
+Os endpoints que o codemod move para o nível do módulo são criados quando o módulo é carregado. Ele os mantém dentro da função quando
+o módulo que define a classe base importa o arquivo deles, mas não enxerga um ciclo de importação mais longo. Se existir um, essa
+importação é executada primeiro e falha com `Cannot access 'ApiEndpoint' before initialization`. Quebre o ciclo de importação ou mova
+esses endpoints para o módulo que define a classe base.
+
 Se o projeto encapsula o axios em uma classe ou função própria e nunca chama `axios.get()` ou `.post()` diretamente, ou só
 chama `axios(config)`, o codemod tem pouco a fazer. Pule-o e comece pelo [passo 3](#base-endpoint).
 
 ### 3. Mova os interceptors para um endpoint base {#base-endpoint}
 
 Os interceptors e a configuração de instância do axios viram métodos de uma subclasse de `RestEndpoint` que todos os endpoints estendem. O
-codemod cria essa classe a partir de `axios.create()`; mova os interceptors para dentro dela.
+codemod cria essa classe a partir de `axios.create()`. Ele comenta a configuração de `api.interceptors` e `api.defaults` do módulo,
+já que `api` deixa de existir, e marca cada uma com um `TODO(data-client)`; mova cada uma para dentro da classe.
 
 <DiffEditor caption="O `RestEndpoint` interpreta o JSON por conta própria, então um interceptor que apenas extrai `response.data` não tem mais nada a fazer.">
 
@@ -547,6 +561,7 @@ npm uninstall axios
 | `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) com `.status` e `.response`                                                     |
 | `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                         |
 | `timeout`                                | [`AbortSignal.timeout()`](#timeout) em `getRequestInit()`                                                         |
+| `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) em `getRequestInit()`                               |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
 | `auth: { username, password }`           | [`getHeaders()` com `btoa()`](#basic-auth)                                                                        |

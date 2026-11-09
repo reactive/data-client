@@ -344,7 +344,7 @@ it('useSuspense() resolves an article', async () => {
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/installation)
+For the small price of 9kb brotli. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/installation)
 
 ## Features
 

@@ -46,6 +46,12 @@ upgrading from an older version, run `npx --no data-client-skills --upgrade` to 
 `--upgrade` once you're done to remove them. The Claude Code, Cursor and Codex plugins set up apps that don't have Data
 Client yet. If you use [TanStack Intent](https://tanstack.com/intent), it loads the same package skills.
 
+In a workspace monorepo, it links them at the workspace root, even when run from a workspace package, and links in that
+package only the skills it installs at another version, which agents load when they work on that package's files. When
+that root, or an app without workspaces, sits in a subfolder of the repository, it links them there and says to start
+your agent there, since Claude Code and Cursor started at the repository root load them only once they work on its
+files.
+
 ### Available Skills
 
 - [**`/data-client`**](https://skills.sh/reactive/data-client/data-client) — starts here when you ask your agent to add or use Data Client, and routes it to setup or the skill for the task.

@@ -26,6 +26,7 @@ type RenderDataHook = {
       initialFixtures?: Fixture[];
       resolverFixtures?: (Fixture | Interceptor<T>)[];
       getInitialInterceptorData?: () => T;
+      managers?: () => Manager[];
       wrapper?: React.ComponentType;
     },
   ): {
@@ -45,8 +46,9 @@ type RenderDataHook = {
       options?: waitForOptions,
     ): Promise<T>;
   };
-  /** cleanup is automatic; only needed for ordering (e.g., before jest.useRealTimers()) */
+  /** @deprecated use cleanup() from the renderDataHook() return value */
   cleanup(): void;
+  /** @deprecated use allSettled() from the renderDataHook() return value */
   allSettled(): Promise<unknown>;
 };
 ```
@@ -110,6 +112,45 @@ it('useSuspense() should render the response', async () => {
 
 用于为所有 interceptor 初始化 `this` 属性的函数。
 
+### options.managers {#optionsmanagers}
+
+返回要使用的 [Manager](./Manager.md)。每次调用 `renderDataHook()` 都会调用它一次，因此每个测试都会得到
+新的实例。其结果会替换默认的 [NetworkManager](./NetworkManager.md) 和
+[SubscriptionManager](./SubscriptionManager.md)。结果中必须包含一个 `NetworkManager`；当测试需要订阅时，
+再加上一个 `SubscriptionManager`。
+
+要看到 `fetch` action，请把 Manager 放在 `NetworkManager` 之前，因为 `NetworkManager` 会处理它们而不会
+继续传递下去。
+
+```ts
+import type { Manager } from '@data-client/react';
+import { NetworkManager, useController } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+import { TodoResource } from './resources/Todo';
+
+it('logs every action', async () => {
+  const types: string[] = [];
+  const logger: Manager = {
+    middleware: () => next => action => {
+      types.push(action.type);
+      return next(action);
+    },
+    cleanup() {},
+  };
+  // highlight-start
+  const { controller } = renderDataHook(() => useController(), {
+    managers: () => [logger, new NetworkManager()],
+  });
+  // highlight-end
+  await controller.setResponse(
+    TodoResource.get,
+    { id: 5 },
+    { id: 5, title: 'hi', completed: false },
+  );
+  expect(types).toEqual(['rdc/setresponse']);
+});
+```
+
 ### options.initialProps {#optionsinitialprops}
 
 传给回调函数的初始值
@@ -170,30 +211,33 @@ it('should update', async () => {
 
 ### cleanup() {#cleanup}
 
-清理本次渲染中使用的所有 manager。
-这在模拟定时器时尤其重要，因为 Reactive Data Client 的内部实现依赖真实的定时器来
-避免竞态条件。
+清理本次渲染的 manager。Reactive Data Client 的内部实现使用真实的定时器来避免竞态条件，因此
+当你模拟定时器时，这一点很重要。
 
-清理会通过模块级的 `afterEach` hook 在每个测试结束后自动运行（与 `@testing-library/react` 类似）。
-只有当你必须在测试体内控制清理顺序时才需要手动调用——例如，
-在从模拟定时器切换回真实定时器之前进行清理：
+清理会在每个测试结束后通过 `afterEach` hook 运行，与 `@testing-library/react` 类似。只有需要在测试中控制
+清理顺序时才需要自己调用它。例如，在从模拟定时器切换到真实定时器之前进行清理：
 
 ```ts
 it('should handle polling', async () => {
   jest.useFakeTimers();
-  const { result } = renderDataHook(/* ... */);
+  const { result, cleanup } = renderDataHook(/* ... */);
   // ... assertions ...
   // highlight-next-line
-  renderDataHook.cleanup(); // must run while fake timers are still active
+  cleanup(); // must run while fake timers are still active
   jest.useRealTimers();
 });
 ```
 
 ### allSettled() {#allsettled}
 
-返回一个 promise，在所有进行中的请求完成后 resolve。
+返回一个 promise，在本次渲染的所有进行中的请求完成后 resolve。
 
-每次调用 `renderDataHook()` 的返回值上也提供了该方法。
+:::warning[已弃用]
+
+`renderDataHook.cleanup()` 和 `renderDataHook.allSettled()` 只作用于最近一次渲染。请使用每次
+`renderDataHook()` 调用返回的版本。
+
+:::
 
 ### result {#result}
 

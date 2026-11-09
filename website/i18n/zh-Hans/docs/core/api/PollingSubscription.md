@@ -9,7 +9,7 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 - 离线时暂停。
 - 恢复在线时立即获取。
-- 对任何新的订阅立即获取。
+- 首次订阅时，在数据经过一个轮询间隔后获取。如果数据更旧，则立即获取。
 
 :::info implements
 
@@ -20,7 +20,7 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 <ProviderManagers imports={['NetworkManager', 'SubscriptionManager', 'PollingSubscription']}>
 
 ```ts
-const managers = [
+const managers = () => [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription),
 ];

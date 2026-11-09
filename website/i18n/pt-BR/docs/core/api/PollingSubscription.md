@@ -10,7 +10,7 @@ resource.
 
 - Pausa quando está offline.
 - Faz fetch imediatamente quando o status online retorna.
-- Faz fetch imediatamente de qualquer nova subscription.
+- Na primeira subscription, faz fetch quando os dados têm um intervalo de idade. Se os dados forem mais antigos, faz fetch imediatamente.
 
 :::info implements
 
@@ -21,7 +21,7 @@ resource.
 <ProviderManagers imports={['NetworkManager', 'SubscriptionManager', 'PollingSubscription']}>
 
 ```ts
-const managers = [
+const managers = () => [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription),
 ];

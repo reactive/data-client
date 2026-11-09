@@ -36,6 +36,13 @@ Os argumentos representam o tempo padrão (em milissegundos) antes de um recurso
 
 ### middleware {#middleware}
 
+Descarta uma resposta quando o fetch dela começou antes do último [resetEntireStore()](./Controller.md#resetEntireStore). Uma
+resposta mais antiga não conclui um fetch mais recente da mesma key.
+
+Quando `middleware` recebe um controller diferente, um novo store está usando este NetworkManager, o que só acontece quando a
+[função managers](./Manager.md#lifetimes) retorna uma instância criada fora dela. O NetworkManager deixa de acompanhar os fetches do store antigo, então as promises deles nunca são concluídas. Ele também não envia fetches do
+store antigo.
+
 #### Actions consumidas {#consumed-actions}
 
 - [fetch](./Controller.md#fetch)
@@ -51,6 +58,11 @@ Iniciará a requisição de rede e, ao concluir, fará o dispatch.
 #### Actions despachadas {#dispatched-actions}
 
 - [resolve](./Controller.md#resolve)
+
+### cleanup() {#cleanup}
+
+Não interrompe nada. Fetches em andamento continuam, e as respostas deles ainda atualizam o store, porque
+[cleanup()](./Manager.md#cleanup) também é executado quando o store apenas fica oculto, como por um `<Activity>`.
 
 ### allSettled(): Promise {#allSettled}
 
@@ -99,9 +111,9 @@ Timestamp da última vez em que o store inteiro foi resetado
 
 ### clear(key) {#clear}
 
-Limpa o estado da promise para uma determinada key
+Deixa de acompanhar o fetch de uma determinada key, sem concluir a promise dele.
 
 ### clearAll() {#clearall}
 
-Garante que todas as promises sejam concluídas rejeitando as restantes
+Deixa de acompanhar todos os fetches em andamento, sem concluir as promises deles.
 

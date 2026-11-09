@@ -10,7 +10,7 @@ A [RestEndpoint](/rest/api/RestEndpoint) without path or search params takes `{}
 <CodeBlock
   language="typescript">
   {`// todo could be undefined if id is undefined
-const todo = ${props.hook ?? 'useSuspense'}(TodoResource.get, id ? { id } : null);`}
+const todo = ${props.hook ?? 'useSuspense'}(${props.target ?? 'TodoResource.get'}, id ? { id } : null);`}
 </CodeBlock>
 
 :::
@@ -21,7 +21,7 @@ const todo = ${props.hook ?? 'useSuspense'}(TodoResource.get, id ? { id } : null
   language="typescript">
   {`// todo could be undefined if id is undefined
 const todo = ${(props.hook ?? 'useSuspense') === 'useSuspense' ? 'await ' : ''}${props.hook ?? 'useSuspense'}(
-  TodoResource.get,
+  ${props.target ?? 'TodoResource.get'},
   computed(() => (id.value ? { id: id.value } : null)),
 );`}
 </CodeBlock>

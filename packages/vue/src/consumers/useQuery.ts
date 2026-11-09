@@ -7,7 +7,7 @@ import { computed, toValue } from 'vue';
 import type { ComputedRef } from 'vue';
 
 import { useController, injectState } from '../context.js';
-import type { MaybeRefsOrGetters } from '../types.js';
+import type { MaybeRefsOrGettersNullable } from '../types.js';
 import useCountRef from './useCountRef.js';
 
 /**
@@ -18,7 +18,7 @@ import useCountRef from './useCountRef.js';
  */
 export default function useQuery<S extends Queryable>(
   schema: S,
-  ...args: MaybeRefsOrGetters<SchemaArgs<S>>
+  ...args: MaybeRefsOrGettersNullable<SchemaArgs<S>> | readonly [null]
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 
 export default function useQuery(

@@ -73,7 +73,14 @@ jobs:
         id: next
         if: github.event_name != 'pull_request'
         run: |
-          [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
+          [ -f website/versionCurrent.json ] || exit 0
+          echo "next=1" >> "$GITHUB_OUTPUT"
+          # /next leaves the root its branch's posts (docusaurus.config.ts).
+          # Only a shallow clone fetches shallow (see Checkout)
+          ref="$(jq -r .ref website/versionCurrent.json)"
+          depth=()
+          [ "$(git rev-parse --is-shallow-repository)" = false ] || depth=(--depth=1)
+          git fetch --no-tags "${depth[@]}" origin "+refs/heads/$ref:refs/remotes/origin/$ref"
       # `checks` saves both caches, off this job's critical path
       - name: Install packages
         id: install

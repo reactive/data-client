@@ -429,6 +429,36 @@ describe('vue useQuery()', () => {
       },
     );
 
+    it.each(argForms)(
+      'should skip with null and resume when args are given (%s args)',
+      async (_, toArg) => {
+        const props = reactive({ id: null as number | null });
+        const { result } = await renderDataCompose(
+          () => {
+            return useQuery(
+              ArticleWithSlug,
+              toArg(() => (props.id !== null ? { id: props.id } : null)),
+            );
+          },
+          {
+            initialFixtures: [
+              {
+                endpoint: ArticleSlugResource.get,
+                args: [{ id: 5 }],
+                response: payloadSlug,
+              },
+            ],
+          },
+        );
+
+        expect(result.value).toBeUndefined();
+        props.id = payloadSlug.id;
+        expect(result.value).toEqual(ArticleWithSlug.fromJS(payloadSlug));
+        props.id = null;
+        expect(result.value).toBeUndefined();
+      },
+    );
+
     it('should update result when Entity args change from slug to id', async () => {
       const props = reactive({
         id: 5 as number | undefined,

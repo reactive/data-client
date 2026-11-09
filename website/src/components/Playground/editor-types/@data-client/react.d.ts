@@ -142,7 +142,7 @@ declare function useCache<E extends Pick<EndpointInterface<FetchFunction, Schema
  * `useQuery` results are globally memoized.
  * @see https://dataclient.io/docs/api/useQuery
  */
-declare function useQuery<S extends Queryable>(schema: S, ...args: NI<SchemaArgs<S>>): DenormalizeNullable<S> | undefined;
+declare function useQuery<S extends Queryable>(schema: S, ...args: NI<SchemaArgs<S> | readonly [null]>): DenormalizeNullable<S> | undefined;
 
 type ErrorTypes = NetworkError | UnknownError;
 /**

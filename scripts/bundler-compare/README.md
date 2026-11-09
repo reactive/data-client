@@ -1,6 +1,6 @@
 # bundler-compare
 
-Builds a two-page app (one lazy chunk per page) from this checkout's packages and prints its gzipped and brotli JS
+Builds a two-page app (one lazy chunk per page) from this checkout's packages and prints the brotli size of its JS
 with one bundler per family. Each one is the fastest of its family:
 
 | Family    | Bundler           | Stands in for  |

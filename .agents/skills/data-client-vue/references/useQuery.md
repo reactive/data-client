@@ -9,7 +9,7 @@ Access any [Queryable Schema](https://dataclient.io/rest/api/schema#queryable)'s
 If the value does not exist, returns `undefined`.
 
 `useQuery()` is reactive to data [mutations](./mutations.md); rerendering only when necessary. Returns `undefined`
-when data is [Invalid](https://dataclient.io/vue/concepts/expiry-policy#invalid).
+when data is [Invalid](https://dataclient.io/vue/concepts/expiry-policy#invalid), or when `null` is the second argument.
 
 > **Tip**
 >
@@ -145,12 +145,25 @@ export const PostResource = resource({
 See [truthiness narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing) for
 more information about type handling
 
+> **Tip: Conditional Dependencies**
+>
+> Use `null` as the second argument to any Data Client hook means "do nothing."
+> A [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) without path or search params takes `{}` in its place, like `enabled ? {} : null`.
+>
+> ```typescript
+> // todo could be undefined if id is undefined
+> const todo = useQuery(
+>   Todo,
+>   computed(() => (id.value ? { id: id.value } : null)),
+> );
+> ```
+
 ## Types
 
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: MaybeRefsOrGetters<SchemaArgs<S>>
+  ...args: MaybeRefsOrGetters<SchemaArgs<S>> | [null]
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 ```
 

@@ -11,13 +11,12 @@ import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/
 
 # 关系型数据
 
-Reactive Data Client 通过 [Entity.schema][3] 处理 [Entity][1] 之间的
-一对一、多对一和多对多关系
+在 [Entity.schema][3] 中声明 [Entity][1] 之间的一对一、多对一和多对多关系。
 
 ## 嵌套 {#nesting}
 
-定义了 [Entity.schema][3] 后，嵌套成员会在规范化时被提升出来，
-然后在反规范化时重新组合
+当 Entity 定义了 [Entity.schema][3] 时，规范化会把每个嵌套的 Entity 单独存储。反规范化会把
+它们重新组合起来。
 
 <details>
 <summary><b>示意图</b></summary>
@@ -212,8 +211,8 @@ render(<PostPage />);
 
 在 endpoint 不嵌套数据时实现嵌套。
 
-即使网络响应中的数据没有嵌套，我们也可以通过在 [Entity.schema](../api/Entity.md#schema)
-中指定关联关系来进行客户端 join。
+当响应没有嵌套关联数据时，请在 [Entity.schema](../api/Entity.md#schema) 中声明关联关系。
+Data Client 随后会在客户端组合这些数据。
 
 这里 `/todos` 只发送每个 todo 的 `userId`。[Entity.process()](../api/Entity.md#process) 让
 `user` 指向该 id，因此列表中的每个 todo 都带有来自 `/users` 的完整 `User`。组件本可以自己
@@ -492,12 +491,12 @@ render(<TodoList />);
 
 ### 基于键的 join {#key-based-joins}
 
-在关联 Entity 是分别获取的更复杂场景中，可以使用 [Entity.process()](/rest/api/Entity#process)
-创建一个指向另一个 Entity 的引用键。这在以下情况中很有用：
+当关联 Entity 来自不同的获取时，使用 [Entity.process()](/rest/api/Entity#process) 添加一个
+引用另一个 Entity 的键。在以下情况中使用它：
 
-- 关联数据来自不同的 API endpoint
-- 你想避免过度获取嵌套数据
-- 关联关系是可选的，或随上下文而变化
+- 关联数据来自不同的 API endpoint。
+- 你不想获取不需要的嵌套数据。
+- 关联关系是可选的，或取决于上下文。
 
 ```typescript
 import { Entity, resource } from '@data-client/rest';
@@ -539,15 +538,13 @@ class Currency extends Entity {
 }
 ```
 
-当 `CurrencyResource.getList` 和 `StatsResource.getList` 都获取完成后，`stats`
-字段会自动解析为对应的 `Stats` Entity。
+在 `CurrencyResource.getList` 和 `StatsResource.getList` 都 resolve 之后，`stats` 就是对应的 `Stats` Entity。
 
 ### 加密货币价格示例 {#crypto-price-example}
 
-这里我们想按交易量对 `Currencies` 排序。但交易量只存在于 `Stats`
-Entity 中。尽管 `CurrencyResource.getList` 的响应中不包含 `Stats`，我们仍然可以额外
-调用 `StatsResource.getList`，同时把它加入 `Currency's` [Entity.schema](../api/Entity.md#schema)——这样
-`Currency` Entity 中就包含了 `Stats`，从而可以这样排序：
+这个列表按交易量对 `Currencies` 排序。只有 `Stats` Entity 包含交易量，而
+`CurrencyResource.getList` 的响应中不包含它。因此页面还会获取 `StatsResource.getList`，并由
+`Currency` 的 [Entity.schema](../api/Entity.md#schema) 把 `Stats` 添加到每个 `Currency` 上。这样列表就可以排序：
 
 ```ts
 entries.sort((a, b) => {
@@ -561,12 +558,11 @@ entries.sort((a, b) => {
 
 在 endpoint 不嵌套数据时实现嵌套（第二部分）。
 
-即使响应只在一个方向上嵌套，Reactive Data Client 也能通过覆盖 [Entity.process](../api/Entity.md#process)
-处理反向关系。此外，可能还需要覆盖 [Entity.merge](../api/Entity.md#merge)，
-以确保对这些预期字段进行深度合并。
+响应可能只在一个方向上嵌套。要添加反向关系，请覆盖
+[Entity.process](../api/Entity.md#process)。你可能还需要覆盖 [Entity.merge](../api/Entity.md#merge) 来
+深度合并这些字段。
 
-这样你只需处理一次获取请求就能遍历这些关联关系，而不必每次
-想访问不同视图时都重新获取。
+这样一次获取就能提供该关联关系的所有视图，无需为每个视图单独获取。
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -850,8 +846,8 @@ export default function PostPage() {
 
 ### 循环依赖 {#circular-dependencies}
 
-由于不允许循环导入和循环的类定义，有时
-需要在 [Entity][1] 定义之后再定义 [schema][3]。
+JavaScript 不允许循环导入或循环的类定义。因此对于相互引用的 [Entity][1]，
+请在类定义之后再定义 [schema][3]。
 
 ```typescript title="resources/Post"
 import { Collection, Entity } from '@data-client/rest';

@@ -428,6 +428,34 @@ class User extends GQLEntity {
 }
 ```
 
+Si una API marca una entidad relacionada ausente con algo distinto de `null`, como `{}` o
+`{ id: null }`, normalizarla lanza `Missing usable primary key`. Convierte ese valor en `undefined`
+en el [process()](#process) del padre. Para una API que envía `{}`:
+
+```typescript
+class Post extends GQLEntity {
+  author?: User = undefined;
+  static schema = { author: User };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-start
+    const { author } = processed;
+    if (author && typeof author === 'object' && !Object.keys(author).length)
+      processed.author = undefined;
+    // highlight-end
+    return processed;
+  }
+}
+```
+
+Entonces `post.author` es `undefined`, y un autor almacenado se borra del mismo modo que lo borra `null`.
+
 ### static indexes?: (keyof this)[] {#indexes}
 
 Los índices aumentan el rendimiento al hacer búsquedas basadas en esos parámetros. Agrega a la lista

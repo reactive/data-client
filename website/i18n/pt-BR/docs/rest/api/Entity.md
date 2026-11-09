@@ -392,6 +392,35 @@ class User extends Entity {
 }
 ```
 
+Se uma API marca uma entity relacionada ausente com algo diferente de `null`, como `{}` ou
+`{ id: null }`, normalizá-la lança `Missing usable primary key`. Transforme esse valor em `undefined`
+no [process()](#process) do pai. Para uma API que envia `{}`:
+
+```typescript
+class Post extends Entity {
+  id = '';
+  author?: User = undefined;
+  static schema = { author: User };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-start
+    const { author } = processed;
+    if (author && typeof author === 'object' && !Object.keys(author).length)
+      processed.author = undefined;
+    // highlight-end
+    return processed;
+  }
+}
+```
+
+Então `post.author` é `undefined`, e um autor armazenado é limpo da mesma forma que `null` o limpa.
+
 ### static indexes?: (keyof this)[] {#indexes}
 
 Os índices aumentam o desempenho de buscas baseadas nesses parâmetros. Adicione à lista

@@ -3,6 +3,7 @@ import CodeBlock from '@theme/CodeBlock';
 ::::tip[Dependências condicionais]
 
 Usar `null` como segundo argumento de qualquer hook do <abbr title="Reactive Data Client">Data Client</abbr> significa "não fazer nada."
+Um [RestEndpoint](/rest/api/RestEndpoint) sem parâmetros de path ou de busca recebe `{}` no lugar, como em `enabled ? {} : null`.
 
 :::react
 

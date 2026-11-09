@@ -16,13 +16,13 @@ import { validatorFixtures } from '@site/src/fixtures/validators';
 
 ## Listas expandibles {#expanding-lists}
 
-Si quieres añadir resultados a tu lista existente, en lugar de pasar a otra página,
-puedes usar [Resource.getList.getPage](../api/resource.md#getpage) siempre que se haya proporcionado [paginationField](../api/resource.md#paginationfield).
+Para añadir resultados a la lista en lugar de pasar a otra página, usa
+[Resource.getList.getPage](../api/resource.md#getpage). Necesita [paginationField](../api/resource.md#paginationfield).
 
 <PaginationDemo />
 
-¡No olvides definir el [paginationField](../api/resource.md#paginationfield) de nuestro [Resource](../api/resource.md) y el
-[schema](../api/resource.md#schema) correcto!
+Define el [paginationField](../api/resource.md#paginationfield) y el
+[schema](../api/resource.md#schema) de tu [Resource](../api/resource.md):
 
 ```ts title="Post"
 export const PostResource = resource({
@@ -38,17 +38,17 @@ export const PostResource = resource({
 
 ### Demo de issues de Github {#github-issues-demo}
 
-Nuestro componente `NextPage` tiene un manejador de clic que llama a [RestEndpoint.getPage](../api/RestEndpoint.md#getpage).
-Desplázate hasta el final de la vista previa y haz clic en _"Load more"_ para añadir la siguiente página de issues.
+`NextPage` llama a [RestEndpoint.getPage](../api/RestEndpoint.md#getpage) al hacer clic. Desplázate hasta el final de la vista previa
+y haz clic en _"Load more"_ para añadir la siguiente página de issues.
 
 <StackBlitz app="github-app" file="src/resources/Issue.tsx,src/pages/NextPage.tsx" height={700} />
 
 ### Usar RestEndpoint directamente {#using-restendpoint-directly}
 
-Aquí exploramos un ejemplo del mundo real usando la [lista de validadores de Cosmos Hub](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
-
-Como los validadores solo tienen un Endpoint, usamos [RestEndpoint](../api/RestEndpoint.md) en lugar de [resource](../api/resource.md). Con [Collections](../api/Collection.md) y [paginationField](../api/RestEndpoint.md#paginationfield), podemos llamar a [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
-para añadir la siguiente página de validadores a nuestra lista.
+Este ejemplo usa la [lista de validadores de Cosmos Hub](https://rest.cosmos.directory/cosmoshub/cosmos/staking/v1beta1/validators).
+Solo tiene un endpoint, así que usa [RestEndpoint](../api/RestEndpoint.md) en lugar de [resource](../api/resource.md).
+Con una [Collection](../api/Collection.md) y [paginationField](../api/RestEndpoint.md#paginationfield),
+[RestEndpoint.getPage](../api/RestEndpoint.md#getpage) añade la siguiente página de validadores a la lista.
 
 <FrameworkPlayground defaultOpen="n" row fixtures={validatorFixtures}>
 
@@ -149,11 +149,11 @@ export default function LoadMore({ next_key, limit }) {
   );
   if (!next_key) return null;
   return (
-    <center>
+    <div className="loadMore">
       <button onClick={handleLoadMore} disabled={isPending}>
         {isPending ? '...' : 'Load more'}
       </button>
-    </center>
+    </div>
   );
 }
 ```
@@ -225,7 +225,7 @@ render(<ValidatorList />);
 </script>
 
 <template>
-  <div v-if="next_key" style="text-align: center">
+  <div v-if="next_key" class="loadMore">
     <button @click="handleLoadMore" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
@@ -265,9 +265,9 @@ render(<ValidatorList />);
 
 ### Desplazamiento infinito {#infinite-scrolling}
 
-Como los comportamientos de la interfaz varían mucho, y las implementaciones cambian según la plataforma (react-native o web),
-asumiremos que existe un componente `Pagination` que usa un callback para activar la obtención de la siguiente
-página. En la web, se recomienda usar algo basado en [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+La interfaz del desplazamiento infinito varía según la app y la plataforma (React Native o web). Este ejemplo usa un componente `Pagination` que
+llama a un callback para obtener la siguiente página. En la web, constrúyelo con un
+[Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
 
 :::react
 
@@ -321,16 +321,12 @@ function NewsList() {
 
 ## Tokens en las cabeceras HTTP {#tokens-in-http-headers}
 
-En algunos casos los tokens de paginación vendrán incrustados en las cabeceras HTTP, en lugar de formar parte del payload. En este
-caso tendrás que personalizar la función [parseResponse()](../api/RestEndpoint.md#parseResponse)
-de [getList](../api/resource.md#getlist) para que las cabeceras de paginación se incluyan en el objeto de fetch.
-
-A continuación mostramos el `getList` personalizado. El resto de las partes del ejemplo anterior permanecen igual.
-
-En este ejemplo, el token de paginación se almacena en la cabecera `link`.
+Algunas APIs envían los tokens de paginación en las cabeceras HTTP en lugar de en el cuerpo. Sobrescribe el
+[parseResponse()](../api/RestEndpoint.md#parseResponse) de [getList](../api/resource.md#getlist) para añadir la cabecera a
+la respuesta. En este ejemplo, el token está en la cabecera `link`. El resto del ejemplo anterior permanece igual.
 
 ```typescript
-import { Collection, Resource } from '@data-client/rest';
+import { resource } from '@data-client/rest';
 
 export const ArticleResource = resource({
   path: '/articles/:id',
@@ -357,8 +353,7 @@ export const ArticleResource = resource({
 
 ### Organización del código {#code-organization}
 
-Si gran parte de tu API comparte una paginación similar, puedes
-probar una clase Endpoint personalizada que comparta esta lógica.
+Si muchos endpoints comparten la misma paginación, pon la lógica en una clase Endpoint personalizada.
 
 ```ts title="resources/PagingEndpoint.ts"
 import { Collection, RestEndpoint, type RestGenerics } from '@data-client/rest';

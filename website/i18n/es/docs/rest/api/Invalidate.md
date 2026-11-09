@@ -83,16 +83,13 @@ function UsersPage() {
   const users = useSuspense(getUsers);
   const ctrl = useController();
   return (
-    <div>
+    <div className="list">
       {users.map(user => (
-        <div key={user.pk()}>
-          {user.name}{' '}
-          <span
-            style={{ cursor: 'pointer' }}
+        <div key={user.pk()} className="listItem nogap">
+          <span>{user.name}</span>
+          <CancelButton
             onClick={() => ctrl.fetch(deleteUser, { id: user.id })}
-          >
-            ❌
-          </span>
+          />
         </div>
       ))}
     </div>
@@ -115,15 +112,10 @@ render(<UsersPage />);
 </script>
 
 <template>
-  <div>
-    <div v-for="user in users" :key="user.pk()">
-      {{ user.name }}
-      <span
-        style="cursor: pointer"
-        @click="ctrl.fetch(deleteUser, { id: user.id })"
-      >
-        ❌
-      </span>
+  <div class="list">
+    <div v-for="user in users" :key="user.pk()" class="listItem nogap">
+      <span>{{ user.name }}</span>
+      <CancelButton @click="ctrl.fetch(deleteUser, { id: user.id })" />
     </div>
   </div>
 </template>

@@ -47,6 +47,25 @@ describe('Controller.get()', () => {
     () => controller.get(Tacos, { doesnotexist: 5 }, state);
   });
 
+  it('returns undefined for null args', () => {
+    const controller = new Controller();
+    const state = { ...initialState, entities };
+    expect(controller.get(Tacos, null, state)).toBeUndefined();
+    expect(controller.get(TacoList, null, state)).toBeUndefined();
+    expect(controller.get(new All(Tacos), null, state)).toBeUndefined();
+    expect(controller.getQueryMeta(Tacos, null, state).data).toBeUndefined();
+    const id = null as string | null;
+    expect(
+      controller.get(Tacos, id !== null ? { id } : null, state),
+    ).toBeUndefined();
+    // @ts-expect-error null only replaces all args
+    () => controller.get(Tacos, null, { id: '1' }, state);
+
+    const snapshot = controller.snapshot(state);
+    expect(snapshot.get(Tacos, null)).toBeUndefined();
+    expect(snapshot.getQueryMeta(TacoList, null).data).toBeUndefined();
+  });
+
   describe('indexes', () => {
     class User extends Entity {
       id = '';

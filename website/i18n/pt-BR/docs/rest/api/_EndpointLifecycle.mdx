@@ -48,6 +48,28 @@ de [process()](./RestEndpoint.md#process), ele deve corresponder a esse tipo.
 
 <VoteDemo />
 
+Uma [Entity](./Entity.md) em `expectedResponse` só precisa da sua [chave primária](./Entity.md#pk) e dos campos que
+mudam: os campos que ela deixa de fora mantêm seus valores em cache. Sem a chave primária, a entity em cache não muda,
+então a UI espera pelo servidor (os builds de desenvolvimento registram o motivo). Quando os argumentos do endpoint não incluem a
+chave, como em `PATCH /users/profile`, leia-a do [snapshot](/docs/api/Snapshot):
+
+```ts
+const getMe = new RestEndpoint({ path: '/users/me', schema: User });
+const updateProfile = new RestEndpoint({
+  path: '/users/profile',
+  method: 'PATCH',
+  body: {} as { firstName: string; bio: string },
+  schema: User,
+  getOptimisticResponse(snap, body) {
+    const { data: user } = snap.getResponse(getMe);
+    if (!user) throw snap.abort;
+    return { id: user.id, ...body };
+  },
+});
+```
+
+`throw snap.abort` pula a atualização otimista quando a entity ainda não está em cache.
+
 <center>
 <Link className="button button--secondary button--sm" to="../guides/optimistic-updates">Guia de atualizações otimistas</Link>
 </center>

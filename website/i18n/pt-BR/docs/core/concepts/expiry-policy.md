@@ -1,7 +1,7 @@
 ---
 title: Controlando o comportamento automático de fetch com Políticas de Expiração declarativas
 sidebar_label: Política de expiração
-description: Quando os dados são considerados Fresh, Stale ou Invalid, e como esse estado afeta o fetch e a renderização.
+description: Quando os dados são Fresh, Stale ou Invalid, e como cada estado afeta o fetch e a renderização.
 ---
 
 <head>
@@ -14,9 +14,8 @@ import {RestEndpoint} from '@data-client/rest';
 
 # Política de expiração do Endpoint
 
-Por padrão, a política de cache do Reactive Data Client pode ser descrita como [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
-Isso significa que, quando há dados disponíveis, é possível evitar bloquear a aplicação usando os dados desatualizados. No entanto, em segundo plano,
-ele ainda atualizará os dados se forem antigos o suficiente.
+Por padrão, o Reactive Data Client usa [stale-while-revalidate](https://web.dev/stale-while-revalidate/). Quando há dados
+disponíveis, os componentes os renderizam imediatamente. Se os dados forem antigos o suficiente, o Data Client faz um novo fetch deles em segundo plano.
 
 ## Status de expiração {#expiry-status}
 
@@ -24,22 +23,22 @@ ele ainda atualizará os dados se forem antigos o suficiente.
 
 ### Fresh {#fresh}
 
-Dados nesse estado são considerados novos o suficiente para que não precisem de fetch.
+Os dados são novos o suficiente. O Data Client não faz fetch deles.
 
 ### Stale {#stale}
 
-Os dados ainda podem ser exibidos, porém o Reactive Data Client pode tentar revalidá-los fazendo fetch novamente.
+Os componentes podem exibir os dados. O Data Client faz fetch deles novamente quando um componente precisa deles.
 
 ### Invalid {#invalid}
 
-Os dados não devem ser exibidos. Qualquer componente que precise desses dados disparará o fetch:react[ e o suspense]:vue[
-([componentes montados mantêm seus dados](#invalidate) até que ele seja resolvido)]. Se nenhum componente se importar com esses
-dados, nenhuma ação será tomada.
+Os componentes não podem exibir os dados. Um componente que precisa deles faz o fetch:react[ e suspende]:vue[
+([componentes montados mantêm seus dados](#invalidate) até que ele seja resolvido)]. Se nenhum componente precisar dos
+dados, nada acontece.
 
 </ExpiryTimeline>
 
-[useSuspense()](../api/useSuspense.md) considera fazer fetch na montagem, bem como quando seus parâmetros mudam.
-Nesses casos, ele fará o fetch se os dados forem considerados desatualizados.
+[useSuspense()](../api/useSuspense.md) verifica os dados na montagem e quando seus parâmetros mudam. Ele faz o fetch se os
+dados estiverem desatualizados.
 
 ::::react
 
@@ -55,12 +54,12 @@ Ao usar o React Navigation, [eventos de foco](https://reactnavigation.org/docs/u
 
 ### Endpoint.dataExpiryLength {#endpointdataexpirylength}
 
-[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) define quanto tempo (em milissegundos) leva para os dados
-passarem do status '[fresh](#fresh)' para '[stale](#stale)'. Experimente definir um número bem baixo, como '50',
-para que fiquem [stale](#stale) quase instantaneamente; ou um número muito grande para que permaneçam por muito tempo.
+[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) define por quantos milissegundos os dados ficam
+'[fresh](#fresh)' antes de passarem a '[stale](#stale)'. Defina um número baixo, como `50`, para deixar os dados
+[stale](#stale) quase imediatamente, ou um número grande para mantê-los fresh por muito tempo.
 
-Alternar entre 'first' e 'second' muda os parâmetros. Se os dados ainda forem considerados fresh,
-você continuará vendo o horário antigo, sem nenhuma atualização.
+Alternar entre 'first' e 'second' muda os parâmetros. Enquanto os dados estão fresh,
+o horário antigo permanece, sem novo fetch.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
@@ -244,7 +243,7 @@ const NoRetryResource = resource({
 que expiram sejam imediatamente considerados '[invalid](#invalid)'.
 
 Isso é demonstrado pela página que suspende assim que seus dados ficam stale:react[ (a navegação aguarda a barra de progresso)].
-Se os dados ainda estiverem dentro do tempo de expiração, ela simplesmente continua a exibi-los.
+Enquanto os dados estão fresh, a página os exibe.
 
 <FrameworkPlayground row defaultTab="getUpdated" fixtures={[
 {
@@ -378,12 +377,12 @@ export default function Navigator({ children }) {
 
 ## Forçar atualização {#force-refresh}
 
-Às vezes queremos buscar dados novos, continuando a mostrar os dados antigos (stale).
+Para buscar dados novos enquanto você mostra os dados antigos:
 
 ### Um endpoint específico {#a-specific-endpoint}
 
-[Controller.fetch](../api/Controller#fetch) pode ser usado para disparar um fetch enquanto ainda se mostram
-os dados anteriores. Isso pode ser feito mesmo com dados 'fresh'.
+[Controller.fetch](../api/Controller.md#fetch) faz o fetch enquanto os componentes mostram os dados anteriores. Ele faz o fetch mesmo
+quando os dados estão 'fresh'.
 
 <FrameworkPlayground row fixtures={[
 {
@@ -637,7 +636,7 @@ render(<Demo />);
 
 ## :react[Invalidate (suspender novamente)]:vue[Invalidate] {#invalidate}
 
-Tanto [endpoints](/rest/api/Endpoint) quanto [entities](/rest/api/Entity) podem ser alvos de invalidação.
+Tanto [endpoints](/rest/api/Endpoint) quanto [entities](/rest/api/Entity) podem ser invalidados.
 
 :::vue
 
@@ -816,8 +815,9 @@ render(<Demo />);
 
 ### Qualquer endpoint com uma entity {#invalidate-entity}
 
-Usar o [schema Invalidate](/rest/api/Invalidate) nos permite invalidar _qualquer_ endpoint que dependa dessa [entity](/rest/api/Entity) em sua
-resposta. Se o endpoint usa a entity em um [Array](/rest/api/Array), ela simplesmente será removida desse [Array](/rest/api/Array).
+O [schema Invalidate](/rest/api/Invalidate) invalida _todo_ endpoint cuja resposta inclui essa
+[entity](/rest/api/Entity). Se o endpoint tem a entity em um [Array](/rest/api/Array), o Data Client a remove
+desse [Array](/rest/api/Array).
 
 <FrameworkPlayground row fixtures={[
 {
@@ -1032,14 +1032,12 @@ render(<ShowTime />);
 
 </FrameworkPlayground>
 
-[Controller.fetch()](../api/Controller.md#fetch) nos permite atualizar o servidor e o store.
-Podemos usar [Controller.setResponse()](../api/Controller.md#setResponse) ou [Controller.set()](../api/Controller.md#set)
-quando queremos alterar diretamente o store local.
+[Controller.fetch()](../api/Controller.md#fetch) atualiza o servidor e o store. Para alterar apenas o store, use
+[Controller.setResponse()](../api/Controller.md#setResponse) ou [Controller.set()](../api/Controller.md#set).
 
 #### Invalidação condicional com base nos dados {#conditional-invalidation-based-on-data}
 
-Se a `invalidation` deve acontecer apenas às vezes, com base nos dados da resposta, podemos 
-retornar `undefined` de [Entity.process](/rest/api/Entity#process).
+Para invalidar apenas em algumas respostas, retorne `undefined` de [Entity.process](/rest/api/Entity#process).
 
 ```ts
 class PriceLevel extends Entity {

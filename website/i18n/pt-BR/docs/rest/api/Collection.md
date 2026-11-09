@@ -701,6 +701,9 @@ somente locais, sem requisições de rede. Para mutações baseadas em rede, vej
 
 Um schema de criação que coloca novos itens no _fim_ desta collection.
 
+Um item que foi excluído e depois adicionado de volta aparece uma vez: o id antigo dele é descartado primeiro. Os outros ids são adicionados novamente, mesmo
+que a lista já os contenha, como em `Array.push()`.
+
 ```ts
 // Add a new todo to the end of the list (local only, no network request)
 ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' });
@@ -709,6 +712,8 @@ ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' }
 ### unshift {#unshift}
 
 Um schema de criação que coloca novos itens no _início_ desta collection.
+
+Como [push](#push), ele descarta o id antigo de um item que foi excluído e depois adicionado de volta.
 
 ```ts
 // Add a new todo to the beginning of the list (local only)
@@ -859,6 +864,10 @@ static shouldReorder(
 Um valor de retorno `true` reordenará a ordem dos argumentos entre a entity recebida e a do store no merge. Com
 o merge padrão, isso fará com que os campos das entities existentes sobrescrevam os das recebidas,
 e não o contrário.
+
+As atualizações da collection ([push](#push), [unshift](#unshift), [remove](#remove), [move](#move) e
+[addWith](#addWith) em Arrays, e [getPage](./RestEndpoint.md#getpage)) ainda se aplicam a uma lista armazenada mais nova.
+Um `push`, `unshift` ou `getPage` mais antigo deixa de fora os itens que a lista mais nova já tem e adiciona o restante ao final dela.
 
 ### static merge(existing, incoming): mergedValue {#merge}
 

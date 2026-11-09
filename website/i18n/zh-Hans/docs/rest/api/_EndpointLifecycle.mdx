@@ -48,6 +48,28 @@ errorPolicy(error) {
 
 <VoteDemo />
 
+`expectedResponse` 中的 [Entity](./Entity.md) 只需要包含它的[主键](./Entity.md#pk)和发生变化的字段：
+省略的字段会保留其缓存值。没有主键时，缓存中的 entity 不会改变，
+因此 UI 会等待服务器（开发构建会记录原因）。当 endpoint 的参数不包含该
+键时（比如 `PATCH /users/profile`），可以从 [snapshot](/docs/api/Snapshot) 中读取它：
+
+```ts
+const getMe = new RestEndpoint({ path: '/users/me', schema: User });
+const updateProfile = new RestEndpoint({
+  path: '/users/profile',
+  method: 'PATCH',
+  body: {} as { firstName: string; bio: string },
+  schema: User,
+  getOptimisticResponse(snap, body) {
+    const { data: user } = snap.getResponse(getMe);
+    if (!user) throw snap.abort;
+    return { id: user.id, ...body };
+  },
+});
+```
+
+当 entity 尚未被缓存时，`throw snap.abort` 会跳过乐观更新。
+
 <center>
 <Link className="button button--secondary button--sm" to="../guides/optimistic-updates">乐观更新指南</Link>
 </center>

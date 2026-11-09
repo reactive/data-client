@@ -21,7 +21,7 @@ recurso.
 <ProviderManagers imports={['NetworkManager', 'SubscriptionManager', 'PollingSubscription']}>
 
 ```ts
-const managers = [
+const managers = () => [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription),
 ];

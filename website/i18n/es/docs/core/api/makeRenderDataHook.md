@@ -21,7 +21,7 @@ con un límite `<Suspense/>` y dentro de un contexto `<Provider />`.
 ```typescript
 interface ProviderProps {
   children: React.ReactNode;
-  managers: Manager[];
+  managers: () => Manager[];
   initialState: State<unknown>;
   Controller: new (props: { gcPolicy: GCInterface }) => Controller;
 }

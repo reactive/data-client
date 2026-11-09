@@ -2,12 +2,9 @@
 title: Efectos secundarios de las mutaciones
 ---
 
-Cuando las mutaciones actualizan más de un recurso, puede resultar tentador
-[caducar todos](/docs/api/Controller#expireAll) los demás recursos.
-
-Sin embargo, aún podemos lograr mutaciones atómicas de alto rendimiento si
-simplemente agrupamos _todos_ los recursos actualizados en la respuesta de la mutación; así
-evitamos esta lenta cascada de red.
+Cuando una mutación cambia más de un recurso, no [caduques](/docs/api/Controller#expireAll) los demás
+recursos. Caducarlos provoca una lenta cascada de nuevos fetches. En su lugar, incluye _todos_ los recursos modificados en la respuesta de la
+mutación. La mutación sigue siendo atómica y necesita una sola petición.
 
 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
 
@@ -48,11 +45,8 @@ sequenceDiagram
 
 ## Ejemplo {#example}
 
-Estás a cargo de una plataforma de trading de criptomonedas llamada `dogebase`. Cada vez que
-un usuario crea una operación, necesitas actualizar cierta información de saldo
-en su objeto de cuentas. Por eso, al hacer `POST` al endpoint `/trade/`,
-anidas tanto el objeto de cuentas actualizado como la operación que acabas de
-crear.
+Una plataforma de trading de criptomonedas actualiza el saldo de la cuenta del usuario con cada operación. Por eso `POST /trade/` devuelve la nueva
+operación y la cuenta actualizada.
 
 ```json title="POST /trade/"
 {
@@ -72,8 +66,7 @@ crear.
 }
 ```
 
-Para manejar esto, solo necesitamos actualizar el `schema` para incluir el endpoint
-personalizado.
+Añade la cuenta al `schema` del endpoint.
 
 ```typescript title="resources/Trade.ts"
 import { resource, Entity } from '@data-client/rest';
@@ -91,7 +84,7 @@ export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
-  create: Base.getList.push.extend({
+  createTrade: Base.getList.push.extend({
     schema: {
       trade: Base.getList.push.schema,
       account: Account,
@@ -100,9 +93,8 @@ export const TradeResource = resource({
 }));
 ```
 
-Ahora, cuando usemos el método generador de Endpoint [getList.push](../api/resource.md#push),
-tendremos la tranquilidad de saber que tanto la información de la operación como la de la cuenta
-se actualizarán en la caché una vez que se complete la petición `POST`.
+`createTrade` extiende [getList.push](../api/resource.md#push). Cuando se completa el `POST`, el store actualiza tanto la nueva
+operación como la cuenta.
 
 :::react
 
@@ -110,7 +102,7 @@ se actualizarán en la caché una vez que se complete la petición `POST`.
 export default function CreateTrade() {
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 }
 ```
@@ -126,7 +118,7 @@ export default function CreateTrade() {
 
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 </script>
 ```
@@ -135,8 +127,7 @@ export default function CreateTrade() {
 
 :::note
 
-Siéntete libre de crear métodos [RestEndpoint](../api/RestEndpoint.md) completamente nuevos para cualquier
-endpoint personalizado que tengas. Este endpoint le indica a `Reactive Data Client` cómo procesar cualquier
-petición.
+Define un nuevo [RestEndpoint](../api/RestEndpoint.md) para cualquier endpoint personalizado. Su `schema` le indica a Data Client cómo
+almacenar la respuesta.
 
 :::

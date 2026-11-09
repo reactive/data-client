@@ -51,7 +51,7 @@ declare function useSubscription<E extends EndpointInterface<FetchFunction, Sche
  * `useQuery` results are globally memoized.
  * @see https://dataclient.io/docs/api/useQuery
  */
-declare function useQuery<S extends Queryable>(schema: S, ...args: MaybeRefsOrGetters<SchemaArgs<S>>): ComputedRef<DenormalizeNullable<S> | undefined>;
+declare function useQuery<S extends Queryable>(schema: S, ...args: MaybeRefsOrGettersNullable<SchemaArgs<S>> | readonly [null]): ComputedRef<DenormalizeNullable<S> | undefined>;
 
 /**
  * Ensure an endpoint is available. Keeps it fresh once it is.

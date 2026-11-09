@@ -13,6 +13,7 @@ vue_description: Renderizado asíncrono de mutaciones de datos activadas de form
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
@@ -125,6 +126,9 @@ obsoletos. useLive() también se suscribirá y cancelará la suscripción con el
 
 :::
 
+En un [`<Activity>`](https://react.dev/reference/react/Activity) oculto, `useLive()` cancela la suscripción. Vuelve a suscribirse
+cuando se muestra. [Ejemplo](#pause-hidden-tabs)
+
 ::::
 
 ## Tipos {#types}
@@ -188,5 +192,115 @@ milisegundos.
 :::react
 
 <StackBlitz app="nextjs" file="resources/Ticker.ts,components/AssetPrice.tsx" initialpath="/crypto" view="both" />
+
+:::
+
+:::react
+
+### Pausar las pestañas ocultas {#pause-hidden-tabs}
+
+Mantén las pestañas montadas en [`<Activity>`](https://react.dev/reference/react/Activity). Solo la pestaña visible hace sondeo.
+
+<HooksPlayground row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" collapsed
+import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: Props) {
+  const ticker = useLive(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+interface Props {
+  productId: string;
+}
+```
+
+```tsx title="Markets" {25-30}
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+const products = ['BTC-USD', 'ETH-USD', 'SOL-USD'];
+
+function Markets() {
+  const [shown, setShown] = React.useState(products[0]);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Markets</h1>
+        <div className="segmented" role="group" aria-label="Product">
+          {products.map(productId => (
+            <button
+              key={productId}
+              aria-pressed={productId === shown}
+              onClick={() => setShown(productId)}
+            >
+              {productId.split('-')[0]}
+            </button>
+          ))}
+        </div>
+      </header>
+      {products.map(productId => (
+        <React.Activity
+          key={productId}
+          mode={productId === shown ? 'visible' : 'hidden'}
+        >
+          <AssetPrice productId={productId} />
+        </React.Activity>
+      ))}
+    </>
+  );
+}
+render(<Markets />);
+```
+
+</HooksPlayground>
+
+Una pestaña oculta conserva su estado, pero sus Effects se detienen. Si ningún otro componente se suscribe a su precio, el sondeo se detiene. Cuando
+se muestra, el sondeo se reanuda. Si el último fetch es más antiguo que [pollFrequency](/rest/api/RestEndpoint#pollfrequency), hace
+fetch de inmediato.
+
+Las pestañas ocultas siguen renderizándose, así que cada pestaña obtiene su precio antes de mostrarse. Al cambiar de pestaña se muestra un precio sin estado
+de carga.
 
 :::
