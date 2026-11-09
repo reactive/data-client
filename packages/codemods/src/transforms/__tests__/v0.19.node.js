@@ -573,18 +573,46 @@ class LoggingManager implements Manager {
     return this.middleware;
   }
 }
-class Both implements Manager {
-  middleware: Middleware = controller => next => action => next(action);
-  getMiddleware() {
-    return controller => next => next;
-  }
-}
+const mw = new LoggingManager().getMiddleware();
       `,
       `
 import { Manager, Middleware } from '@data-client/react';
 
 class LoggingManager implements Manager {
   middleware: Middleware = controller => next => action => next(action);
+}
+const mw = new LoggingManager().middleware;
+      `,
+      'removes a getMiddleware() that returns the middleware property',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Logging.ts' },
+      `
+import { Manager, Middleware } from '@data-client/react';
+
+class LoggingManager implements Manager {
+  getMiddleware() {
+    return controller => next => next;
+  }
+}
+class Both implements Manager {
+  middleware: Middleware = controller => next => action => next(action);
+  getMiddleware() {
+    return controller => next => next;
+  }
+}
+const mw = new LoggingManager().getMiddleware();
+      `,
+      `
+import { Manager, Middleware } from '@data-client/react';
+
+class LoggingManager implements Manager {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware() {
+    return controller => next => next;
+  }
 }
 class Both implements Manager {
   middleware: Middleware = controller => next => action => next(action);
@@ -593,8 +621,10 @@ class Both implements Manager {
     return controller => next => next;
   }
 }
+// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+const mw = new LoggingManager().getMiddleware();
       `,
-      'removes a getMiddleware() that returns the middleware property, and marks one beside it',
+      'keeps every getMiddleware when one beside a middleware property cannot convert',
     );
 
     defineInlineTest(

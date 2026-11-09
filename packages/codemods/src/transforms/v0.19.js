@@ -580,18 +580,17 @@ function renameGetMiddleware(j, root) {
   otherRefs.forEach(ref => {
     dirty = addTodo(j, ref, GET_MIDDLEWARE_TODO) || dirty;
   });
-  let unconverted = otherRefs.size() > 0;
-  root
-    .find(j.Node)
-    .filter(p => isGetMiddleware(p.node))
-    .forEach(member => {
-      if (!otherRefs.size() && migrateGetMiddleware(j, member)) {
-        dirty = true;
-        return;
-      }
-      unconverted = true;
-      dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
-    });
+  const members = root.find(j.Node).filter(p => isGetMiddleware(p.node));
+  // calls can't tell which member they reach, so convert every member or none
+  const unconverted =
+    otherRefs.size() > 0 || !members.paths().every(m => migration(j, m));
+  members.forEach(member => {
+    if (unconverted) dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
+    else {
+      migration(j, member)();
+      dirty = true;
+    }
+  });
   root
     .find(j.Node)
     .filter(({ node }) => isGetMiddlewareCall(node))
@@ -610,19 +609,15 @@ function renameGetMiddleware(j, root) {
   return dirty;
 }
 
-/** Replaces a class's `getMiddleware` member with a `middleware` property, or removes it when it
- * only returns the class's own `middleware`; returns whether it did either */
-function migrateGetMiddleware(j, member) {
-  if (!CLASS_MEMBERS.has(member.node.type)) return false;
-  if (hasMember(member.parent.node, 'middleware')) {
-    if (!returnsOwnMiddleware(member.node)) return false;
-    member.prune();
-    return true;
-  }
+/** How to migrate a class's `getMiddleware` member, if it can be: replace it with a `middleware`
+ * property, or remove it when it only returns the class's own `middleware` */
+function migration(j, member) {
+  if (!CLASS_MEMBERS.has(member.node.type)) return;
+  if (hasMember(member.parent.node, 'middleware'))
+    return returnsOwnMiddleware(member.node) ? () => member.prune() : undefined;
   const middleware = returnedMiddleware(member.node);
-  if (!middleware) return false;
-  member.replace(middlewareProperty(j, member.node, middleware));
-  return true;
+  if (middleware)
+    return () => member.replace(middlewareProperty(j, member.node, middleware));
 }
 
 /** `middleware = ...` keeping the `getMiddleware` member's visibility, return type and comments */
