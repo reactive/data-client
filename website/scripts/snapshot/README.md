@@ -51,16 +51,17 @@ when that file changes.
 While master takes the next major's breaking changes, the root keeps the released version's docs
 and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/maintenance/README.md)
 starts this by cutting a `<version>.x` maintenance branch and adding `website/versionCurrent.json`
-(`{ "version", "ref", "cut" }`, `cut` being the branch base's date) to master. While that file exists:
+(`{ "version", "ref" }`) to master. While that file exists:
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
   `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,
-  pages) and the posts published since `versionCurrent.json`'s `cut` date. Posts from before the cut
-  are the current version's: every link to one goes straight to the root's copy (`src/utils/RootPostLink.tsx`, which
-  replaces `@docusaurus/Link` there), their
-  `/next/` pages redirect there with a meta refresh, and in-app routes to them do too
-  (`rootBlog.client.ts`). Once the next major ships and master serves the root again, the `/next/*`
-  redirect below sends every `/next/blog` post to the root's copy at the same path. It shows an "unreleased" banner
+  pages) and the posts the branch doesn't have. The branch's posts are the current version's, since
+  posts publish there too: `site-preview.yml` fetches the branch so the config can list them, every
+  link to one goes straight to the root's copy (`src/utils/RootPostLink.tsx`, which replaces
+  `@docusaurus/Link` there), in-app routes to them do too (`rootBlog.client.ts`), and `docs deploy`
+  redirects their `/next/` pages there, keeping the query and fragment. Once the next major ships
+  and master serves the root again, the `/next/*` redirect below sends every `/next/blog` post to
+  the root's copy at the same path. It shows an "unreleased" banner
   linking to the current version's docs (from a PR preview, built alone at its root, production's).
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
   (the wrapper keeps the blog and every

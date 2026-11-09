@@ -14,8 +14,8 @@ export default function MetadataWrapper(props: Props): React.ReactElement {
   const { frontMatter } = metadata;
 
   const image = assets.image ?? frontMatter.image;
-  // On /next/, a post from before the cut is the root's: page loads go there
-  // (rootBlog.client.ts sends in-app routes)
+  // On /next/, the root's posts redirect there (docs-deploy.yml, and
+  // rootBlog.client.ts for in-app routes); this keeps them out of the sitemap
   const root = rootPost(metadata.permalink);
   const isRoot = root !== metadata.permalink;
   return (
@@ -24,7 +24,6 @@ export default function MetadataWrapper(props: Props): React.ReactElement {
       <Head>
         {image && <meta name="twitter:card" content="summary_large_image" />}
         {/* Helmet drops fragments, so each tag is its own child */}
-        {isRoot && <meta httpEquiv="refresh" content={`0; url=${root}`} />}
         {isRoot && <meta name="robots" content="noindex" />}
         {isRoot && <link rel="canonical" href={root} />}
       </Head>

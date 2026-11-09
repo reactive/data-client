@@ -61,9 +61,7 @@ git commit -m "internal: Release and deploy $version from $branch"
 git push -u origin "$branch"
 
 git switch --detach origin/master
-# cut: the branch base's date. Posts dated before it are on the branch, so
-# /next's blog lists link them to the root's copy
-printf '{\n  "version": "%s",\n  "ref": "%s",\n  "cut": "%s"\n}\n' "$version" "$branch" "$(git log -1 --format=%cs "$ref")" \
+printf '{\n  "version": "%s",\n  "ref": "%s"\n}\n' "$version" "$branch" \
   > website/versionCurrent.json
 git switch -c "next-$version"
 git add website/versionCurrent.json

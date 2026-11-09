@@ -1,5 +1,5 @@
 // @docusaurus/Link on /next/ (docusaurus.config.ts aliases it there): links to
-// posts from before the cut go straight to the root's copy (rootPost.ts), in
+// the root's posts go straight to the root's copy (rootPost.ts), in
 // the same tab, though Docusaurus opens absolute URLs in a new one.
 import Link from '@docusaurus/core/lib/client/exports/Link';
 import useBaseUrl from '@docusaurus/core/lib/client/exports/useBaseUrl';

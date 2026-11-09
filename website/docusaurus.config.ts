@@ -2,6 +2,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
 import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
@@ -33,9 +34,9 @@ const frameworkDocsIds = groupIds('framework');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
+const remarkTocLabels = require('./remarkTocLabels.js');
 const localeDocs = require('./translate/localeDocs.js');
 const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
-const remarkTocLabels = require('./remarkTocLabels.js');
 // set by Docusaurus for the locale being built or served
 const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 // This locale's path on the site root ('' or '/es')
@@ -49,9 +50,47 @@ const currentOrigin = isNext ? '' : url;
 // This build's baseUrl (/, /es/, /next/, /next/es/), so pages load static
 // files from their own build, the one an installed app's worker can serve
 const buildBase = `${isNext ? '/next' : ''}${localeRoot}/`;
-// Posts published before the cut are the current version's: /next/ links them
-// to the root's copy (scripts/snapshot/rootBlog.client.ts)
-const nextCut = isNext ? versionCurrent?.cut : undefined;
+// A post's path (blog/<yyyy>/<mm>/<dd>/<slug>) from its file or folder name
+const postPath = (name: string) => {
+  const post = /^(\d{4})-(\d{2})-(\d{2})-(.+?)(?:\.mdx?)?$/.exec(name);
+  return post && `blog/${post.slice(1).join('/')}`;
+};
+// The root serves the posts on its branch, at URLs that never change, and
+// posts publish there too (scripts/maintenance/README.md). /next/ keeps the
+// rest; links and routes to the root's go there (src/utils/RootPostLink.tsx,
+// scripts/snapshot/rootBlog.client.ts), as do page loads (docs-deploy.yml)
+const rootPosts =
+  isNext && versionCurrent ? branchPosts(versionCurrent.ref) : undefined;
+const nextPosts = rootPosts && blogPosts().filter(post => !rootPosts.has(post));
+
+function blogPosts(): string[] {
+  return fs
+    .readdirSync(path.join(__dirname, 'blog'))
+    .map(postPath)
+    .filter(post => post !== null);
+}
+
+function branchPosts(ref: string): Set<string> {
+  let names: string;
+  try {
+    names = execFileSync(
+      'git',
+      ['ls-tree', '--name-only', `origin/${ref}`, 'blog/'],
+      { cwd: __dirname, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+    );
+  } catch (error) {
+    throw new Error(
+      `/next/ needs the root's posts from ${ref}: git fetch origin ${ref}`,
+      { cause: error },
+    );
+  }
+  return new Set(
+    names
+      .split('\n')
+      .map(file => postPath(path.basename(file)))
+      .filter(post => post !== null),
+  );
+}
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -294,8 +333,7 @@ const config: Config = {
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
     require.resolve('./scripts/snapshot/versionMenu.client.ts'),
-    // /next/ sends in-app routes to posts from before the cut to the root's
-    // copy, where their URLs stay
+    // /next/ sends in-app routes to the root's posts there
     ...(isNext ?
       [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
     : []),
@@ -306,7 +344,7 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by DocsSelector to switch between differently named pages
     docsEquivalents: frameworkDocs.docsEquivalents(),
-    nextCut,
+    nextPosts,
   },
   onBrokenLinks: 'warn',
   future: {
@@ -371,8 +409,8 @@ const config: Config = {
     ],
   ],
   plugins: [
-    // /next/ links posts from before the cut straight to the root's copy
-    ...(nextCut ?
+    // /next/ links the root's posts straight there
+    ...(nextPosts ?
       [
         () => ({
           name: 'root-post-links',
@@ -408,14 +446,8 @@ const config: Config = {
           // social cards are for link previews, never shown on the site
           globIgnores: [
             'img/social/**',
-            // /next/ sends posts from before the cut to the root site's
-            ...(nextCut ?
-              fs
-                .readdirSync(path.join(__dirname, 'blog'))
-                .map(file => /^(\d{4})-(\d{2})-(\d{2})-/.exec(file))
-                .filter(date => date && date.slice(1).join('-') < nextCut)
-                .map(date => `blog/${date!.slice(1).join('/')}/**`)
-            : []),
+            // /next/ sends the root's posts there
+            ...(rootPosts ? [...rootPosts].map(post => `${post}.html`) : []),
           ],
           // Pages are files like docs/intro.html served at /docs/intro
           // (trailingSlash: false), so cache them under the URL they're served
