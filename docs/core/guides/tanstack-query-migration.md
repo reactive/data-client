@@ -95,7 +95,8 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
 | `setQueryData()` | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)` |
 | `getQueryData()` | In a component, [useCache()](../api/useCache.md). Elsewhere, `ctrl.get(schema, args, ctrl.getState())` |
-| `prefetchQuery()`, `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | `ctrl.fetchIfStale(endpoint, args)` |
+| `prefetchQuery()` | `ctrl.fetchIfStale(endpoint, args)`, not awaited: a failure never rejects unhandled |
+| `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | `await ctrl.fetchIfStale(endpoint, args)`: rejects if the fetch fails ([Loaders](#loaders)) |
 | `fetchQuery()` | `ctrl.fetch(endpoint, args)` |
 | `onMutate` optimistic update and rollback | [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error |
 | `useInfiniteQuery()` | A [Collection](/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite)) |
@@ -340,9 +341,15 @@ export const issueLoader =
     ctrl.fetchIfStale(IssueResource.get, { id: Number(params.issueId) });
 ```
 
-`fetchIfStale()` fetches only when the data is missing or stale. Use it for hover or focus prefetching too:
-`onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Load several endpoints with `Promise.all()` of
-`fetchIfStale()` calls.
+`fetchIfStale()` fetches only when the data is missing or stale, and always returns a Promise. Awaited, it works like
+`fetchQuery()` with a `staleTime`: it resolves the data, or rejects with the error. Left unawaited, it works like
+`prefetchQuery()`: a failure never rejects unhandled, and is stored for components to show. Use it for hover or focus
+prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Load several endpoints with
+`Promise.all()` of `fetchIfStale()` calls.
+
+Unlike `ensureQueryData()` and `getQueryData() ?? fetchQuery()`, an awaited `fetchIfStale()` waits for the refetch
+when cached data is stale. To navigate without waiting, don't await it: `useSuspense()` renders the stale data while it
+refetches.
 
 ## Infinite queries {#infinite}
 

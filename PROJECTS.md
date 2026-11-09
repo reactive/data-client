@@ -78,7 +78,9 @@ coordinator, who asks the person to install user-kit.
 - Benchmark and typeperf results go in a master / PR / change table naming the unit, never prose.
 - If the PR changes `website/` or `docs/`, give the preview
   `https://docs-site-pr-<N>-data-client.vercel.app` right after the PR link, plus direct links to the
-  changed pages (master docs are under `/next/`). If CI's docs deploy check posts no preview, say so
+  changed pages. Previews serve at the root with no `next` segment anywhere in the path:
+  `<preview>/rest/api/Entity`, never `<preview>/next/rest/api/Entity` or `<preview>/rest/next/api/Entity`
+  (only dataclient.io puts master under `/next/`). If CI's docs deploy check posts no preview, say so
   instead. If the PR changes neither, say "No website changes".
 
 ## Follow-ups

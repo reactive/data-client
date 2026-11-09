@@ -103,6 +103,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 |---|---|
 | You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
 | One endpoint+args | `ctrl.fetch(endpoint, args)` |
+| Prefetch (loader, hover) unless fresh | `ctrl.fetchIfStale(endpoint, args)`: `await` only what the page needs first; unawaited calls need no `.catch()` |
 | All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching hooks refetch; `useCache`/`useQuery` don't |
 | Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |
 
