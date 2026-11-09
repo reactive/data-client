@@ -2,14 +2,15 @@
 
 # useSubscription()
 
-Great for keeping resources up-to-date with frequent changes.
+Keeps data that changes often up to date.
 
-When using the default [polling subscriptions](https://dataclient.io/docs/api/PollingSubscription), frequency must be set in
-[Endpoint](https://dataclient.io/rest/api/Endpoint), otherwise will have no effect.
+The default [polling subscriptions](https://dataclient.io/docs/api/PollingSubscription) need
+[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](https://dataclient.io/rest/api/Endpoint). Without it, subscribing
+logs an error and does nothing.
 
 > **Tip**
 >
-> [useLive()](./useLive.md) is a terser way to use in combination with [useSuspense()](./useSuspense.md),
+> [useLive()](./useLive.md) combines `useSubscription()` with [useSuspense()](./useSuspense.md) in one call.
 
 ## Usage
 
@@ -201,8 +202,8 @@ render(
 );
 ```
 
-When `null` is sent as the second argument, the subscription is deactivated. Of course,
-if other components are still subscribed the data updates will still be active.
+Passing `null` as the second argument turns the subscription off for this component. Updates continue while other
+components subscribe to the same data.
 
 `useInView()` uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API),
 which is very performant. Hooks such as [useIntersectionObserver()](https://usehooks.com/useintersectionobserver) do
@@ -296,7 +297,7 @@ without a loading state.
 
 ### Crypto prices (websockets)
 
-We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the [subscribe/unsubscribe
-actions](./Actions.md#subscribe) sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
+A custom `StreamManager` handles the websocket protocol. It listens to the [subscribe and unsubscribe
+actions](./Actions.md#subscribe) that `useSubscription()` sends, so it only receives updates for rendered components.
 
 Example app: [coin-app](https://github.com/reactive/data-client/tree/master/examples/coin-app) ([`src/resources/StreamManager.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/StreamManager.ts), [`src/resources/Ticker.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/Ticker.ts), [`src/pages/Home/AssetPrice.tsx`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/pages/Home/AssetPrice.tsx))

@@ -2,13 +2,17 @@
 
 # renderDataHook()
 
-`renderDataHook()` is useful to test hooks that rely on the `Reactive Data Client`. It mirrors [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options) but does so with a `<Suspense/>` boundary
-as well as in a `<Provider />` context.
+`renderDataHook()` renders a hook that uses Reactive Data Client for a test. It renders the hook inside a
+`DataProvider` and a `<Suspense/>` boundary. With React 18 or later, it wraps
+[@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)'s `renderHook()` in a DOM
+environment, or [@testing-library/react-native](https://github.com/callstack/react-native-testing-library)'s on React Native. Otherwise it uses
+[@testing-library/react-hooks](https://react-hooks-testing-library.com/reference/api#renderhook-options). All of them
+give the result documented below.
 
 > **Note**
 >
-> `renderDataHook()` creates a Provider context with new manager instances. This means each call
-> to `renderDataHook()` will result in a completely fresh cache state as well as manager state.
+> Each call to `renderDataHook()` creates a new store and new manager instances, so no cache or manager state carries over
+> between calls.
 
 <details>
 

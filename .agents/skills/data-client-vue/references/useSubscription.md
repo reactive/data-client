@@ -2,14 +2,15 @@
 
 # useSubscription()
 
-Great for keeping resources up-to-date with frequent changes.
+Keeps data that changes often up to date.
 
-When using the default [polling subscriptions](https://dataclient.io/vue/api/PollingSubscription), frequency must be set in
-[Endpoint](https://dataclient.io/rest/api/Endpoint), otherwise will have no effect.
+The default [polling subscriptions](https://dataclient.io/vue/api/PollingSubscription) need
+[pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](https://dataclient.io/rest/api/Endpoint). Without it, subscribing
+logs an error and does nothing.
 
 > **Tip**
 >
-> [useLive()](./useLive.md) is a terser way to use in combination with [useSuspense()](./useSuspense.md),
+> [useLive()](./useLive.md) combines `useSubscription()` with [useSuspense()](./useSuspense.md) in one call.
 
 ## Usage
 
@@ -166,8 +167,8 @@ export const getTicker = new RestEndpoint({
 </template>
 ```
 
-When `null` is sent as the second argument, the subscription is deactivated. Of course,
-if other components are still subscribed the data updates will still be active.
+Passing `null` as the second argument turns the subscription off for this component. Updates continue while other
+components subscribe to the same data.
 
-[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) from VueUse uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [Template refs](https://vuejs.org/guide/essentials/template-refs.html) allow
-us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) from VueUse uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [Template refs](https://vuejs.org/guide/essentials/template-refs.html) give access to the
+[DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model) element.

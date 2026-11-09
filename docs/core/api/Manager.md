@@ -14,16 +14,15 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-`Managers` handle global side-effects. Kind of like :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] for the central data
+`Managers` handle global side effects. They are like :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)], but for the central data
 store.
 
-The default managers orchestrate the complex asynchronous behavior that <abbr title="Reactive Data Client">Data Client</abbr>
-provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.md), and
-extended with your own custom `Managers`.
+The default managers run the asynchronous behavior that <abbr title="Reactive Data Client">Data Client</abbr> provides,
+such as fetching and subscriptions. Configure them with [getDefaultManagers()](./getDefaultManagers.md), and add your
+own `Managers`.
 
-Managers must implement [middleware](#middleware), which hooks them into the central store's
-[control flow](#control-flow). Additionally, [cleanup()](#cleanup) and [init()](#init) hook into the
-store's lifecycle for setup/teardown behaviors.
+Each Manager implements [middleware](#middleware), which connects it to the store's [control flow](#control-flow).
+[init()](#init) and [cleanup()](#cleanup) connect it to the store's lifecycle, for setup and teardown.
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
@@ -54,31 +53,34 @@ constructor must not open anything.]
 
 ### middleware
 
-`middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
-The only differences is that the `next()` function returns a `Promise`.
+`middleware` works like a [redux middleware](https://redux.js.org/advanced/middleware), except that `next()` returns a
+`Promise`.
 
 :::react
 
-This promise resolves when the reducer update is
-[committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-when using &lt;DataProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
-managers that perform work after the DOM is updated and also with the newly computed state.
+With &lt;DataProvider /\>, this promise resolves when React
+[commits](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
+the update. React schedules commits asynchronously, so a Manager can await `next()` to work with the new state after the
+DOM updates.
 
 :::
 
 :::vue
 
-This promise resolves when the reducer update is committed to the
-[DataClientPlugin](./DataClientPlugin.md) store. This enables building managers that perform work with the
-newly computed state.
+This promise resolves when the [DataClientPlugin](./DataClientPlugin.md) store commits the update, so a Manager can
+await `next()` to work with the new state.
 
 :::
 
-Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
-ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
+:::react
 
-Middlewares will [intercept actions](#reading-and-consuming-actions) that are dispatched and then potentially [dispatch their own actions](#dispatching-actions) as well.
-To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
+Redux dispatches synchronously, so a redux store needs an adapter after the Managers that returns a `Promise` from
+`next()`. [prepareStore](../guides/redux.md) adds one, and places redux middleware after it.
+
+:::
+
+Middleware can [read actions](#reading-and-consuming-actions) as they are dispatched, and
+[dispatch its own](#dispatching-actions).
 
 ### init(state) {#init}
 
@@ -139,8 +141,8 @@ resolves most FETCH actions itself instead of passing them on.
 
 ## Control flow
 
-Managers integrate with the :react[DataProvider]:vue[DataClientPlugin] store with their lifecycles and middleware. They orchestrate complex control
-flows by interfacing via intercepting and dispatching [actions](./Actions.md), as well as reading the internal state.
+Managers connect to the :react[DataProvider]:vue[DataClientPlugin] store through their lifecycle methods and
+middleware. They read and dispatch [actions](./Actions.md), and read the store's state.
 
 <ThemedImage
 alt="Manager flux flow"
@@ -239,10 +241,10 @@ export default class LoggingManager implements Manager {
 
 </TypeScriptEditor>
 
-In conditional blocks, the action [type narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
-encouraging safe access to its members.
+Inside each `case`, TypeScript [narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
+the action's type, so you can access its members safely.
 
-In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' it by not calling next.
+To consume an [action](./Actions.md), don't call `next()`.
 
 <TypeScriptEditor>
 
@@ -298,8 +300,8 @@ export default class CustomSubsManager implements Manager {
 
 </TypeScriptEditor>
 
-By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
-after this one from seeing that [action](./Actions.md).
+`return Promise.resolve();` instead of `next(action)` stops managers listed after this one from seeing the
+[action](./Actions.md).
 
 Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
 [`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),

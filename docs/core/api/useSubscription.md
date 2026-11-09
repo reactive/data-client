@@ -14,14 +14,15 @@ import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
 
-Great for keeping resources up-to-date with frequent changes.
+Keeps data that changes often up to date.
 
-When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
-[Endpoint](/rest/api/Endpoint), otherwise will have no effect.
+The default [polling subscriptions](./PollingSubscription.md) need
+[pollFrequency](/rest/api/RestEndpoint#pollfrequency) set on the [Endpoint](/rest/api/Endpoint). Without it, subscribing
+logs an error and does nothing.
 
 :::tip
 
-[useLive()](./useLive.md) is a terser way to use in combination with [useSuspense()](./useSuspense.md),
+[useLive()](./useLive.md) combines `useSubscription()` with [useSuspense()](./useSuspense.md) in one call.
 
 :::
 
@@ -329,8 +330,8 @@ render(
 
 </FrameworkPlayground>
 
-When `null` is sent as the second argument, the subscription is deactivated. Of course,
-if other components are still subscribed the data updates will still be active.
+Passing `null` as the second argument turns the subscription off for this component. Updates continue while other
+components subscribe to the same data.
 
 :::react
 
@@ -342,8 +343,8 @@ the same.
 
 :::vue
 
-[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) from VueUse uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [Template refs](https://vuejs.org/guide/essentials/template-refs.html) allow
-us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) from VueUse uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [Template refs](https://vuejs.org/guide/essentials/template-refs.html) give access to the
+[DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model) element.
 
 :::
 
@@ -441,8 +442,8 @@ without a loading state.
 
 ### Crypto prices (websockets)
 
-We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the [subscribe/unsubscribe
-actions](./Actions.md#subscribe) sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
+A custom `StreamManager` handles the websocket protocol. It listens to the [subscribe and unsubscribe
+actions](./Actions.md#subscribe) that `useSubscription()` sends, so it only receives updates for rendered components.
 
 <StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />
 
