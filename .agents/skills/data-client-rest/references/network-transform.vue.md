@@ -237,6 +237,12 @@ export const getTicker = new RestEndpoint({
 </template>
 ```
 
+### Key in a nested object
+
+Some APIs put the primary key inside a nested object, such as `{ post: { id }, creator, saved }`. Copy it
+to a top-level `id` in [Entity.process()](https://dataclient.io/rest/api/Entity#process), so lookups take `{ id }`. See
+[Primary key in a nested object](https://dataclient.io/rest/api/Entity#primary-key-in-a-nested-object) for the example.
+
 ## Using HTTP Headers
 
 To read HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers), override

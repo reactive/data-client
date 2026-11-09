@@ -162,6 +162,52 @@ export class Issue extends Entity {
 }
 ```
 
+#### Primary key in a nested object
+
+Some APIs nest the key inside another object and send no top-level `id`, for example
+`{ post: { id, title }, creator, saved }`. Copy the key to `id` in [process()](#process). The
+default `pk()` then reads `id`, so you look up the entity with `{ id }` like any other Entity.
+
+```typescript
+export class Post extends Entity {
+  id = 0;
+  title = '';
+}
+
+export class PostView extends Entity {
+  id = 0;
+  post = Post.fromJS();
+  saved = false;
+
+  static key = 'PostView';
+  static schema = { post: Post };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    processed.id = processed.post?.id ?? processed.id;
+    return processed;
+  }
+}
+```
+
+`useQuery(PostView, { id })` now finds the stored `PostView`.
+
+Several operations often send the key without `post`: lookups, [Invalidate](./Invalidate.vue.md) (which
+a [resource](https://dataclient.io/rest/api/resource) delete uses), `getList.remove`, and partial or optimistic updates such
+as `{ id, saved }`. The default `pk()` still finds the key in `id`. When `process()` gets no
+`post`, the `?? processed.id` fallback keeps the `id` it was given.
+
+Do not override `pk()` to return `this.post.id`. That `pk()` throws on every input without `post`.
+Lookups with `{ post: { id } }` also fail to type-check, because the argument must include every
+field of `Post`.
+
+`fromJS()` does not call `process()`. If you build a `PostView` with `fromJS()`, set `id` yourself.
+
 #### Singleton Entities
 
 What if there is only ever once instance of a Entity for your entire application? You
@@ -493,7 +539,7 @@ flowchart BT
 ### static fromJS(props): Entity {#fromJS}
 
 Factory method that copies props to a new instance. Use this instead of `new MyEntity()`,
-to ensure default props are overridden.
+to ensure default props are overridden. It does not call [process()](#process).
 
 ### static process(input, parent, key, args): processedEntity {#process}
 
