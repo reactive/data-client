@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794180703732,
+  "lastUpdate": 1794248242210,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -143737,6 +143737,366 @@ window.BENCHMARK_DATA = {
             "range": "±3.23%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a5b78e2f8ac1422de6fb2fc629a0cb1e61349b64",
+          "message": "fix(core): fetchIfStale() always returns a Promise that is safe to leave unawaited (#4657)\n\n* fix(core): fetchIfStale() always returns a Promise that is safe to leave unawaited\n\nFresh data resolved synchronously, so prefetch code chaining .catch() threw a\nTypeError, and a failed unawaited prefetch was an unhandled rejection. Now fresh\ndata resolves through a Promise, and the fetch Promise is marked handled; the\nerror is stored for components, and awaiting callers still reject.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* docs(blog): Add fetchIfStale() Promise change to the v0.19 migration guide\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* internal: Base the fetchIfStale no-agent-impact reason on the old union type\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* docs: Explain why fetchIfStale() returns a Promise and how to check freshness\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* internal: Simplify fetchIfStale tests and changeset wording\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* fix(core): fetchIfStale() rejects with a recent cached error instead of resolving undefined\n\nWhile a failed fetch's error was still fresh, fetchIfStale() resolved\nundefined, so awaiting code crashed on the missing data while useSuspense()\nthrew the error. Now it rejects with that error (prehandled like a fetch).\nThe unhandled-rejection tests now rely on jest failing the running test,\nsince the sandboxed process never receives Node's event.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* internal: Regenerate playground types for the fetchIfStale JSDoc\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* internal: Format fetchIfStale\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* docs: Explain fetchIfStale() as a Promise of the latest fetch's outcome\n\nAdds the before/after table and the #2743/#2745 history to the changeset\nand migration guide, and words the cached-error case the same way in\ndocs, code comments and tests.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* internal: Tighten the fetchIfStale skill row\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* docs: Drop TanStack Query comparison from the fetchIfStale changeset\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* docs(blog): Give the reasoning for each fetchIfStale() decision\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* feat(codemods): Flag fetchIfStale() results read without await in the v0.19 codemod\n\nAlso notes in the changeset, blog and docs that unawaited failures no\nlonger reach global unhandled-rejection handlers, and points to the\nerror reporting Manager.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* feat(codemods): Flag every read of a fetchIfStale() result as data, and fix its mocks\n\nThe v0.19 codemod now marks member reads, destructuring, conditions,\ntypeof/!, spreads and templates on a fetchIfStale() result, not only\ninstanceof checks, and turns spyOn(ctrl, 'fetchIfStale').mockReturnValue()\ninto mockResolvedValue(). The changeset and migration guide list every\nupgrade check: sync reads, mocks, wrappers, error monitoring, loaders\nawaiting a recent failure, .then() chains and Controller subclasses.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* docs: Compare fetchIfStale() with prefetchQuery() and fetchQuery() in the TanStack Query guide\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* feat(skills): Start a v0.19 migration skill with the fetchIfStale() change\n\nAdds a behavior table to the fetchIfStale() docs and links the skill\nfrom the v0.19 migration guide.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* internal: Audit fixes for the v0.19 migration skill\n\nBump step, SFC coverage via searches, when awaited rejections need a\ncatch, and suggest (not add) the error reporting Manager.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n* Simplify fetchIfStale codemod; add v0.19 migration skill eval\n\nSplit transformFetchIfStale into unwrapPromiseResolve, renameFetchIfStaleMocks\nand markSyncReads; skip files without fetchIfStale; scan identifiers only\nfor variables that hold a fetchIfStale() result. The skill gains a clean-run\nnote, blind-spot checks and an eval with its issue-tracker fixture.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZCT6d1MN98cJr1DMZz\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-09T18:06:58Z",
+          "tree_id": "5e08e91b822885e77bf2ed183a3a7072cca35625",
+          "url": "https://github.com/reactive/data-client/commit/a5b78e2f8ac1422de6fb2fc629a0cb1e61349b64"
+        },
+        "date": 1794248238858,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 438,
+            "range": "±1.38%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 395,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 372,
+            "range": "±2.95%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 898,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 230,
+            "range": "±7.40%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 216,
+            "range": "±5.79%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 973,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 266,
+            "range": "±6.51%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 271,
+            "range": "±4.69%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 274,
+            "range": "±5.31%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 737,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 984,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1425,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 659,
+            "range": "±6.11%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6664,
+            "range": "±4.13%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3148,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 58328,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5866,
+            "range": "±2.54%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 209,
+            "range": "±7.01%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6409,
+            "range": "±0.90%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6534,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 6118,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 6190,
+            "range": "±0.52%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 6151,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 4850,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 6083,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 3534,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5954,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6112,
+            "range": "±1.52%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1640,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4284,
+            "range": "±11.55%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 40633,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4377,
+            "range": "±3.61%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 10023160,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 188,
+            "range": "±11.52%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3490,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2716,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4144,
+            "range": "±4.63%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2647,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 4896,
+            "range": "±1.81%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 441,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 253,
+            "range": "±0.81%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 269,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 919,
+            "range": "±4.96%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 139,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3486,
+            "range": "±2.68%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 14.08,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "39 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1398,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
           }
         ]
       }
