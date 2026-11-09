@@ -1000,7 +1000,9 @@ function isWriteTarget(path) {
 function isReadOnlyResource(j, root, binding) {
   if (
     !isPlainResourceDeclarator(binding) ||
-    binding.parent.parent.node.kind !== 'const'
+    binding.parent.parent.node.kind !== 'const' ||
+    // importers can mutate it
+    binding.parent.parent.parent?.node.type === 'ExportNamedDeclaration'
   )
     return false;
   return usesOf(j, root, binding).every(p => {

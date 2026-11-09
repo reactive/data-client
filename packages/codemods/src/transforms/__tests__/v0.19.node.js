@@ -1423,6 +1423,7 @@ const ListResource = resource({ path: '/lists/:id', schema: List });
 const lists = ListResource.getList;
 const PathResource = resource({ path: '/paths/:id', schema: Path });
 [PathResource.getList.path] = ['/other'];
+export const ExpResource = resource({ path: '/exps/:id', schema: Exp });
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.create, body);
@@ -1435,6 +1436,7 @@ ctrl.fetch(KeyResource.create, body);
 ctrl.fetch(TagResource.create, body);
 ctrl.fetch(ListResource.create, body);
 ctrl.fetch(PathResource.create, body);
+ctrl.fetch(ExpResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
@@ -1457,6 +1459,7 @@ const ListResource = resource({ path: '/lists/:id', schema: List });
 const lists = ListResource.getList;
 const PathResource = resource({ path: '/paths/:id', schema: Path });
 [PathResource.getList.path] = ['/other'];
+export const ExpResource = resource({ path: '/exps/:id', schema: Exp });
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.getList.push, body);
@@ -1477,6 +1480,8 @@ ctrl.fetch(TagResource.create, body);
 ctrl.fetch(ListResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(PathResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(ExpResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
