@@ -697,8 +697,12 @@ test('run in a workspace package, it removes package links whose package is gone
     '../../node_modules/@data-client/rest/skills/data-client-rest',
     path.join(web, '.agents/skills/data-client-rest'),
   );
-  run(t, web);
-  assert.ok(!fs.existsSync(path.join(web, '.agents/skills/data-client-rest')));
+  assert.ok(
+    run(t, web).includes(
+      'Removed data-client-rest from this package; their packages are gone',
+    ),
+  );
+  assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
 });
 
 test('run in a workspace package, it keeps package links the root does not hold', t => {

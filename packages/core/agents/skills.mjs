@@ -83,24 +83,32 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
  * Removes the skills this command made in `projectDir` that `rootSkills` now
  * holds at the same version, leaving anyone else's and those the root lacks
  * or links at another version
- * @returns the names it removed
+ * @returns the names it removed: `moved` to the root, and `gone` with their
+ * package, since a link whose package is gone serves no one
  */
 function unlinkSkills(projectDir, rootSkills) {
+  const unlinked = { moved: [], gone: [] };
   const dirs = skillsDirs(projectDir);
-  if (!dirs || !fs.existsSync(dirs.dest)) return [];
-  const removed = fs.readdirSync(dirs.dest).filter(skill => {
+  if (!dirs || !fs.existsSync(dirs.dest)) return unlinked;
+  for (const skill of fs.readdirSync(dirs.dest)) {
     const file = path.join(dirs.dest, skill);
-    const source = skillSource(file);
-    if (source === undefined) return false;
-    // a link whose package is gone serves no one
-    if (source !== null && source !== skillSource(path.join(rootSkills, skill)))
-      return false;
+    const kind = staleKind(file, path.join(rootSkills, skill));
+    if (!kind) continue;
     fs.rmSync(file, { recursive: true, force: true });
-    return true;
-  });
+    unlinked[kind].push(skill);
+  }
   if (lstat(dirs.other)?.isDirectory())
-    mirrorLinks(dirs.dest, dirs.other, { removed });
-  return removed;
+    mirrorLinks(dirs.dest, dirs.other, {
+      removed: [...unlinked.moved, ...unlinked.gone],
+    });
+  return unlinked;
+}
+
+/** Why the package's `file` can go: `moved` when `rootFile` holds the same skill, `gone` when its package is */
+function staleKind(file, rootFile) {
+  const source = skillSource(file);
+  if (source === null) return 'gone';
+  if (source !== undefined && source === skillSource(rootFile)) return 'moved';
 }
 
 /**
@@ -413,7 +421,8 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   const synced = skills && fs.existsSync(skills);
   // once the root has the skills, clear what an earlier run left in the package
   const leftPackage = workspace && synced;
-  const moved = leftPackage ? unlinkSkills(cwd, skills) : [];
+  const { moved, gone } =
+    leftPackage ? unlinkSkills(cwd, skills) : { moved: [], gone: [] };
   const shadowing = leftPackage ? shadowingSkills(cwd, skills) : [];
   // where the skills are, from where the command ran
   const dir = skills && posix(path.relative(cwd, skills));
@@ -428,7 +437,17 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
     console.log(
       `Removed ${moved.join(', ')} from this package; the workspace root has them`,
     );
-  if (!added.length && !removed.length && !keptPaths.length && !moved.length)
+  if (gone.length)
+    console.log(
+      `Removed ${gone.join(', ')} from this package; their packages are gone`,
+    );
+  if (
+    !added.length &&
+    !removed.length &&
+    !keptPaths.length &&
+    !moved.length &&
+    !gone.length
+  )
     console.log('Data Client skills are up to date');
   if (junctions)
     console.log(
