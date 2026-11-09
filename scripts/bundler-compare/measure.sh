@@ -4,6 +4,7 @@
 #
 #   ./measure.sh [label]            build packages, then measure; saves results/<label>.txt
 #   ./measure.sh --no-build [label] reuse packages/*/lib as built
+#   ./measure.sh --webpack [label]  also webpack 5 and Next.js with webpack (slower; for published numbers)
 #   ./measure.sh --compare A B      print B - A per bundler
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
@@ -13,8 +14,12 @@ mkdir -p "$here/results"
 if [ "${1:-}" = --compare ]; then
   # each line is "<bundler> <brotli bytes>"; older runs also printed gzip, so they can't be compared
   for run in "$2" "$3"; do
-    if [ ! -s "$here/results/$run.txt" ] || grep -qvE '^[a-z0-9]+ [0-9]+$' "$here/results/$run.txt"; then
-      echo "error: results/$run.txt is missing or from an older format; measure $run again" >&2
+    if [ ! -s "$here/results/$run.txt" ]; then
+      echo "error: results/$run.txt is missing or empty; measure $run again" >&2
+      exit 1
+    fi
+    if grep -qE -- '-(gzip|brotli) ' "$here/results/$run.txt"; then
+      echo "error: results/$run.txt is from before the brotli-only output; measure $run again" >&2
       exit 1
     fi
   done
@@ -29,8 +34,12 @@ if [ "${1:-}" = --compare ]; then
 fi
 
 build=1
+webpack=0
 pkgs='core endpoint normalizr react rest use-enhanced-reducer'
-if [ "${1:-}" = --no-build ]; then build=0; shift; fi
+while [ "${1:-}" = --no-build ] || [ "${1:-}" = --webpack ]; do
+  if [ "$1" = --no-build ]; then build=0; else webpack=1; fi
+  shift
+done
 label=${1:-$(git -C "$repo" describe --always --dirty --exclude='*')}
 # reinstall when the lockfile changed since the last install
 [ "$here/node_modules/.package-lock.json" -nt "$here/package-lock.json" ] || (cd "$here" && npm ci)
@@ -66,11 +75,23 @@ next=$!
 wait $rspack
 wait $vite
 wait $next
-for p in @rspack/core vite next; do
-  echo "$p $(node -p "require('$here/node_modules/$p/package.json').version")"
-done | tee "$here/results/$label.versions"
+bundlers='@rspack/core vite next'
 {
   node "$here/size.mjs" rspack dist/rspack
   node "$here/size.mjs" vite8 dist/vite
   node "$here/size.mjs" turbopack next/.next/static/chunks
-} | tee "$here/results/$label.txt"
+} >"$here/results/$label.txt"
+if [ $webpack = 1 ]; then
+  bundlers="$bundlers webpack"
+  "$bin/webpack" -c webpack.config.cjs >/dev/null
+  # reuses .next, so only after Turbopack's output is measured
+  (cd next && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 "$bin/next" build --webpack >/dev/null)
+  {
+    node "$here/size.mjs" webpack dist/webpack
+    node "$here/size.mjs" next-webpack next/.next/static/chunks
+  } >>"$here/results/$label.txt"
+fi
+for p in $bundlers; do
+  echo "$p $(node -p "require('$here/node_modules/$p/package.json').version")"
+done | tee "$here/results/$label.versions"
+cat "$here/results/$label.txt"

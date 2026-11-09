@@ -38,6 +38,9 @@ into `node_modules/@data-client` as npm would, and saves the totals to `results/
 `Object.hasOwn` fallback at the top of the entry files, since apps get polyfills elsewhere. The app's endpoints and
 entities are `examples/test-bundlesize/src/resources.ts`, copied in on each run. One run takes about 20 seconds.
 
+For numbers you publish, add `--webpack` to both runs: it also builds webpack 5 and Next.js with webpack, the
+bundlers most apps use. It takes about a minute longer.
+
 Compare runs of one bundler with each other, not across bundlers: the Next.js app uses `@data-client/react/nextjs`'s
 `DataProvider`, and absolute totals depend on the bundler versions. `--compare` warns when two runs used different
 versions.
