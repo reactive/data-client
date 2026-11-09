@@ -9,7 +9,7 @@
       "expected_output": "Codemod run; issueLoader awaits fetchIfStale and drops the instanceof branch; warmIssue (behind an isPromise() helper the codemod can't see) uses the resolved data; settingsLoader keeps its DEFAULT_SETTINGS fallback via catch, since the awaited call now rejects; the test mock resolves; the owner is told Sentry's global handlers no longer see unawaited failures.",
       "files": ["files/issue-tracker"],
       "assertions": [
-        "issueLoader awaits `fetchIfStale(IssueResource.get, …)` and no longer branches on `instanceof Promise`.",
+        "issueLoader awaits `fetchIfStale(IssueResource.get, \u2026)` and no longer branches on `instanceof Promise`.",
         "warmIssue in prefetch.ts uses the resolved data (await or `.then`) instead of the `isPromise()` check, and a `.then()` chain ends in `.catch()`.",
         "settingsLoader still returns DEFAULT_SETTINGS when the settings fetch fails, via `.catch()` or try/catch around the awaited call.",
         "The `Promise.resolve()` wrapper around the comments prefetch is gone, and no `.catch()` is added to bare unawaited calls such as the IssueLink hover prefetch.",
@@ -17,6 +17,25 @@
         "`npx tsc --noEmit -p .` passes.",
         "The final message tells the owner that unawaited fetch failures no longer reach Sentry's global handlers and suggests the error reporting Manager without adding it.",
         "No `TODO(data-client)` comment remains."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "managers-upgrade",
+      "prompt": "hey, we bumped @data-client to 0.19 in our chat app (it's installed already). can you finish the upgrade so everything works like before? commit is fine to leave to me.",
+      "setup": "Same as eval 1, with files/chat-app, and also symlink @data-client/test and @data-client/normalizr.",
+      "expected_output": "Codemod run; LiveManager defines middleware, opens its socket in init() and keeps `received` across cleanup(); PresenceManager gets a pass-through middleware; each store gets new Manager instances instead of the codemod's `() => managers` around a shared array; AuditNetworkManager stops reading cleanupDate; the renderDataHook test includes a NetworkManager; the console script uses __DC__.",
+      "files": ["files/chat-app"],
+      "assertions": [
+        "LiveManager defines a `middleware` property and no `getMiddleware`.",
+        "LiveManager opens the WebSocket in `init()`, not in the constructor or `middleware`, and closes it in `cleanup()`.",
+        "LiveManager's `cleanup()` no longer clears `received`, and the send in `middleware` is guarded against a closed or missing socket (e.g. `this.socket?.send`).",
+        "PresenceManager defines a pass-through `middleware`.",
+        "Each store gets new Manager instances: `managers` is a function that constructs them, and App does not pass `() => managers` around a module-level array.",
+        "AuditNetworkManager no longer reads `cleanupDate`.",
+        "The renderDataHook test's `managers` function includes a `NetworkManager`.",
+        "scripts/dump-store.js reads `__DC__.controller` (setting `__DC__.store` is optional) instead of `__DC_CONTROLLERS__`.",
+        "`npx tsc --noEmit -p .` passes."
       ]
     }
   ]
