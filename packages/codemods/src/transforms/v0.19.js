@@ -1008,9 +1008,21 @@ function isReadOnlyResource(j, root, binding) {
       isMember(parent) &&
       parent.object === p.node &&
       !parent.computed &&
-      !isMutated(memberChainOf(p))
+      !isMutated(memberChainOf(p)) &&
+      !escapes(p.parentPath)
     );
   });
+}
+
+/** Whether `X.create` or `X.getList` at `path` goes somewhere that could change it, like `Object.assign()` or an alias */
+function escapes(path) {
+  if (!CREATE_SOURCES.has(memberName(path.node))) return false;
+  const use = path.parent.node;
+  return !(
+    (isMember(use) && use.object === path.node) ||
+    use.type === 'BinaryExpression' ||
+    isRun(path)
+  );
 }
 
 // calls whose first argument picks an endpoint to run, so a new endpoint object there runs the same

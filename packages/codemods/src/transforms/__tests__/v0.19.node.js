@@ -1406,6 +1406,8 @@ const NoteResource = resource({ path: '/notes/:id', schema: Note });
 NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
 const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
 const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
+const TagResource = resource({ path: '/tags/:id', schema: Tag });
+Object.assign(TagResource.getList, { path: '/custom' });
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.create, body);
@@ -1415,6 +1417,7 @@ ctrl.fetch(DraftResource.create, body);
 ctrl.fetch(NoteResource.create, body);
 ctrl.fetch(TaskResource.create, body);
 ctrl.fetch(KeyResource.create, body);
+ctrl.fetch(TagResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
@@ -1431,6 +1434,8 @@ const NoteResource = resource({ path: '/notes/:id', schema: Note });
 NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
 const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
 const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
+const TagResource = resource({ path: '/tags/:id', schema: Tag });
+Object.assign(TagResource.getList, { path: '/custom' });
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.getList.push, body);
@@ -1445,6 +1450,8 @@ ctrl.fetch(NoteResource.create, body);
 ctrl.fetch(TaskResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(KeyResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(TagResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
