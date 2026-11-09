@@ -308,8 +308,6 @@ export default class ActionLog {
   /** Reads a store's state: applies pending optimistic updates for
    * `view`, and says why a fetch fetched */
   private readonly reader = new Controller();
-  private readonly reducer = createReducer(this.reader);
-  private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
   /** By state, then schema and fetch key: what `heldEntities` found */
   private readonly held = new WeakMap<
@@ -523,13 +521,7 @@ export default class ActionLog {
 
   /** State as components read it: pending optimistic updates applied */
   view(state: State<unknown>): State<unknown> {
-    if (!state.optimistic.length) return state;
-    let view = this.views.get(state);
-    if (!view) {
-      view = state.optimistic.reduce(this.reducer, state);
-      this.views.set(state, view);
-    }
-    return view;
+    return this.reader.applyOptimistic(state);
   }
 
   /** Rows the action changed, as components see them */

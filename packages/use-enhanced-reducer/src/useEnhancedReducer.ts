@@ -20,7 +20,7 @@ const LegacyReact = parseInt(version) < 18;
 const useCommitEffect: typeof useEffect =
   // runs while React commits, before every layout and passive Effect; also under a hidden <Activity>
   React.useInsertionEffect ??
-  // React 16/17: before every passive Effect; useLayoutEffect warns during SSR
+  // React 16/17: before every passive Effect (children's layout Effects still run first); useLayoutEffect warns during SSR
   (typeof window !== 'undefined' ? useLayoutEffect : useEffect);
 
 export const unsetDispatch = () => {

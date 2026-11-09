@@ -110,6 +110,7 @@ export default class Controller<
     State<unknown>,
     State<unknown>
   >;
+  declare private reducer?: ReturnType<typeof createReducer>;
 
   constructor({
     dispatch = unsetDispatch as any,
@@ -183,7 +184,7 @@ export default class Controller<
     const { data, expiresAt, expiryStatus } = this.getResponseMeta(
       endpoint,
       ...args,
-      this.getState(),
+      this.applyOptimistic(this.getState()),
     );
     if (expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt)
       return data as any;
@@ -417,7 +418,8 @@ export default class Controller<
       // a getOptimisticResponse() that calls controller.snapshot() reads without optimistic updates instead of recursing;
       // its `snap` argument is the right read there
       this.optimisticStates.set(state, state);
-      optimisticState = state.optimistic.reduce(createReducer(this), state);
+      this.reducer ??= createReducer(this);
+      optimisticState = state.optimistic.reduce(this.reducer, state);
       this.optimisticStates.set(state, optimisticState);
     }
     return optimisticState;
