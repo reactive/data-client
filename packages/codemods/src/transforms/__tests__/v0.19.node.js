@@ -330,4 +330,68 @@ export const A = () => <Provider managers={managers} />;
       'leaves files without @data-client imports alone',
     );
   });
+
+  describe('fetchIfStale()', () => {
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number) {
+  Promise.resolve(ctrl.fetchIfStale(CommentResource.getList, { id })).catch(() => {});
+  return Promise.resolve(other());
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number) {
+  ctrl.fetchIfStale(CommentResource.getList, { id }).catch(() => {});
+  return Promise.resolve(other());
+}
+      `,
+      'unwraps Promise.resolve() around it',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number, value: unknown) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (!(issue instanceof Promise)) {
+    render(issue);
+  }
+  if (value) {
+    log(value);
+  } else if (ctrl.fetchIfStale(IssueResource.get, { id }) instanceof Promise) {
+    log(id);
+  }
+  return value instanceof Promise;
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export function loader(ctrl: Controller, id: number, value: unknown) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19, so this check is always true; await it: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (!(issue instanceof Promise)) {
+    render(issue);
+  }
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19, so this check is always true; await it: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (value) {
+    log(value);
+  } else if (ctrl.fetchIfStale(IssueResource.get, { id }) instanceof Promise) {
+    log(id);
+  }
+  return value instanceof Promise;
+}
+      `,
+      'marks instanceof Promise checks of its result with a TODO',
+    );
+  });
 });

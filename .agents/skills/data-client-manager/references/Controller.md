@@ -156,7 +156,8 @@ like [useSuspense()](https://dataclient.io/docs/api/useSuspense) throws it.
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 
 Prefetches don't need to be awaited or caught. A failed fetch is stored like any fetch error, so components reading that
-endpoint handle it as usual. Calls that `await` the result still reject with it.
+endpoint handle it as usual. Calls that `await` the result still reject with it. Unawaited failures don't reach global
+unhandled-rejection handlers, so report fetch errors with an [error reporting Manager](./managers.md#error-reporting).
 
 ```ts
 // start a secondary request without waiting for it

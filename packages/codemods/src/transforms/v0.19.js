@@ -15,6 +15,9 @@
  *      are wrapped where they are passed: `managers={() => managers}`. Exported variables are
  *      wrapped too, since other modules wrap them where they pass them.
  *   2. Drops `initManager()`'s third argument, which 0.19 removed.
+ *   3. `fetchIfStale()` always returns a Promise: `Promise.resolve(ctrl.fetchIfStale(...))` becomes
+ *      the bare call, and a statement that checks its result with `instanceof Promise` gets a
+ *      `// TODO(data-client):` comment, since that check is now always true and the code needs `await`.
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
@@ -22,7 +25,8 @@
 
 const DATA_CLIENT_PREFIX = '@data-client/';
 // every rewrite needs one of these names in the file
-const NAMES = /managers|initManager|prepareStore|createPersistedStore/;
+const NAMES =
+  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale/;
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
   'createDataClient',
@@ -211,6 +215,67 @@ function transformInitManager(j, root) {
   return dirty;
 }
 
+const FETCH_IF_STALE_TODO =
+  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19, so this check is always true; await it: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise';
+
+const isFetchIfStaleCall = node =>
+  node?.type === 'CallExpression' && calleeName(node) === 'fetchIfStale';
+
+/** A `fetchIfStale()` call, or a variable initialized with one */
+function isFetchIfStaleResult(path) {
+  if (isFetchIfStaleCall(path.node)) return true;
+  if (path.node.type !== 'Identifier') return false;
+  const declaration = bindingOf(path)?.parent.node;
+  return (
+    declaration?.type === 'VariableDeclarator' &&
+    isFetchIfStaleCall(declaration.init)
+  );
+}
+
+/** The statement to comment on; for `else if`, the whole `if` chain */
+function statementOf(j, path) {
+  let statement = j(path).closest(j.Statement).paths()[0];
+  while (
+    statement.parent.node.type === 'IfStatement' &&
+    statement.parent.node.alternate === statement.node
+  )
+    statement = statement.parent;
+  return statement;
+}
+
+function transformFetchIfStale(j, root) {
+  let dirty = false;
+  // the wrapper made `.catch()` work on fresh data, which the call now does itself
+  root
+    .find(j.CallExpression, {
+      callee: { object: { name: 'Promise' }, property: { name: 'resolve' } },
+    })
+    .filter(
+      call =>
+        call.node.arguments.length === 1 &&
+        isFetchIfStaleCall(call.node.arguments[0]),
+    )
+    .forEach(call => {
+      call.replace(call.node.arguments[0]);
+      dirty = true;
+    });
+
+  root
+    .find(j.BinaryExpression, {
+      operator: 'instanceof',
+      right: { name: 'Promise' },
+    })
+    .filter(check => isFetchIfStaleResult(check.get('left')))
+    .forEach(check => {
+      const { node } = statementOf(j, check);
+      const comments = node.comments || (node.comments = []);
+      if (comments.some(c => c.value === FETCH_IF_STALE_TODO)) return;
+      comments.push(j.commentLine(FETCH_IF_STALE_TODO, true, false));
+      dirty = true;
+    });
+  return dirty;
+}
+
 module.exports = function transformer(fileInfo, api) {
   // skip parsing files that have nothing to migrate
   if (
@@ -229,6 +294,7 @@ module.exports = function transformer(fileInfo, api) {
   let dirty = false;
   dirty = transformManagers(j, root) || dirty;
   dirty = transformInitManager(j, root) || dirty;
+  dirty = transformFetchIfStale(j, root) || dirty;
 
   return dirty ? root.toSource({ quote: 'single' }) : fileInfo.source;
 };

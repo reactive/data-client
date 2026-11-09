@@ -10,6 +10,10 @@ BREAKING: [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#
 call you don't await can't reject unhandled, because the error is already stored like any fetch error, so components
 reading that endpoint handle it as usual.
 
+These failures no longer reach global unhandled-rejection handlers: the browser console's "Uncaught (in promise)" error,
+error trackers that capture unhandled rejections (like Sentry), and Node's `unhandledRejection` event. To report every
+failed fetch, awaited or not, add an [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting).
+
 | Question | Before | After |
 | --- | --- | --- |
 | What does the call return? | The data when fresh, a Promise when stale | Always a Promise |
@@ -45,7 +49,8 @@ const { data, expiryStatus, expiresAt } = ctrl.getResponse(
 const fresh = expiryStatus !== ExpiryStatus.Invalid && Date.now() <= expiresAt;
 ```
 
-If you read the result without awaiting it, `await` it:
+If you read the result without awaiting it, `await` it. The `v0.19` codemod marks `instanceof Promise` checks of the
+result with a `TODO(data-client)` comment, and unwraps `Promise.resolve(ctrl.fetchIfStale(...))`:
 
 #### Before
 
