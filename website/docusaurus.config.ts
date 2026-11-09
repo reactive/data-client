@@ -371,6 +371,22 @@ const config: Config = {
     ],
   ],
   plugins: [
+    // /next/ links posts from before the cut straight to the root's copy
+    ...(nextCut ?
+      [
+        () => ({
+          name: 'root-post-links',
+          configureWebpack: () => ({
+            resolve: {
+              alias: {
+                '@docusaurus/Link':
+                  require.resolve('./src/utils/RootPostLink.tsx'),
+              },
+            },
+          }),
+        }),
+      ]
+    : []),
     [
       '@docusaurus/plugin-pwa',
       {
