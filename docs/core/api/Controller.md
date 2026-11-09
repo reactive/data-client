@@ -596,8 +596,8 @@ const managers = () => [
 
 ### resetEntireStore() {#resetEntireStore}
 
-Clears the entire Reactive Data Client cache. Fetches in flight reject with a `ResetError`, and their responses are not
-stored.
+Clears the entire Reactive Data Client cache. Responses to fetches in flight are not stored. Those fetches reject with a
+`ResetError`, except `sideEffect` fetches, which still settle with their own result or error.
 
 Use it when a user logs out or the authenticated user changes.
 
