@@ -266,8 +266,9 @@ post.pk();
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
 Fetches only if endpoint is considered '[stale](../concepts/expiry-policy.md#stale)' or [invalid](../concepts/expiry-policy.md#invalid),
-resolving like [fetch()](#fetch). Otherwise settles without fetching: it resolves with the cached data, or rejects
-with the cached error while a recent failure is still fresh, like [useSuspense()](./useSuspense.md) throws it.
+resolving like [fetch()](#fetch). Otherwise it settles without fetching, with the latest fetch's outcome: it resolves
+with the cached data, or rejects with the error if that fetch failed within [errorExpiryLength](/rest/api/Endpoint#errorexpirylength),
+like [useSuspense()](./useSuspense.md) throws it.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 

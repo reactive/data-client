@@ -124,7 +124,7 @@ describe('Controller', () => {
           }),
       ],
       [
-        'a recent failure is cached',
+        'the latest fetch failed within errorExpiryLength',
         () =>
           new Controller({
             dispatch: () => {

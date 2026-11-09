@@ -6,11 +6,16 @@
 
 BREAKING: [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) always returns a Promise, and is safe to call without awaiting
 
-Prefetching a secondary request in a route loader or event handler now works the same whether the data is fresh or
-stale. Before, fresh data came back synchronously, so `.catch()` threw a `TypeError`; and a failed fetch that nobody
-awaited was an unhandled promise rejection. Now a call you don't await never rejects unhandled: the error is stored like
-any fetch error, so components reading that endpoint handle it as usual. Calls that `await` the result still reject,
-including while a recent failure is cached (before, they got `undefined`).
+`fetchIfStale()` now always returns a Promise of the latest fetch's outcome, and fetches only when the cache is stale. A
+call you don't await can't reject unhandled, because the error is already stored like any fetch error, so components
+reading that endpoint handle it as usual.
+
+| Question | Before | After |
+| --- | --- | --- |
+| What does the call return? | The data when fresh, a Promise when stale | Always a Promise |
+| An unawaited call's fetch fails. What happens? | Unhandled rejection | No unhandled rejection; the error is stored, as before |
+| What does `await` give when the latest fetch failed within [errorExpiryLength](https://dataclient.io/rest/api/Endpoint#errorexpirylength)? | `undefined` | Rejects with that error |
+| How do I check freshness without fetching? | Check the result with `instanceof Promise` | [getResponse()](https://dataclient.io/docs/api/Controller#getResponse) |
 
 ```ts
 async function issueLoader(ctrl: Controller, id: number) {
@@ -21,9 +26,15 @@ async function issueLoader(ctrl: Controller, id: number) {
 }
 ```
 
-Why a Promise even for fresh data: one call can't both return data synchronously and support `.catch()`, and the
-synchronous value was rarely usable. Its type was a union, so code had to check `instanceof Promise` first, and router
-loaders (React Router, TanStack Router) await whatever they get anyway.
+Awaited, it works like TanStack Query's [fetchQuery()](https://tanstack.com/query/latest/docs/reference/QueryClient#queryclientfetchquery);
+left unawaited, like [prefetchQuery()](https://tanstack.com/query/latest/docs/reference/QueryClient#queryclientprefetchquery).
+
+Why the synchronous return went away: `fetchIfStale()` first returned `undefined` for fresh data
+([#2743](https://github.com/reactive/data-client/pull/2743)). [#2745](https://github.com/reactive/data-client/pull/2745)
+returned the cached data instead, so that `await fetchIfStale()` resolves the data either way. The synchronous value was
+a side effect of that fix, and `await` still works. Keeping it would mean the natural prefetch code breaks: one call
+can't return plain data and also support `.catch()`. Its type was a union, so code had to check `instanceof Promise`
+before using it, and router loaders (React Router, TanStack Router) await whatever they get anyway.
 
 To check whether data is cached and fresh without fetching, use
 [Controller.getResponse()](https://dataclient.io/docs/api/Controller#getResponse), which is synchronous:

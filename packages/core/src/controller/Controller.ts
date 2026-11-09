@@ -192,11 +192,11 @@ export default class Controller<
     );
     if (expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt)
       return prehandled(this.fetch(endpoint, ...args));
-    // a recent failure is still cached; reject with it like useSuspense() throws it
     const error = this.getError(endpoint, ...args, state);
-    return error ?
-        prehandled(Promise.reject(error))
-      : Promise.resolve(data as any);
+    // the latest fetch failed within errorExpiryLength; reject like useSuspense() throws it
+    if (error) return prehandled(Promise.reject(error));
+    // a Promise even when fresh, so .catch() works on every call (#4657)
+    return Promise.resolve(data as any);
   };
 
   /**

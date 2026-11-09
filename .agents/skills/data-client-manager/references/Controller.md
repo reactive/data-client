@@ -149,8 +149,9 @@ function PostListItem({ post }: { post: Post }) {
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
 Fetches only if endpoint is considered '[stale](https://dataclient.io/docs/concepts/expiry-policy#stale)' or [invalid](https://dataclient.io/docs/concepts/expiry-policy#invalid),
-resolving like [fetch()](#fetch). Otherwise settles without fetching: it resolves with the cached data, or rejects
-with the cached error while a recent failure is still fresh, like [useSuspense()](https://dataclient.io/docs/api/useSuspense) throws it.
+resolving like [fetch()](#fetch). Otherwise it settles without fetching, with the latest fetch's outcome: it resolves
+with the cached data, or rejects with the error if that fetch failed within [errorExpiryLength](https://dataclient.io/rest/api/Endpoint#errorexpirylength),
+like [useSuspense()](https://dataclient.io/docs/api/useSuspense) throws it.
 
 This can be useful when prefetching data, as it avoids overfetching fresh data.
 
