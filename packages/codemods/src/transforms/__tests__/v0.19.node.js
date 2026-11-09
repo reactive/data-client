@@ -293,6 +293,7 @@ import { renderDataHook } from '@data-client/test';
 renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
 renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
 renderDataHook(() => useThing(), { managers: [new DC.NetworkManager()] });
+renderDataHook(() => useThing(), { 'managers': [new LoggingManager()] });
       `,
       `
 import * as DC from '@data-client/react';
@@ -303,6 +304,7 @@ import { NetworkManager } from '@data-client/react';
 renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
 renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
 renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager()] });
+renderDataHook(() => useThing(), { 'managers': () => [new LoggingManager(), new NetworkManager()] });
       `,
       'imports NetworkManager once, and sees a namespaced one',
     );

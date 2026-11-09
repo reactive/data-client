@@ -83,6 +83,12 @@ const calleeName = node =>
     node.callee.property.name
   : undefined;
 
+/** `managers: ...` or `'managers': ...` */
+const isManagersProperty = node =>
+  isProperty(node) &&
+  !node.computed &&
+  (isId(node.key, 'managers') || node.key.value === 'managers');
+
 /** Paths to every expression passed as `managers` */
 function findManagerSlots(j, root) {
   const slots = [];
@@ -90,12 +96,7 @@ function findManagerSlots(j, root) {
     if (objectPath.node?.type !== 'ObjectExpression') return;
     objectPath.get('properties').each(prop => {
       const { node } = prop;
-      if (
-        isProperty(node) &&
-        !node.computed &&
-        (isId(node.key, 'managers') || node.key.value === 'managers')
-      )
-        slots.push(prop.get('value'));
+      if (isManagersProperty(node)) slots.push(prop.get('value'));
     });
   };
 
@@ -643,7 +644,8 @@ function addNetworkManager(j, root) {
   root
     .find(j.CallExpression)
     .filter(call => RENDER_HOOK_CALLS.has(calleeName(call.node)))
-    .find(j.ObjectProperty, { key: { name: 'managers' } })
+    .find(j.Node)
+    .filter(p => isManagersProperty(p.node))
     .forEach(prop => {
       let fn = prop.node.value;
       // `const managers = () => [...]`, as transformManagers() leaves a variable used only here
