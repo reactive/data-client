@@ -15,6 +15,10 @@ if [ "${1:-}" = --compare ]; then
     echo "warning: $2 and $3 used different bundler versions:"
     paste "$here/results/$2.versions" "$here/results/$3.versions"
   fi
+  if grep -q -- '-gzip ' "$here/results/$2.txt" "$here/results/$3.txt"; then
+    echo "error: a run predates the switch to brotli-only output; measure it again" >&2
+    exit 1
+  fi
   join <(sort "$here/results/$2.txt") <(sort "$here/results/$3.txt") |
     awk -v a="$2" -v b="$3" 'BEGIN { printf "%-16s %10s %10s %7s\n", "bundler", a, b, "diff" }
       { printf "%-16s %10d %10d %+7d\n", $1, $2, $3, $3 - $2 }'
