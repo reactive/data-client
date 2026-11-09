@@ -63,7 +63,7 @@ export function workspaceRoot(dir, repo = repoRoot(dir)) {
   for (const parent of ancestors(path.dirname(dir))) {
     // past a nested root, a parent can still list the package itself, as
     // `packages/*/apps/*` does
-    if (declaresWorkspace(parent, target) || declaresWorkspace(parent, own)) {
+    if (declaresWorkspace(parent, [target, own])) {
       root = parent;
       target = realpath(parent);
     }
@@ -88,10 +88,12 @@ export function* ancestors(dir) {
   }
 }
 
-/** Whether `parent`'s workspaces include the real directory `target` */
-function declaresWorkspace(parent, target) {
+/** Whether `parent`'s workspaces include one of the real `targets` */
+function declaresWorkspace(parent, targets) {
   try {
-    return workspaceDirs(parent).some(found => realpath(found) === target);
+    return workspaceDirs(parent).some(found =>
+      targets.includes(realpath(found)),
+    );
   } catch {
     // a manifest this command never needed, such as JSONC or an odd
     // workspaces field, isn't its problem
@@ -129,10 +131,8 @@ const segments = pattern => pattern.split(/[\\/]/);
 function braces(pattern) {
   const match = /\{([^{}]*)\}/.exec(pattern);
   if (!match) return [pattern];
-  const [head, tail] = [
-    pattern.slice(0, match.index),
-    pattern.slice(match.index + match[0].length),
-  ];
+  const head = pattern.slice(0, match.index);
+  const tail = pattern.slice(match.index + match[0].length);
   return match[1]
     .split(',')
     .flatMap(choice => braces(`${head}${choice}${tail}`));

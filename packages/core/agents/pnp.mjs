@@ -30,10 +30,9 @@ export function pnpPackages(projectDir, names, extractTo) {
   for (const [pkg, versions] of registry) {
     if (!names.includes(pkg)) continue;
     const resolved = ([reference]) => reference === own.get(pkg);
-    for (const [, { packageLocation }] of [
-      ...versions.filter(resolved),
-      ...versions.filter(version => !resolved(version)),
-    ]) {
+    // stable, so the rest keep their order
+    const ordered = [...versions].sort((a, b) => resolved(b) - resolved(a));
+    for (const [, { packageLocation }] of ordered) {
       const location = path.resolve(root, packageLocation);
       // read a path inside a zip only by extracting, never as a folder, even
       // when extracting finds nothing: under Yarn's runtime
@@ -52,11 +51,12 @@ export function pnpPackages(projectDir, names, extractTo) {
 
 /** Package name -> reference that the workspace at `dir` depends on */
 function ownDependencies(root, registry, dir) {
+  const location = path.resolve(dir);
   const workspace = registry
     .flatMap(([, versions]) => versions)
     .find(
       ([, { packageLocation }]) =>
-        path.resolve(root, packageLocation) === path.resolve(dir),
+        path.resolve(root, packageLocation) === location,
     );
   return new Map(workspace?.[1].packageDependencies ?? []);
 }
