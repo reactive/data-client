@@ -1,8 +1,21 @@
 'use strict';
 
-const { defineInlineTest } = require('jscodeshift/dist/testUtils');
+const {
+  applyTransform,
+  defineInlineTest,
+} = require('jscodeshift/dist/testUtils');
 
 const transform = require('../v0.19');
+
+const DEPRECATIONS_INPUT = `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
+ctrl.fetch(PostResource.create, body);
+renderDataHook.cleanup();
+`;
 
 describe('v0.19 codemod', () => {
   describe('DataProvider managers', () => {
@@ -1290,15 +1303,7 @@ it('loads', async () => {
     defineInlineTest(
       transform,
       { deprecations: false },
-      `
-import { renderDataHook } from '@data-client/test';
-import { resource } from '@data-client/rest';
-
-const PostResource = resource({ path: '/posts/:id', schema: Post });
-await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
-ctrl.fetch(PostResource.create, body);
-renderDataHook.cleanup();
-      `,
+      DEPRECATIONS_INPUT,
       `
 import { renderDataHook } from '@data-client/test';
 import { resource } from '@data-client/rest';
@@ -1314,15 +1319,7 @@ renderDataHook.cleanup();
     defineInlineTest(
       transform,
       { deprecations: 'only' },
-      `
-import { renderDataHook } from '@data-client/test';
-import { resource } from '@data-client/rest';
-
-const PostResource = resource({ path: '/posts/:id', schema: Post });
-await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
-ctrl.fetch(PostResource.create, body);
-renderDataHook.cleanup();
-      `,
+      DEPRECATIONS_INPUT,
       `
 import { renderDataHook } from '@data-client/test';
 import { resource } from '@data-client/rest';
@@ -1335,6 +1332,18 @@ renderDataHook.cleanup();
       `,
       'migrates only deprecated APIs with --deprecations=only',
     );
+
+    it('rejects other --deprecations values', () => {
+      expect(() =>
+        applyTransform(
+          transform,
+          { deprecations: 'onyl' },
+          {
+            source: DEPRECATIONS_INPUT,
+          },
+        ),
+      ).toThrow('--deprecations must be false or only');
+    });
 
     defineInlineTest(
       transform,
@@ -1359,6 +1368,7 @@ await waitForNextUpdate();
       transform,
       { path: 'useThing.test.ts' },
       `
+import { act } from '@testing-library/react';
 import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '../test-utils';
 
@@ -1366,6 +1376,7 @@ const { waitForNextUpdate } = renderDataHook(() => useSuspense(ThingResource.get
 await waitForNextUpdate();
       `,
       `
+import { act } from '@testing-library/react';
 import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '../test-utils';
 
@@ -1408,6 +1419,10 @@ const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: Task
 const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
 const TagResource = resource({ path: '/tags/:id', schema: Tag });
 Object.assign(TagResource.getList, { path: '/custom' });
+const ListResource = resource({ path: '/lists/:id', schema: List });
+const lists = ListResource.getList;
+const PathResource = resource({ path: '/paths/:id', schema: Path });
+[PathResource.getList.path] = ['/other'];
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.create, body);
@@ -1418,6 +1433,8 @@ ctrl.fetch(NoteResource.create, body);
 ctrl.fetch(TaskResource.create, body);
 ctrl.fetch(KeyResource.create, body);
 ctrl.fetch(TagResource.create, body);
+ctrl.fetch(ListResource.create, body);
+ctrl.fetch(PathResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
@@ -1436,6 +1453,10 @@ const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: Task
 const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
 const TagResource = resource({ path: '/tags/:id', schema: Tag });
 Object.assign(TagResource.getList, { path: '/custom' });
+const ListResource = resource({ path: '/lists/:id', schema: List });
+const lists = ListResource.getList;
+const PathResource = resource({ path: '/paths/:id', schema: Path });
+[PathResource.getList.path] = ['/other'];
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.getList.push, body);
@@ -1452,6 +1473,10 @@ ctrl.fetch(TaskResource.create, body);
 ctrl.fetch(KeyResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(TagResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(ListResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(PathResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});

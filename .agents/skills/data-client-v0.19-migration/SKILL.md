@@ -162,16 +162,18 @@ npx @data-client/codemods v0.19 <source-root> --deprecations=only
 ```
 
 It renames what has a drop-in replacement and leaves a `TODO(data-client)` comment naming the replacement on the rest.
-Fix each, then delete the comment, and rerun the type checker and tests. Gotchas:
+Fix each, then delete the comment, and repeat Step 8. Gotchas:
 
 - `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `name`,
   never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and
   options. Resources from another file not named `*Resource` get no TODO, so also check
-  `rg -n '\.create\b|waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`.
+  `rg -n '\.create\b' <source-root>`.
 - `waitForNextUpdate()` in `renderDataCompose()` tests: `await result` for the first load, `await allSettled()` after
   changing props or calling the controller.
-- The blog's [future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases) lists changes
-  that will break later.
+
+Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`. The blog's
+[future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases) lists changes that will break
+later.
 
 Last, whether or not you did this step: if you ran `data-client-skills --upgrade` in Step 1, run
 `npx --no data-client-skills` to unlink the migration skills. Not before: it removes this skill.

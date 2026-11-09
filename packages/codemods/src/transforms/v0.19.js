@@ -936,6 +936,12 @@ function isImportOf(path, name, source) {
 // an extend() that replaces one of these makes create differ from getList.push
 const CREATE_SOURCES = new Set(['create', 'getList']);
 
+/** Whether every key of `object` is a known name outside `names`; a spread or computed key could be any */
+const hasOnlyKeysOutside = (object, names) =>
+  object.properties.every(
+    p => isProperty(p) && keyName(p) !== undefined && !names.has(keyName(p)),
+  );
+
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
  * differ, and so can a custom `Endpoint` class */
@@ -949,16 +955,7 @@ function isPlainResource(path) {
     if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
       if (CREATE_SOURCES.has(first.value)) return false;
     } else if (first?.type === 'ObjectExpression') {
-      if (
-        first.properties.some(
-          p =>
-            !isProperty(p) ||
-            // a computed key could name either
-            keyName(p) === undefined ||
-            CREATE_SOURCES.has(keyName(p)),
-        )
-      )
-        return false;
+      if (!hasOnlyKeysOutside(first, CREATE_SOURCES)) return false;
     } else return false;
     path = unwrapPath(path.get('callee', 'object'));
   }
@@ -968,10 +965,7 @@ function isPlainResource(path) {
     path.node.callee.type === 'Identifier' &&
     isImportOf(path.get('callee'), 'resource', '@data-client/rest') &&
     options?.type === 'ObjectExpression' &&
-    // a computed key could be Endpoint
-    options.properties.every(
-      p => isProperty(p) && ![undefined, 'Endpoint'].includes(keyName(p)),
-    )
+    hasOnlyKeysOutside(options, new Set(['Endpoint']))
   );
 }
 
@@ -982,18 +976,27 @@ function memberChainOf(path) {
   return path;
 }
 
-/** Whether the expression at `path` is assigned, incremented or deleted */
-function isMutated(path) {
+const PATTERNS = new Set(['ArrayPattern', 'ObjectPattern', 'RestElement']);
+
+/** Whether the expression at `path` is written: assigned (also by destructuring or a for-of/in loop),
+ * incremented or deleted */
+function isWriteTarget(path) {
   const parent = path.parent.node;
+  const holder = isProperty(parent) ? path.parent.parent.node : parent;
   return (
-    (parent.type === 'AssignmentExpression' && parent.left === path.node) ||
+    PATTERNS.has(holder.type) ||
+    ((parent.type === 'AssignmentExpression' ||
+      parent.type === 'AssignmentPattern' ||
+      parent.type === 'ForOfStatement' ||
+      parent.type === 'ForInStatement') &&
+      parent.left === path.node) ||
     parent.type === 'UpdateExpression' ||
     (parent.type === 'UnaryExpression' && parent.operator === 'delete')
   );
 }
 
-/** Whether every use of a `const` resource reads its members without changing them or passing the
- * resource itself on, so its `create` and `getList` stay what its declaration made them */
+/** Whether every use of a `const` resource reads its members without writing them, passing the resource
+ * on, or letting `create` or `getList` escape, so they stay what its declaration made them */
 function isReadOnlyResource(j, root, binding) {
   if (
     !isPlainResourceDeclarator(binding) ||
@@ -1008,7 +1011,7 @@ function isReadOnlyResource(j, root, binding) {
       isMember(parent) &&
       parent.object === p.node &&
       !parent.computed &&
-      !isMutated(memberChainOf(p)) &&
+      !isWriteTarget(memberChainOf(p)) &&
       !escapes(p.parentPath)
     );
   });
@@ -1036,7 +1039,7 @@ const ENDPOINT_RUNNERS = new Set([
   'useSubscription',
 ]);
 
-/** Whether `X.create` at `path` is run (called, or passed to fetch() or a data hook), where a new endpoint
+/** Whether the endpoint at `path` is run (called, or passed to fetch() or a data hook), where a new endpoint
  * object behaves the same; elsewhere code may compare it by identity, which getList.push breaks */
 function isRun(path) {
   const parent = path.parent.node;
@@ -1091,9 +1094,6 @@ const isPlainResourceDeclarator = binding =>
   binding?.parent.node.type === 'VariableDeclarator' &&
   isPlainResource(binding.parent.get('init'));
 
-const importsFrom = (root, source) =>
-  importsOf(root).some(d => d.source.value === source);
-
 /** Shared `renderDataHook.cleanup()` / `.allSettled()`, which act only on the latest render */
 const findSharedTestHelpers = (j, root) =>
   root
@@ -1118,12 +1118,42 @@ const findVueSetup = (j, root) =>
     )
     .paths();
 
-/** `waitForNextUpdate()`, called as a member or destructured from a render */
+const RENDER_CALLS = new Set([...RENDER_HOOK_CALLS, 'renderDataCompose']);
+
+/** The name of the call whose result `waitForNextUpdate` at `path` comes from: `render(...).waitForNextUpdate`,
+ * `result.waitForNextUpdate` or `const { waitForNextUpdate } = render(...)`, awaited or not */
+function sourceCallOf(path) {
+  if (path.node.type === 'CallExpression') return calleeName(path.node);
+  if (path.node.type === 'AwaitExpression')
+    return sourceCallOf(path.get('argument'));
+  const binding = path.node.type === 'Identifier' ? bindingOf(path) : undefined;
+  // a destructured name's binding sits in an ObjectPattern property
+  const declarator =
+    isProperty(binding?.parent.node) ?
+      binding.parent.parent.parent
+    : binding?.parent;
+  return declarator?.node.type === 'VariableDeclarator' ?
+      sourceCallOf(declarator.get('init'))
+    : undefined;
+}
+
+/** `waitForNextUpdate()` calls from data-client's render helpers (other test libraries have one too), by
+ * the helper they come from */
 const findWaitForNextUpdate = (j, root) =>
   root
     .find(j.CallExpression)
     .filter(({ node }) => calleeName(node) === 'waitForNextUpdate')
-    .paths();
+    .paths()
+    .map(path => {
+      const callee = path.get('callee');
+      return {
+        path,
+        render: sourceCallOf(
+          isMember(callee.node) ? callee.get('object') : callee,
+        ),
+      };
+    })
+    .filter(({ render }) => RENDER_CALLS.has(render));
 
 const DEVTOOLS_NAMES = /actions(Black|White)list/;
 const CREATE_NAME = /\.create\b/;
@@ -1149,31 +1179,33 @@ function migrateDeprecations(j, root, source) {
   if (VUE_SETUP_NAMES.test(source))
     dirty =
       addTodos(j, findVueSetup(j, root), CREATE_DATA_CLIENT_TODO) || dirty;
-  // @testing-library has a waitForNextUpdate() too; a local helper may re-export ours
-  const isVueTest = importsFrom(root, '@data-client/vue/test');
-  if (
-    WAIT_FOR_NEXT_UPDATE_NAME.test(source) &&
-    (isVueTest ||
-      importsFrom(root, '@data-client/test') ||
-      !importsOf(root).some(d =>
-        d.source.value.startsWith('@testing-library/'),
-      ))
-  )
+  if (WAIT_FOR_NEXT_UPDATE_NAME.test(source)) {
+    const calls = findWaitForNextUpdate(j, root);
+    const [vue, react] = [true, false].map(isVue =>
+      calls
+        .filter(({ render }) => (render === 'renderDataCompose') === isVue)
+        .map(({ path }) => path),
+    );
     dirty =
-      addTodos(
-        j,
-        findWaitForNextUpdate(j, root),
-        isVueTest ? VUE_WAIT_FOR_NEXT_UPDATE_TODO : WAIT_FOR_NEXT_UPDATE_TODO,
-      ) || dirty;
+      [
+        addTodos(j, react, WAIT_FOR_NEXT_UPDATE_TODO),
+        addTodos(j, vue, VUE_WAIT_FOR_NEXT_UPDATE_TODO),
+      ].some(Boolean) || dirty;
+  }
   return dirty;
 }
 
 /** `--deprecations=false` skips moving off deprecated APIs; `--deprecations=only` does just that */
 function passesFor(options) {
-  const deprecations = options?.deprecations;
+  // jscodeshift parses `--deprecations=false` to a boolean
+  const deprecations = options?.deprecations ?? true;
+  if (![true, false, 'only'].includes(deprecations))
+    throw new Error(
+      `--deprecations must be false or only, not ${JSON.stringify(deprecations)}`,
+    );
   return {
     breaking: deprecations !== 'only',
-    deprecations: deprecations !== false && deprecations !== 'false',
+    deprecations: deprecations !== false,
   };
 }
 
@@ -1192,9 +1224,9 @@ module.exports = function transformer(fileInfo, api, options) {
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
-  const hasDataClientImport = root
-    .find(j.ImportDeclaration)
-    .some(p => String(p.node.source.value).startsWith(DATA_CLIENT_PREFIX));
+  const hasDataClientImport = importsOf(root).some(d =>
+    String(d.source.value).startsWith(DATA_CLIENT_PREFIX),
+  );
   if (!hasDataClientImport) return fileInfo.source;
 
   let dirty = false;
