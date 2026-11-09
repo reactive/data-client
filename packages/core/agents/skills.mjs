@@ -99,9 +99,9 @@ function sync(projectDir, { upgrade, inherited = new Map() }) {
 }
 
 /**
- * Skill name -> its package `version` and the `source` agents load: a link's
- * real folder (native, like sameDir, so a junction's casing doesn't matter),
- * or a copy's version
+ * Skill name -> its `version` (`pkg@version`) and the `source` agents load:
+ * a link's real folder (native, like sameDir, so a junction's casing doesn't
+ * matter), or a copy's version
  */
 function sources(want, copy) {
   return new Map(

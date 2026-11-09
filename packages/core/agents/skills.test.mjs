@@ -788,6 +788,8 @@ for (const [version, own] of [
       ...app('beta', version),
     });
     const beta = path.join(dir, 'apps/beta');
+    // an earlier run linked beta's own version there
+    syncSkills(beta);
     run(t, beta);
     assert.equal(
       links(dir)['data-client-react'],
