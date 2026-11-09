@@ -301,6 +301,7 @@ renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
 renderDataHook(() => useThing(), { managers: [new DC.NetworkManager()] });
 renderDataHook(() => useThing(), { 'managers': [new LoggingManager()] });
 renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingManager()] } });
+renderDataHook(() => useThing(), { managers: [new LoggingManager()] as Manager[] });
       `,
       `
 import * as DC from '@data-client/react';
@@ -313,6 +314,7 @@ renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new Ne
 renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { 'managers': () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { initialProps: { managers: () => [new LoggingManager()] } });
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] as Manager[] });
       `,
       'imports the default Managers once, and sees a namespaced NetworkManager',
     );

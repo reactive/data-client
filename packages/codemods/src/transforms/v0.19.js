@@ -809,7 +809,7 @@ function addDefaultManagers(j, root) {
       const declarator = bindingOf(prop.get('value'))?.parent.node;
       fn = declarator?.type === 'VariableDeclarator' && declarator.init;
     }
-    const list = isFunction(fn) && fn.body;
+    const list = isFunction(fn) && unwrap(fn.body);
     // only a list of `new` Managers shows which defaults it lacks
     if (
       list?.type !== 'ArrayExpression' ||
