@@ -5,8 +5,8 @@
 `Controller` gives type-safe access to the Reactive Data Client [store and its lifecycle](./Manager.vue.md#control-flow).
 Each store has one `Controller`.
 
-`Controller` memoizes all store reads, so equal data keeps the same object reference everywhere. This keeps rendering
-and lookups fast.
+`Controller` memoizes denormalization for global referential equality: unchanged store data gives the same object
+wherever it is read. This keeps rendering and lookups fast.
 
 `Controller` is provided:
 
@@ -310,7 +310,7 @@ until the refetch resolves.
 </template>
 ```
 
-This clears only GET endpoints on the test.com domain. Other domains stay in the cache.
+The code below invalidates only GET endpoints on the test.com domain. Other domains stay in the cache.
 
 ```ts
 const myDomain = 'http://test.com';
@@ -356,8 +356,7 @@ app.mount('#app');
 
 ### resetEntireStore() {#resetEntireStore}
 
-Clears the entire Reactive Data Client cache. Responses to fetches in flight are not stored. Those fetches reject with a
-`ResetError`, except `sideEffect` fetches, which still settle with their own result or error.
+Clears the entire Reactive Data Client cache. Responses to fetches in flight are not stored. Those fetches reject with a `ResetError` (`error.name === 'ResetError'`), except `sideEffect` fetches, which still settle with their own result or error.
 
 Use it when a user logs out or the authenticated user changes.
 
@@ -426,7 +425,7 @@ ctrl.set(TodoResource.getList.schema.push, { userId: '1' }, [
 > error. Only declared fields are accepted, so a key read by a
 > `schemaAttribute` function must be declared on each member.
 
-Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
+Pass a function to derive the value from the stored one. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
 ```ts
 const id = '2';
@@ -496,7 +495,7 @@ receive `[]`) and no updater function. Rows that share a pk merge in list order,
 
 Stores `response` in cache for given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args.
 
-Components suspending on this [Endpoint](https://dataclient.io/rest/api/Endpoint) and args resolve. Existing data for them is updated.
+Components suspending on this [Endpoint](https://dataclient.io/rest/api/Endpoint) and args resolve. Existing data for that Endpoint and args is replaced.
 
 ```ts
 const ctrl = useController();
@@ -527,8 +526,8 @@ Stores `error` as the result of the [Endpoint](https://dataclient.io/rest/api/En
 
 Resolves a specific fetch, storing the `response` in cache.
 
-Like [setResponse](#setResponse), but it also settles the fetch in flight, so its optimistic update no longer
-applies.
+Like [setResponse](#setResponse), but `fetchedAt` ties the response to one fetch, so that fetch's optimistic update is
+removed.
 
 [NetworkManager](https://dataclient.io/vue/api/NetworkManager) uses it. Use it when a Manager processes fetch requests.
 
@@ -569,7 +568,7 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 
 #### Example
 
-[useQuery](https://dataclient.io/vue/api/useQuery) uses it, and [Managers](./Manager.vue.md) can use it to read the store safely.
+[useQuery](https://dataclient.io/vue/api/useQuery) builds on it, and [Managers](./Manager.vue.md) can use it to read the store safely.
 
 In components, [useQuery()](https://dataclient.io/vue/api/useQuery) keeps the result reactive. In event handlers, pass
 [getState()](#getState) to read the latest store:
@@ -593,7 +592,7 @@ const toggle = (id: string) => {
 }
 ```
 
-Gets the response for an endpoint and args from the given `state`. The result is referentially stable.
+Gets the response for an endpoint and args from the given `state`.
 
 #### data
 
@@ -630,7 +629,7 @@ When the data expires, as a timestamp. Compare it to `Date.now()`.
 
 #### Example
 
-[useCache](https://dataclient.io/vue/api/useCache) and [useSuspense](https://dataclient.io/vue/api/useSuspense) use it. [Managers](./Manager.vue.md) can use it to look up a
+[useCache](https://dataclient.io/vue/api/useCache) and [useSuspense](https://dataclient.io/vue/api/useSuspense) build on it. [Managers](./Manager.vue.md) can use it to look up a
 response in the given state.
 
 In event handlers, pass [getState()](#getState) to read the latest store, as in the
