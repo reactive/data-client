@@ -65,7 +65,7 @@ describe('ExternalDataProvider', () => {
     expect(container.textContent).toBe('mounted');
   });
 
-  it('keeps the same state when other reducers change', () => {
+  it('does not re-render when other reducers change', () => {
     const states: unknown[] = [];
     function Title() {
       const ctrl = useController();

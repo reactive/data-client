@@ -4,7 +4,7 @@
 
 Fix [ExternalDataProvider](https://dataclient.io/docs/api/ExternalDataProvider) missing updates dispatched while it mounts
 
-`ExternalDataProvider` (and the `DataProvider` from `@data-client/react/redux`) subscribed to the Redux store after its children's mount Effects ran. Anything those Effects dispatched, like a [`controller.fetch()`](https://dataclient.io/docs/api/Controller#fetch) with an optimistic update, did not render until the next store change. It now renders right away.
+Under `ExternalDataProvider` or the [Redux `DataProvider`](https://dataclient.io/docs/guides/redux), anything a component dispatched from a mount Effect, like a [`controller.fetch()`](https://dataclient.io/docs/api/Controller#fetch) with an optimistic update, did not render until the next store change. It now renders right away.
 
 ```tsx
 function Article({ id }: { id: number }) {

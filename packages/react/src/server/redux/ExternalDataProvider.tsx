@@ -45,8 +45,8 @@ export default function ExternalDataProvider<S>({
     return () => {
       const slice = selector(store.getState());
       if (slice !== lastSlice) {
-        lastSlice = slice;
         lastState = slice.optimistic.reduce(masterReducer, slice);
+        lastSlice = slice;
       }
       return lastState;
     };
