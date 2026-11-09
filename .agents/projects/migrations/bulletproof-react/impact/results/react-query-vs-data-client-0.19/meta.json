@@ -1,0 +1,36 @@
+{
+ "config": "kit/.agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
+ "prep": [
+  "fixed-latency.patch"
+ ],
+ "runs": 8,
+ "cpuThrottle": 4,
+ "node": "v22.23.4",
+ "playwright": "1.65.0",
+ "checkouts": {
+  "baseline": {
+   "commit": "18d155d32fc4d64c70cd4a615b3d8c6036aa32e5",
+   "treeDiffSha1": "4a30f62ba7ca",
+   "uncommittedFiles": 2,
+   "dataLibs": {
+    "@tanstack/react-query": "5.107.1",
+    "react-query-auth": "2.4.3",
+    "@data-client/react": null,
+    "@data-client/rest": null,
+    "axios": "1.21.0"
+   }
+  },
+  "migrated": {
+   "commit": "9c8de5ae22d76d07164780f8426fa90b718c50d2",
+   "treeDiffSha1": "4a30f62ba7ca",
+   "uncommittedFiles": 2,
+   "dataLibs": {
+    "@tanstack/react-query": null,
+    "react-query-auth": null,
+    "@data-client/react": "0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+    "@data-client/rest": "0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+    "axios": null
+   }
+  }
+ }
+}

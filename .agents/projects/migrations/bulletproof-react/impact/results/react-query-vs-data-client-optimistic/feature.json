@@ -1,0 +1,268 @@
+{
+  "kind": "feature",
+  "app": "bulletproof-react",
+  "feature": "Comment counts that stay in sync",
+  "model": "sonnet",
+  "effort": "medium",
+  "date": "2026-11-07T05:54:35.402Z",
+  "failures": {
+    "baseline": [],
+    "migrated": []
+  },
+  "context": {
+    "baseline": ["AGENTS.md"],
+    "migrated": ["AGENTS.md"]
+  },
+  "metrics": [
+    {
+      "group": "feature cost",
+      "id": "totalTokens",
+      "label": "Tokens, all (input + cache + output)",
+      "unit": "tokens",
+      "lowerIsBetter": true,
+      "baseline": 779816,
+      "migrated": 1156346,
+      "delta": 376530,
+      "pct": 48.3,
+      "ci95": [150895, 602165],
+      "spread": {
+        "baseline": [777678.5, 781953.5],
+        "migrated": [1045666, 1267026]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "outputTokens",
+      "label": "Output tokens",
+      "unit": "tokens",
+      "lowerIsBetter": true,
+      "baseline": 6103,
+      "migrated": 11659.5,
+      "delta": 5556.5,
+      "pct": 91,
+      "ci95": [2573, 8540],
+      "spread": {
+        "baseline": [5609.5, 6596.5],
+        "migrated": [10661.25, 12657.75]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "costUsd",
+      "label": "Cost",
+      "unit": "USD",
+      "lowerIsBetter": true,
+      "baseline": 0.29,
+      "migrated": 0.42,
+      "delta": 0.12,
+      "pct": 41.6,
+      "ci95": [0.04, 0.21],
+      "spread": {
+        "baseline": [0.28, 0.3],
+        "migrated": [0.39, 0.45]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "turns",
+      "label": "Agent turns",
+      "unit": "turns",
+      "lowerIsBetter": true,
+      "baseline": 23,
+      "migrated": 38,
+      "delta": 15,
+      "pct": 65.2,
+      "ci95": [2, 28],
+      "spread": {
+        "baseline": [22, 24],
+        "migrated": [32.5, 43.5]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "wallMs",
+      "label": "Wall time",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "baseline": 92327.5,
+      "migrated": 135709.5,
+      "delta": 43382,
+      "pct": 47,
+      "ci95": [4974, 81790],
+      "spread": {
+        "baseline": [86267.25, 98387.75],
+        "migrated": [122565.75, 148853.25]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "linesChanged",
+      "label": "Lines changed (excl. lockfiles)",
+      "unit": "lines",
+      "lowerIsBetter": true,
+      "baseline": 40.5,
+      "migrated": 78,
+      "delta": 37.5,
+      "pct": 92.6,
+      "ci95": [31, 44],
+      "spread": {
+        "baseline": [38.75, 42.25],
+        "migrated": [76.5, 79.5]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "filesChanged",
+      "label": "Files changed",
+      "unit": "files",
+      "lowerIsBetter": true,
+      "baseline": 8.5,
+      "migrated": 10.5,
+      "delta": 2,
+      "pct": 23.5,
+      "ci95": [1, 3],
+      "spread": {
+        "baseline": [8.25, 8.75],
+        "migrated": [10.25, 10.75]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "few runs"
+    },
+    {
+      "group": "feature cost",
+      "id": "pass",
+      "label": "Acceptance passed (1 = yes)",
+      "unit": "median of runs",
+      "lowerIsBetter": false,
+      "baseline": 1,
+      "migrated": 1,
+      "delta": 0,
+      "pct": 0,
+      "ci95": [0, 0],
+      "spread": {
+        "baseline": [1, 1],
+        "migrated": [1, 1]
+      },
+      "n": {
+        "baseline": 2,
+        "migrated": 2
+      },
+      "verdict": "same"
+    }
+  ],
+  "runs": [
+    {
+      "variant": "baseline",
+      "run": 1,
+      "ok": 1,
+      "wallMs": 104448,
+      "turns": 25,
+      "costUsd": 0.31480140000000006,
+      "inputTokens": 22,
+      "cacheWriteTokens": 42605,
+      "cacheReadTokens": 734374,
+      "outputTokens": 7090,
+      "permissionDenials": 2,
+      "result": "Discussions now show comment counts in the table and on the discussion page. `npx tsc --noEmit` is clean and `npx vitest run` passes (21/21). I didn't test the \"right after creating or deleting a comment\" behavior in a browser or with a new test, so that part is untested.\n\n- **API:** the mock list and single-discussion handlers now return `commentCount`, computed from the comments table. I added `commentCount: number` to the `Discussion` type.\n- **Table:** there is a new \"Comments\" column between \"Created At\" and the View/Delete cells.\n- **Discussion page:** it shows \"N comments\" (\"1 comment\" for one) on the author line, directly under the title heading. I didn't append the count to the title itself because the existing tests match the title text exactly.\n- **Staying correct:** creating or deleting a comment now also invalidates the discussions queries, so the list and the detail page both refetch. The route loaders for the list and the discussion page now use `fetchQuery` instead of \"use cache if present\". The old loaders would have shown the stale cached list when you came back via the sidebar link.\n\nI edited one existing test: the row name in `discussions.test.tsx` now expects `... 0 View Delete Discussion`. Any new column adds its text to the row's accessible name, so the old string could no longer match.\n\nThe new loader behavior means the list and discussion routes refetch whenever their cache is older than 60 seconds or has been invalidated. Before, they never refetched in the loader once data was cached.",
+      "linesChanged": 37,
+      "linesAdded": 30,
+      "filesChanged": 9,
+      "pass": 1,
+      "totalTokens": 784091,
+      "acceptanceLog": "\nRunning 1 test using 1 worker\n\n[1/1] e2e/impact-comment-count.spec.ts:24:1 \u203a comment counts stay in sync after creating and deleting a comment\n  1 passed (13.5s)\n"
+    },
+    {
+      "variant": "migrated",
+      "run": 1,
+      "ok": 1,
+      "wallMs": 109422,
+      "turns": 27,
+      "costUsd": 0.35298250000000003,
+      "inputTokens": 25,
+      "cacheWriteTokens": 41993,
+      "cacheReadTokens": 883305,
+      "outputTokens": 9663,
+      "permissionDenials": 2,
+      "result": "Comment counts are in, and `npx tsc --noEmit` and `npx vitest run` both pass (22 tests). I didn't run the app, so the create/delete behaviour is untested in a browser.\n\n- **API:** the mock list and single-discussion handlers now return `commentCount`, counted live from the comments table. The `Discussion` entity has a `commentCount` field.\n- **List:** the discussions table has a \"Comments\" column, placed right after Title.\n- **Discussion page:** `DiscussionView` shows \"N comments\", or \"1 comment\" for one, next to the author line under the title. The `h1` title is unchanged.\n- **Create and delete:** `CreateComment` and `DeleteComment` call a new optional `onCountChange(delta)` prop after each mutation succeeds. The discussion route passes it down. It sets the new count immediately, then refetches the discussion so the server's number replaces it. Because the list and the page share one `Discussion` entity, going back via the sidebar link shows the updated count without a reload.\n- **Why a callback:** the comments feature calls back into the route instead of importing the discussions API, to respect the project's no-cross-feature-imports rule.\n- **Not covered:** there's no new test for the create/delete flow.\n\nI had to change one existing test. A table row's accessible name now includes the count, so `discussions.test.tsx` expects `\"<title> 0 <date> View Delete Discussion\"` instead of `\"<title> <date> View Delete Discussion\"`. Any other test matching that row name exactly would need the same edit.\n\nI also removed the `discussionId` prop from `DeleteComment`. It was unused.",
+      "linesChanged": 81,
+      "linesAdded": 66,
+      "filesChanged": 10,
+      "pass": 1,
+      "totalTokens": 934986,
+      "acceptanceLog": "\nRunning 1 test using 1 worker\n\n[1/1] e2e/impact-comment-count.spec.ts:24:1 \u203a comment counts stay in sync after creating and deleting a comment\n  1 passed (11.6s)\n"
+    },
+    {
+      "variant": "migrated",
+      "run": 2,
+      "ok": 1,
+      "wallMs": 161997,
+      "turns": 49,
+      "costUsd": 0.48177319999999996,
+      "inputTokens": 34,
+      "cacheWriteTokens": 53524,
+      "cacheReadTokens": 1310492,
+      "outputTokens": 13656,
+      "permissionDenials": 1,
+      "result": "Discussions now have comment counts in the mock API, the table and the discussion page, and the counts stay correct after you create or delete a comment. `npx tsc --noEmit` is clean and `npx vitest run` passes (22 of 22). I didn't test the sidebar navigation back to the list in a browser or an automated test. It relies on the list being dropped from the cache after each comment change.\n\n- **API:** the list and single-discussion mock handlers return `commentCount`, computed from the comments in the mock db. The create and update responses include it too.\n- **Table:** a \"Comments\" column sits right after Title. The `Discussion` entity has `commentCount = 0`.\n- **Discussion page:** the count shows next to the date, as \"0 comments\", \"1 comment\", \"2 comments\".\n- **After a comment changes:** `CreateComment` and `DeleteComment` take an optional `onChange` that fires after a successful create or delete. The discussion route passes it down, and it refetches the open discussion and drops every cached discussions list. The route does this because the lint rules forbid the comments feature from importing the discussions feature. Dropping the list means that going back through the sidebar link loads it fresh instead of showing the old count.\n\nI had to change one existing test's expectation. The new column adds a cell to each row, so the row's accessible name in `discussions.test.tsx` is now `<title> 0 <date> View Delete Discussion`. I also added count assertions (\"0 comments\", \"1 comment\", \"0 comments\") to the create-and-delete-comment test in `discussion.test.tsx`.\n\nThe count updates once the server responds, not instantly. I didn't add an optimistic bump.",
+      "linesChanged": 75,
+      "linesAdded": 61,
+      "filesChanged": 11,
+      "pass": 1,
+      "totalTokens": 1377706,
+      "acceptanceLog": "\nRunning 1 test using 1 worker\n\n[1/1] e2e/impact-comment-count.spec.ts:24:1 \u203a comment counts stay in sync after creating and deleting a comment\n  1 passed (12.7s)\n"
+    },
+    {
+      "variant": "baseline",
+      "run": 2,
+      "ok": 1,
+      "wallMs": 80207,
+      "turns": 21,
+      "costUsd": 0.27456450000000004,
+      "inputTokens": 22,
+      "cacheWriteTokens": 37518,
+      "cacheReadTokens": 732885,
+      "outputTokens": 5116,
+      "permissionDenials": 2,
+      "result": "Comment counts are in. `npx tsc --noEmit` is clean and `npx vitest run` passes (21 tests). I didn't run the app, so the live sidebar-navigation case is untested. Prettier is clean on the files I touched, but it flags `src/index.css`, which I didn't change.\n\n- **Mock API:** the list and single-discussion handlers in `src/testing/mocks/handlers/discussions.ts` now return `commentCount`, counted from the mock comments table. I also added `commentCount: number` to the `Discussion` type.\n- **Table:** `discussions-list.tsx` has a new \"Comments\" column showing the number.\n- **Discussion page:** it shows \"0 comments\", \"1 comment\" or \"2 comments\" next to the title. To put it there I gave `ContentLayout` an optional `titleExtra` prop, which the discussion route fills in.\n- **Staying correct:** creating or deleting a comment now also invalidates the `['discussions']` queries, which cover both the list and the detail views. Navigating back to the list from the sidebar should refetch it instead of serving the cached copy. The detail page refetches straight away.\n- **Test change:** one existing test, `discussions.test.tsx`, changed. It looks up the table row by its full accessible name, which now includes the new count, so I updated the expected name to include `0`.\n- **Gap in the mock:** the create and update discussion handlers still return the raw mock record without `commentCount`, so those responses don't match the `Discussion` type. Nothing reads the field from them, because both mutations refetch.",
+      "linesChanged": 44,
+      "linesAdded": 40,
+      "filesChanged": 8,
+      "pass": 1,
+      "totalTokens": 775541,
+      "acceptanceLog": "\nRunning 1 test using 1 worker\n\n[1/1] e2e/impact-comment-count.spec.ts:24:1 \u203a comment counts stay in sync after creating and deleting a comment\n  1 passed (14.3s)\n"
+    }
+  ]
+}
