@@ -341,6 +341,26 @@ renderDataHook(() => useThing(), { managers: () => [new Loop(), new NetworkManag
       transform,
       { path: 'useThing.test.ts' },
       `
+import type { NetworkManager, Manager } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+const managers = [new LoggingManager()];
+renderDataHook(() => useThing(), { managers });
+      `,
+      `
+import { NetworkManager, type Manager } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+const managers = () => [new LoggingManager(), new NetworkManager()];
+renderDataHook(() => useThing(), { managers });
+      `,
+      'adds a NetworkManager to a managers variable, and makes a type-only import a value import',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
 import { renderDataCompose } from '@data-client/vue/test';
 
 await renderDataCompose(() => useThing(), { managers: [new NetworkManager()] });

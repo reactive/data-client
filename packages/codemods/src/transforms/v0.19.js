@@ -540,7 +540,19 @@ function importOf(j, root, name) {
 
 /** Imports `name` next to the import of `sibling` or from an existing import of `source`, else adds an import */
 function ensureImport(j, root, name, { sibling, source, type = false }) {
-  if (importOf(j, root, name)) return;
+  const imported = importOf(j, root, name);
+  if (imported) {
+    // a value use of a type-only import: make it a value import
+    if (!type) {
+      delete imported.specifier.importKind;
+      if (imported.declaration.importKind === 'type') {
+        imported.declaration.importKind = 'value';
+        for (const other of imported.declaration.specifiers)
+          if (other !== imported.specifier) other.importKind = 'type';
+      }
+    }
+    return;
+  }
   const specifier = j.importSpecifier(j.identifier(name));
   const next = sibling && importOf(j, root, sibling);
   if (next) {
@@ -633,7 +645,12 @@ function addNetworkManager(j, root) {
     .filter(call => RENDER_HOOK_CALLS.has(calleeName(call.node)))
     .find(j.ObjectProperty, { key: { name: 'managers' } })
     .forEach(prop => {
-      const fn = prop.node.value;
+      let fn = prop.node.value;
+      // `const managers = () => [...]`, as transformManagers() leaves a variable used only here
+      if (fn.type === 'Identifier')
+        fn = root
+          .find(j.VariableDeclarator, { id: { name: fn.name } })
+          .nodes()[0]?.init;
       const list = isFunction(fn) && fn.body;
       // only a list of `new` Managers shows that none is a NetworkManager
       if (
