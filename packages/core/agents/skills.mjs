@@ -43,10 +43,9 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
 }
 
 /**
- * syncSkills, leaving out the skills `inherited` (name -> source, from a
- * workspace root's `provides`) already gives at the same source. Returns the
- * result and `provides`: each skill agents load from its links, with the
- * source that decides whether a package needs its own.
+ * syncSkills, leaving out the skills `inherited` (a workspace root's
+ * `provides`) already gives at the same version. Returns the result and
+ * `provides`: each skill agents load from its links, as sources() describes.
  */
 function sync(projectDir, { upgrade, inherited = new Map() }) {
   const dirs = skillsDirs(projectDir);
@@ -71,8 +70,8 @@ function sync(projectDir, { upgrade, inherited = new Map() }) {
       upgrade,
     );
     const provides = sources(want, copy);
-    for (const [skill, source] of provides)
-      if (inherited.get(skill) === source) want.delete(skill);
+    for (const [skill, { version }] of provides)
+      if (inherited.get(skill)?.version === version) want.delete(skill);
     if (!want.size && !fs.existsSync(dest)) return { result, provides };
     fs.mkdirSync(dest, { recursive: true });
     // let the agents that read the other folder see it too: link the folder
@@ -88,7 +87,7 @@ function sync(projectDir, { upgrade, inherited = new Map() }) {
     if (otherStat?.isDirectory()) mirrorLinks(dest, other, result);
     // it provides only the skills agents load from both folders they read:
     // an entry of the user's, in either, blocks them
-    for (const [skill, source] of provides)
+    for (const [skill, { source }] of provides)
       if (
         ![dest, other].every(d => loads(path.join(d, skill), copy) === source)
       )
@@ -100,15 +99,15 @@ function sync(projectDir, { upgrade, inherited = new Map() }) {
 }
 
 /**
- * Skill name -> what identifies its installed version: a link's real folder
- * (native, like sameDir, so a junction's casing doesn't matter), or a copy's
- * version
+ * Skill name -> its package `version` and the `source` agents load: a link's
+ * real folder (native, like sameDir, so a junction's casing doesn't matter),
+ * or a copy's version
  */
 function sources(want, copy) {
   return new Map(
-    [...want].map(([skill, { dir, id }]) => [
+    [...want].map(([skill, { dir, id, version }]) => [
       skill,
-      copy ? id : fs.realpathSync.native(dir),
+      { version, source: copy ? id : fs.realpathSync.native(dir) },
     ]),
   );
 }
@@ -276,6 +275,7 @@ function wantedSkills(projectDir, dest, extracted, result, upgrade) {
       want.set(skill, {
         dir: path.join(shipped, skill),
         id: copy ? version : `${base}/skills/${skill}`,
+        version,
       });
     }
   }

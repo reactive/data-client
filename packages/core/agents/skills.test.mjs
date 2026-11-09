@@ -745,8 +745,8 @@ test('run in workspace packages installing different versions, each loads its ow
     ...app('beta', '0.19.1'),
   });
   // the package's own link, or else the root's
-  const loaded = app => {
-    const own = path.join(app, '.agents/skills/data-client-react');
+  const loaded = folder => {
+    const own = path.join(folder, '.agents/skills/data-client-react');
     return fs.realpathSync(
       fs.existsSync(own) ? own : (
         path.join(dir, '.agents/skills/data-client-react')
@@ -754,13 +754,13 @@ test('run in workspace packages installing different versions, each loads its ow
     );
   };
   for (const name of ['beta', 'alpha', 'beta']) {
-    const app = path.join(dir, 'apps', name);
-    run(t, app);
+    const folder = path.join(dir, 'apps', name);
+    run(t, folder);
     assert.equal(
-      loaded(app),
+      loaded(folder),
       fs.realpathSync(
         path.join(
-          app,
+          folder,
           'node_modules/@data-client/react/skills/data-client-react',
         ),
       ),
@@ -768,29 +768,35 @@ test('run in workspace packages installing different versions, each loads its ow
   }
 });
 
-test('run in a workspace package installing another version than the root, it links that one there', t => {
-  const dir = project({
-    '.git/HEAD': 'ref',
-    'package.json': {
-      workspaces: ['apps/*'],
-      dependencies: { '@data-client/react': '0.19.0' },
-    },
-    ...pkg('node_modules/@data-client/react', '@data-client/react', '0.19.0', [
-      'data-client-react',
-    ]),
-    ...app('beta', '0.19.1'),
+for (const [version, own] of [
+  ['0.19.1', '../../node_modules/@data-client/react/skills/data-client-react'],
+  ['0.19.0', undefined],
+]) {
+  test(`run in a workspace package installing ${version} where the root installs 0.19.0, it links ${own ? 'its own' : 'nothing'} there`, t => {
+    const dir = project({
+      '.git/HEAD': 'ref',
+      'package.json': {
+        workspaces: ['apps/*'],
+        dependencies: { '@data-client/react': '0.19.0' },
+      },
+      ...pkg(
+        'node_modules/@data-client/react',
+        '@data-client/react',
+        '0.19.0',
+        ['data-client-react'],
+      ),
+      ...app('beta', version),
+    });
+    const beta = path.join(dir, 'apps/beta');
+    run(t, beta);
+    assert.equal(
+      links(dir)['data-client-react'],
+      '../../node_modules/@data-client/react/skills/data-client-react',
+    );
+    const link = path.join(beta, '.agents/skills/data-client-react');
+    assert.equal(fs.existsSync(link) ? fs.readlinkSync(link) : undefined, own);
   });
-  const beta = path.join(dir, 'apps/beta');
-  run(t, beta);
-  assert.equal(
-    links(dir)['data-client-react'],
-    '../../node_modules/@data-client/react/skills/data-client-react',
-  );
-  assert.equal(
-    links(beta)['data-client-react'],
-    '../../node_modules/@data-client/react/skills/data-client-react',
-  );
-});
+}
 
 test('run in a workspace package, it removes a copy an earlier run left at another version', t => {
   const dir = project({
