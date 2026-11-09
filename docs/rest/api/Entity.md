@@ -208,8 +208,9 @@ export class Issue extends Entity {
 
 #### Primary key in a nested object
 
-Some APIs put the key inside a nested object, such as `{ post: { id, title }, creator, saved }`
-with no top-level `id`. Copy the key to `id` in [process()](#process), so the default `pk()` works.
+Some APIs nest the key inside another object and send no top-level `id`, for example
+`{ post: { id, title }, creator, saved }`. Copy the key to `id` in [process()](#process). The
+default `pk()` then reads `id`, so you look up the entity with `{ id }` like any other Entity.
 
 ```typescript
 export class Post extends Entity {
@@ -239,13 +240,18 @@ export class PostView extends Entity {
 }
 ```
 
-Now `useQuery(PostView, { id })` finds the stored `PostView`. Lookups, [Invalidate](./Invalidate.md)
-(a [resource](./resource.md) delete), `getList.remove`, and partial or optimistic updates such as
-`{ id, saved }` often carry the key but no `post`. The default `pk()` reads it from `id`, and `?? processed.id`
-keeps it when there is no `post`. A `pk()` that returns `this.post.id` throws on all of them, and
-`{ post: { id } }` fails to type-check because it lacks the other fields of `Post`.
+`useQuery(PostView, { id })` now finds the stored `PostView`.
 
-`fromJS()` does not call `process()`, so set `id` yourself when you build a `PostView` with it.
+Several operations often send the key without `post`: lookups, [Invalidate](./Invalidate.md) (which
+a [resource](./resource.md) delete uses), `getList.remove`, and partial or optimistic updates such
+as `{ id, saved }`. The default `pk()` still finds the key in `id`. When `process()` gets no
+`post`, the `?? processed.id` fallback keeps the `id` it was given.
+
+Do not override `pk()` to return `this.post.id`. That `pk()` throws on every input without `post`.
+Lookups with `{ post: { id } }` also fail to type-check, because the argument must include every
+field of `Post`.
+
+`fromJS()` does not call `process()`. If you build a `PostView` with `fromJS()`, set `id` yourself.
 
 #### Singleton Entities
 
