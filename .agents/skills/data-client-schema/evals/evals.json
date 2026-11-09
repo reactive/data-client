@@ -34,7 +34,8 @@
       "files": [],
       "assertions": [
         "`PostView` declares a top-level `id` field and sets it from `post.id` in `static process()`.",
-        "`PostView` keeps the default `pk()` (or returns `this.id`); it does not read `this.post.id` in `pk()`."
+        "`PostView` keeps the default `pk()` (or returns `this.id`); it does not read `this.post.id` in `pk()`.",
+        "When the input has no `post` (a delete or partial update sends just `{ id }`), `process()` keeps the incoming `id` instead of throwing, e.g. `processed.post?.id ?? processed.id`."
       ]
     }
   ]
