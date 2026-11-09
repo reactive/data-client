@@ -647,10 +647,10 @@ function addNetworkManager(j, root) {
     .forEach(prop => {
       let fn = prop.node.value;
       // `const managers = () => [...]`, as transformManagers() leaves a variable used only here
-      if (fn.type === 'Identifier')
-        fn = root
-          .find(j.VariableDeclarator, { id: { name: fn.name } })
-          .nodes()[0]?.init;
+      if (fn.type === 'Identifier') {
+        const declarator = bindingOf(prop.get('value'))?.parent.node;
+        fn = declarator?.type === 'VariableDeclarator' && declarator.init;
+      }
       const list = isFunction(fn) && fn.body;
       // only a list of `new` Managers shows that none is a NetworkManager
       if (

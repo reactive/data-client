@@ -344,15 +344,27 @@ renderDataHook(() => useThing(), { managers: () => [new Loop(), new NetworkManag
 import type { NetworkManager, Manager } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
-const managers = [new LoggingManager()];
-renderDataHook(() => useThing(), { managers });
+it('a', () => {
+  const managers = [new NetworkManager()];
+  renderDataHook(() => useThing(), { managers });
+});
+it('b', () => {
+  const managers = [new LoggingManager()];
+  renderDataHook(() => useThing(), { managers });
+});
       `,
       `
 import { NetworkManager, type Manager } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
-const managers = () => [new LoggingManager(), new NetworkManager()];
-renderDataHook(() => useThing(), { managers });
+it('a', () => {
+  const managers = () => [new NetworkManager()];
+  renderDataHook(() => useThing(), { managers });
+});
+it('b', () => {
+  const managers = () => [new LoggingManager(), new NetworkManager()];
+  renderDataHook(() => useThing(), { managers });
+});
       `,
       'adds a NetworkManager to a managers variable, and makes a type-only import a value import',
     );
