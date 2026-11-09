@@ -30,7 +30,7 @@
       "name": "nested-pk",
       "source": "G3 in the aeharding/voyager@6a15757 migration: threadiverse views like `{ post: { id }, creator, ... }` have no top-level id. The schema was written first with `pk() { return this.post.id }`; later `useQuery(E, { id })` threw at runtime and `{ post: { id } }` failed to type-check.",
       "prompt": "Our Lemmy client is moving to Data Client (@data-client/react + @data-client/rest). Start with the post feed. `GET /api/v3/post/list` returns `{ posts: PostView[] }`, where each PostView looks like:\n\n```json\n{\n  \"post\": { \"id\": 12, \"name\": \"Title\", \"body\": \"Hello\", \"url\": null, \"published\": \"2026-11-01T10:00:00Z\" },\n  \"creator\": { \"id\": 3, \"name\": \"alice\", \"avatar\": null },\n  \"community\": { \"id\": 7, \"name\": \"rust\", \"title\": \"Rust\" },\n  \"counts\": { \"comments\": 4, \"score\": 10 },\n  \"my_vote\": 1,\n  \"saved\": false,\n  \"read\": true\n}\n```\n\nA post id always identifies the same PostView. Write `src/resources/PostView.ts` with the schemas for this shape and a `getPosts` endpoint for the list. The project uses TypeScript strict mode.",
-      "expected_output": "PostView copies `post.id` to a top-level `id` field in `process()` and keeps the default `pk()`, so later lookups take `{ id }`.",
+      "expected_output": "PostView copies `post.id` to a top-level `id` field in `process()`, keeping the incoming `id` when there is no `post`, and keeps the default `pk()`, so later lookups, deletes and partial updates work with `{ id }`.",
       "files": [],
       "assertions": [
         "`PostView` declares a top-level `id` field and sets it from `post.id` in `static process()`.",
