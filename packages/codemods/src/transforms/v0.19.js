@@ -77,11 +77,25 @@ const isUndefined = node =>
 const isGetDefaultManagersCall = node =>
   node.type === 'CallExpression' && isId(node.callee, 'getDefaultManagers');
 
-const calleeName = node =>
-  node.callee.type === 'Identifier' ? node.callee.name
-  : node.callee.type === 'MemberExpression' && !node.callee.computed ?
-    node.callee.property.name
+/** The name `Foo` or `ns.Foo` ends with */
+const nameOf = node =>
+  node.type === 'Identifier' ? node.name
+  : node.type === 'MemberExpression' && !node.computed ? node.property.name
   : undefined;
+
+const calleeName = node => nameOf(node.callee);
+
+const isMember = node =>
+  node?.type === 'MemberExpression' ||
+  node?.type === 'OptionalMemberExpression';
+
+// a computed key or property names a member only when it is a string
+const staticName = (key, computed) =>
+  computed ?
+    typeof key?.value === 'string' ?
+      key.value
+    : undefined
+  : (key?.name ?? key?.value);
 
 /** `managers: ...` or `'managers': ...` */
 const isManagersProperty = node =>
@@ -136,10 +150,7 @@ function bindingOf(path) {
 function isOtherName(p) {
   const parent = p.parent.node;
   return (
-    ((parent.type === 'MemberExpression' ||
-      parent.type === 'OptionalMemberExpression') &&
-      parent.property === p.node &&
-      !parent.computed) ||
+    (isMember(parent) && parent.property === p.node && !parent.computed) ||
     (isProperty(parent) && parent.key === p.node && parent.value !== p.node)
   );
 }
@@ -431,13 +442,7 @@ function transformFetchIfStale(j, root, source) {
 const CLEANUP_DATE_TODO = ` TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: ${BLOG}#manager-cleanup`;
 const GET_MIDDLEWARE_TODO = ` TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: ${BLOG}#manager-middleware`;
 
-// a computed key names a member only when it is a string
-const keyName = node =>
-  node.computed ?
-    typeof node.key?.value === 'string' ?
-      node.key.value
-    : undefined
-  : (node.key?.name ?? node.key?.value);
+const keyName = node => staticName(node.key, node.computed);
 
 /** The function of a `getMiddleware() {}` method or a `getMiddleware = () => {}` property */
 const getterOf = member =>
@@ -470,8 +475,7 @@ const isGetMiddleware = node =>
 const isGetMiddlewareCall = node =>
   (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') &&
   !node.arguments.length &&
-  (node.callee.type === 'MemberExpression' ||
-    node.callee.type === 'OptionalMemberExpression') &&
+  isMember(node.callee) &&
   !node.callee.computed &&
   isId(node.callee.property, 'getMiddleware');
 
@@ -499,14 +503,7 @@ function renameGetMiddleware(j, root) {
         dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
         return;
       }
-      const property = j.classProperty(
-        j.identifier('middleware'),
-        middleware,
-        getterOf(member.node).returnType ?? null,
-      );
-      property.accessibility = member.node.accessibility;
-      property.comments = member.node.comments;
-      member.replace(property);
+      member.replace(middlewareProperty(j, member.node, middleware));
       dirty = true;
     });
   root
@@ -521,21 +518,34 @@ function renameGetMiddleware(j, root) {
         if (!member) dirty = addTodo(j, call, GET_MIDDLEWARE_TODO) || dirty;
         return;
       }
-      const { callee } = call.node;
-      call.replace(
-        callee.type === 'OptionalMemberExpression' ?
-          j.optionalMemberExpression(
-            callee.object,
-            j.identifier('middleware'),
-            false,
-            callee.optional,
-          )
-        : j.memberExpression(callee.object, j.identifier('middleware')),
-      );
+      call.replace(middlewareAccess(j, call.node.callee));
       dirty = true;
     });
   return dirty;
 }
+
+/** `middleware = ...` keeping the `getMiddleware` member's visibility, return type and comments */
+function middlewareProperty(j, member, middleware) {
+  const property = j.classProperty(
+    j.identifier('middleware'),
+    middleware,
+    getterOf(member).returnType ?? null,
+  );
+  property.accessibility = member.accessibility;
+  property.comments = member.comments;
+  return property;
+}
+
+/** `x.getMiddleware` becomes `x.middleware`, and `x?.getMiddleware` becomes `x?.middleware` */
+const middlewareAccess = (j, callee) =>
+  callee.type === 'OptionalMemberExpression' ?
+    j.optionalMemberExpression(
+      callee.object,
+      j.identifier('middleware'),
+      false,
+      callee.optional,
+    )
+  : j.memberExpression(callee.object, j.identifier('middleware'));
 
 /** The declaration and specifier that import `name`, if any. Specifiers this codemod adds have no
  * `local`, so their name is `imported`. */
@@ -587,10 +597,12 @@ function ensureImport(j, root, name, { sibling, source, type = false }) {
   const declaration = j.importDeclaration([specifier], j.literal(source));
   if (type) declaration.importKind = 'type';
   const { body } = root.get().node.program;
-  body.splice(body.findLastIndex(isImport) + 1, 0, declaration);
+  body.splice(
+    body.findLastIndex(node => node.type === 'ImportDeclaration') + 1,
+    0,
+    declaration,
+  );
 }
-
-const isImport = node => node.type === 'ImportDeclaration';
 
 const implementsManager = node =>
   node.implements?.some(i => isId(i.expression, 'Manager'));
@@ -643,8 +655,7 @@ function isNetworkManagerClass(j, root, name, seen = new Set()) {
     root.find(j.VariableDeclarator, { id: { name } }).nodes()[0]?.init;
   const superClass = local?.superClass;
   return (
-    !!superClass &&
-    isNetworkManagerClass(j, root, calleeName({ callee: superClass }), seen)
+    !!superClass && isNetworkManagerClass(j, root, nameOf(superClass), seen)
   );
 }
 
@@ -691,14 +702,9 @@ function markCleanupDate(j, root) {
   root
     .find(j.Node)
     .filter(
-      p =>
-        ((p.node.type === 'MemberExpression' ||
-          p.node.type === 'OptionalMemberExpression') &&
-          !p.node.computed &&
-          isId(p.node.property, 'cleanupDate')) ||
-        (p.node.type === 'MemberExpression' &&
-          p.node.computed &&
-          p.node.property.value === 'cleanupDate'),
+      ({ node }) =>
+        isMember(node) &&
+        staticName(node.property, node.computed) === 'cleanupDate',
     )
     .forEach(member => {
       dirty = addTodo(j, member, CLEANUP_DATE_TODO) || dirty;
