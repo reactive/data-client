@@ -2,7 +2,6 @@ import { CacheProvider } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
 import { Endpoint, Entity, resource, RestEndpoint } from '@data-client/rest';
 import { afterEach, jest } from '@jest/globals';
-import { waitFor } from '@testing-library/react';
 import {
   OptimisticArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -156,7 +155,7 @@ describe.each([
         content: 'real response',
       });
 
-      const { result, controller } = renderDataClient(
+      const { result, controller, waitFor } = renderDataClient(
         () => {
           const ctrl = useController();
           useEffect(() => {
@@ -180,9 +179,7 @@ describe.each([
       await waitFor(() =>
         expect(result.current?.content).toBe('real response'),
       );
-      expect(
-        controller.getState().optimistic.map(action => action.key),
-      ).toEqual([]);
+      expect(controller.getState().optimistic).toHaveLength(0);
     });
 
     it('partial update does nothing but doesnt crash with no existing data', async () => {
