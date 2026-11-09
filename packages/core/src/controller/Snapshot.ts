@@ -12,7 +12,7 @@ import AbortOptimistic from './AbortOptimistic.js';
 import type Controller from './Controller.js';
 import type { State } from '../types.js';
 
-/** Reads `state` the way the Controller getters do
+/** Reads exactly `state` with the Controller getters; Controller.snapshot() applies optimistic updates first
  * @see https://dataclient.io/docs/api/Snapshot
  */
 export default class Snapshot<T = unknown> implements SnapshotInterface {

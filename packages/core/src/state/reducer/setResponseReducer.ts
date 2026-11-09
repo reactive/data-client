@@ -26,7 +26,8 @@ export function setResponseReducer(
       /* istanbul ignore if */
       if (!action.endpoint.getOptimisticResponse) return state;
       try {
-        // compute optimistic response based on current state, which has only the earlier optimistic updates applied
+        // compute optimistic response based on current state: committed plus earlier optimistic updates.
+        // Not controller.snapshot(), which would apply state.optimistic again, including this action.
         response = action.endpoint.getOptimisticResponse.call(
           action.endpoint,
           new Snapshot(controller, state, action.meta.fetchedAt),

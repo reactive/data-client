@@ -81,6 +81,16 @@ describe('Controller', () => {
       expect(getOptimisticResponse).toHaveBeenCalledTimes(1);
     });
 
+    it('getOptimisticResponse() reads the committed state through snapshot()', () => {
+      getOptimisticResponse.mockImplementation((snap, params, body) => ({
+        ...params,
+        title: `${controller.snapshot().get(Article, params)?.title} ${body.title}`,
+      }));
+      expect(controller.snapshot().get(Article, { id: 5 })?.title).toBe(
+        'saved optimistic',
+      );
+    });
+
     it('applyOptimistic() returns the state itself when nothing is pending', () => {
       const committed = { ...state, optimistic: [] };
       expect(controller.applyOptimistic(committed)).toBe(committed);

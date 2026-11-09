@@ -47,7 +47,7 @@ class Controller {
   get(queryable, ...args, state): Denormalized<typeof queryable>;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
-  snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  snapshot(state?: State<unknown>, fetchedAt?: number): SnapshotInterface;
   getState(): State<unknown>;
 }
 ```
@@ -1082,6 +1082,9 @@ Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 Returns a [Snapshot](./Snapshot.md) of `state` (by default, the latest committed state) with its pending
 [optimistic updates](/rest/guides/optimistic-updates) applied, as components show it. Read the store this way in
 event handlers, Effects and other code outside render.
+
+`controller.applyOptimistic(state)` returns that state itself; a custom store renders it so components and
+snapshots read the same objects.
 
 ```ts
 const ctrl = useController();

@@ -414,6 +414,8 @@ export default class Controller<
     if (state.optimistic.length === 0) return state;
     let optimisticState = this.optimisticStates.get(state);
     if (!optimisticState) {
+      // a getOptimisticResponse() that calls snapshot() reads `state` instead of recursing
+      this.optimisticStates.set(state, state);
       optimisticState = state.optimistic.reduce(createReducer(this), state);
       this.optimisticStates.set(state, optimisticState);
     }

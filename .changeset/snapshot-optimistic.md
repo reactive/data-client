@@ -21,4 +21,4 @@ const markRead = (id: string) => {
 
 `controller.getState()` still leaves out optimistic updates, so [Managers](https://dataclient.io/docs/api/Manager) see only data the server confirmed.
 
-With [DataProvider](https://dataclient.io/docs/api/DataProvider), `getState()` in a child's Effect now returns the state that rendered, not the one before it. It also updates while `<Activity>` hides the provider.
+With [DataProvider](https://dataclient.io/docs/api/DataProvider), `getState()` in a child's `useEffect` now returns the state that rendered, not the one before it (on React 18+, in layout effects too). It also updates while `<Activity>` hides the provider.

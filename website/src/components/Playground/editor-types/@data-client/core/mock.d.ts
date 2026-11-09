@@ -635,7 +635,7 @@ interface State<T> {
     readonly lastReset: number;
 }
 
-/** Reads `state` the way the Controller getters do
+/** Reads exactly `state` with the Controller getters; Controller.snapshot() applies optimistic updates first
  * @see https://dataclient.io/docs/api/Snapshot
  */
 declare class Snapshot<T = unknown> implements SnapshotInterface {

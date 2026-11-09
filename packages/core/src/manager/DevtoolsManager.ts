@@ -281,7 +281,7 @@ export default class DevToolsManager implements Manager {
           }
           ret.then(() => {
             if (shouldSkip) return;
-            this.handleAction(action, state.optimistic.reduce(reducer, state));
+            this.handleAction(action, controller.applyOptimistic(state));
           });
           return ret;
         };
