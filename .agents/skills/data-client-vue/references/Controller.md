@@ -588,15 +588,20 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 
 [useQuery](./useQuery.md) builds on it, and [Managers](https://dataclient.io/vue/api/Manager) can use it to read the store safely.
 
-In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, pass
-[getState()](#getState) to read the latest store:
+In components, [useQuery()](./useQuery.md) keeps the result reactive. Event handlers read its current value:
 
 ```ts
+const props = defineProps<{ id: string }>();
 const ctrl = useController();
+const todo = useQuery(Todo, () => ({ id: props.id }));
 
-const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
-  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+const toggle = () => {
+  if (!todo.value) return;
+  ctrl.set(
+    Todo,
+    { id: props.id },
+    { id: props.id, completed: !todo.value.completed },
+  );
 };
 ```
 
@@ -650,8 +655,8 @@ When the data expires, as a timestamp. Compare it to `Date.now()`.
 [useCache](./useCache.md) and [useSuspense](./useSuspense.md) build on it. [Managers](https://dataclient.io/vue/api/Manager) can use it to look up a
 response in the given state.
 
-In event handlers, pass [getState()](#getState) to read the latest store, as in the
-[getState() example](#getState).
+In components, [useCache()](./useCache.md) and [useSuspense()](./useSuspense.md) keep the result reactive. Event
+handlers read their current value.
 
 ```tsx title="MyManager.ts"
 import {
@@ -699,7 +704,7 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 
 > **Warning**
 >
-> Use it only in event handlers or [Managers](https://dataclient.io/vue/api/Manager).
+> Use it only outside components: in [Managers](https://dataclient.io/vue/api/Manager), or in code like router loaders.
 >
 > Using getState() in a `computed()` or template won't update when the store changes. Use
 > [useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.

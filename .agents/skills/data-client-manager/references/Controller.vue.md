@@ -588,15 +588,20 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 
 [useQuery](https://dataclient.io/vue/api/useQuery) builds on it, and [Managers](./Manager.vue.md) can use it to read the store safely.
 
-In components, [useQuery()](https://dataclient.io/vue/api/useQuery) keeps the result reactive. In event handlers, pass
-[getState()](#getState) to read the latest store:
+In components, [useQuery()](https://dataclient.io/vue/api/useQuery) keeps the result reactive. Event handlers read its current value:
 
 ```ts
+const props = defineProps<{ id: string }>();
 const ctrl = useController();
+const todo = useQuery(Todo, () => ({ id: props.id }));
 
-const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
-  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+const toggle = () => {
+  if (!todo.value) return;
+  ctrl.set(
+    Todo,
+    { id: props.id },
+    { id: props.id, completed: !todo.value.completed },
+  );
 };
 ```
 
@@ -650,8 +655,8 @@ When the data expires, as a timestamp. Compare it to `Date.now()`.
 [useCache](https://dataclient.io/vue/api/useCache) and [useSuspense](https://dataclient.io/vue/api/useSuspense) build on it. [Managers](./Manager.vue.md) can use it to look up a
 response in the given state.
 
-In event handlers, pass [getState()](#getState) to read the latest store, as in the
-[getState() example](#getState).
+In components, [useCache()](https://dataclient.io/vue/api/useCache) and [useSuspense()](https://dataclient.io/vue/api/useSuspense) keep the result reactive. Event
+handlers read their current value.
 
 ```tsx title="MyManager.ts"
 import {
@@ -699,7 +704,7 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 
 > **Warning**
 >
-> Use it only in event handlers or [Managers](./Manager.vue.md).
+> Use it only outside components: in [Managers](./Manager.vue.md), or in code like router loaders.
 >
 > Using getState() in a `computed()` or template won't update when the store changes. Use
 > [useQuery()](https://dataclient.io/vue/api/useQuery) or [useCache()](https://dataclient.io/vue/api/useCache) there instead.

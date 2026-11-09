@@ -924,7 +924,7 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 
 > **Warning**
 >
-> Use it only in event handlers or [Managers](./Manager.md).
+> Use it only outside components: in [Managers](./Manager.md), or in code like router loaders.
 >
 > Calling getState() during render can cause data tearing.
 

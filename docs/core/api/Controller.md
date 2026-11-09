@@ -961,15 +961,20 @@ function useQuery<S extends Queryable>(
 
 :::vue
 
-In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, pass
-[getState()](#getState) to read the latest store:
+In components, [useQuery()](./useQuery.md) keeps the result reactive. Event handlers read its current value:
 
 ```ts
+const props = defineProps<{ id: string }>();
 const ctrl = useController();
+const todo = useQuery(Todo, () => ({ id: props.id }));
 
-const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
-  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+const toggle = () => {
+  if (!todo.value) return;
+  ctrl.set(
+    Todo,
+    { id: props.id },
+    { id: props.id, completed: !todo.value.completed },
+  );
 };
 ```
 
@@ -1050,8 +1055,8 @@ function useCache<E extends EndpointInterface>(
 
 :::vue
 
-In event handlers, pass [getState()](#getState) to read the latest store, as in the
-[getState() example](#getState).
+In components, [useCache()](./useCache.md) and [useSuspense()](./useSuspense.md) keep the result reactive. Event
+handlers read their current value.
 
 :::
 
@@ -1101,7 +1106,7 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 
 ::::warning
 
-Use it only in event handlers or [Managers](./Manager.md).
+Use it only outside components: in [Managers](./Manager.md), or in code like router loaders.
 
 :::react
 
