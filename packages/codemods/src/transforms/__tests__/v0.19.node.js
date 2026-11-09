@@ -1316,6 +1316,7 @@ DraftResource = makeOther();
 const NoteResource = resource({ path: '/notes/:id', schema: Note });
 NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
 const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
+const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.create, body);
@@ -1324,6 +1325,7 @@ const isCreate = action.endpoint === PostResource.create;
 ctrl.fetch(DraftResource.create, body);
 ctrl.fetch(NoteResource.create, body);
 ctrl.fetch(TaskResource.create, body);
+ctrl.fetch(KeyResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
@@ -1339,6 +1341,7 @@ DraftResource = makeOther();
 const NoteResource = resource({ path: '/notes/:id', schema: Note });
 NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
 const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
+const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
 class LocalResource { static create() {} }
 
 ctrl.fetch(/* new post */ PostResource.getList.push, body);
@@ -1351,6 +1354,8 @@ ctrl.fetch(DraftResource.create, body);
 ctrl.fetch(NoteResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(TaskResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(KeyResource.create, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});

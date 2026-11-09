@@ -966,7 +966,10 @@ function isPlainResource(path) {
     path.node.callee.type === 'Identifier' &&
     isImportOf(path.get('callee'), 'resource', '@data-client/rest') &&
     options?.type === 'ObjectExpression' &&
-    options.properties.every(p => isProperty(p) && keyName(p) !== 'Endpoint')
+    // a computed key could be Endpoint
+    options.properties.every(
+      p => isProperty(p) && ![undefined, 'Endpoint'].includes(keyName(p)),
+    )
   );
 }
 
