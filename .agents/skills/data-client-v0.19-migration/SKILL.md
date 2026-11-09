@@ -16,8 +16,8 @@ Bump every `@data-client/*` package to `^0.19.0` together.
 - React Native: tests with `@data-client/test` need `@testing-library/react-native`. Apps now load the native build, so
   with React Navigation, stale data refetches on screen focus.
 - If `@data-client/ssr` is installed, read Step 3 first.
-- If the repo links skills with `data-client-skills`, run it again after the bump so the linked skills match 0.19. Once
-  the upgrade is done, a run without `--upgrade` removes the migration skills.
+- If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
+  linked skills match 0.19. Once the upgrade is done, a run without `--upgrade` removes the migration skills.
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`):
@@ -77,8 +77,8 @@ else uses it). Moving pages to the App Router is a routing migration, so confirm
 
 Skip this step if
 `rg -n 'managers|implements Manager|extends \w*Manager|: Manager\b|getMiddleware|cleanupDate' <source-root>` finds
-nothing. Otherwise bring each custom Manager to the lifecycle in skill "data-client-manager". What upgrading code gets
-wrong:
+nothing. Otherwise bring each custom Manager to the lifecycle in skill "data-client-manager": `middleware` is required,
+`cleanup()` pauses without ending the store, and each store gets new Managers. What upgrading code gets wrong:
 
 - **Rename `getMiddleware()` to a `middleware` property**; it's removed. A Manager without `middleware` throws when
   `DataProvider` mounts (in production too, as `manager.middleware is not a function`).
@@ -100,7 +100,8 @@ wrong:
 - **[renderDataHook()](https://dataclient.io/docs/api/renderDataHook) now runs its `managers`**; before, it ignored
   them. The list replaces the defaults, so it must include a `NetworkManager` (it throws otherwise), plus a
   `SubscriptionManager` if the hook polls, and the test's Managers now act on its actions.
-- **A custom Provider passed to `makeRenderDataHook()`** must accept `managers: () => Manager[]`, like `DataProvider`.
+- **A custom Provider passed to [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook)** must accept
+  `managers: () => Manager[]`, like `DataProvider`.
   [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#test-react-0.19).
 
 ## Step 6: Vue
