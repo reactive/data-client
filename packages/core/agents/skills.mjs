@@ -39,7 +39,18 @@ const isUpgradeSkill = skill => skill.endsWith('-migration');
  * holding its marker.
  */
 export function syncSkills(projectDir, { upgrade = false } = {}) {
+  return sync(projectDir, { upgrade }).result;
+}
+
+/**
+ * syncSkills, leaving out the skills `inherited` (name -> source, from a
+ * workspace root's `provides`) already gives at the same source. Returns the
+ * result and `provides`: each skill it wants, with the source that decides
+ * whether a package needs its own.
+ */
+function sync(projectDir, { upgrade = false, inherited = new Map() }) {
   const dirs = skillsDirs(projectDir);
+  const provides = new Map();
   const result = {
     added: [],
     removed: [],
@@ -49,7 +60,7 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
     junctions: false,
     dir: dirs && posix(path.relative(projectDir, dirs.dest)),
   };
-  if (!dirs) return result;
+  if (!dirs) return { result, provides };
   const { dest, other } = dirs;
   const extracted = fs.mkdtempSync(path.join(os.tmpdir(), 'data-client-'));
   try {
@@ -60,7 +71,16 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
       result,
       upgrade,
     );
-    if (!want.size && !fs.existsSync(dest)) return result;
+    const shared = new Set();
+    for (const [skill, { dir, id }] of want) {
+      // a link's real folder, or a copy's version
+      const source = copy ? id : fs.realpathSync(dir);
+      provides.set(skill, source);
+      if (inherited.get(skill) !== source) continue;
+      want.delete(skill);
+      shared.add(skill);
+    }
+    if (!want.size && !fs.existsSync(dest)) return { result, provides };
     fs.mkdirSync(dest, { recursive: true });
     // let the agents that read the other folder see it too: link the folder
     // when there is none, or each skill into a real one (the skills CLI
@@ -71,62 +91,11 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
       const target = posix(path.relative(path.dirname(other), dest));
       link(target, other, result);
     }
-    syncDir(dest, want, copy, result);
+    syncDir(dest, want, copy, result, shared);
     if (otherStat?.isDirectory()) mirrorLinks(dest, other, result);
-    return result;
+    return { result, provides };
   } finally {
     fs.rmSync(extracted, { recursive: true, force: true });
-  }
-}
-
-/**
- * Clears what an earlier run left in a workspace package now that
- * `rootSkills` holds the skills. Removes its links the root holds at the same
- * version (`moved`) and those whose package is gone (`gone`), keeping links the
- * root lacks or holds at another version, and reports the user's own folders
- * named like a skill the root links (`shadowing`), such as the copy the
- * skills CLI installed to start setup, which agents in the package load
- * instead of the installed version.
- */
-function clearPackage(projectDir, rootSkills) {
-  const found = { moved: [], gone: [], shadowing: [] };
-  const dirs = skillsDirs(projectDir);
-  if (!dirs || !fs.existsSync(dirs.dest)) return found;
-  for (const skill of fs.readdirSync(dirs.dest)) {
-    const file = path.join(dirs.dest, skill);
-    const source = skillSource(file);
-    const rootSource = skillSource(path.join(rootSkills, skill));
-    if (source === undefined) {
-      if (rootSource !== undefined)
-        found.shadowing.push(posix(path.relative(projectDir, file)));
-      continue;
-    }
-    const kind =
-      source === null ? 'gone'
-      : source === rootSource ? 'moved'
-      : undefined;
-    if (!kind) continue;
-    fs.rmSync(file, { recursive: true, force: true });
-    found[kind].push(skill);
-  }
-  if (lstat(dirs.other)?.isDirectory())
-    unmirror(dirs.dest, dirs.other, [...found.moved, ...found.gone]);
-  return found;
-}
-
-/**
- * What a skill entry this command made holds: the folder a link reaches (null
- * when that's gone), or a copy's version; undefined for anything else
- */
-function skillSource(file) {
-  const entry = lstat(file);
-  const id = entry && owned(file, entry);
-  if (id === undefined || !entry.isSymbolicLink()) return id;
-  try {
-    // native, like sameDir, so a junction's casing doesn't matter
-    return fs.realpathSync.native(file);
-  } catch {
-    return null;
   }
 }
 
@@ -187,7 +156,8 @@ function sameDir(a, b) {
   }
 }
 
-function syncDir(dest, want, copy, result) {
+/** `shared`: skills a workspace root gives, which this folder should not hold */
+function syncDir(dest, want, copy, result, shared) {
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(dest, entry.name);
     const current = owned(file, entry);
@@ -195,7 +165,8 @@ function syncDir(dest, want, copy, result) {
       // anything else holding a wanted name wins: the user's own skill, a
       // committed link git checked out as a file, copies committed from a
       // junction. Say so rather than report up to date.
-      if (want.delete(entry.name)) result.kept.push(entry.name);
+      if (want.delete(entry.name) || shared.has(entry.name))
+        result.kept.push(entry.name);
       continue;
     }
     const wanted = want.get(entry.name);
@@ -225,7 +196,11 @@ function syncDir(dest, want, copy, result) {
  * entry, not through it, so upgrades that relink that entry carry over.
  */
 function mirrorLinks(dest, mirror, result) {
-  unmirror(dest, mirror, result.removed);
+  for (const skill of result.removed) {
+    const file = path.join(mirror, skill);
+    if (isLink(file) && names(linkTarget(file), path.join(dest, skill)))
+      fs.rmSync(file);
+  }
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(mirror, entry.name);
     if (owned(path.join(dest, entry.name), entry) === undefined) continue;
@@ -235,15 +210,6 @@ function mirrorLinks(dest, mirror, result) {
       file,
       result,
     );
-  }
-}
-
-/** Drops `mirror`'s links to the `skills` removed from `dest` */
-function unmirror(dest, mirror, skills) {
-  for (const skill of skills) {
-    const file = path.join(mirror, skill);
-    if (isLink(file) && names(linkTarget(file), path.join(dest, skill)))
-      fs.rmSync(file);
   }
 }
 
@@ -375,7 +341,8 @@ function holdsJunction(target, dir) {
 /**
  * The `data-client-skills` command: `data-client-skills [--upgrade]`. Run in a
  * workspace package, it syncs the workspace root, where agents started at the
- * root load the skills.
+ * root load the skills, and links in the package only the skills it installs
+ * at other versions.
  */
 export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   const unknown = args.filter(arg => arg !== '--upgrade');
@@ -392,35 +359,44 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   // a root whose skill folder the user manages can't take them
   const workspace = root && skillsDirs(root) ? root : undefined;
   const projectDir = workspace ?? cwd;
+  const { result, provides } = sync(projectDir, { upgrade });
   const {
     added,
     removed,
     outdated,
     kept,
     skippedUpgrades,
-    junctions,
     dir: skillsDir,
-  } = syncSkills(projectDir, { upgrade });
+  } = result;
   const skills = skillsDir && path.join(projectDir, skillsDir);
   const synced = skills && fs.existsSync(skills);
-  // once the root has the skills, clear what an earlier run left in the package
-  const { moved, gone, shadowing } =
+  // the package keeps only the skills it installs at other versions than the
+  // root links, and drops what an earlier run left there
+  const local =
     workspace && synced ?
-      clearPackage(cwd, skills)
-    : { moved: [], gone: [], shadowing: [] };
+      sync(cwd, { upgrade, inherited: provides }).result
+    : undefined;
+  const junctions = result.junctions || local?.junctions;
   // where the skills are, from where the command ran
   const dir = skills && posix(path.relative(cwd, skills));
+  const localDir = local?.dir;
+  const moved = local?.removed.filter(skill => provides.has(skill)) ?? [];
+  const dropped = local?.removed.filter(skill => !provides.has(skill)) ?? [];
   const changes = [
     added.length && `Added ${added.join(', ')}`,
     removed.length && `Removed ${removed.join(', ')}`,
-    ...[...kept.map(skill => `${dir}/${skill}`), ...shadowing].map(
+    ...[
+      ...kept.map(skill => `${dir}/${skill}`),
+      ...(local?.kept.map(skill => `${localDir}/${skill}`) ?? []),
+    ].map(
       file =>
         `Kept ${file} (not a link data-client-skills made); delete it to get the installed version`,
     ),
+    local?.added.length &&
+      `Added ${local.added.join(', ')} to this package, which installs versions the workspace root doesn't link`,
     moved.length &&
       `Removed ${moved.join(', ')} from this package; the workspace root has them`,
-    gone.length &&
-      `Removed ${gone.join(', ')} from this package; their packages are gone`,
+    dropped.length && `Removed ${dropped.join(', ')} from this package`,
   ].filter(Boolean);
   for (const line of changes) console.log(line);
   if (!changes.length) console.log('Data Client skills are up to date');

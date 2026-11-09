@@ -697,11 +697,7 @@ test('run in a workspace package, it removes package links whose package is gone
     '../../node_modules/@data-client/rest/skills/data-client-rest',
     path.join(web, '.agents/skills/data-client-rest'),
   );
-  assert.ok(
-    run(t, web).includes(
-      'Removed data-client-rest from this package; their packages are gone',
-    ),
-  );
+  assert.ok(run(t, web).includes('Removed data-client-rest from this package'));
   assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
 });
 
@@ -715,7 +711,7 @@ test('workspaceRoot climbs to the outermost of nested workspace roots', () => {
   assert.equal(workspaceRoot(path.join(dir, 'packages/suite/apps/web')), dir);
 });
 
-test('run in a workspace package, it keeps package links the root does not hold', t => {
+test('run in a workspace package without --upgrade, it removes the upgrade skills an earlier run linked there', t => {
   const dir = project({
     '.git/HEAD': 'ref',
     'package.json': { workspaces: ['apps/*'] },
@@ -730,13 +726,65 @@ test('run in a workspace package, it keeps package links the root does not hold'
   const web = path.join(dir, 'apps/web');
   syncSkills(web, { upgrade: true });
   const output = run(t, web);
-  assert.ok(links(web)['path-to-regexp-v8-migration']);
-  assert.ok(!links(web)['data-client-react']);
+  assert.deepEqual(fs.readdirSync(path.join(web, '.agents/skills')), []);
   assert.ok(
     output.includes(
       'Removed data-client-react, data-client-rest from this package; the workspace root has them',
     ),
   );
+  assert.ok(
+    output.includes('Removed path-to-regexp-v8-migration from this package'),
+  );
+});
+
+test('run in workspace packages installing different versions, each loads its own', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('alpha', '0.19.0'),
+    ...app('beta', '0.19.1'),
+  });
+  // the package's own link, or else the root's
+  const loaded = app => {
+    const own = path.join(app, '.agents/skills/data-client-react');
+    return fs.realpathSync(
+      fs.existsSync(own) ? own : (
+        path.join(dir, '.agents/skills/data-client-react')
+      ),
+    );
+  };
+  for (const name of ['beta', 'alpha', 'beta']) {
+    const app = path.join(dir, 'apps', name);
+    run(t, app);
+    assert.equal(
+      loaded(app),
+      fs.realpathSync(
+        path.join(
+          app,
+          'node_modules/@data-client/react/skills/data-client-react',
+        ),
+      ),
+    );
+  }
+});
+
+test('run in a workspace package, it removes a copy an earlier run left at another version', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.1'),
+    'apps/web/.agents/skills/data-client-react/SKILL.md': 'old skill',
+    'apps/web/.agents/skills/data-client-react/.data-client':
+      '@data-client/react@0.19.0',
+  });
+  const web = path.join(dir, 'apps/web');
+  assert.ok(
+    run(t, web).includes(
+      'Removed data-client-react from this package; the workspace root has them',
+    ),
+  );
+  assert.deepEqual(fs.readdirSync(path.join(web, '.agents/skills')), []);
+  assert.ok(links(dir)['data-client-react']);
 });
 
 /** Runs main() from `cwd`, returning what it logged */
