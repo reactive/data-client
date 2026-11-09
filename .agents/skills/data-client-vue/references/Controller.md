@@ -33,6 +33,7 @@ class Controller {
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state?: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  applyOptimistic(state: State<unknown>): State<unknown>;
   getState(): State<unknown>;
 }
 ```
