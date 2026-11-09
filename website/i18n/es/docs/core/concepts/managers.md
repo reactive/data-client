@@ -58,6 +58,11 @@ También se pueden personalizar para cambiar comportamientos centrales.
 | Managers adicionales                                 |
 | [LogoutManager](../api/LogoutManager.md)             | Maneja el HTTP `401` (u otras condiciones de cierre de sesión)                       |
 
+Cada store obtiene sus propios Managers de la [función managers](../api/Manager.md#adding). El constructor de un Manager
+guarda sus opciones, sus campos contienen el estado sobre su store, y [init()](../api/Manager.md#init) y
+[cleanup()](../api/Manager.md#cleanup) inician y detienen sus temporizadores y conexiones. Consulta las
+[duraciones de un Manager](../api/Manager.md#lifetimes).
+
 ## Ejemplos {#examples}
 
 Reactive Data Client mejora la seguridad de tipos y la ergonomía al realizar los dispatches y el acceso al store con
@@ -209,30 +214,38 @@ Cuando una mutación tiene éxito en una pestaña, marca los datos como obsoleto
 
 ```typescript framework-imports
 import {
+  type Controller,
   type Manager,
   type Middleware,
   actionTypes,
 } from '@data-client/react';
 
 export default class TabSyncManager implements Manager {
-  protected channel = new BroadcastChannel('data-client');
+  declare protected controller: Controller;
+  declare protected channel?: BroadcastChannel;
 
   middleware: Middleware = controller => {
-    this.channel.onmessage = () =>
-      controller.expireAll({ testKey: () => true });
+    this.controller = controller;
     return next => async action => {
       if (
         action.type === actionTypes.SET_RESPONSE &&
         action.endpoint.sideEffect &&
         !action.error
       )
-        this.channel.postMessage('mutation');
+        this.channel?.postMessage('mutation');
       return next(action);
     };
   };
 
+  init() {
+    this.channel = new BroadcastChannel('data-client');
+    this.channel.onmessage = () =>
+      this.controller.expireAll({ testKey: () => true });
+  }
+
   cleanup() {
-    this.channel.close();
+    this.channel?.close();
+    delete this.channel;
   }
 }
 ```
@@ -280,7 +293,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [new PersistManager(), ...getDefaultManagers()];
+const managers = () => [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -301,7 +314,7 @@ import { get } from 'idb-keyval';
 import App from './App.vue';
 import PersistManager from './PersistManager';
 
-const managers = [new PersistManager(), ...getDefaultManagers()];
+const managers = () => [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 const app = createApp(App);

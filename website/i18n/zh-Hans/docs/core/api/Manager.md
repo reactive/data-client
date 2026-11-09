@@ -14,7 +14,7 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-`Managers` 是处理全局副作用的单例。有点像中心数据 store 的 :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)]。
+`Managers` 负责处理全局副作用。有点像中心数据 store 的 :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)]。
 
 默认的 manager 负责编排 <abbr title="Reactive Data Client">Data Client</abbr>
 开箱即用提供的复杂异步行为。你可以通过 [getDefaultManagers()](./getDefaultManagers.md) 轻松配置它们，
@@ -35,6 +35,19 @@ interface Manager {
   init?: (state: State<any>) => void;
 }
 ```
+
+## 生存期 {#lifetimes}
+
+每个 store 都有自己的 Manager。Manager 的代码处于以下三种生存期之一：
+
+| 生存期 | 持续时间                                                    | 保存内容                                         |
+| ------ | ----------------------------------------------------------- | ------------------------------------------------ |
+| Config | 整个页面                                                    | 传给构造函数的选项，比如 URL 或回调               |
+| Store  | 一个 store，从 [managers](#adding) 函数运行到卸载            | 关于该 store 的实例字段，比如进行中的获取         |
+| Active | 从 [init()](#init) 到 [cleanup()](#cleanup)                 | 定时器、连接和监听器                             |
+
+因此构造函数只保存它的选项。:react[React 可能会为一个随后被丢弃的 store 构造 Manager，所以
+构造函数不能打开任何东西。]
 
 ## 生命周期 {#lifecycle}
 
@@ -68,27 +81,42 @@ interface Manager {
 
 ### init(state) {#init}
 
-在 provider 挂载后以初始状态调用。适合在启动时运行
-依赖于状态确实存在的初始化逻辑。
+在 Manager :react[启动或恢复]:vue[启动]时调用。在这里启动定时器和连接。
 
 ### cleanup() {#cleanup}
 
-在 manager 不再使用后，清理所有残留的资源。
+在 Manager :react[暂停或停止]:vue[停止]时调用。在这里停止定时器和连接。
+
+:::react
+
+[DataProvider](./DataProvider.md) 在 Effect 中调用 `init()` 和 `cleanup()`，因此它们遵循
+[Effect 的生命周期](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development)。
+React StrictMode，以及 [`<Activity>`](https://react.dev/reference/react/Activity) 隐藏 `DataProvider` 时，都会在同一个 store 上
+用 `cleanup()` 暂停 Manager，再用 `init()` 恢复它们。
+
+Manager 暂停期间，store 仍会继续应用 action。进行中的获取依然会 resolve，`middleware` 也依然能看到
+它们。因此：
+
+- 不要在 `cleanup()` 中重置关于 store 的状态，比如进行中的获取。
+- 为 `cleanup()` 已停止的副作用加上防护，比如 `this.channel?.postMessage()`。
+
+`init()` 会拿到 store 的当前状态，恢复时也是如此。
+
+:::
 
 ## 向 Reactive Data Client 添加 manager {#adding}
 
 :::react
 
-使用 [DataProvider](../api/DataProvider.md) 的 [managers](../api/DataProvider.md#managers) prop。务必
-将其提升到 _模块级别_ 或包裹在 _useMemo()_ 中，以确保它们不会被重新创建。Manager
-拥有内部状态，因此不要反复重新创建它们，这一点很重要。
+向 [DataProvider](../api/DataProvider.md) 的 [managers](../api/DataProvider.md#managers) prop 传入一个函数。它
+对每个 store 运行一次，因此重新挂载的 `DataProvider` 会得到新的 Manager。
 
 :::
 
 :::vue
 
-使用 [DataClientPlugin](./DataClientPlugin.md) 的 [managers](./DataClientPlugin.md#managers) 选项。插件
-在每个应用中只安装一次，因此 manager 也只会创建一次。
+向 [DataClientPlugin](./DataClientPlugin.md) 的 [managers](./DataClientPlugin.md#managers) 选项传入一个函数。
+它对每个应用运行一次。
 
 :::
 
@@ -98,10 +126,12 @@ interface Manager {
 import MyManager from './MyManager';
 
 // highlight-next-line
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>
+
+请在模块顶层定义这个函数：它只包含配置。
 
 action 会按数组顺序依次经过各个 manager。请把自定义 manager 放在默认 manager 之前：[NetworkManager](./NetworkManager.md)
 会自行处理大多数 FETCH action，而不会把它们继续传递下去。
@@ -137,19 +167,27 @@ export default class CurrentTime extends Entity {
 ```
 
 ```ts title="TimeManager" framework-imports
-import type { Manager, Middleware } from '@data-client/react';
+import type { Controller, Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
+  declare protected controller: Controller;
   declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
-    this.intervalID = setInterval(() => {
-      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
-    }, 1000);
-
+    this.controller = controller;
     return next => async action => next(action);
   };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(
+        CurrentTime,
+        { id: 1 },
+        { id: 1, time: Date.now() },
+      );
+    }, 1000);
+  }
 
   cleanup() {
     clearInterval(this.intervalID);

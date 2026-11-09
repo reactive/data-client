@@ -759,6 +759,9 @@ Un `body` que sea un objeto plano o un array se codifica como JSON, con un encab
 
 :::tip async
 
+`getRequestInit()` es asíncrono, así que usa `await` antes de expandirlo con spread. Expandir la Promise omite `method`, `body`
+y los encabezados, lo que envía cada mutación como un GET; en desarrollo, el fetch predeterminado registra un error cuando falta `method`.
+
 <TypeScriptEditor>
 
 ```ts
@@ -1264,7 +1267,7 @@ export default function TaskCard({ task }: { task: Task }) {
   const ctrl = useController();
   return (
     <div className="listItem">
-      <span style={{ flex: 1 }}>{task.title}</span>
+      <span>{task.title}</span>
       <button onClick={handleMove}>
         {task.status === 'backlog' ? '\u25bc' : '\u25b2'}
       </button>
@@ -1322,7 +1325,7 @@ render(<TaskBoard />);
 
 <template>
   <div class="listItem">
-    <span style="flex: 1">{{ task.title }}</span>
+    <span>{{ task.title }}</span>
     <button @click="handleMove">
       {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
     </button>
@@ -1448,6 +1451,9 @@ return (
 ```
 
 :::
+
+Una página se añade al final de la lista actual y omite los elementos que la lista ya tiene, incluso cuando la lista se
+volvió a obtener mientras se cargaba la página.
 
 Consulta la [guía de paginación](../guides/pagination.md) para más información.
 

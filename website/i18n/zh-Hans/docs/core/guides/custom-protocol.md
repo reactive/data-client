@@ -10,7 +10,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 # TypeScript 标准 Endpoint
 
-[Endpoint](/rest/api/Endpoint) 用于描述一个异步 [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/)。它既包括运行时行为，也（可选地）包括类型。
+[Endpoint](/rest/api/Endpoint) 用于描述一个异步 [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/)。它包含 API 的运行时行为，以及（可选的）类型。
 
 <PkgTabs pkgs="@data-client/endpoint" />
 
@@ -71,37 +71,28 @@ console.log(await todoDetail({ id: '1' }));
 
 </details>
 
-我们很可能会在许多需求各异的地方使用这个 endpoint。
-通过定义一个*只*包含网络定义的可复用函数，我们就能在*任何*上下文中
-使用它。
+endpoint *只*包含网络定义，因此任何组件都可以使用它。你为它添加的每一项信息（比如 TypeScript 类型）
+都会惠及所有使用它的地方：类型能捕获拼写错误，并提供自动补全。
 
-当我们开始为 endpoint 添加更多相关信息时，这一点尤其有用。
-例如，TypeScript 定义可以帮助我们避免常见错误和拼写错误，
-并借助自动补全加快开发速度。
-
-通过让接口定义*紧耦合*、而让其使用方式*松耦合*，
-我们减少了样板代码、复杂度和常见错误，同时提升了性能，
-并且即使面对不可靠的异步数据，也能保证整个应用的一致性与完整性。
+接口只需定义一次，就能在任何地方使用。这消除了样板代码和错误，并让整个应用中的数据
+保持一致。
 
 ## 不只是一个函数 {#more-than-just-a-function}
 
-除了异步函数和（可选的）类型之外，[Endpoint](/rest/api/Endpoint) 还是对象，
-因此可以提供关于 endpoint 本身的任何其他相关信息。
+[Endpoint](/rest/api/Endpoint) 同时也是一个对象，因此可以保存关于 endpoint 的更多信息。
 
-例如，为了能集成到缓存中，并在参数变化时知道何时重新计算和/或重新获取，
-Endpoint 拥有一个 [key()](/rest/api/Endpoint#key) 成员，它会把
-endpoint 和参数序列化为一个唯一的字符串。
+例如，[key()](/rest/api/Endpoint#key) 会把 endpoint 及其参数序列化为一个唯一的字符串。缓存
+用它来存储响应，并判断参数何时发生了变化。
 
 ```js
 console.log(todoDetail.key({ id: '1' }));
-// fetchTodoDetail {"id":"1"}
+// fetchTodoDetail [{"id":"1"}]
 ```
 
 ### 成员 {#members}
 
-第二个可选参数是用于初始化 endpoint 的对象。只要不使用箭头函数，
-我们就可以用 [this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
-访问我们定义的其他成员。
+可选的第二个参数用于设置 endpoint 的成员。请使用方法而不是箭头函数，这样
+[this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this) 才能读取其他成员。
 
 ```js
 const todoDetailWithCustomizedKey = new Endpoint(fetchTodoDetail, {
@@ -119,13 +110,10 @@ console.log(todoDetailWithCustomizedKey.key({ id: '1' }));
 
 ### Endpoint.extend() {#endpointextend}
 
-为方便起见，[extend()](/rest/api/Endpoint#extend) 支持以类型正确的方式
-通过原型继承来扩展 endpoint。
+[extend()](/rest/api/Endpoint#extend) 会创建一个继承原 endpoint 成员的新 endpoint，并且类型正确。
+用它可以在整个 API 中共享身份认证等模式。
 
-当 API 已经形成了固定的模式（例如身份认证）时，这可以大大减少
-样板代码。
-
-下面展示自定义 [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) 成员的好处。
+这个示例修改了 [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) 成员：
 
 ```js
 const fetchTodoDetail = function ({ id }) {

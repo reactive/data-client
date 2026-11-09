@@ -701,6 +701,9 @@ sin peticiones de red. Para mutaciones basadas en red, consulta los [extensores 
 
 Un schema de creación que coloca los nuevos elementos al _final_ de esta collection.
 
+Un elemento que se eliminó y luego se volvió a añadir aparece una sola vez: primero se descarta su id anterior. Los demás ids se añaden de nuevo aunque
+la lista ya los contenga, como `Array.push()`.
+
 ```ts
 // Add a new todo to the end of the list (local only, no network request)
 ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' });
@@ -709,6 +712,8 @@ ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' }
 ### unshift {#unshift}
 
 Un schema de creación que coloca los nuevos elementos al _principio_ de esta collection.
+
+Como [push](#push), descarta el id anterior de un elemento que se eliminó y luego se volvió a añadir.
 
 ```ts
 // Add a new todo to the beginning of the list (local only)
@@ -859,6 +864,10 @@ static shouldReorder(
 Un valor de retorno `true` reordenará el orden de los argumentos de la entity entrante frente a la almacenada en el store durante la fusión. Con
 la fusión por defecto, esto hará que los campos de las entities existentes sobrescriban los de las entrantes,
 en lugar de al revés.
+
+Las actualizaciones de collection ([push](#push), [unshift](#unshift), [remove](#remove), [move](#move) y
+[addWith](#addWith) en Arrays, y [getPage](./RestEndpoint.md#getpage)) se siguen aplicando a una lista almacenada más reciente.
+Un `push`, `unshift` o `getPage` más antiguo omite los elementos que la lista más reciente ya tiene y añade el resto al final.
 
 ### Método estático merge(existing, incoming): mergedValue {#merge}
 

@@ -393,6 +393,35 @@ class User extends Entity {
 }
 ```
 
+如果 API 用 `null` 以外的值（比如 `{}` 或
+`{ id: null }`）表示缺失的关联 entity，规范化时就会抛出 `Missing usable primary key`。请在父级的
+[process()](#process) 中把这个值转换为 `undefined`。对于发送 `{}` 的 API：
+
+```typescript
+class Post extends Entity {
+  id = '';
+  author?: User = undefined;
+  static schema = { author: User };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-start
+    const { author } = processed;
+    if (author && typeof author === 'object' && !Object.keys(author).length)
+      processed.author = undefined;
+    // highlight-end
+    return processed;
+  }
+}
+```
+
+这样 `post.author` 就是 `undefined`，已存储的 author 也会像遇到 `null` 时一样被清除。
+
 ### static indexes?: (keyof this)[] {#indexes}
 
 索引可以提升基于这些参数进行查找时的性能。将之后

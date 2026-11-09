@@ -9,7 +9,9 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # getDefaultManagers()
 
-`getDefaultManagers` 返回一个 [Manager](./Manager.md) 数组，用于传给 :react[[&lt;DataProvider />](./DataProvider.md)]:vue[[DataClientPlugin](./DataClientPlugin.md)]。
+`getDefaultManagers` 返回默认 [Manager](./Manager.md) 的新实例。请在
+:react[[managers](./DataProvider.md#managers)]:vue[[managers](./DataClientPlugin.md#managers)] 函数中调用它，这样每个 store
+都有自己的一份。
 
 这样可以轻松地配置和添加自定义 [Manager](./Manager.md)，同时不受默认 Manager
 未来可能发生的变化影响。
@@ -24,7 +26,7 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 ```ts
 // highlight-start
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -85,7 +87,7 @@ getDefaultManagers({
 例如，我们可以启用 [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) 选项，帮助追踪 action 是从哪里分发的。它对性能影响很大，因此通常是禁用的。
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
@@ -100,7 +102,7 @@ const managers = getDefaultManagers({
 ```ts
 import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   networkManager: new IdlingNetworkManager(),
 });
 ```
@@ -126,7 +128,7 @@ class LoggingNetworkManager extends NetworkManager {
   }
 }
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   networkManager: new LoggingNetworkManager(),
 });
 ```
@@ -138,7 +140,7 @@ const managers = getDefaultManagers({
 使用 `null` 会彻底移除 Manager。[NetworkManager](./NetworkManager.md) 无法通过这种方式移除。
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: null,
   subscriptionManager: null,
 });

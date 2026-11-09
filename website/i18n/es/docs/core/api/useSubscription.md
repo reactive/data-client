@@ -7,6 +7,8 @@ description: Mantiene los datos al día, pero solo cuando el componente está ac
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import VueArgs from '../shared/\_vueArgs.mdx';
 
@@ -25,57 +27,97 @@ Al usar las [suscripciones de sondeo](./PollingSubscription) por defecto, la fre
 
 ## Uso {#usage}
 
-```typescript title="api/Price"
-import { RestEndpoint, Entity } from '@data-client/rest';
+<FrameworkPlayground row>
 
-export class Price extends Entity {
-  symbol = '';
-  price = '0.0';
-  // ...
+```typescript title="Ticker" {23} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
 
   pk() {
-    return this.symbol;
+    return this.product_id;
   }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
 }
 
-export const getPrice = new RestEndpoint({
-  urlPrefix: 'http://test.com',
-  path: '/price/:symbol',
-  schema: Price,
-  pollFrequency: 5000,
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
 });
 ```
 
 :::react
 
-```tsx title="MasterPrice" {6}
+```tsx title="AssetPrice" {7}
 import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  useSubscription(getPrice, { symbol });
-  // ...
+function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
 }
+render(<AssetPrice productId="BTC-USD" />);
 ```
 
 :::
 
 :::vue
 
-```html title="MasterPrice.vue" {7}
+```html title="AssetPrice.vue" {10}
 <script setup lang="ts">
   import { useSuspense, useSubscription } from '@data-client/vue';
-  import { getPrice } from 'api/Price';
+  import NumberFlow from '@number-flow/vue';
+  import { getTicker } from './Ticker';
 
-  const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
-  useSubscription(getPrice, () => ({ symbol: props.symbol }));
-  // ...
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useSuspense(getTicker, () => ({
+    productId: props.productId,
+  }));
+  useSubscription(getTicker, () => ({ productId: props.productId }));
 </script>
+
+<template>
+  <dl class="stats">
+    <div>
+      <dt>{{ productId }}</dt>
+      <dd>
+        <NumberFlow
+          :value="ticker.price"
+          :format="{ style: 'currency', currency: 'USD' }"
+        />
+      </dd>
+    </div>
+  </dl>
+</template>
 ```
 
 :::
+
+</FrameworkPlayground>
 
 ## Comportamiento {#behavior}
 
@@ -88,6 +130,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
 Al usar React Navigation, useSubscription() se suscribirá o cancelará la suscripción cuando la pantalla gane o pierda el foco, respectivamente.
 
 :::
+
+En un [`<Activity>`](https://react.dev/reference/react/Activity) oculto, `useSubscription()` cancela la suscripción.
+Vuelve a suscribirse cuando se muestra. [Ejemplo](#pause-while-hidden)
 
 ::::
 
@@ -144,59 +189,154 @@ function useSubscription(
 
 ### Suscribirse solo mientras el elemento es visible {#only-subscribe-while-element-is-visible}
 
+<FrameworkPlayground row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
 :::react
 
-```tsx title="MasterPrice.tsx" {9}
-import { useIntersectionObserver } from '@uidotdev/usehooks';
-import { useSuspense, useSubscription } from '@data-client/react';
-import { getPrice } from 'api/Price';
+```tsx title="useInView" collapsed
+import React from 'react';
 
-function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(getPrice, { symbol });
-  const [ref, entry] = useIntersectionObserver();
-  // null params means don't subscribe
-  useSubscription(getPrice, entry?.isIntersecting ? { symbol } : null);
-
-  return <div ref={ref}>{price.price}</div>;
+/** Whether the element is on screen */
+export function useInView<T extends Element>() {
+  const ref = React.useRef<T>(null);
+  const [inView, setInView] = React.useState(false);
+  React.useEffect(() => {
+    // one callback can hold several entries: the last is current
+    const observer = new IntersectionObserver(entries =>
+      entries.forEach(entry => setInView(entry.isIntersecting)),
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, inView] as const;
 }
+```
+
+```tsx title="Watchlist" {9-10}
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+import { useInView } from './useInView';
+
+function AssetRow({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  const [ref, inView] = useInView<HTMLDivElement>();
+  // null args means don't subscribe
+  useSubscription(getTicker, inView ? { productId } : null);
+  return (
+    <div className="listItem" ref={ref}>
+      <h4>{productId}</h4>
+      <NumberFlow
+        className="value"
+        value={ticker.price}
+        format={{ style: 'currency', currency: 'USD' }}
+      />
+    </div>
+  );
+}
+
+const products = [
+  'BTC-USD',
+  'ETH-USD',
+  'SOL-USD',
+  'BCH-USD',
+  'LTC-USD',
+  'AAVE-USD',
+  'AVAX-USD',
+  'LINK-USD',
+];
+render(
+  <>
+    <header className="appHeader">
+      <h1 className="appTitle">Watchlist</h1>
+    </header>
+    <div className="list scroll">
+      {products.map(productId => (
+        <AssetRow key={productId} productId={productId} />
+      ))}
+    </div>
+  </>,
+);
 ```
 
 :::
 
 :::vue
 
-```html title="MasterPrice.vue" {12-15}
+```html title="AssetRow.vue" {14-20}
 <script setup lang="ts">
   import { computed, useTemplateRef } from 'vue';
   import { useElementVisibility } from '@vueuse/core';
   import { useSuspense, useSubscription } from '@data-client/vue';
-  import { getPrice } from 'api/Price';
+  import NumberFlow from '@number-flow/vue';
+  import { getTicker } from './Ticker';
 
-  const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useSuspense(getTicker, () => ({
+    productId: props.productId,
+  }));
   const el = useTemplateRef('el');
   const isVisible = useElementVisibility(el);
-  // null params means don't subscribe
+  // null args means don't subscribe
   useSubscription(
-    getPrice,
-    computed(() => (isVisible.value ? { symbol: props.symbol } : null)),
+    getTicker,
+    computed(() =>
+      isVisible.value ? { productId: props.productId } : null,
+    ),
   );
 </script>
 
 <template>
-  <div ref="el">{{ price.price }}</div>
+  <div ref="el" class="listItem">
+    <h4>{{ productId }}</h4>
+    <NumberFlow
+      class="value"
+      :value="ticker.price"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+  </div>
 </template>
 ```
 
 :::
+
+</FrameworkPlayground>
 
 Cuando se envía `null` como segundo argumento, la suscripción se desactiva. Por supuesto,
 si otros componentes siguen suscritos, las actualizaciones de datos seguirán activas.
 
 :::react
 
-[useIntersectionObserver()](https://usehooks.com/useintersectionobserver) usa [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), que es muy eficiente. [ref](https://react.dev/reference/react/useRef) nos permite
-acceder al [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+`useInView()` usa [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API),
+que es muy eficiente. Hooks como [useIntersectionObserver()](https://usehooks.com/useintersectionobserver) hacen
+lo mismo.
 
 :::
 
@@ -208,6 +348,96 @@ acceder al [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Objec
 :::
 
 :::react
+
+### Pausar mientras está oculto {#pause-while-hidden}
+
+Para ocultar un panel o una pestaña, envuélvelo en [`<Activity>`](https://react.dev/reference/react/Activity). `AssetPrice` no necesita
+ningún cambio.
+
+<HooksPlayground row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" collapsed
+import { useSuspense, useSubscription } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: { productId: string }) {
+  const ticker = useSuspense(getTicker, { productId });
+  useSubscription(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+```
+
+```tsx title="PricePanel" {14-16}
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+function PricePanel({ productId }: { productId: string }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Prices</h1>
+        <button aria-expanded={open} onClick={() => setOpen(!open)}>
+          {open ? 'Hide' : 'Show'} price
+        </button>
+      </header>
+      <React.Activity mode={open ? 'visible' : 'hidden'}>
+        <AssetPrice productId={productId} />
+      </React.Activity>
+    </>
+  );
+}
+render(<PricePanel productId="BTC-USD" />);
+```
+
+</HooksPlayground>
+
+Un `<Activity>` oculto conserva `AssetPrice` y su estado, pero detiene sus Effects. Si ningún otro componente se suscribe al
+precio, el sondeo se detiene. Cuando se muestra, el sondeo se reanuda. Si el último fetch es más antiguo que
+[pollFrequency](/rest/api/RestEndpoint#pollfrequency), hace fetch de inmediato.
+
+Un `<Activity>` oculto sigue renderizándose. Por eso `useSuspense()` obtiene el precio antes de que se abra el panel, y el panel se abre
+sin estado de carga.
 
 ### Precios de criptomonedas (websockets) {#crypto-prices-websockets}
 

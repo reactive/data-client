@@ -37,18 +37,18 @@ sources={{
 
 - **缓存导航**：在完整列表与列表中的条目之间来回导航十次。[^nav]
 - **变更传播**：一次 store 写入即可更新所有引用该 Entity 的视图。[^mutation]
-- **扩展性**：在渲染了 1 万条列表项的情况下进行变更。[^scaling]
+- **扩展性**：存储 1 万条、渲染 100 条时重命名一个用户。[^scaling]
 
 这些基准测试衡量的是框架在更大系统中的影响。因此，
 它们最适合用来比较不同方案，而不是作为
 应用整体性能的绝对度量。我们用它们来
 指导库的优化，并随时间发现性能回退。
 
-[^setup]: 于 2026-03-22 在 Ryzen 9 7950X（64 GB，WSL2 上的 Ubuntu，Node 24.12.0，Playwright 1.58.2 的 headless Chromium）上测量，每个请求延迟 40 ms，外加每 20 条记录 1 ms。每个场景在预热后取 5 到 50 个样本的中位数。[完整方法](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md)。
-[^config]: TanStack Query 5.62.7（`staleTime` 和 `gcTime` 设为 `Infinity`），SWR 2.4.1（禁用聚焦、重连和过时时的重新验证），React 19.2.3。变更之后，TanStack Query 和 SWR 会等待响应，然后失效并重新获取；Data Client 则以乐观方式更新 store。[配置详情](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#how-each-library-is-configured)。
-[^nav]: `list-detail-switch-10`：Data Client 为 57.5 ms，TanStack Query 为 610 ms，SWR 为 629 ms，基线为 1,370 ms。即分别是基线的 23.8 倍、TanStack Query 的 10.6 倍和 SWR 的 10.9 倍。
-[^mutation]: `update-entity`：Data Client 为 1.5 ms，TanStack Query 为 143 ms，SWR 为 141 ms，基线为 138 ms。其他变更场景是基线的 48 倍到 116 倍不等。[全部结果](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#results)。
-[^scaling]: `update-user-10000`：Data Client 为 6.9 ms，TanStack Query 为 671 ms，SWR 为 641 ms，基线为 641 ms。
+[^setup]: 于 2026-11-05 在 Ryzen 9 7950X（64 GB，WSL2 上的 Ubuntu，Node 26.12.1，Playwright 1.64.0 的 headless Chromium）上测量，每个请求延迟 40 ms，外加每 20 条记录 1 ms。每个场景在预热后取 10 到 60 个样本的中位数，并取两次完整运行的中位数。[完整方法](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md)。
+[^config]: TanStack Query 5.96.2（`staleTime` 和 `gcTime` 设为 `Infinity`），SWR 2.5.1（禁用聚焦、重连和过时时的重新验证），React 19.3.1。变更之后，TanStack Query 和 SWR 会等待响应，然后失效并重新获取；Data Client 则以乐观方式更新 store。[配置详情](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#how-each-library-is-configured)。
+[^nav]: `list-detail-switch-10`：Data Client 为 21.2 ms，TanStack Query 为 446 ms，SWR 为 452 ms，基线为 1,351 ms。即分别是基线的 63.8 倍、TanStack Query 的 21.1 倍和 SWR 的 21.4 倍。
+[^mutation]: `update-entity`：Data Client 为 0.73 ms，TanStack Query 为 136 ms，SWR 为 137 ms，基线为 135 ms。其他变更场景是基线的 74 倍到 194 倍不等。[全部结果](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md#results)。
+[^scaling]: `update-user-10000`：Data Client 为 5.7 ms，TanStack Query 为 625 ms，SWR 为 602 ms，基线为 606 ms。
 
 ## 规范化基准测试 {#normalization-benchmarks}
 

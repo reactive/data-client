@@ -26,6 +26,7 @@ type RenderDataHook = {
       initialFixtures?: Fixture[];
       resolverFixtures?: (Fixture | Interceptor<T>)[];
       getInitialInterceptorData?: () => T;
+      managers?: () => Manager[];
       wrapper?: React.ComponentType;
     },
   ): {
@@ -45,8 +46,9 @@ type RenderDataHook = {
       options?: waitForOptions,
     ): Promise<T>;
   };
-  /** cleanup is automatic; only needed for ordering (e.g., before jest.useRealTimers()) */
+  /** @deprecated use cleanup() from the renderDataHook() return value */
   cleanup(): void;
+  /** @deprecated use allSettled() from the renderDataHook() return value */
   allSettled(): Promise<unknown>;
 };
 ```
@@ -110,6 +112,45 @@ Funciona adicionando o [MockResolver](../api/MockResolver.md) como wrapper.
 
 Função que inicializa o atributo `this` de todos os interceptors.
 
+### options.managers {#optionsmanagers}
+
+Retorna os [Managers](./Manager.md) a usar. Cada chamada de `renderDataHook()` a chama uma vez, então cada teste recebe
+novas instâncias. O resultado substitui o [NetworkManager](./NetworkManager.md) e o
+[SubscriptionManager](./SubscriptionManager.md) padrão. Deve incluir um `NetworkManager`; adicione um `SubscriptionManager`
+quando o teste precisar de subscriptions.
+
+Coloque um Manager antes do `NetworkManager` para ver as actions `fetch`, porque o `NetworkManager` as trata sem
+repassá-las.
+
+```ts
+import type { Manager } from '@data-client/react';
+import { NetworkManager, useController } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+import { TodoResource } from './resources/Todo';
+
+it('logs every action', async () => {
+  const types: string[] = [];
+  const logger: Manager = {
+    middleware: () => next => action => {
+      types.push(action.type);
+      return next(action);
+    },
+    cleanup() {},
+  };
+  // highlight-start
+  const { controller } = renderDataHook(() => useController(), {
+    managers: () => [logger, new NetworkManager()],
+  });
+  // highlight-end
+  await controller.setResponse(
+    TodoResource.get,
+    { id: 5 },
+    { id: 5, title: 'hi', completed: false },
+  );
+  expect(types).toEqual(['rdc/setresponse']);
+});
+```
+
 ### options.initialProps {#optionsinitialprops}
 
 Os valores iniciais a passar para a função de callback
@@ -170,30 +211,33 @@ it('should update', async () => {
 
 ### cleanup() {#cleanup}
 
-Limpa todos os managers usados nesta renderização.
-Isso é especialmente importante ao simular timers, pois o funcionamento interno do Reactive Data Client depende de timers reais para
-evitar race conditions.
+Limpa os managers desta renderização. O funcionamento interno do Reactive Data Client usa timers reais para evitar race conditions, então
+isso importa quando você simula timers.
 
-A limpeza é executada automaticamente após cada teste por meio de um hook `afterEach` em nível de módulo (semelhante ao `@testing-library/react`).
-Chamadas manuais só são necessárias quando você precisa controlar a ordem da limpeza dentro do corpo de um teste -- por exemplo,
-limpar antes de trocar de timers falsos para timers reais:
+A limpeza é executada após cada teste em um hook `afterEach`, como o `@testing-library/react`. Chame-a você mesmo apenas para controlar
+a ordem dela em um teste. Por exemplo, limpe antes de trocar de timers falsos para timers reais:
 
 ```ts
 it('should handle polling', async () => {
   jest.useFakeTimers();
-  const { result } = renderDataHook(/* ... */);
+  const { result, cleanup } = renderDataHook(/* ... */);
   // ... assertions ...
   // highlight-next-line
-  renderDataHook.cleanup(); // must run while fake timers are still active
+  cleanup(); // must run while fake timers are still active
   jest.useRealTimers();
 });
 ```
 
 ### allSettled() {#allsettled}
 
-Retorna uma promise que é resolvida assim que todas as requisições em andamento forem concluídas.
+Retorna uma promise que é resolvida quando todas as requisições em andamento desta renderização forem concluídas.
 
-Também disponível no valor de retorno de cada chamada de `renderDataHook()`.
+:::warning[Descontinuado]
+
+`renderDataHook.cleanup()` e `renderDataHook.allSettled()` atuam apenas na renderização mais recente. Use os que cada
+chamada de `renderDataHook()` retorna.
+
+:::
 
 ### result {#result}
 

@@ -10,7 +10,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 # Endpoints estándar de TypeScript
 
-Los [Endpoints](/rest/api/Endpoint) describen una [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/) asíncrona. Esto incluye tanto el comportamiento en tiempo de ejecución como (opcionalmente) el tipado.
+Los [Endpoints](/rest/api/Endpoint) describen una [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/) asíncrona. Contienen su comportamiento en tiempo de ejecución y, opcionalmente, sus tipos.
 
 <PkgTabs pkgs="@data-client/endpoint" />
 
@@ -71,38 +71,28 @@ console.log(await todoDetail({ id: '1' }));
 
 </details>
 
-Probablemente querremos usar este endpoint en muchos lugares con necesidades distintas.
-Al definir una función reutilizable con _solo_ la definición de red, habilitamos
-su uso en _cualquier_ contexto.
+El endpoint contiene _solo_ la definición de red, así que cualquier componente puede usarlo. Cada dato que le añades,
+como los tipos de TypeScript, ayuda entonces a todos los lugares que lo usan: los tipos detectan erratas y ofrecen autocompletado.
 
-Esto es especialmente útil cuando empezamos a agregar más información relacionada con el
-endpoint. Por ejemplo, las definiciones de TypeScript nos ayudan a evitar errores comunes y erratas,
-y aceleran el desarrollo con el autocompletado.
-
-Al _acoplar estrechamente_ la definición de la interfaz, y _acoplar de forma laxa_ su uso,
-reducimos el código repetitivo, la complejidad y los errores comunes, a la vez que aumentamos el rendimiento y
-habilitamos la consistencia e integridad global de la aplicación incluso ante datos
-asíncronos poco fiables.
+Define la interfaz una vez y úsala en cualquier parte. Esto elimina código repetitivo y errores, y mantiene los datos consistentes en
+toda la aplicación.
 
 ## Más que una simple función {#more-than-just-a-function}
 
-Además de una función asíncrona y tipos (opcionales), los [Endpoint](/rest/api/Endpoint) son objetos,
-lo que les permite proporcionar cualquier información relevante adicional sobre el propio endpoint.
+Un [Endpoint](/rest/api/Endpoint) también es un objeto, así que puede contener más información sobre el endpoint.
 
-Por ejemplo, para permitir la integración con una caché y saber cuándo recalcular y/o volver a obtener los datos
-cuando cambian los parámetros, los Endpoints tienen un miembro [key()](/rest/api/Endpoint#key) que serializa
-el endpoint y los parámetros en un string único.
+Por ejemplo, [key()](/rest/api/Endpoint#key) serializa el endpoint y sus parámetros en un string único. La caché
+lo usa para almacenar respuestas y para saber cuándo cambiaron los parámetros.
 
 ```js
 console.log(todoDetail.key({ id: '1' }));
-// fetchTodoDetail {"id":"1"}
+// fetchTodoDetail [{"id":"1"}]
 ```
 
 ### Miembros {#members}
 
-El segundo argumento opcional es un objeto con el que inicializar el endpoint. Al evitar las funciones flecha,
-podemos usar [this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
-para acceder a otros miembros que hayamos definido.
+El segundo argumento opcional define los miembros del endpoint. Usa métodos, no funciones flecha, para que
+[this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this) pueda leer los demás miembros.
 
 ```js
 const todoDetailWithCustomizedKey = new Endpoint(fetchTodoDetail, {
@@ -120,13 +110,10 @@ console.log(todoDetailWithCustomizedKey.key({ id: '1' }));
 
 ### Endpoint.extend() {#endpointextend}
 
-Por comodidad, [extend()](/rest/api/Endpoint#extend) permite extensiones de un endpoint mediante
-herencia prototípica con tipado correcto.
+[extend()](/rest/api/Endpoint#extend) crea un nuevo endpoint que hereda los miembros del original, con los tipos
+correctos. Úsalo para compartir patrones, como la autenticación, en toda una API.
 
-Esto reduce enormemente el código repetitivo cuando se establecen patrones sólidos para una API, como
-la autenticación.
-
-Aquí mostramos los beneficios de personalizar el miembro [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods).
+Este ejemplo cambia el miembro [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods):
 
 ```js
 const fetchTodoDetail = function ({ id }) {

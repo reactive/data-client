@@ -5,28 +5,24 @@ title: Transformar datos al hacer fetch
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
-Todas las peticiones de red pasan por el método `fetch()`, así que cualquier transformación necesaria se puede
-hacer simplemente sobrescribiéndolo con una llamada a super.
+Transforma los datos en los miembros de [RestEndpoint](../api/RestEndpoint.md): [process()](../api/RestEndpoint.md#process) para
+las respuestas, [getRequestInit()](../api/RestEndpoint.md#getRequestInit) para los cuerpos de las peticiones y
+[parseResponse()](../api/RestEndpoint.md#parseResponse) para las cabeceras y los cuerpos sin procesar.
 
 :::tip
 
-Nota: si conservas el control sobre el diseño de la API, en general es preferible
-actualizar los datos enviados por la red. Mantener el cliente lo más `thin` (delgado) posible
-ayuda tanto al rendimiento como a la complejidad.
-
-Dicho esto, en muchos casos quieres consumir APIs sobre las que no tienes control,
-ya sean APIs públicas o por la estructura interna de la organización.
+Si controlas la API, cambia en su lugar los datos que envía. Un cliente delgado es más rápido y sencillo. Usa estas transformaciones
+para las APIs que no controlas.
 
 :::
 
 ## De snake a camel {#snakes-to-camels}
 
-Es habitual que las APIs se diseñen con claves en `snake_case`, pero muchos en TypeScript/JavaScript
-prefieren `camelCase`. Este fragmento nos permite hacer la transformación necesaria.
+Muchas APIs usan claves en `snake_case`. Para usar `camelCase` en TypeScript, transforma las claves en ambas direcciones.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
-import { RestEndpoint, RestGenerics  } from '@data-client/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -40,7 +36,7 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   return ret;
 }
 
-class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
+class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   getRequestInit(body) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body) {
@@ -56,14 +52,12 @@ class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
 
 ## Deserializar campos {#deserializing-fields}
 
-En muchos casos, los datos enviados mediante JSON se serializan como cadenas, ya que JSON
-solo tiene unos pocos tipos primitivos. Ejemplos comunes son [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
-para las fechas o incluso cadenas para decimales que requieren alta precisión ([los floats pueden perder precisión](https://floating-point-gui.de/)).
-Mantener los datos en su forma serializada suele estar bien, sobre todo si solo se usan
-para mostrarse. Sin embargo, esto puede ser problemático cuando se calculan datos derivados, como sumar tiempo a una fecha
-o multiplicar dos números.
+JSON tiene pocos tipos, así que las APIs envían muchos valores como cadenas. Ejemplos son las fechas [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+y los decimales de alta precisión ([los floats pueden perder precisión](https://floating-point-gui.de/)). Las cadenas sirven para mostrarse.
+Para operar con ellas, como sumar tiempo a una fecha o multiplicar dos números, deserialízalas.
 
-En este caso, simplemente usa el [static schema](../api/Entity.md#schema) con [Temporal.Instant](https://tc39.es/proposal-temporal/) y [BigNumber](https://github.com/MikeMcl/bignumber.js)
+Usa [Entity.schema](../api/Entity.md#schema) con [Temporal.Instant](https://tc39.es/proposal-temporal/) y
+[BigNumber](https://github.com/MikeMcl/bignumber.js):
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -167,8 +161,8 @@ render(<PricePage />);
 
 ### Deserializar Date {#deserializing-date}
 
-Si quieres usar el [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) heredado,
-puedes convertir el constructor en un [schema](../api/schema.md) de función.
+Para usar el [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) heredado,
+envuelve su constructor en un [schema](../api/schema.md) de función.
 
 ```ts
 export class ExchangePrice extends Entity {
@@ -190,14 +184,10 @@ export class ExchangePrice extends Entity {
 
 ## El caso del `Id` que falta {#case-of-the-missing-id}
 
-Ahora quieres integrarte con un nuevo y estupendo sitio de streaming llamado `mystreamsite.tv`. Tiene
-una API sencilla para recuperar información sobre los streams actuales. Puedes obtener un stream con el
-patrón de URL `https://mystreamsite.tv/[username]/`. Sin embargo, por alguna razón, ¡no
-devuelven el nombre de usuario en el cuerpo de la respuesta! Quieres poder referirte a él, y es
-el único identificador que define de forma única a la clase.
+Algunas APIs omiten la clave primaria en la respuesta. Por ejemplo, `https://mystreamsite.tv/[username]/` devuelve un
+stream sin su `username`, que es el único identificador único del stream.
 
-Podemos simplemente extraer el nombre de usuario de la propia URL de la petición y añadirlo a la
-respuesta.
+Añade el `username` a partir de los argumentos del endpoint en [RestEndpoint.process()](../api/RestEndpoint.md#process).
 
 ```json title="GET https://mystreamsite.tv/ntucker/"
 {
@@ -209,8 +199,6 @@ respuesta.
 ```
 
 ```typescript title="api/Stream.ts"
-const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
-
 class Stream extends Entity {
   username = '';
   title = '';
@@ -239,9 +227,8 @@ const getStream = new RestEndpoint({
 
 ### Precios de ticker {#ticker-prices}
 
-Este es un ejemplo del mundo real de una API en la que los datos del ticker no incluyen su clave primaria `product_id`.
-
-Usamos [RestEndpoint.process()](../api/RestEndpoint.md#process) para añadir el miembro `product_id` a partir de su argumento.
+La respuesta del ticker de Coinbase no incluye su clave primaria `product_id`.
+[RestEndpoint.process()](../api/RestEndpoint.md#process) la añade a partir del argumento `productId`.
 
 <FrameworkPlayground row>
 
@@ -349,11 +336,9 @@ render(<AssetPrice productId="BTC-USD" />);
 
 ## Uso de cabeceras HTTP {#using-http-headers}
 
-Las [cabeceras](https://developer.mozilla.org/en-US/docs/Web/API/Headers) HTTP son accesibles en la
-[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) del fetch. [RestEndpoint.fetchResponse()](../api/RestEndpoint.md#fetchResponse)
-puede usarse para construir un [RestEndpoint](../api/RestEndpoint.md).
-
-A veces esto se usa para la [paginación](./pagination.md#tokens-in-http-headers) basada en cursores.
+Para leer las [cabeceras](https://developer.mozilla.org/en-US/docs/Web/API/Headers) HTTP, sobrescribe
+[RestEndpoint.parseResponse()](../api/RestEndpoint.md#parseResponse). Recibe la [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+del fetch. Por ejemplo, la [paginación](./pagination.md#tokens-in-http-headers) basada en cursores puede enviar su cursor en una cabecera.
 
 ```typescript
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
@@ -475,9 +460,7 @@ Para las respuestas `ArrayBuffer` (útiles para procesar datos binarios en memor
 
 ## Renombrar claves {#name-calling}
 
-A veces una API puede cambiar el nombre de una clave, o elegir uno que no te gusta. Por supuesto,
-tú tienes estándares de nomenclatura mucho mejores, así que en lugar de cambiar la definición de tu clase `Resource`
-y todo tu código, solo quieres reasignar esa clave.
+Para renombrar una clave que usa la API, asígnala en ambas direcciones. Tu Entity y tus componentes usan entonces solo tu nombre.
 
 ```typescript title="ArticleResource.ts"
 class RenamedEndpoint<
@@ -487,7 +470,7 @@ class RenamedEndpoint<
     if (body && 'carrotsUsed' in body) {
       const newBody = {
         ...body,
-        carrotsUSedIsThisNameTooLong: carrotsUsed,
+        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
       };
       delete newBody.carrotsUsed;
       return super.getRequestInit(newBody);

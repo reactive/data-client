@@ -33,7 +33,7 @@ class DevToolsManager implements Manager
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
@@ -53,7 +53,7 @@ const managers = getDefaultManagers({
 
 ```ts
 // production builds leave out DevToolsManager
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: new DevToolsManager(undefined, () => true),
 });
@@ -71,7 +71,7 @@ const managers = getDefaultManagers({
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: {
     // Increase latency buffer for high-frequency updates
     latency: 1000,
@@ -114,7 +114,7 @@ Cursor 内置浏览器、[Chrome DevTools MCP](https://developer.chrome.com/blog
 或 [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) 的 AI 编程助手很有用，它们可以借此以编程方式检查 store
 并与之交互。每个 :react[[DataProvider](/docs/api/DataProvider)]:vue[已安装的 [DataClientPlugin](./DataClientPlugin.md)] 都会独立注册，因此
 支持同一页面上存在多个 :react[provider]:vue[应用]。当某个名字已被占用时，下一个会注册为
-`'Data Client: My App (2)'`，依此类推；设置 `name` 可以为每个 store 指定一个易于辨认的键。在没有 `window` 的环境中（例如
+`'Data Client: My App (2)'`，依此类推；设置 `name` 可以为每个 store 指定一个易于辨认的键。Redux DevTools 扩展也会按键列出每个 store。在没有 `window` 的环境中（例如
 服务端渲染时），store 会改为替换掉同名的上一个 store，因为每个请求的 store 永远不会被清理。
 
 action 日志最多保留 [`maxAge`](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#maxage) 两倍数量的
@@ -126,7 +126,7 @@ action（默认 100 个），并像扩展一样跳过相同的重复 fetch。为
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { maxPollingActions: 10 },
 });

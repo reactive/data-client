@@ -759,6 +759,9 @@ REST 协议用它来表示操作的类型。因此，RestEndpoint 会据此
 
 :::tip async
 
+`getRequestInit()` 是异步的，因此展开之前要先 `await` 它。展开 Promise 会丢掉 `method`、`body`
+和 headers，导致每个变更都以 GET 发送；在开发环境中，当缺少 `method` 时，默认的 fetch 会记录一条错误。
+
 <TypeScriptEditor>
 
 ```ts
@@ -1263,7 +1266,7 @@ export default function TaskCard({ task }: { task: Task }) {
   const ctrl = useController();
   return (
     <div className="listItem">
-      <span style={{ flex: 1 }}>{task.title}</span>
+      <span>{task.title}</span>
       <button onClick={handleMove}>
         {task.status === 'backlog' ? '\u25bc' : '\u25b2'}
       </button>
@@ -1321,7 +1324,7 @@ render(<TaskBoard />);
 
 <template>
   <div class="listItem">
-    <span style="flex: 1">{{ task.title }}</span>
+    <span>{{ task.title }}</span>
     <button @click="handleMove">
       {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
     </button>
@@ -1447,6 +1450,9 @@ return (
 ```
 
 :::
+
+一页数据会被添加到当前列表的末尾，并跳过列表中已有的条目，即使列表在该页加载期间
+被重新获取过也是如此。
 
 更多信息请参阅[分页指南](../guides/pagination.md)。
 

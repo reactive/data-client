@@ -40,7 +40,10 @@ Para instalar agora todas as skills do seu framework, sem deixar o agent executa
 A aba **Installed packages** vincula as skills que cada pacote `@data-client/*` instalado inclui em `.agents/skills`
 (com `.claude/skills` apontando para ele), onde o Claude Code, o Cursor e o Codex as carregam, correspondentes à versão desse pacote. Faça commit dos links. Eles acompanham as atualizações,
 e executá-lo novamente captura as skills dos pacotes que você adicionar ou atualizar. No Windows, faça commit dos links somente com o Modo de Desenvolvedor ativado e
-`git config core.symlinks true`; caso contrário, deixe-os sem commit e execute o comando novamente após a instalação. Os plugins do Claude Code, do Cursor e do Codex configuram apps que ainda não têm o Data
+`git config core.symlinks true`; caso contrário, deixe-os sem commit e execute o comando novamente após a instalação.
+As skills de upgrade, como a de migração para a v0.18, não são vinculadas por padrão, já que um app novo não tem nada de onde atualizar. Ao
+atualizar a partir de uma versão mais antiga, execute `npx --no data-client-skills --upgrade` para vinculá-las também e, quando terminar, execute-o novamente sem
+`--upgrade` para removê-las. Os plugins do Claude Code, do Cursor e do Codex configuram apps que ainda não têm o Data
 Client. Se você usa o [TanStack Intent](https://tanstack.com/intent), ele carrega as mesmas skills dos pacotes.
 
 ### Skills disponíveis {#available-skills}

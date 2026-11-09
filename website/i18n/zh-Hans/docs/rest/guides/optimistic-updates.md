@@ -43,15 +43,14 @@ export const timingDemo = [
 
 # 乐观更新
 
-乐观更新通过避免等待网络，实现响应迅速、速度飞快的界面。
-所谓乐观，是指更新时假定网络请求会成功。
+乐观更新会在服务器响应之前就展示变更的结果。它假定请求会成功，因此
+界面无需等待网络。
 
-这样做会放大已有的竞态条件并带来新的竞态条件；幸运的是，Reactive Data Client 会自动
-为你处理它们。
+乐观更新会带来新的竞态条件。Reactive Data Client 会为你处理它们。
 
 ## Resources {#resources}
 
-可以通过设置 [optimistic: true](../api/resource.md#optimistic) 来配置 [resource()](../api/resource.md)。
+要让 [resource()](../api/resource.md) 变成乐观的，请设置 [optimistic: true](../api/resource.md#optimistic)。
 
 <FrameworkPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
@@ -253,7 +252,7 @@ render(<TodoList />);
 
 </FrameworkPlayground>
 
-这会使用一些能处理大多数情况的合理默认实现，让所有变更都变成乐观的。
+这样它的所有变更都会使用以下默认的乐观响应：
 
 ### update/getList.push/getList.unshift {#updategetlistpushgetlistunshift}
 
@@ -276,13 +275,11 @@ function ensureBodyPojo(body: any) {
 }
 ```
 
-对于创建操作（push/unshift），响应中通常没有可用于计算 pk 的 `id`。
-<abbr title="Reactive Data Client">Data Client</abbr> 会创建一个随机的 `pk` 来解决这个问题。
+创建操作（push/unshift）的 body 中通常没有可用于计算 pk 的 `id`。因此
+<abbr title="Reactive Data Client">Data Client</abbr> 会创建一个随机的 `pk`。
 
-在对象真正创建之前，对它进行变更通常是行不通的。
-因此在这种情况下，比较稳妥的做法是在实际的
-`POST` 完成之前禁止进一步的变更。一种判断方法是直接检查
-该 Entity 中是否存在真实的 `id`。
+在服务器创建新对象之前，对它的变更通常会失败。因此在
+`POST` 完成之前，请禁止对它进行其他变更。例如，检查该 Entity 是否有真实的 `id`。
 
 ### partialUpdate {#partialupdate}
 
@@ -301,10 +298,11 @@ function optimisticPartial(schema: Queryable) {
 }
 ```
 
-部分更新不会发送完整的 body，因此我们可以使用 store 中的
-Entity 来计算预期的响应。[Snapshots](/docs/api/Snapshot)
-让我们能够安全地访问 store 中的现有值，并且不受任何
-竞态条件的影响。
+部分更新不会发送完整的 body。预期响应中省略的字段会保留其
+缓存值，因此 Entity 只需要包含它的[主键](../api/Entity.md#pk)和发生变化的字段。
+如果该 Entity 尚不在 store 中，更新会[中止](/docs/api/Snapshot#abort)，而不是展示一个只由变化字段
+组成的 Entity。[Snapshots](/docs/api/Snapshot) 可以安全地读取 store 中的当前值，不会出现竞态
+条件。
 
 ### delete {#delete}
 
@@ -314,29 +312,25 @@ function optimisticDelete(snap: SnapshotInterface, params: any) {
 }
 ```
 
-如果你不希望所有 endpoint 都是乐观的，或者你的 API 设计比较特殊，
-可以通过 [Resource.extend()](../api/resource.md#extend) 设置
-[getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse)
+要只让部分 endpoint 变成乐观的，或者要适配特殊的 API，请通过
+[Resource.extend()](../api/resource.md#extend) 设置
+[getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse)。
 
 ## 乐观变换 {#optimistic-transforms}
 
-有时用户操作引起的数据变换依赖于数据之前的状态。
-最简单的例子是切换一个布尔值或递增一个计数器；但同样的原则也适用于
-更复杂的变换。为了更直观，这里我们使用一个简单的计数器。
+有些更新依赖于之前的值，比如切换一个布尔值或递增一个计数器。这个示例使用
+一个计数器。
 
 <OptimisticTransform />
 
-Reactive Data Client 会自动处理所有由网络时序引起的竞态条件。Reactive Data Client 既会跟踪
-请求的时序，也会将响应与对应的乐观更新配对，并在请求 resolve 或
-reject/失败时回滚。
+Reactive Data Client 会处理由网络时序引起的竞态条件。它会跟踪每次获取开始的时间，将每个
+响应与对应的乐观更新配对，并在请求 resolve 或失败时回滚该更新。
 
-你可以看到，即使没有乐观更新，这对其他库来说也是个问题；
-而乐观更新会让情况更糟。
+即使没有乐观更新，其他库也存在这些竞态条件。乐观更新会让情况更糟。
 
 ### 竞态条件示例 {#example-race-condition}
 
-下面是一个竞态条件的例子。我们请求了两次递增；但第一个响应
-比第二个响应更晚回到客户端。
+这个示例请求了两次递增。第一个响应比第二个更晚到达。
 
 <OptimisticRace />
 
@@ -354,26 +348,26 @@ sequenceDiagram
     Server->>Client: Response timing
 ```
 
-在异步变更中，有三种时序可能发生变化。
+在异步变更中，有三种时序可能发生变化：
 
 1. 请求时序
 1. 服务器时序
 1. 响应时序
 
-Reactive Data Client 能够自动处理网络时序，也就是请求时序和响应时序。通常这
-已经足够，因为服务器往往会先处理先收到的请求。然而，如果服务器中的持久化顺序
-与请求顺序不同，就可能引发另一种竞态条件。
+Reactive Data Client 会为你处理请求时序和响应时序。这通常已经足够，因为服务器通常
+按请求到达的顺序处理它们。如果服务器以不同的顺序保存请求，竞态条件就依然
+存在。
 
-这可以通过维护一个[全序](https://en.wikipedia.org/wiki/Total_order)来解决。由于
-服务器和客户端的时间可能不同，我们需要从一个一致的视角来记录时间。
-既然我们执行的是乐观更新，就必须使用客户端的时钟。也就是说，我们会通过 [getRequestInit()](../api/RestEndpoint.md#getRequestInit) 在 `updatedAt` header 中把请求
-时序发送给服务器。服务器随后应确保按照该顺序进行处理，并
-把这个 `updatedAt` 存储在 Entity 中，以便在任何请求中返回。
+要解决它，请用同一个时钟维护一个[全序](https://en.wikipedia.org/wiki/Total_order)。服务器和客户端的时钟
+可能不同，而乐观更新发生在客户端，因此请使用客户端的时钟：
 
-通过覆盖 [shouldReorder](../api/Entity.md#shouldreorder)，我们可以根据
-服务器时间戳对乱序的响应重新排序。
+1. 通过 [getRequestInit()](../api/RestEndpoint.md#getRequestInit) 在 `updatedAt` header 中发送请求时间。
+1. 服务器按 `updatedAt` 的顺序处理请求，把 `updatedAt` 存储在 Entity 中，并在每个
+   响应中返回它。
+1. 覆盖 [shouldReorder](../api/Entity.md#shouldreorder)，按 `updatedAt` 对乱序的响应重新排序。
 
-我们在 [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) 中使用了 [snap.fetchedAt](/docs/api/Snapshot#fetchedat)。它表示触发获取的时刻，与计算 `updatedAt` header 的时间相同。
+[getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) 使用了 [snap.fetchedAt](/docs/api/Snapshot#fetchedat)。
+它表示获取开始的时刻，与 `updatedAt` header 的时间相同。
 
 <FrameworkPlayground fixtures={[
 {

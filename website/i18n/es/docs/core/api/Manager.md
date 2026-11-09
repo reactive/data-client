@@ -14,7 +14,7 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-Los `Managers` son singletons que manejan efectos secundarios globales. Algo parecido a :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] para el store de datos
+Los `Managers` manejan efectos secundarios globales. Algo parecido a :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] para el store de datos
 central.
 
 Los managers predeterminados orquestan el complejo comportamiento asíncrono que <abbr title="Reactive Data Client">Data Client</abbr>
@@ -36,6 +36,19 @@ interface Manager {
   init?: (state: State<any>) => void;
 }
 ```
+
+## Duraciones {#lifetimes}
+
+Cada store obtiene sus propios Managers. El código de un Manager vive en una de tres duraciones:
+
+| Duración   | Dura                                                              | Contiene                                                                |
+| ---------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Config     | la página                                                         | opciones pasadas al constructor, como una URL o callbacks               |
+| Store      | un store, desde la función [managers](#adding) hasta el desmontaje | campos de instancia sobre el store, como los fetches en curso           |
+| Activa     | de [init()](#init) a [cleanup()](#cleanup)                        | temporizadores, conexiones y listeners                                  |
+
+Por eso un constructor solo guarda sus opciones. :react[React puede construir Managers para un store que luego descarta, así que un
+constructor no debe abrir nada.]
 
 ## Ciclo de vida {#lifecycle}
 
@@ -69,27 +82,42 @@ Para saber más sobre los middlewares, consulta la [documentación de redux](htt
 
 ### init(state) {#init}
 
-Se llama con el estado inicial después de montar el provider. Puede ser útil para ejecutar una preparación inicial
-que depende de que el estado exista realmente.
+Se llama cuando los Managers :react[se inician o se reanudan]:vue[se inician]. Inicia aquí los temporizadores y las conexiones.
 
 ### cleanup() {#cleanup}
 
-Se encarga de limpiar los recursos pendientes cuando el manager deja de usarse.
+Se llama cuando los Managers :react[se pausan o se detienen]:vue[se detienen]. Detén aquí los temporizadores y las conexiones.
+
+:::react
+
+[DataProvider](./DataProvider.md) llama a `init()` y `cleanup()` desde un Effect, así que siguen el
+[ciclo de vida del Effect](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development).
+React StrictMode, y [`<Activity>`](https://react.dev/reference/react/Activity) al ocultar `DataProvider`, pausan los Managers
+con `cleanup()` y los reanudan con `init()` en el mismo store.
+
+Mientras los Managers están en pausa, el store sigue aplicando acciones. Los fetches en curso aún se resuelven, y `middleware` todavía
+los ve. Por lo tanto:
+
+- No restablezcas en `cleanup()` el estado sobre el store, como los fetches en curso.
+- Protege los efectos secundarios que `cleanup()` detuvo, como `this.channel?.postMessage()`.
+
+`init()` recibe el estado actual del store, también al reanudarse.
+
+:::
 
 ## Añadir managers a Reactive Data Client {#adding}
 
 :::react
 
-Usa la prop [managers](../api/DataProvider.md#managers) de [DataProvider](../api/DataProvider.md). Asegúrate
-de declararlos a _nivel de módulo_ o de envolverlos en un _useMemo()_ para que no se vuelvan a crear. Los managers
-tienen estado interno, así que es importante no recrearlos constantemente.
+Pasa una función a la prop [managers](../api/DataProvider.md#managers) de [DataProvider](../api/DataProvider.md). Se
+ejecuta una vez por cada store, así que un `DataProvider` que se vuelve a montar obtiene nuevos Managers.
 
 :::
 
 :::vue
 
-Usa la opción [managers](./DataClientPlugin.md#managers) de [DataClientPlugin](./DataClientPlugin.md). El plugin se
-instala una sola vez por aplicación, así que los managers se crean una sola vez.
+Pasa una función a la opción [managers](./DataClientPlugin.md#managers) de [DataClientPlugin](./DataClientPlugin.md).
+Se ejecuta una vez por cada app.
 
 :::
 
@@ -99,10 +127,12 @@ instala una sola vez por aplicación, así que los managers se crean una sola ve
 import MyManager from './MyManager';
 
 // highlight-next-line
-const managers = [new MyManager(), ...getDefaultManagers()];
+const managers = () => [new MyManager(), ...getDefaultManagers()];
 ```
 
 </ProviderManagers>
+
+Define la función a nivel de módulo: solo contiene configuración.
 
 Las acciones pasan por los managers en el orden del array. Coloca tus managers personalizados antes de los predeterminados: [NetworkManager](./NetworkManager.md)
 resuelve él mismo la mayoría de las acciones FETCH en lugar de pasarlas al siguiente.
@@ -138,19 +168,27 @@ export default class CurrentTime extends Entity {
 ```
 
 ```ts title="TimeManager" framework-imports
-import type { Manager, Middleware } from '@data-client/react';
+import type { Controller, Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
+  declare protected controller: Controller;
   declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
-    this.intervalID = setInterval(() => {
-      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
-    }, 1000);
-
+    this.controller = controller;
     return next => async action => next(action);
   };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(
+        CurrentTime,
+        { id: 1 },
+        { id: 1, time: Date.now() },
+      );
+    }, 1000);
+  }
 
   cleanup() {
     clearInterval(this.intervalID);

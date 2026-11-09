@@ -9,7 +9,9 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # getDefaultManagers()
 
-`getDefaultManagers` retorna um Array de [Managers](./Manager.md) para ser enviado ao :react[[&lt;DataProvider />](./DataProvider.md)]:vue[[DataClientPlugin](./DataClientPlugin.md)].
+`getDefaultManagers` retorna novas instâncias dos [Managers](./Manager.md) padrão. Chame-a na função
+:react[[managers](./DataProvider.md#managers)]:vue[[managers](./DataClientPlugin.md#managers)], para que cada store
+receba as suas.
 
 Isso facilita configurar e adicionar [Managers](./Manager.md) personalizados, mantendo a robustez diante de
 possíveis mudanças nos managers padrão.
@@ -24,7 +26,7 @@ Atualmente retorna \[[DevToolsManager](./DevToolsManager.md)\*, [NetworkManager]
 
 ```ts
 // highlight-start
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
@@ -85,7 +87,7 @@ Uma classe que implementa `SubscriptionConstructable`, como [PollingSubscription
 Por exemplo, podemos ativar a opção [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) para ajudar a descobrir de onde as actions são despachadas. Ela tem um grande impacto no desempenho, por isso normalmente fica desativada.
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
@@ -100,7 +102,7 @@ Enviar instâncias de managers nos permite personalizá-los por meio de herança
 ```ts
 import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   networkManager: new IdlingNetworkManager(),
 });
 ```
@@ -126,7 +128,7 @@ class LoggingNetworkManager extends NetworkManager {
   }
 }
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   networkManager: new LoggingNetworkManager(),
 });
 ```
@@ -138,7 +140,7 @@ const managers = getDefaultManagers({
 Usar `null` remove os managers por completo. O [NetworkManager](./NetworkManager.md) não pode ser removido dessa forma.
 
 ```ts
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   devToolsManager: null,
   subscriptionManager: null,
 });

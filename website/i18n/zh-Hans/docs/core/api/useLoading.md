@@ -190,10 +190,11 @@ export default function useLoading<
 >(func: F): [F, Ref<boolean>, Ref<Error | undefined>];
 ```
 
-在返回的 promise 处于 pending 状态时，`loading` 为 `true`。如果 `func` reject，
-该 rejection 会被捕获并存入 `error`；下次调用时会再次被清除。
-
 :::
+
+在返回的 promise 处于 pending 状态时，`loading` 为 `true`。如果 `func` reject，
+该 rejection 会被捕获并存入 `error`；下次调用时会再次被清除。当调用相互重叠时，`loading` 和
+`error` 跟随最近一次调用，因此较早发起但较晚完成的调用不会改变它们。
 
 ## 示例 {#examples}
 

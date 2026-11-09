@@ -13,6 +13,7 @@ vue_description: 异步渲染由远端触发的数据变更。将 useSuspense() 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
@@ -125,6 +126,9 @@ useLive() 还会分别在获得焦点/失去焦点时订阅/取消订阅。
 
 :::
 
+在隐藏的 [`<Activity>`](https://react.dev/reference/react/Activity) 中，`useLive()` 会取消订阅。显示时
+会重新订阅。[示例](#pause-hidden-tabs)
+
 ::::
 
 ## 类型 {#types}
@@ -188,5 +192,115 @@ function useLive(
 :::react
 
 <StackBlitz app="nextjs" file="resources/Ticker.ts,components/AssetPrice.tsx" initialpath="/crypto" view="both" />
+
+:::
+
+:::react
+
+### 暂停隐藏的标签页 {#pause-hidden-tabs}
+
+让标签页在 [`<Activity>`](https://react.dev/reference/react/Activity) 中保持挂载。只有显示的标签页会轮询。
+
+<HooksPlayground row>
+
+```typescript title="Ticker" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+
+  static schema = { price: Number };
+}
+
+export const getTicker = new RestEndpoint({
+  urlPrefix: 'https://api.exchange.coinbase.com',
+  path: '/products/:productId/ticker',
+  schema: Ticker,
+  process(value, { productId }) {
+    value.product_id = productId;
+    return value;
+  },
+  pollFrequency: 2000,
+});
+```
+
+```tsx title="AssetPrice" collapsed
+import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { getTicker } from './Ticker';
+
+export default function AssetPrice({ productId }: Props) {
+  const ticker = useLive(getTicker, { productId });
+  return (
+    <dl className="stats">
+      <div>
+        <dt>{productId}</dt>
+        <dd>
+          <NumberFlow
+            value={ticker.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </dd>
+      </div>
+    </dl>
+  );
+}
+interface Props {
+  productId: string;
+}
+```
+
+```tsx title="Markets" {25-30}
+import React from 'react';
+import AssetPrice from './AssetPrice';
+
+const products = ['BTC-USD', 'ETH-USD', 'SOL-USD'];
+
+function Markets() {
+  const [shown, setShown] = React.useState(products[0]);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Markets</h1>
+        <div className="segmented" role="group" aria-label="Product">
+          {products.map(productId => (
+            <button
+              key={productId}
+              aria-pressed={productId === shown}
+              onClick={() => setShown(productId)}
+            >
+              {productId.split('-')[0]}
+            </button>
+          ))}
+        </div>
+      </header>
+      {products.map(productId => (
+        <React.Activity
+          key={productId}
+          mode={productId === shown ? 'visible' : 'hidden'}
+        >
+          <AssetPrice productId={productId} />
+        </React.Activity>
+      ))}
+    </>
+  );
+}
+render(<Markets />);
+```
+
+</HooksPlayground>
+
+隐藏的标签页会保留其状态，但它的 Effect 会停止。如果没有其他组件订阅它的价格，轮询就会停止。显示时，
+轮询会恢复。如果上次获取早于 [pollFrequency](/rest/api/RestEndpoint#pollfrequency)，
+会立即获取。
+
+隐藏的标签页仍会渲染，因此每个标签页都会在显示之前获取其价格。切换标签页时，价格会直接显示，不会出现加载
+状态。
 
 :::

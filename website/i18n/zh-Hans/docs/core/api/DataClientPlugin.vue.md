@@ -35,16 +35,17 @@ app.use(DataClientPlugin, options);
 
 ```typescript
 interface ProvideOptions {
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
 }
 ```
 
-### managers?: Manager[] {#managers}
+### managers?: () => Manager[] {#managers}
 
-要使用的 [Manager](./Manager.md) 列表。这是 store 的主要扩展点。
+一个返回要使用的 [Manager](./Manager.md) 的函数。这是 store 的主要扩展点。
+每个 app 只运行一次。
 
 默认为 [getDefaultManagers()](./getDefaultManagers.md)，它也可以用来扩展默认值。
 
@@ -56,7 +57,7 @@ import MyManager from './MyManager';
 
 const app = createApp(App);
 app.use(DataClientPlugin, {
-  managers: [new MyManager(), ...getDefaultManagers()],
+  managers: () => [new MyManager(), ...getDefaultManagers()],
 });
 ```
 

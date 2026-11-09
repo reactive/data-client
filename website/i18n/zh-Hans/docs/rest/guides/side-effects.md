@@ -2,12 +2,9 @@
 title: 变更的副作用
 ---
 
-当变更会更新多个资源时，你可能会想直接
-[让其他所有资源过期](/docs/api/Controller#expireAll)。
-
-然而，只要在变更的响应中打包_所有_被更新的资源，
-我们仍然可以实现高性能的原子变更，
-并避免这种缓慢的网络级联请求。
+当一次变更修改了多个资源时，不要[让其他资源过期](/docs/api/Controller#expireAll)。
+让它们过期会引发缓慢的级联重新获取。相反，应在变更的响应中包含_所有_被修改的资源。
+这样变更依然是原子的，并且只需要一次请求。
 
 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '15px'}}>
 
@@ -48,11 +45,8 @@ sequenceDiagram
 
 ## 示例 {#example}
 
-假设你在运营一个名为 `dogebase` 的加密货币交易平台。每当
-用户创建一笔交易时，你都需要更新其账户对象中的
-一些余额信息。因此在向 `/trade/` endpoint 发送 `POST` 请求时，
-响应中会同时嵌套更新后的账户对象和刚刚创建的
-交易。
+一个加密货币交易平台在每笔交易时都会更新用户的账户余额。因此 `POST /trade/` 会返回新的
+交易和更新后的账户。
 
 ```json title="POST /trade/"
 {
@@ -72,8 +66,7 @@ sequenceDiagram
 }
 ```
 
-要处理这种情况，只需更新 `schema`，让它包含这个自定义
-endpoint。
+把账户添加到 endpoint 的 `schema` 中。
 
 ```typescript title="resources/Trade.ts"
 import { resource, Entity } from '@data-client/rest';
@@ -91,7 +84,7 @@ export const TradeResource = resource({
   path: '/trade/:id',
   schema: Trade,
 }).extend(Base => ({
-  create: Base.getList.push.extend({
+  createTrade: Base.getList.push.extend({
     schema: {
       trade: Base.getList.push.schema,
       account: Account,
@@ -100,9 +93,8 @@ export const TradeResource = resource({
 }));
 ```
 
-现在，当我们使用 [getList.push](../api/resource.md#push) Endpoint 生成方法时，
-可以放心：`POST` 请求完成后，交易和账户信息都会
-在缓存中得到更新。
+`createTrade` 扩展自 [getList.push](../api/resource.md#push)。`POST` 完成后，store 会同时更新新的
+交易和账户。
 
 :::react
 
@@ -110,7 +102,7 @@ export const TradeResource = resource({
 export default function CreateTrade() {
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 }
 ```
@@ -126,7 +118,7 @@ export default function CreateTrade() {
 
   const ctrl = useController();
   const handleSubmit = payload =>
-    ctrl.fetch(TradeResource.create, payload);
+    ctrl.fetch(TradeResource.createTrade, {}, payload);
   //...
 </script>
 ```
@@ -135,8 +127,7 @@ export default function CreateTrade() {
 
 :::note
 
-你可以为任何自定义 endpoint 随意创建全新的 [RestEndpoint](../api/RestEndpoint.md) 方法。
-endpoint 会告诉 `Reactive Data Client` 如何处理任意
-请求。
+为任何自定义 endpoint 定义一个新的 [RestEndpoint](../api/RestEndpoint.md)。它的 `schema` 会告诉 Data Client 如何
+存储响应。
 
 :::

@@ -40,7 +40,10 @@ npx --no data-client-skills
 **Installed packages** 标签页会把每个已安装的 `@data-client/*` 包附带的 skill 链接到 `.agents/skills`
 （`.claude/skills` 链接到它），Claude Code、Cursor 和 Codex 会从那里加载它们，并与该包的版本相匹配。请提交这些链接。它们会随升级更新，
 再次运行该命令会获取你新增或升级的包中的 skill。在 Windows 上，只有开启了开发者模式并设置了
-`git config core.symlinks true` 时才提交这些链接；否则不要提交它们，并在安装后重新运行该命令。Claude Code、Cursor 和 Codex 插件用于设置尚未使用 Data
+`git config core.symlinks true` 时才提交这些链接；否则不要提交它们，并在安装后重新运行该命令。
+升级 skill（比如 v0.18 迁移）默认不会被链接，因为新应用没有可以升级的旧版本。当
+从旧版本升级时，运行 `npx --no data-client-skills --upgrade` 把它们也链接进来，完成后再不带
+`--upgrade` 运行一次以移除它们。Claude Code、Cursor 和 Codex 插件用于设置尚未使用 Data
 Client 的应用。如果你使用 [TanStack Intent](https://tanstack.com/intent)，它会加载相同的包 skill。
 
 ### 可用的 skill {#available-skills}
