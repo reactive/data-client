@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 
-import { escapes, posix, readJSON } from './node-modules.mjs';
+import { ancestors, escapes, posix, readJSON } from './node-modules.mjs';
 
 /**
  * A package in Yarn's zip cache: the archive, then the package's path inside
@@ -45,13 +45,11 @@ export function pnpPackages(projectDir, names, extractTo) {
 
 /** The nearest directory with a PnP install map, the project's Yarn root */
 function pnpRoot(dir) {
-  for (let up = dir; ; up = path.dirname(up)) {
+  for (const up of ancestors(dir))
     if (
       ['.pnp.data.json', '.pnp.cjs'].some(f => fs.existsSync(path.join(up, f)))
     )
       return up;
-    if (up === path.dirname(up)) return undefined;
-  }
 }
 
 /**

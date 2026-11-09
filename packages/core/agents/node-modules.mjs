@@ -13,11 +13,10 @@ import path from 'node:path';
  */
 export function nodeModulesPackages(projectDir, names) {
   // nested workspace roots list their own workspaces
-  const workspaces = [projectDir];
+  const workspaces = new Set([projectDir]);
   for (const dir of workspaces)
-    for (const found of workspaceDirs(dir))
-      if (!workspaces.includes(found)) workspaces.push(found);
-  const roots = workspaces.flatMap(dir => [dir, ...declaredPackages(dir)]);
+    for (const found of workspaceDirs(dir)) workspaces.add(found);
+  const roots = [...workspaces].flatMap(dir => [dir, ...declaredPackages(dir)]);
   // Keyed by real directory, so each version a workspace installs is listed,
   // through the path that workspace sees it at
   const found = new Map();
@@ -52,16 +51,22 @@ function declaredPackages(dir) {
 }
 
 /**
- * The nearest parent of `dir` whose workspaces include it, up to the
- * repository root if there is one; undefined outside a workspace package
+ * The outermost parent of `dir` whose workspaces include it, or include a
+ * nested workspace root that does, up to the repository root if there is
+ * one; undefined outside a workspace package
  */
 export function workspaceRoot(dir, repo = repoRoot(dir)) {
   if (repo === dir) return;
-  const target = realpath(dir);
+  let root;
+  let target = realpath(dir);
   for (const parent of ancestors(path.dirname(dir))) {
-    if (declaresWorkspace(parent, target)) return parent;
-    if (parent === repo) return;
+    if (declaresWorkspace(parent, target)) {
+      root = parent;
+      target = realpath(parent);
+    }
+    if (parent === repo) break;
   }
+  return root;
 }
 
 /** The folder holding `dir`'s git repository, or undefined outside one */
@@ -73,7 +78,7 @@ export function repoRoot(dir) {
 }
 
 /** `dir`, then each folder above it up to the filesystem root */
-function* ancestors(dir) {
+export function* ancestors(dir) {
   for (let parent = dir; ; parent = path.dirname(parent)) {
     yield parent;
     if (path.dirname(parent) === parent) return;

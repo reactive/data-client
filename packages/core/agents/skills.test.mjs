@@ -705,6 +705,16 @@ test('run in a workspace package, it removes package links whose package is gone
   assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
 });
 
+test('workspaceRoot climbs to the outermost of nested workspace roots', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['packages/*'] },
+    'packages/suite/package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0', 'packages/suite/apps'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'packages/suite/apps/web')), dir);
+});
+
 test('run in a workspace package, it keeps package links the root does not hold', t => {
   const dir = project({
     '.git/HEAD': 'ref',
