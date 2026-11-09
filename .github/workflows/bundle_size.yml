@@ -64,6 +64,8 @@ jobs:
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         build-script: "ci:build:bundlesize"
+        # report what apps should ship
+        compression: brotli
         pattern: "examples/test-bundlesize/dist/**/*.{js,json}"
         exclude: "{examples/test-bundlesize/dist/manifest.json,**/*.LICENSE.txt,**/*.map,**/node_modules/**}"
         minimum-change-threshold: 8

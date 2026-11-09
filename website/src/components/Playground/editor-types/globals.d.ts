@@ -422,6 +422,8 @@ interface EndpointOptions<F extends FetchFunction = FetchFunction, S extends Sch
     key?: (...args: Parameters<F>) => string;
     sideEffect?: M;
     schema?: S;
+    /** @see https://dataclient.io/rest/api/Endpoint#signal */
+    signal?: AbortSignal | undefined;
     [k: string]: any;
 }
 interface EndpointExtendOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointOptions<F, S, M> {
@@ -472,6 +474,10 @@ interface EndpointInstanceInterface<F extends FetchFunction = FetchFunction, S e
     key(...args: Parameters<F>): string;
     readonly sideEffect: M;
     readonly schema: S;
+    /** Cancels the fetch: read it as `this.signal`, set it with `extend({ signal })`
+     * @see https://dataclient.io/rest/api/Endpoint#signal
+     */
+    readonly signal?: AbortSignal | undefined;
     fetch: F;
     /** @see https://dataclient.io/rest/api/Endpoint#testKey */
     testKey(key: string): boolean;

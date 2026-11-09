@@ -11,13 +11,12 @@ import { assigneeFixtures, getInitialInterceptorData } from '@site/src/fixtures/
 
 # Datos relacionales
 
-Reactive Data Client maneja relaciones uno a uno, muchos a uno y muchos a muchos entre [entities][1]
-mediante [Entity.schema][3]
+Declara las relaciones uno a uno, muchos a uno y muchos a muchos entre [entities][1] en [Entity.schema][3].
 
 ## Anidamiento {#nesting}
 
-Los miembros anidados se elevan durante la normalización cuando se define [Entity.schema][3].
-Luego se vuelven a unir durante la desnormalización
+Cuando una Entity define [Entity.schema][3], la normalización almacena cada entity anidada por separado. La desnormalización
+las vuelve a unir.
 
 <details>
 <summary><b>Diagrama</b></summary>
@@ -212,8 +211,8 @@ render(<PostPage />);
 
 Anidar datos cuando tu endpoint no lo hace.
 
-Aunque las respuestas de red no anidan los datos, podemos realizar joins del lado del cliente especificando
-la relación en [Entity.schema](../api/Entity.md#schema).
+Cuando una respuesta no anida los datos relacionados, declara la relación en [Entity.schema](../api/Entity.md#schema).
+Data Client realiza entonces el join de los datos en el cliente.
 
 Aquí `/todos` solo envía el `userId` de cada todo. [Entity.process()](../api/Entity.md#process) apunta
 `user` a ese id, de modo que cada todo de la lista lleva su `User` completo desde `/users`. Un componente
@@ -493,12 +492,12 @@ render(<TodoList />);
 
 ### Joins basados en claves {#key-based-joins}
 
-Para escenarios más complejos donde las entities relacionadas se obtienen por separado, usa [Entity.process()](/rest/api/Entity#process)
-para crear una clave de referencia que enlace con otra Entity. Esto es útil cuando:
+Cuando las entities relacionadas provienen de fetches separados, usa [Entity.process()](/rest/api/Entity#process) para añadir una clave que
+haga referencia a la otra Entity. Úsalo cuando:
 
-- Los datos relacionados provienen de distintos endpoints de la API
-- Quieres evitar obtener datos anidados en exceso
-- La relación es opcional o varía según el contexto
+- Los datos relacionados provienen de distintos endpoints de la API.
+- No quieres obtener datos anidados que no necesitas.
+- La relación es opcional o depende del contexto.
 
 ```typescript
 import { Entity, resource } from '@data-client/rest';
@@ -540,15 +539,13 @@ class Currency extends Entity {
 }
 ```
 
-Cuando se obtienen tanto `CurrencyResource.getList` como `StatsResource.getList`, el campo `stats`
-se resolverá automáticamente a la entity `Stats` correspondiente.
+Después de que se resuelvan tanto `CurrencyResource.getList` como `StatsResource.getList`, `stats` es la entity `Stats` correspondiente.
 
 ### Ejemplo de precios de criptomonedas {#crypto-price-example}
 
-Aquí queremos ordenar las `Currencies` por su volumen de operaciones. Sin embargo, el volumen de operaciones solo está disponible en la Entity
-`Stats`. Aunque el fetch de `CurrencyResource.getList` no incluye `Stats` en la respuesta, podemos llamar además
-a `StatsResource.getList` y agregarlo al [Entity.schema](../api/Entity.md#schema) de `Currency's`, lo que permite
-incluir `Stats` en nuestra Entity `Currency`, y eso habilita el ordenamiento con:
+Esta lista ordena las `Currencies` por volumen de operaciones. Solo la Entity `Stats` tiene el volumen de operaciones, y la
+respuesta de `CurrencyResource.getList` no lo incluye. Por eso la página también hace fetch de `StatsResource.getList`, y el
+[Entity.schema](../api/Entity.md#schema) de `Currency` añade `Stats` a cada `Currency`. La lista puede entonces ordenar con:
 
 ```ts
 entries.sort((a, b) => {
@@ -562,12 +559,11 @@ entries.sort((a, b) => {
 
 Anidar datos cuando tu endpoint no lo hace (parte 2).
 
-Aunque una respuesta solo anide en una dirección, Reactive Data Client puede manejar las relaciones inversas
-sobrescribiendo [Entity.process](../api/Entity.md#process). Además, puede ser necesario sobrescribir [Entity.merge](../api/Entity.md#merge)
-para garantizar la combinación profunda de esos campos esperados.
+Una respuesta puede anidar en una sola dirección. Para añadir la relación inversa, sobrescribe
+[Entity.process](../api/Entity.md#process). Quizás también debas sobrescribir [Entity.merge](../api/Entity.md#merge) para
+combinar en profundidad esos campos.
 
-Esto te permite recorrer la relación después de procesar una sola solicitud de fetch, en lugar de tener que hacer un fetch
-cada vez que quieras acceder a una vista distinta.
+Así, un solo fetch da todas las vistas de la relación, sin un fetch por vista.
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -851,8 +847,8 @@ export default function PostPage() {
 
 ### Dependencias circulares {#circular-dependencies}
 
-Como no se permiten las importaciones circulares ni las definiciones circulares de clases, a veces
-será necesario definir el [schema][3] después de la definición de las [Entities][1].
+JavaScript no permite importaciones circulares ni definiciones circulares de clases. Por eso, en las [Entities][1] que se referencian
+entre sí, define el [schema][3] después de las definiciones de las clases.
 
 ```typescript title="resources/Post"
 import { Collection, Entity } from '@data-client/rest';

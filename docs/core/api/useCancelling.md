@@ -27,6 +27,11 @@ which means you might end up canceling a fetch that another component still care
 
 :::
 
+It can't abort the first fetch of a component that hasn't rendered yet: React keeps no state for a
+component that suspends before it mounts. Once the component has shown data, each params change
+aborts the previous fetch it started. A custom [Endpoint](/rest/api/Endpoint#members-not-args) must pass
+`this.signal` on to its request.
+
 ## Cancel vs Debounce
 
 Use `useCancelling()` when the user stops on each value, like a list they arrow through. It fetches at

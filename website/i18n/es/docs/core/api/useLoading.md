@@ -190,10 +190,11 @@ export default function useLoading<
 >(func: F): [F, Ref<boolean>, Ref<Error | undefined>];
 ```
 
-`loading` es `true` mientras la promesa devuelta está pendiente. Si `func` es rechazada, el rechazo se
-captura y se guarda en `error`; se limpia de nuevo en la siguiente llamada.
-
 :::
+
+`loading` es `true` mientras la promesa devuelta está pendiente. Si `func` es rechazada, el rechazo se
+captura y se guarda en `error`; se limpia de nuevo en la siguiente llamada. Cuando las llamadas se solapan, `loading` y
+`error` siguen a la última llamada, así que una llamada anterior que termina después no los modifica.
 
 ## Ejemplos {#examples}
 

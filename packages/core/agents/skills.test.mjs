@@ -8,6 +8,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import zlib from 'node:zlib';
 
+import { workspaceRoot } from './node-modules.mjs';
 import { main, PACKAGES, syncSkills } from './skills.mjs';
 
 /** Writes `files` (path -> JSON object or text) under a new project dir */
@@ -75,16 +76,24 @@ function zip(files, method) {
   return Buffer.concat([...locals, directory, end]);
 }
 
-/** A Yarn PnP project: .pnp.cjs inlines the install map as Yarn writes it */
-function pnpProject(packages, files = {}) {
+/**
+ * A Yarn PnP project: .pnp.cjs inlines the install map as Yarn writes it.
+ * `registry` adds raw packageRegistryData entries; `dependencies` are the
+ * root's.
+ */
+function pnpProject(packages, files = {}, registry = [], dependencies = []) {
   const sentinel = 'pnp-ran';
   const state = {
     packageRegistryData: [
-      [null, [[null, { packageLocation: './' }]]],
+      [
+        null,
+        [[null, { packageLocation: './', packageDependencies: dependencies }]],
+      ],
       ...packages.map(([name, location]) => [
         name,
         [['npm:0.19.0', { packageLocation: location }]],
       ]),
+      ...registry,
     ],
   };
   const literal = JSON.stringify(state, null, 2)
@@ -630,16 +639,401 @@ test('pnpm workspaces, with comments, flow lists and CRLF', () => {
 });
 
 /** A workspace app at apps/<name> installing @data-client/react@version */
-const app = (name, version) => ({
-  [`apps/${name}/package.json`]: {
+const app = (name, version, base = 'apps') => ({
+  [`${base}/${name}/package.json`]: {
     dependencies: { '@data-client/react': version },
   },
   ...pkg(
-    `apps/${name}/node_modules/@data-client/react`,
+    `${base}/${name}/node_modules/@data-client/react`,
     '@data-client/react',
     version,
     ['data-client-react'],
   ),
+});
+
+test('workspaceRoot finds the root whose workspaces include a package', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'tools/package.json': { name: 'tools' },
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+  assert.equal(workspaceRoot(path.join(dir, 'tools')), undefined);
+  assert.equal(workspaceRoot(dir), undefined);
+});
+
+test('workspaceRoot stops at the repository root', () => {
+  const dir = project({
+    'package.json': { workspaces: ['repo/apps/*'] },
+    'repo/.git': 'gitdir: elsewhere',
+    ...app('web', '0.19.0', 'repo/apps'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'repo/apps/web')), undefined);
+});
+
+test('workspaceRoot works before git init, and skips manifests it cannot parse', () => {
+  const dir = project({
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+  write(dir, { '.git/HEAD': 'ref', 'apps/package.json': '// JSONC' });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+});
+
+test("run at a nested workspace root, it links its packages' skills at the outer root", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['packages/*'] },
+    'packages/suite/package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0', 'packages/suite/apps'),
+  });
+  run(t, path.join(dir, 'packages/suite'));
+  assert.ok(links(dir)['data-client-react']);
+});
+
+test('run in a workspace package, it removes package links whose package is gone', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+  });
+  const web = path.join(dir, 'apps/web');
+  fs.mkdirSync(path.join(web, '.agents/skills'), { recursive: true });
+  fs.symlinkSync(
+    '../../node_modules/@data-client/rest/skills/data-client-rest',
+    path.join(web, '.agents/skills/data-client-rest'),
+  );
+  assert.ok(run(t, web).includes('Removed data-client-rest from this package'));
+  assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
+});
+
+test('run in a workspace package with no Data Client left, it removes the links an earlier run left there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    'apps/web/package.json': {},
+  });
+  const web = path.join(dir, 'apps/web');
+  fs.mkdirSync(path.join(web, '.agents/skills'), { recursive: true });
+  fs.symlinkSync(
+    '../../node_modules/@data-client/react/skills/data-client-react',
+    path.join(web, '.agents/skills/data-client-react'),
+  );
+  assert.ok(
+    run(t, web).includes('Removed data-client-react from this package'),
+  );
+  assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
+});
+
+test('workspaceRoot climbs to the outermost of nested workspace roots', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['packages/*'] },
+    'packages/suite/package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0', 'packages/suite/apps'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'packages/suite/apps/web')), dir);
+});
+
+test('workspaceRoot keeps the outer root that includes the package directly', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['packages/*/apps/*'] },
+    'packages/suite/package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0', 'packages/suite/apps'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'packages/suite/apps/web')), dir);
+});
+
+test('workspaceRoot expands brace groups in workspace patterns', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['{apps,packages}/*'] },
+    ...app('web', '0.19.0'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+});
+
+test('run in a workspace package without --upgrade, it removes the upgrade skills an earlier run linked there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    ...pkg(
+      'apps/web/node_modules/@data-client/rest',
+      '@data-client/rest',
+      '0.19.0',
+      ['data-client-rest', 'path-to-regexp-v8-migration'],
+    ),
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web, { upgrade: true });
+  const output = run(t, web);
+  assert.deepEqual(fs.readdirSync(path.join(web, '.agents/skills')), []);
+  assert.ok(
+    output.includes(
+      'Removed data-client-react, data-client-rest from this package; the workspace root has them',
+    ),
+  );
+  assert.ok(
+    output.includes('Removed path-to-regexp-v8-migration from this package'),
+  );
+});
+
+test('run in workspace packages installing different versions, each loads its own', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('alpha', '0.19.0'),
+    ...app('beta', '0.19.1'),
+  });
+  // the package's own link, or else the root's
+  const loaded = folder => {
+    const own = path.join(folder, '.agents/skills/data-client-react');
+    return fs.realpathSync(
+      fs.existsSync(own) ? own : (
+        path.join(dir, '.agents/skills/data-client-react')
+      ),
+    );
+  };
+  for (const name of ['beta', 'alpha', 'beta']) {
+    const folder = path.join(dir, 'apps', name);
+    run(t, folder);
+    assert.equal(
+      loaded(folder),
+      fs.realpathSync(
+        path.join(
+          folder,
+          'node_modules/@data-client/react/skills/data-client-react',
+        ),
+      ),
+    );
+  }
+});
+
+for (const [version, own] of [
+  ['0.19.1', '../../node_modules/@data-client/react/skills/data-client-react'],
+  ['0.19.0', undefined],
+]) {
+  test(`run in a workspace package installing ${version} where the root installs 0.19.0, it links ${own ? 'its own' : 'nothing'} there`, t => {
+    const dir = project({
+      '.git/HEAD': 'ref',
+      'package.json': {
+        workspaces: ['apps/*'],
+        dependencies: { '@data-client/react': '0.19.0' },
+      },
+      ...pkg(
+        'node_modules/@data-client/react',
+        '@data-client/react',
+        '0.19.0',
+        ['data-client-react'],
+      ),
+      ...app('beta', version),
+    });
+    const beta = path.join(dir, 'apps/beta');
+    // an earlier run linked beta's own version there
+    syncSkills(beta);
+    run(t, beta);
+    assert.equal(
+      links(dir)['data-client-react'],
+      '../../node_modules/@data-client/react/skills/data-client-react',
+    );
+    const link = path.join(beta, '.agents/skills/data-client-react');
+    assert.equal(fs.existsSync(link) ? fs.readlinkSync(link) : undefined, own);
+  });
+}
+
+test('run in a workspace package, it removes a copy an earlier run left at another version', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.1'),
+    'apps/web/.agents/skills/data-client-react/SKILL.md': 'old skill',
+    'apps/web/.agents/skills/data-client-react/.data-client':
+      '@data-client/react@0.19.0',
+  });
+  const web = path.join(dir, 'apps/web');
+  assert.ok(
+    run(t, web).includes(
+      'Removed data-client-react from this package; the workspace root has them',
+    ),
+  );
+  assert.deepEqual(fs.readdirSync(path.join(web, '.agents/skills')), []);
+  assert.ok(links(dir)['data-client-react']);
+});
+
+test("run in a workspace package that doesn't install a skill, it reports its own copy shadowing the root's", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'apps/docs/package.json': { name: 'docs' },
+    'apps/docs/.agents/skills/data-client-react/SKILL.md': 'skills CLI copy',
+  });
+  assert.ok(
+    run(t, path.join(dir, 'apps/docs')).includes(
+      'Kept .agents/skills/data-client-react (not a link data-client-skills made); delete it to get the installed version',
+    ),
+  );
+});
+
+test("run in a workspace package, it keeps its links when an entry of the user's blocks the root's", t => {
+  for (const [rootFiles, folder] of [
+    [
+      { '.agents/skills/data-client-react': 'link checked out as a file' },
+      '.agents',
+    ],
+    [
+      {
+        '.agents/skills/mine/SKILL.md': 'my own skill',
+        '.claude/skills/data-client-react': 'link checked out as a file',
+      },
+      '.claude',
+    ],
+    [{ '.claude/skills': '../.agents/skills' }, '.claude'],
+  ]) {
+    const dir = project({
+      '.git/HEAD': 'ref',
+      'package.json': { workspaces: ['apps/*'] },
+      ...app('web', '0.19.0'),
+      ...rootFiles,
+    });
+    const web = path.join(dir, 'apps/web');
+    syncSkills(web);
+    run(t, web);
+    assert.ok(
+      fs.existsSync(
+        path.join(web, folder, 'skills/data-client-react/SKILL.md'),
+      ),
+      JSON.stringify(rootFiles),
+    );
+  }
+});
+
+test("links skills in the package when the workspace root's .agents/skills link checked out as a file", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    '.agents/skills': '../custom',
+  });
+  const web = path.join(dir, 'apps/web');
+  run(t, web);
+  assert.ok(links(web)['data-client-react']);
+});
+
+/** Runs main() from `cwd`, returning what it logged */
+function run(t, cwd) {
+  const log = t.mock.method(console, 'log', () => {});
+  main(cwd, []);
+  return log.mock.calls.map(call => call.arguments[0]);
+}
+
+test('run in a workspace package, it links at the workspace root', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+  });
+  const output = run(t, path.join(dir, 'apps/web'));
+  assert.equal(
+    links(dir)['data-client-react'],
+    '../../apps/web/node_modules/@data-client/react/skills/data-client-react',
+  );
+  assert.ok(!fs.existsSync(path.join(dir, 'apps/web/.agents')));
+  assert.deepEqual(output, [
+    'Added data-client-react',
+    'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
+  ]);
+});
+
+test('run in a workspace package, it removes the skills an earlier run linked there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'apps/web/.agents/skills/mine/SKILL.md': 'my own skill',
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web);
+  const output = run(t, web);
+  assert.ok(
+    output.includes(
+      'Removed data-client-react from this package; the workspace root has them',
+    ),
+  );
+  assert.deepEqual(fs.readdirSync(path.join(web, '.agents/skills')), ['mine']);
+  assert.ok(links(dir)['data-client-react']);
+});
+
+test("run in a workspace package, it reports the package's own copy of a skill the root links", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'apps/web/.agents/skills/data-client-react/SKILL.md': 'skills CLI copy',
+    'apps/web/.agents/skills/mine/SKILL.md': 'my own skill',
+    '.agents/skills/mine/SKILL.md': 'my own skill at the root',
+  });
+  const web = path.join(dir, 'apps/web');
+  assert.deepEqual(run(t, web), [
+    'Added data-client-react',
+    'Kept .agents/skills/data-client-react (not a link data-client-skills made); delete it to get the installed version',
+    'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
+  ]);
+  assert.ok(
+    fs.existsSync(path.join(web, '.agents/skills/data-client-react/SKILL.md')),
+  );
+});
+
+test("links skills in the package when the workspace root can't take them", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    'custom/mine/SKILL.md': 'my own skill',
+  });
+  fs.mkdirSync(path.join(dir, '.agents'));
+  fs.symlinkSync(
+    path.join(dir, 'custom'),
+    path.join(dir, '.agents/skills'),
+    'junction',
+  );
+  const web = path.join(dir, 'apps/web');
+  const output = run(t, web);
+  assert.ok(links(web)['data-client-react']);
+  assert.deepEqual(output, [
+    'Added data-client-react',
+    "The workspace root's skill folders are links data-client-skills doesn't manage, so this package holds the skills; remove those links to have them at the root",
+    'Claude Code and Cursor started at the repository root load apps/web/.agents/skills only once they work on files in apps/web; start your agent in apps/web to have them from the start.',
+  ]);
+});
+
+test('run in a workspace below the repository root, it says to start the agent there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'web/package.json': { workspaces: ['apps/*'] },
+    ...app('site', '0.19.0', 'web/apps'),
+  });
+  const output = run(t, path.join(dir, 'web/apps/site'));
+  assert.ok(links(path.join(dir, 'web'))['data-client-react']);
+  assert.deepEqual(output.slice(-2), [
+    'Synced ../../.agents/skills at the workspace root, which covers every workspace package',
+    'Claude Code and Cursor started at the repository root load web/.agents/skills only once they work on files in web; start your agent in web to have them from the start.',
+  ]);
+});
+
+test('run in an app below the repository root, it says where agents load the skills', t => {
+  const dir = project({ '.git/HEAD': 'ref', ...app('web', '0.19.0') });
+  const output = run(t, path.join(dir, 'apps/web'));
+  assert.ok(links(path.join(dir, 'apps/web'))['data-client-react']);
+  assert.match(
+    output.at(-1),
+    /load apps\/web\/\.agents\/skills only once they work on files in apps\/web; start your agent in apps\/web/,
+  );
+  assert.equal(run(t, dir).length, 1);
 });
 
 test('workspace exclusions skip their packages', () => {
@@ -791,6 +1185,88 @@ test('Yarn PnP copies are replaced on upgrade and removed with the package', () 
   assert.equal(skillText(dir, 'data-client-react'), 'new');
   fs.rmSync(path.join(dir, '.pnp.cjs'));
   assert.deepEqual(syncSkills(dir).removed, ['data-client-react']);
+});
+
+test('Yarn PnP in a workspace package, it copies the version that package resolves', t => {
+  const react = version =>
+    `.yarn/unplugged/react-${version}/node_modules/@data-client/react`;
+  const workspace = (name, version) => [
+    name,
+    [
+      [
+        `workspace:apps/${name}`,
+        {
+          packageLocation: `./apps/${name}/`,
+          packageDependencies: [['@data-client/react', `npm:${version}`]],
+        },
+      ],
+    ],
+  ];
+  const entry = v => [`npm:${v}`, { packageLocation: `./${react(v)}/` }];
+  const { dir } = pnpProject(
+    [],
+    {
+      '.git/HEAD': 'ref',
+      'package.json': { workspaces: ['apps/*'] },
+      'apps/alpha/package.json': {},
+      'apps/beta/package.json': {},
+      ...pkg(react('0.19.0'), '@data-client/react', '0.19.0', [
+        'data-client-react',
+      ]),
+      ...pkg(react('0.19.1'), '@data-client/react', '0.19.1', [
+        'data-client-react',
+      ]),
+    },
+    [
+      // 0.19.0 is listed first, so the root and beta get 0.19.1 and 0.19.0
+      // only from what each depends on
+      ['@data-client/react', [entry('0.19.0'), entry('0.19.1')]],
+      workspace('alpha', '0.19.1'),
+      workspace('beta', '0.19.0'),
+    ],
+    [['@data-client/react', 'npm:0.19.1']],
+  );
+  const marker = folder =>
+    fs.readFileSync(
+      path.join(folder, '.agents/skills/data-client-react/.data-client'),
+      'utf8',
+    );
+  const beta = path.join(dir, 'apps/beta');
+  run(t, beta);
+  assert.equal(marker(dir), '@data-client/react@0.19.1');
+  assert.equal(marker(beta), '@data-client/react@0.19.0');
+});
+
+test('Yarn PnP in a workspace package with its own install, it reports what that install lacks', t => {
+  const unplugged =
+    'apps/web/.yarn/unplugged/react/node_modules/@data-client/react';
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    'apps/web/package.json': {},
+    'apps/web/.pnp.data.json': {
+      packageRegistryData: [
+        [
+          '@data-client/react',
+          [
+            [
+              'npm:0.18.0',
+              {
+                packageLocation:
+                  './.yarn/unplugged/react/node_modules/@data-client/react/',
+              },
+            ],
+          ],
+        ],
+      ],
+    },
+    [`${unplugged}/package.json`]: { version: '0.18.0' },
+  });
+  assert.ok(
+    run(t, path.join(dir, 'apps/web')).includes(
+      '@data-client/react@0.18.0 ships no skills; upgrade to 0.19 or later to get them',
+    ),
+  );
 });
 
 test('Yarn PnP copies unplugged packages too', () => {

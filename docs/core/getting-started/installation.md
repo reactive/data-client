@@ -84,8 +84,9 @@ details.
 
 <AgentOnly>
 
-Then link the skills the installed packages ship, matched to their versions, from the project root, and commit the
-links:
+Then link the skills the installed packages ship, matched to their versions, from the app's folder (in a workspace
+monorepo, run it in each app: it links them at the workspace root, and in the app only those it installs at another
+version), and commit the links:
 
 ```bash
 npx --no data-client-skills

@@ -177,7 +177,7 @@ export class ArticleEntity extends EntityMixin(Article) {
 ### static fromJS(props): Entity {#fromJS}
 
 Factory method that copies props to a new instance. Use this instead of `new MyEntity()`,
-to ensure default props are overridden.
+to ensure default props are overridden. It does not call [process()](#process).
 
 ### static process(input, parent, key, args): processedEntity {#process}
 

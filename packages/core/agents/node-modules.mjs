@@ -12,10 +12,11 @@ import path from 'node:path';
  * @returns {{ pkg: string, dir: string }[]}
  */
 export function nodeModulesPackages(projectDir, names) {
-  const roots = [projectDir, ...workspaceDirs(projectDir)].flatMap(dir => [
-    dir,
-    ...declaredPackages(dir),
-  ]);
+  // nested workspace roots list their own workspaces
+  const workspaces = new Set([projectDir]);
+  for (const dir of workspaces)
+    for (const found of workspaceDirs(dir)) workspaces.add(found);
+  const roots = [...workspaces].flatMap(dir => [dir, ...declaredPackages(dir)]);
   // Keyed by real directory, so each version a workspace installs is listed,
   // through the path that workspace sees it at
   const found = new Map();
@@ -49,6 +50,57 @@ function declaredPackages(dir) {
     .filter(Boolean);
 }
 
+/**
+ * The outermost parent of `dir` whose workspaces include it, or include a
+ * nested workspace root that does, up to the repository root if there is
+ * one; undefined outside a workspace package
+ */
+export function workspaceRoot(dir, repo = repoRoot(dir)) {
+  if (repo === dir) return;
+  let root;
+  const own = realpath(dir);
+  let target = own;
+  for (const parent of ancestors(path.dirname(dir))) {
+    // past a nested root, a parent can still list the package itself, as
+    // `packages/*/apps/*` does
+    if (declaresWorkspace(parent, [target, own])) {
+      root = parent;
+      target = realpath(parent);
+    }
+    if (parent === repo) break;
+  }
+  return root;
+}
+
+/** The folder holding `dir`'s git repository, or undefined outside one */
+export function repoRoot(dir) {
+  for (const parent of ancestors(dir)) {
+    // .git is a folder, or a file in worktrees and submodules
+    if (fs.existsSync(path.join(parent, '.git'))) return parent;
+  }
+}
+
+/** `dir`, then each folder above it up to the filesystem root */
+export function* ancestors(dir) {
+  for (let parent = dir; ; parent = path.dirname(parent)) {
+    yield parent;
+    if (path.dirname(parent) === parent) return;
+  }
+}
+
+/** Whether `parent`'s workspaces include one of the real `targets` */
+function declaresWorkspace(parent, targets) {
+  try {
+    return workspaceDirs(parent).some(found =>
+      targets.includes(realpath(found)),
+    );
+  } catch {
+    // a manifest this command never needed, such as JSONC or an odd
+    // workspaces field, isn't its problem
+    return false;
+  }
+}
+
 /** Workspace packages declared by package.json or pnpm-workspace.yaml */
 function workspaceDirs(dir) {
   const manifest = path.join(dir, 'package.json');
@@ -58,7 +110,9 @@ function workspaceDirs(dir) {
   const patterns = [
     ...(workspaces.packages ?? workspaces),
     ...(fs.existsSync(pnpm) ? pnpmPackages(pnpm) : []),
-  ].filter(pattern => !escapes(pattern));
+  ]
+    .flatMap(braces)
+    .filter(pattern => !escapes(pattern));
   const excluded = patterns
     .filter(pattern => pattern.startsWith('!'))
     .map(pattern => globRegex(pattern.slice(1)));
@@ -72,6 +126,17 @@ function workspaceDirs(dir) {
 }
 
 const segments = pattern => pattern.split(/[\\/]/);
+
+/** `pattern` with each `{a,b}` group expanded, as npm's glob does */
+function braces(pattern) {
+  const match = /\{([^{}]*)\}/.exec(pattern);
+  if (!match) return [pattern];
+  const head = pattern.slice(0, match.index);
+  const tail = pattern.slice(match.index + match[0].length);
+  return match[1]
+    .split(',')
+    .flatMap(choice => braces(`${head}${choice}${tail}`));
+}
 
 /**
  * `packages` of a pnpm-workspace.yaml, as a block or flow list; enough YAML
@@ -187,5 +252,6 @@ export function isLink(file) {
 }
 
 export function readJSON(file) {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
+  // editors on Windows can save a byte order mark, which JSON.parse rejects
+  return JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 }

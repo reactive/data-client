@@ -32,7 +32,7 @@ import { getDefaultManagers, Controller } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const managers = getDefaultManagers();
+const managers = () => getDefaultManagers();
 // be sure to include your other reducers here
 const otherReducers = {};
 const extraMiddlewares: Middleware[] = [];
@@ -72,7 +72,7 @@ import { Provider } from 'react-redux';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const managers = getDefaultManagers();
+const managers = () => getDefaultManagers();
 // be sure to include your other reducers here
 const otherReducers = {};
 const extraMiddlewares: Middleware[] = [];

@@ -5,28 +5,24 @@ title: 在获取时转换数据
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
-所有网络请求都会经过 `fetch()` 方法，因此任何需要的转换都可以简单地
-通过覆盖它并调用 super 来完成。
+在 [RestEndpoint](../api/RestEndpoint.md) 的成员中转换数据：用 [process()](../api/RestEndpoint.md#process) 处理
+响应，用 [getRequestInit()](../api/RestEndpoint.md#getRequestInit) 处理请求体，用
+[parseResponse()](../api/RestEndpoint.md#parseResponse) 处理响应头和原始响应体。
 
 :::tip
 
-注意：如果你能掌控 API 的设计，通常更推荐直接
-修改通过网络发送的数据。让客户端尽可能保持 `thin`，
-对性能和复杂度都有好处。
-
-不过，在很多情况下，你需要使用自己无法掌控的 API——
-可能是公共 API，也可能是由于内部组织结构的原因。
+如果你能掌控 API，请改为修改它发送的数据。轻量的客户端更快也更简单。这些转换适用于
+你无法掌控的 API。
 
 :::
 
 ## 从蛇形到驼峰 {#snakes-to-camels}
 
-API 的键通常采用 `snake_case` 设计，但许多 typescript/javascript 开发者
-更喜欢 `camelCase`。下面这段代码可以完成所需的转换。
+许多 API 使用 `snake_case` 的键。要在 TypeScript 中使用 `camelCase`，需要在两个方向上转换键。
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
-import { RestEndpoint, RestGenerics  } from '@data-client/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -40,7 +36,7 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   return ret;
 }
 
-class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
+class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   getRequestInit(body) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body) {
@@ -56,14 +52,12 @@ class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
 
 ## 反序列化字段 {#deserializing-fields}
 
-由于 JSON 只有少数几种基本类型，通过 JSON 发送的数据在很多情况下
-会被序列化为字符串。常见的例子包括用 [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) 表示日期，
-甚至用字符串表示需要高精度的小数（[浮点数可能有精度损失](https://floating-point-gui.de/)）。
-让数据保持序列化形式通常没有问题，尤其是当它只用于
-展示时。然而，当需要计算派生数据时，比如给日期加上一段时间
-或将两个数相乘，这就会带来问题。
+JSON 的类型很少，因此 API 会把许多值作为字符串发送。例如 [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+日期和高精度小数（[浮点数可能有精度损失](https://floating-point-gui.de/)）。字符串用于展示没有问题。
+要用它们进行计算，比如给日期加上一段时间或将两个数相乘，就需要反序列化。
 
-这种情况下，只需将 [static schema](../api/Entity.md#schema) 与 [Temporal.Instant](https://tc39.es/proposal-temporal/) 和 [BigNumber](https://github.com/MikeMcl/bignumber.js) 搭配使用
+将 [Entity.schema](../api/Entity.md#schema) 与 [Temporal.Instant](https://tc39.es/proposal-temporal/) 和
+[BigNumber](https://github.com/MikeMcl/bignumber.js) 搭配使用：
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -167,8 +161,8 @@ render(<PricePage />);
 
 ### 反序列化 Date {#deserializing-date}
 
-如果你想使用传统的 [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)，
-可以把构造函数包装成一个函数 [schema](../api/schema.md)。
+要使用传统的 [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)，
+请把它的构造函数包装成一个函数 [schema](../api/schema.md)。
 
 ```ts
 export class ExchangePrice extends Entity {
@@ -190,14 +184,10 @@ export class ExchangePrice extends Entity {
 
 ## 缺失 `Id` 的情况 {#case-of-the-missing-id}
 
-现在你想对接一个很棒的新直播网站 `mystreamsite.tv`。它提供了
-一个简单的 API，用于获取当前直播的信息。你可以通过
-url 模式 `https://mystreamsite.tv/[username]/` 获取某个直播。然而，出于某种原因，它们并没有
-在响应体中返回用户名！而你需要引用它，因为它是
-这个类唯一的标识符。
+有些 API 的响应中不包含主键。例如，`https://mystreamsite.tv/[username]/` 返回的直播中没有
+`username`，而它是该直播唯一的标识符。
 
-我们可以直接从请求 url 中解析出用户名，并将其添加到
-响应中。
+在 [RestEndpoint.process()](../api/RestEndpoint.md#process) 中从 endpoint 的参数里添加 `username`。
 
 ```json title="GET https://mystreamsite.tv/ntucker/"
 {
@@ -209,8 +199,6 @@ url 模式 `https://mystreamsite.tv/[username]/` 获取某个直播。然而，�
 ```
 
 ```typescript title="api/Stream.ts"
-const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
-
 class Stream extends Entity {
   username = '';
   title = '';
@@ -239,9 +227,8 @@ const getStream = new RestEndpoint({
 
 ### 行情价格 {#ticker-prices}
 
-下面是一个真实的 API 示例，其行情数据中不包含主键 `product_id`。
-
-我们使用 [RestEndpoint.process()](../api/RestEndpoint.md#process) 从参数中取值，添加 `product_id` 成员。
+Coinbase 的行情响应中不包含主键 `product_id`。
+[RestEndpoint.process()](../api/RestEndpoint.md#process) 会从 `productId` 参数中添加它。
 
 <FrameworkPlayground row>
 
@@ -349,11 +336,10 @@ render(<AssetPrice productId="BTC-USD" />);
 
 ## 使用 HTTP 头 {#using-http-headers}
 
-HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) 可以在 fetch 的
-[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) 中访问。[RestEndpoint.fetchResponse()](../api/RestEndpoint.md#fetchResponse)
-可用于构建 [RestEndpoint](../api/RestEndpoint.md)。
-
-这有时用于基于游标的[分页](./pagination.md#tokens-in-http-headers)。
+要读取 HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)，请覆盖
+[RestEndpoint.parseResponse()](../api/RestEndpoint.md#parseResponse)。它会接收 fetch 的
+[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)。例如，基于游标的
+[分页](./pagination.md#tokens-in-http-headers)可以在响应头中发送游标。
 
 ```typescript
 import { RestEndpoint, RestGenerics } from '@data-client/rest';
@@ -475,9 +461,7 @@ export const downloadFile = new RestEndpoint({
 
 ## 重命名键 {#name-calling}
 
-有时 API 可能会更改某个键名，或者选用了你不喜欢的名字。当然，
-你有更好的命名规范，因此你不想改动 `Resource` 类的定义
-以及所有代码，而只想重新映射这个键。
+要重命名 API 使用的某个键，请在两个方向上映射它。这样你的 Entity 和组件就只会使用你起的名字。
 
 ```typescript title="ArticleResource.ts"
 class RenamedEndpoint<
@@ -487,7 +471,7 @@ class RenamedEndpoint<
     if (body && 'carrotsUsed' in body) {
       const newBody = {
         ...body,
-        carrotsUSedIsThisNameTooLong: carrotsUsed,
+        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
       };
       delete newBody.carrotsUsed;
       return super.getRequestInit(newBody);

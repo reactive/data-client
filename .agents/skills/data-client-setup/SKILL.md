@@ -80,17 +80,19 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
 | Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
-In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills from the project root. It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
+In Claude Code, Cursor and Codex, install nothing now: each skill ships inside the `@data-client/*` package it covers, at that package's version. After installing the packages below, link their skills by running this in the app's folder (in a workspace monorepo, run it in each app: it links them at the workspace root, and in the app only those it installs at another version). It links them into `.agents/skills` and makes sure `.claude/skills` sees them too, whichever of the two folders the project already has:
 
 ```bash
 npx --no data-client-skills   # pnpm exec data-client-skills, yarn data-client-skills
 ```
 
-If it reports `Kept .agents/skills/data-client-setup`, that's the copy the skills CLI installed to start this setup.
-Remove it with `npx skills remove data-client-setup -y` and run the command again, so this skill too follows the
+If it says to start the agent in a folder, tell the user: agents started at the repository root load nested skills only once they touch its files.
+
+If it reports `Kept` for `data-client-setup`, that's the copy the skills CLI installed to start this setup.
+Remove it with `npx skills remove data-client-setup -y`, run in the folder holding the reported `.agents`, and run the command again, so this skill too follows the
 installed version.
 
-If the command isn't found, or reports that a package ships no skills, the installed packages predate 0.19: install
+If the command isn't found, or links nothing and reports that a package ships no skills, the installed packages predate 0.19: install
 the skills with the skills CLI as described below for other agents, and leave the last sentence (the `data-client-skills` command) out of the `AGENTS.md` lines.
 
 Then add these lines to the project's `AGENTS.md` (create it if missing), using the project's package manager in the command. They tell later agents that Data Client owns the app's server state, so they reach for it and its skills instead of hand-written fetching, and keep the skill links current. Claude Code reads `AGENTS.md` only when the project has no `CLAUDE.md`, so if a `CLAUDE.md` exists, make sure it has an `@AGENTS.md` line. Commit `.agents/skills` and `.claude/skills` with the setup.

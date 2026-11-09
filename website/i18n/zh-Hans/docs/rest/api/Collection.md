@@ -700,6 +700,9 @@ createCollectionFilter(...args: Args) {
 
 一种创建 schema，将新条目放到该集合的_末尾_。
 
+被删除后又重新添加的条目只会出现一次：它的旧 id 会先被移除。其他 id 即使列表中已经存在，
+也会再次添加，就像 `Array.push()` 一样。
+
 ```ts
 // Add a new todo to the end of the list (local only, no network request)
 ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' });
@@ -708,6 +711,8 @@ ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' }
 ### unshift {#unshift}
 
 一种创建 schema，将新条目放到该集合的_开头_。
+
+与 [push](#push) 一样，它会移除被删除后又重新添加的条目的旧 id。
 
 ```ts
 // Add a new todo to the beginning of the list (local only)
@@ -858,6 +863,10 @@ static shouldReorder(
 返回 `true` 时，会在合并中调换传入 Entity 与 store 中 Entity 的参数顺序。在
 默认的合并方式下，这会让现有 Entity 的字段覆盖传入 Entity 的字段，
 而不是反过来。
+
+Collection 的更新（Array 上的 [push](#push)、[unshift](#unshift)、[remove](#remove)、[move](#move) 和
+[addWith](#addWith)，以及 [getPage](./RestEndpoint.md#getpage)）仍会应用到更新的已存储列表上。
+较旧的 `push`、`unshift` 或 `getPage` 会略过更新的列表中已有的条目，并把其余条目添加到末尾。
 
 ### static merge(existing, incoming): mergedValue {#merge}
 

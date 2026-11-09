@@ -4,13 +4,8 @@ title: Usando hooks com componentes de classe
 ---
 import PkgTabs from '@site/src/components/PkgTabs';
 
-Hooks são ótimos, mas muitos de nós trabalhamos com bases de código ou bibliotecas existentes
-baseadas em componentes de classe. Alguns podem ser fáceis de migrar, mas outros podem ser
-mais difíceis. Isso deveria impedir você de adotar o Reactive Data Client? Claro que não!
-
-Usando a biblioteca simples de interoperabilidade [hook-hoc](https://github.com/ntucker/hook-hoc),
-podemos criar Higher Order Components a partir de hooks com bastante facilidade. Isso nos permite
-substituir qualquer HOC existente sem esforço.
+Componentes de classe não podem chamar hooks. Para usar o Reactive Data Client com eles, envolva os hooks em um Higher Order Component
+com o [hook-hoc](https://github.com/ntucker/hook-hoc). Ele também pode substituir os seus HOCs existentes.
 
 ## Instale o [hook-hoc](https://github.com/ntucker/hook-hoc) {#install-hook-hoc}
 
@@ -40,14 +35,12 @@ export default withHook(({ id }: { id: number }) => {
 })(Profile);
 ```
 
-Aqui você pode ver que o valor de retorno da função que você passa é injetado nas props
-do componente que você envolve.
+`withHook()` passa o valor de retorno da função ao componente envolvido como props.
 
 ## Extraindo a função {#extracting-the-function}
 
-Você pode notar que a função que passamos para `withHook()` é uma função que chama
-hooks. Isso a torna um hook por definição. Para que isso seja detectável pelas [regras dos hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks)
-e também potencialmente reutilizável, vamos movê-la para uma função nomeada:
+A função passada para `withHook()` chama hooks, então ela é um hook. Dê a ela um nome com `use` para que a regra de lint das
+[regras dos hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks) possa verificá-la, e para que você possa reutilizá-la:
 
 ```tsx
 import { PureComponent } from 'react';
@@ -75,11 +68,8 @@ export default withHook(useProfile)(Profile);
 
 ## Filtros, debounce e mais {#filters-debounce-and-more}
 
-Muitas vezes você fará um pouco mais do que apenas obter os dados. Podemos
-fazer todo esse trabalho extra no hook que acabamos de criar. Aqui vamos adicionar
-um pouco de filtragem no cliente, além de aplicar [debounce](https://usehooks.com/useDebounce/) às próprias requisições.
-
-Você pode combinar quaisquer hooks aqui - o céu é o limite.
+Coloque qualquer outro trabalho no mesmo hook. Este exemplo filtra no cliente e aplica
+[debounce](../api/useDebounce.md) às requisições:
 
 ```tsx
 import { useSuspense, useDebounce } from '@data-client/react';
@@ -87,10 +77,10 @@ import { useSuspense, useDebounce } from '@data-client/react';
 import { UserResource } from './resources/User';
 
 function useProfile({ id }: { id: number }) {
-  const debouncedId = useDebounce(id, 150);
+  const [debouncedId] = useDebounce(id, 150);
 
-  const user = useSuspense(UserResource.get, { id });
-  const friends = useSuspense(UserResource.getList, { friendid: id });
+  const user = useSuspense(UserResource.get, { id: debouncedId });
+  const friends = useSuspense(UserResource.getList, { friendid: debouncedId });
   const realFriends = friends.filter(friend => friend.isReal);
 
   return { user, friends: realFriends };

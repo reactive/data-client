@@ -16,7 +16,12 @@ import TabItem from '@theme/TabItem';
 
 管理状态，提供使用各个 hook 所需的全部 context。它应尽可能放在应用树的高处，
 因为只有在 React 树中位于该 provider 之下的组件
-才能使用这些 hook。
+才能使用这些 hook。也要把它放在你的 [Suspense 边界](../getting-started/data-dependency.md#boundaries)之上：它的
+后备 `<Suspense>`（在开发环境中显示 "Uncaught Suspense"）会先于它上方的任何边界捕获。
+
+最好把它放在 [`<Activity>`](https://react.dev/reference/react/Activity) 之上。把 `<Activity>` 放在 `DataProvider` 之上
+也可以，比如 `<Activity>` 隐藏的某个标签页或路由有自己的 `DataProvider`。隐藏它会
+[暂停它的 Manager](./Manager.md#cleanup)，因此轮询会停止。它的 store 仍会继续应用响应。
 
 <Installation />
 
@@ -25,7 +30,7 @@ import TabItem from '@theme/TabItem';
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: () => Manager[];
   initialState?: State<unknown>;
   Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
@@ -45,11 +50,12 @@ interface ProviderProps {
 你可以提供自己的初始状态，而不是从空缓存开始。这在测试时，
 或在服务端渲染中恢复（rehydrate）缓存状态时很有用。
 
-### managers?: Manager[] {#managers}
+### managers?: () => Manager[] {#managers}
 
-要使用的 [Manager](./Manager.md) 列表。这是 provider 最主要的扩展点。
+一个返回要使用的 [Manager](./Manager.md) 的函数。这是 provider 最主要的扩展点。
 
-可以使用 [getDefaultManagers()](./getDefaultManagers.md) 来扩展默认的 Manager。
+它对每个 store 运行一次，因此每个 `DataProvider` 都有自己的 Manager。请在模块顶层定义它，并用
+[getDefaultManagers()](./getDefaultManagers.md) [添加你自己的 Manager](./Manager.md#adding)。
 
 生产环境默认值：
 

@@ -148,6 +148,40 @@ describe.each([
       );
     });
 
+    it('renders a partial update fired from a mount Effect', async () => {
+      const params = { id: payload.id };
+      mynock.patch('/article-cooler/5').reply(200, {
+        ...payload,
+        content: 'real response',
+      });
+
+      const { result, controller, waitFor } = renderDataClient(
+        () => {
+          const ctrl = useController();
+          useEffect(() => {
+            ctrl.fetch(OptimisticArticleResource.partialUpdate, params, {
+              content: 'changed',
+            });
+          }, [ctrl]);
+          return useCache(OptimisticArticleResource.get, params);
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: OptimisticArticleResource.get,
+              args: [params],
+              response: payload,
+            },
+          ],
+        },
+      );
+      expect(result.current?.content).toBe('changed');
+      await waitFor(() =>
+        expect(result.current?.content).toBe('real response'),
+      );
+      expect(controller.getState().optimistic).toHaveLength(0);
+    });
+
     it('partial update does nothing but doesnt crash with no existing data', async () => {
       const params = { id: payload.id };
       mynock.patch('/article-cooler/5').reply(200, {

@@ -161,7 +161,7 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
@@ -182,7 +182,7 @@ import { createApp } from 'vue';
 import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 import App from './App.vue';
 
-const managers = getDefaultManagers({
+const managers = () => getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });

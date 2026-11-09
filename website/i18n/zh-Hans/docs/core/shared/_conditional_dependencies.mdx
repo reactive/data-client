@@ -3,6 +3,7 @@ import CodeBlock from '@theme/CodeBlock';
 ::::tip[条件依赖]
 
 将 `null` 作为任意 <abbr title="Reactive Data Client">Data Client</abbr> hook 的第二个参数，表示“什么都不做”。
+没有路径参数或查询参数的 [RestEndpoint](/rest/api/RestEndpoint) 则用 `{}` 代替，比如 `enabled ? {} : null`。
 
 :::react
 

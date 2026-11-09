@@ -36,6 +36,13 @@ import ErrorLifecycle from '../../rest/diagrams/\_endpoint_error_lifecycle.mdx';
 
 ### middleware {#middleware}
 
+如果某个响应对应的获取发起于最近一次 [resetEntireStore()](./Controller.md#resetEntireStore) 之前，就丢弃该响应。较旧的
+响应不会让同一个键上更新的获取完成。
+
+当 `middleware` 收到不同的 controller 时，说明有一个新的 store 在使用这个 NetworkManager，这只会在
+[managers 函数](./Manager.md#lifetimes)返回在其外部创建的实例时发生。NetworkManager 会停止跟踪旧 store 的获取，因此它们的 promise 永远不会完成。它也不会再发送
+旧 store 的获取。
+
 #### 消费的 action {#consumed-actions}
 
 - [fetch](./Controller.md#fetch)
@@ -51,6 +58,11 @@ import ErrorLifecycle from '../../rest/diagrams/\_endpoint_error_lifecycle.mdx';
 #### 派发的 action {#dispatched-actions}
 
 - [resolve](./Controller.md#resolve)
+
+### cleanup() {#cleanup}
+
+不停止任何东西。进行中的获取会继续，它们的响应仍会更新 store，因为
+[cleanup()](./Manager.md#cleanup) 在 store 只是被隐藏时（比如被 `<Activity>` 隐藏）也会运行。
 
 ### allSettled(): Promise {#allSettled}
 
@@ -99,8 +111,8 @@ fetch。
 
 ### clear(key) {#clear}
 
-清除给定 key 的 promise 状态
+停止跟踪给定 key 的获取，但不会让它的 promise 完成。
 
 ### clearAll() {#clearall}
 
-通过 reject 剩余的 promise 来确保所有 promise 都已完成
+停止跟踪所有进行中的获取，但不会让它们的 promise 完成。

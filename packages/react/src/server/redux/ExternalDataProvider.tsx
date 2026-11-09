@@ -1,5 +1,5 @@
 'use client';
-import { State, ActionTypes, Controller } from '@data-client/core';
+import { State, Controller } from '@data-client/core';
 import React, {
   useEffect,
   useState,
@@ -43,6 +43,7 @@ export default function ExternalDataProvider<S>({
   devButton = 'bottom-right',
   hasDevManager = false,
 }: Props<S>) {
+  // applyOptimistic() returns the same object until our slice changes, so setState() skips no-op updates
   const selectState = useCallback(
     () => controller.applyOptimistic(selector(store.getState())),
     [controller, selector, store],
@@ -59,9 +60,12 @@ export default function ExternalDataProvider<S>({
   }, []);
 
   useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
+    const updateState = () => {
       if (isMounted.current) setState(selectState());
-    });
+    };
+    const unsubscribe = store.subscribe(updateState);
+    // children's mount Effects run before ours, so catch what they dispatched
+    updateState();
     return unsubscribe;
   }, [selectState, store]);
 

@@ -48,6 +48,28 @@ por [process()](./RestEndpoint.md#process), debe coincidir con ese tipo.
 
 <VoteDemo />
 
+Un [Entity](./Entity.md) en `expectedResponse` solo necesita su [clave primaria](./Entity.md#pk) y los campos que
+cambian: los campos que omite conservan sus valores en caché. Sin la clave primaria la entidad en caché no cambia,
+así que la interfaz espera al servidor (las compilaciones de desarrollo registran el motivo). Cuando los argumentos del
+endpoint no incluyen la clave, como en `PATCH /users/profile`, léela del [snapshot](/docs/api/Snapshot):
+
+```ts
+const getMe = new RestEndpoint({ path: '/users/me', schema: User });
+const updateProfile = new RestEndpoint({
+  path: '/users/profile',
+  method: 'PATCH',
+  body: {} as { firstName: string; bio: string },
+  schema: User,
+  getOptimisticResponse(snap, body) {
+    const { data: user } = snap.getResponse(getMe);
+    if (!user) throw snap.abort;
+    return { id: user.id, ...body };
+  },
+});
+```
+
+`throw snap.abort` omite la actualización optimista cuando la entidad aún no está en caché.
+
 <center>
 <Link className="button button--secondary button--sm" to="../guides/optimistic-updates">Guía de actualizaciones optimistas</Link>
 </center>

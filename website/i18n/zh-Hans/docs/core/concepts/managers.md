@@ -58,6 +58,11 @@ Manager 负责集中编排副作用。换句话说，它们是 <abbr title="Reac
 | 额外的 Manager                                       |
 | [LogoutManager](../api/LogoutManager.md)             | 处理 HTTP `401`（或其他登出条件）                                      |
 
+每个 store 都会从 [managers 函数](../api/Manager.md#adding)得到自己的 Manager。Manager 的构造函数
+保存它的选项，它的字段保存关于其 store 的状态，[init()](../api/Manager.md#init) 和
+[cleanup()](../api/Manager.md#cleanup) 负责启动和停止它的定时器与连接。参见
+[Manager 的生存期](../api/Manager.md#lifetimes)。
+
 ## 示例 {#examples}
 
 Reactive Data Client 通过其 [Controller](../api/Controller.md) 执行 dispatch 和 store 访问，
@@ -209,30 +214,38 @@ export default class MetricsManager implements Manager {
 
 ```typescript framework-imports
 import {
+  type Controller,
   type Manager,
   type Middleware,
   actionTypes,
 } from '@data-client/react';
 
 export default class TabSyncManager implements Manager {
-  protected channel = new BroadcastChannel('data-client');
+  declare protected controller: Controller;
+  declare protected channel?: BroadcastChannel;
 
   middleware: Middleware = controller => {
-    this.channel.onmessage = () =>
-      controller.expireAll({ testKey: () => true });
+    this.controller = controller;
     return next => async action => {
       if (
         action.type === actionTypes.SET_RESPONSE &&
         action.endpoint.sideEffect &&
         !action.error
       )
-        this.channel.postMessage('mutation');
+        this.channel?.postMessage('mutation');
       return next(action);
     };
   };
 
+  init() {
+    this.channel = new BroadcastChannel('data-client');
+    this.channel.onmessage = () =>
+      this.controller.expireAll({ testKey: () => true });
+  }
+
   cleanup() {
-    this.channel.close();
+    this.channel?.close();
+    delete this.channel;
   }
 }
 ```
@@ -280,7 +293,7 @@ import { get } from 'idb-keyval';
 import App from './App';
 import PersistManager from './PersistManager';
 
-const managers = [new PersistManager(), ...getDefaultManagers()];
+const managers = () => [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -301,7 +314,7 @@ import { get } from 'idb-keyval';
 import App from './App.vue';
 import PersistManager from './PersistManager';
 
-const managers = [new PersistManager(), ...getDefaultManagers()];
+const managers = () => [new PersistManager(), ...getDefaultManagers()];
 const initialState = await get('data-client');
 
 const app = createApp(App);
