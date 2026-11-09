@@ -10,9 +10,14 @@ Every breaking change, with Before/After code:
 
 ## Step 1: bump and run the codemod
 
-Bump every `@data-client/*` package to `^0.19.0` together. `@data-client/test` now requires `@data-client/react` 0.19,
-and `typescript` must be 4.0 or later. React Native projects that test with `@data-client/test` also need
-`@testing-library/react-native`. If `@data-client/ssr` is installed, read Step 3 first.
+Bump every `@data-client/*` package to `^0.19.0` together.
+
+- `@data-client/test` now requires `@data-client/react` 0.19; `typescript` must be 4.0 or later, and `vue` 3.4 or later.
+- React Native: tests with `@data-client/test` need `@testing-library/react-native`. Apps now load the native build, so
+  with React Navigation, stale data refetches on screen focus.
+- If `@data-client/ssr` is installed, read Step 3 first.
+- If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
+  other data-client skills match 0.19.
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`):
@@ -39,7 +44,7 @@ Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
 - **Check every other `fetchIfStale(` call for reads the codemod can't follow**: results passed to a function (such as
   an `isPromise(x)` helper), stored on an object or class field, or in files and components it skipped. A sync-data
   branch behind such a check now never runs, and nothing fails to type-check. To check freshness without fetching, use
-  `ctrl.getResponse(endpoint, args, ctrl.getState())`.
+  `ctrl.getResponse(endpoint, ...args, ctrl.getState())`.
 - **Don't add `.catch()` to calls you don't await.** A `.then()` chain makes a new Promise, so it still ends in
   `.catch()`.
 - **Awaited calls now reject** when the latest fetch failed within errorExpiryLength; they used to resolve `undefined`.
@@ -70,17 +75,21 @@ else uses it). Moving pages to the App Router is a routing migration, so confirm
 
 ## Step 4: custom Managers
 
-Skip this step if `rg -n 'implements Manager|extends \w*Manager|: Manager\b|getMiddleware|cleanupDate' <source-root>`
-finds nothing. Otherwise bring each custom Manager to the lifecycle in skill "data-client-manager": every Manager
-defines `middleware`, `cleanup()` pauses without ending the store, and each store gets new Managers. What upgrading code
-gets wrong:
+Skip this step if
+`rg -n 'managers|implements Manager|extends \w*Manager|: Manager\b|getMiddleware|cleanupDate' <source-root>` finds
+nothing. Otherwise bring each custom Manager to the lifecycle in skill "data-client-manager": every Manager defines
+`middleware`, `cleanup()` pauses without ending the store, and each store gets new Managers. What upgrading code gets
+wrong:
 
 - **Rename `getMiddleware()` to a `middleware` property**; it's removed. A Manager without `middleware` throws when
-  `DataProvider` mounts in development.
+  `DataProvider` mounts (in production too, as `manager.middleware is not a function`).
 - **Move setup out of the constructor and `middleware` into `init()`**, and stop resetting state about the store in
   `cleanup()`; StrictMode and `<Activity>` call `cleanup()` and later `init()` on the same store.
 - **Replace the codemod's `() => managers` wrapper** around an array built elsewhere: it still shares those instances
-  between stores. Make the array's definition the function, so each `new` runs per store.
+  between stores. Make the array's definition the function, so each `new` runs per store. Arrays in files without an
+  `@data-client/*` import aren't converted at all, and throw `managers is not a function` on mount.
+- **Managers that call `controller.resolve()`** pass the `action.meta.fetchedAt` of the fetch they resolve, not
+  `Date.now()`: 0.19 matches responses to fetches by it, after `resetEntireStore()` and against newer fetches.
 - **Delete code that reads or sets `NetworkManager.cleanupDate`**; it's removed.
 - **After unmount, don't `await`** `set()`, `setResponse()`, `resetEntireStore()` or `fetch()` of an endpoint without
   `sideEffect`: on React 18+ they never resolve.
@@ -90,24 +99,42 @@ gets wrong:
 ## Step 5: test helpers
 
 - **`renderDataHook()` now runs its `managers`**; before, it ignored them. The list replaces the defaults, so it must
-  include a `NetworkManager` (it throws otherwise), and the test's Managers now act on its actions.
+  include a `NetworkManager` (it throws otherwise), plus a `SubscriptionManager` if the hook polls, and the test's
+  Managers now act on its actions.
 - **A custom Provider passed to `makeRenderDataHook()`** must accept `managers: () => Manager[]`, like `DataProvider`.
   [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#test-react-0.19).
 
-## Step 6: `__DC_CONTROLLERS__` is now `__DC__`
+## Step 6: Vue
+
+Skip this step unless the app uses `@data-client/vue`.
+
+- **`renderDataCompose()` takes `managers` as a function** too; the codemod converts only `mountDataClient()`.
+- **`DataClientPlugin` garbage-collects unused data by default.** Code that reads `useCache()` after long idle can get
+  `undefined`; pass a custom `gcPolicy` only if the app needs data kept longer.
+- **`useFetch()` is typed as a `Ref`**: `promise.resolved` becomes `promise.value.resolved`.
+
+## Step 7: `__DC_CONTROLLERS__` is now `__DC__`
 
 Skip this step if `rg -n '__DC_CONTROLLERS__' <source-root>` finds nothing. Replace `__DC_CONTROLLERS__.get(name)` with
 `__DC__.controller`; with several stores, set `__DC__.store = name` first.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global).
 
-## Step 7: verify
+## Step 8: verify
 
 1. Search for `TODO(data-client)`: none should remain. Search for `instanceof Promise`, `isPromise` and `.then ===` near
    `fetchIfStale`: each one is a sync-data branch that no longer runs.
 2. Run the type checker. Property reads on a `fetchIfStale()` result now fail to type-check, since it is a Promise. A
-   Manager without `middleware` fails too (Step 4).
+   Manager without `middleware` fails too (Step 4). Schemas now type `ctrl.set()` values, `process(value, params)`
+   params (possibly `undefined`; read `params?.page`), `getOptimisticResponse()` returns and
+   `ctrl.set(getList.schema.push, args, rows)`: fix the value or param name instead of casting, since the old code was
+   writing data its schema doesn't describe.
 3. Run the tests. The codemod turns `spyOn(ctrl, 'fetchIfStale').mockReturnValue()` into `.mockResolvedValue()`; make
    other `fetchIfStale` mocks, such as `{ fetchIfStale: jest.fn(() => data) }`, resolve their value the same way.
+   Assertions that relied on `useLoading()` keeping an old error, aborted fixtures resolving, or Managers not running
+   `init()` in a suspended `renderDataHook()` now fail by design: update the assertion.
+
+Optional, same PR: the blog's [future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases)
+lists changes that will break later.
 
 ## Reference
 
