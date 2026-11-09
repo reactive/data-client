@@ -142,8 +142,9 @@ and `Resource.create` to `Resource.getList.push` where it runs on a `resource()`
 
 ## Step 9: verify
 
-1. Search for `TODO(data-client)`: none should remain. Search for
-   `rg -n '=> \w*[mM]anagers\b|getMiddleware|cleanupDate|__DC_CONTROLLERS__|waitForNextUpdate|createDataClient|actions(Black|White)list'` and fix what's left. Search for
+1. Search for `TODO(data-client)`: none should remain. Fix what's left of
+   `rg -n '=> \w*[mM]anagers\b|getMiddleware|cleanupDate|__DC_CONTROLLERS__'` and of
+   `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list'`. Search for
    `instanceof Promise`, `isPromise` and `.then ===` near `fetchIfStale`: each one is a sync-data branch that no longer
    runs.
 2. Run the type checker. Property reads on a `fetchIfStale()` result now fail to type-check, since it is a Promise. A

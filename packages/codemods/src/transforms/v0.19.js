@@ -45,9 +45,9 @@
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
-// every rewrite needs one of these names in the file
+// every rewrite outside the deprecated APIs needs one of these names in the file
 const NAMES =
-  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b|\.create\b|actions(Black|White)list|waitForNextUpdate|\.(cleanup|allSettled)\b|createDataClient|ProvidedDataClient/;
+  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b/;
 const BLOG = 'https://dataclient.io/blog/2026/10/03/v0.19-batch-set';
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
@@ -164,22 +164,23 @@ function isOtherName(p) {
   );
 }
 
+/** The identifiers that refer to `binding`, other than its declaration */
+const usesOf = (j, root, binding) =>
+  root.find(j.Identifier, { name: binding.node.name }).filter(
+    p =>
+      p.node !== binding.node &&
+      // JSX names like the `managers` attribute are JSXIdentifiers
+      p.node.type === 'Identifier' &&
+      !isOtherName(p) &&
+      bindingOf(p) === binding,
+  );
+
 /** Whether every use of a variable is one of the `managers` slots */
 function onlyUsedAsManagers(j, root, binding, slotNodes) {
   // other modules may pass `export const managers` too, and they get wrapped
   if (binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration')
     return false;
-  return root
-    .find(j.Identifier, { name: binding.node.name })
-    .filter(
-      p =>
-        p.node !== binding.node &&
-        // JSX names like the `managers` attribute are JSXIdentifiers
-        p.node.type === 'Identifier' &&
-        !isOtherName(p) &&
-        bindingOf(p) === binding,
-    )
-    .every(p => slotNodes.has(p.node));
+  return usesOf(j, root, binding).every(p => slotNodes.has(p.node));
 }
 
 /** `: Manager[]` becomes `: () => Manager[]` */
@@ -866,7 +867,7 @@ const DEVTOOLS_RENAMES = new Map([
   ['actionsBlacklist', 'actionsDenylist'],
   ['actionsWhitelist', 'actionsAllowlist'],
 ]);
-const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which sends the same request unless this resource's extend() replaces create or getList. Each read of getList.push makes a new endpoint, so compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push`;
+const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push`;
 const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) on what the test waits for: https://dataclient.io/docs/api/renderDataHook#waitfor`;
 const VUE_WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api`;
 const SHARED_TEST_HELPER_TODO = ` TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled`;
@@ -885,8 +886,8 @@ function isDevToolsConfig(path) {
     isProperty(parent) &&
     parent.value === path.node &&
     keyName(parent) === 'devToolsManager' &&
-    call?.type === 'CallExpression' &&
-    calleeName(call) === 'getDefaultManagers'
+    call !== undefined &&
+    isGetDefaultManagersCall(call)
   );
 }
 
@@ -930,6 +931,9 @@ function isImportOf(path, name, source) {
   );
 }
 
+// an extend() that replaces one of these makes create differ from getList.push
+const CREATE_SOURCES = new Set(['create', 'getList']);
+
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
  * differ, and so can a custom `Endpoint` class */
@@ -941,7 +945,7 @@ function isPlainResource(path) {
   ) {
     const [first] = path.node.arguments;
     if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
-      if (['create', 'getList'].includes(first.value)) return false;
+      if (CREATE_SOURCES.has(first.value)) return false;
     } else if (first?.type === 'ObjectExpression') {
       if (
         first.properties.some(
@@ -949,7 +953,7 @@ function isPlainResource(path) {
             !isProperty(p) ||
             // a computed key could name either
             keyName(p) === undefined ||
-            ['create', 'getList'].includes(keyName(p)),
+            CREATE_SOURCES.has(keyName(p)),
         )
       )
         return false;
@@ -991,23 +995,17 @@ function isReadOnlyResource(j, root, binding) {
     binding.parent.parent.node.kind !== 'const'
   )
     return false;
-  return root
-    .find(j.Identifier, { name: binding.node.name })
-    .filter(
-      p =>
-        p.node !== binding.node && !isOtherName(p) && bindingOf(p) === binding,
-    )
-    .every(p => {
-      const parent = p.parent.node;
-      // `typeof X` in a type
-      if (parent.type === 'TSTypeQuery') return true;
-      return (
-        isMember(parent) &&
-        parent.object === p.node &&
-        !parent.computed &&
-        !isMutated(memberChainOf(p))
-      );
-    });
+  return usesOf(j, root, binding).every(p => {
+    const parent = p.parent.node;
+    // `typeof X` in a type
+    if (parent.type === 'TSTypeQuery') return true;
+    return (
+      isMember(parent) &&
+      parent.object === p.node &&
+      !parent.computed &&
+      !isMutated(memberChainOf(p))
+    );
+  });
 }
 
 // calls whose first argument picks an endpoint to run, so a new endpoint object there runs the same
@@ -1079,65 +1077,73 @@ const isPlainResourceDeclarator = binding =>
 const importsFrom = (root, source) =>
   importsOf(root).some(d => d.source.value === source);
 
-/** Deprecated test helpers and Vue setup, whose replacements depend on how the code uses them */
-function markDeprecatedCalls(j, root) {
-  const members = name =>
-    root
-      .find(j.MemberExpression)
-      .filter(({ node }) => memberName(node) === name)
-      .paths();
-  const sharedHelpers = ['cleanup', 'allSettled'].flatMap(name =>
-    members(name).filter(({ node }) =>
-      RENDER_HOOK_CALLS.has(nameOf(node.object) ?? ''),
-    ),
-  );
-  const vueSetup = root
+/** Shared `renderDataHook.cleanup()` / `.allSettled()`, which act only on the latest render */
+const findSharedTestHelpers = (j, root) =>
+  root
+    .find(j.MemberExpression)
+    .filter(
+      ({ node }) =>
+        ['cleanup', 'allSettled'].includes(memberName(node)) &&
+        RENDER_HOOK_CALLS.has(nameOf(node.object)),
+    )
+    .paths();
+
+/** `createDataClient` / `ProvidedDataClient` imported from @data-client/vue, outside the import */
+const findVueSetup = (j, root) =>
+  root
     .find(j.Identifier)
     .filter(
       p =>
         ['createDataClient', 'ProvidedDataClient'].includes(p.node.name) &&
         !isOtherName(p) &&
-        !j(p).closest(j.ImportDeclaration).size() &&
+        p.parent.node.type !== 'ImportSpecifier' &&
         isImportOf(p, p.node.name, '@data-client/vue'),
     )
     .paths();
-  // other test libraries have a waitForNextUpdate() too
-  const isVueTest = importsFrom(root, '@data-client/vue/test');
-  const waitForNextUpdate =
-    isVueTest || importsFrom(root, '@data-client/test') ?
-      [
-        ...members('waitForNextUpdate'),
-        // `const { waitForNextUpdate } = renderDataHook(...)` and its calls
-        ...root
-          .find(j.CallExpression, {
-            callee: { type: 'Identifier', name: 'waitForNextUpdate' },
-          })
-          .paths(),
-      ]
-    : [];
-  return [
-    addTodos(
-      j,
-      waitForNextUpdate,
-      isVueTest ? VUE_WAIT_FOR_NEXT_UPDATE_TODO : WAIT_FOR_NEXT_UPDATE_TODO,
-    ),
-    addTodos(j, sharedHelpers, SHARED_TEST_HELPER_TODO),
-    addTodos(j, vueSetup, CREATE_DATA_CLIENT_TODO),
-  ].some(Boolean);
-}
+
+/** `waitForNextUpdate()`, called as a member or destructured from a render */
+const findWaitForNextUpdate = (j, root) =>
+  root
+    .find(j.CallExpression)
+    .filter(({ node }) => calleeName(node) === 'waitForNextUpdate')
+    .paths();
+
+const DEVTOOLS_NAMES = /actions(Black|White)list/;
+const CREATE_NAME = /\.create\b/;
+const TEST_HELPER_NAMES = /\.(cleanup|allSettled)\b/;
+const VUE_SETUP_NAMES = /createDataClient|ProvidedDataClient/;
+const WAIT_FOR_NEXT_UPDATE_NAME = /waitForNextUpdate/;
+const DEPRECATED_NAMES = [
+  DEVTOOLS_NAMES,
+  CREATE_NAME,
+  TEST_HELPER_NAMES,
+  VUE_SETUP_NAMES,
+  WAIT_FOR_NEXT_UPDATE_NAME,
+];
 
 function migrateDeprecations(j, root, source) {
   let dirty = false;
-  if (/actions(Black|White)list/.test(source))
-    dirty = renameDevToolsOptions(j, root);
-  if (/\.create\b/.test(source))
-    dirty = migrateResourceCreate(j, root) || dirty;
+  if (DEVTOOLS_NAMES.test(source)) dirty = renameDevToolsOptions(j, root);
+  if (CREATE_NAME.test(source)) dirty = migrateResourceCreate(j, root) || dirty;
+  if (TEST_HELPER_NAMES.test(source))
+    dirty =
+      addTodos(j, findSharedTestHelpers(j, root), SHARED_TEST_HELPER_TODO) ||
+      dirty;
+  if (VUE_SETUP_NAMES.test(source))
+    dirty =
+      addTodos(j, findVueSetup(j, root), CREATE_DATA_CLIENT_TODO) || dirty;
+  // other test libraries have a waitForNextUpdate() too
+  const isVueTest = importsFrom(root, '@data-client/vue/test');
   if (
-    /waitForNextUpdate|\.(cleanup|allSettled)\b|createDataClient|ProvidedDataClient/.test(
-      source,
-    )
+    WAIT_FOR_NEXT_UPDATE_NAME.test(source) &&
+    (isVueTest || importsFrom(root, '@data-client/test'))
   )
-    dirty = markDeprecatedCalls(j, root) || dirty;
+    dirty =
+      addTodos(
+        j,
+        findWaitForNextUpdate(j, root),
+        isVueTest ? VUE_WAIT_FOR_NEXT_UPDATE_TODO : WAIT_FOR_NEXT_UPDATE_TODO,
+      ) || dirty;
   return dirty;
 }
 
@@ -1145,7 +1151,7 @@ module.exports = function transformer(fileInfo, api) {
   // skip parsing files that have nothing to migrate
   if (
     !fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
-    !NAMES.test(fileInfo.source)
+    ![NAMES, ...DEPRECATED_NAMES].some(names => names.test(fileInfo.source))
   )
     return fileInfo.source;
   const j = api.jscodeshift;
