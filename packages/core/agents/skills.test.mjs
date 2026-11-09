@@ -833,6 +833,21 @@ test("run in a workspace package, it keeps its link when the user's own entry bl
   );
 });
 
+test("run in a workspace package, it keeps its links when the root's .claude/skills link checked out as a file", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    '.claude/skills': '../.agents/skills',
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web);
+  run(t, web);
+  assert.ok(
+    fs.existsSync(path.join(web, '.claude/skills/data-client-react/SKILL.md')),
+  );
+});
+
 /** Runs main() from `cwd`, returning what it logged */
 function run(t, cwd) {
   const log = t.mock.method(console, 'log', () => {});

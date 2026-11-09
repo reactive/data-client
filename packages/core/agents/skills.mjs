@@ -85,10 +85,15 @@ function sync(projectDir, { upgrade = false, inherited = new Map() }) {
       link(target, other, result);
     }
     syncDir(dest, want, copy, result, inherited);
-    const blocked =
-      otherStat?.isDirectory() ? mirrorLinks(dest, other, result) : [];
-    // an entry of the user's blocks the link, so it provides nothing
-    for (const skill of [...result.kept, ...blocked]) provides.delete(skill);
+    if (otherStat?.isDirectory()) mirrorLinks(dest, other, result);
+    // it provides only the skills its links reach from both folders agents
+    // read: an entry of the user's, in either, blocks them
+    for (const skill of provides.keys())
+      if (
+        result.kept.includes(skill) ||
+        !sameDir(path.join(other, skill), path.join(dest, skill))
+      )
+        provides.delete(skill);
     return { result, provides };
   } finally {
     fs.rmSync(extracted, { recursive: true, force: true });
@@ -204,7 +209,6 @@ function syncDir(dest, want, copy, result, inherited) {
  * Links each skill this made in `dest` into `mirror` (../../.agents/skills/<name>),
  * and drops those links for skills it removed. Each points at the `dest`
  * entry, not through it, so upgrades that relink that entry carry over.
- * Returns the skills whose `mirror` entry is someone else's.
  */
 function mirrorLinks(dest, mirror, result) {
   for (const skill of result.removed) {
@@ -212,23 +216,16 @@ function mirrorLinks(dest, mirror, result) {
     if (isLink(file) && names(linkTarget(file), path.join(dest, skill)))
       fs.rmSync(file);
   }
-  const blocked = [];
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
     const file = path.join(mirror, entry.name);
-    const target = path.join(dest, entry.name);
-    if (owned(target, entry) === undefined) continue;
-    if (lstat(file)) {
-      if (!isLink(file) || !names(linkTarget(file), target))
-        blocked.push(entry.name);
-      continue;
-    }
+    if (owned(path.join(dest, entry.name), entry) === undefined) continue;
+    if (lstat(file)) continue;
     link(
       posix(path.relative(mirror, path.join(dest, entry.name))),
       file,
       result,
     );
   }
-  return blocked;
 }
 
 /**
