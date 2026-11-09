@@ -1289,6 +1289,46 @@ it('loads', async () => {
 
     defineInlineTest(
       transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+const { waitForNextUpdate } = await renderDataCompose(() => useThing());
+await waitForNextUpdate();
+      `,
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+const { waitForNextUpdate } = await renderDataCompose(() => useThing());
+// TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+await waitForNextUpdate();
+      `,
+      'marks Vue waitForNextUpdate() with the renderDataCompose replacement',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { useSuspense } from '@data-client/react';
+import { renderDataHook } from '../test-utils';
+
+const { waitForNextUpdate } = renderDataHook(() => useSuspense(ThingResource.get));
+await waitForNextUpdate();
+      `,
+      `
+import { useSuspense } from '@data-client/react';
+import { renderDataHook } from '../test-utils';
+
+const { waitForNextUpdate } = renderDataHook(() => useSuspense(ThingResource.get));
+// TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) on what the test waits for: https://dataclient.io/docs/api/renderDataHook#waitfor
+await waitForNextUpdate();
+      `,
+      'marks waitForNextUpdate() from a re-exported renderDataHook',
+    );
+
+    defineInlineTest(
+      transform,
       { path: 'main.ts' },
       `
 import { createDataClient, type ProvidedDataClient } from '@data-client/vue';

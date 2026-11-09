@@ -1135,11 +1135,15 @@ function migrateDeprecations(j, root, source) {
   if (VUE_SETUP_NAMES.test(source))
     dirty =
       addTodos(j, findVueSetup(j, root), CREATE_DATA_CLIENT_TODO) || dirty;
-  // other test libraries have a waitForNextUpdate() too
+  // @testing-library has a waitForNextUpdate() too; a local helper may re-export ours
   const isVueTest = importsFrom(root, '@data-client/vue/test');
   if (
     WAIT_FOR_NEXT_UPDATE_NAME.test(source) &&
-    (isVueTest || importsFrom(root, '@data-client/test'))
+    (isVueTest ||
+      importsFrom(root, '@data-client/test') ||
+      !importsOf(root).some(d =>
+        d.source.value.startsWith('@testing-library/'),
+      ))
   )
     dirty =
       addTodos(
