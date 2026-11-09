@@ -386,7 +386,7 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   const workspace = root && skillsDirs(root) ? root : undefined;
   const projectDir = workspace ?? cwd;
   const { result, provides } = sync(projectDir, { upgrade });
-  const { removed, outdated, skippedUpgrades, dir: skillsDir } = result;
+  const { dir: skillsDir } = result;
   const skills = skillsDir && path.join(projectDir, skillsDir);
   const synced = skills && fs.existsSync(skills);
   // the package keeps only the skills it installs at other versions than the
@@ -398,6 +398,13 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   // the folder holding junctions, if either sync made them
   const junctions = result.junctions ? dir : local?.junctions && local.dir;
   const changes = changeLines(result, local, provides, dir);
+  // either sync can see installs the other doesn't
+  const both = key => [...new Set([...result[key], ...(local?.[key] ?? [])])];
+  const [removed, outdated, skippedUpgrades] = [
+    'removed',
+    'outdated',
+    'skippedUpgrades',
+  ].map(both);
   for (const line of changes) console.log(line);
   if (!changes.length) console.log('Data Client skills are up to date');
   if (junctions)

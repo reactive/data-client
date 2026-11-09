@@ -1237,6 +1237,38 @@ test('Yarn PnP in a workspace package, it copies the version that package resolv
   assert.equal(marker(beta), '@data-client/react@0.19.0');
 });
 
+test('Yarn PnP in a workspace package with its own install, it reports what that install lacks', t => {
+  const unplugged =
+    'apps/web/.yarn/unplugged/react/node_modules/@data-client/react';
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    'apps/web/package.json': {},
+    'apps/web/.pnp.data.json': {
+      packageRegistryData: [
+        [
+          '@data-client/react',
+          [
+            [
+              'npm:0.18.0',
+              {
+                packageLocation:
+                  './.yarn/unplugged/react/node_modules/@data-client/react/',
+              },
+            ],
+          ],
+        ],
+      ],
+    },
+    [`${unplugged}/package.json`]: { version: '0.18.0' },
+  });
+  assert.ok(
+    run(t, path.join(dir, 'apps/web')).includes(
+      '@data-client/react@0.18.0 ships no skills; upgrade to 0.19 or later to get them',
+    ),
+  );
+});
+
 test('Yarn PnP copies unplugged packages too', () => {
   const unplugged = '.yarn/unplugged/react/node_modules/@data-client/react';
   const { dir } = pnpProject([['@data-client/react', `./${unplugged}/`]], {
