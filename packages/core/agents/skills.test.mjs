@@ -664,14 +664,49 @@ test('workspaceRoot stops at the repository root', () => {
   assert.equal(workspaceRoot(path.join(dir, 'repo/apps/web')), undefined);
 });
 
-test('workspaceRoot needs a repository, and skips manifests it cannot parse', () => {
+test('workspaceRoot works before git init, and skips manifests it cannot parse', () => {
   const dir = project({
     'package.json': { workspaces: ['apps/*'] },
     ...app('web', '0.19.0'),
   });
-  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), undefined);
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
   write(dir, { '.git/HEAD': 'ref', 'apps/package.json': '// JSONC' });
   assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
+});
+
+test("run at a nested workspace root, it links its packages' skills at the outer root", t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['packages/*'] },
+    'packages/suite/package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0', 'packages/suite/apps'),
+  });
+  run(t, path.join(dir, 'packages/suite'));
+  assert.ok(links(dir)['data-client-react']);
+});
+
+test('run in a workspace package, it keeps package links the root does not hold', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0'),
+    ...pkg(
+      'apps/web/node_modules/@data-client/rest',
+      '@data-client/rest',
+      '0.19.0',
+      ['data-client-rest', 'path-to-regexp-v8-migration'],
+    ),
+  });
+  const web = path.join(dir, 'apps/web');
+  syncSkills(web, { upgrade: true });
+  const output = run(t, web);
+  assert.ok(links(web)['path-to-regexp-v8-migration']);
+  assert.ok(!links(web)['data-client-react']);
+  assert.ok(
+    output.includes(
+      'Removed data-client-react, data-client-rest from this package; the workspace root has them',
+    ),
+  );
 });
 
 /** Runs main() from `cwd`, returning what it logged */

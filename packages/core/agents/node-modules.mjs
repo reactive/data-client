@@ -12,10 +12,12 @@ import path from 'node:path';
  * @returns {{ pkg: string, dir: string }[]}
  */
 export function nodeModulesPackages(projectDir, names) {
-  const roots = [projectDir, ...workspaceDirs(projectDir)].flatMap(dir => [
-    dir,
-    ...declaredPackages(dir),
-  ]);
+  // nested workspace roots list their own workspaces
+  const workspaces = [projectDir];
+  for (const dir of workspaces)
+    for (const found of workspaceDirs(dir))
+      if (!workspaces.includes(found)) workspaces.push(found);
+  const roots = workspaces.flatMap(dir => [dir, ...declaredPackages(dir)]);
   // Keyed by real directory, so each version a workspace installs is listed,
   // through the path that workspace sees it at
   const found = new Map();
@@ -51,10 +53,10 @@ function declaredPackages(dir) {
 
 /**
  * The nearest parent of `dir` whose workspaces include it, up to the
- * repository root; undefined outside a repository or a workspace package
+ * repository root if there is one; undefined outside a workspace package
  */
 export function workspaceRoot(dir, repo = repoRoot(dir)) {
-  if (!repo || repo === dir) return;
+  if (repo === dir) return;
   const target = realpath(dir);
   for (const parent of ancestors(path.dirname(dir))) {
     if (declaresWorkspace(parent, target)) return parent;
@@ -227,5 +229,6 @@ export function isLink(file) {
 }
 
 export function readJSON(file) {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
+  // editors on Windows can save a byte order mark, which JSON.parse rejects
+  return JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 }
