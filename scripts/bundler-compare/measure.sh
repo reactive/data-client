@@ -13,8 +13,12 @@ mkdir -p "$here/results"
 if [ "${1:-}" = --compare ]; then
   # each line is "<bundler> <brotli bytes>"; older runs also printed gzip, so they can't be compared
   for run in "$2" "$3"; do
-    if [ ! -s "$here/results/$run.txt" ] || grep -qvE '^[a-z0-9]+ [0-9]+$' "$here/results/$run.txt"; then
-      echo "error: results/$run.txt is missing or from an older format; measure $run again" >&2
+    if [ ! -s "$here/results/$run.txt" ]; then
+      echo "error: results/$run.txt is missing or empty; measure $run again" >&2
+      exit 1
+    fi
+    if grep -qE -- '-(gzip|brotli) ' "$here/results/$run.txt"; then
+      echo "error: results/$run.txt is from before the brotli-only output; measure $run again" >&2
       exit 1
     fi
   done
