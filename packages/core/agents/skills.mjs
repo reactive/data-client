@@ -43,11 +43,12 @@ export function syncSkills(projectDir, { upgrade = false } = {}) {
 }
 
 /**
- * syncSkills, leaving out the skills `inherited` names (a workspace root's
- * `provides`): workspace packages load the root's version. Returns the result
- * and `provides`: each skill agents load from its links, with its source.
+ * syncSkills, leaving out the skills `inherited` (name -> source, from a
+ * workspace root's `provides`) already gives at the same source. Returns the
+ * result and `provides`: each skill agents load from its links, with the
+ * source that decides whether a package needs its own.
  */
-function sync(projectDir, { upgrade, inherited = new Set() }) {
+function sync(projectDir, { upgrade, inherited = new Map() }) {
   const dirs = skillsDirs(projectDir);
   const result = {
     added: [],
@@ -70,7 +71,8 @@ function sync(projectDir, { upgrade, inherited = new Set() }) {
       upgrade,
     );
     const provides = sources(want, copy);
-    for (const skill of inherited) want.delete(skill);
+    for (const [skill, source] of provides)
+      if (inherited.get(skill) === source) want.delete(skill);
     if (!want.size && !fs.existsSync(dest)) return { result, provides };
     fs.mkdirSync(dest, { recursive: true });
     // let the agents that read the other folder see it too: link the folder
@@ -365,8 +367,8 @@ function holdsJunction(target, dir) {
 /**
  * The `data-client-skills` command: `data-client-skills [--upgrade]`. Run in a
  * workspace package, it syncs the workspace root, where agents started at the
- * root load the skills, at the version the root installs; the package keeps
- * only skills the root can't link.
+ * root load the skills, and links in the package only the skills it installs
+ * at other versions.
  */
 export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   const unknown = args.filter(arg => arg !== '--upgrade');
@@ -387,11 +389,11 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   const { removed, outdated, skippedUpgrades, dir: skillsDir } = result;
   const skills = skillsDir && path.join(projectDir, skillsDir);
   const synced = skills && fs.existsSync(skills);
-  // the package uses the root's skills, so drop what an earlier run left
-  // there, keeping only skills the root can't link
+  // the package keeps only the skills it installs at other versions than the
+  // root links, and drops what an earlier run left there
   const local =
     workspace && synced ?
-      sync(cwd, { upgrade, inherited: new Set(provides.keys()) }).result
+      sync(cwd, { upgrade, inherited: provides }).result
     : undefined;
   // where the skills are, from where the command ran
   const dir = skills && posix(path.relative(cwd, skills));
@@ -454,7 +456,7 @@ function changeLines(
         `Kept ${file} (not a link data-client-skills made); delete it to get the installed version`,
     ),
     local.added.length &&
-      `Added ${local.added.join(', ')} to this package, since the workspace root can't link them`,
+      `Added ${local.added.join(', ')} to this package, which installs versions the workspace root doesn't link`,
     moved.length &&
       `Removed ${moved.join(', ')} from this package; the workspace root has them`,
     dropped.length && `Removed ${dropped.join(', ')} from this package`,

@@ -100,8 +100,8 @@ npx --no data-client-skills
 
 Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or
 upgrading `@data-client` packages to pick up new skills. If you use [TanStack Intent](https://tanstack.com/intent), it finds the same skills.
-In a workspace monorepo, run from any package, it links them at the workspace root, matched to the version the root
-installs, so agents started at the root load them ([#4645](https://github.com/reactive/data-client/pull/4645)).
+In a workspace monorepo it links them at the workspace root, so agents started there load them, and a package that installs
+another version gets its own links, which agents load when they work on its files ([#4645](https://github.com/reactive/data-client/pull/4645)).
 
 ## Skills match the docs {#generated-references}
 

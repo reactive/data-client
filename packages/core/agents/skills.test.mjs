@@ -737,7 +737,38 @@ test('run in a workspace package without --upgrade, it removes the upgrade skill
   );
 });
 
-test("run in a workspace package installing another version, it uses the root's", t => {
+test('run in workspace packages installing different versions, each loads its own', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    ...app('alpha', '0.19.0'),
+    ...app('beta', '0.19.1'),
+  });
+  // the package's own link, or else the root's
+  const loaded = app => {
+    const own = path.join(app, '.agents/skills/data-client-react');
+    return fs.realpathSync(
+      fs.existsSync(own) ? own : (
+        path.join(dir, '.agents/skills/data-client-react')
+      ),
+    );
+  };
+  for (const name of ['beta', 'alpha', 'beta']) {
+    const app = path.join(dir, 'apps', name);
+    run(t, app);
+    assert.equal(
+      loaded(app),
+      fs.realpathSync(
+        path.join(
+          app,
+          'node_modules/@data-client/react/skills/data-client-react',
+        ),
+      ),
+    );
+  }
+});
+
+test('run in a workspace package installing another version than the root, it links that one there', t => {
   const dir = project({
     '.git/HEAD': 'ref',
     'package.json': {
@@ -750,14 +781,15 @@ test("run in a workspace package installing another version, it uses the root's"
     ...app('beta', '0.19.1'),
   });
   const beta = path.join(dir, 'apps/beta');
-  // an earlier run linked beta's own version there
-  syncSkills(beta);
   run(t, beta);
   assert.equal(
     links(dir)['data-client-react'],
     '../../node_modules/@data-client/react/skills/data-client-react',
   );
-  assert.deepEqual(fs.readdirSync(path.join(beta, '.agents/skills')), []);
+  assert.equal(
+    links(beta)['data-client-react'],
+    '../../node_modules/@data-client/react/skills/data-client-react',
+  );
 });
 
 test('run in a workspace package, it removes a copy an earlier run left at another version', t => {
