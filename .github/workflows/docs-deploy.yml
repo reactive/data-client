@@ -77,11 +77,24 @@ jobs:
         if: inputs.current-ref
         run: |
           tar -xzf current.tar.gz -C website/build
+          # The root's posts (<locale>/blog/<yyyy>/<mm>/<dd>/<slug>) are its
+          # alone, so their /next pages redirect there, keeping the query and
+          # fragment. /next links straight to them (website/docusaurus.config.ts)
+          (cd website/build && find . -regextype posix-extended \
+            -regex '\./([a-z]{2}(-[A-Za-z]+)?/)?blog/[0-9]{4}/[0-9]{2}/[0-9]{2}/[^/]+\.html' |
+            sed 's#^\./##; s#\.html$##') > root-posts.txt
+          [ -s root-posts.txt ] || { echo "::error::The root's build has no blog posts"; exit 1; }
+          # Literal paths in Vercel's source patterns
+          ! grep -vE '^[A-Za-z0-9/._-]+$' root-posts.txt ||
+            { echo "::error::Post paths above need escaping in vercel.json"; exit 1; }
           # /next is served now, so it no longer redirects to the root
-          nextRedirect='.source | startswith("/next{/:path")'
-          jq -e ".redirects | map(select($nextRedirect)) | length == 1" website/vercel.json > /dev/null ||
+          nextRedirect='def next: .source | startswith("/next{/:path");'
+          jq -e "$nextRedirect"' .redirects | map(select(next)) | length == 1' website/vercel.json > /dev/null ||
             { echo "::error::vercel.json has no single /next redirect to drop"; exit 1; }
-          jq ".redirects |= map(select($nextRedirect | not))" website/vercel.json > vercel.json.tmp
+          jq --rawfile posts root-posts.txt "$nextRedirect"' .redirects |= map(select(next | not))
+            + ($posts | split("\n") | map(select(. != "")
+              | {source: "/next/\(.)", destination: "/\(.)", permanent: false}))' \
+            website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
       - uses: actions/setup-node@v7
         with:

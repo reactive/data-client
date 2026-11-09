@@ -17,11 +17,6 @@
       "permanent": true
     },
     {
-      "source": "/next/blog/:path*",
-      "destination": "/blog/:path*",
-      "permanent": true
-    },
-    {
       "source": "/blog/:path*",
       "has": [
         {
@@ -30,11 +25,6 @@
         }
       ],
       "destination": "https://dataclient.io/blog/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/next/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
-      "destination": "/:locale/blog/:path*",
       "permanent": true
     },
     {

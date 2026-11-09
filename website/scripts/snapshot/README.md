@@ -54,16 +54,21 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 (`{ "version", "ref" }`) to master. While that file exists:
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
-  `docusaurus.config.ts` builds at `/next/`. It still builds the blog, so its links are checked, but
-  its News and Blog links go to the root's (`rootBlog.client.ts`). It shows an "unreleased" banner
+  `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,
+  pages) and the posts the branch doesn't have. The branch's posts are the current version's, since
+  posts publish there too: `site-preview.yml` fetches the branch so the config can list them, every
+  link to one goes straight to the root's copy (`src/utils/RootPostLink.tsx`, which replaces
+  `@docusaurus/Link` there), in-app routes to them do too (`rootBlog.client.ts`), and `docs deploy`
+  redirects their `/next/` pages there, keeping the query and fragment. Once the next major ships
+  and master serves the root again, the `/next/*` redirect below sends every `/next/blog` post to
+  the root's copy at the same path. It shows an "unreleased" banner
   linking to the current version's docs (from a PR preview, built alone at its root, production's).
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
   (the wrapper keeps the blog and every
   static file), cached by the branch's commit so master's deploys rebuild it only when the branch
   changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
   (except its `sw.js` paths, below) to the root whenever there is no next build (`docs deploy`
-  drops that redirect while there is one, and fails if it's gone), and `/next/blog` to the root's
-  blog.
+  drops that redirect while there is one, and fails if it's gone).
 - `website-port.yml` opens a PR to the branch for each master push whose commits change only site
   code (`website/src`, `website/static`), so a UI fix reaches the root
   ([scripts/maintenance/README.md](../../../scripts/maintenance/README.md#website-fixes)).
