@@ -430,8 +430,13 @@ function transformFetchIfStale(j, root, source) {
 const CLEANUP_DATE_TODO = ` TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: ${BLOG}#manager-cleanup`;
 const GET_MIDDLEWARE_TODO = ` TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: ${BLOG}#manager-middleware`;
 
+// a computed key names a member only when it is a string
 const keyName = node =>
-  node.computed ? undefined : (node.key?.name ?? node.key?.value);
+  node.computed ?
+    typeof node.key?.value === 'string' ?
+      node.key.value
+    : undefined
+  : (node.key?.name ?? node.key?.value);
 
 /** The function of a `getMiddleware() {}` method or a `getMiddleware = () => {}` property */
 const getterOf = member =>
@@ -443,7 +448,8 @@ const getterOf = member =>
 function returnedMiddleware(member) {
   const fn = getterOf(member);
   // data-client never called a static getMiddleware()
-  if (!fn || fn.params.length || member.static) return;
+  if (!fn || fn.params.length || fn.async || fn.generator || member.static)
+    return;
   let body = fn.body;
   if (body.type === 'BlockStatement') {
     if (body.body.length !== 1 || body.body[0].type !== 'ReturnStatement')
@@ -470,12 +476,14 @@ const isGetMiddlewareCall = node =>
 /** `getMiddleware` members and calls become `middleware` */
 function renameGetMiddleware(j, root) {
   let dirty = false;
+  let unconverted = false;
   root
     .find(j.Node)
     .filter(p => isGetMiddleware(p.node))
     .forEach(member => {
       const middleware = returnedMiddleware(member.node);
       if (!middleware) {
+        unconverted = true;
         dirty = addTodo(j, member, GET_MIDDLEWARE_TODO) || dirty;
         return;
       }
@@ -493,8 +501,9 @@ function renameGetMiddleware(j, root) {
     .find(j.Node)
     .filter(({ node }) => isGetMiddlewareCall(node))
     .forEach(call => {
-      // a subclass's middleware property is not on the prototype, so super can't reach it
-      if (call.node.callee.object.type === 'Super') {
+      // a subclass's middleware property is not on the prototype, so super can't reach it; and
+      // a call may target a member this file kept
+      if (call.node.callee.object.type === 'Super' || unconverted) {
         // an unconverted getMiddleware member already carries the TODO
         const member = j(call).closest(j.Node, isGetMiddleware).paths()[0];
         if (!member) dirty = addTodo(j, call, GET_MIDDLEWARE_TODO) || dirty;
@@ -516,7 +525,8 @@ function renameGetMiddleware(j, root) {
   return dirty;
 }
 
-/** The declaration and specifier that import `name`, if any; reads nodes, so it sees ones added this run */
+/** The declaration and specifier that import `name`, if any. Specifiers this codemod adds have no
+ * `local`, so their name is `imported`. */
 function importOf(j, root, name) {
   for (const declaration of root.find(j.ImportDeclaration).nodes()) {
     const specifier = declaration.specifiers?.find(
@@ -533,11 +543,8 @@ function ensureImport(j, root, name, { sibling, source, type = false }) {
   const specifier = j.importSpecifier(j.identifier(name));
   const next = sibling && importOf(j, root, sibling);
   if (next) {
-    const typeOnly =
-      next.declaration.importKind === 'type' ||
-      next.specifier.importKind === 'type';
-    if (type && !typeOnly) specifier.importKind = 'type';
-    else specifier.importKind = next.specifier.importKind;
+    if (type && next.declaration.importKind !== 'type')
+      specifier.importKind = 'type';
     next.declaration.specifiers.push(specifier);
     return;
   }
@@ -597,6 +604,23 @@ function addPassThroughMiddleware(j, root) {
   return dirty;
 }
 
+/** Whether `name` looks like a NetworkManager: by name, by the name it was imported as, or by the
+ * class a local class extends */
+function isNetworkManagerClass(j, root, name) {
+  if (!name) return false;
+  if (/NetworkManager$/.test(name)) return true;
+  const imported = importOf(j, root, name)?.specifier.imported.name;
+  if (imported && imported !== name)
+    return isNetworkManagerClass(j, root, imported);
+  const superClass = root
+    .find(j.ClassDeclaration, { id: { name } })
+    .nodes()[0]?.superClass;
+  return (
+    superClass?.type === 'Identifier' &&
+    isNetworkManagerClass(j, root, superClass.name)
+  );
+}
+
 /** `renderDataHook()` managers must include a NetworkManager since they replace the defaults */
 function addNetworkManager(j, root) {
   let dirty = false;
@@ -611,9 +635,7 @@ function addNetworkManager(j, root) {
       if (
         list?.type !== 'ArrayExpression' ||
         !list.elements.every(e => e?.type === 'NewExpression') ||
-        list.elements.some(e =>
-          /NetworkManager$/.test(e.callee.name ?? e.callee.property?.name),
-        )
+        list.elements.some(e => isNetworkManagerClass(j, root, calleeName(e)))
       )
         return;
       list.elements.push(j.newExpression(j.identifier('NetworkManager'), []));

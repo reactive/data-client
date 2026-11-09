@@ -311,6 +311,28 @@ renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager()] });
       transform,
       { path: 'useThing.test.ts' },
       `
+import { NetworkManager as NM } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+class AuditManager extends NM {}
+renderDataHook(() => useThing(), { managers: [new NM()] });
+renderDataHook(() => useThing(), { managers: [new AuditManager()] });
+      `,
+      `
+import { NetworkManager as NM } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+class AuditManager extends NM {}
+renderDataHook(() => useThing(), { managers: () => [new NM()] });
+renderDataHook(() => useThing(), { managers: () => [new AuditManager()] });
+      `,
+      'sees a NetworkManager imported under another name or extended locally',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
 import { renderDataCompose } from '@data-client/vue/test';
 
 await renderDataCompose(() => useThing(), { managers: [new NetworkManager()] });
@@ -455,6 +477,44 @@ class C implements Manager {
 }
       `,
       'marks getMiddleware members that hold no function to move',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Managers.ts' },
+      `
+import { Manager, NetworkManager } from '@data-client/react';
+
+class A implements Manager {
+  async getMiddleware() {
+    return controller => next => next;
+  }
+}
+class B extends Base implements Manager {}
+class C implements Manager {
+  ['middleware'] = () => next => next;
+  ['getMiddleware2']() {}
+}
+const mw = manager.getMiddleware();
+      `,
+      `
+import { Manager, NetworkManager } from '@data-client/react';
+
+class A implements Manager {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  async getMiddleware() {
+    return controller => next => next;
+  }
+}
+class B extends Base implements Manager {}
+class C implements Manager {
+  ['middleware'] = () => next => next;
+  ['getMiddleware2']() {}
+}
+// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+const mw = manager.getMiddleware();
+      `,
+      'leaves async getMiddleware, its calls, subclasses and existing middleware alone',
     );
 
     defineInlineTest(
