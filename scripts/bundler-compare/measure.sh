@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gzipped and brotli JS of a two-page app (one lazy chunk per page) built from this checkout's packages
+# Brotli size (quality 11) of the JS of a two-page app (one lazy chunk per page) built from this checkout's packages
 # with one bundler per family: rspack (webpack), Vite 8 (Rolldown, Rollup) and Next.js Turbopack.
 #
 #   ./measure.sh [label]            build packages, then measure; saves results/<label>.txt
@@ -11,6 +11,13 @@ repo=$(git -C "$here" rev-parse --show-toplevel)
 mkdir -p "$here/results"
 
 if [ "${1:-}" = --compare ]; then
+  # each line is "<bundler> <brotli bytes>"; older runs also printed gzip, so they can't be compared
+  for run in "$2" "$3"; do
+    if [ ! -s "$here/results/$run.txt" ] || grep -qvE '^[a-z0-9]+ [0-9]+$' "$here/results/$run.txt"; then
+      echo "error: results/$run.txt is missing or from an older format; measure $run again" >&2
+      exit 1
+    fi
+  done
   if ! cmp -s "$here/results/$2.versions" "$here/results/$3.versions"; then
     echo "warning: $2 and $3 used different bundler versions:"
     paste "$here/results/$2.versions" "$here/results/$3.versions"

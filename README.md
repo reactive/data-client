@@ -290,7 +290,7 @@ const Story = () => (
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation)
+For the small price of 9kb brotli. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/installation)
 
 ## Features
 

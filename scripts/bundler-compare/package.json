@@ -1,7 +1,7 @@
 {
   "name": "bundler-compare",
   "private": true,
-  "description": "Gzipped and brotli size of a page-split app with rspack, Vite 8 and Next.js Turbopack, built from this checkout's packages",
+  "description": "Brotli size of a page-split app with rspack, Vite 8 and Next.js Turbopack, built from this checkout's packages",
   "type": "module",
   "dependencies": {
     "@babel/runtime": "^8.0.10",
