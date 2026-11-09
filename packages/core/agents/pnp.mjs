@@ -29,10 +29,10 @@ export function pnpPackages(projectDir, names, extractTo) {
   const found = [];
   for (const [pkg, versions] of registry) {
     if (!names.includes(pkg)) continue;
-    const first = ([reference]) => reference === own.get(pkg);
+    const resolved = ([reference]) => reference === own.get(pkg);
     for (const [, { packageLocation }] of [
-      ...versions.filter(first),
-      ...versions.filter(version => !first(version)),
+      ...versions.filter(resolved),
+      ...versions.filter(version => !resolved(version)),
     ]) {
       const location = path.resolve(root, packageLocation);
       // read a path inside a zip only by extracting, never as a folder, even

@@ -78,13 +78,17 @@ function zip(files, method) {
 
 /**
  * A Yarn PnP project: .pnp.cjs inlines the install map as Yarn writes it.
- * `registry` adds raw packageRegistryData entries.
+ * `registry` adds raw packageRegistryData entries; `dependencies` are the
+ * root's.
  */
-function pnpProject(packages, files = {}, registry = []) {
+function pnpProject(packages, files = {}, registry = [], dependencies = []) {
   const sentinel = 'pnp-ran';
   const state = {
     packageRegistryData: [
-      [null, [[null, { packageLocation: './' }]]],
+      [
+        null,
+        [[null, { packageLocation: './', packageDependencies: dependencies }]],
+      ],
       ...packages.map(([name, location]) => [
         name,
         [['npm:0.19.0', { packageLocation: location }]],
@@ -1198,7 +1202,7 @@ test('Yarn PnP in a workspace package, it copies the version that package resolv
       ],
     ],
   ];
-  const version = v => [`npm:${v}`, { packageLocation: `./${react(v)}/` }];
+  const entry = v => [`npm:${v}`, { packageLocation: `./${react(v)}/` }];
   const { dir } = pnpProject(
     [],
     {
@@ -1214,10 +1218,13 @@ test('Yarn PnP in a workspace package, it copies the version that package resolv
       ]),
     },
     [
-      ['@data-client/react', [version('0.19.0'), version('0.19.1')]],
-      workspace('alpha', '0.19.0'),
-      workspace('beta', '0.19.1'),
+      // 0.19.0 is listed first, so the root and beta get 0.19.1 and 0.19.0
+      // only from what each depends on
+      ['@data-client/react', [entry('0.19.0'), entry('0.19.1')]],
+      workspace('alpha', '0.19.1'),
+      workspace('beta', '0.19.0'),
     ],
+    [['@data-client/react', 'npm:0.19.1']],
   );
   const marker = folder =>
     fs.readFileSync(
@@ -1226,8 +1233,8 @@ test('Yarn PnP in a workspace package, it copies the version that package resolv
     );
   const beta = path.join(dir, 'apps/beta');
   run(t, beta);
-  assert.equal(marker(dir), '@data-client/react@0.19.0');
-  assert.equal(marker(beta), '@data-client/react@0.19.1');
+  assert.equal(marker(dir), '@data-client/react@0.19.1');
+  assert.equal(marker(beta), '@data-client/react@0.19.0');
 });
 
 test('Yarn PnP copies unplugged packages too', () => {

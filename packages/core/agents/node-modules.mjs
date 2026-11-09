@@ -61,11 +61,9 @@ export function workspaceRoot(dir, repo = repoRoot(dir)) {
   const own = realpath(dir);
   let target = own;
   for (const parent of ancestors(path.dirname(dir))) {
-    // a parent can list the package itself, or the nested root that does
-    if (
-      declaresWorkspace(parent, target) ||
-      (target !== own && declaresWorkspace(parent, own))
-    ) {
+    // past a nested root, a parent can still list the package itself, as
+    // `packages/*/apps/*` does
+    if (declaresWorkspace(parent, target) || declaresWorkspace(parent, own)) {
       root = parent;
       target = realpath(parent);
     }
