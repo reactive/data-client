@@ -209,8 +209,7 @@ export class Issue extends Entity {
 #### Primary key in a nested object
 
 Some APIs put the key inside a nested object, such as `{ post: { id, title }, creator, saved }`
-with no top-level `id`. Copy the key to `id` in [process()](#process). The default `pk()` then
-works, and lookups take `{ id }` like any other Entity.
+with no top-level `id`. Copy the key to `id` in [process()](#process), so the default `pk()` works.
 
 ```typescript
 export class Post extends Entity {
@@ -219,7 +218,7 @@ export class Post extends Entity {
 }
 
 export class PostView extends Entity {
-  id = 0; // copied from post.id
+  id = 0;
   post = Post.fromJS();
   saved = false;
 
@@ -240,14 +239,13 @@ export class PostView extends Entity {
 }
 ```
 
-Now `useQuery(PostView, { id })` finds the stored `PostView`. Keep the incoming `id` when there is
-no `post`: [Invalidate](./Invalidate.md) (a [resource](./resource.md) delete), `getList.remove`, and
-partial or optimistic updates such as `{ id, saved }` pass only the key. `fromJS()` does not call
-`process()`, so set `id` yourself when you build a `PostView` with it.
+Now `useQuery(PostView, { id })` finds the stored `PostView`. Lookups, [Invalidate](./Invalidate.md)
+(a [resource](./resource.md) delete), `getList.remove`, and partial or optimistic updates such as
+`{ id, saved }` know only the key. The default `pk()` reads it from `id`, and `?? processed.id`
+keeps it when there is no `post`. A `pk()` that returns `this.post.id` throws on all of them, and
+`{ post: { id } }` fails to type-check because it lacks the other fields of `Post`.
 
-Overriding `pk()` to return `this.post.id` instead breaks wherever only `{ id }` is known: lookups,
-deletes and removes throw because there is no `post`, and `{ post: { id } }` fails to type-check
-because it lacks the other fields of `Post`.
+`fromJS()` does not call `process()`, so set `id` yourself when you build a `PostView` with it.
 
 #### Singleton Entities
 
