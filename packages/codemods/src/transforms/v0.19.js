@@ -865,7 +865,7 @@ const DEVTOOLS_RENAMES = new Map([
   ['actionsBlacklist', 'actionsDenylist'],
   ['actionsWhitelist', 'actionsAllowlist'],
 ]);
-const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint: https://dataclient.io/rest/api/resource#push`;
+const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push`;
 const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) in renderDataHook() tests, or \`await result\` / allSettled() in renderDataCompose() tests: https://dataclient.io/docs/api/renderDataHook#waitfor`;
 const SHARED_TEST_HELPER_TODO = ` TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled`;
 const CREATE_DATA_CLIENT_TODO = ` TODO(data-client): createDataClient() and ProvidedDataClient are deprecated; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin`;

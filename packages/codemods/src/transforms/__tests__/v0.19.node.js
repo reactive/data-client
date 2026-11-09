@@ -1205,9 +1205,9 @@ const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote
 const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
 
 export const createPost = (ctrl, body) => ctrl.fetch(PostResource.getList.push, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push
 export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint: https://dataclient.io/rest/api/resource#push
+// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint unless this resource's extend() replaces create or getList: https://dataclient.io/rest/api/resource#push
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
 export const clone = Object.create(null);
       `,

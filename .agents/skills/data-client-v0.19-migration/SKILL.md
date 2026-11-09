@@ -133,8 +133,9 @@ They still work, but a later release removes them. The codemod renamed DevTools 
 to `actionsDenylist`/`actionsAllowlist`, and `Resource.create` to `Resource.getList.push` (the same endpoint) where the
 `resource()` is in the same file. Fix each `TODO(data-client)` comment it left, then delete it:
 
-- `*Resource.create` from another file: use `getList.push`, unless that resource's `extend()` replaces `create` or
-  `getList`. Resources not named `*Resource` get no TODO, so also check `rg -n '\.create\b' <source-root>`.
+- `*Resource.create` declared in another file, or whose `extend()` replaces `create` or `getList`: use `getList.push`,
+  but if `extend()` replaces either, first check that the call keeps its path and options. Resources not named
+  `*Resource` get no TODO, so also check `rg -n '\.create\b' <source-root>`.
 - `waitForNextUpdate()`: in `renderDataHook()` tests, `await waitFor(() => expect(...))` on what you wait for; in
   `renderDataCompose()` tests, `await result` for the first load and `await allSettled()` after changing props or calling
   the controller.

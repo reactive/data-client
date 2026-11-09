@@ -10,8 +10,8 @@ Where the replacement does the same thing, the codemod renames:
   declared in the same file and its `extend()` calls don't replace `create` or `getList`.
 - DevTools `actionsBlacklist` / `actionsWhitelist` to `actionsDenylist` / `actionsAllowlist`.
 
-It adds a `TODO(data-client)` comment on the rest, whose replacement depends on the code: `*Resource.create` declared in
-another file, `waitForNextUpdate()`, `renderDataHook.cleanup()` / `.allSettled()`, and Vue `createDataClient()` /
+It adds a `TODO(data-client)` comment on the rest, whose replacement depends on the code: `*Resource.create` that it can't rename
+(declared in another file, or its `extend()` replaces `create` or `getList`), `waitForNextUpdate()`, `renderDataHook.cleanup()` / `.allSettled()`, and Vue `createDataClient()` /
 `ProvidedDataClient`.
 
 ```ts
