@@ -315,16 +315,24 @@ import { NetworkManager as NM } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
 class AuditManager extends NM {}
+const Loop = class extends Loop {};
+const Scoped = class extends DC.NetworkManager {};
 renderDataHook(() => useThing(), { managers: [new NM()] });
 renderDataHook(() => useThing(), { managers: [new AuditManager()] });
+renderDataHook(() => useThing(), { managers: [new Scoped()] });
+renderDataHook(() => useThing(), { managers: [new Loop()] });
       `,
       `
-import { NetworkManager as NM } from '@data-client/react';
+import { NetworkManager as NM, NetworkManager } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
 
 class AuditManager extends NM {}
+const Loop = class extends Loop {};
+const Scoped = class extends DC.NetworkManager {};
 renderDataHook(() => useThing(), { managers: () => [new NM()] });
 renderDataHook(() => useThing(), { managers: () => [new AuditManager()] });
+renderDataHook(() => useThing(), { managers: () => [new Scoped()] });
+renderDataHook(() => useThing(), { managers: () => [new Loop(), new NetworkManager()] });
       `,
       'sees a NetworkManager imported under another name or extended locally',
     );
@@ -514,7 +522,7 @@ class C implements Manager {
 // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
 const mw = manager.getMiddleware();
       `,
-      'leaves async getMiddleware, its calls, subclasses and existing middleware alone',
+      'marks async getMiddleware and its calls; leaves subclasses and existing middleware alone',
     );
 
     defineInlineTest(

@@ -447,7 +447,8 @@ const getterOf = member =>
 /** The middleware a `getMiddleware` member returns, when it is a function the property can hold */
 function returnedMiddleware(member) {
   const fn = getterOf(member);
-  // data-client never called a static getMiddleware()
+  // data-client never called a static getMiddleware(), and an async or generator one returns no
+  // middleware
   if (!fn || fn.params.length || fn.async || fn.generator || member.static)
     return;
   let body = fn.body;
@@ -606,18 +607,21 @@ function addPassThroughMiddleware(j, root) {
 
 /** Whether `name` looks like a NetworkManager: by name, by the name it was imported as, or by the
  * class a local class extends */
-function isNetworkManagerClass(j, root, name) {
-  if (!name) return false;
+function isNetworkManagerClass(j, root, name, seen = new Set()) {
+  if (!name || seen.has(name)) return false;
   if (/NetworkManager$/.test(name)) return true;
+  seen.add(name);
   const imported = importOf(j, root, name)?.specifier.imported.name;
   if (imported && imported !== name)
-    return isNetworkManagerClass(j, root, imported);
-  const superClass = root
-    .find(j.ClassDeclaration, { id: { name } })
-    .nodes()[0]?.superClass;
+    return isNetworkManagerClass(j, root, imported, seen);
+  // `class X extends Y {}` or `const X = class extends Y {}`
+  const local =
+    root.find(j.ClassDeclaration, { id: { name } }).nodes()[0] ??
+    root.find(j.VariableDeclarator, { id: { name } }).nodes()[0]?.init;
+  const superClass = local?.superClass;
   return (
-    superClass?.type === 'Identifier' &&
-    isNetworkManagerClass(j, root, superClass.name)
+    !!superClass &&
+    isNetworkManagerClass(j, root, calleeName({ callee: superClass }), seen)
   );
 }
 
