@@ -287,6 +287,30 @@ renderDataHook(() => useController(), { managers: () => [new LoggingManager(), n
       transform,
       { path: 'useThing.test.ts' },
       `
+import * as DC from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
+renderDataHook(() => useThing(), { managers: [new LoggingManager()] });
+renderDataHook(() => useThing(), { managers: [new DC.NetworkManager()] });
+      `,
+      `
+import * as DC from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+
+import { NetworkManager } from '@data-client/react';
+
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager()] });
+renderDataHook(() => useThing(), { managers: () => [new DC.NetworkManager()] });
+      `,
+      'imports NetworkManager once, and sees a namespaced one',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
 import { renderDataCompose } from '@data-client/vue/test';
 
 await renderDataCompose(() => useThing(), { managers: [new NetworkManager()] });
@@ -352,6 +376,87 @@ const [CustomProvider] = createPersistedStore(useCustom ? () => custom : undefin
   });
 
   describe('Manager classes', () => {
+    defineInlineTest(
+      transform,
+      { path: 'Managers.ts' },
+      `
+import { Manager } from '@data-client/react';
+
+class A implements Manager {}
+class B implements Manager {}
+class C implements Manager {
+  private getMiddleware() {
+    return controller => next => next;
+  }
+}
+const mw = manager?.getMiddleware();
+      `,
+      `
+import { Manager, type Middleware } from '@data-client/react';
+
+class A implements Manager {
+  middleware: Middleware = () => next => next;
+}
+class B implements Manager {
+  middleware: Middleware = () => next => next;
+}
+class C implements Manager {
+  private middleware = controller => next => next;
+}
+const mw = manager?.middleware;
+      `,
+      'imports Middleware once as a type, keeps modifiers, and rewrites optional calls',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Managers.ts' },
+      `
+import type { Manager, Middleware } from '@data-client/react';
+
+class A implements Manager {
+  getMiddleware() {
+    return;
+  }
+  cleanup() {}
+}
+class B implements Manager {
+  getMiddleware: Middleware;
+  cleanup() {}
+}
+class C implements Manager {
+  static getMiddleware() {
+    return controller => next => next;
+  }
+  cleanup() {}
+}
+      `,
+      `
+import type { Manager, Middleware } from '@data-client/react';
+
+class A implements Manager {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware() {
+    return;
+  }
+  cleanup() {}
+}
+class B implements Manager {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  getMiddleware: Middleware;
+  cleanup() {}
+}
+class C implements Manager {
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  static getMiddleware() {
+    return controller => next => next;
+  }
+  cleanup() {}
+}
+      `,
+      'marks getMiddleware members that hold no function to move',
+    );
+
     defineInlineTest(
       transform,
       { path: 'LoggingManager.ts' },

@@ -12,8 +12,9 @@
  *      - `prepareStore(initialState, managers, ...)`, `createPersistedStore(managers)`
  *      `getDefaultManagers()` becomes `getDefaultManagers`. A variable holding an array literal or
  *      `getDefaultManagers(...)` becomes a function when it is only used as `managers`; other values
- *      are wrapped where they are passed: `managers={() => managers}`, with a `// TODO(data-client):`
- *      comment, since every store would share those instances. Exported variables are wrapped too,
+ *      are wrapped where they are passed: `managers={() => managers}`. A wrapped name gets a
+ *      `// TODO(data-client):` comment, since every store would share the instances it holds; an
+ *      inline array or call makes new ones per store. Exported variables are wrapped too,
  *      since other modules wrap them where they pass them. `renderDataCompose()` (Vue) takes
  *      `managers` too.
  *   2. Drops `initManager()`'s third argument, which 0.19 removed.
@@ -21,9 +22,10 @@
  *      replaces them and must include a NetworkManager, so a list of `new` Managers without one
  *      gets `new NetworkManager()`.
  *   4. Managers:
- *      - `getMiddleware = () => middleware` and `getMiddleware() { return middleware; }` become a
- *        `middleware` property; `manager.getMiddleware()` becomes `manager.middleware`.
- *      - A class that `implements Manager` without middleware gets a pass-through
+ *      - `getMiddleware = () => controller => ...` and `getMiddleware() { return controller => ...; }`
+ *        become a `middleware` property; `manager.getMiddleware()` becomes `manager.middleware`.
+ *      - A class that `implements Manager` without middleware, and extends nothing that could
+ *        supply it, gets a pass-through
  *        `middleware: Middleware = () => next => next`.
  *      - Reads of the removed `NetworkManager.cleanupDate`, and `getMiddleware` code it can't
  *        rewrite, get a `// TODO(data-client):` comment.
@@ -64,7 +66,8 @@ const isProperty = node =>
   node.type === 'ObjectProperty' || node.type === 'Property';
 
 const isFunction = node =>
-  node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
+  node?.type === 'ArrowFunctionExpression' ||
+  node?.type === 'FunctionExpression';
 
 // `undefined` selects the default Managers, so it stays as it is
 const isUndefined = node =>
@@ -427,7 +430,8 @@ function transformFetchIfStale(j, root, source) {
 const CLEANUP_DATE_TODO = ` TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: ${BLOG}#manager-cleanup`;
 const GET_MIDDLEWARE_TODO = ` TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: ${BLOG}#manager-middleware`;
 
-const keyName = node => node.key?.name ?? node.key?.value;
+const keyName = node =>
+  node.computed ? undefined : (node.key?.name ?? node.key?.value);
 
 /** The function of a `getMiddleware() {}` method or a `getMiddleware = () => {}` property */
 const getterOf = member =>
@@ -438,7 +442,8 @@ const getterOf = member =>
 /** The middleware a `getMiddleware` member returns, when it is a function the property can hold */
 function returnedMiddleware(member) {
   const fn = getterOf(member);
-  if (!fn || fn.params.length) return;
+  // data-client never called a static getMiddleware()
+  if (!fn || fn.params.length || member.static) return;
   let body = fn.body;
   if (body.type === 'BlockStatement') {
     if (body.body.length !== 1 || body.body[0].type !== 'ReturnStatement')
@@ -451,9 +456,16 @@ function returnedMiddleware(member) {
 }
 
 const isGetMiddleware = node =>
-  CLASS_MEMBERS.has(node.type) &&
-  !node.computed &&
-  keyName(node) === 'getMiddleware';
+  CLASS_MEMBERS.has(node.type) && keyName(node) === 'getMiddleware';
+
+/** `x.getMiddleware()` or `x?.getMiddleware()` */
+const isGetMiddlewareCall = node =>
+  (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') &&
+  !node.arguments.length &&
+  (node.callee.type === 'MemberExpression' ||
+    node.callee.type === 'OptionalMemberExpression') &&
+  !node.callee.computed &&
+  isId(node.callee.property, 'getMiddleware');
 
 /** `getMiddleware` members and calls become `middleware` */
 function renameGetMiddleware(j, root) {
@@ -472,15 +484,14 @@ function renameGetMiddleware(j, root) {
         middleware,
         getterOf(member.node).returnType ?? null,
       );
+      property.accessibility = member.node.accessibility;
       property.comments = member.node.comments;
       member.replace(property);
       dirty = true;
     });
   root
-    .find(j.CallExpression, {
-      arguments: [],
-      callee: { type: 'MemberExpression', property: { name: 'getMiddleware' } },
-    })
+    .find(j.Node)
+    .filter(({ node }) => isGetMiddlewareCall(node))
     .forEach(call => {
       // a subclass's middleware property is not on the prototype, so super can't reach it
       if (call.node.callee.object.type === 'Super') {
@@ -489,20 +500,31 @@ function renameGetMiddleware(j, root) {
         if (!member) dirty = addTodo(j, call, GET_MIDDLEWARE_TODO) || dirty;
         return;
       }
+      const { callee } = call.node;
       call.replace(
-        j.memberExpression(call.node.callee.object, j.identifier('middleware')),
+        callee.type === 'OptionalMemberExpression' ?
+          j.optionalMemberExpression(
+            callee.object,
+            j.identifier('middleware'),
+            false,
+            callee.optional,
+          )
+        : j.memberExpression(callee.object, j.identifier('middleware')),
       );
       dirty = true;
     });
   return dirty;
 }
 
-/** The import specifier that brings `name` into the file, if any */
+/** The declaration and specifier that import `name`, if any; reads nodes, so it sees ones added this run */
 function importOf(j, root, name) {
-  return root
-    .find(j.ImportSpecifier, { local: { name } })
-    .paths()
-    .find(p => p.parent.node.type === 'ImportDeclaration');
+  for (const declaration of root.find(j.ImportDeclaration).nodes()) {
+    const specifier = declaration.specifiers?.find(
+      s =>
+        s.type === 'ImportSpecifier' && (s.local ?? s.imported).name === name,
+    );
+    if (specifier) return { declaration, specifier };
+  }
 }
 
 /** Imports `name` next to the import of `sibling` or from an existing import of `source`, else adds an import */
@@ -511,8 +533,12 @@ function ensureImport(j, root, name, { sibling, source, type = false }) {
   const specifier = j.importSpecifier(j.identifier(name));
   const next = sibling && importOf(j, root, sibling);
   if (next) {
-    specifier.importKind = next.node.importKind;
-    next.parent.node.specifiers.push(specifier);
+    const typeOnly =
+      next.declaration.importKind === 'type' ||
+      next.specifier.importKind === 'type';
+    if (type && !typeOnly) specifier.importKind = 'type';
+    else specifier.importKind = next.specifier.importKind;
+    next.declaration.specifiers.push(specifier);
     return;
   }
   const existing = root
@@ -585,7 +611,9 @@ function addNetworkManager(j, root) {
       if (
         list?.type !== 'ArrayExpression' ||
         !list.elements.every(e => e?.type === 'NewExpression') ||
-        list.elements.some(e => /NetworkManager$/.test(e.callee.name ?? ''))
+        list.elements.some(e =>
+          /NetworkManager$/.test(e.callee.name ?? e.callee.property?.name),
+        )
       )
         return;
       list.elements.push(j.newExpression(j.identifier('NetworkManager'), []));
