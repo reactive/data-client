@@ -22,9 +22,11 @@ reverting any of this.
   entries re-export core directly and weren't measured. Doing the same in core's index made Turbopack's output
   larger, so measure rather than apply it everywhere.
 
-Total brotli JS (quality 11) for a two-page app with lazy routes (`scripts/bundler-compare/measure.sh --webpack`),
-at #4487 with and without its `sideEffects` and react index changes, leaving out the `Object.hasOwn` fallback in the
-entry files. Measured 2026-11-09 with webpack 5.112, rspack 2.3, Vite 8.3 and Next.js 16.4:
+Total brotli JS (quality 11) for a two-page app with lazy routes (`scripts/bundler-compare`), at #4487 with and
+without its `sideEffects` and react index changes, leaving out the `Object.hasOwn` fallback in the entry files.
+Measured 2026-11-09 with webpack 5.112, rspack 2.3, Vite 8.3 and Next.js 16.4. The webpack rows were measured once,
+building the same app with webpack's defaults and `swc-loader`; they confirm rspack tracks webpack, so reports
+use rspack.
 
 | Bundler                |  Before |   After | Diff |
 | ---------------------- | ------: | ------: | ---: |
@@ -38,5 +40,5 @@ Vite 8 (Rolldown) already concatenates each chunk into one scope, so `sideEffect
 (Rollup) didn't change in #4487 either. Single-chunk rspack builds change by under 50 B.
 
 To re-measure, run `scripts/bundler-compare/measure.sh` on a branch that changes the `sideEffects` arrays and on
-its base, then `--compare` the two runs. It covers rspack, Vite 8 and Turbopack; `--webpack` adds webpack 5 and
-Next.js with webpack. To build this app with webpack instead, turn its cache off: it misses `package.json` edits.
+its base, then `--compare` the two runs. It covers rspack (standing in for webpack), Vite 8 and Turbopack. To build
+this app with webpack instead, turn its cache off: it misses `package.json` edits.

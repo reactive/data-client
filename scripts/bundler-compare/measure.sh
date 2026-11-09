@@ -4,7 +4,6 @@
 #
 #   ./measure.sh [label]            build packages, then measure; saves results/<label>.txt
 #   ./measure.sh --no-build [label] reuse packages/*/lib as built
-#   ./measure.sh --webpack [label]  also webpack 5 and Next.js with webpack (slower; for published numbers)
 #   ./measure.sh --compare A B      print B - A per bundler
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
@@ -34,12 +33,8 @@ if [ "${1:-}" = --compare ]; then
 fi
 
 build=1
-webpack=0
 pkgs='core endpoint normalizr react rest use-enhanced-reducer'
-while [ "${1:-}" = --no-build ] || [ "${1:-}" = --webpack ]; do
-  if [ "$1" = --no-build ]; then build=0; else webpack=1; fi
-  shift
-done
+if [ "${1:-}" = --no-build ]; then build=0; shift; fi
 label=${1:-$(git -C "$repo" describe --always --dirty --exclude='*')}
 # reinstall when the lockfile changed since the last install
 [ "$here/node_modules/.package-lock.json" -nt "$here/package-lock.json" ] || (cd "$here" && npm ci)
@@ -75,23 +70,11 @@ next=$!
 wait $rspack
 wait $vite
 wait $next
-bundlers='@rspack/core vite next'
+for p in @rspack/core vite next; do
+  echo "$p $(node -p "require('$here/node_modules/$p/package.json').version")"
+done | tee "$here/results/$label.versions"
 {
   node "$here/size.mjs" rspack dist/rspack
   node "$here/size.mjs" vite8 dist/vite
   node "$here/size.mjs" turbopack next/.next/static/chunks
-} >"$here/results/$label.txt"
-if [ $webpack = 1 ]; then
-  bundlers="$bundlers webpack"
-  "$bin/webpack" -c webpack.config.cjs >/dev/null
-  # reuses .next, so only after Turbopack's output is measured
-  (cd next && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 "$bin/next" build --webpack >/dev/null)
-  {
-    node "$here/size.mjs" webpack dist/webpack
-    node "$here/size.mjs" next-webpack next/.next/static/chunks
-  } >>"$here/results/$label.txt"
-fi
-for p in $bundlers; do
-  echo "$p $(node -p "require('$here/node_modules/$p/package.json').version")"
-done | tee "$here/results/$label.versions"
-cat "$here/results/$label.txt"
+} | tee "$here/results/$label.txt"
