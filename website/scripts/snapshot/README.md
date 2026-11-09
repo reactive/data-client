@@ -56,7 +56,8 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
   `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,
   pages) and the posts published since `versionCurrent.json`'s `cut` date. Posts from before the cut
-  are the current version's: the lists link them to the root's copy (`src/utils/rootPost.ts`), their
+  are the current version's: every link to one goes straight to the root's copy (`src/utils/RootPostLink.tsx`, which
+  replaces `@docusaurus/Link` there), their
   `/next/` pages redirect there with a meta refresh, and in-app routes to them do too
   (`rootBlog.client.ts`). Once the next major ships and master serves the root again, the `/next/*`
   redirect below sends every `/next/blog` post to the root's copy at the same path. It shows an "unreleased" banner
