@@ -58,9 +58,14 @@ function declaredPackages(dir) {
 export function workspaceRoot(dir, repo = repoRoot(dir)) {
   if (repo === dir) return;
   let root;
-  let target = realpath(dir);
+  const own = realpath(dir);
+  let target = own;
   for (const parent of ancestors(path.dirname(dir))) {
-    if (declaresWorkspace(parent, target)) {
+    // a parent can list the package itself, or the nested root that does
+    if (
+      declaresWorkspace(parent, target) ||
+      (target !== own && declaresWorkspace(parent, own))
+    ) {
       root = parent;
       target = realpath(parent);
     }
@@ -105,7 +110,9 @@ function workspaceDirs(dir) {
   const patterns = [
     ...(workspaces.packages ?? workspaces),
     ...(fs.existsSync(pnpm) ? pnpmPackages(pnpm) : []),
-  ].filter(pattern => !escapes(pattern));
+  ]
+    .flatMap(braces)
+    .filter(pattern => !escapes(pattern));
   const excluded = patterns
     .filter(pattern => pattern.startsWith('!'))
     .map(pattern => globRegex(pattern.slice(1)));
@@ -119,6 +126,19 @@ function workspaceDirs(dir) {
 }
 
 const segments = pattern => pattern.split(/[\\/]/);
+
+/** `pattern` with each `{a,b}` group expanded, as npm's glob does */
+function braces(pattern) {
+  const match = /\{([^{}]*)\}/.exec(pattern);
+  if (!match) return [pattern];
+  const [head, tail] = [
+    pattern.slice(0, match.index),
+    pattern.slice(match.index + match[0].length),
+  ];
+  return match[1]
+    .split(',')
+    .flatMap(choice => braces(`${head}${choice}${tail}`));
+}
 
 /**
  * `packages` of a pnpm-workspace.yaml, as a block or flow list; enough YAML

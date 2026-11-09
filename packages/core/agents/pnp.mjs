@@ -17,16 +17,23 @@ const ZIPPED = /^(.*?\.zip)[\\/](node_modules[\\/].*)$/;
 /**
  * Each installed version of the `names` packages in the PnP project holding
  * `projectDir`. Packages in the zip cache get their package.json and skills
- * extracted under `extractTo`, an empty directory the caller owns.
+ * extracted under `extractTo`, an empty directory the caller owns. The
+ * version `projectDir`'s own workspace resolves comes first.
  * @returns {{ pkg: string, dir: string }[]}
  */
 export function pnpPackages(projectDir, names, extractTo) {
   const root = pnpRoot(projectDir);
   if (!root) return [];
+  const registry = runtimeState(root).packageRegistryData;
+  const own = ownDependencies(root, registry, projectDir);
   const found = [];
-  for (const [pkg, versions] of runtimeState(root).packageRegistryData) {
+  for (const [pkg, versions] of registry) {
     if (!names.includes(pkg)) continue;
-    for (const [, { packageLocation }] of versions) {
+    const first = ([reference]) => reference === own.get(pkg);
+    for (const [, { packageLocation }] of [
+      ...versions.filter(first),
+      ...versions.filter(version => !first(version)),
+    ]) {
       const location = path.resolve(root, packageLocation);
       // read a path inside a zip only by extracting, never as a folder, even
       // when extracting finds nothing: under Yarn's runtime
@@ -41,6 +48,17 @@ export function pnpPackages(projectDir, names, extractTo) {
     }
   }
   return found;
+}
+
+/** Package name -> reference that the workspace at `dir` depends on */
+function ownDependencies(root, registry, dir) {
+  const workspace = registry
+    .flatMap(([, versions]) => versions)
+    .find(
+      ([, { packageLocation }]) =>
+        path.resolve(root, packageLocation) === path.resolve(dir),
+    );
+  return new Map(workspace?.[1].packageDependencies ?? []);
 }
 
 /** The nearest directory with a PnP install map, the project's Yarn root */

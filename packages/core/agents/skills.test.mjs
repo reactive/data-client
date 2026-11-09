@@ -76,8 +76,11 @@ function zip(files, method) {
   return Buffer.concat([...locals, directory, end]);
 }
 
-/** A Yarn PnP project: .pnp.cjs inlines the install map as Yarn writes it */
-function pnpProject(packages, files = {}) {
+/**
+ * A Yarn PnP project: .pnp.cjs inlines the install map as Yarn writes it.
+ * `registry` adds raw packageRegistryData entries.
+ */
+function pnpProject(packages, files = {}, registry = []) {
   const sentinel = 'pnp-ran';
   const state = {
     packageRegistryData: [
@@ -86,6 +89,7 @@ function pnpProject(packages, files = {}) {
         name,
         [['npm:0.19.0', { packageLocation: location }]],
       ]),
+      ...registry,
     ],
   };
   const literal = JSON.stringify(state, null, 2)
@@ -701,6 +705,24 @@ test('run in a workspace package, it removes package links whose package is gone
   assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
 });
 
+test('run in a workspace package with no Data Client left, it removes the links an earlier run left there', t => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['apps/*'] },
+    'apps/web/package.json': {},
+  });
+  const web = path.join(dir, 'apps/web');
+  fs.mkdirSync(path.join(web, '.agents/skills'), { recursive: true });
+  fs.symlinkSync(
+    '../../node_modules/@data-client/react/skills/data-client-react',
+    path.join(web, '.agents/skills/data-client-react'),
+  );
+  assert.ok(
+    run(t, web).includes('Removed data-client-react from this package'),
+  );
+  assert.ok(!fs.readdirSync(path.join(web, '.agents/skills')).length);
+});
+
 test('workspaceRoot climbs to the outermost of nested workspace roots', () => {
   const dir = project({
     '.git/HEAD': 'ref',
@@ -709,6 +731,25 @@ test('workspaceRoot climbs to the outermost of nested workspace roots', () => {
     ...app('web', '0.19.0', 'packages/suite/apps'),
   });
   assert.equal(workspaceRoot(path.join(dir, 'packages/suite/apps/web')), dir);
+});
+
+test('workspaceRoot keeps the outer root that includes the package directly', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['packages/*/apps/*'] },
+    'packages/suite/package.json': { workspaces: ['apps/*'] },
+    ...app('web', '0.19.0', 'packages/suite/apps'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'packages/suite/apps/web')), dir);
+});
+
+test('workspaceRoot expands brace groups in workspace patterns', () => {
+  const dir = project({
+    '.git/HEAD': 'ref',
+    'package.json': { workspaces: ['{apps,packages}/*'] },
+    ...app('web', '0.19.0'),
+  });
+  assert.equal(workspaceRoot(path.join(dir, 'apps/web')), dir);
 });
 
 test('run in a workspace package without --upgrade, it removes the upgrade skills an earlier run linked there', t => {
@@ -1140,6 +1181,53 @@ test('Yarn PnP copies are replaced on upgrade and removed with the package', () 
   assert.equal(skillText(dir, 'data-client-react'), 'new');
   fs.rmSync(path.join(dir, '.pnp.cjs'));
   assert.deepEqual(syncSkills(dir).removed, ['data-client-react']);
+});
+
+test('Yarn PnP in a workspace package, it copies the version that package resolves', t => {
+  const react = version =>
+    `.yarn/unplugged/react-${version}/node_modules/@data-client/react`;
+  const workspace = (name, version) => [
+    name,
+    [
+      [
+        `workspace:apps/${name}`,
+        {
+          packageLocation: `./apps/${name}/`,
+          packageDependencies: [['@data-client/react', `npm:${version}`]],
+        },
+      ],
+    ],
+  ];
+  const version = v => [`npm:${v}`, { packageLocation: `./${react(v)}/` }];
+  const { dir } = pnpProject(
+    [],
+    {
+      '.git/HEAD': 'ref',
+      'package.json': { workspaces: ['apps/*'] },
+      'apps/alpha/package.json': {},
+      'apps/beta/package.json': {},
+      ...pkg(react('0.19.0'), '@data-client/react', '0.19.0', [
+        'data-client-react',
+      ]),
+      ...pkg(react('0.19.1'), '@data-client/react', '0.19.1', [
+        'data-client-react',
+      ]),
+    },
+    [
+      ['@data-client/react', [version('0.19.0'), version('0.19.1')]],
+      workspace('alpha', '0.19.0'),
+      workspace('beta', '0.19.1'),
+    ],
+  );
+  const marker = folder =>
+    fs.readFileSync(
+      path.join(folder, '.agents/skills/data-client-react/.data-client'),
+      'utf8',
+    );
+  const beta = path.join(dir, 'apps/beta');
+  run(t, beta);
+  assert.equal(marker(dir), '@data-client/react@0.19.0');
+  assert.equal(marker(beta), '@data-client/react@0.19.1');
 });
 
 test('Yarn PnP copies unplugged packages too', () => {

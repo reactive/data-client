@@ -392,9 +392,7 @@ export function main(cwd = process.cwd(), args = process.argv.slice(2)) {
   // the package keeps only the skills it installs at other versions than the
   // root links, and drops what an earlier run left there
   const local =
-    workspace && synced ?
-      sync(cwd, { upgrade, inherited: provides }).result
-    : undefined;
+    workspace ? sync(cwd, { upgrade, inherited: provides }).result : undefined;
   // where the skills are, from where the command ran
   const dir = skills && posix(path.relative(cwd, skills));
   // the folder holding junctions, if either sync made them
