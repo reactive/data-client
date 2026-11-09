@@ -1,13 +1,11 @@
 import type {
+  DenormalizeNullable,
+  EndpointInterface,
   ErrorTypes,
-  SnapshotInterface,
+  ExpiryStatus,
   Queryable,
   SchemaArgs,
-} from '@data-client/normalizr';
-import type {
-  ExpiryStatus,
-  EndpointInterface,
-  DenormalizeNullable,
+  SnapshotInterface,
 } from '@data-client/normalizr';
 
 import AbortOptimistic from './AbortOptimistic.js';

@@ -1,6 +1,6 @@
 import { normalize } from '@data-client/normalizr';
 
-import type Controller from '../../controller/Controller.js';
+import Controller from '../../controller/Controller.js';
 import type { State, SetAction } from '../../types.js';
 
 export function setReducer(
