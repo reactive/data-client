@@ -1,6 +1,7 @@
 import { Controller, initialState } from '@data-client/core';
-import { Endpoint, Entity } from '@data-client/endpoint';
+import { Endpoint } from '@data-client/endpoint';
 import { act, render } from '@testing-library/react';
+import { makeGetTodo, Todo } from '__tests__/concurrentFixtures';
 import React, { useEffect } from 'react';
 
 import { getDefaultManagers } from '../../../components/getDefaultManagers';
@@ -8,14 +9,7 @@ import { useCache, useController } from '../../../hooks';
 import ExternalDataProvider from '../ExternalDataProvider';
 import { prepareStore } from '../prepareStore';
 
-class Todo extends Entity {
-  id = '';
-  title = '';
-}
-const getTodo = new Endpoint((_args: { id: string }) => Promise.resolve({}), {
-  schema: Todo,
-  name: 'getTodo',
-});
+const getTodo = makeGetTodo(({ id }) => Promise.resolve({ id, title: '' }));
 const updateTodo = new Endpoint(
   // never resolves, so the optimistic update stays pending
   (_args: { id: string }, _body: { title: string }) =>
