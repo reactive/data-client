@@ -928,25 +928,29 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 >
 > Calling getState() during render can cause data tearing.
 
+To act on a mutation's result, use the value `fetch()` resolves with instead of `getState()`. A
+[mutation](#endpointsideeffect) resolves _before_ the store is updated, so `getState()` doesn't have its response yet.
+The resolved value is the denormalized response.
+
 ```tsx
 import { useController } from '@data-client/react';
-import { ArticleResource } from './resources/Article';
+import { useNavigate } from 'react-router';
+import { PostResource } from './PostResource';
 
-function ShareButton({ id }: { id: string }) {
-  const controller = useController();
+function UpdatePost({ id }: { id: string }) {
+  const ctrl = useController();
+  const navigate = useNavigate();
 
-  const handleShare = () => {
-    // reads the latest store without re-rendering on changes
-    const { data: article } = controller.getResponse(
-      ArticleResource.get,
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const post = await ctrl.fetch(
+      PostResource.update,
       { id },
-      controller.getState(),
+      new FormData(e.currentTarget),
     );
-    if (article) navigator.share({ title: article.title, url: article.url });
+    navigate(`/posts/${post.id}`);
   };
-  return <button onClick={handleShare}>Share</button>;
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 ```
-
-[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
-the value `fetch()` resolves with rather than `getState()`.

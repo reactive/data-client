@@ -704,19 +704,31 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 > Using getState() in a `computed()` or template won't update when the store changes. Use
 > [useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.
 
-```ts
-const controller = useController();
+To act on a mutation's result, use the value `fetch()` resolves with instead of `getState()`. A
+[mutation](#endpointsideeffect) resolves _before_ the store is updated, so `getState()` doesn't have its response yet.
+The resolved value is the denormalized response.
 
-const handleShare = () => {
-  // reads the latest store without making this handler reactive
-  const { data: article } = controller.getResponse(
-    ArticleResource.get,
-    { id: props.id },
-    controller.getState(),
-  );
-  if (article) navigator.share({ title: article.title, url: article.url });
-};
+```html title="UpdatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const router = useRouter();
+
+  const handleSubmit = async (e: Event) => {
+    const post = await ctrl.fetch(
+      PostResource.update,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+    router.push(`/posts/${post.id}`);
+  };
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
 ```
-
-[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
-the value `fetch()` resolves with rather than `getState()`.

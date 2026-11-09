@@ -1118,25 +1118,32 @@ Using getState() in a `computed()` or template won't update when the store chang
 
 ::::
 
+To act on a mutation's result, use the value `fetch()` resolves with instead of `getState()`. A
+[mutation](#endpointsideeffect) resolves _before_ the store is updated, so `getState()` doesn't have its response yet.
+The resolved value is the denormalized response.
+
 :::react
 
 ```tsx
 import { useController } from '@data-client/react';
-import { ArticleResource } from './resources/Article';
+import { useNavigate } from 'react-router';
+import { PostResource } from './PostResource';
 
-function ShareButton({ id }: { id: string }) {
-  const controller = useController();
+function UpdatePost({ id }: { id: string }) {
+  const ctrl = useController();
+  const navigate = useNavigate();
 
-  const handleShare = () => {
-    // reads the latest store without re-rendering on changes
-    const { data: article } = controller.getResponse(
-      ArticleResource.get,
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const post = await ctrl.fetch(
+      PostResource.update,
       { id },
-      controller.getState(),
+      new FormData(e.currentTarget),
     );
-    if (article) navigator.share({ title: article.title, url: article.url });
+    navigate(`/posts/${post.id}`);
   };
-  return <button onClick={handleShare}>Share</button>;
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 ```
 
@@ -1144,21 +1151,29 @@ function ShareButton({ id }: { id: string }) {
 
 :::vue
 
-```ts
-const controller = useController();
+```html title="UpdatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
 
-const handleShare = () => {
-  // reads the latest store without making this handler reactive
-  const { data: article } = controller.getResponse(
-    ArticleResource.get,
-    { id: props.id },
-    controller.getState(),
-  );
-  if (article) navigator.share({ title: article.title, url: article.url });
-};
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const router = useRouter();
+
+  const handleSubmit = async (e: Event) => {
+    const post = await ctrl.fetch(
+      PostResource.update,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+    router.push(`/posts/${post.id}`);
+  };
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
 ```
 
 :::
-
-[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
-the value `fetch()` resolves with rather than `getState()`.
