@@ -3,6 +3,10 @@ import { renderDataHook } from '@data-client/test';
 
 import LiveManager from '../managers/LiveManager';
 
+afterEach(() => {
+  renderDataHook.cleanup();
+});
+
 class FakeSocket {
   sent: string[] = [];
   onmessage?: (event: { data: string }) => void;

@@ -1182,4 +1182,108 @@ jest.spyOn(ctrl, 'fetch').mockReturnValue(other);
       'makes fetchIfStale() mocks resolve their value',
     );
   });
+
+  describe('deprecated APIs', () => {
+    defineInlineTest(
+      transform,
+      { path: 'resources.ts' },
+      `
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote', { path: '/posts/:id/vote', method: 'POST' });
+const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
+
+export const createPost = (ctrl, body) => ctrl.fetch(PostResource.create, body);
+export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
+export const clone = Object.create(null);
+      `,
+      `
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote', { path: '/posts/:id/vote', method: 'POST' });
+const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
+
+export const createPost = (ctrl, body) => ctrl.fetch(PostResource.getList.push, body);
+// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint: https://dataclient.io/rest/api/resource#push
+export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint: https://dataclient.io/rest/api/resource#push
+export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
+export const clone = Object.create(null);
+      `,
+      'renames create on a resource() declared here, and marks other resources',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'index.tsx' },
+      `
+import { DevToolsManager } from '@data-client/react';
+
+const devtools = new DevToolsManager({ actionsBlacklist: ['rdc/gc'], actionsWhitelist: ['rdc/fetch'] });
+const both = new DevToolsManager({ actionsBlacklist: ['a'], actionsDenylist: ['b'] });
+      `,
+      `
+import { DevToolsManager } from '@data-client/react';
+
+const devtools = new DevToolsManager({ actionsDenylist: ['rdc/gc'], actionsAllowlist: ['rdc/fetch'] });
+const both = new DevToolsManager({ actionsBlacklist: ['a'], actionsDenylist: ['b'] });
+      `,
+      'renames the DevTools action filter options',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataHook } from '@data-client/test';
+
+afterEach(() => {
+  renderDataHook.cleanup();
+});
+
+it('loads', async () => {
+  const { result, waitForNextUpdate } = renderDataHook(() => useThing(), { resolverFixtures });
+  await waitForNextUpdate();
+  expect(result.current).toBeDefined();
+  await renderDataHook.allSettled();
+});
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+
+afterEach(() => {
+  // TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled
+  renderDataHook.cleanup();
+});
+
+it('loads', async () => {
+  const { result, waitForNextUpdate } = renderDataHook(() => useThing(), { resolverFixtures });
+  // TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) in renderDataHook() tests, or \`await result\` / allSettled() in renderDataCompose() tests: https://dataclient.io/docs/api/renderDataHook#waitfor
+  await waitForNextUpdate();
+  expect(result.current).toBeDefined();
+  // TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled
+  await renderDataHook.allSettled();
+});
+      `,
+      'marks deprecated test helpers',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'main.ts' },
+      `
+import { createDataClient, type ProvidedDataClient } from '@data-client/vue';
+
+const client: ProvidedDataClient = createDataClient({ managers: () => [] });
+      `,
+      `
+import { createDataClient, type ProvidedDataClient } from '@data-client/vue';
+
+// TODO(data-client): createDataClient() and ProvidedDataClient are deprecated; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin
+const client: ProvidedDataClient = createDataClient({ managers: () => [] });
+      `,
+      'marks createDataClient()',
+    );
+  });
 });

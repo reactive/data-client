@@ -17,7 +17,7 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
   with React Navigation, stale data refetches on screen focus.
 - `@data-client/ssr` has no 0.19 release; if it's installed, read Step 3 first.
 - If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  linked skills match 0.19 (Step 8 unlinks the migration skills at the end).
+  linked skills match 0.19 (Step 9 unlinks the migration skills at the end).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`):
@@ -127,10 +127,25 @@ Debug scripts often live outside the source roots, so search the repo: skip this
 several stores, set `__DC__.store = name` first.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global).
 
-## Step 8: verify
+## Step 8: deprecated APIs
+
+They still work, but a later release removes them. The codemod renamed DevTools `actionsBlacklist`/`actionsWhitelist`
+to `actionsDenylist`/`actionsAllowlist`, and `Resource.create` to `Resource.getList.push` (the same endpoint) where the
+`resource()` is in the same file. Fix each `TODO(data-client)` comment it left, then delete it:
+
+- `*Resource.create` from another file: use `getList.push`, unless that resource's `extend()` replaces `create` or
+  `getList`. Resources not named `*Resource` get no TODO, so also check `rg -n '\.create\b' <source-root>`.
+- `waitForNextUpdate()`: in `renderDataHook()` tests, `await waitFor(() => expect(...))` on what you wait for; in
+  `renderDataCompose()` tests, `await result` for the first load and `await allSettled()` after changing props or calling
+  the controller.
+- `renderDataHook.cleanup()` / `.allSettled()`: use the ones the `renderDataHook()` call returns.
+- Vue `createDataClient()` / `ProvidedDataClient`: install with `app.use(DataClientPlugin, options)` and read the
+  controller with `useController()`.
+
+## Step 9: verify
 
 1. Search for `TODO(data-client)`: none should remain. Search for
-   `rg -n '=> \w*[mM]anagers\b|getMiddleware|cleanupDate|__DC_CONTROLLERS__'` and fix what's left. Search for
+   `rg -n '=> \w*[mM]anagers\b|getMiddleware|cleanupDate|__DC_CONTROLLERS__|waitForNextUpdate|createDataClient'` and fix what's left. Search for
    `instanceof Promise`, `isPromise` and `.then ===` near `fetchIfStale`: each one is a sync-data branch that no longer
    runs.
 2. Run the type checker. Property reads on a `fetchIfStale()` result now fail to type-check, since it is a Promise. A

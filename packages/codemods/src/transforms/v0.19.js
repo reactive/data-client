@@ -33,6 +33,11 @@
  *      - `Promise.resolve(ctrl.fetchIfStale(...))` becomes the bare call.
  *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
  *      - A statement that reads its result as the data gets a `// TODO(data-client):` comment.
+ *   6. Deprecated APIs:
+ *      - `Resource.create` becomes `Resource.getList.push` for a `resource()` declared in the file;
+ *        DevTools `actionsBlacklist`/`actionsWhitelist` become `actionsDenylist`/`actionsAllowlist`.
+ *      - Other `*Resource.create`, `waitForNextUpdate()`, `renderDataHook.cleanup()`/`.allSettled()`
+ *        and Vue `createDataClient()` get a `// TODO(data-client):` comment.
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
@@ -41,7 +46,7 @@
 const DATA_CLIENT_PREFIX = '@data-client/';
 // every rewrite needs one of these names in the file
 const NAMES =
-  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b/;
+  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b|\.create\b|actions(Black|White)list|waitForNextUpdate|\.(cleanup|allSettled)\b|createDataClient|ProvidedDataClient/;
 const BLOG = 'https://dataclient.io/blog/2026/10/03/v0.19-batch-set';
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
@@ -854,6 +859,141 @@ function transformManagerClasses(j, root, source) {
   return dirty;
 }
 
+/* Deprecated APIs: renamed where the replacement does the same thing, marked otherwise */
+
+const DEVTOOLS_RENAMES = new Map([
+  ['actionsBlacklist', 'actionsDenylist'],
+  ['actionsWhitelist', 'actionsAllowlist'],
+]);
+const CREATE_TODO = ` TODO(data-client): resource().create is deprecated; use getList.push, which is the same endpoint: https://dataclient.io/rest/api/resource#push`;
+const WAIT_FOR_NEXT_UPDATE_TODO = ` TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) in renderDataHook() tests, or \`await result\` / allSettled() in renderDataCompose() tests: https://dataclient.io/docs/api/renderDataHook#waitfor`;
+const SHARED_TEST_HELPER_TODO = ` TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled`;
+const CREATE_DATA_CLIENT_TODO = ` TODO(data-client): createDataClient() and ProvidedDataClient are deprecated; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin`;
+
+/** `actionsBlacklist` -> `actionsDenylist`, unless the object already has the new name */
+function renameDevToolsOptions(j, root) {
+  let dirty = false;
+  root.find(j.ObjectExpression).forEach(({ node }) => {
+    const keys = new Set(node.properties.filter(isProperty).map(keyName));
+    for (const prop of node.properties) {
+      if (!isProperty(prop) || prop.computed) continue;
+      const renamed = DEVTOOLS_RENAMES.get(keyName(prop));
+      if (!renamed || keys.has(renamed)) continue;
+      // `{ actionsBlacklist }` shorthand keeps its value under the new key
+      prop.shorthand = false;
+      prop.key = j.identifier(renamed);
+      dirty = true;
+    }
+  });
+  return dirty;
+}
+
+/** Whether `node` is a `resource(...)` call, through `.extend()` calls that keep `create` the same as
+ * `getList.push`; `extend()` replacing either, or a function `extend()`, can make them differ */
+function isPlainResource(j, root, node) {
+  while (
+    node?.type === 'CallExpression' &&
+    memberName(node.callee) === 'extend'
+  ) {
+    const [first] = node.arguments;
+    if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
+      if (['create', 'getList'].includes(first.value)) return false;
+    } else if (first?.type === 'ObjectExpression') {
+      if (
+        first.properties.some(
+          p => !isProperty(p) || ['create', 'getList'].includes(keyName(p)),
+        )
+      )
+        return false;
+    } else return false;
+    node = node.callee.object;
+  }
+  return (
+    node?.type === 'CallExpression' &&
+    isId(node.callee, 'resource') &&
+    importOf(j, root, 'resource')?.declaration.source.value ===
+      '@data-client/rest'
+  );
+}
+
+/** `Resource.create` -> `Resource.getList.push` for a `resource()` declared in this file; a
+ * `*Resource.create` declared elsewhere gets a TODO */
+function migrateResourceCreate(j, root) {
+  let dirty = false;
+  const unresolved = [];
+  root
+    .find(j.MemberExpression, { object: { type: 'Identifier' } })
+    .filter(({ node }) => !node.computed && memberName(node) === 'create')
+    .forEach(path => {
+      const declarator = bindingOf(path.get('object'))?.parent.node;
+      if (
+        declarator?.type === 'VariableDeclarator' &&
+        isPlainResource(j, root, declarator.init)
+      ) {
+        path.node.property = j.identifier('getList');
+        path.replace(j.memberExpression(path.node, j.identifier('push')));
+        dirty = true;
+      } else if (/Resource$/.test(path.node.object.name)) {
+        unresolved.push(path);
+      }
+    });
+  return addTodos(j, unresolved, CREATE_TODO) || dirty;
+}
+
+/** Deprecated test helpers and Vue setup whose replacement depends on what the code waits for */
+function markDeprecatedCalls(j, root) {
+  const members = name =>
+    root
+      .find(j.MemberExpression)
+      .filter(({ node }) => memberName(node) === name)
+      .paths();
+  const sharedHelpers = ['cleanup', 'allSettled'].flatMap(name =>
+    members(name).filter(({ node }) =>
+      RENDER_HOOK_CALLS.has(nameOf(node.object) ?? ''),
+    ),
+  );
+  const vueSetup = root
+    .find(j.Identifier)
+    .filter(
+      p =>
+        ['createDataClient', 'ProvidedDataClient'].includes(p.node.name) &&
+        !isOtherName(p) &&
+        importOf(j, root, p.node.name)?.declaration.source.value ===
+          '@data-client/vue' &&
+        !j(p).closest(j.ImportDeclaration).size(),
+    )
+    .paths();
+  const waitForNextUpdate = [
+    ...members('waitForNextUpdate'),
+    // `const { waitForNextUpdate } = renderDataHook(...)` and its calls
+    ...root
+      .find(j.CallExpression, {
+        callee: { type: 'Identifier', name: 'waitForNextUpdate' },
+      })
+      .paths(),
+  ];
+  return [
+    addTodos(j, waitForNextUpdate, WAIT_FOR_NEXT_UPDATE_TODO),
+    addTodos(j, sharedHelpers, SHARED_TEST_HELPER_TODO),
+    addTodos(j, vueSetup, CREATE_DATA_CLIENT_TODO),
+  ].some(Boolean);
+}
+
+function migrateDeprecations(j, root, source) {
+  let dirty = false;
+  if (/actions(Black|White)list/.test(source))
+    dirty = renameDevToolsOptions(j, root);
+  if (/\.create\b/.test(source))
+    dirty = migrateResourceCreate(j, root) || dirty;
+  if (
+    /waitForNextUpdate|\.(cleanup|allSettled)\b|createDataClient|ProvidedDataClient/.test(
+      source,
+    )
+  )
+    dirty = markDeprecatedCalls(j, root) || dirty;
+  return dirty;
+}
+
 module.exports = function transformer(fileInfo, api) {
   // skip parsing files that have nothing to migrate
   if (
@@ -876,6 +1016,7 @@ module.exports = function transformer(fileInfo, api) {
   dirty = transformInitManager(j, root) || dirty;
   dirty = transformManagerClasses(j, root, fileInfo.source) || dirty;
   dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
+  dirty = migrateDeprecations(j, root, fileInfo.source) || dirty;
 
   // recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
   return dirty ?
