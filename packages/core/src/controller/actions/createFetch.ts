@@ -3,6 +3,7 @@ import type { EndpointInterface, NI } from '@data-client/normalizr';
 import { FETCH } from '../../actionTypes.js';
 import type { FetchAction, FetchMeta } from '../../types.js';
 import { EndpointUpdateFunction } from '../types.js';
+import { orderedNow } from './orderedNow.js';
 
 /**
  * Requesting a fetch to begin
@@ -19,7 +20,7 @@ export function createFetch<
     [resolve, reject] = [a, b];
   });
   const meta: FetchMeta = {
-    fetchedAt: Date.now(),
+    fetchedAt: orderedNow(),
     resolve,
     reject,
     promise,
