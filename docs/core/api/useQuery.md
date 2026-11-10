@@ -97,6 +97,10 @@ The result updates when the arguments change.
 [Entity](/rest/api/Entity), [Object](/rest/api/Object), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
 [Union](/rest/api/Union), and [Scalar](/rest/api/Scalar). [Lazy](/rest/api/Lazy) fields produce a Queryable via their [`.query`](/rest/api/Lazy#query) accessor.
 
+Endpoints use the same lookup. When `useQuery(Post, { id })` would find a post, `useSuspense(PostResource.get, { id })`
+renders it without waiting for a fetch, until that endpoint has a response of its own
+([Lists to details](/docs/getting-started/data-dependency#list-detail)).
+
 ```ts
 interface Queryable {
   queryKey(

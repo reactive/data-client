@@ -233,6 +233,11 @@ const data = memo.query(
 
 This enables their use in these additional cases:
 
+- Endpoints whose schema is Queryable: until the endpoint has a response of its own,
+  [useSuspense()](/docs/api/useSuspense), [useDLE()](/docs/api/useDLE), [useCache()](/docs/api/useCache) and
+  [Controller.fetchIfStale()](/docs/api/Controller#fetchIfStale) build it from the store the same way. Whatever
+  `useQuery()` finds for a schema and args, an endpoint with that schema renders with the same args without waiting
+  for a fetch ([Lists to details](/docs/getting-started/data-dependency#list-detail)).
 - [useQuery()](/docs/api/useQuery) - Rendering in :react[React]:vue[Vue]
 - [schema.Query()](./Query.md) - As input to produce a computed memoization.
 - [ctrl.get](/docs/api/Controller#get)/[snap.get](/docs/api/Snapshot#get)

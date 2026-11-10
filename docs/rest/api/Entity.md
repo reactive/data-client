@@ -129,7 +129,8 @@ stored. This is how a detail page renders an item a list already loaded, without
 1. **Storing:** normalizing a response stores each Entity under its `key` and `pk()`. A list of posts stores
    `Post` `'1'`, `'2'` and so on, whichever endpoint fetched them.
 2. **Reading:** when an endpoint has a response of its own, it reads that. Until it does, its schema builds one from
-   the args instead. An Entity schema does this with [queryKey](#queryKey), which by default:
+   the args instead, the same lookup [`useQuery(Post, args)`](/docs/api/useQuery) uses
+   ([Queryable](./schema.md#queryable)). An Entity schema does this with [queryKey](#queryKey), which by default:
    - uses a string or number first argument as the primary key itself;
    - otherwise calls `pk()` on the first argument. `pk()` reads fields from whatever object it gets, so args that
      hold the same fields as the data (`{ id: 1 }` for the default `pk()`) produce the same key the list stored;
