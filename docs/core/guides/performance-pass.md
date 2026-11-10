@@ -1,0 +1,167 @@
+---
+frameworks: [react]
+title: Performance pass
+sidebar_label: Performance pass
+description: Find the speedups an app on Data Client may be missing, such as detail pages from list data, loaders that wait for less, and optimistic updates.
+---
+
+# Performance pass
+
+Data Client can make an app faster than a plain migration shows. Run this pass after a migration, or at any time on an
+app that already uses Data Client.
+
+A migration should already give the [built-in wins](#built-in): they take little code and fix stale or slow behavior,
+so check that they are in place and correct any that are missing. The [changes with tradeoffs](#tradeoffs) need extra
+code or change what users see, such as when a loading state shows or when a change appears. They make a separate,
+optional stage: make them one at a time, keep the tests passing, and skip any you don't want.
+
+## Measure first {#measure}
+
+Record a baseline before you change anything, and measure again after each change:
+
+- **Requests:** in the browser's Network panel, count reads for each navigation and after each mutation.
+- **Time to update:** in the Performance panel, the time from a click until the screen shows its result (interaction
+  to next paint). Throttle the CPU and add network latency so the numbers resemble real devices.
+- **Renders:** the React DevTools Profiler shows which components render after an update.
+
+## Built-in wins {#built-in}
+
+### Details from lists {#list-detail}
+
+A detail endpoint whose schema holds the list's [Entity](/rest/api/Entity) renders an item the list already loaded,
+with no fetch, while that data is fresh. The lookup uses the endpoint's args, so `{ id }` must name the Entity's primary
+key, or a field in its [indexes](/rest/api/Entity#indexes).
+
+- **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that name
+  neither the primary key nor an index (`{ slug }` without `static indexes = ['slug']`); list data copied into the
+  detail by hand.
+- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. Add an index for
+  other lookup fields. Delete the copying.
+- **Users see:** the detail page shows at once when opened from the list.
+
+### Mutations update lists in place {#lists}
+
+- **Find:** `ctrl.expireAll()`, `ctrl.invalidate()` or a refetch after a create or delete.
+- **Change:** create through the list's [Collection](/rest/api/Collection) `push` or `unshift` endpoint; delete with
+  `resource().delete` or an [Invalidate](/rest/api/Invalidate) schema. Keep `expireAll()` for numbered pages, whose
+  later items shift.
+- **Users see:** the new or removed item shows without a reload of the list.
+
+## Changes with tradeoffs {#tradeoffs}
+
+### Loaders wait only for the first view {#loaders}
+
+A router loader that awaits every request makes the page wait for the slowest one, even when the main item came from
+the list. Await only the data the page shows first. Start the rest without `await`, and give each component that reads
+it its own [AsyncBoundary](../api/AsyncBoundary.md):
+
+```ts title="Before"
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { issueId?: string } }) => {
+    const id = Number(params.issueId);
+    return Promise.all([
+      ctrl.fetchIfStale(IssueResource.get, { id }),
+      ctrl.fetchIfStale(getNotes, { issueId: id }),
+    ]);
+  };
+```
+
+```ts title="After"
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { issueId?: string } }) => {
+    const id = Number(params.issueId);
+    // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
+    ctrl.fetchIfStale(getNotes, { issueId: id });
+    return ctrl.fetchIfStale(IssueResource.get, { id });
+  };
+```
+
+```tsx title="IssuePage.tsx"
+import { AsyncBoundary } from '@data-client/react';
+import IssueDetail from './IssueDetail';
+import IssueNotes from './IssueNotes';
+import Spinner from './Spinner';
+
+export default function IssuePage({ id }: { id: number }) {
+  return (
+    <>
+      <IssueDetail id={id} />
+      <AsyncBoundary fallback={<Spinner />}>
+        <IssueNotes issueId={id} />
+      </AsyncBoundary>
+    </>
+  );
+}
+```
+
+- **Find:** loaders that `await` or `Promise.all()` several requests; components that call `useSuspense()` below the
+  page's main content with no boundary of their own.
+- **Users see:** the page shows while the secondary parts show their own loading state.
+
+### Optimistic updates {#optimistic}
+
+When the client can predict a mutation's result, show it at once and let Data Client roll it back if the request fails.
+Use [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint, or `optimistic: true` on
+[resource()](/rest/api/resource).
+
+- **Find:** `ctrl.fetch()` of updates, deletes and creates whose response the client can predict from the body and
+  the store.
+- **Users see:** changes appear on click. A failed request reverts the change, so keep showing its error.
+
+### Derived views in Query {#query}
+
+- **Find:** sorting, filtering or grouping of fetched data in render or `useMemo()`.
+- **Change:** a [Query](/rest/api/Query) schema read with [useQuery()](../api/useQuery.md). Its result is memoized
+  across components and recomputes only when its inputs change ([client-side sorting](/rest/guides/sorting-client-side)).
+- **Users see:** no change; updates render faster in large lists.
+
+### Parallel reads {#parallel}
+
+- **Find:** two `useSuspense()` calls in one component where neither needs the other's data; a child that starts its
+  fetch only after its parent's data arrives.
+- **Change:** start both with [useFetch()](../api/useFetch.md#parallel-data-loading) and read them with `use()`, or
+  start the child's fetch in the route loader.
+- **Users see:** the page loads sooner.
+
+### Keep current data during changes {#transitions}
+
+- **Find:** pagination, filters or search that flash a loading fallback.
+- **Change:** change the args inside `startTransition()`, or [useDebounce()](../api/useDebounce.md) for typed input.
+- **Users see:** the current results stay until the next ones are ready.
+
+### Stable references {#references}
+
+Data Client keeps each Entity's object the same until it changes, so memoized components and React Compiler skip rows
+that did not change.
+
+- **Find:** entities copied or reshaped in render (`{ ...issue }`, `issues.map(toViewModel)`) before they go to child
+  components.
+- **Change:** pass the Entity itself; put computed fields on the Entity class as getters.
+- **Users see:** no change; fewer components render after each update.
+
+### React 19 and React Compiler {#compiler}
+
+[React Compiler](https://react.dev/learn/react-compiler) memoizes components and hooks at build time. With the stable
+references above, fewer components render after a store update.
+
+- **Find:** `react` below 19 in package.json; no `babel-plugin-react-compiler` in the build (Babel or Vite config, or
+  `reactCompiler` in Next.js config).
+- **Change on React 19:** follow the [installation guide](https://react.dev/learn/react-compiler/installation) and turn
+  on the `eslint-plugin-react-hooks` recommended rules. The compiler skips components that break the
+  [Rules of React](https://react.dev/reference/rules), and the lint rules name them. Leave existing memoization in
+  place, and run the tests.
+- **Below React 19:** upgrading React is its own project, so don't do it in this pass. Explain what React 19 brings
+  this app: the compiler, `use()` for the [parallel reads](#parallel) above, and in 19.2,
+  [`<Activity>`](https://react.dev/reference/react/Activity) to keep hidden pages and their data ready. Then ask
+  whether to upgrade as a follow-up, with the [upgrade guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide),
+  and add the compiler as part of that upgrade.
+- **Until the upgrade:** wrap expensive list rows in `memo()`, so rows whose Entity did not change skip rendering.
+- **Users see:** no change; fewer components render after each update. The compiled JavaScript is larger (about 6%
+  gzipped on a small app), so measure load time too.
+
+## Report {#report}
+
+For each section, record what you found, what you changed or skipped and why, and the before and after numbers.
+Without a browser, count the requests each flow makes from the code and its tests, and say how you counted.

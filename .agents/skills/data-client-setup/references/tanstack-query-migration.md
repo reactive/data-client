@@ -36,6 +36,11 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 9. **Clean up.** Delete query key factories, `queryOptions()` helpers and `lib/react-query.ts`-style config. Uninstall
    `@tanstack/react-query` and `@tanstack/react-query-devtools` when no file imports them.
 
+These steps keep the app's behavior, except where Data Client fixes it with less code: lists that showed stale data
+after a mutation, refetches after a mutation, and fetches for items a list already loaded. Changes that need extra code
+or change what users see, like optimistic updates, are a separate, optional
+[performance pass](https://dataclient.io/docs/guides/performance-pass). Finish and check the migration first, so you can measure each stage.
+
 ## API map {#api-map}
 
 | TanStack Query                                                               | Data Client                                                                                                                                                                                |
@@ -311,7 +316,8 @@ export const issueLoader =
 `fetchQuery()` with a `staleTime`: it resolves the data, or rejects with the error. Left unawaited, it works like
 `prefetchQuery()`: a failure never rejects unhandled, and is stored for components to show. Use it for hover or focus
 prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Load several endpoints with
-`Promise.all()` of `fetchIfStale()` calls.
+`Promise.all()` of `fetchIfStale()` calls, as the loader did before; letting the page show before secondary data
+arrives belongs to the [performance pass](https://dataclient.io/docs/guides/performance-pass#loaders).
 
 Unlike `ensureQueryData()` and `getQueryData() ?? fetchQuery()`, an awaited `fetchIfStale()` waits for the refetch
 when cached data is stale. To navigate without waiting, don't await it: `useSuspense()` renders the stale data while it
@@ -518,5 +524,6 @@ To sign out on any other 401 response, add [LogoutManager](https://dataclient.io
 - The linter passes, including its import-boundary rules, and no feature folder defines an Entity.
 - Each `<Suspense>` or `AsyncBoundary` that catches a `useSuspense()` is inside `DataProvider`.
 - The type checker, unit tests and end-to-end tests pass.
+- Opening an item from a freshly loaded list makes no request for that item.
 - After a mutation, every page showing that Entity shows the change without a reload. A test that edits an item on
   its detail page, then goes back to the list, proves it.
