@@ -128,6 +128,7 @@ function BenchmarkHarness() {
     doubleListCount,
     detailIssueNumber,
     pinnedNumbers,
+    stateList,
     renderLimit,
     containerRef,
     measureUpdate,
@@ -187,6 +188,23 @@ function BenchmarkHarness() {
       );
     },
     [measureUpdate, mutate],
+  );
+
+  const createItem = useCallback(async () => {
+    const issue = await IssueResource.create({
+      title: 'New Issue',
+      user: FIXTURE_USERS[0],
+    });
+    await mutate(key => typeof key === 'string' && key.startsWith('issues:'));
+    return issue.number;
+  }, [mutate]);
+
+  const moveToState = useCallback(
+    async (number: number, state: 'open' | 'closed') => {
+      await IssueResource.update({ number }, { state });
+      await mutate(key => typeof key === 'string' && key.startsWith('issues:'));
+    },
+    [mutate],
   );
 
   const moveStateRef = useRef<'open' | 'closed'>('closed');
@@ -253,6 +271,8 @@ function BenchmarkHarness() {
     unshiftItem,
     deleteEntity,
     moveItem,
+    createItem,
+    moveToState,
     resetStore,
   });
 
@@ -264,6 +284,14 @@ function BenchmarkHarness() {
       {showSortedView && <SortedListView limit={renderLimit} />}
       {showDoubleList && doubleListCount != null && (
         <DoubleListView count={doubleListCount} limit={renderLimit} />
+      )}
+      {stateList != null && doubleListCount != null && (
+        <StateListView
+          key={stateList}
+          state={stateList}
+          count={doubleListCount}
+          limit={renderLimit}
+        />
       )}
       {detailIssueNumber != null && <DetailView number={detailIssueNumber} />}
       {pinnedNumbers.length > 0 && <PinnedStrip numbers={pinnedNumbers} />}

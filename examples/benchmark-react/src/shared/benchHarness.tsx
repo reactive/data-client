@@ -171,6 +171,8 @@ export function useBenchState({
     null,
   );
   const [pinnedNumbers, setPinnedNumbers] = useState<number[]>([]);
+  /** The one state-filtered list shown, like a tab (create/move navigation scenarios) */
+  const [stateList, setStateList] = useState<'open' | 'closed' | null>(null);
   const [renderLimit, setRenderLimit] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
@@ -367,6 +369,7 @@ export function useBenchState({
     setDoubleListCount(undefined);
     setDetailIssueNumber(null);
     setPinnedNumbers([]);
+    setStateList(null);
   }, []);
 
   const initDoubleList = useCallback(
@@ -471,6 +474,86 @@ export function useBenchState({
     ],
   );
 
+  /**
+   * Timed: opening each newly created issue, from the state change until its
+   * detail commits. Creating it, and returning to the list, are not timed.
+   * The first round is an unmeasured warmup.
+   */
+  const createThenDetail = useCallback(
+    async (navigations: number, seedCount: number) => {
+      await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
+      const listItem = '[data-issue-list] [data-bench-item]';
+      setListViewCount(seedCount);
+      await waitForElement(listItem);
+
+      const container = containerRef.current!;
+      for (let i = 0; i <= navigations; i++) {
+        const number = await apiRef.current.createItem!();
+        const open = () => {
+          setListViewCount(undefined);
+          setDetailIssueNumber(number);
+        };
+        const detail = `[data-detail-view][data-issue-number="${number}"]`;
+        if (i === 0) {
+          open();
+          await waitForElement(detail);
+        } else {
+          await measureNavStep(open, detail);
+        }
+        setDetailIssueNumber(null);
+        setListViewCount(seedCount);
+        await waitForElement(listItem);
+        if (container.hasAttribute('data-bench-timeout')) break;
+      }
+      setComplete();
+    },
+    [
+      setListViewCount,
+      setDetailIssueNumber,
+      waitForElement,
+      measureNavStep,
+      setComplete,
+    ],
+  );
+
+  /**
+   * Timed: switching to the closed list after moving an open issue there,
+   * from the state change until the closed list shows it. Both lists were
+   * loaded first; only one is mounted at a time, like tabs. Moving, and
+   * switching back, are not timed. The first round is an unmeasured warmup.
+   */
+  const moveThenSwitch = useCallback(
+    async (navigations: number, seedCount: number) => {
+      const seed = FIXTURE_ISSUES.slice(0, seedCount);
+      await seedIssueList(seed);
+      const open = seed.filter(issue => issue.state === 'open');
+      const openItem = '[data-state-list="open"] [data-bench-item]';
+      setDoubleListCount(seedCount);
+      setStateList('closed');
+      await waitForElement('[data-state-list="closed"] [data-bench-item]');
+      setStateList('open');
+      await waitForElement(openItem);
+
+      const container = containerRef.current!;
+      for (let i = 0; i <= navigations && i < open.length; i++) {
+        const { number } = open[i];
+        await apiRef.current.moveToState!(number, 'closed');
+        const moved = `[data-state-list="closed"] [data-issue-number="${number}"]`;
+        if (i === 0) {
+          setStateList('closed');
+          await waitForElement(moved);
+        } else {
+          await measureNavStep(() => setStateList('closed'), moved);
+        }
+        setStateList('open');
+        await waitForElement(openItem);
+        if (container.hasAttribute('data-bench-timeout')) break;
+      }
+      setComplete();
+    },
+    [setDoubleListCount, waitForElement, measureNavStep, setComplete],
+  );
+
   const initMultiView = useCallback(
     async (n: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, n));
@@ -525,6 +608,8 @@ export function useBenchState({
       mountUnmountCycle,
       mountSortedView,
       listDetailSwitch,
+      createThenDetail,
+      moveThenSwitch,
       getRenderedCount,
       captureRefSnapshot,
       getRefStabilityReport,
@@ -561,6 +646,7 @@ export function useBenchState({
     doubleListCount,
     detailIssueNumber,
     pinnedNumbers,
+    stateList,
     renderLimit,
     containerRef,
 

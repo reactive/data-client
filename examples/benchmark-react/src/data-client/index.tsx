@@ -7,8 +7,6 @@ import {
   useSuspense,
 } from '@data-client/react';
 import type { Controller } from '@data-client/react';
-import React, { useCallback, useRef, useState } from 'react';
-
 import {
   moveItemIsReady,
   renderBenchApp,
@@ -40,6 +38,7 @@ import {
 } from '@shared/resources';
 import { patchIssue } from '@shared/server';
 import type { Issue, Ticker } from '@shared/types';
+import React, { useCallback, useRef, useState } from 'react';
 
 let mutationCounter = 0;
 let tickerStreamVersion = 0;
@@ -167,6 +166,7 @@ function BenchmarkHarness() {
     doubleListCount,
     detailIssueNumber,
     pinnedNumbers,
+    stateList,
     renderLimit,
     containerRef,
     measureUpdate,
@@ -231,6 +231,22 @@ function BenchmarkHarness() {
       });
     },
     [measureUpdate, controller],
+  );
+
+  const createItem = useCallback(async () => {
+    const issue: any = await (controller.fetch as any)(
+      IssueResource.create,
+      { state: 'open' },
+      { title: 'New Issue', user: FIXTURE_USERS[0] },
+    );
+    return issue.number as number;
+  }, [controller]);
+
+  const moveToState = useCallback(
+    async (number: number, state: 'open' | 'closed') => {
+      await controller.fetch(IssueResource.move, { number }, { state });
+    },
+    [controller],
   );
 
   const moveStateRef = useRef<'open' | 'closed'>('closed');
@@ -363,6 +379,8 @@ function BenchmarkHarness() {
     unshiftItem,
     deleteEntity,
     moveItem,
+    createItem,
+    moveToState,
     initTickerStream,
     streamTickers,
     triggerGC: () => benchGC.sweep(),
@@ -379,6 +397,14 @@ function BenchmarkHarness() {
       )}
       {showDoubleList && doubleListCount != null && (
         <DoubleListView count={doubleListCount} limit={renderLimit} />
+      )}
+      {stateList != null && doubleListCount != null && (
+        <StateListView
+          key={stateList}
+          state={stateList}
+          count={doubleListCount}
+          limit={renderLimit}
+        />
       )}
       {detailIssueNumber != null && (
         <React.Suspense fallback={<div>Loading...</div>}>

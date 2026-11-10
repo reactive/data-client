@@ -38,7 +38,14 @@ export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   mount: ['init', 'initDoubleList', 'mountSortedView', 'listDetailSwitch'],
   update: ['updateEntity', 'updateUser', 'streamTickers'],
-  mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve', 'moveItem'],
+  mutation: [
+    'unshiftItem',
+    'deleteEntity',
+    'invalidateAndResolve',
+    'moveItem',
+    'createThenDetail',
+    'moveThenSwitch',
+  ],
   memory: ['mountUnmountCycle'],
 };
 
@@ -147,6 +154,24 @@ const BASE_SCENARIOS: BaseScenario[] = [
   {
     nameSuffix: 'list-detail-switch-10',
     action: 'listDetailSwitch',
+    args: [10, 1000],
+    category: 'hotPath',
+    size: 'large',
+    renderLimit: 100,
+    durationMeasure: { measure: 'nav-step', aggregate: 'sum' },
+  },
+  {
+    nameSuffix: 'create-open-detail-10',
+    action: 'createThenDetail',
+    args: [10, 1000],
+    category: 'hotPath',
+    size: 'large',
+    renderLimit: 100,
+    durationMeasure: { measure: 'nav-step', aggregate: 'sum' },
+  },
+  {
+    nameSuffix: 'move-switch-list-10',
+    action: 'moveThenSwitch',
     args: [10, 1000],
     category: 'hotPath',
     size: 'large',

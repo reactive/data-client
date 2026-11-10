@@ -57,6 +57,14 @@ export interface BenchAPI {
   moveItem?(id: number): void;
   /** Switch between sorted list view and individual issue detail views. Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
   listDetailSwitch?(navigations: number, seedCount: number): Promise<void>;
+  /** Create issues, opening each one's detail after it is created. Exercises Queryable lookup of the created Entity (data-client) vs a detail fetch (others). */
+  createThenDetail?(navigations: number, seedCount: number): Promise<void>;
+  /** Move open issues to the closed list, switching to that list after each. Exercises Collection.move into the stored closed list (data-client) vs invalidate + refetch on mount (others). */
+  moveThenSwitch?(navigations: number, seedCount: number): Promise<void>;
+  /** Untimed: create an issue the library's usual way, resolving with its number once the library has handled the reply. */
+  createItem?(): Promise<number>;
+  /** Untimed: change an issue's state the library's usual way, resolving once the library has handled the reply. */
+  moveToState?(number: number, state: 'open' | 'closed'): Promise<void>;
   /** Mount list + detail panel + pinned card strip for multi-view entity propagation. */
   initMultiView?(count: number): void;
   /** Update an entity that appears in list + detail + pinned views; waits for all three to reflect the change. */

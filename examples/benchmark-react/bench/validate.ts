@@ -645,6 +645,85 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   );
 });
 
+// ── createThenDetail ─────────────────────────────────────────────────
+
+test('createThenDetail opens each created issue and returns to the list', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.createThenDetail === 'function',
+    ))
+  )
+    return;
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.createThenDetail!(3, 20));
+  await waitForComplete(page, 30000);
+
+  const hasList = await page.evaluate(
+    () =>
+      document.querySelector('[data-issue-list] [data-bench-item]') !== null,
+  );
+  assert(hasList, lib, 'createThenDetail list', 'list not in DOM at the end');
+
+  const hasDetail = await page.evaluate(
+    () => document.querySelector('[data-detail-view]') !== null,
+  );
+  assert(
+    !hasDetail,
+    lib,
+    'createThenDetail detail-gone',
+    'detail still in DOM',
+  );
+
+  // One nav-step per measured round; the warmup round is not measured.
+  const navSteps = (await collectMeasures(page)).filter(
+    m => m.name === 'nav-step',
+  ).length;
+  assert(
+    navSteps === 3,
+    lib,
+    'createThenDetail measure',
+    `expected 3 nav-step measures, got ${navSteps}`,
+  );
+});
+
+// ── moveThenSwitch ───────────────────────────────────────────────────
+
+test('moveThenSwitch shows each moved issue in the closed list', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.moveThenSwitch === 'function',
+    ))
+  )
+    return;
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.moveThenSwitch!(3, 30));
+  await waitForComplete(page, 30000);
+
+  const shown = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-state-list]')].map(el =>
+      el.getAttribute('data-state-list'),
+    ),
+  );
+  assert(
+    shown.length === 1 && shown[0] === 'open',
+    lib,
+    'moveThenSwitch tab',
+    `expected only the open list at the end, got ${JSON.stringify(shown)}`,
+  );
+
+  const navSteps = (await collectMeasures(page)).filter(
+    m => m.name === 'nav-step',
+  ).length;
+  assert(
+    navSteps === 3,
+    lib,
+    'moveThenSwitch measure',
+    `expected 3 nav-step measures, got ${navSteps}`,
+  );
+});
+
 // ── server list JSON ─────────────────────────────────────────────────
 
 test('server list replies match a fresh serialization after mutations', async (page, lib) => {
