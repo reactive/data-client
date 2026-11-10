@@ -74,7 +74,7 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | Detected | Skills |
 |----------|--------|
 | Always | `data-client-schema`, `data-client-manager` |
-| React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing` |
+| React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing`, `data-client-performance` |
 | Vue | `data-client-vue`, `data-client-vue-testing` |
 | REST | `data-client-rest` |
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |

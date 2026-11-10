@@ -524,6 +524,6 @@ To sign out on any other 401 response, add [LogoutManager](https://dataclient.io
 - The linter passes, including its import-boundary rules, and no feature folder defines an Entity.
 - Each `<Suspense>` or `AsyncBoundary` that catches a `useSuspense()` is inside `DataProvider`.
 - The type checker, unit tests and end-to-end tests pass.
-- Opening an item from a freshly loaded list makes no request for that item.
+- Opening an item from a freshly loaded list makes no request for that item, when the list returns the full item.
 - After a mutation, every page showing that Entity shows the change without a reload. A test that edits an item on
   its detail page, then goes back to the list, proves it.

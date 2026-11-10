@@ -16,5 +16,6 @@ Read [references/performance-pass.md](references/performance-pass.md); its secti
 4. **Changes with tradeoffs:** show the list, then make the ones the user wants. A request for the whole pass covers
    all of them. Make one change at a time and run the tests after each; when a test asserts the old behavior the
    check names (a page-wide spinner, an update that waits for the server), update it and say so.
-   Never upgrade React in the pass; offer it as a follow-up, as its "React 19 and React Compiler" section says.
+   Changes to dependencies or build config, such as React Compiler or a React upgrade, are always offered, never made
+   unasked; see the "React 19 and React Compiler" section.
 5. **Report** as the guide's "Report" section says.

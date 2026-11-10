@@ -15,8 +15,8 @@ optional stage: make them one at a time, keep the tests passing, and skip any yo
 Record a baseline before you change anything, and measure again after each change:
 
 - **Requests:** in the browser's Network panel, count reads for each navigation and after each mutation.
-- **Time to update:** in the Performance panel, the time from a click until the screen shows its result (interaction
-  to next paint). Throttle the CPU and add network latency so the numbers resemble real devices.
+- **Time to update:** in the Performance panel, the time from a click until the screen shows its result, not just
+  the next paint. Throttle the CPU and add network latency so the numbers resemble real devices.
 - **Renders:** the React DevTools Profiler shows which components render after an update.
 
 ## Built-in wins {#built-in}
@@ -24,14 +24,15 @@ Record a baseline before you change anything, and measure again after each chang
 ### Details from lists {#list-detail}
 
 A detail endpoint whose schema holds the list's [Entity](https://dataclient.io/rest/api/Entity) renders an item the list already loaded,
-with no fetch, while that data is fresh. The lookup uses the endpoint's args, so `{ id }` must name the Entity's primary
-key, or a field in its [indexes](https://dataclient.io/rest/api/Entity#indexes).
+with no fetch, while that data is fresh. The lookup uses the endpoint's args, so they must use the field name the
+Entity's `pk()` reads (`{ id }`, not `{ issueId }`), or a field in its [indexes](https://dataclient.io/rest/api/Entity#indexes).
 
 - **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that name
   neither the primary key nor an index (`{ slug }` without `static indexes = ['slug']`); list data copied into the
   detail by hand.
 - **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. Add an index for
-  other lookup fields. Delete the copying.
+  other lookup fields. Delete the copying. When the list returns fewer fields than the detail, add
+  [`validate()`](https://dataclient.io/rest/guides/partial-entities) to the Entity so the detail still fetches the full item.
 - **Users see:** the detail page shows at once when opened from the list.
 
 ### Mutations update lists in place {#lists}
@@ -39,7 +40,7 @@ key, or a field in its [indexes](https://dataclient.io/rest/api/Entity#indexes).
 - **Find:** `ctrl.expireAll()`, `ctrl.invalidate()` or a refetch after a create or delete.
 - **Change:** create through the list's [Collection](https://dataclient.io/rest/api/Collection) `push` or `unshift` endpoint; delete with
   `resource().delete` or an [Invalidate](https://dataclient.io/rest/api/Invalidate) schema. Keep `expireAll()` for numbered pages, whose
-  later items shift.
+  later items shift, and for lists whose order or membership the server decides.
 - **Users see:** the new or removed item shows without a reload of the list.
 
 ## Changes with tradeoffs {#tradeoffs}
@@ -99,7 +100,9 @@ export default function IssuePage({ id }: { id: number }) {
 
 When the client can predict a mutation's result, show it at once and let Data Client roll it back if the request fails.
 Use [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updates) on the endpoint, or `optimistic: true` on
-[resource()](https://dataclient.io/rest/api/resource).
+[resource()](https://dataclient.io/rest/api/resource). `optimistic: true` covers every mutation, including creates, whose new item has a
+temporary id until the server answers; to make one mutation optimistic, add
+`getOptimisticResponse` to just that endpoint with `resource().extend('partialUpdate', { ... })`.
 
 - **Find:** `ctrl.fetch()` of updates, deletes and creates whose response the client can predict from the body and
   the store.
@@ -108,8 +111,10 @@ Use [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updat
 ### Derived views in Query {#query}
 
 - **Find:** sorting, filtering or grouping of fetched data in render or `useMemo()`.
-- **Change:** a [Query](https://dataclient.io/rest/api/Query) schema read with [useQuery()](https://dataclient.io/docs/api/useQuery). Its result is memoized
-  across components and recomputes only when its inputs change ([client-side sorting](https://dataclient.io/rest/guides/sorting-client-side)).
+- **Change:** make a [Query](https://dataclient.io/rest/api/Query) the endpoint's schema and keep reading it with `useSuspense()`
+  ([client-side sorting](https://dataclient.io/rest/guides/sorting-client-side)). Its result is memoized across components and recomputes
+  only when its inputs change. [useQuery()](https://dataclient.io/docs/api/useQuery) never fetches, so use it only where the data is
+  already fetched elsewhere.
 - **Users see:** no change; updates render faster in large lists.
 
 ### Parallel reads {#parallel}
@@ -117,7 +122,8 @@ Use [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updat
 - **Find:** two `useSuspense()` calls in one component where neither needs the other's data; a child that starts its
   fetch only after its parent's data arrives.
 - **Change:** start both with [useFetch()](https://dataclient.io/docs/api/useFetch#parallel-data-loading) and read them with `use()`, or
-  start the child's fetch in the route loader.
+  start the child's fetch in the route loader. Below React 19, which has no `use()`, call `useFetch()` for each
+  endpoint and then `useSuspense()` for each; the reads reuse the requests already in flight.
 - **Users see:** the page loads sooner.
 
 ### Keep current data during changes {#transitions}
@@ -148,13 +154,14 @@ references above, fewer components render after a store update.
   [Rules of React](https://react.dev/reference/rules), and the lint rules name them. Leave existing memoization in
   place, and run the tests.
 - **Below React 19:** upgrading React is its own project, so don't do it in this pass. Explain what React 19 brings
-  this app: the compiler, `use()` for the [parallel reads](#parallel) above, and in 19.2,
-  [`<Activity>`](https://react.dev/reference/react/Activity) to keep hidden pages and their data ready. Then ask
+  this app: `use()` for the [parallel reads](#parallel) above, and in 19.2,
+  [`<Activity>`](https://react.dev/reference/react/Activity) to keep hidden pages' state and rendered output. Then ask
   whether to upgrade as a follow-up, with the [upgrade guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide),
-  and add the compiler as part of that upgrade.
+  and offer to add the compiler with it. The compiler also runs on React 17 and 18 with `react-compiler-runtime`; add
+  it before the upgrade only if the user asks.
 - **Until the upgrade:** wrap expensive list rows in `memo()`, so rows whose Entity did not change skip rendering.
-- **Users see:** no change; fewer components render after each update. The compiled JavaScript is larger (about 6%
-  gzipped on a small app), so measure load time too.
+- **Users see:** no change; fewer components render after each update. The compiled JavaScript is larger, so measure
+  load time too.
 
 ## Report {#report}
 
