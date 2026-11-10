@@ -254,26 +254,11 @@ render(<TodoList />);
 
 All its mutations then use these default optimistic responses:
 
-### update/getList.push/getList.unshift
-
-```ts
-function optimisticUpdate(
-  snap: SnapshotInterface,
-  params: any,
-  body: any,
-) {
-  return {
-    ...params,
-    ...ensureBodyPojo(body),
-  };
-}
-
-function ensureBodyPojo(body: any) {
-  return body instanceof FormData
-    ? Object.fromEntries((body as any).entries())
-    : body;
-}
-```
+| Endpoint                                                                                        | Optimistic response                                                |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `update`, `getList.push`, `getList.unshift`, `getList.assign`, `getList.remove`, `getList.move` | The URL params merged with the body (`FormData` becomes an object) |
+| `partialUpdate`                                                                                 | The cached entity with the body merged in                          |
+| `delete`                                                                                        | The params, which remove the entity                                |
 
 A create (push/unshift) body usually has no `id` to compute a pk from. So
 <abbr title="Reactive Data Client">Data Client</abbr> creates a random `pk`.
@@ -281,36 +266,11 @@ A create (push/unshift) body usually has no `id` to compute a pk from. So
 Mutations on the new object usually fail until the server creates it. So disable other mutations on it until the
 `POST` completes. For example, check that the entity has a real `id`.
 
-### partialUpdate
-
-```ts
-function optimisticPartial(schema: Queryable) {
-  return function (snap: SnapshotInterface, params: any, body: any) {
-    const data = snap.get(schema, params);
-    if (!data) throw snap.abort;
-    return {
-      ...params,
-      ...data,
-      // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
-      ...ensurePojo(body),
-    };
-  };
-}
-```
-
 Partial updates do not send the entire body. Fields the expected response leaves out keep their
 cached values, so an Entity only needs its [primary key](../api/Entity.md#pk) and the changed fields.
 If the entity is not in the store yet, the update [aborts](/docs/api/Snapshot#abort) instead of showing an Entity
 made only of the changed fields. [Snapshots](/docs/api/Snapshot) read the current store value safely, with no race
 conditions.
-
-### delete
-
-```ts
-function optimisticDelete(snap: SnapshotInterface, params: any) {
-  return params;
-}
-```
 
 To make only some endpoints optimistic, or to match an unusual API, set
 [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) with
@@ -354,20 +314,20 @@ Three timings can vary in an async mutation:
 1. Server timing
 1. Response timing
 
-Reactive Data Client handles request and response timing for you. This is usually enough, because servers usually
-process requests in the order they arrive. If the server saves requests in a different order, a race condition
+Reactive Data Client handles response timing for you. This is usually enough, because servers usually
+process requests in the order they arrive. If requests arrive or are saved in a different order, a race condition
 remains.
 
 To fix it, keep a [total order](https://en.wikipedia.org/wiki/Total_order) with one clock. Server and client clocks
 can differ, and optimistic updates happen on the client, so use the client's clock:
 
-1. Send the request time in an `updatedAt` header with [getRequestInit()](../api/RestEndpoint.md#getRequestInit).
+1. Send the request time as `updatedAt` in the body with [getRequestInit()](../api/RestEndpoint.md#getRequestInit).
 1. The server processes requests in `updatedAt` order, stores `updatedAt` in the entity, and returns it in every
    response.
 1. Override [shouldReorder](../api/Entity.md#shouldreorder) to reorder out-of-order responses by `updatedAt`.
 
 [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) uses [snap.fetchedAt](/docs/api/Snapshot#fetchedat).
-It is the moment the fetch starts, the same time as the `updatedAt` header.
+It is the moment the fetch starts, on the same clock as `updatedAt`.
 
 <FrameworkPlayground fixtures={[
 {
@@ -531,3 +491,56 @@ render(<CounterPage />);
 :::
 
 </FrameworkPlayground>
+
+:::react
+
+## Keep clicks responsive on heavy screens {#transition}
+
+Like React's [useOptimistic()](https://react.dev/reference/react/useOptimistic), an optimistic update renders
+before the browser paints the click. If many components show the changed data, that render can make the click feel
+slow.
+
+### When to use a transition
+
+First make that render cheaper, with [React Compiler](https://react.dev/learn/react-compiler) or `memo()` on expensive
+components. A cheaper render keeps the update instant, while a transition only moves it after the paint. If the click
+is still slow, call `ctrl.fetch()`, which applies the optimistic update, inside
+[startTransition()](https://react.dev/reference/react/startTransition) (React 18+).
+
+Skip the transition when:
+
+- The update re-renders only a few components. The transition then delays the update with no slow render to hide.
+- The control is a controlled input, like `TodoItem`'s checkbox. React resets the input to its last rendered value, so
+  the checkbox flips back until the transition renders (see the
+  [startTransition() caveats](https://react.dev/reference/react/startTransition#caveats)).
+
+For example, renaming a user re-renders every comment that shows their name:
+
+```tsx
+import { startTransition, type FormEvent } from 'react';
+import { useController } from '@data-client/react';
+import { UserResource, type User } from './UserResource';
+
+export function RenameUser({ user }: { user: User }) {
+  const ctrl = useController();
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const name = new FormData(e.currentTarget).get('name') as string;
+    startTransition(() => {
+      ctrl.fetch(UserResource.partialUpdate, { id: user.id }, { name });
+    });
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" defaultValue={user.name} />
+      <button type="submit">Rename</button>
+    </form>
+  );
+}
+```
+
+React renders the optimistic update at transition priority, so the browser paints and handles input first. Wrap the
+call in braces, as above, so the callback returns nothing. In React 19, a callback that returns the `fetch()` promise is
+an async Action, and React holds the optimistic update until the server responds.
+
+:::

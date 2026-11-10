@@ -116,6 +116,12 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 // GET https://jsonplaceholder.typicode.com/todos?userId=1&page=2
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
+:::react
+
+An optimistic `ctrl.fetch()` renders before paint. If that slows a click even with React Compiler or `memo()`, call it in
+`startTransition(() => { ... })`: React 19 holds the update until the response if the arrow returns the promise.
+Not for controlled inputs; they snap back until the transition commits.
+:::
 :::vue
 
 Read reactive values (`props.todo.id`, `title.value`) inside the handler so each call uses current state.

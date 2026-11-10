@@ -116,26 +116,11 @@ export const TodoResource = resource({
 
 All its mutations then use these default optimistic responses:
 
-### update/getList.push/getList.unshift
-
-```ts
-function optimisticUpdate(
-  snap: SnapshotInterface,
-  params: any,
-  body: any,
-) {
-  return {
-    ...params,
-    ...ensureBodyPojo(body),
-  };
-}
-
-function ensureBodyPojo(body: any) {
-  return body instanceof FormData
-    ? Object.fromEntries((body as any).entries())
-    : body;
-}
-```
+| Endpoint                                                                                        | Optimistic response                                                |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `update`, `getList.push`, `getList.unshift`, `getList.assign`, `getList.remove`, `getList.move` | The URL params merged with the body (`FormData` becomes an object) |
+| `partialUpdate`                                                                                 | The cached entity with the body merged in                          |
+| `delete`                                                                                        | The params, which remove the entity                                |
 
 A create (push/unshift) body usually has no `id` to compute a pk from. So
 Data Client creates a random `pk`.
@@ -143,36 +128,11 @@ Data Client creates a random `pk`.
 Mutations on the new object usually fail until the server creates it. So disable other mutations on it until the
 `POST` completes. For example, check that the entity has a real `id`.
 
-### partialUpdate
-
-```ts
-function optimisticPartial(schema: Queryable) {
-  return function (snap: SnapshotInterface, params: any, body: any) {
-    const data = snap.get(schema, params);
-    if (!data) throw snap.abort;
-    return {
-      ...params,
-      ...data,
-      // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
-      ...ensurePojo(body),
-    };
-  };
-}
-```
-
 Partial updates do not send the entire body. Fields the expected response leaves out keep their
 cached values, so an Entity only needs its [primary key](https://dataclient.io/rest/api/Entity#pk) and the changed fields.
 If the entity is not in the store yet, the update [aborts](https://dataclient.io/vue/api/Snapshot#abort) instead of showing an Entity
 made only of the changed fields. [Snapshots](https://dataclient.io/vue/api/Snapshot) read the current store value safely, with no race
 conditions.
-
-### delete
-
-```ts
-function optimisticDelete(snap: SnapshotInterface, params: any) {
-  return params;
-}
-```
 
 To make only some endpoints optimistic, or to match an unusual API, set
 [getOptimisticResponse()](./RestEndpoint.vue.md#getoptimisticresponse) with
@@ -293,20 +253,20 @@ Three timings can vary in an async mutation:
 2. Server timing
 3. Response timing
 
-Reactive Data Client handles request and response timing for you. This is usually enough, because servers usually
-process requests in the order they arrive. If the server saves requests in a different order, a race condition
+Reactive Data Client handles response timing for you. This is usually enough, because servers usually
+process requests in the order they arrive. If requests arrive or are saved in a different order, a race condition
 remains.
 
 To fix it, keep a [total order](https://en.wikipedia.org/wiki/Total_order) with one clock. Server and client clocks
 can differ, and optimistic updates happen on the client, so use the client's clock:
 
-1. Send the request time in an `updatedAt` header with [getRequestInit()](./RestEndpoint.vue.md#getRequestInit).
+1. Send the request time as `updatedAt` in the body with [getRequestInit()](./RestEndpoint.vue.md#getRequestInit).
 2. The server processes requests in `updatedAt` order, stores `updatedAt` in the entity, and returns it in every
    response.
 3. Override [shouldReorder](https://dataclient.io/rest/api/Entity#shouldreorder) to reorder out-of-order responses by `updatedAt`.
 
 [getOptimisticResponse](./RestEndpoint.vue.md#getoptimisticresponse) uses [snap.fetchedAt](https://dataclient.io/vue/api/Snapshot#fetchedat).
-It is the moment the fetch starts, the same time as the `updatedAt` header.
+It is the moment the fetch starts, on the same clock as `updatedAt`.
 
 ```ts title="count" {11-13}
 import { Entity, RestEndpoint } from '@data-client/rest';
