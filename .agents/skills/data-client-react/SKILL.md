@@ -57,9 +57,9 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
-If an optimistic `ctrl.fetch()` re-renders many components and the click is still slow after React Compiler or
-`memo()`, call it in `startTransition()` without returning its promise, which would hold the update until the response.
-Not for controlled inputs. Details: skill "data-client-rest", optimistic-updates reference.
+An optimistic `ctrl.fetch()` renders its update before the browser paints. If that render makes a click slow even with
+React Compiler or `memo()`, call `ctrl.fetch()` in a block-bodied `startTransition()`: an arrow that returns the promise
+makes React 19 hold the update until the response. Not for controlled inputs, which snap back while the transition is pending.
 
 ## Helpful hooks
 
