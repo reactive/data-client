@@ -154,8 +154,9 @@ it renders it and refetches in the background (an
 the response that stored it, here the list's.
 
 The Entity can also sit in an object schema, such as an envelope like `{ data: Post }`. Every other member of that
-object is looked up with the same args: plain values are fine, a list member (Array, Collection, Values) makes the
-endpoint always fetch, and a second Entity is found by the same `id`, so keep one Entity per detail schema. The lookup
+object is looked up with the same args: plain values are fine, an Array or Values member makes the endpoint always fetch,
+a [Collection](https://dataclient.io/rest/api/Collection) member is found only when the store already holds it for those args, and a second
+Entity is found by the same `id`, so keep one Entity per detail schema. The lookup
 works for every way of reading an endpoint: [useDLE()](https://dataclient.io/docs/api/useDLE), [useCache()](https://dataclient.io/docs/api/useCache) and
 [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) in router loaders (`Controller.fetch()` always requests).
 
