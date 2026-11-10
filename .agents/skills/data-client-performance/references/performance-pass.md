@@ -97,6 +97,7 @@ export const issueLoader =
     const id = Number(params.issueId);
     // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
     ctrl.fetchIfStale(getNotes, { issueId: id });
+    // the main item: see Route loaders below for when to wait
     return ctrl.fetchIfStale(IssueResource.get, { id });
   };
 ```
@@ -123,8 +124,8 @@ For the main item, follow [Route loaders](https://dataclient.io/docs/api/Control
 should get cached data back at once when it can render, so stale data doesn't hold navigation, and a router that
 doesn't wait needs no `await` at all.
 
-- **Find:** loaders that `await` or `Promise.all()` several requests, or that return `fetchIfStale()` without checking
-  the cache first; components that call `useSuspense()` below the page's main content with no boundary of their own.
+- **Find:** loaders that `await` or `Promise.all()` several requests; components that call `useSuspense()` below the
+  page's main content with no boundary of their own.
 - **Users see:** the page shows while the secondary parts show their own loading state.
 
 ### Prefetch on intent {#prefetch}

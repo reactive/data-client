@@ -101,7 +101,7 @@ or change what users see, like adding optimistic updates the app did not have, a
 | `setQueryData()` | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)` |
 | `getQueryData()` | In a component, [useCache()](../api/useCache.md). Elsewhere, `ctrl.get(schema, args, ctrl.getState())` |
 | `prefetchQuery()` | `ctrl.fetchIfStale(endpoint, args)`, not awaited: a failure never rejects unhandled |
-| `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | Cached data from `ctrl.getResponseMeta()` when it can render, else `ctrl.fetchIfStale(endpoint, args)` ([Loaders](#loaders)) |
+| `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | Cached data from `ctrl.getResponse()` when it can render, else `ctrl.fetchIfStale(endpoint, args)` ([Loaders](#loaders)) |
 | `fetchQuery()` | `await ctrl.fetchIfStale(endpoint, args)` with a `staleTime`; `ctrl.fetch(endpoint, args)` without |
 | `onMutate` optimistic update and rollback | [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error |
 | `useInfiniteQuery()` | A [Collection](/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite)) |
@@ -345,7 +345,7 @@ export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const args = { id: Number(params.issueId) };
-    const { data, expiryStatus } = ctrl.getResponseMeta(
+    const { data, expiryStatus } = ctrl.getResponse(
       IssueResource.get,
       args,
       ctrl.getState(),

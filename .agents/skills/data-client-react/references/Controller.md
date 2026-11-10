@@ -186,8 +186,9 @@ router waits for the loader before it changes the route:
 | Changes the route in a [transition](https://react.dev/reference/react/startTransition) without waiting for the loader, like [@anansi/router](https://www.npmjs.com/package/@anansi/router)'s `resolveData` | Call `fetchIfStale()` without `await`                                        | The current page stays until the new one is ready | Shows at once and refetches |
 | Waits for the loader, like React Router data loaders or TanStack Router                                                                                                                                    | Return the cached data when it can render; otherwise return `fetchIfStale()` | The router waits for the fetch                    | Shows at once and refetches |
 
-Routers without loaders, like the Next.js App Router, need no `fetchIfStale()` call: [useSuspense()](./useSuspense.md)
-fetches as the page renders. During a transition, a new page with its own [AsyncBoundary](./AsyncBoundary.md) shows
+Stale data from an [invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) endpoint waits like a miss,
+as [useSuspense()](./useSuspense.md) does. Routers without loaders, like the Next.js App Router, need no
+`fetchIfStale()` call: `useSuspense()` fetches as the page renders. During a transition, a new page with its own [AsyncBoundary](./AsyncBoundary.md) shows
 that boundary's fallback instead of keeping the current page.
 
 ```ts title="Router that doesn't wait"
@@ -209,7 +210,7 @@ export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { id: string } }) => {
     const args = { id: params.id };
-    const { data, expiryStatus } = ctrl.getResponseMeta(
+    const { data, expiryStatus } = ctrl.getResponse(
       IssueResource.get,
       args,
       ctrl.getState(),

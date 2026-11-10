@@ -58,7 +58,7 @@
       "files": [],
       "assertions": [
         "The router gets the Controller from `useController()` and passes it to the loaders in place of the QueryClient.",
-        "The loader calls `ctrl.fetchIfStale(DiscussionResource.get, { id: ... })` and, like `getQueryData() ?? fetchQuery()`, returns cached data without waiting whenever it can render, even when stale, deciding from `ctrl.getResponseMeta()`'s `expiryStatus` (`ExpiryStatus.Valid`) rather than only checking `data` for `undefined`; it waits for the fetch only otherwise.",
+        "The loader calls `ctrl.fetchIfStale(DiscussionResource.get, { id: ... })` and, like `getQueryData() ?? fetchQuery()`, returns cached data without waiting whenever it can render, even when stale, deciding from the cached `expiryStatus` (`ExpiryStatus.Valid`, from `ctrl.getResponse()` or `ctrl.getResponseMeta()`) rather than only checking `data` for `undefined`; it waits for the fetch only otherwise.",
         "The hover prefetch calls `ctrl.fetchIfStale(DiscussionResource.get, { id })`.",
         "The teams read uses `useSuspense` (or `useDLE`) with `null` in place of args when `chooseTeam` is false; it does not use Data Client's `useQuery`, and it does not keep `enabled`."
       ]
