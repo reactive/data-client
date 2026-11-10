@@ -144,8 +144,8 @@ function read(store, endpoint, ...args) {
   // Invalid data must refetch; otherwise only once it's stale
   const fetching =
     expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt ?
-      // failures are stored in State, so getError() reports them
-      controller.fetch(endpoint, ...args).catch(() => {})
+      // a read's failure is stored in State, so getError() reports it
+      controller.fetch(endpoint, ...args)
     : undefined;
 
   // Valid data (even if stale) can render now; anything else waits for `fetching`

@@ -1457,13 +1457,17 @@ const getTodos = new RestEndpoint({
 
 const todos = useSuspense(getTodos);
 const ctrl = useController();
+// no component reads getPage, so show its loading and error state here
+const [fetchNextPage, isPending, error] = useLoading((nextPage: number) =>
+  // fetches url `/todos?page=${nextPage}`
+  ctrl.fetch(getTodos.getPage, { page: nextPage }),
+);
 return (
   <PaginatedList
     items={todos}
-    fetchNextPage={() =>
-      // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(getTodos.getPage, { page: nextPage })
-    }
+    fetchNextPage={fetchNextPage}
+    loading={isPending}
+    error={error}
   />
 );
 ```

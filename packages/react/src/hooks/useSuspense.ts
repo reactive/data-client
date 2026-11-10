@@ -82,12 +82,8 @@ export default function useSuspense<
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
-    return (
-      controller
-        // if args is [null], we won't get to this line
-        .fetch(endpoint, ...(args as Parameters<E>))
-        .catch(() => {})
-    );
+    // if args is [null], we won't get to this line
+    return controller.fetch(endpoint, ...(args as Parameters<E>));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, key, forceFetch, state.lastReset]);

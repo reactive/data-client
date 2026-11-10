@@ -776,6 +776,8 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /*************** Action Dispatchers ***************/
     /**
      * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+     *
+     * Without `sideEffect`, safe to call without awaiting: errors are stored, never an unhandled rejection.
      * @see https://dataclient.io/docs/api/Controller#fetch
      */
     fetch: ControllerFetch;

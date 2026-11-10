@@ -234,6 +234,14 @@ app.use(DataClientPlugin, {
 app.mount('#app');
 ```
 
+## Error Reporting
+
+If the app's data layer sends fetch errors to a tracker itself (TanStack Query's `QueryCache({ onError })`, a fetch
+wrapper that calls Sentry), move that into an
+[error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting) in `managers`. A global
+unhandled-rejection handler can't replace it: reads you don't await never reject unhandled, since their errors are
+stored for the components that read them. For the same reason, don't add `.catch(() => {})` to those reads.
+
 ## Protocol-Specific Setup
 
 After provider setup, follow the guide for each detected protocol. These guides are bundled copies of the standalone protocol setup skills, so they need nothing else installed.

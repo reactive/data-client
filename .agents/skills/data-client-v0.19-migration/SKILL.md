@@ -15,9 +15,9 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
 - `@data-client/test` now requires `@data-client/react` 0.19; `typescript` must be 4.0 or later, and `vue` 3.4 or later.
 - React Native: tests with `@data-client/test` need `@testing-library/react-native`. Apps now load the native build, so
   with React Navigation, stale data refetches on screen focus.
-- `@data-client/ssr` has no 0.19 release; if it's installed, read Step 3 first.
+- `@data-client/ssr` has no 0.19 release; if it's installed, read Step 4 first.
 - If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  linked skills match 0.19 (Step 9 ends by unlinking the migration skills).
+  linked skills match 0.19 (Step 10 ends by unlinking the migration skills).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`):
@@ -50,10 +50,6 @@ Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
 - **Awaited calls now reject** when the latest fetch failed within errorExpiryLength; they used to resolve `undefined`.
   Code after an `await` that handled a missing result (`?? fallback`, `if (!data)`) gets a rejection instead, so move
   that handling into a `.catch()` or `try`/`catch`. Leave other awaited calls alone: a router shows its error UI.
-- **Error monitoring**: unawaited failures no longer reach global unhandled-rejection handlers (Sentry and similar). If
-  the app uses an error tracker, say so in your summary and suggest the
-  [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting). Don't add it unasked: it
-  reports every failed fetch, not only these.
 - **Controller subclasses** that override `fetchIfStale()` must return a Promise.
 
 ```ts
@@ -65,7 +61,24 @@ const issue = await ctrl.fetchIfStale(IssueResource.get, { id });
 render(issue);
 ```
 
-## Step 3: Next.js Pages Router is not supported
+## Step 3: unawaited reads never reject unhandled
+
+`ctrl.fetch()` of an endpoint without `sideEffect` (a GET or other read) is now safe to call without awaiting, like
+`fetchIfStale()`: the error is stored for components reading that endpoint. Mutations still reject unhandled, and
+`await` or `.catch()` still get the error, so no code breaks.
+[Details](https://dataclient.io/docs/api/Controller#fetch).
+
+- **Error monitoring**: failures of unawaited reads (`fetch()` or `fetchIfStale()`) no longer reach global
+  unhandled-rejection handlers (Sentry and similar). If the app uses an error tracker, say so in your summary and
+  suggest the [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting). Don't add it
+  unasked: it reports every failed fetch, not only these.
+- **Delete a no-op `.catch(() => {})` directly on `fetch()` of a read you don't await**, now dead code. A read is an
+  endpoint without `sideEffect: true`; `RestEndpoint` sets it for every method but GET. Keep catches on mutations,
+  catches that do something, and catches after a `.then()`: `.then()` returns a new Promise that still rejects.
+- **A read no component renders** (a "load more" `getPage`, a refresh of an off-screen list) now fails silently:
+  wrap it in `useLoading()` so its error shows.
+
+## Step 4: Next.js Pages Router is not supported
 
 Skip this step unless the app uses `@data-client/ssr` (`DataClientDocument`, `AppDataProvider` in `pages/_document` or
 `pages/_app`). It stops at `@data-client/react` 0.14, and 0.19 supports only the App Router: render `DataProvider` from
@@ -73,7 +86,7 @@ Skip this step unless the app uses `@data-client/ssr` (`DataClientDocument`, `Ap
 else uses it). Moving pages to the App Router is a routing migration, so confirm with the owner before starting it.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#nextjs-pages-router).
 
-## Step 4: custom Managers
+## Step 5: custom Managers
 
 Skip this step if
 `rg -n 'managers|implements Manager|extends \w*Manager|: Manager\b|getMiddleware|cleanupDate' <source-root>` finds
@@ -103,7 +116,7 @@ Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#mana
 [cleanup](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup),
 [managers function](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function).
 
-## Step 5: test helpers
+## Step 6: test helpers
 
 - **[renderDataHook()](https://dataclient.io/docs/api/renderDataHook) now runs its `managers`**; before, it ignored
   them. The list replaces the defaults, so it needs a `NetworkManager`, plus a `SubscriptionManager` if the hook polls
@@ -112,7 +125,7 @@ Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#mana
   `managers: () => Manager[]`, like `DataProvider`.
   [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#test-react-0.19).
 
-## Step 6: Vue
+## Step 7: Vue
 
 Skip this step unless the app uses `@data-client/vue`.
 
@@ -120,21 +133,21 @@ Skip this step unless the app uses `@data-client/vue`.
   `undefined`; pass a custom `gcPolicy` only if the app needs data kept longer.
 - **`useFetch()` is typed as a `Ref`**: `promise.resolved` becomes `promise.value.resolved`.
 
-## Step 7: `__DC_CONTROLLERS__` is now `__DC__`
+## Step 8: `__DC_CONTROLLERS__` is now `__DC__`
 
 Debug scripts often live outside the source roots, so search the repo: skip this step if
 `rg -n '__DC_CONTROLLERS__' .` finds nothing. Replace `__DC_CONTROLLERS__.get(name)` with `__DC__.controller`; with
 several stores, set `__DC__.store = name` first.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global).
 
-## Step 8: verify
+## Step 9: verify
 
 1. Search for `TODO(data-client)`: none should remain. Search for
    `rg -n '=> \w*[mM]anagers\b|getMiddleware|cleanupDate|__DC_CONTROLLERS__'` and fix what's left. Search for
    `instanceof Promise`, `isPromise` and `.then ===` near `fetchIfStale`: each one is a sync-data branch that no longer
    runs.
 2. Run the type checker. Property reads on a `fetchIfStale()` result now fail to type-check, since it is a Promise. A
-   Manager without `middleware` fails too (Step 4). Schemas now type more calls; fix the value or param name instead of
+   Manager without `middleware` fails too (Step 5). Schemas now type more calls; fix the value or param name instead of
    casting, since the old code wrote data its schema doesn't describe, or widen the Entity's field types if the data
    really takes that shape:
    - `ctrl.set()` values, including `ctrl.set(getList.schema.push, args, rows)`
@@ -151,10 +164,10 @@ several stores, set `__DC__.store = name` first.
    - A `DELETE` endpoint that declares `body` now sends its last argument as the body, not url params. If callers pass
      no body, remove `body` from the endpoint.
 
-## Step 9: deprecated APIs (own commit)
+## Step 10: deprecated APIs (own commit)
 
 They still work, but a later release removes them, so do this step unless the user opts out. Ask first when the user
-can answer mid-task; otherwise go ahead. Commit Steps 1-8 first and make this its own commit, so it reverts alone; if
+can answer mid-task; otherwise go ahead. Commit Steps 1-9 first and make this its own commit, so it reverts alone; if
 the user makes the commits, list the files this step changed instead.
 
 ```bash
@@ -162,7 +175,7 @@ npx @data-client/codemods v0.19 <source-root> --deprecations=only
 ```
 
 It renames what has a drop-in replacement and leaves a `TODO(data-client)` comment naming the replacement on the rest.
-Fix each, then delete the comment, and repeat Step 8. Gotchas:
+Fix each, then delete the comment, and repeat Step 9. Gotchas:
 
 - `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `name`,
   never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and

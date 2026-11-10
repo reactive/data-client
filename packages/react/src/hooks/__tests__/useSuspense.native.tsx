@@ -303,63 +303,102 @@ describe('useSuspense()', () => {
     });
   });
 
-  it.each([
+  const focusHooks = [
     ['useSuspense', useSuspense],
     ['useDLE', useDLE],
     ['useFetch', useFetch],
-  ] as const)(
+  ] as const;
+
+  /** Renders useHook on a screen with stale cached data, then navigates away and back.
+   * Returns the endpoint's fetch count after mount and after regaining focus. */
+  async function refocusFetchCounts(
+    useHook: (typeof focusHooks)[number][1],
+    name: string,
+    fetchArticle: jest.Mock<(params: { id: number }) => Promise<any>>,
+    options: { errorPolicy?: () => 'soft'; errorExpiryLength?: number } = {},
+  ) {
+    const getArticle = new Endpoint(fetchArticle, {
+      schema: CoolerArticle,
+      key: ({ id }: { id: number }) => `${name}-${id}`,
+      ...options,
+    });
+    const cached = mockInitialState([
+      { endpoint: getArticle, args: [{ id: payload.id }], response: payload },
+    ]);
+    const key = getArticle.key({ id: payload.id });
+    // make the cached result stale so mounting revalidates it
+    const state = {
+      ...cached,
+      meta: { [key]: { ...cached.meta[key], expiresAt: 1 } },
+    };
+
+    let thenavigation: any;
+    function Article({ navigation }: { navigation: any }) {
+      thenavigation = navigation;
+      (useHook as (...args: any[]) => unknown)(getArticle, {
+        id: payload.id,
+      });
+      return <Text testID="article">article</Text>;
+    }
+    function Home() {
+      return <Text>Home</Text>;
+    }
+    const Stack = createNativeStackNavigator();
+    const waitForIdle = () =>
+      act(() => new Promise(resolve => setTimeout(resolve, 50)));
+
+    const { getByText, getByTestId } = await render(
+      <CacheProvider initialState={state}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Article">
+            <Stack.Screen name="Article" component={Article} />
+            <Stack.Screen name="Home" component={Home} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </CacheProvider>,
+    );
+    await waitForIdle();
+    const mount = fetchArticle.mock.calls.length;
+
+    await act(() => thenavigation.navigate('Home'));
+    expect(getByText('Home')).toBeDefined();
+    await act(() => thenavigation.goBack());
+    await waitForIdle();
+    expect(getByTestId('article')).toBeDefined();
+    return { mount, refocus: fetchArticle.mock.calls.length };
+  }
+
+  it.each(focusHooks)(
     '%s should not refetch on refocus once revalidated data is fresh',
     async (_, useHook) => {
       const fetchArticle = jest.fn(async ({ id }: { id: number }) => payload);
-      const getArticle = new Endpoint(fetchArticle, {
-        schema: CoolerArticle,
-        key: ({ id }: { id: number }) => `fresh-focus-article-${id}`,
-      });
-      const cached = mockInitialState([
-        { endpoint: getArticle, args: [{ id: payload.id }], response: payload },
-      ]);
-      const key = getArticle.key({ id: payload.id });
-      // make the cached result stale so mounting revalidates it
-      const state = {
-        ...cached,
-        meta: { [key]: { ...cached.meta[key], expiresAt: 1 } },
-      };
-
-      let thenavigation: any;
-      function Article({ navigation }: { navigation: any }) {
-        thenavigation = navigation;
-        (useHook as (...args: any[]) => unknown)(getArticle, {
-          id: payload.id,
-        });
-        return <Text testID="article">article</Text>;
-      }
-      function Home() {
-        return <Text>Home</Text>;
-      }
-      const Stack = createNativeStackNavigator();
-      const waitForIdle = () =>
-        act(() => new Promise(resolve => setTimeout(resolve, 50)));
-
-      const { getByText, getByTestId } = await render(
-        <CacheProvider initialState={state}>
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="Article">
-              <Stack.Screen name="Article" component={Article} />
-              <Stack.Screen name="Home" component={Home} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </CacheProvider>,
+      const { mount, refocus } = await refocusFetchCounts(
+        useHook,
+        'fresh-focus-article',
+        fetchArticle,
       );
-      await waitForIdle();
-      expect(fetchArticle).toHaveBeenCalledTimes(1);
-
-      await act(() => thenavigation.navigate('Home'));
-      expect(getByText('Home')).toBeDefined();
-      await act(() => thenavigation.goBack());
-      await waitForIdle();
-      expect(getByTestId('article')).toBeDefined();
+      expect(mount).toBe(1);
       // revalidation made the data fresh, so focus shouldn't fetch again
-      expect(fetchArticle).toHaveBeenCalledTimes(1);
+      expect(refocus).toBe(1);
+    },
+  );
+
+  // jest fails the running test on an unhandled rejection
+  it.each(focusHooks)(
+    '%s refetch on refocus that fails is not an unhandled rejection',
+    async (_, useHook) => {
+      const fetchArticle = jest.fn(async (_: { id: number }): Promise<any> => {
+        throw new Error('network down');
+      });
+      // keep showing the cached data, and let each failure go stale right away
+      const { mount, refocus } = await refocusFetchCounts(
+        useHook,
+        'failing-focus-article',
+        fetchArticle,
+        { errorPolicy: () => 'soft', errorExpiryLength: 1 },
+      );
+      // the failed fetch went stale, so focus fetched again
+      expect(refocus).toBeGreaterThan(mount);
     },
   );
 

@@ -18,6 +18,16 @@ afterEach(() => {
 });
 
 describe('Controller', () => {
+  const error = new Error('network down');
+  const rejectingController = () =>
+    new Controller({
+      dispatch: (action: any) => {
+        action.meta.reject(error);
+        return Promise.resolve();
+      },
+      getState: () => initialState,
+    });
+
   it('warns when dispatching during middleware setup', () => {
     const controller = new Controller();
     expect(() =>
@@ -25,6 +35,48 @@ describe('Controller', () => {
     ).toThrowErrorMatchingInlineSnapshot(
       `"Dispatching while constructing your middleware is not allowed. Other middleware would not be applied to this dispatch."`,
     );
+  });
+
+  describe('fetch', () => {
+    const reads = [
+      ['with a schema', CoolerArticleResource.get],
+      [
+        'without a schema',
+        CoolerArticleResource.get.extend({ schema: undefined }),
+      ],
+    ] as const;
+
+    it.each(reads)('read %s rejects when awaited', async (_, endpoint) => {
+      await expect(
+        rejectingController().fetch(endpoint, { id: 5 }),
+      ).rejects.toBe(error);
+    });
+
+    // jest fails the running test on an unhandled rejection
+    it.each(reads)(
+      'read %s is not an unhandled rejection when not awaited',
+      async (_, endpoint) => {
+        rejectingController().fetch(endpoint, { id: 5 });
+        await new Promise(resolve => setTimeout(resolve, 10));
+      },
+    );
+
+    it('mutation leaves its rejection to the caller', async () => {
+      // jest fails the test on any unhandled rejection, so check that nothing handles it instead
+      const catchSpy = jest.spyOn(Promise.prototype, 'catch');
+      let promise: Promise<unknown>;
+      try {
+        promise = rejectingController().fetch(
+          CoolerArticleResource.update,
+          { id: 5 },
+          { title: 'hi' },
+        );
+        expect(catchSpy.mock.contexts).not.toContain(promise);
+      } finally {
+        catchSpy.mockRestore();
+      }
+      await expect(promise).rejects.toBe(error);
+    });
   });
 
   describe('fetchIfStale', () => {
@@ -109,20 +161,9 @@ describe('Controller', () => {
 
       expect(dispatch.mock.calls.length).toBe(1);
     });
-    const error = new Error('network down');
     const key = CoolerArticleResource.get.key({ id: 5 });
     describe.each([
-      [
-        'the fetch fails',
-        () =>
-          new Controller({
-            dispatch: (action: any) => {
-              action.meta.reject(error);
-              return Promise.resolve();
-            },
-            getState: () => initialState,
-          }),
-      ],
+      ['the fetch fails', rejectingController],
       [
         'the latest fetch failed within errorExpiryLength',
         () =>

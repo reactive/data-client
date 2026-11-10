@@ -150,6 +150,8 @@ export default class Controller<
 
   /**
    * Fetches the endpoint with given args, updating the Reactive Data Client cache with the response or error upon completion.
+   *
+   * Without `sideEffect`, safe to call without awaiting: errors are stored, never an unhandled rejection.
    * @see https://dataclient.io/docs/api/Controller#fetch
    */
   fetch: ControllerFetch = (
@@ -161,12 +163,14 @@ export default class Controller<
     });
     this.dispatch(action);
 
-    if (endpoint.schema) {
-      return action.meta.promise.then(input =>
-        denormalize(endpoint.schema, input, {}, args),
-      ) as any;
-    }
-    return action.meta.promise as any;
+    const promise =
+      endpoint.schema ?
+        action.meta.promise.then(input =>
+          denormalize(endpoint.schema, input, {}, args),
+        )
+      : action.meta.promise;
+    // a read's error is stored for the components that render it; a mutation's has no other reader
+    return endpoint.sideEffect ? promise : prehandled(promise);
   };
 
   /**
@@ -190,6 +194,8 @@ export default class Controller<
       ...args,
       state,
     );
+    // fetch() leaves sideEffect rejections to the caller; mark them handled too,
+    // so fetchIfStale() is always safe to leave unawaited
     if (expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt)
       return prehandled(this.fetch(endpoint, ...args));
     const error = this.getError(endpoint, ...args, state);

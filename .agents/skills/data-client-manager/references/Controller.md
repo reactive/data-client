@@ -140,12 +140,16 @@ function PostListItem({ post }: { post: Post }) {
 
 - Resolves _before_ the cache update is [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
 - Every call starts a new fetch.
+- Unawaited, it rejects unhandled, since no component reads its error. Await it, or use
+  [useLoading()](https://dataclient.io/docs/api/useLoading) to show the error.
 
 ##### false | undefined
 
 - Resolves _after_ the cache update is [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
 - Identical requests are deduplicated, so only one is in flight at a time.
   - To start a _new_ request, abort the one in flight first.
+- Safe unawaited: the error is stored for components reading that endpoint, so it never reaches global
+  unhandled-rejection handlers ([report it](./managers.md#error-reporting) instead). `await` still rejects.
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
