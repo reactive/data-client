@@ -36,9 +36,9 @@ export const routes = [
     ) => {
       const query = `${search?.get('query') || 'is:open'} is:pr`;
       const q = `${query} repo:${owner}/${repo}`;
-      await controller
-        .fetchIfStale(IssueResource.search, { q })
-        .catch(() => {});
+      await controller.fetchIfStale(IssueResource.search, {
+        q,
+      });
     },
   },
   {
@@ -52,9 +52,9 @@ export const routes = [
     ) => {
       const query = `${search?.get('query') || 'is:open'} is:issue`;
       const q = `${query} repo:${owner}/${repo}`;
-      await controller
-        .fetchIfStale(IssueResource.search, { q })
-        .catch(() => {});
+      await controller.fetchIfStale(IssueResource.search, {
+        q,
+      });
     },
   },
   {
@@ -70,10 +70,7 @@ export const routes = [
         number,
       });
       controller.fetchIfStale(CommentResource.getList, { owner, repo, number });
-      // server rendering waits for the issue; catch so a failure never rejects unhandled
-      await controller
-        .fetchIfStale(IssueResource.get, { owner, repo, number })
-        .catch(() => {});
+      await controller.fetchIfStale(IssueResource.get, { owner, repo, number });
     },
   },
   {
