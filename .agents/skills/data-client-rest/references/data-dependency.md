@@ -145,8 +145,9 @@ bound components immediately upon [data change](./mutations.md). This is known a
 Open a post from `PostList` above, and `PostDetail` renders it without a fetch. `PostResource.get`'s schema is the
 `Post` [Entity](https://dataclient.io/rest/api/Entity), so until that endpoint has a response of its own, `useSuspense()` looks for the post
 in the store by its args ([Entity.queryKey](https://dataclient.io/rest/api/Entity#queryKey)). The list response already put each post it
-returned there. The args must name the field `pk()` reads (`{ id }`, not `{ postId }`) or one of the Entity's
-[indexes](https://dataclient.io/rest/api/Entity#indexes); other args, like `{ id, expand: 'comments' }`, don't change the lookup.
+returned there. The lookup runs the Entity's `pk()` on the args, so `{ id }` produces the same key the list stored the
+post under ([how it works](https://dataclient.io/rest/api/Entity#pk-args)); args `pk()` doesn't read, like `expand` in
+`{ id, expand: 'comments' }`, don't change the lookup.
 
 `useSuspense()` fetches only when the post is missing. When the stored post is [stale](./expiry-policy.md),
 it renders it and refetches in the background (an
