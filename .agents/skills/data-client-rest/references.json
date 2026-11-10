@@ -19,6 +19,7 @@
     "network-transform.md": "docs/rest/guides/network-transform.md",
     "optimistic-updates.md": "docs/rest/guides/optimistic-updates.md",
     "pagination.md": "docs/rest/guides/pagination.md",
+    "queryable.md": "docs/core/concepts/queryable.md",
     "resource.md": "docs/rest/api/resource.md"
   },
   "files": {

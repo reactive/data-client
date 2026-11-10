@@ -23,7 +23,7 @@ Retrieves all entities in cache as an Array.
 
 ## Queryable {#queryable}
 
-`All` is [Queryable](./schema.md#queryable-endpoints): it returns every stored Entity of its type. So until an endpoint
+`All` is [Queryable](/docs/concepts/queryable#endpoints): it returns every stored Entity of its type. So until an endpoint
 whose schema is `All` has a response of its own, it renders whatever Entities of that type the store already holds,
 even one stored by a detail page or a create, without fetching. It fetches once the earliest of them goes stale.
 

@@ -230,7 +230,8 @@ const data = memo.query(
 
 A `Queryable` schema can produce its data from the store using only args, without a response. Its
 [queryKey](./Entity.md#queryKey) method returns what a response would have normalized to, and returns it only for data
-the store holds.
+the store holds. Endpoints use it to render data another request loaded before their own response arrives
+([Queryable](/docs/concepts/queryable)).
 
 | Schema | `queryKey(args)` returns |
 | --- | --- |
@@ -245,35 +246,9 @@ the store holds.
 [`.query`](./Lazy.md#query) accessor. [Array](./Array.md), [Values](./Values.md) and [Invalidate](./Invalidate.md) are
 not: their `queryKey` returns `undefined`. Wrap a list in a [Collection](./Collection.md) to make it Queryable.
 
-### Endpoints query the store {#queryable-endpoints}
+### Uses
 
-An endpoint reads its own response when it has one. Until then, an endpoint with a Queryable schema queries the store
-with its args, and uses the result when it is complete: no part of it is `undefined`. Queryability is what lets a page
-render data another request loaded, such as a detail page opened from a list
-([Lists to details](/docs/getting-started/data-dependency#list-detail)).
-
-A complete result is treated like a response. It expires when the first Entity in it expires, and the
-[expiry policy](/docs/concepts/expiry-policy) applies as usual: stale data renders while it refetches, an
-[invalidIfStale](/docs/concepts/expiry-policy#endpointinvalidifstale) or invalidated endpoint suspends, and an Entity
-that fails [validate()](./Entity.md#validate) counts as missing. An incomplete result is missing data, so the endpoint
-fetches.
-
-The rest follows from these two rules:
-
-- An Entity stored by any response is found by every endpoint whose args produce its `pk`.
-- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
-- An object schema like `{ data: Post }` is complete when every member is: an Array member never is, a Collection member
-  is when the store holds it for those args, and two Entities must both be found by the same args. The result holds only
-  the schema's members, so other values render as the schema's defaults until the endpoint's own response arrives.
-- Once the endpoint has a response of its own, it reads that, with that response's expiry.
-
-This applies wherever an endpoint is read: [useSuspense()](/docs/api/useSuspense), [useDLE()](/docs/api/useDLE),
-[useCache()](/docs/api/useCache) and [Controller.fetchIfStale()](/docs/api/Controller#fetchIfStale).
-[Controller.fetch()](/docs/api/Controller#fetch) always requests. [useQuery()](/docs/api/useQuery) runs the same
-`queryKey` but ignores expiry, and returns an object schema even with a member missing.
-
-### Other uses
-
+- [Endpoints](/docs/concepts/queryable#endpoints) - [useSuspense()](/docs/api/useSuspense), [useDLE()](/docs/api/useDLE), [useCache()](/docs/api/useCache) and [Controller.fetchIfStale()](/docs/api/Controller#fetchIfStale) render stored data until the endpoint has a response of its own
 - [useQuery()](/docs/api/useQuery) - Rendering in :react[React]:vue[Vue]
 - [schema.Query()](./Query.md) - As input to produce a computed memoization.
 - [ctrl.get](/docs/api/Controller#get)/[snap.get](/docs/api/Snapshot#get)

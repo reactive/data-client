@@ -97,7 +97,7 @@ and thus will not be kept in the cache.
 
 #### Queryable by args {#pk-args}
 
-`pk()` also makes an Entity [Queryable](./schema.vue.md#queryable): given args, [queryKey](#queryKey) returns the primary
+`pk()` also makes an Entity [Queryable](./queryable.vue.md): given args, [queryKey](#queryKey) returns the primary
 key when the store holds that Entity. An endpoint whose schema is the Entity then renders it before fetching, which is
 how a detail page shows an item a list already loaded
 ([Lists to details](https://dataclient.io/vue/getting-started/data-dependency#list-detail)).
@@ -802,7 +802,7 @@ static mergeMetaWithStore(
 
 ### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](./schema.vue.md#queryable) - allowing store access without an endpoint.
+This method enables `Entities` to be [Queryable](./queryable.vue.md) - allowing store access without an endpoint.
 
 Overriding can allow customization or disabling of this behavior altogether.
 

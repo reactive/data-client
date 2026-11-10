@@ -122,7 +122,7 @@ and thus will not be kept in the cache.
 
 #### Queryable by args {#pk-args}
 
-`pk()` also makes an Entity [Queryable](./schema.md#queryable): given args, [queryKey](#queryKey) returns the primary
+`pk()` also makes an Entity [Queryable](/docs/concepts/queryable): given args, [queryKey](#queryKey) returns the primary
 key when the store holds that Entity. An endpoint whose schema is the Entity then renders it before fetching, which is
 how a detail page shows an item a list already loaded
 ([Lists to details](/docs/getting-started/data-dependency#list-detail)).
