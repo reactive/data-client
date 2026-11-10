@@ -107,9 +107,7 @@ export default function useDLE<
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
-    return controller
-      .fetch(endpoint, ...(args as Parameters<E>))
-      .catch(() => {});
+    return controller.fetch(endpoint, ...(args as Parameters<E>));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
