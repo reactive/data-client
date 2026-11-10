@@ -8,8 +8,7 @@ description: How a schema finds its data in the store from args alone, so a page
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
-import { postFixtures } from '@site/src/fixtures/posts';
+import ListDetailDemo from '../shared/\_ListDetailDemo.mdx';
 
 # Queryable
 
@@ -22,146 +21,7 @@ for it. A detail page opened from a list renders at once, and makes no request w
 
 Open a post below. `PostDetail` renders without a loading state, because the list already stored that `Post`.
 
-<FrameworkPlayground defaultOpen="n" row fixtures={postFixtures}>
-
-```ts title="Resources" collapsed
-import { Entity, resource } from '@data-client/rest';
-
-export class User extends Entity {
-  id = 0;
-  name = '';
-
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  static key = 'User';
-}
-
-export class Post extends Entity {
-  id = 0;
-  author = User.fromJS();
-  title = '';
-  body = '';
-
-  static key = 'Post';
-
-  static schema = {
-    author: User,
-  };
-}
-export const PostResource = resource({
-  path: '/posts/:id',
-  schema: Post,
-});
-```
-
-:::react
-
-```tsx title="PostList" route="/" collapsed
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './Resources';
-
-export default function PostList() {
-  const posts = useSuspense(PostResource.getList);
-  return (
-    <div>
-      {posts.map(post => (
-        <div key={post.pk()} className="listItem spaced">
-          <Avatar src={post.author.profileImage} />
-          <div>
-            <h4>
-              <Link to={`/posts/${post.id}`}>{post.title}</Link>
-            </h4>
-            <small>by {post.author.name}</small>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-```tsx title="PostDetail" route="/posts/:id" {6}
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './Resources';
-
-export default function PostDetail({ id }: { id: string }) {
-  // the list stored this Post, so there is nothing to wait for
-  const post = useSuspense(PostResource.get, { id });
-  return (
-    <div>
-      <header>
-        <div className="listItem spaced">
-          <div className="author">
-            <Avatar src={post.author.profileImage} />
-            <small>{post.author.name}</small>
-          </div>
-          <h4>{post.title}</h4>
-        </div>
-      </header>
-      <p>{post.body}</p>
-    </div>
-  );
-}
-```
-
-:::
-
-:::vue
-
-```html title="PostList.vue" route="/" collapsed
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './Resources';
-
-  const posts = await useSuspense(PostResource.getList);
-</script>
-
-<template>
-  <div>
-    <div v-for="post in posts" :key="post.pk()" class="listItem spaced">
-      <Avatar :src="post.author.profileImage" />
-      <div>
-        <h4>
-          <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
-        </h4>
-        <small>by {{ post.author.name }}</small>
-      </div>
-    </div>
-  </div>
-</template>
-```
-
-```html title="PostDetail.vue" route="/posts/:id" {7}
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './Resources';
-
-  const props = defineProps<{ id: string }>();
-  // the list stored this Post, so there is nothing to wait for
-  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
-</script>
-
-<template>
-  <div>
-    <header>
-      <div class="listItem spaced">
-        <div class="author">
-          <Avatar :src="post.author.profileImage" />
-          <small>{{ post.author.name }}</small>
-        </div>
-        <h4>{{ post.title }}</h4>
-      </div>
-    </header>
-    <p>{{ post.body }}</p>
-  </div>
-</template>
-```
-
-:::
-
-</FrameworkPlayground>
+<ListDetailDemo defaultTab="PostDetail" />
 
 :::react
 

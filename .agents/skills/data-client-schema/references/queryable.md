@@ -19,6 +19,10 @@ import { Entity, resource } from '@data-client/rest';
 export class User extends Entity {
   id = 0;
   name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
 
   get profileImage() {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
@@ -26,6 +30,11 @@ export class User extends Entity {
 
   static key = 'User';
 }
+export const UserResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
 
 export class Post extends Entity {
   id = 0;
@@ -42,39 +51,15 @@ export class Post extends Entity {
 export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
+  paginationField: 'page',
 });
 ```
 
-```tsx title="PostList" route="/"
+```tsx title="PostDetail" route="/posts/:id" {5}
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './Resources';
 
-export default function PostList() {
-  const posts = useSuspense(PostResource.getList);
-  return (
-    <div>
-      {posts.map(post => (
-        <div key={post.pk()} className="listItem spaced">
-          <Avatar src={post.author.profileImage} />
-          <div>
-            <h4>
-              <Link to={`/posts/${post.id}`}>{post.title}</Link>
-            </h4>
-            <small>by {post.author.name}</small>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-```tsx title="PostDetail" route="/posts/:id" {6}
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './Resources';
-
-export default function PostDetail({ id }: { id: string }) {
-  // the list stored this Post, so there is nothing to wait for
+export default function PostDetail({ id }) {
   const post = useSuspense(PostResource.get, { id });
   return (
     <div>
@@ -88,6 +73,62 @@ export default function PostDetail({ id }: { id: string }) {
         </div>
       </header>
       <p>{post.body}</p>
+    </div>
+  );
+}
+```
+
+```tsx title="PostItem"
+import { type Post } from './Resources';
+
+export default function PostItem({ post }: { post: Post }) {
+  return (
+    <div className="listItem spaced">
+      <Avatar src={post.author.profileImage} />
+      <div>
+        <h4>
+          <Link to={`/posts/${post.id}`}>{post.title}</Link>
+        </h4>
+        <small>by {post.author.name}</small>
+      </div>
+    </div>
+  );
+}
+```
+
+```tsx title="PostList" route="/" {7}
+import { useSuspense } from '@data-client/react';
+import LoadMore from './LoadMore';
+import PostItem from './PostItem';
+import { PostResource } from './Resources';
+
+export default function PostList() {
+  const posts = useSuspense(PostResource.getList);
+  return (
+    <div>
+      {posts.map(post => (
+        <PostItem key={post.pk()} post={post} />
+      ))}
+      <LoadMore />
+    </div>
+  );
+}
+```
+
+```tsx title="LoadMore"
+import { useController, useLoading, useQuery } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function LoadMore() {
+  const ctrl = useController();
+  const posts = useQuery(PostResource.getList.schema);
+  const [nextPage, isPending] = useLoading(() =>
+    ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
+  );
+  if (!posts || posts.length % 3 !== 0) return null;
+  return (
+    <div className="loadMore">
+      <button onClick={nextPage}>{isPending ? '...' : 'Load more'}</button>
     </div>
   );
 }
