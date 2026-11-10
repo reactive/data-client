@@ -64,9 +64,10 @@ Every place that shows a server object reads the same Entity, so one response up
 
 ### Reads skip fresh data {#fetch-if-stale}
 
-- **Find:** `ctrl.fetch()` of a read endpoint in loaders, effects or handlers; `useEffect()` that fetches.
-- **Change:** `ctrl.fetchIfStale()` in loaders and handlers; `useSuspense()` or [useFetch()](https://dataclient.io/docs/api/useFetch) in
-  components. `ctrl.fetch()` always requests, even when the store holds fresh data.
+- **Find:** `useEffect()` that fetches; `ctrl.fetch()` of a read endpoint in route loaders or prefetch handlers.
+- **Change:** components read with `useSuspense()` or [useFetch()](https://dataclient.io/docs/api/useFetch). Only code where hooks can't
+  run, such as route loaders and prefetch on hover, calls `ctrl.fetchIfStale()`. `ctrl.fetch()` always requests, even
+  when the store holds fresh data, so keep it only where the user asks for a refresh.
 - **Users see:** no change; fewer requests per navigation.
 
 ## Changes with tradeoffs {#tradeoffs}
@@ -118,9 +119,6 @@ export default function IssuePage({ id }: { id: number }) {
 }
 ```
 
-An unawaited `fetchIfStale()` is safe from 0.19 on. Earlier versions return fresh data without a Promise and leave a
-failed fetch unhandled, so write `void Promise.resolve(ctrl.fetchIfStale(endpoint, args)).catch(() => {})`.
-
 - **Find:** loaders that `await` or `Promise.all()` several requests; components that call `useSuspense()` below the
   page's main content with no boundary of their own.
 - **Users see:** the page shows while the secondary parts show their own loading state.
@@ -129,7 +127,6 @@ failed fetch unhandled, so write `void Promise.resolve(ctrl.fetchIfStale(endpoin
 
 - **Find:** links to pages whose data the store doesn't hold yet, on routes without a loader.
 - **Change:** call `ctrl.fetchIfStale(endpoint, args)` in the link's `onMouseEnter` and `onFocus`, or add a loader.
-  Before 0.19, wrap it as the [loaders](#loaders) check shows.
 - **Users see:** the page shows without a loading state. Links that are hovered but not clicked cost a request.
 
 ### Expiry fits the data {#expiry}
@@ -149,8 +146,9 @@ between fetches, so most data can stay fresh longer.
 
 When the client can predict a mutation's result, show it at once and let Data Client roll it back if the request fails.
 Use [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updates) on the endpoint, or `optimistic: true` on
-[resource()](https://dataclient.io/rest/api/resource). `optimistic: true` covers every mutation, including creates, whose new item has an
-empty `id` until the server answers, so key its row by something else; to make one mutation optimistic, add
+[resource()](https://dataclient.io/rest/api/resource). `optimistic: true` covers every mutation, including creates. Until the server
+answers, a new item is stored under a random temporary key, but its `id` and `pk()` keep the Entity's default (such as
+`0`), so key its row by something else and disable its other mutations; to make one mutation optimistic, add
 `getOptimisticResponse` to just that endpoint with `resource().extend('partialUpdate', { ... })`.
 
 - **Find:** `ctrl.fetch()` of updates, deletes and creates whose response the client can predict from the body and
