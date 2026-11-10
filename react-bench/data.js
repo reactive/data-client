@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794244913604,
+  "lastUpdate": 1794341306519,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -13973,6 +13973,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 258.07,
             "range": "± 2.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "43d4048ab4b240554dc1f6d246a8a53a37866751",
+          "message": "fix(core): Unawaited fetch() of reads never rejects unhandled (#4670)\n\n* fix(core): Unawaited fetch() of reads never rejects unhandled\n\nController.fetch() pre-handles the Promise it returns for endpoints without\nsideEffect. Their error is stored for the components that render it, so a\ncall nobody awaits no longer rejects unhandled (crashing Node SSR loaders,\nor warning in React Native when a focus refetch fails). await and .catch()\nstill get the error. Mutations still reject unhandled.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs(blog): Link #4670\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Share the rejecting test Controller; restore spy in finally\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Share the native refocus test harness\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Pass the refocus test's endpoint name explicitly; name fetchIfStale's guarantee\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Drop useDLE's now-redundant catch, like useSuspense\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs: getPage snippet shows its loading and error state with useLoading()\n\nNo component reads getPage's key, so an unawaited failure would go unseen now that\nreads never reject unhandled.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs: Migration notes, setup and Managers guidance for unawaited reads\n\n- v0.19 blog migration section: delete no-op catches on reads, optionally add an error reporting Manager\n- v0.19 migration skill: delete no-op catches on reads; useLoading() for reads nothing renders\n- setup skill: add an error reporting Manager when the app reports to a tracker\n- Managers docs: which failed fetches reach global handlers, and how to add the reporting Manager\n- TanStack Query guide: QueryCache/MutationCache onError maps to the reporting Manager\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs(skills): Shorten the fetch() row\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs: Tighten the error-reporting notes in Controller and Managers docs\n\nAlso drops the core README's now-dead catch on a read.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs(skills): Audit fixes for the unawaited-read guidance\n\n- framework row uses the same wording as the fetchIfStale row, so awaited reads don't read as never rejecting\n- setup: Error Reporting is its own section, and adds the Manager only when the data layer reported errors itself\n  (matches the migration skill's don't-add-unasked rule)\n- migration skill and blog: which endpoints are reads (sideEffect, RestEndpoint's default), and keep catches after .then()\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-10T20:01:41Z",
+          "tree_id": "7ccf4e769c15bbb3d3859fbc85fdc86fe111de6a",
+          "url": "https://github.com/reactive/data-client/commit/43d4048ab4b240554dc1f6d246a8a53a37866751"
+        },
+        "date": 1794341303470,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 422.83,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 117.51,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 950.12,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 1049.93,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 108.4,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 926.01,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 668.9,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 28.61,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 139.08,
+            "range": "± 2.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 133.42,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 19.01,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 450.96,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 764.96,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 564.99,
+            "range": "± 4.6%",
             "unit": "ops/s"
           }
         ]
