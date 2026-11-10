@@ -20,8 +20,8 @@ live there, not here.
 
 - [resource()](references/resource.md) creates a collection of [RestEndpoints](references/RestEndpoint.md) for CRUD operations on a common object
 - Required fields:
-  - `path`: path‑to‑regexp template (typed!). `get` finds an item a list already loaded by running `pk()` on its args, so `/todos/:id` renders it with no request
-  - `schema`: Declarative data shape for a **single** item (typically Entity or Union)
+  - `path`: path‑to‑regexp template (typed!)
+  - `schema`: Declarative data shape for a **single** item (typically Entity or Union). It is Queryable: `get` renders an item a list already stored, with no request while it is fresh, by default when its args match the data's `pk()` fields (`/todos/:id` -> `{ id }`; [list to detail](references/data-dependency.md#list-detail))
 - Optional:
   - `urlPrefix`: Host root, if not `/`
   - `searchParams`: Type for query parameters (TS generic) in MyResource.getList

@@ -95,30 +95,23 @@ This is useful when initializing a creation form using [Entity.fromJS()](#fromJS
 directly. If `pk()` returns `undefined` it is considered not persisted to the server,
 and thus will not be kept in the cache.
 
-#### Lookup by endpoint args {#pk-args}
+#### Queryable by args {#pk-args}
 
-`pk()` keys an Entity in the store, and the same `pk()` lets an endpoint find an Entity that a different response
-stored. This is how a detail page renders an item a list already loaded, without a fetch
+`pk()` also makes an Entity [Queryable](./schema.md#queryable): given args, [queryKey](#queryKey) returns the primary
+key when the store holds that Entity. An endpoint whose schema is the Entity then renders it before fetching, which is
+how a detail page shows an item a list already loaded
 ([Lists to details](https://dataclient.io/docs/getting-started/data-dependency#list-detail)).
 
-1. **Storing:** normalizing a response stores each Entity under its `key` and `pk()`. A list of posts stores
-   `Post` `'1'`, `'2'` and so on, whichever endpoint fetched them.
-2. **Reading:** when an endpoint has a response of its own, it reads that. Until it does, its schema builds one from
-   the args instead, the same lookup [`useQuery(Post, args)`](https://dataclient.io/docs/api/useQuery) uses
-   ([Queryable](./schema.md#queryable)). An Entity schema does this with [queryKey](#queryKey), which by default:
-   - uses a string or number first argument as the primary key itself;
-   - otherwise calls `pk()` on the first argument. `pk()` reads fields from whatever object it gets, so args that
-     hold the same fields as the data (`{ id: 1 }` for the default `pk()`) produce the same key the list stored;
-   - otherwise, if the args hold a field in [indexes](#indexes), finds the primary key in that index;
-   - returns the key only if the store holds that Entity.
-3. **Result:** with a key, [useSuspense()](https://dataclient.io/docs/api/useSuspense) renders the stored Entity, with expiry from when
-   that Entity was stored. Without one, it fetches. Args the lookup doesn't read, like `expand` in
-   `{ id: 1, expand: 'comments' }`, are ignored.
+By default `queryKey` reads the first argument:
 
-A schema that holds the Entity, like `{ data: Post }`, runs each member's lookup with the same args.
+1. A string or number is the primary key.
+2. Otherwise `pk()` runs on it. `pk()` reads fields from whatever object it gets, so args with the same fields as the
+   data, like `{ id: 1 }`, produce the key the Entity was stored under.
+3. If `pk()` returns `undefined` or `''`, a field of the args listed in [indexes](#indexes) finds the primary key. A
+   `pk()` that builds a string (`` `${this.id}` ``) never returns `undefined`, so it skips this step.
 
-To find Entities from args shaped differently than the data, change either side: make `pk()` read fields the args
-also have, add the arg's field to [indexes](#indexes), or override `queryKey` to map the args to a primary key:
+When args are shaped differently than the data, change one side: make `pk()` read fields the args also have, add the
+arg to [indexes](#indexes) when it is a field of the Entity (`{ slug }`), or override `queryKey`:
 
 ```ts
 import { Entity, type IQueryDelegate } from '@data-client/rest';
@@ -131,9 +124,14 @@ export class Post extends Entity {
   static queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate) {
     const pk = args[0]?.postId;
     if (pk !== undefined && delegate.getEntity(this.key, `${pk}`)) return `${pk}`;
+    // keep the default: { id }, a bare pk, and indexes
+    return super.queryKey(args, unvisit, delegate);
   }
 }
 ```
+
+[useQuery(Post, ...)](https://dataclient.io/docs/api/useQuery) still takes the Entity's own fields (`{ id }`); only endpoint args can use
+`{ postId }`.
 
 #### Other uses
 
