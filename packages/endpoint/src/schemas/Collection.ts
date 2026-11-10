@@ -422,17 +422,20 @@ function normalizeCreate(
   // add to any collections that match this
   const targetCollection =
     deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
+  // an item's fields say where it belongs, not which lists it leaves
+  const accepts: CollectionFilter =
+    removing ? key => filterCollections(key) : filterCollections;
   const accepted =
     Array.isArray(normalizedValue) ? acceptedRefs : acceptedValues;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
-      const parsed = JSON.parse(collectionKey);
-      // an item's fields say where it belongs, not which lists it leaves
-      const members =
-        removing ?
-          filterCollections(parsed) && normalizedValue
-        : accepted(normalizedValue, input, filterCollections, parsed);
+      const members = accepted(
+        normalizedValue,
+        input,
+        accepts,
+        JSON.parse(collectionKey),
+      );
       if (members)
         delegate.mergeEntity(targetCollection, collectionKey, members);
     }
@@ -442,7 +445,7 @@ function normalizeCreate(
 /** The refs whose item the collection keyed by `collectionKey` accepts
  *
  * Returns `refs` itself when every item matches, so the common case copies nothing,
- * and undefined when none do, which leaves the stored list untouched.
+ * and undefined when there is nothing to merge (no refs, or none match).
  */
 function acceptedRefs(
   refs: any[],
@@ -450,6 +453,7 @@ function acceptedRefs(
   filterCollections: CollectionFilter,
   collectionKey: Record<string, string>,
 ) {
+  // nothing to add or remove leaves stored lists untouched
   if (!refs.length) return;
   let members: any[] | undefined;
   for (let i = 0; i < refs.length; i++) {

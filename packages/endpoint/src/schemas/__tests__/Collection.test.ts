@@ -1721,18 +1721,21 @@ describe(`${schema.Collection.name} normalization`, () => {
       expect(titles(custom, next, { userId: '1' })).toEqual(['seed', 'mine']);
     });
 
-    it('leaves stored lists untouched when pushing or assigning nothing', () => {
+    it('leaves stored lists untouched when creating or removing nothing', () => {
       const state = seed(todos, lists);
       const before = state.entities[todos.key];
-      const next = normalize(todos.push, [], [{ userId: '1' }], state);
-      expect(next.entities[todos.key]).toBe(before);
+      for (const sch of [todos.push, todos.remove]) {
+        const next = normalize(sch, [], [{ userId: '1' }], state);
+        expect(next.entities[todos.key]).toBe(before);
+      }
 
       const stats = new Collection(new schema.Values(Todo));
       const valuesState = seed(stats, [{}]);
       const valuesBefore = valuesState.entities[stats.key];
-      expect(
-        normalize(stats.assign, {}, [{}], valuesState).entities[stats.key],
-      ).toBe(valuesBefore);
+      for (const sch of [stats.assign, stats.remove])
+        expect(normalize(sch, {}, [{}], valuesState).entities[stats.key]).toBe(
+          valuesBefore,
+        );
     });
 
     it('passes the stored and merged values to a custom filter on move', () => {
