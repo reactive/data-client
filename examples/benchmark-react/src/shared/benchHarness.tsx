@@ -487,7 +487,8 @@ export function useBenchState({
    * all-issues list, switch to the open list, open the issue, go back, go
    * forward, edit its title, go back to the open list and the all-issues
    * list, then forward to the open list and the issue. Each step ends when
-   * its view shows the new issue or the new title. Both lists were loaded first, like tabs the user visited.
+   * its view shows the new issue or the new title. Both lists were loaded
+   * first, like tabs the user visited.
    * Data Client sends only the create and the edit; per-request caches also
    * refetch after each mutation and fetch views they haven't cached; the
    * baseline fetches every view. Returning to the start is not timed, and
@@ -523,19 +524,32 @@ export function useBenchState({
       for (let i = 0; i <= rounds; i++) {
         const step = (fn: () => void, done: string | (() => boolean)) =>
           measureNavStep(fn, done, i > 0);
+        // A mutation's step ends when the view shows it (for Data Client,
+        // its optimistic commit). Its reply is then handled and painted
+        // before the next step, so it never lands in a later window. Unlike
+        // measureUpdate, replies are not held: with no network delay a reply
+        // can land inside this window, which only adds to Data Client's time.
+        const mutationStep = async <T,>(
+          fn: () => Promise<T>,
+          done: () => boolean,
+        ): Promise<T> => {
+          let pending!: Promise<T>;
+          await step(() => {
+            pending = fn();
+          }, done);
+          const result = await pending;
+          await waitForPaint();
+          return result;
+        };
 
         const before = firstNumber();
-        let created!: Promise<number>;
-        await step(
-          () => {
-            created = apiRef.current.createItem!();
-          },
+        const number = await mutationStep(
+          () => apiRef.current.createItem!(),
           () => {
             const first = firstNumber();
             return first != null && first !== before;
           },
         );
-        const number = await created;
         const inOpen = `[data-state-list="open"] [data-issue-number="${number}"]`;
         const inAll = `[data-issue-list] [data-issue-number="${number}"]`;
         const detail = `[data-detail-view][data-issue-number="${number}"]`;
@@ -551,14 +565,10 @@ export function useBenchState({
         await step(showDetail, detail);
 
         const title = `Edited ${number} (${i})`;
-        let edited!: Promise<void>;
-        await step(
-          () => {
-            edited = apiRef.current.editTitle!(number, title);
-          },
+        await mutationStep(
+          () => apiRef.current.editTitle!(number, title),
           titleIs(detail, title),
         );
-        await edited;
         await step(showOpen, titleIs(inOpen, title));
         await step(showAll, titleIs(inAll, title));
         await step(showOpen, titleIs(inOpen, title));
