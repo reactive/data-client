@@ -122,12 +122,42 @@ and thus will not be kept in the cache.
 
 #### Lookup by endpoint args {#pk-args}
 
-`pk()` also runs on an endpoint's args. Until an endpoint whose schema is this Entity has a response of its own,
-[useSuspense()](/docs/api/useSuspense) calls `pk()` on its args to find an Entity another response stored, such as a
-list, and renders it without a fetch ([Lists to details](/docs/getting-started/data-dependency#list-detail)). So the
-args must use the field names `pk()` reads: with the default `pk()`, `{ id }` is found, but `{ postId }` always
-fetches. Name the path parameter after the field (`/posts/:id`). To look up by another unique field, add it to
-[indexes](#indexes).
+`pk()` keys an Entity in the store, and the same `pk()` lets an endpoint find an Entity that a different response
+stored. This is how a detail page renders an item a list already loaded, without a fetch
+([Lists to details](/docs/getting-started/data-dependency#list-detail)).
+
+1. **Storing:** normalizing a response stores each Entity under its `key` and `pk()`. A list of posts stores
+   `Post` `'1'`, `'2'` and so on, whichever endpoint fetched them.
+2. **Reading:** when an endpoint has a response of its own, it reads that. Until it does, its schema builds one from
+   the args instead. An Entity schema does this with [queryKey](#queryKey), which by default:
+   - uses a string or number first argument as the primary key itself;
+   - otherwise calls `pk()` on the first argument. `pk()` reads fields from whatever object it gets, so args that
+     hold the same fields as the data (`{ id: 1 }` for the default `pk()`) produce the same key the list stored;
+   - otherwise, if the args hold a field in [indexes](#indexes), finds the primary key in that index;
+   - returns the key only if the store holds that Entity.
+3. **Result:** with a key, [useSuspense()](/docs/api/useSuspense) renders the stored Entity, with expiry from when
+   that Entity was stored. Without one, it fetches. Args the lookup doesn't read, like `expand` in
+   `{ id: 1, expand: 'comments' }`, are ignored.
+
+A schema that holds the Entity, like `{ data: Post }`, runs each member's lookup with the same args.
+
+To find Entities from args shaped differently than the data, change either side: make `pk()` read fields the args
+also have, add the arg's field to [indexes](#indexes), or override `queryKey` to map the args to a primary key:
+
+```ts
+import { Entity, type IQueryDelegate } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+
+  // detail endpoints are called with { postId }
+  static queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate) {
+    const pk = args[0]?.postId;
+    if (pk !== undefined && delegate.getEntity(this.key, `${pk}`)) return `${pk}`;
+  }
+}
+```
 
 #### Other uses
 

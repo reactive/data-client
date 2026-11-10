@@ -20,7 +20,7 @@ live there, not here.
 
 - [resource()](references/resource.md) creates a collection of [RestEndpoints](references/RestEndpoint.md) for CRUD operations on a common object
 - Required fields:
-  - `path`: path‑to‑regexp template (typed!). Name the item param after the field `pk()` reads (`/todos/:id`, not `/todos/:todoId`): `get` then renders an item a list already loaded with no request
+  - `path`: path‑to‑regexp template (typed!). `get` finds an item a list already loaded by running `pk()` on its args, so `/todos/:id` renders it with no request
   - `schema`: Declarative data shape for a **single** item (typically Entity or Union)
 - Optional:
   - `urlPrefix`: Host root, if not `/`
