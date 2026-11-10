@@ -55,18 +55,13 @@ export default class LoggingManager implements Manager {
 
 ### Error reporting {#error-reporting}
 
-A failed fetch is stored for the components that read it, so most failures never reach a global unhandled-rejection
-handler (Sentry's default setup, the browser console, Node's `unhandledRejection`):
+| Unawaited fetch fails                                                                | Reaches global handlers (Sentry, console)?   |
+| ------------------------------------------------------------------------------------ | -------------------------------------------- |
+| Read: hooks, [fetch()](./Controller.md#fetch) without `sideEffect`, `fetchIfStale()` | No: stored, so components reading it show it |
+| Mutation: `fetch()` with `sideEffect: true`                                          | Yes                                          |
 
-| Failed fetch                                                                                                                            | Reaches global handlers?        | Where the error goes                  |
-| --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- |
-| Started by a hook ([useSuspense()](https://dataclient.io/docs/api/useSuspense), [useDLE()](https://dataclient.io/docs/api/useDLE), ...) | No                              | Stored; the component shows it        |
-| Read you don't await: [fetch()](./Controller.md#fetch) without `sideEffect`, `fetchIfStale()`                                           | No                              | Stored; components reading it show it |
-| Mutation you don't await: `fetch()` with `sideEffect: true`                                                                             | Yes                             | The rejection; no component reads it  |
-| Any call you `await`                                                                                                                    | Only if your code doesn't catch | Your code, and the store              |
-
-To report every failed fetch, add a Manager that sends [SET\_RESPONSE](./Actions.md#set_response) actions with
-`error` set to a monitoring service like [Sentry](https://sentry.io):
+To report every failed fetch, awaited or not, send [SET\_RESPONSE](./Actions.md#set_response) actions with `error`
+set to a service like [Sentry](https://sentry.io):
 
 ```typescript
 import {

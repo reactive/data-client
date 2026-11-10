@@ -257,17 +257,16 @@ post.pk();
 
 - Resolves _before_ the cache update is [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
 - Every call starts a new fetch.
-- Rejects unhandled when nobody awaits or catches it, since no component reads its error. Await it, or wrap it in
-  [useLoading()](./useLoading.md) to render the error.
+- Unawaited, it rejects unhandled, since no component reads its error. Await it, or use
+  [useLoading()](./useLoading.md) to show the error.
 
 ##### false | undefined
 
 - Resolves _after_ the cache update is [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
 - Identical requests are deduplicated, so only one is in flight at a time.
   - To start a _new_ request, abort the one in flight first.
-- Safe to call without awaiting: the error is stored, so components reading that endpoint show it. A call nobody
-  awaits never rejects unhandled, so its failure doesn't reach global unhandled-rejection handlers; report fetch errors
-  with an [error reporting Manager](../concepts/managers.md#error-reporting). `await` still rejects.
+- Safe unawaited: the error is stored for components reading that endpoint, so it never reaches global
+  unhandled-rejection handlers ([report it](../concepts/managers.md#error-reporting) instead). `await` still rejects.
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
