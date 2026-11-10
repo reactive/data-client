@@ -499,7 +499,7 @@ render(<CounterPage />);
 Like React's [useOptimistic()](https://react.dev/reference/react/useOptimistic), an optimistic update renders
 before the browser paints the click. If many components show the changed data, that render can make the click feel
 slow. First make the render cheaper, with [React Compiler](https://react.dev/learn/react-compiler) or `memo()` on
-expensive components. If the click is still slow, call `fetch()` inside
+expensive components. If the click is still slow, call `ctrl.fetch()`, which applies the optimistic update, inside
 [startTransition()](https://react.dev/reference/react/startTransition) (React 18+). The browser then paints and handles
 input before the update renders:
 
