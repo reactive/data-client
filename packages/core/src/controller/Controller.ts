@@ -194,7 +194,8 @@ export default class Controller<
       ...args,
       state,
     );
-    // fetch() pre-handles only reads; this keeps the guarantee for sideEffect endpoints too
+    // fetch() leaves sideEffect rejections to the caller; mark them handled too,
+    // so fetchIfStale() is always safe to leave unawaited
     if (expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt)
       return prehandled(this.fetch(endpoint, ...args));
     const error = this.getError(endpoint, ...args, state);

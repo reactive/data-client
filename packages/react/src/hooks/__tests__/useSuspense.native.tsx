@@ -313,12 +313,13 @@ describe('useSuspense()', () => {
    * Returns the endpoint's fetch count after mount and after regaining focus. */
   async function refocusFetchCounts(
     useHook: (typeof focusHooks)[number][1],
+    name: string,
     fetchArticle: jest.Mock<(params: { id: number }) => Promise<any>>,
     options: { errorPolicy?: () => 'soft'; errorExpiryLength?: number } = {},
   ) {
     const getArticle = new Endpoint(fetchArticle, {
       schema: CoolerArticle,
-      key: ({ id }: { id: number }) => `${fetchArticle.getMockName()}-${id}`,
+      key: ({ id }: { id: number }) => `${name}-${id}`,
       ...options,
     });
     const cached = mockInitialState([
@@ -370,11 +371,10 @@ describe('useSuspense()', () => {
   it.each(focusHooks)(
     '%s should not refetch on refocus once revalidated data is fresh',
     async (_, useHook) => {
-      const fetchArticle = jest
-        .fn(async ({ id }: { id: number }) => payload)
-        .mockName('fresh-focus-article');
+      const fetchArticle = jest.fn(async ({ id }: { id: number }) => payload);
       const { mount, refocus } = await refocusFetchCounts(
         useHook,
+        'fresh-focus-article',
         fetchArticle,
       );
       expect(mount).toBe(1);
@@ -387,14 +387,13 @@ describe('useSuspense()', () => {
   it.each(focusHooks)(
     '%s refetch on refocus that fails is not an unhandled rejection',
     async (_, useHook) => {
-      const fetchArticle = jest
-        .fn(async (_: { id: number }): Promise<any> => {
-          throw new Error('network down');
-        })
-        .mockName('failing-focus-article');
+      const fetchArticle = jest.fn(async (_: { id: number }): Promise<any> => {
+        throw new Error('network down');
+      });
       // keep showing the cached data, and let each failure go stale right away
       const { mount, refocus } = await refocusFetchCounts(
         useHook,
+        'failing-focus-article',
         fetchArticle,
         { errorPolicy: () => 'soft', errorExpiryLength: 1 },
       );
