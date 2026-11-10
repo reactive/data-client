@@ -71,7 +71,7 @@ const POSITIONAL_CALLS = new Map([
 const isId = (node, name) => node?.type === 'Identifier' && node.name === name;
 
 const isProperty = node =>
-  node.type === 'ObjectProperty' || node.type === 'Property';
+  node?.type === 'ObjectProperty' || node?.type === 'Property';
 
 const isFunction = node =>
   node?.type === 'ArrowFunctionExpression' ||
@@ -177,11 +177,14 @@ const usesOf = (j, root, binding) =>
       bindingOf(p) === binding,
   );
 
+/** Whether a variable is declared in `export const`, so other modules can use or change it */
+const isExported = binding =>
+  binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration';
+
 /** Whether every use of a variable is one of the `managers` slots */
 function onlyUsedAsManagers(j, root, binding, slotNodes) {
   // other modules may pass `export const managers` too, and they get wrapped
-  if (binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration')
-    return false;
+  if (isExported(binding)) return false;
   return usesOf(j, root, binding).every(p => slotNodes.has(p.node));
 }
 
@@ -901,10 +904,7 @@ function renameDevToolsOptions(j, root) {
     .filter(isDevToolsConfig)
     .forEach(({ node }) => {
       // a spread or computed key may hold the new name
-      if (
-        !node.properties.every(p => isProperty(p) && keyName(p) !== undefined)
-      )
-        return;
+      if (!node.properties.every(hasStaticKey)) return;
       const keys = new Set(node.properties.map(keyName));
       for (const prop of node.properties) {
         if (prop.computed) continue;
@@ -939,11 +939,12 @@ function isImportOf(path, name, source) {
 // an extend() that replaces one of these makes create differ from getList.push
 const CREATE_SOURCES = new Set(['create', 'getList']);
 
-/** Whether every key of `object` is a known name outside `names`; a spread or computed key could be any */
+/** Whether `p` is a property with a known name; a spread or computed key could be any */
+const hasStaticKey = p => isProperty(p) && keyName(p) !== undefined;
+
+/** Whether every key of `object` is a known name outside `names` */
 const hasOnlyKeysOutside = (object, names) =>
-  object.properties.every(
-    p => isProperty(p) && keyName(p) !== undefined && !names.has(keyName(p)),
-  );
+  object.properties.every(p => hasStaticKey(p) && !names.has(keyName(p)));
 
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
@@ -1004,8 +1005,7 @@ function isReadOnlyResource(j, root, binding) {
   if (
     !isPlainResourceDeclarator(binding) ||
     binding.parent.parent.node.kind !== 'const' ||
-    // importers can mutate it
-    binding.parent.parent.parent?.node.type === 'ExportNamedDeclaration'
+    isExported(binding)
   )
     return false;
   return usesOf(j, root, binding).every(p => {
@@ -1136,7 +1136,7 @@ function sourceCallOf(path) {
   const binding = path.node.type === 'Identifier' ? bindingOf(path) : undefined;
   // a destructured name's binding sits in an ObjectPattern property
   const declarator =
-    binding && isProperty(binding.parent.node) ?
+    isProperty(binding?.parent.node) ?
       binding.parent.parent.parent
     : binding?.parent;
   return declarator?.node.type === 'VariableDeclarator' ?
