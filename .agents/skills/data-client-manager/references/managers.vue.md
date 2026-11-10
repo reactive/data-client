@@ -55,8 +55,18 @@ export default class LoggingManager implements Manager {
 
 ### Error reporting {#error-reporting}
 
-Report failed fetches to monitoring services like [Sentry](https://sentry.io) by inspecting
-[SET\_RESPONSE](./Actions.vue.md#set_response) actions with `error` set.
+A failed fetch is stored for the components that read it, so most failures never reach a global unhandled-rejection
+handler (Sentry's default setup, the browser console, Node's `unhandledRejection`):
+
+| Failed fetch                                                                                                                          | Reaches global handlers?        | Where the error goes                  |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- |
+| Started by a hook ([useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE), ...) | No                              | Stored; the component shows it        |
+| Read you don't await: [fetch()](./Controller.vue.md#fetch) without `sideEffect`, `fetchIfStale()`                                         | No                              | Stored; components reading it show it |
+| Mutation you don't await: `fetch()` with `sideEffect: true`                                                                           | Yes                             | The rejection; no component reads it  |
+| Any call you `await`                                                                                                                  | Only if your code doesn't catch | Your code, and the store              |
+
+To report every failed fetch, add a Manager that sends [SET\_RESPONSE](./Actions.vue.md#set_response) actions with
+`error` set to a monitoring service like [Sentry](https://sentry.io):
 
 ```typescript
 import {
@@ -78,6 +88,9 @@ export default class ErrorReportManager implements Manager {
   cleanup() {}
 }
 ```
+
+Then [add it](./Manager.vue.md#adding) before the defaults:
+`managers = () => [new ErrorReportManager(), ...getDefaultManagers()]`.
 
 ### Metrics {#metrics}
 

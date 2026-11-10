@@ -100,6 +100,7 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | `fetchQuery()` | `ctrl.fetch(endpoint, args)` |
 | `onMutate` optimistic update and rollback | [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error |
 | `useInfiniteQuery()` | A [Collection](/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite)) |
+| `onError` on `QueryCache` or `MutationCache` (global error reporting) | An [error reporting Manager](../concepts/managers.md#error-reporting): it sees every failed fetch |
 | `queryClient.clear()`, `removeQueries()` on logout | `ctrl.resetEntireStore()` |
 | `QueryClientProvider`, `new QueryClient()` | `DataProvider` |
 | `useQueryClient()` | `useController()` |

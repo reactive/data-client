@@ -72,7 +72,11 @@ render(issue);
   unhandled-rejection handlers (Sentry and similar). If the app uses an error tracker, say so in your summary and
   suggest the [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting). Don't add it
   unasked: it reports every failed fetch, not only these.
-- **Don't add `.catch()` to reads you don't await.** Existing ones still work; leave them unless asked to clean up.
+- **Delete `.catch(() => {})` (or another no-op catch) on reads you don't await**, now dead code. Only on reads:
+  a `RestEndpoint` GET, `resource()`'s `get`/`getList`/`getPage`, or an `Endpoint` without `sideEffect: true`. Keep
+  catches on mutations and catches that do something.
+- **A read no component renders** (a "load more" `getPage`, a refresh of an off-screen list) now fails silently:
+  wrap it in `useLoading()` so its error shows.
 
 ## Step 4: Next.js Pages Router is not supported
 
