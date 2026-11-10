@@ -936,6 +936,10 @@ function isImportOf(path, name, source) {
   );
 }
 
+// a custom Endpoint class, or a key() that may read this.name (create is `Post.create`, getList.push is
+// `Post.getList.create`), makes create differ from getList.push
+const RESOURCE_UNSAFE_OPTIONS = new Set(['Endpoint', 'key']);
+
 // an extend() that replaces one of these makes create differ from getList.push
 const CREATE_SOURCES = new Set(['create', 'getList']);
 
@@ -969,7 +973,7 @@ function isPlainResource(path) {
     path.node.callee.type === 'Identifier' &&
     isImportOf(path.get('callee'), 'resource', '@data-client/rest') &&
     options?.type === 'ObjectExpression' &&
-    hasOnlyKeysOutside(options, new Set(['Endpoint']))
+    hasOnlyKeysOutside(options, RESOURCE_UNSAFE_OPTIONS)
   );
 }
 

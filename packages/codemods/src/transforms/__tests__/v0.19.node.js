@@ -1416,6 +1416,7 @@ DraftResource = makeOther();
 const NoteResource = resource({ path: '/notes/:id', schema: Note });
 NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
 const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
+const KeyedResource = resource({ path: '/keyed/:id', schema: Keyed, key: keyByName });
 const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
 const TagResource = resource({ path: '/tags/:id', schema: Tag });
 Object.assign(TagResource.getList, { path: '/custom' });
@@ -1432,6 +1433,7 @@ const isCreate = action.endpoint === PostResource.create;
 ctrl.fetch(DraftResource.create, body);
 ctrl.fetch(NoteResource.create, body);
 ctrl.fetch(TaskResource.create, body);
+ctrl.fetch(KeyedResource.create, body);
 ctrl.fetch(KeyResource.create, body);
 ctrl.fetch(TagResource.create, body);
 ctrl.fetch(ListResource.create, body);
@@ -1452,6 +1454,7 @@ DraftResource = makeOther();
 const NoteResource = resource({ path: '/notes/:id', schema: Note });
 NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
 const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
+const KeyedResource = resource({ path: '/keyed/:id', schema: Keyed, key: keyByName });
 const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
 const TagResource = resource({ path: '/tags/:id', schema: Tag });
 Object.assign(TagResource.getList, { path: '/custom' });
@@ -1472,6 +1475,8 @@ ctrl.fetch(DraftResource.create, body);
 ctrl.fetch(NoteResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(TaskResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(KeyedResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(KeyResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
