@@ -497,7 +497,9 @@ export function useBenchState({
   const createEditBrowse = useCallback(
     async (rounds: number, seedCount: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
-      const listItem = '[data-issue-list] [data-bench-item]';
+      // The all-issues list, not the open list (which also renders an issue list)
+      const allList = '[data-issue-list]:not([data-state-list] *)';
+      const listItem = `${allList} [data-bench-item]`;
       setDoubleListCount(seedCount);
       setStateList('open');
       await waitForElement('[data-state-list="open"] [data-bench-item]');
@@ -524,25 +526,22 @@ export function useBenchState({
       for (let i = 0; i <= rounds; i++) {
         const step = (fn: () => void, done: string | (() => boolean)) =>
           measureNavStep(fn, done, i > 0);
-        // A mutation's step ends when the view shows it. Its reply is then
+        // A mutation's step ends when the view shows it. Like measureUpdate,
+        // the reply is held out of an optimistic update's window; it is then
         // handled and painted before the next step, so it never lands in a
-        // later window. Like measureUpdate, `holdReplies` keeps the reply
-        // out of an optimistic update's window; the create is not held,
-        // since holding its reply stalled it in about 1 of 8 runs.
+        // later window.
         const mutationStep = async <T,>(
           fn: () => Promise<T>,
           done: () => boolean,
-          holdReplies = false,
         ): Promise<T> => {
-          const hold = holdReplies && optimisticMutations;
           let pending!: Promise<T>;
-          if (hold) holdMutationReplies();
+          if (optimisticMutations) holdMutationReplies();
           try {
             await step(() => {
               pending = fn();
             }, done);
           } finally {
-            if (hold) releaseMutationReplies();
+            if (optimisticMutations) releaseMutationReplies();
           }
           const result = await pending;
           await waitForPaint();
@@ -558,7 +557,7 @@ export function useBenchState({
           },
         );
         const inOpen = `[data-state-list="open"] [data-issue-number="${number}"]`;
-        const inAll = `[data-issue-list] [data-issue-number="${number}"]`;
+        const inAll = `${allList} [data-issue-number="${number}"]`;
         const detail = `[data-detail-view][data-issue-number="${number}"]`;
         const showDetail = () => {
           setListViewCount(undefined);
@@ -575,7 +574,6 @@ export function useBenchState({
         await mutationStep(
           () => apiRef.current.editTitle!(number, title),
           titleIs(detail, title),
-          true,
         );
         await step(showOpen, titleIs(inOpen, title));
         await step(showAll, titleIs(inAll, title));
