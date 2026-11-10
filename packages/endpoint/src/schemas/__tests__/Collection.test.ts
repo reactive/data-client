@@ -1760,8 +1760,7 @@ describe(`${schema.Collection.name} normalization`, () => {
       const seen: any[] = [];
       const custom = new Collection([Todo], {
         createCollectionFilter:
-          () =>
-          (collectionKey: { [k: string]: string }, item?: any) => {
+          () => (collectionKey: { [k: string]: string }, item?: any) => {
             seen.push(item?.id);
             return `${item?.userId}` === collectionKey.userId;
           },
@@ -1781,6 +1780,31 @@ describe(`${schema.Collection.name} normalization`, () => {
       };
       expect(seen).toEqual(['a', 'b']);
       expect(titles(custom, next, { userId: '1' })).toEqual(['seed', 'mine']);
+    });
+
+    it('passes the stored and merged values to a custom filter on move', () => {
+      const seen: any[] = [];
+      const custom = new Collection([Todo], {
+        createCollectionFilter:
+          () => (collectionKey: { [k: string]: string }, item?: any) => {
+            seen.push(item?.userId);
+            return `${item?.userId}` === collectionKey.userId;
+          },
+      });
+      const state = seed(custom, [{ userId: '1' }, { userId: '2' }]);
+      const next = {
+        ...state,
+        ...normalize(
+          custom.move,
+          { id: 'seed0', userId: 2 },
+          [{ id: 'seed0' }, { userId: 2 }],
+          state,
+        ),
+      };
+      // stored values (userId 1) pick the lists it leaves; merged (userId 2) the lists it joins
+      expect(seen).toEqual([1, 2, 1, 2]);
+      expect(titles(custom, next, { userId: '1' })).toEqual([]);
+      expect(titles(custom, next, { userId: '2' })).toEqual(['seed', 'seed']);
     });
   });
 

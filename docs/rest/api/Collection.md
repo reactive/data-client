@@ -676,8 +676,8 @@ Sets a default `createCollectionFilter` for [addWith()](#addWith),
 [push](#push), [unshift](#unshift), and [assign](#assign).
 
 This is used by these creation schemas to determine which collections to add to.
-The inner function runs once per created item, which it gets as its second argument ([remove](#remove) and
-[move](#move) pass none).
+The inner function runs once per created item, which it gets as its second argument ([remove](#remove) passes
+none).
 
 Default:
 
@@ -805,7 +805,9 @@ This [merges](#merge) the value with the existing collection
 This function is used to determine which collections to add to. It
 uses the Object returned from [argsKey](#argsKey) or [nestKey](#nestKey) to
 determine if that collection should get the newly created values from this schema.
-It runs once per created item, which it gets as `item`. [remove](#remove) and [move](#move) pass no `item`.
+It runs once per created item, which it gets as `item`. [move](#move) passes the entity's stored values (to find
+the lists it leaves) and its merged values (to find the lists it joins). [remove](#remove) passes no `item`, so check for
+`undefined`.
 
 Because arguments may be serializable types like `number`, we recommend using `==` comparisons,
 e.g., `'10' == 10`
