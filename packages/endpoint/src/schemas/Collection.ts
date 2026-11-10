@@ -97,7 +97,7 @@ export default class CollectionSchema<
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
-    ) => (collectionKey: Record<string, string>) => boolean,
+    ) => (collectionKey: Record<string, string>, item?: any) => boolean,
   ): CollectionSchema<S, P> {
     return CreateAdder(this, merge, createCollectionFilter);
   }
@@ -113,16 +113,19 @@ export default class CollectionSchema<
   // this adds to any list *in store* that has same members as the urlParams
   // so fetch(create, { userId: 'bob', completed: true }, data)
   // would possibly add to {}, {userId: 'bob'}, {completed: true}, {userId: 'bob', completed: true } - but only those already in the store
-  // it ignores keys that start with sort as those are presumed to not filter results
+  // a key neither arg has is matched against the created item's own field
+  // it ignores keys that start with order as those are presumed to not filter results
   protected createCollectionFilter(...args: Args) {
-    return (collectionKey: Record<string, string>) =>
-      Object.entries(collectionKey).every(
-        ([key, value]) =>
-          this.nonFilterArgumentKeys(key) ||
-          // strings are canonical form. See pk() above for value transformation
-          `${args[0]?.[key]}` === value ||
-          `${args[1]?.[key]}` === value,
-      );
+    return (collectionKey: Record<string, string>, item?: any) =>
+      Object.entries(collectionKey).every(([key, value]) => {
+        if (this.nonFilterArgumentKeys(key)) return true;
+        const fromArgs = args[0]?.[key];
+        const fromBody = args[1]?.[key];
+        // strings are canonical form. See pk() above for value transformation
+        if (fromArgs === undefined && fromBody === undefined)
+          return `${item?.[key]}` === value;
+        return `${fromArgs}` === value || `${fromBody}` === value;
+      });
   }
 
   protected nonFilterArgumentKeys(key: string) {
@@ -154,7 +157,7 @@ export default class CollectionSchema<
         options as any as {
           createCollectionFilter: (
             ...args: Args
-          ) => (collectionKey: Record<string, string>) => boolean;
+          ) => (collectionKey: Record<string, string>, item?: any) => boolean;
         }
       ).createCollectionFilter.bind(this) as any;
 
@@ -308,7 +311,7 @@ export type CollectionOptions<
        */
       createCollectionFilter?: (
         ...args: Args
-      ) => (collectionKey: Record<string, string>) => boolean;
+      ) => (collectionKey: Record<string, string>, item?: any) => boolean;
     }
   | {
       /** Test to determine which arg keys should **not** be used for filtering results.
@@ -379,7 +382,7 @@ function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   merge: (existing: any, incoming: any) => any,
   createCollectionFilter?: (
     ...args: P
-  ) => (collectionKey: Record<string, string>) => boolean,
+  ) => (collectionKey: Record<string, string>, item?: any) => boolean,
 ) {
   const properties = derivedProperties(collection, merge, normalizeCreate);
   if (createCollectionFilter) {
@@ -408,9 +411,10 @@ function normalizeCreate(
   }
   const isArray = this.schema instanceof ArraySchema;
   if (isArray && !Array.isArray(input)) input = [input];
+  const removing = this.mergeWithStore === removeWithStore;
   // before normalize, which revives the entity; remove drops the ref itself
   const deletedAt =
-    isArray && this.merge !== removeMerge ?
+    isArray && !removing ?
       deletedIndexes(this.schema, input, parent, key, delegate)
     : [];
   const normalizedValue = this.schema.normalize(input, parent, key, delegate);
@@ -421,13 +425,39 @@ function normalizeCreate(
   // add to any collections that match this
   const targetCollection =
     deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
+  // an item's fields say where it belongs, not which lists it leaves
+  const items = removing ? [] : input;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
-      if (!filterCollections(JSON.parse(collectionKey))) continue;
-      delegate.mergeEntity(targetCollection, collectionKey, normalizedValue);
+      const members = matchingMembers(
+        normalizedValue,
+        items,
+        filterCollections,
+        JSON.parse(collectionKey),
+      );
+      if (members)
+        delegate.mergeEntity(targetCollection, collectionKey, members);
     }
   return normalizedValue as any;
+}
+
+/** The members of `normalized` whose item the collection keyed by `collectionKey` accepts */
+function matchingMembers(
+  normalized: any,
+  items: any,
+  filterCollections: (collectionKey: object, item: any) => boolean,
+  collectionKey: object,
+) {
+  // Values.normalize leaves out null members, so use normalized's keys
+  const keys = Object.keys(normalized).filter(k =>
+    filterCollections(collectionKey, items[k]),
+  );
+  if (!keys.length) return;
+  const members: Record<string, any> = {};
+  for (const k of keys) members[k] = normalized[k];
+  // array index keys keep their order in Object.values()
+  return Array.isArray(normalized) ? Object.values(members) : members;
 }
 
 /** Indexes of the incoming items whose entity was deleted.

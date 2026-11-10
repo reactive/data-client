@@ -1034,6 +1034,9 @@ Creates a POST endpoint that places newly created Entities at the _end_ of a [Co
 
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
 
+The created item joins each stored list whose filter keys match the request args and body, or, for keys
+the request leaves out, the item's own fields in the response.
+
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1087,6 +1090,8 @@ Creates a POST endpoint that places newly created Entities at the _start_ of a [
 
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.md#unshift)
 
+It picks which stored lists get the items the same way as [push](#push).
+
 ```tsx
 import { RestEndpoint, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -1131,6 +1136,8 @@ const newUser = await ctrl.fetch(
 Creates a POST endpoint that merges Entities into a [Values](./Values.md) [Collection](./Collection.md).
 
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.md#assign)
+
+It picks which stored lists get the items the same way as [push](#push).
 
 ```tsx
 import { RestEndpoint, Collection, Values } from '@data-client/rest';

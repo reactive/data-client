@@ -426,19 +426,22 @@ Sets a default `createCollectionFilter` for [addWith()](#addWith),
 [push](#push), [unshift](#unshift), and [assign](#assign).
 
 This is used by these creation schemas to determine which collections to add to.
+The inner function runs once per created item, which it gets as its second argument.
 
 Default:
 
 ```ts
 createCollectionFilter(...args: Args) {
-  return (collectionKey: Record<string, string>) =>
-    Object.entries(collectionKey).every(
-      ([key, value]) =>
-        this.nonFilterArgumentKeys(key) ||
-        // strings are canonical form. See pk() above for value transformation
-        `${args[0][key]}` === value ||
-        `${args[1]?.[key]}` === value,
-    );
+  return (collectionKey: Record<string, string>, item?: any) =>
+    Object.entries(collectionKey).every(([key, value]) => {
+      if (this.nonFilterArgumentKeys(key)) return true;
+      const fromArgs = args[0]?.[key];
+      const fromBody = args[1]?.[key];
+      // strings are canonical form. See pk() above for value transformation
+      if (fromArgs === undefined && fromBody === undefined)
+        return `${item?.[key]}` === value;
+      return `${fromArgs}` === value || `${fromBody}` === value;
+    });
 }
 ```
 
@@ -450,6 +453,11 @@ updates without network requests. For network-based mutations, see [RestEndpoint
 ### push
 
 A creation schema that places new item(s) at the _end_ of this collection.
+
+It adds each item to every list already in the store whose [filter keys](#nonFilterArgumentKeys) all match.
+A key matches the request's args or body. When neither has the key, it matches the item's own field, such as a
+`completed: false` the server sets on a new todo. So a todo created with `{ userId: '1' }` and no `completed` in
+its body also joins the stored `{ userId: '1', completed: 'false' }` list.
 
 An item that was deleted and then added back shows once: its old id is dropped first. Other ids are added again even
 if the list already holds them, like `Array.push()`.
@@ -463,7 +471,8 @@ ctrl.set(getTodos.schema.push, { userId: '1' }, { id: '999', title: 'New Todo' }
 
 A creation schema that places new item(s) at the _start_ of this collection.
 
-Like [push](#push), it drops the old id of an item that was deleted and then added back.
+Like [push](#push), it picks lists by the request and the item's fields, and it drops the old id of an item that was
+deleted and then added back.
 
 ```ts
 // Add a new todo to the beginning of the list (local only)
@@ -476,6 +485,7 @@ A schema that removes item(s) from a collection by value.
 
 The entity value is normalized to extract its pk, which is then matched against collection members.
 Items are removed from all collections matching the provided args (filtered by [createCollectionFilter](#createcollectionfilter)).
+Unlike [push](#push), it ignores the item's fields, which say where an item belongs, not which lists it leaves.
 
 ```ts
 // Remove from collections matching { userId: '1' } (local only)
@@ -515,6 +525,7 @@ For network-based moves, see [RestEndpoint.move](https://dataclient.io/rest/api/
 
 A creation schema that [assigns](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
 its members to a `Collection(Values)`. Only available for Collections wrapping [Values](./Values.vue.md).
+Like [push](#push), it adds each member to the lists that match the request or that member's fields.
 
 ```ts
 const getStats = new RestEndpoint({
@@ -543,13 +554,14 @@ This [merges](#merge) the value with the existing collection
 This function is used to determine which collections to add to. It
 uses the Object returned from [argsKey](#argsKey) or [nestKey](#nestKey) to
 determine if that collection should get the newly created values from this schema.
+It runs once per created item, which it gets as `item`.
 
 Because arguments may be serializable types like `number`, we recommend using `==` comparisons,
 e.g., `'10' == 10`
 
 ```typescript
 (...args) =>
-  collectionKey =>
+  (collectionKey, item) =>
     boolean;
 ```
 

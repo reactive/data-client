@@ -951,7 +951,7 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
      *
      * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
      */
-    createCollectionFilter?: (...args: Args) => (collectionKey: Record<string, string>) => boolean;
+    createCollectionFilter?: (...args: Args) => (collectionKey: Record<string, string>, item?: any) => boolean;
 } | {
     /** Test to determine which arg keys should **not** be used for filtering results.
      *
@@ -996,7 +996,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      *
      * @see https://dataclient.io/rest/api/Collection#addWith
      */
-    addWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>) => boolean): Collection<S, P>;
+    addWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>, item?: any) => boolean): Collection<S, P>;
     /** Constructs a custom move schema for this collection
      *
      * @see https://dataclient.io/rest/api/Collection#moveWith
