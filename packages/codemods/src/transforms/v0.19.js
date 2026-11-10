@@ -1125,13 +1125,15 @@ const RENDER_CALLS = new Set([...RENDER_HOOK_CALLS, 'renderDataCompose']);
 /** The name of the call whose result `waitForNextUpdate` at `path` comes from: `render(...).waitForNextUpdate`,
  * `result.waitForNextUpdate` or `const { waitForNextUpdate } = render(...)`, awaited or not */
 function sourceCallOf(path) {
+  // `let hook;` has no init
+  if (!path.node) return undefined;
   if (path.node.type === 'CallExpression') return calleeName(path.node);
   if (path.node.type === 'AwaitExpression')
     return sourceCallOf(path.get('argument'));
   const binding = path.node.type === 'Identifier' ? bindingOf(path) : undefined;
   // a destructured name's binding sits in an ObjectPattern property
   const declarator =
-    isProperty(binding?.parent.node) ?
+    binding && isProperty(binding.parent.node) ?
       binding.parent.parent.parent
     : binding?.parent;
   return declarator?.node.type === 'VariableDeclarator' ?

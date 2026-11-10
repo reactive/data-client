@@ -1515,5 +1515,35 @@ const other = configure({ devToolsManager: { actionsBlacklist: ['b'] } });
       `,
       'leaves other libraries and spread DevTools options alone',
     );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataHook } from '@data-client/test';
+
+let hook;
+beforeEach(() => {
+  hook = renderDataHook(() => useThing());
+});
+it('loads', async () => {
+  await hook.waitForNextUpdate();
+  await globalHook.waitForNextUpdate();
+});
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+
+let hook;
+beforeEach(() => {
+  hook = renderDataHook(() => useThing());
+});
+it('loads', async () => {
+  await hook.waitForNextUpdate();
+  await globalHook.waitForNextUpdate();
+});
+      `,
+      'skips waitForNextUpdate() whose render helper it cannot trace',
+    );
   });
 });
