@@ -13,10 +13,8 @@ export const routes: Route<Controller>[] = [
     component: lazyPage('Home'),
     // purely for performance - eliminates network waterfalls
     async resolveData(controller) {
-      await Promise.allSettled([
-        controller.fetchIfStale(CurrencyResource.getList),
-        controller.fetchIfStale(StatsResource.getList),
-      ]);
+      controller.fetchIfStale(CurrencyResource.getList);
+      controller.fetchIfStale(StatsResource.getList);
     },
   },
   {
@@ -26,11 +24,9 @@ export const routes: Route<Controller>[] = [
     async resolveData(controller, { id }) {
       const product_id = `${id}-USD`;
       controller.fetchIfStale(getCandles, { product_id });
-      await Promise.allSettled([
-        controller.fetchIfStale(getTicker, { product_id }),
-        controller.fetchIfStale(CurrencyResource.get, { id }),
-        controller.fetchIfStale(StatsResource.get, { product_id }),
-      ]);
+      controller.fetchIfStale(getTicker, { product_id });
+      controller.fetchIfStale(CurrencyResource.get, { id });
+      controller.fetchIfStale(StatsResource.get, { product_id });
     },
   },
 ];

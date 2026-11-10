@@ -34,7 +34,8 @@ and fetch optimization _loosely coupled_.
 In most cases the best time to pre-fetch data is at the routing layer. Doing this
 makes incorporating all of the above capabilities quite easy.
 
-Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) in the route event handler (before startTransition)
+Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) in the route event handler (before startTransition),
+without `await` ([which routers wait for loaders](../api/Controller.md#fetchIfStale-loaders)).
 
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
@@ -56,20 +57,14 @@ export const routes: Route<Controller>[] = [
         const fakeUser = UserResource.fromJS({
           id: Number.parseInt(match.id, 10),
         });
-        // don't block on posts but start fetching
+        // not awaited: the router doesn't wait for resolveData
         controller.fetchIfStale(PostResource.getList, { userId: match.id });
-        await Promise.all([
-          controller.fetchIfStale(UserResource.get, match),
-          controller.fetchIfStale(getImage, {
-            src: fakeUser.profileImage,
-          }),
-          controller.fetchIfStale(getImage, {
-            src: fakeUser.coverImage,
-          }),
-          controller.fetchIfStale(getImage, {
-            src: fakeUser.coverImageFallback,
-          }),
-        ]);
+        controller.fetchIfStale(UserResource.get, match);
+        controller.fetchIfStale(getImage, { src: fakeUser.profileImage });
+        controller.fetchIfStale(getImage, { src: fakeUser.coverImage });
+        controller.fetchIfStale(getImage, {
+          src: fakeUser.coverImageFallback,
+        });
       }
     },
   },

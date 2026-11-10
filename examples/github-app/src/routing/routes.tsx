@@ -36,7 +36,7 @@ export const routes = [
     ) => {
       const query = `${search?.get('query') || 'is:open'} is:pr`;
       const q = `${query} repo:${owner}/${repo}`;
-      await controller.fetchIfStale(IssueResource.search, {
+      controller.fetchIfStale(IssueResource.search, {
         q,
       });
     },
@@ -52,7 +52,7 @@ export const routes = [
     ) => {
       const query = `${search?.get('query') || 'is:open'} is:issue`;
       const q = `${query} repo:${owner}/${repo}`;
-      await controller.fetchIfStale(IssueResource.search, {
+      controller.fetchIfStale(IssueResource.search, {
         q,
       });
     },
@@ -70,7 +70,7 @@ export const routes = [
         number,
       });
       controller.fetchIfStale(CommentResource.getList, { owner, repo, number });
-      await controller.fetchIfStale(IssueResource.get, { owner, repo, number });
+      controller.fetchIfStale(IssueResource.get, { owner, repo, number });
     },
   },
   {

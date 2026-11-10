@@ -54,11 +54,11 @@
       "name": "tanstack-loader-prefetch-and-enabled",
       "source": "P1, bulletproof-react",
       "prompt": "Finish moving our routes off TanStack Query. `DiscussionResource` (resource() on '/discussions/:id') and `TeamResource.getList` already exist as Data Client endpoints, and `DataProvider` already wraps the app. Convert:\n\n```tsx\n// router.tsx\nexport const AppRouter = () => {\n  const queryClient = useQueryClient();\n  const router = useMemo(() => createAppRouter(queryClient), [queryClient]);\n  return <RouterProvider router={router} />;\n};\n\n// discussion route\nexport const clientLoader = (queryClient: QueryClient) => async ({ params }: LoaderFunctionArgs) => {\n  const query = getDiscussionQueryOptions(params.discussionId as string);\n  return queryClient.getQueryData(query.queryKey) ?? (await queryClient.fetchQuery(query));\n};\n\n// discussions list row\n<Link onMouseEnter={() => queryClient.prefetchQuery(getDiscussionQueryOptions(id))} to={`/discussions/${id}`} />\n\n// register page\nconst teamsQuery = useQuery({ queryKey: ['teams'], queryFn: getTeams, enabled: chooseTeam });\nconst teams = teamsQuery.data?.data;\n```",
-      "expected_output": "The router and loaders take a Controller from useController(); the loader returns cached data or awaits fetchIfStale on a miss, and the hover prefetch uses fetchIfStale; the conditional query uses useSuspense with null args.",
+      "expected_output": "The router and loaders take a Controller from useController(); the loader returns cached data when its expiryStatus is Valid, else fetchIfStale, and the hover prefetch uses fetchIfStale; the conditional query uses useSuspense with null args.",
       "files": [],
       "assertions": [
         "The router gets the Controller from `useController()` and passes it to the loaders in place of the QueryClient.",
-        "The loader calls `ctrl.fetchIfStale(DiscussionResource.get, { id: ... })` and, like `getQueryData() ?? fetchQuery()`, returns cached data without waiting when the store has it (e.g. via `ctrl.getResponseMeta()`), awaiting the fetch only on a miss.",
+        "The loader calls `ctrl.fetchIfStale(DiscussionResource.get, { id: ... })` and, like `getQueryData() ?? fetchQuery()`, returns cached data without waiting whenever it can render, even when stale, deciding from `ctrl.getResponseMeta()`'s `expiryStatus` (`ExpiryStatus.Valid`) rather than only checking `data` for `undefined`; it waits for the fetch only otherwise.",
         "The hover prefetch calls `ctrl.fetchIfStale(DiscussionResource.get, { id })`.",
         "The teams read uses `useSuspense` (or `useDLE`) with `null` in place of args when `chooseTeam` is false; it does not use Data Client's `useQuery`, and it does not keep `enabled`."
       ]

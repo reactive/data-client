@@ -69,7 +69,7 @@ or change what users see, like adding optimistic updates the app did not have, a
 | `setQueryData()`                                                             | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)`                                                                                                |
 | `getQueryData()`                                                             | In a component, [useCache()](https://dataclient.io/docs/api/useCache). Elsewhere, `ctrl.get(schema, args, ctrl.getState())`                                                                |
 | `prefetchQuery()`                                                            | `ctrl.fetchIfStale(endpoint, args)`, not awaited: a failure never rejects unhandled                                                                                                        |
-| `ensureQueryData()`, `getQueryData() ?? fetchQuery()`                        | Cached data from `ctrl.getResponseMeta()`, else `await ctrl.fetchIfStale(endpoint, args)` ([Loaders](#loaders))                                                                            |
+| `ensureQueryData()`, `getQueryData() ?? fetchQuery()`                        | Cached data from `ctrl.getResponseMeta()` when it can render, else `ctrl.fetchIfStale(endpoint, args)` ([Loaders](#loaders))                                                               |
 | `fetchQuery()`                                                               | `await ctrl.fetchIfStale(endpoint, args)` with a `staleTime`; `ctrl.fetch(endpoint, args)` without                                                                                         |
 | `onMutate` optimistic update and rollback                                    | [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error                                                           |
 | `useInfiniteQuery()`                                                         | A [Collection](https://dataclient.io/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite))                                                         |
@@ -304,14 +304,14 @@ export const issueLoader =
 ```
 
 ```ts title="After"
-import type { Controller } from '@data-client/react';
+import { ExpiryStatus, type Controller } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
 export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const args = { id: Number(params.issueId) };
-    const { data } = ctrl.getResponseMeta(
+    const { data, expiryStatus } = ctrl.getResponseMeta(
       IssueResource.get,
       args,
       ctrl.getState(),
@@ -319,7 +319,7 @@ export const issueLoader =
     // fetches only when missing or stale
     const fetched = ctrl.fetchIfStale(IssueResource.get, args);
     // like ensureQueryData(): cached data, even stale, navigates now; a miss waits for the fetch
-    return data === undefined ? fetched : data;
+    return expiryStatus === ExpiryStatus.Valid ? data : fetched;
   };
 ```
 
@@ -328,8 +328,11 @@ like `prefetchQuery()`: a failure never rejects unhandled, and is stored for com
 focus prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Awaited, it works like
 `fetchQuery()` with a `staleTime`: it resolves the data, waiting for the refetch when cached data is stale, or rejects
 with the error. Use the awaited form where the loader used `fetchQuery()`, and the pattern above where it used
-`ensureQueryData()` or `getQueryData() ?? fetchQuery()`. Load several endpoints the way the loader did before; letting
-the page show before secondary data arrives belongs to the [performance pass](https://dataclient.io/docs/guides/performance-pass#loaders).
+`ensureQueryData()` or `getQueryData() ?? fetchQuery()`. `ExpiryStatus.Valid` means the data can render, so
+[invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) data waits like `useSuspense()` does. This is for
+routers that wait for loaders; with a router that doesn't, like @anansi/router, call `fetchIfStale()` without awaiting it
+([Route loaders](https://dataclient.io/docs/api/Controller#fetchIfStale-loaders)). Load several endpoints the way the loader did before;
+letting the page show before secondary data arrives belongs to the [performance pass](https://dataclient.io/docs/guides/performance-pass#loaders).
 
 ## Infinite queries {#infinite}
 

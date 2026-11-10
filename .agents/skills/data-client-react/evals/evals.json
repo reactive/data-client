@@ -97,6 +97,18 @@
         "The boundary gets `key={selectedId}` (or the boundary otherwise resets when `selectedId` changes).",
         "No custom error-boundary class is written."
       ]
+    },
+    {
+      "id": 9,
+      "name": "anansi-route-preload",
+      "prompt": "Add an issue detail route to src/routing/routes.tsx. It uses @anansi/router: `export const routes: Route<Controller>[] = [...]`, and each route has `name`, `component` (from `lazyPage()`) and an optional `resolveData(controller, match, searchParams)`. The new route is named 'IssueDetail', renders `lazyPage('IssueDetail')`, and gets `{ id: string }` as its match. The page shows `IssueResource.get` with `{ id }` and, lower down, `CommentResource.getList` with `{ issueId: id }`. Make both requests start as soon as the user navigates, not when each component renders. Write only the new route object.",
+      "expected_output": "resolveData starts fetchIfStale for the issue and the comments without awaiting or returning them.",
+      "files": [],
+      "assertions": [
+        "`resolveData` calls `controller.fetchIfStale()` for both `IssueResource.get` and `CommentResource.getList` (not `controller.fetch()`).",
+        "No `fetchIfStale()` call is awaited, returned, or passed to an awaited or returned `Promise.all()`/`Promise.allSettled()`.",
+        "No `.catch()` or try/catch is added around the `fetchIfStale()` calls."
+      ]
     }
   ]
 }
