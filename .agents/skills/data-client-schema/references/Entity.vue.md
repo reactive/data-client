@@ -95,6 +95,15 @@ This is useful when initializing a creation form using [Entity.fromJS()](#fromJS
 directly. If `pk()` returns `undefined` it is considered not persisted to the server,
 and thus will not be kept in the cache.
 
+#### Lookup by endpoint args {#pk-args}
+
+`pk()` also runs on an endpoint's args. Until an endpoint whose schema is this Entity has a response of its own,
+[useSuspense()](https://dataclient.io/vue/api/useSuspense) calls `pk()` on its args to find an Entity another response stored, such as a
+list, and renders it without a fetch ([Lists to details](https://dataclient.io/vue/getting-started/data-dependency#list-detail)). So the
+args must use the field names `pk()` reads: with the default `pk()`, `{ id }` is found, but `{ postId }` always
+fetches. Name the path parameter after the field (`/posts/:id`). To look up by another unique field, add it to
+[indexes](#indexes).
+
 #### Other uses
 
 Since `pk()` is unique, it provides a consistent way of defining [`v-for` keys](https://vuejs.org/guide/essentials/list.html#maintaining-state-with-key)

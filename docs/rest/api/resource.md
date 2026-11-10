@@ -341,6 +341,8 @@ PostResource.get({
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
+When another response, such as [getList](#getlist), already stored the Entity, `get` renders it without a fetch, as long as its args name the fields [pk()](./Entity.md#pk-args) reads.
+
 ### getList
 
 <MethodInfo>
