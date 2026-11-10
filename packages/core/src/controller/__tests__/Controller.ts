@@ -27,6 +27,53 @@ describe('Controller', () => {
     );
   });
 
+  describe('fetch', () => {
+    const error = new Error('network down');
+    const rejectingController = () =>
+      new Controller({
+        dispatch: (action: any) => {
+          action.meta.reject(error);
+          return Promise.resolve();
+        },
+        getState: () => initialState,
+      });
+    const reads = [
+      ['with a schema', CoolerArticleResource.get],
+      [
+        'without a schema',
+        CoolerArticleResource.get.extend({ schema: undefined }),
+      ],
+    ] as const;
+
+    it.each(reads)('read %s rejects when awaited', async (_, endpoint) => {
+      await expect(
+        rejectingController().fetch(endpoint, { id: 5 }),
+      ).rejects.toBe(error);
+    });
+
+    // jest fails the running test on an unhandled rejection
+    it.each(reads)(
+      'read %s is not an unhandled rejection when not awaited',
+      async (_, endpoint) => {
+        rejectingController().fetch(endpoint, { id: 5 });
+        await new Promise(resolve => setTimeout(resolve, 10));
+      },
+    );
+
+    it('mutation leaves its rejection to the caller', async () => {
+      // jest fails the test on any unhandled rejection, so check that nothing handles it instead
+      const catchSpy = jest.spyOn(Promise.prototype, 'catch');
+      const promise = rejectingController().fetch(
+        CoolerArticleResource.update,
+        { id: 5 },
+        { title: 'hi' },
+      );
+      expect(catchSpy.mock.contexts).not.toContain(promise);
+      catchSpy.mockRestore();
+      await expect(promise).rejects.toBe(error);
+    });
+  });
+
   describe('fetchIfStale', () => {
     it('should NOT fetch if result is NOT stale', async () => {
       const payload = {

@@ -363,6 +363,70 @@ describe('useSuspense()', () => {
     },
   );
 
+  // jest fails the running test on an unhandled rejection
+  it.each([
+    ['useSuspense', useSuspense],
+    ['useDLE', useDLE],
+    ['useFetch', useFetch],
+  ] as const)(
+    '%s refetch on refocus that fails is not an unhandled rejection',
+    async (_, useHook) => {
+      const fetchArticle = jest.fn(async (_: { id: number }) => {
+        throw new Error('network down');
+      });
+      const getArticle = new Endpoint(fetchArticle, {
+        schema: CoolerArticle,
+        key: ({ id }: { id: number }) => `failing-focus-article-${id}`,
+        // keep showing the cached data, and let each failure go stale right away
+        errorPolicy: () => 'soft' as const,
+        errorExpiryLength: 1,
+      });
+      const cached = mockInitialState([
+        { endpoint: getArticle, args: [{ id: payload.id }], response: payload },
+      ]);
+      const key = getArticle.key({ id: payload.id });
+      const state = {
+        ...cached,
+        meta: { [key]: { ...cached.meta[key], expiresAt: 1 } },
+      };
+
+      let thenavigation: any;
+      function Article({ navigation }: { navigation: any }) {
+        thenavigation = navigation;
+        (useHook as (...args: any[]) => unknown)(getArticle, {
+          id: payload.id,
+        });
+        return <Text testID="article">article</Text>;
+      }
+      function Home() {
+        return <Text>Home</Text>;
+      }
+      const Stack = createNativeStackNavigator();
+      const waitForIdle = () =>
+        act(() => new Promise(resolve => setTimeout(resolve, 50)));
+
+      const { getByText } = await render(
+        <CacheProvider initialState={state}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Article">
+              <Stack.Screen name="Article" component={Article} />
+              <Stack.Screen name="Home" component={Home} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </CacheProvider>,
+      );
+      await waitForIdle();
+      const mountCalls = fetchArticle.mock.calls.length;
+
+      await act(() => thenavigation.navigate('Home'));
+      expect(getByText('Home')).toBeDefined();
+      await act(() => thenavigation.goBack());
+      await waitForIdle();
+      // the failed fetch went stale, so focus fetched again
+      expect(fetchArticle.mock.calls.length).toBeGreaterThan(mountCalls);
+    },
+  );
+
   it('should NOT suspend if result is not stale and options.invalidIfStale is true', async () => {
     const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
