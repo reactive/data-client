@@ -207,8 +207,7 @@ references above, fewer components render after a store update.
   and offer to add the compiler with it. The compiler also runs on React 17 and 18 with `react-compiler-runtime`; add
   it before the upgrade only if the user asks.
 - **Until the upgrade:** wrap expensive list rows in `memo()`, so rows whose Entity did not change skip rendering.
-- **Users see:** no change; fewer components render after each update. The compiled JavaScript is larger, so measure
-  load time too.
+- **Users see:** no change. The compiled JavaScript is larger, so measure load time too.
 
 ## Report {#report}
 
