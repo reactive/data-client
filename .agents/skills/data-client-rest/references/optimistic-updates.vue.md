@@ -114,7 +114,7 @@ export const TodoResource = resource({
 </template>
 ```
 
-Each mutation then predicts the server's response:
+All its mutations then use these default optimistic responses:
 
 | Endpoint                                                                                        | Optimistic response                                                |
 | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -122,17 +122,21 @@ Each mutation then predicts the server's response:
 | `partialUpdate`                                                                                 | The cached entity with the body merged in                          |
 | `delete`                                                                                        | The params, which remove the entity                                |
 
-A new item from `getList.push` or `getList.unshift` usually has no `id` yet, so Data Client gives it a temporary
-random primary key. Until the server responds, the client does not know the item's real `id`, so other mutations on
-it fail. Disable them until the item has its real `id`.
+A create (push/unshift) body usually has no `id` to compute a pk from. So
+Data Client creates a random `pk`.
 
-If the entity is not in the cache, `partialUpdate` [aborts](https://dataclient.io/vue/api/Snapshot#abort) its optimistic update and waits
-for the server, rather than show an entity made only of the changed fields.
+Mutations on the new object usually fail until the server creates it. So disable other mutations on it until the
+`POST` completes. For example, check that the entity has a real `id`.
 
-To make only some endpoints optimistic, or to predict a different response, set
+Partial updates do not send the entire body. Fields the expected response leaves out keep their
+cached values, so an Entity only needs its [primary key](https://dataclient.io/rest/api/Entity#pk) and the changed fields.
+If the entity is not in the store yet, the update [aborts](https://dataclient.io/vue/api/Snapshot#abort) instead of showing an Entity
+made only of the changed fields. [Snapshots](https://dataclient.io/vue/api/Snapshot) read the current store value safely, with no race
+conditions.
+
+To make only some endpoints optimistic, or to match an unusual API, set
 [getOptimisticResponse()](./RestEndpoint.vue.md#getoptimisticresponse) with
-[Resource.extend()](./resource.vue.md#extend). For an Entity, it only needs to return the
-[primary key](https://dataclient.io/rest/api/Entity#pk) and the changed fields: the other fields keep their cached values.
+[Resource.extend()](./resource.vue.md#extend).
 
 ## Optimistic Transforms
 
