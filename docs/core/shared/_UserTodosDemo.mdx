@@ -63,15 +63,27 @@ import { UserResource } from './Resources';
 export default function Team() {
   const users = useSuspense(UserResource.getList);
   return (
-    <div className="list">
+    <div>
       {users.map(user => (
-        <div key={user.pk()} className="listItem">
-          <Avatar src={user.profileImage} />
-          <Link to={`/users/${user.id}`}>{user.name}</Link>
-          <span className="meta">
-            {user.todos.filter(todo => !todo.completed).length} open
-          </span>
-        </div>
+        <section key={user.pk()}>
+          <h3>
+            <Avatar src={user.profileImage} />
+            <Link to={`/users/${user.id}`}>{user.name}</Link>
+          </h3>
+          <div className="list">
+            {user.todos
+              .filter(todo => !todo.completed)
+              .map(todo => (
+                <Link
+                  key={todo.pk()}
+                  className="listItem"
+                  to={`/todos/${todo.id}`}
+                >
+                  {todo.title}
+                </Link>
+              ))}
+          </div>
+        </section>
       ))}
     </div>
   );
@@ -211,14 +223,23 @@ export default function TodoPage({ id }: { id: string }) {
 </script>
 
 <template>
-  <div class="list">
-    <div v-for="user in users" :key="user.pk()" class="listItem">
-      <Avatar :src="user.profileImage" />
-      <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
-      <span class="meta">
-        {{ user.todos.filter(todo => !todo.completed).length }} open
-      </span>
-    </div>
+  <div>
+    <section v-for="user in users" :key="user.pk()">
+      <h3>
+        <Avatar :src="user.profileImage" />
+        <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
+      </h3>
+      <div class="list">
+        <RouterLink
+          v-for="todo in user.todos.filter(todo => !todo.completed)"
+          :key="todo.pk()"
+          class="listItem"
+          :to="`/todos/${todo.id}`"
+        >
+          {{ todo.title }}
+        </RouterLink>
+      </div>
+    </section>
   </div>
 </template>
 ```

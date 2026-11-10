@@ -1,0 +1,634 @@
+import { translate } from '@docusaurus/Translate';
+import clsx from 'clsx';
+import React, { useEffect, useState } from 'react';
+
+import styles from './styles.module.css';
+import StoreIcon from '../Playground/StoreIcon';
+
+const WIDTH = 420;
+/** The viewBox starts here, just above the call highlight's stroke */
+const TOP = 22;
+const HEIGHT = 284;
+
+/** One run, in ms; then it starts over */
+const PERIOD = 7400;
+/** When each part of a run starts, in ms. styles.module.css has how long each takes */
+const AT = {
+  /** the response, taken apart, leaves for the table */
+  arrive: 600,
+  /** a new entry shows as its value lands */
+  land: 1400,
+  /** the first read finds its data; each next one, `next` later */
+  read: 2500,
+  next: 750,
+  /** its request is crossed out */
+  skip: 200,
+  /** the requests are counted, this long after the last read */
+  tally: 1000,
+  /** what the run added fades, so the next starts clean */
+  clear: PERIOD - 400,
+};
+const at = (ms: number) => ({ '--at': `${ms}ms` }) as React.CSSProperties;
+
+/** The call line's baseline */
+const CALL_Y = 40;
+/** The width of a character, as a share of the monospace font's size */
+const CHAR = 0.6;
+const FONT = { text: 10.5, request: 9.5 };
+
+const STORE = { x: 6, y: 52, w: 408, h: 108 };
+/** One entry of the table: its key, right-aligned, then its value */
+const ENTRY = { x: 42, y: 60, w: 364, h: 20, pitch: 24, key: 196, value: 208 };
+const TODO = { w: 120, h: 14 };
+/** A todo's pk, as a list holds it */
+const PK = { w: 22, pitch: 26 };
+/** What reads an endpoint: a page or component, and the request it would make */
+const READ = { y: 178, h: 74 };
+/** The first is wider: a list's label is its longest */
+const READS = [
+  { x: 6, w: 170 },
+  { x: 184, w: 111 },
+  { x: 303, w: 111 },
+];
+
+type Id = '5' | '6';
+type Point = [number, number];
+/** What a call does to a todo: nothing, stores it, or completes it */
+type Change = 'kept' | 'new' | 'done';
+const IDS: Id[] = ['5', '6'];
+/** Each todo's title, as a bar this wide */
+const TITLE = { 5: 56, 6: 40 };
+
+/** The lists the store can hold, by the args they were fetched with */
+const LISTS = {
+  user: { entry: 2, request: 'GET /todos?userId=1' },
+  all: { entry: 3, request: 'GET /todos' },
+};
+type List = keyof typeof LISTS;
+
+/** How data arrives. The mutation comes first: it shows the most */
+const OPS = ['POST', 'GET', 'WebSocket'] as const;
+type Op = (typeof OPS)[number];
+
+interface Scene {
+  /** how many requests the call itself is */
+  sends: number;
+  todos: Record<Id, Change>;
+  /** the lists in the table; each holds every todo */
+  lists: List[];
+  /** whether this call stores the lists, or they were there */
+  newLists?: boolean;
+  /** what reads the table next: a list by its args, or a todo by its pk */
+  reads: (List | Id)[];
+  /** whether the reads are all on screen, so they change together; otherwise
+   * each is the next page opened */
+  together?: boolean;
+}
+const SCENES: Record<Op, Scene> = {
+  // getList.push({ userId: 1 }, { title }): both lists get the todo, and its detail is ready
+  POST: {
+    sends: 1,
+    todos: { 5: 'kept', 6: 'new' },
+    lists: ['user', 'all'],
+    reads: ['user', 'all', '6'],
+  },
+  // a list's response is also each item's detail
+  GET: {
+    sends: 1,
+    todos: { 5: 'new', 6: 'new' },
+    lists: ['user'],
+    newLists: true,
+    reads: ['user', '5', '6'],
+  },
+  // a message changes the one entry every read shows, so none shows the old value
+  WebSocket: {
+    sends: 0,
+    todos: { 5: 'done', 6: 'kept' },
+    lists: ['user', 'all'],
+    reads: ['user', 'all', '5'],
+    together: true,
+  },
+};
+
+const entryY = (index: number) => ENTRY.y + ENTRY.pitch * index;
+const isList = (read: List | Id): read is List => read in LISTS;
+
+/**
+ * The store as one lookup table. A call above writes into it once, then each
+ * read below finds its data there by args, so the request it would have made
+ * is crossed out. A tally compares the requests sent with what a cache keyed by
+ * request would send. The switch picks how the data arrives.
+ */
+export default function LookupTable() {
+  // `run` restarts the animations
+  const [{ op, run }, setScene] = useState({ op: OPS[0] as Op, run: 0 });
+  const scene = SCENES[op];
+
+  useEffect(() => {
+    // under reduced motion nothing moves on its own: each run rests at its outcome
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timeout = window.setTimeout(
+      () => setScene(s => ({ ...s, run: s.run + 1 })),
+      PERIOD,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [op, run]);
+
+  // what the call brings starts out under it: the todos it stores or
+  // overwrites, stacked, beside the pks of those new to the lists
+  const arriving = IDS.filter(id => scene.todos[id] !== 'kept');
+  const stored = IDS.filter(id => scene.todos[id] === 'new');
+  const x0 = WIDTH / 2 - (TODO.w + PK.pitch * stored.length) / 2;
+  const from = (id: Id): { todo: Point; pk: Point } => ({
+    todo: [x0, CALL_Y + 6 + (TODO.h + 3) * arriving.indexOf(id)],
+    pk: [x0 + TODO.w + 4 + PK.pitch * stored.indexOf(id), CALL_Y + 6],
+  });
+
+  const reads = scene.reads.map((read, i) => {
+    const list = isList(read);
+    const ids = list ? IDS : [read];
+    return {
+      ...READS[i],
+      read,
+      ids,
+      // a list is in the table once fetched; a todo, once any response held it
+      found: list ? !scene.newLists : scene.todos[read] !== 'new',
+      request: list ? LISTS[read].request : `GET /todos/${read}`,
+      // the call above is this read's own request
+      sent: list && !!scene.newLists,
+      at: AT.read + (scene.together ? 0 : AT.next * i),
+      rowY: (id: Id) => READ.y + (list ? 22 + 17 * ids.indexOf(id) : 28),
+    };
+  });
+  const total = scene.sends + reads.filter(read => !read.sent).length;
+  const tallyAt = reads[reads.length - 1].at + AT.tally;
+
+  return (
+    <div className={styles.frame}>
+      <div
+        className={styles.controls}
+        role="group"
+        aria-label={translate({
+          id: 'lookupTable.transport',
+          message: 'Data arrives from',
+          description:
+            'Label of the POST / GET / WebSocket switch on the lookup table diagram of the Queryable page',
+        })}
+      >
+        {OPS.map(o => (
+          <button
+            key={o}
+            type="button"
+            aria-pressed={o === op}
+            onClick={() => setScene({ op: o, run: run + 1 })}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+      <div className={styles.stage}>
+        <svg
+          className={styles.diagram}
+          viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
+          role="img"
+          aria-label={translate({
+            id: 'lookupTable.label',
+            message:
+              'The store as one lookup table: Todo 5 and Todo 6 by pk, and the lists for { userId: 1 } and { } by args. POST /todos with userId 1 is one request. It stores Todo 6 and adds it to both lists, so getList({ userId: 1 }), getList() and get({ id: 6 }) each render it without the request they would otherwise make: 1 request, where a cache keyed by request sends 4. GET /todos?userId=1 stores Todo 5, Todo 6 and their list, so get({ id: 5 }) and get({ id: 6 }) render without a request: 1 request, not 3. A websocket message that completes Todo 5 changes its one entry, so both lists and get({ id: 5 }) show it completed: 0 requests, not 3',
+            description:
+              'Accessible label of the lookup table diagram on the Queryable page',
+          })}
+        >
+          <rect
+            className={styles.store}
+            x={STORE.x}
+            y={STORE.y}
+            width={STORE.w}
+            height={STORE.h}
+          />
+          <StoreIcon
+            className={styles.db}
+            x="15"
+            y={STORE.y + STORE.h / 2 - 9}
+            width="18"
+            height="18"
+          />
+
+          {/* what is there before the call: it stays put from run to run */}
+          <Call op={op} />
+          {IDS.map(
+            (id, i) =>
+              scene.todos[id] !== 'new' && (
+                <React.Fragment key={id}>
+                  <Entry index={i}>
+                    <TodoKey id={id} />
+                  </Entry>
+                  <Place to={[ENTRY.value, entryY(i) + 3]}>
+                    <TodoRow id={id} w={TODO.w} />
+                  </Place>
+                </React.Fragment>
+              ),
+          )}
+          {!scene.newLists &&
+            scene.lists.map(list => (
+              <React.Fragment key={list}>
+                <Entry index={LISTS[list].entry}>
+                  <ListArgs list={list} />
+                </Entry>
+                {IDS.map(
+                  (id, i) =>
+                    scene.todos[id] !== 'new' && (
+                      <Place key={id} to={pkAt(list, i)}>
+                        <Pk id={id} />
+                      </Place>
+                    ),
+                )}
+              </React.Fragment>
+            ))}
+          {reads.map(read => (
+            <ReadCard key={read.x} read={read} found={read.found}>
+              {read.found &&
+                read.ids.map(
+                  id =>
+                    scene.todos[id] !== 'new' && (
+                      <Place key={id} to={[read.x + 8, read.rowY(id)]}>
+                        <TodoRow id={id} w={read.w - 16} />
+                      </Place>
+                    ),
+                )}
+            </ReadCard>
+          ))}
+
+          {/* what the call changes. Each run starts over, so a chosen call plays right away */}
+          <g
+            key={run}
+            className={clsx(styles.anim, styles.clear)}
+            style={at(AT.clear)}
+          >
+            <rect
+              className={clsx(styles.anim, styles.flash)}
+              style={at(0)}
+              x={WIDTH / 2 - CALL_W[op] / 2}
+              y={CALL_Y - 12}
+              width={CALL_W[op]}
+              height="18"
+            />
+
+            {IDS.map(
+              (id, i) =>
+                scene.todos[id] !== 'kept' && (
+                  <React.Fragment key={id}>
+                    {scene.todos[id] === 'new' && (
+                      <Entry index={i} lands>
+                        <TodoKey id={id} />
+                      </Entry>
+                    )}
+                    {/* a todo's new fields overwrite its one entry */}
+                    <Place
+                      to={[ENTRY.value, entryY(i) + 3]}
+                      from={from(id).todo}
+                    >
+                      <TodoRow
+                        id={id}
+                        w={TODO.w}
+                        done={scene.todos[id] === 'done'}
+                      />
+                    </Place>
+                  </React.Fragment>
+                ),
+            )}
+            {scene.lists.map(list => (
+              <React.Fragment key={list}>
+                {scene.newLists && (
+                  <Entry index={LISTS[list].entry} lands>
+                    <ListArgs list={list} />
+                  </Entry>
+                )}
+                {/* a list holds pks, not copies, and every list that matches gets the new one */}
+                {IDS.map(
+                  (id, i) =>
+                    scene.todos[id] === 'new' && (
+                      <Place key={id} to={pkAt(list, i)} from={from(id).pk}>
+                        <Pk id={id} />
+                      </Place>
+                    ),
+                )}
+              </React.Fragment>
+            ))}
+
+            {reads.map(read => {
+              const rows = (changes: Change[]) =>
+                read.ids.map(
+                  id =>
+                    changes.includes(scene.todos[id]) && (
+                      <Place key={id} to={[read.x + 8, read.rowY(id)]}>
+                        <TodoRow
+                          id={id}
+                          w={read.w - 16}
+                          done={scene.todos[id] === 'done'}
+                        />
+                      </Place>
+                    ),
+                );
+              return (
+                <g key={read.x} style={at(read.at)}>
+                  {read.found ?
+                    <>
+                      {/* flashes when it re-renders, like React DevTools' highlight */}
+                      <rect
+                        className={clsx(styles.anim, styles.flash)}
+                        x={read.x}
+                        y={READ.y}
+                        width={read.w}
+                        height={READ.h}
+                      />
+                      <g className={clsx(styles.anim, styles.show)}>
+                        {rows(['new', 'done'])}
+                      </g>
+                    </>
+                  : <g className={clsx(styles.anim, styles.show)}>
+                      <ReadCard read={read} found>
+                        {rows(['kept', 'new', 'done'])}
+                      </ReadCard>
+                    </g>
+                  }
+                  {!read.sent && (
+                    <path
+                      className={clsx(styles.anim, styles.skip)}
+                      style={at(read.at + AT.skip)}
+                      pathLength="1"
+                      d={strike(
+                        read.x + 5,
+                        READ.y + READ.h - 11,
+                        read.request.length * CHAR * FONT.request + 6,
+                      )}
+                    />
+                  )}
+                </g>
+              );
+            })}
+
+            {/* the requests sent, beside what a cache keyed by request sends */}
+            <g
+              className={clsx(styles.anim, styles.land, styles.tally)}
+              style={at(tallyAt)}
+            >
+              <text className={styles.tallyLabel} x={WIDTH / 2 + 4} y="274">
+                {translate({
+                  id: 'lookupTable.requests',
+                  message: 'Requests',
+                  description:
+                    'Label of the request tally on the lookup table diagram: before a crossed-out count and the real one',
+                })}
+              </text>
+              <text className={styles.other} x={WIDTH / 2 + 22} y="274">
+                {total}
+              </text>
+              <path
+                className={clsx(styles.anim, styles.skip)}
+                style={at(tallyAt + AT.skip)}
+                pathLength="1"
+                d={strike(WIDTH / 2 + 15, 269.5, 14)}
+              />
+              <text className={styles.sends} x={WIDTH / 2 + 42} y="274">
+                {scene.sends}
+              </text>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+/** Where a list's entry holds the pk of its `index`th todo */
+function pkAt(list: List, index: number): Point {
+  return [ENTRY.value + PK.pitch * index, entryY(LISTS[list].entry) + 3];
+}
+/** A line `w` long from x, through text */
+function strike(x: number, y: number, w: number) {
+  return `M${x} ${y}h${w}`;
+}
+
+/* eslint-disable @docusaurus/no-untranslated-text -- requests, keys and API names */
+
+/** The request or message that brings data, with the values the table keys by in their color */
+const CALLS: Record<Op, { text: React.ReactNode; length: number }> = {
+  POST: {
+    text: (
+      <>
+        {'POST /todos { userId: '}
+        <tspan className={styles.args}>1</tspan>
+        {", title: '…' }"}
+      </>
+    ),
+    length: 36,
+  },
+  GET: {
+    text: (
+      <>
+        {'GET /todos?userId='}
+        <tspan className={styles.args}>1</tspan>
+      </>
+    ),
+    length: 19,
+  },
+  WebSocket: {
+    text: (
+      <>
+        {'WebSocket: { id: '}
+        <tspan className={styles.id5}>5</tspan>
+        {', completed: true }'}
+      </>
+    ),
+    length: 37,
+  },
+};
+/** The call highlight's width */
+const CALL_W = Object.fromEntries(
+  OPS.map(op => [op, CALLS[op].length * CHAR * FONT.text + 24]),
+) as Record<Op, number>;
+
+function Call({ op }: { op: Op }) {
+  return (
+    <text className={styles.call} x={WIDTH / 2} y={CALL_Y}>
+      {CALLS[op].text}
+    </text>
+  );
+}
+
+/** `Todo 5`: the key an Entity is stored under */
+function TodoKey({ id }: { id: Id }) {
+  return (
+    <>
+      {'Todo '}
+      <tspan className={styles[`id${id}`]}>{id}</tspan>
+    </>
+  );
+}
+
+/** `{ userId: 1 }`: the args a list is stored under, and found by */
+function ListArgs({ list }: { list: List }) {
+  if (list === 'all') return <>{'{ }'}</>;
+  return (
+    <>
+      {'{ userId: '}
+      <tspan className={styles.args}>1</tspan>
+      {' }'}
+    </>
+  );
+}
+
+/** One entry of the table: its row, and the key it is stored under */
+function Entry({
+  index,
+  lands,
+  children,
+}: {
+  index: number;
+  /** stored by this call, so it shows as its value arrives */
+  lands?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <g
+      className={clsx(styles.entry, lands && clsx(styles.anim, styles.land))}
+      style={lands ? at(AT.land) : undefined}
+    >
+      <rect x={ENTRY.x} y={entryY(index)} width={ENTRY.w} height={ENTRY.h} />
+      <text x={ENTRY.key} y={entryY(index) + 14}>
+        {children}
+      </text>
+    </g>
+  );
+}
+
+/** Puts its children at `to`. With `from`, they travel there from the call */
+function Place({
+  to,
+  from,
+  children,
+}: {
+  to: Point;
+  from?: Point;
+  children: React.ReactNode;
+}) {
+  if (!from)
+    return <g transform={`translate(${to[0]} ${to[1]})`}>{children}</g>;
+  return (
+    <g
+      className={clsx(styles.anim, styles.arrive)}
+      style={
+        {
+          ...at(AT.arrive),
+          '--x0': `${from[0]}px`,
+          '--y0': `${from[1]}px`,
+          '--x1': `${to[0]}px`,
+          '--y1': `${to[1]}px`,
+        } as React.CSSProperties
+      }
+    >
+      {children}
+    </g>
+  );
+}
+
+/** A todo as an app draws it: a checkbox and its title. Drawn at the origin */
+function TodoRow({ id, w, done }: { id: Id; w: number; done?: boolean }) {
+  return (
+    <g className={clsx(styles.todo, styles[`todo${id}`], done && styles.done)}>
+      <rect width={w} height={TODO.h} />
+      <rect className={styles.box} x="5" y="3" width="8" height="8" />
+      {done && <path d="M7 7.2l1.6 1.6 2.8-3.4" />}
+      <rect
+        className={styles.title}
+        x="19"
+        y="5"
+        width={TITLE[id]}
+        height="4"
+      />
+    </g>
+  );
+}
+
+/** A todo's pk, as a list holds it. Drawn at the origin */
+function Pk({ id }: { id: Id }) {
+  return (
+    <g className={clsx(styles.pk, styles[`todo${id}`])}>
+      <rect width={PK.w} height={TODO.h} />
+      <text x={PK.w / 2} y="10.5">
+        {id}
+      </text>
+    </g>
+  );
+}
+
+/**
+ * What reads an endpoint, named by the call that finds its data. Found, it
+ * renders its children and is tied to the table; until then it has nothing
+ * to render.
+ */
+function ReadCard({
+  read: { x, w, read, request, sent },
+  found,
+  children,
+}: {
+  read: {
+    x: number;
+    w: number;
+    read: List | Id;
+    /** the request a cache keyed by request makes for this read */
+    request: string;
+    /** whether the call above is that request */
+    sent: boolean;
+  };
+  found: boolean;
+  children?: React.ReactNode;
+}) {
+  return (
+    <g className={found ? styles.found : styles.miss}>
+      <path
+        className={styles.binding}
+        d={`M${x + w / 2} ${STORE.y + STORE.h}V${READ.y}`}
+      />
+      <rect x={x} y={READ.y} width={w} height={READ.h} />
+      <text x={x + 8} y={READ.y + 15}>
+        {isList(read) ?
+          <>
+            {'getList('}
+            {read === 'user' && <ListArgs list={read} />}
+            {')'}
+          </>
+        : <>
+            {'get({ id: '}
+            <tspan className={styles[`id${read}`]}>{read}</tspan>
+            {' })'}
+          </>
+        }
+      </text>
+      <text
+        className={clsx(styles.request, sent && styles.sent)}
+        x={x + 8}
+        y={READ.y + READ.h - 8}
+      >
+        {request}
+      </text>
+      {found ?
+        <>
+          {children}
+          <g className={styles.badge}>
+            <circle cx={x + w - 4} cy={READ.y + 4} r="6.5" />
+            <path d={`M${x + w - 7} ${READ.y + 4.2}l2 2 4-4.4`} />
+          </g>
+        </>
+      : <rect
+          className={styles.skeleton}
+          x={x + 8}
+          y={READ.y + 31}
+          width={w - 16}
+          height="8"
+        />
+      }
+    </g>
+  );
+}

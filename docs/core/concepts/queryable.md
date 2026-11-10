@@ -11,6 +11,8 @@ description: The store is a lookup table of Entities and Collections, so a page 
 import ListDetailDemo from '../shared/\_ListDetailDemo.mdx';
 import UserTodosDemo from '../shared/\_UserTodosDemo.mdx';
 import SiteOnly from '@site/src/components/SiteOnly';
+import AgentOnly from '@site/src/components/AgentOnly';
+import LookupTable from '@site/src/components/LookupTable';
 
 # Queryable
 
@@ -20,16 +22,32 @@ its data in that table from args alone.
 
 So it doesn't matter how data arrived. A list, a detail response, a mutation's response, a websocket message and
 [Controller.set()](../api/Controller.md#set) all write to the same table, and any read with matching args finds what
-they wrote:
+they wrote.
 
-| Data arrives from             | The table stores                         | Reads that find it                                      |
-| ----------------------------- | ---------------------------------------- | ------------------------------------------------------- |
-| A list: `GET /todos?userId=1` | Todo 5, and the list for `{ userId: 1 }` | `TodoResource.get({ id: 5 })`                           |
-| A mutation: `POST /todos`     | Todo 6, added to the lists it matches    | `TodoResource.get({ id: 6 })`, `getList({ userId: 1 })` |
-| A websocket message           | Todo 5's new fields                      | Every read of Todo 5, and every list that holds it      |
+<SiteOnly>
 
-A cache keyed by request can't do this. It stores each response apart, so a new request fetches even when another
-response held the data, and a change shows only where its own response is read.
+<LookupTable />
+
+</SiteOnly>
+
+<AgentOnly>
+
+| Data arrives from                                 | The table stores                                        | Reads that render it without a request                  | Requests sent |
+| ------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- | ------------- |
+| A mutation: `POST /todos` with `userId: 1`        | Todo 6, added to the lists for `{ userId: 1 }` and `{}` | `getList({ userId: 1 })`, `getList()`, `get({ id: 6 })` | 1, not 4      |
+| A list: `GET /todos?userId=1`                     | Todo 5, Todo 6 and the list for `{ userId: 1 }`         | `get({ id: 5 })`, `get({ id: 6 })`                      | 1, not 3      |
+| A websocket message: `{ id: 5, completed: true }` | Todo 5's new fields                                     | Both lists and `get({ id: 5 })` show them               | 0, not 3      |
+
+The second count is what a cache keyed by request sends.
+
+</AgentOnly>
+
+One write serves every read it matches. When [getList.push](/rest/api/resource#push) creates a todo, its one `POST`
+stores the todo and adds it to every stored list it belongs in. Those lists and the todo's detail page then render it
+without a request.
+
+A cache keyed by request can't do this. It stores each response apart. After the same `POST` it refetches the list on
+screen, then fetches the other list and the detail as each one opens: four requests where the table needs one.
 
 ## Benefits {#benefits}
 
@@ -67,8 +85,9 @@ const todo = await ctrl.fetch(TodoResource.getList.push, {
   userId: 1,
   title: 'Ship it',
 });
-// it joined every stored list for { userId: 1 }, and its detail page
-// renders the response: no request
+// That POST is the only request. The todo joined every stored list it
+// matches, like getList({ userId: 1 }) and getList(), and its detail
+// page renders the response
 navigate(`/todos/${todo.id}`);
 ```
 
@@ -79,8 +98,9 @@ only mutations send requests.
 
 :::react
 
-Open a person and add a todo. Open the todo and change its owner, then go back. No page waits. The preview's header
-shows 0 fetches in flight between mutations, and its Actions tab lists each request.
+Open a person and add a todo: one `POST`. Go back, and `Team` already lists it. Open it, and its page renders from that
+response. Change its owner, then go home: it is in their list. No page waits. The preview's header shows 0 fetches in
+flight between mutations, and its Actions tab lists each request.
 
 :::
 
@@ -90,8 +110,8 @@ shows 0 fetches in flight between mutations, and its Actions tab lists each requ
 
 - `/users` nests each user's todos in a Collection whose [nestKey](/rest/api/Collection#nestKey) returns
   `{ userId }`, so `user.todos` and `TodoResource.getList({ userId })` are one list.
-- `NewTodo` creates with [getList.push](/rest/api/resource#push), and `TodoPage` renders the new todo from the
-  response.
+- `NewTodo` creates with [getList.push](/rest/api/resource#push). That one request puts the todo in the user's list
+  and on `Team`, and `TodoPage` renders it from the response.
 - `TodoPage` changes the owner with [getList.move](/rest/api/resource#move), so the todo leaves one user's list and
   joins the other's.
 

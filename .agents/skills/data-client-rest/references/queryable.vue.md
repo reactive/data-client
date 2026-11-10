@@ -8,16 +8,14 @@ its data in that table from args alone.
 
 So it doesn't matter how data arrived. A list, a detail response, a mutation's response, a websocket message and
 [Controller.set()](https://dataclient.io/vue/api/Controller#set) all write to the same table, and any read with matching args finds what
-they wrote:
+they wrote.
 
-| Data arrives from             | The table stores                         | Reads that find it                                      |
-| ----------------------------- | ---------------------------------------- | ------------------------------------------------------- |
-| A list: `GET /todos?userId=1` | Todo 5, and the list for `{ userId: 1 }` | `TodoResource.get({ id: 5 })`                           |
-| A mutation: `POST /todos`     | Todo 6, added to the lists it matches    | `TodoResource.get({ id: 6 })`, `getList({ userId: 1 })` |
-| A websocket message           | Todo 5's new fields                      | Every read of Todo 5, and every list that holds it      |
+One write serves every read it matches. When [getList.push](./resource.vue.md#push) creates a todo, its one `POST`
+stores the todo and adds it to every stored list it belongs in. Those lists and the todo's detail page then render it
+without a request.
 
-A cache keyed by request can't do this. It stores each response apart, so a new request fetches even when another
-response held the data, and a change shows only where its own response is read.
+A cache keyed by request can't do this. It stores each response apart. After the same `POST` it refetches the list on
+screen, then fetches the other list and the detail as each one opens: four requests where the table needs one.
 
 ## Benefits {#benefits}
 
@@ -178,8 +176,9 @@ const todo = await ctrl.fetch(TodoResource.getList.push, {
   userId: 1,
   title: 'Ship it',
 });
-// it joined every stored list for { userId: 1 }, and its detail page
-// renders the response: no request
+// That POST is the only request. The todo joined every stored list it
+// matches, like getList({ userId: 1 }) and getList(), and its detail
+// page renders the response
 navigate(`/todos/${todo.id}`);
 ```
 
@@ -241,14 +240,23 @@ export const UserResource = resource({
 </script>
 
 <template>
-  <div class="list">
-    <div v-for="user in users" :key="user.pk()" class="listItem">
-      <Avatar :src="user.profileImage" />
-      <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
-      <span class="meta">
-        {{ user.todos.filter(todo => !todo.completed).length }} open
-      </span>
-    </div>
+  <div>
+    <section v-for="user in users" :key="user.pk()">
+      <h3>
+        <Avatar :src="user.profileImage" />
+        <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
+      </h3>
+      <div class="list">
+        <RouterLink
+          v-for="todo in user.todos.filter(todo => !todo.completed)"
+          :key="todo.pk()"
+          class="listItem"
+          :to="`/todos/${todo.id}`"
+        >
+          {{ todo.title }}
+        </RouterLink>
+      </div>
+    </section>
   </div>
 </template>
 ```
@@ -394,8 +402,8 @@ export const UserResource = resource({
 
 - `/users` nests each user's todos in a Collection whose [nestKey](https://dataclient.io/rest/api/Collection#nestKey) returns
   `{ userId }`, so `user.todos` and `TodoResource.getList({ userId })` are one list.
-- `NewTodo` creates with [getList.push](./resource.vue.md#push), and `TodoPage` renders the new todo from the
-  response.
+- `NewTodo` creates with [getList.push](./resource.vue.md#push). That one request puts the todo in the user's list
+  and on `Team`, and `TodoPage` renders it from the response.
 - `TodoPage` changes the owner with [getList.move](./resource.vue.md#move), so the todo leaves one user's list and
   joins the other's.
 
