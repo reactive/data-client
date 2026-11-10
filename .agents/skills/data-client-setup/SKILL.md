@@ -234,13 +234,13 @@ app.use(DataClientPlugin, {
 app.mount('#app');
 ```
 
-### Error Reporting
+## Error Reporting
 
-Fetch errors are stored for the components that read them, and reads never reject unhandled, so global
-unhandled-rejection handlers stop seeing failed requests. If the app reports errors to a tracker (Sentry, Bugsnag, an
-`unhandledrejection` listener, TanStack Query's `QueryCache({ onError })`), add an
-[error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting) to `managers` so those
-failures are still reported. Don't add `.catch(() => {})` to reads you don't await.
+If the app's data layer sends fetch errors to a tracker itself (TanStack Query's `QueryCache({ onError })`, a fetch
+wrapper that calls Sentry), move that into an
+[error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting) in `managers`. A global
+unhandled-rejection handler can't replace it: reads you don't await never reject unhandled, since their errors are
+stored for the components that read them. For the same reason, don't add `.catch(() => {})` to those reads.
 
 ## Protocol-Specific Setup
 

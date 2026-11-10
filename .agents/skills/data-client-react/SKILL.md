@@ -106,7 +106,7 @@ ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 | To refresh or update | Call |
 |---|---|
 | You already have the new value | `ctrl.set()` / `ctrl.setResponse()` (no network) |
-| One endpoint+args | `ctrl.fetch(endpoint, args)`; unawaited, only mutations reject |
+| One endpoint+args | `ctrl.fetch(endpoint, args)`: unawaited reads need no `.catch()` |
 | Prefetch (loader, hover) unless fresh | `ctrl.fetchIfStale(endpoint, args)`: `await` only what the page needs first; unawaited calls need no `.catch()` |
 | All cached args of an endpoint | `ctrl.expireAll(endpoint)`: fetching hooks refetch; `useCache`/`useQuery` don't |
 | Current data must not show while refetching | `ctrl.invalidate()` / `ctrl.invalidateAll()`: `useSuspense` suspends |

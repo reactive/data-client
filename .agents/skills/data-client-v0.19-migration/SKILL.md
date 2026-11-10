@@ -72,9 +72,9 @@ render(issue);
   unhandled-rejection handlers (Sentry and similar). If the app uses an error tracker, say so in your summary and
   suggest the [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting). Don't add it
   unasked: it reports every failed fetch, not only these.
-- **Delete `.catch(() => {})` (or another no-op catch) on reads you don't await**, now dead code. Only on reads:
-  a `RestEndpoint` GET, `resource()`'s `get`/`getList`/`getPage`, or an `Endpoint` without `sideEffect: true`. Keep
-  catches on mutations and catches that do something.
+- **Delete a no-op `.catch(() => {})` directly on `fetch()` of a read you don't await**, now dead code. A read is an
+  endpoint without `sideEffect: true`; `RestEndpoint` sets it for every method but GET. Keep catches on mutations,
+  catches that do something, and catches after a `.then()`: `.then()` returns a new Promise that still rejects.
 - **A read no component renders** (a "load more" `getPage`, a refresh of an off-screen list) now fails silently:
   wrap it in `useLoading()` so its error shows.
 
