@@ -181,10 +181,10 @@ To check whether data is cached and fresh without fetching, read [getResponse()]
 A loader starts the next page's fetches before it renders. How to call `fetchIfStale()` there depends on whether the
 router waits for the loader before it changes the route:
 
-| Router                                                                                                                                                                                                     | In the loader                                                                            | Nothing cached                                    |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Changes the route in a [transition](https://react.dev/reference/react/startTransition) without waiting for the loader, like [@anansi/router](https://www.npmjs.com/package/@anansi/router)'s `resolveData` | Start every `fetchIfStale()`; await only the first view's, inside `Promise.allSettled()` | The current page stays until the new one is ready |
-| Waits for the loader, like React Router data loaders or TanStack Router                                                                                                                                    | Return the cached data when it can render; otherwise return `fetchIfStale()`             | The router waits for the fetch                    |
+| Router                                                                                                                                                                                                     | In the loader                                                                                                              | Nothing cached                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Changes the route in a [transition](https://react.dev/reference/react/startTransition) without waiting for the loader, like [@anansi/router](https://www.npmjs.com/package/@anansi/router)'s `resolveData` | Start every `fetchIfStale()`; await only the first view's, with `.catch(() => {})` (or `Promise.allSettled()` for several) | The current page stays until the new one is ready |
+| Waits for the loader, like React Router data loaders or TanStack Router                                                                                                                                    | Return the cached data when it can render; otherwise return `fetchIfStale()`                                               | The router waits for the fetch                    |
 
 Either way, stale data shows at once and refetches, except from an
 [invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) endpoint, which waits like a miss, as
@@ -196,13 +196,13 @@ that boundary's fallback instead of keeping the current page.
 resolveData: async (controller: Controller, { id }: { id: string }) => {
   // not awaited: the page shows before the comments arrive
   controller.fetchIfStale(CommentResource.getList, { issueId: id });
-  await Promise.allSettled([controller.fetchIfStale(IssueResource.get, { id })]);
+  await controller.fetchIfStale(IssueResource.get, { id }).catch(() => {});
 },
 ```
 
 The client router ignores the Promise `resolveData` returns, but server rendering (like @anansi/core's `prefetchSpout`)
-waits for it, so the first HTML includes the main data. `Promise.allSettled()` keeps a failed fetch from rejecting that
-Promise with no handler on the client; the page's `useSuspense()` shows the stored error.
+waits for it, so the first HTML includes the main data. The `.catch()` keeps a failed fetch from rejecting that Promise
+with no handler on the client; the page's `useSuspense()` shows the stored error.
 
 ```ts title="Router that waits"
 import { ExpiryStatus, type Controller } from '@data-client/react';
