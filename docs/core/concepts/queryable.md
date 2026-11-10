@@ -9,6 +9,8 @@ description: How a schema finds its data in the store from args alone, so a page
 </head>
 
 import ListDetailDemo from '../shared/\_ListDetailDemo.mdx';
+import UserTodosDemo from '../shared/\_UserTodosDemo.mdx';
+import SiteOnly from '@site/src/components/SiteOnly';
 
 # Queryable
 
@@ -107,6 +109,65 @@ renders those fields' defaults, and doesn't fetch while the list data is fresh. 
 summary Entity and make the detail Entity require the rest with [validate()](/rest/api/Entity#validate)
 ([Partial entities](/rest/guides/partial-entities)).
 
+## After mutations {#mutations}
+
+A mutation's response is stored the way any response is. Reads that come after it find the result in the store, so
+the next page renders at once and makes no request.
+
+The app below sends one `GET`, for its `Team` page. Every page after that renders from the store, and only the
+mutations send requests.
+
+<SiteOnly>
+
+:::react
+
+Open a person and add a todo. Open the todo and change its owner, then go back. No page waits. The preview's header
+shows 0 fetches in flight between mutations, and its Actions tab lists each request.
+
+:::
+
+</SiteOnly>
+
+<UserTodosDemo />
+
+- `UserPage` reads `TodoResource.getList({ userId })`, which was never fetched. `/users` nests each user's todos in a
+  [Collection](/rest/api/Collection). Its [nestKey](/rest/api/Collection#nestKey) returns the same args, so
+  `user.todos` and that list are one list in the store.
+- `NewTodo` creates with [getList.push](/rest/api/resource#push). The todo joins every stored list its args match,
+  and `TodoPage` renders it from the response.
+- `TodoPage` changes the owner with [getList.move](/rest/api/resource#move). The todo leaves the old owner's list
+  and joins the new owner's.
+
+These reads keep their [expiry](#expiry). Data is stale after a minute by default: a page then still renders at once,
+and refetches.
+
+### What renders after each mutation {#mutation-reads}
+
+| Mutation                                                                                            | Renders next, without a fetch                                                                  |
+| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Create: [getList.push](/rest/api/resource#push), [getList.unshift](/rest/api/resource#unshift)      | The new item's detail. Every stored list whose args match, and any [All](/rest/api/All) list   |
+| Edit: [update](/rest/api/resource#update), [partialUpdate](/rest/api/resource#partialupdate)        | The item's detail with the new values, even when nothing fetched that detail                   |
+| Edit that changes its list: [getList.move](/rest/api/resource#move)                                 | The list it left and the list it joined                                                        |
+| Take out of a list: [getList.remove](/rest/api/RestEndpoint#remove)                                 | The lists without it. Its detail still renders                                                 |
+| [delete](/rest/api/resource#delete)                                                                 | The lists without it. Its detail is [Invalid](./expiry-policy.md#expiry-status), so it fetches |
+| No request, like a websocket [Manager](./managers.md): [Controller.set()](../api/Controller.md#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                        |
+
+### Lists are found by their args {#collection-args}
+
+A [Collection](/rest/api/Collection) stores one list for each set of args, like `{ userId: 1 }`. Reads and mutations
+both find a list by those args, not by the endpoint that fetched it.
+
+- Endpoints that share a Collection read the same list for the same args. `/users/:userId/todos` renders what
+  `/todos?userId=` loaded when both use `TodoResource.getList.schema`.
+- A Collection nested in an Entity takes its args from [nestKey](/rest/api/Collection#nestKey), as `User.todos` does
+  above.
+- [argsKey](/rest/api/Collection#argsKey) chooses which args name the list. Leave out args that don't filter it, like
+  `expand`, and reads that differ only in those args share one list.
+- `push` and `unshift` choose lists by the request's args and body, not by the response. Send the fields that lists
+  filter by, like `userId`.
+- `update` and `partialUpdate` change an item where it is. When an edit changes which list holds the item, use
+  `move`.
+
 ## Other ways to query {#uses}
 
 Every API that reads the store without an endpoint takes a Queryable schema and args:
@@ -125,4 +186,6 @@ Every API that reads the store without an endpoint takes a Queryable schema and 
   to do when list items have fewer fields
 - [Expiry Policy](./expiry-policy.md) - when stored data is fresh, stale or invalid, and how to change that
 - [Queryable by args](/rest/api/Entity#pk-args) - which args find an Entity, and how to change that
+- [Collection](/rest/api/Collection) - which args find a list, and the mutations that add to, move between and remove
+  from lists
 - [Queryable schemas](/rest/api/schema#queryable) - what each schema's `queryKey` returns, and every API that uses it

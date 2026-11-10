@@ -214,6 +214,240 @@ renders those fields' defaults, and doesn't fetch while the list data is fresh. 
 summary Entity and make the detail Entity require the rest with [validate()](https://dataclient.io/rest/api/Entity#validate)
 ([Partial entities](https://dataclient.io/rest/guides/partial-entities)).
 
+## After mutations {#mutations}
+
+A mutation's response is stored the way any response is. Reads that come after it find the result in the store, so
+the next page renders at once and makes no request.
+
+The app below sends one `GET`, for its `Team` page. Every page after that renders from the store, and only the
+mutations send requests.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
+```ts title="Resources" {32-34}
+import { Collection, Entity, resource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+export const TodoResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
+  schema: Todo,
+  optimistic: true,
+});
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  todos: Todo[] = [];
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+
+  static schema = {
+    // the list TodoResource.getList({ userId }) reads
+    todos: new Collection([Todo], {
+      nestKey: parent => ({ userId: parent.id }),
+    }),
+  };
+}
+export const UserResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```tsx title="Team" route="/"
+import { useSuspense } from '@data-client/react';
+import { UserResource } from './Resources';
+
+export default function Team() {
+  const users = useSuspense(UserResource.getList);
+  return (
+    <div className="list">
+      {users.map(user => (
+        <div key={user.pk()} className="listItem">
+          <Avatar src={user.profileImage} />
+          <Link to={`/users/${user.id}`}>{user.name}</Link>
+          <span className="meta">
+            {user.todos.filter(todo => !todo.completed).length} open
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="UserPage" route="/users/:id" {7-8}
+import { useSuspense } from '@data-client/react';
+import NewTodo from './NewTodo';
+import { TodoResource, UserResource } from './Resources';
+import TodoItem from './TodoItem';
+
+export default function UserPage({ id }: { id: string }) {
+  const user = useSuspense(UserResource.get, { id });
+  const todos = useSuspense(TodoResource.getList, { userId: id });
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <div className="list">
+        {todos.map(todo => (
+          <TodoItem key={todo.pk()} todo={todo} />
+        ))}
+        <NewTodo userId={user.id} />
+      </div>
+    </div>
+  );
+}
+```
+
+```tsx title="TodoItem" {7-11,13}
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './Resources';
+
+export default function TodoItem({ todo }: { todo: Todo }) {
+  const ctrl = useController();
+  const handleChange = e =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, { id: todo.id });
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={handleChange}
+        />
+        <Link to={`/todos/${todo.id}`}>{todo.title}</Link>
+      </label>
+      <CancelButton onClick={handleDelete} />
+    </div>
+  );
+}
+```
+
+```tsx title="NewTodo" {8-11}
+import { useController } from '@data-client/react';
+import { TodoResource } from './Resources';
+
+export default function NewTodo({ userId }: { userId: number }) {
+  const ctrl = useController();
+  const handleKeyDown = e => {
+    if (e.key === 'Enter') {
+      ctrl.fetch(TodoResource.getList.push, {
+        userId,
+        title: e.currentTarget.value,
+      });
+      e.currentTarget.value = '';
+    }
+  };
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input type="checkbox" name="new" checked={false} disabled />
+        <input
+          type="text"
+          aria-label="New todo"
+          placeholder="New todo"
+          onKeyDown={handleKeyDown}
+        />
+      </label>
+    </div>
+  );
+}
+```
+
+```tsx title="TodoPage" route="/todos/:id" {5,10}
+import { useController, useSuspense } from '@data-client/react';
+import { TodoResource, UserResource } from './Resources';
+
+export default function TodoPage({ id }: { id: string }) {
+  const todo = useSuspense(TodoResource.get, { id });
+  const users = useSuspense(UserResource.getList);
+  const ctrl = useController();
+  // move, not partialUpdate: the todo changes lists
+  const assign = (userId: number) =>
+    ctrl.fetch(TodoResource.getList.move, { id: todo.id }, { userId });
+  return (
+    <div>
+      <h2>{todo.title}</h2>
+      <p className="meta">{todo.completed ? 'Done' : 'Open'}</p>
+      <section>
+        <h3>Owner</h3>
+        <div className="list">
+          {users.map(user => (
+            <button
+              key={user.pk()}
+              className="listItem"
+              aria-current={user.id === todo.userId}
+              onClick={() => assign(user.id)}
+            >
+              <Avatar src={user.profileImage} size={24} />
+              {user.name}
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+```
+
+- `UserPage` reads `TodoResource.getList({ userId })`, which was never fetched. `/users` nests each user's todos in a
+  [Collection](https://dataclient.io/rest/api/Collection). Its [nestKey](https://dataclient.io/rest/api/Collection#nestKey) returns the same args, so
+  `user.todos` and that list are one list in the store.
+- `NewTodo` creates with [getList.push](./resource.md#push). The todo joins every stored list its args match,
+  and `TodoPage` renders it from the response.
+- `TodoPage` changes the owner with [getList.move](./resource.md#move). The todo leaves the old owner's list
+  and joins the new owner's.
+
+These reads keep their [expiry](#expiry). Data is stale after a minute by default: a page then still renders at once,
+and refetches.
+
+### What renders after each mutation {#mutation-reads}
+
+| Mutation                                                                                                                                                | Renders next, without a fetch                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Create: [getList.push](./resource.md#push), [getList.unshift](./resource.md#unshift)                                                                    | The new item's detail. Every stored list whose args match, and any [All](https://dataclient.io/rest/api/All) list |
+| Edit: [update](./resource.md#update), [partialUpdate](./resource.md#partialupdate)                                                                      | The item's detail with the new values, even when nothing fetched that detail                                      |
+| Edit that changes its list: [getList.move](./resource.md#move)                                                                                          | The list it left and the list it joined                                                                           |
+| Take out of a list: [getList.remove](./RestEndpoint.md#remove)                                                                                          | The lists without it. Its detail still renders                                                                    |
+| [delete](./resource.md#delete)                                                                                                                          | The lists without it. Its detail is [Invalid](./expiry-policy.md#expiry-status), so it fetches                    |
+| No request, like a websocket [Manager](https://dataclient.io/docs/concepts/managers): [Controller.set()](https://dataclient.io/docs/api/Controller#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                                           |
+
+### Lists are found by their args {#collection-args}
+
+A [Collection](https://dataclient.io/rest/api/Collection) stores one list for each set of args, like `{ userId: 1 }`. Reads and mutations
+both find a list by those args, not by the endpoint that fetched it.
+
+- Endpoints that share a Collection read the same list for the same args. `/users/:userId/todos` renders what
+  `/todos?userId=` loaded when both use `TodoResource.getList.schema`.
+- A Collection nested in an Entity takes its args from [nestKey](https://dataclient.io/rest/api/Collection#nestKey), as `User.todos` does
+  above.
+- [argsKey](https://dataclient.io/rest/api/Collection#argsKey) chooses which args name the list. Leave out args that don't filter it, like
+  `expand`, and reads that differ only in those args share one list.
+- `push` and `unshift` choose lists by the request's args and body, not by the response. Send the fields that lists
+  filter by, like `userId`.
+- `update` and `partialUpdate` change an item where it is. When an edit changes which list holds the item, use
+  `move`.
+
 ## Other ways to query {#uses}
 
 Every API that reads the store without an endpoint takes a Queryable schema and args:
@@ -232,4 +466,6 @@ Every API that reads the store without an endpoint takes a Queryable schema and 
   to do when list items have fewer fields
 - [Expiry Policy](./expiry-policy.md) - when stored data is fresh, stale or invalid, and how to change that
 - [Queryable by args](https://dataclient.io/rest/api/Entity#pk-args) - which args find an Entity, and how to change that
+- [Collection](https://dataclient.io/rest/api/Collection) - which args find a list, and the mutations that add to, move between and remove
+  from lists
 - [Queryable schemas](https://dataclient.io/rest/api/schema#queryable) - what each schema's `queryKey` returns, and every API that uses it

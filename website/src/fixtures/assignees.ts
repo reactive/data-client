@@ -3,12 +3,12 @@ import type { Interceptor } from '@data-client/test';
 import { TodoResource, UserResource } from './todos';
 
 // jsonplaceholder's shapes, with people and tasks that read like a real team
-const users = [
+export const users = [
   { id: 1, name: 'Maya Chen', username: 'maya', email: 'maya@example.com' },
   { id: 2, name: 'Leo Fischer', username: 'leo', email: 'leo@example.com' },
   { id: 3, name: 'Ama Owusu', username: 'ama', email: 'ama@example.com' },
 ];
-const todos = {
+export const todos = {
   1: { id: 1, userId: 1, title: 'Launch post', completed: false },
   2: { id: 2, userId: 2, title: 'Pricing page review', completed: true },
   3: { id: 3, userId: 3, title: 'Fix signup bug', completed: false },
