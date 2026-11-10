@@ -784,7 +784,8 @@ if (delegate.getEntity(this.key, id)) return id;
 ```
 
 ```ts title="Look up by index"
-return delegate.getIndex(this.key, indexName, args[0][indexName]);
+const pk = delegate.getIndex(this.key, indexName, args[0][indexName]);
+if (pk && delegate.getEntity(this.key, pk)) return pk;
 ```
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}

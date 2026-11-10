@@ -500,7 +500,7 @@ For the small price of 9kb brotli. &nbsp;&nbsp; [🏁Get started now](https://da
 <tr>
 <td align="center"></td>
 <td><a href="https://dataclient.io/rest/api/Lazy">Lazy(Schema)</a></td>
-<td>deferred denormalization</td>
-<td align="center">✅</td>
+<td>deferred denormalization; <a href="https://dataclient.io/rest/api/Lazy#query"><code>.query</code></a> is Queryable</td>
+<td align="center">🛑</td>
 </tr>
 </tbody></table>

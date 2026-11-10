@@ -31,7 +31,7 @@ class Controller {
   subscribe(endpoint, ...args): Promise<void>;
   unsubscribe(endpoint, ...args): Promise<void>;
   /*************** Data Access ***************/
-  get(queryable, ...args, state): Denormalized<typeof queryable> | undefined;
+  get(queryable, ...args, state): DenormalizeNullable<typeof queryable> | undefined;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
