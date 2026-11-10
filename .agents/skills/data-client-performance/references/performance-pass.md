@@ -19,6 +19,8 @@ Record a baseline before you change anything, and measure again after each chang
   the next paint. Throttle the CPU and add network latency so the numbers resemble real devices.
 - **Renders:** the React DevTools Profiler shows which components render after an update.
 
+Without a browser, count the requests each flow makes from the code and its tests, and say how you counted.
+
 ## Built-in wins {#built-in}
 
 ### Details from lists {#list-detail}
@@ -166,4 +168,3 @@ references above, fewer components render after a store update.
 ## Report {#report}
 
 For each section, record what you found, what you changed or skipped and why, and the before and after numbers.
-Without a browser, count the requests each flow makes from the code and its tests, and say how you counted.

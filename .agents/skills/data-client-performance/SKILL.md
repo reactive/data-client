@@ -8,8 +8,7 @@ license: Apache 2.0
 
 Read [references/performance-pass.md](references/performance-pass.md); its sections are the checks.
 
-1. **Measure** the flows the app's users run most, as its "Measure first" section says. With no browser available,
-   count the requests each flow makes from the code and its tests.
+1. **Measure** the flows the app's users run most, as its "Measure first" section says.
 2. **Audit.** For every check, search the code and list each finding with its file and line, the change, and what
    users will see. Report a check with no findings as clean.
 3. **Built-in wins** take little code: check each is in place and make any that are missing.
