@@ -76,7 +76,7 @@ files.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
   fixtures, interceptors, and `nock`.
 - [**`/data-client-performance`**](https://skills.sh/reactive/data-client/data-client-performance) — runs the
-  [performance pass](../guides/performance-pass.md): finds speedups the app is missing and makes the ones you pick.
+  [performance pass](../guides/performance-pass.md): finds speedups the app is missing and makes them, except any you opt out of.
 
 :::
 

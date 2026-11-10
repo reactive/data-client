@@ -70,7 +70,7 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 
 These steps keep the app's behavior, except where Data Client fixes it with less code: lists that showed stale data
 after a mutation, refetches after a mutation, and fetches for items a list already loaded. Changes that need extra code
-or change what users see, like optimistic updates, are a separate, optional
+or change what users see, like adding optimistic updates the app did not have, are a separate, optional
 [performance pass](./performance-pass.md). Finish and check the migration first, so you can measure each stage.
 
 ## API map {#api-map}

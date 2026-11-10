@@ -32,18 +32,40 @@ Entity's `pk()` reads (`{ id }`, not `{ issueId }`), or a field in its [indexes]
 - **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that name
   neither the primary key nor an index (`{ slug }` without `static indexes = ['slug']`); list data copied into the
   detail by hand.
-- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. Add an index for
-  other lookup fields. Delete the copying. When the list returns fewer fields than the detail, add
-  [`validate()`](https://dataclient.io/rest/guides/partial-entities) to the Entity so the detail still fetches the full item.
-- **Users see:** the detail page shows at once when opened from the list.
+- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. For other lookup
+  fields, add an index rather than renaming the args. Delete the copying. When the list returns fewer fields than the
+  detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a
+  `validate()`, so the detail still fetches the full item ([partial entities](https://dataclient.io/rest/guides/partial-entities)).
+- **Users see:** the detail page shows at once when opened from the list, with no request while the list is fresh.
+
+### One Entity everywhere {#entities}
+
+Every place that shows a server object reads the same Entity, so one response updates all of them.
+
+- **Find:** Entity fields holding objects with their own id but no [`static schema`](https://dataclient.io/rest/api/Entity#schema) entry;
+  two Entity classes for the same server object; update endpoints with no schema; `ctrl.expireAll()`,
+  `ctrl.invalidate()` or a refetch after an update.
+- **Change:** nest the Entity in `static schema` (`{ author: User, labels: [Label] }`), give update endpoints the
+  Entity as schema, and delete the refetch.
+- **Users see:** an edit shows in every row, card and detail at once, with no request.
 
 ### Mutations update lists in place {#lists}
 
-- **Find:** `ctrl.expireAll()`, `ctrl.invalidate()` or a refetch after a create or delete.
+- **Find:** `ctrl.expireAll()`, `ctrl.invalidate()` or a refetch of a list after a create, delete, or a change that
+  moves an item between filtered lists.
 - **Change:** create through the list's [Collection](https://dataclient.io/rest/api/Collection) `push` or `unshift` endpoint; delete with
-  `resource().delete` or an [Invalidate](https://dataclient.io/rest/api/Invalidate) schema. Keep `expireAll()` for numbered pages, whose
-  later items shift, and for lists whose order or membership the server decides.
-- **Users see:** the new or removed item shows without a reload of the list.
+  `resource().delete` or an [Invalidate](https://dataclient.io/rest/api/Invalidate) schema; move with the Collection's
+  [`move`](https://dataclient.io/rest/api/RestEndpoint#move) endpoint. Keep `expireAll()` for numbered pages, whose later items shift; for
+  lists whose order or membership the server decides; and for data the response doesn't include, such as counts and
+  totals.
+- **Users see:** the new, removed or moved item shows without a reload of the list.
+
+### Reads skip fresh data {#fetch-if-stale}
+
+- **Find:** `ctrl.fetch()` of a read endpoint in loaders, effects or handlers; `useEffect()` that fetches.
+- **Change:** `ctrl.fetchIfStale()` in loaders and handlers; `useSuspense()` or [useFetch()](https://dataclient.io/docs/api/useFetch) in
+  components. `ctrl.fetch()` always requests, even when the store holds fresh data.
+- **Users see:** no change; fewer requests per navigation.
 
 ## Changes with tradeoffs {#tradeoffs}
 
@@ -94,16 +116,37 @@ export default function IssuePage({ id }: { id: number }) {
 }
 ```
 
+An unawaited `fetchIfStale()` is safe from 0.19 on; on earlier versions, add `.catch(() => {})` to it.
+
 - **Find:** loaders that `await` or `Promise.all()` several requests; components that call `useSuspense()` below the
   page's main content with no boundary of their own.
 - **Users see:** the page shows while the secondary parts show their own loading state.
+
+### Prefetch on intent {#prefetch}
+
+- **Find:** links to pages whose data the store doesn't hold yet, on routes without a loader.
+- **Change:** call `ctrl.fetchIfStale(endpoint, args)` in the link's `onMouseEnter` and `onFocus`, or add a loader.
+- **Users see:** the page shows without a loading state. Links that are hovered but not clicked cost a request.
+
+### Expiry fits the data {#expiry}
+
+Data Client refetches data older than its endpoint's [`dataExpiryLength`](https://dataclient.io/rest/api/RestEndpoint#dataexpirylength)
+(60 seconds by default) when a component next reads it. Mutations that update the store in place keep data right
+between fetches, so most data can stay fresh longer.
+
+- **Find:** `dataExpiryLength: 0`, very short expiry or `invalidIfStale: true` copied from a TanStack Query
+  `staleTime: 0`; data that rarely changes, such as the current user, settings or option lists, left on the default.
+- **Change:** remove those overrides, and raise `dataExpiryLength` on endpoints whose data changes only through this
+  app.
+- **Users see:** fewer background refetches and no loading state when coming back to a page. Changes made elsewhere
+  show later.
 
 ### Optimistic updates {#optimistic}
 
 When the client can predict a mutation's result, show it at once and let Data Client roll it back if the request fails.
 Use [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updates) on the endpoint, or `optimistic: true` on
-[resource()](https://dataclient.io/rest/api/resource). `optimistic: true` covers every mutation, including creates, whose new item has a
-temporary id until the server answers; to make one mutation optimistic, add
+[resource()](https://dataclient.io/rest/api/resource). `optimistic: true` covers every mutation, including creates, whose new item has an
+empty `id` until the server answers, so key its row by something else; to make one mutation optimistic, add
 `getOptimisticResponse` to just that endpoint with `resource().extend('partialUpdate', { ... })`.
 
 - **Find:** `ctrl.fetch()` of updates, deletes and creates whose response the client can predict from the body and
@@ -149,8 +192,8 @@ that did not change.
 [React Compiler](https://react.dev/learn/react-compiler) memoizes components and hooks at build time. With the stable
 references above, fewer components render after a store update.
 
-- **Find:** `react` below 19 in package.json; no `babel-plugin-react-compiler` in the build (Babel or Vite config, or
-  `reactCompiler` in Next.js config).
+- **Find:** `react` below 19 in package.json; no `babel-plugin-react-compiler` in the build (Babel or Vite config,
+  `reactCompiler` in Next.js config, or `experiments.reactCompiler` in Expo's app.json).
 - **Change on React 19:** follow the [installation guide](https://react.dev/learn/react-compiler/installation) and turn
   on the `eslint-plugin-react-hooks` recommended rules. The compiler skips components that break the
   [Rules of React](https://react.dev/reference/rules), and the lint rules name them. Leave existing memoization in

@@ -13,7 +13,7 @@
         "The unawaited `fetchIfStale()` call is left as a bare call (`void` or a `.catch()` are fine too); no code reads its return value synchronously as data.",
         "A `<Suspense>` or `AsyncBoundary` with a loading fallback wraps `CommentsList` inside the discussion page.",
         "`ctrl.expireAll(CommentResource.getList)` after the create is removed, because `CommentResource.create` already adds the comment to the list.",
-        "The sort moves out of `useMemo` into a `Query` schema, and `CommentsList` still fetches and suspends: the Query is the endpoint's schema read with `useSuspense`, or `useQuery` is used only next to a `useSuspense`/loader fetch of the same list that it keeps.",
+        "The sort moves out of `useMemo` into a `Query` schema, and `CommentsList` still fetches and suspends: the Query is the endpoint's schema read with `useSuspense`, or `useQuery` is used only next to a `useSuspense` of the same list that it keeps.",
         "The rename is optimistic: `getOptimisticResponse` on the update endpoint or `optimistic: true` on `DiscussionResource`.",
         "The audit flags that the build has no React Compiler (`babel-plugin-react-compiler`) and offers enabling it, without adding it to `vite.config.ts` unasked.",
         "The reply lists, for each change, what users will see differently (for example, comments get their own loading state; the rename shows before the server answers and reverts on error), and names checks with no findings."
@@ -22,8 +22,8 @@
     {
       "id": 2,
       "name": "react-18-compiler-follow-up",
-      "source": "bulletproof-react is on React 18.3 with plain @vitejs/plugin-react; its unmemoized markdown preview was about a fifth of the optimistic click's render. Nathaniel (2026-11-08): explain React 19's benefits and ask whether to upgrade as a follow-up, which brings React Compiler.",
-      "prompt": "Run a performance pass on our comments list. We use @data-client/react 0.19. No browser here, so skip live measurement. Write the changed files.\n\n```json\n// package.json (excerpt)\n{\n  \"dependencies\": { \"react\": \"^18.3.1\", \"react-dom\": \"^18.3.1\", \"@data-client/react\": \"^0.19.0\", \"@data-client/rest\": \"^0.19.0\" },\n  \"devDependencies\": { \"vite\": \"^6.0.0\", \"@vitejs/plugin-react\": \"^4.3.0\" }\n}\n```\n\n```ts\n// vite.config.ts\nexport default defineConfig({ plugins: [react()] });\n```\n\n```tsx\n// comments-list.tsx\nexport function CommentsList({ discussionId }: { discussionId: string }) {\n  const comments = useSuspense(CommentResource.getList, { discussionId });\n  return (\n    <ul>\n      {comments.map((c) => (\n        <li key={c.id}>\n          <MDPreview value={c.body} />\n          <DeleteComment id={c.id} />\n        </li>\n      ))}\n    </ul>\n  );\n}\n```\n",
+      "source": "bulletproof-react is on React 18.3 with plain @vitejs/plugin-react; its unmemoized markdown preview was about a fifth of the optimistic click's render. Policy: explain React 19's benefits and ask whether to upgrade as a follow-up, which brings React Compiler.",
+      "prompt": "Run a performance pass on our comments list. We use @data-client/react 0.19. No browser here, so skip live measurement. Write the changed files.\n\n```json\n// package.json (excerpt)\n{\n  \"dependencies\": { \"react\": \"^18.3.1\", \"react-dom\": \"^18.3.1\", \"@data-client/react\": \"^0.19.0\", \"@data-client/rest\": \"^0.19.0\" },\n  \"devDependencies\": { \"vite\": \"^6.0.0\", \"@vitejs/plugin-react\": \"^4.3.0\" }\n}\n```\n\n```ts\n// vite.config.ts\nexport default defineConfig({ plugins: [react()] });\n```\n\n`MDPreview` parses markdown on every render.\n\n```tsx\n// comments-list.tsx\nexport function CommentsList({ discussionId }: { discussionId: string }) {\n  const comments = useSuspense(CommentResource.getList, { discussionId });\n  return (\n    <ul>\n      {comments.map((c) => (\n        <li key={c.id}>\n          <MDPreview value={c.body} />\n          <DeleteComment id={c.id} />\n        </li>\n      ))}\n    </ul>\n  );\n}\n```\n",
       "expected_output": "The pass leaves React at 18 and adds no compiler; it memoizes the comment row, explains what React 19 brings (use(), Activity) and asks whether to upgrade React as a follow-up, offering the compiler with it.",
       "files": [],
       "assertions": [
@@ -31,6 +31,21 @@
         "The reply explains what React 19 would bring this app, naming `use()` or `<Activity>`.",
         "The reply asks whether to upgrade React as a follow-up step and offers to add React Compiler with it, without claiming the compiler requires React 19.",
         "`MDPreview` (or the row that renders it) is wrapped in `memo()`, so unchanged comments skip rendering."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "entities-and-refetches",
+      "source": "examples/benchmark-react update-user and update-entity-multi-view scenarios (nested Entities update every view); the TanStack guide keeps expireAll for data a response doesn't include",
+      "prompt": "Run a performance pass on our issues pages. We use @data-client/react 0.19 and @data-client/rest on React 19.2, with React Compiler already on. No browser here, so skip live measurement. Write the changed files.\n\n```ts\n// resources.ts\nexport class User extends Entity {\n  id = 0;\n  name = '';\n  static key = 'User';\n}\nexport class Issue extends Entity {\n  id = 0;\n  title = '';\n  author = { id: 0, name: '' };\n  static key = 'Issue';\n}\nexport const UserResource = resource({ path: '/users/:id', schema: User });\nexport const IssueResource = resource({ path: '/issues/:id', schema: Issue });\nexport const getIssueStats = new RestEndpoint({ path: '/issues/stats' });\n```\n\n```tsx\n// routes.tsx\nexport const issuesLoader = (ctrl: Controller) => () => ctrl.fetch(IssueResource.getList);\n\n// rename-user.tsx\nexport function RenameUser({ id }: { id: number }) {\n  const ctrl = useController();\n  const rename = async (name: string) => {\n    await ctrl.fetch(UserResource.partialUpdate, { id }, { name });\n    ctrl.expireAll(IssueResource.getList);\n  };\n  return <NameForm onSubmit={rename} />;\n}\n\n// close-issue.tsx\nexport function DeleteIssue({ id }: { id: number }) {\n  const ctrl = useController();\n  const remove = async () => {\n    await ctrl.fetch(IssueResource.delete, { id });\n    ctrl.expireAll(getIssueStats);\n  };\n  return <button onClick={remove}>Delete</button>;\n}\n```\n",
+      "expected_output": "Issue nests User via static schema so renaming a user updates every issue; the expireAll after the rename is removed; the loader uses fetchIfStale; the expireAll of the stats endpoint after delete is kept because the delete response doesn't include the counts.",
+      "files": [],
+      "assertions": [
+        "`Issue` gets `static schema = { author: User }` (or equivalent), so the author is the shared `User` Entity.",
+        "`ctrl.expireAll(IssueResource.getList)` after the user rename is removed, with the reason that the nested `User` updates every issue.",
+        "The loader uses `ctrl.fetchIfStale(IssueResource.getList)` instead of `ctrl.fetch`.",
+        "`ctrl.expireAll(getIssueStats)` after the delete is kept, because the delete response doesn't include the counts.",
+        "React Compiler is reported as already on; nothing is added to the build."
       ]
     }
   ]
