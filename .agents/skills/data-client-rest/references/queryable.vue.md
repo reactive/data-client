@@ -220,6 +220,258 @@ renders those fields' defaults, and doesn't fetch while the list data is fresh. 
 summary Entity and make the detail Entity require the rest with [validate()](https://dataclient.io/rest/api/Entity#validate)
 ([Partial entities](https://dataclient.io/rest/guides/partial-entities)).
 
+## After mutations {#mutations}
+
+A mutation's response is stored the way any response is. Reads that come after it find the result in the store, so
+the next page renders at once and makes no request.
+
+The app below sends one `GET`, for its `Team` page. Every page after that renders from the store, and only the
+mutations send requests.
+
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
+```ts title="Resources" {32-34}
+import { Collection, Entity, resource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+export const TodoResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
+  schema: Todo,
+  optimistic: true,
+});
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  todos: Todo[] = [];
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+
+  static schema = {
+    // the list TodoResource.getList({ userId }) reads
+    todos: new Collection([Todo], {
+      nestKey: parent => ({ userId: parent.id }),
+    }),
+  };
+}
+export const UserResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```html title="Team.vue" route="/"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { UserResource } from './Resources';
+
+  const users = await useSuspense(UserResource.getList);
+</script>
+
+<template>
+  <div class="list">
+    <div v-for="user in users" :key="user.pk()" class="listItem">
+      <Avatar :src="user.profileImage" />
+      <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
+      <span class="meta">
+        {{ user.todos.filter(todo => !todo.completed).length }} open
+      </span>
+    </div>
+  </div>
+</template>
+```
+
+```html title="UserPage.vue" route="/users/:id" {12-13}
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import NewTodo from './NewTodo.vue';
+  import { TodoResource, UserResource } from './Resources';
+  import TodoItem from './TodoItem.vue';
+
+  const props = defineProps<{ id: string }>();
+  const userArgs = () => ({ id: props.id });
+  const todoArgs = () => ({ userId: props.id });
+  // start the second read before awaiting the first
+  useFetch(TodoResource.getList, todoArgs);
+  const user = await useSuspense(UserResource.get, userArgs);
+  const todos = await useSuspense(TodoResource.getList, todoArgs);
+</script>
+
+<template>
+  <div>
+    <h2>{{ user.name }}</h2>
+    <div class="list">
+      <TodoItem v-for="todo in todos" :key="todo.pk()" :todo="todo" />
+      <NewTodo :userId="user.id" />
+    </div>
+  </div>
+</template>
+```
+
+```html title="TodoItem.vue" {9-13,15}
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TodoResource, type Todo } from './Resources';
+
+  const props = defineProps<{ todo: Todo }>();
+  const ctrl = useController();
+
+  const handleChange = (e: Event) =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: props.todo.id },
+      { completed: (e.target as HTMLInputElement).checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, { id: props.todo.id });
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input
+        type="checkbox"
+        :checked="todo.completed"
+        @change="handleChange"
+      />
+      <RouterLink :to="`/todos/${todo.id}`">{{ todo.title }}</RouterLink>
+    </label>
+    <CancelButton @click="handleDelete" />
+  </div>
+</template>
+```
+
+```html title="NewTodo.vue" {11-14}
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TodoResource } from './Resources';
+
+  const props = defineProps<{ userId: number }>();
+  const ctrl = useController();
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const input = e.target as HTMLInputElement;
+      ctrl.fetch(TodoResource.getList.push, {
+        userId: props.userId,
+        title: input.value,
+      });
+      input.value = '';
+    }
+  };
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input type="checkbox" name="new" :checked="false" disabled />
+      <input
+        type="text"
+        aria-label="New todo"
+        placeholder="New todo"
+        @keydown="handleKeyDown"
+      />
+    </label>
+  </div>
+</template>
+```
+
+```html title="TodoPage.vue" route="/todos/:id" {9,14-18}
+<script setup lang="ts">
+  import { useController, useFetch, useSuspense } from '@data-client/vue';
+  import { TodoResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  // start the second read before awaiting the first
+  useFetch(UserResource.getList);
+  const todo = await useSuspense(TodoResource.get, () => ({ id: props.id }));
+  const users = await useSuspense(UserResource.getList);
+
+  // move, not partialUpdate: the todo changes lists
+  const assign = (userId: number) =>
+    ctrl.fetch(
+      TodoResource.getList.move,
+      { id: todo.value.id },
+      { userId },
+    );
+</script>
+
+<template>
+  <div>
+    <h2>{{ todo.title }}</h2>
+    <p class="meta">{{ todo.completed ? 'Done' : 'Open' }}</p>
+    <section>
+      <h3>Owner</h3>
+      <div class="list">
+        <button
+          v-for="user in users"
+          :key="user.pk()"
+          class="listItem"
+          :aria-current="user.id === todo.userId"
+          @click="assign(user.id)"
+        >
+          <Avatar :src="user.profileImage" :size="24" />
+          {{ user.name }}
+        </button>
+      </div>
+    </section>
+  </div>
+</template>
+```
+
+- `UserPage` reads `TodoResource.getList({ userId })`, which was never fetched. `/users` nests each user's todos in a
+  [Collection](https://dataclient.io/rest/api/Collection). Its [nestKey](https://dataclient.io/rest/api/Collection#nestKey) returns the same args, so
+  `user.todos` and that list are one list in the store.
+- `NewTodo` creates with [getList.push](./resource.vue.md#push). The todo joins every stored list its args match,
+  and `TodoPage` renders it from the response.
+- `TodoPage` changes the owner with [getList.move](./resource.vue.md#move). The todo leaves the old owner's list
+  and joins the new owner's.
+
+These reads keep their [expiry](#expiry). Data is stale after a minute by default: a page then still renders at once,
+and refetches.
+
+### What renders after each mutation {#mutation-reads}
+
+| Mutation                                                                                                                                              | Renders next, without a fetch                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Create: [getList.push](./resource.vue.md#push), [getList.unshift](./resource.vue.md#unshift)                                                                  | The new item's detail. Every stored list whose args match, and any [All](https://dataclient.io/rest/api/All) list |
+| Edit: [update](./resource.vue.md#update), [partialUpdate](./resource.vue.md#partialupdate)                                                                    | The item's detail with the new values, even when nothing fetched that detail                                      |
+| Edit that changes its list: [getList.move](./resource.vue.md#move)                                                                                        | The list it left and the list it joined                                                                           |
+| Take out of a list: [getList.remove](./RestEndpoint.vue.md#remove)                                                                                        | The lists without it. Its detail still renders                                                                    |
+| [delete](./resource.vue.md#delete)                                                                                                                        | The lists without it. Its detail is [Invalid](./expiry-policy.vue.md#expiry-status), so it fetches                    |
+| No request, like a websocket [Manager](https://dataclient.io/vue/concepts/managers): [Controller.set()](https://dataclient.io/vue/api/Controller#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                                           |
+
+### Lists are found by their args {#collection-args}
+
+A [Collection](https://dataclient.io/rest/api/Collection) stores one list for each set of args, like `{ userId: 1 }`. Reads and mutations
+both find a list by those args, not by the endpoint that fetched it.
+
+- Endpoints that share a Collection read the same list for the same args. `/users/:userId/todos` renders what
+  `/todos?userId=` loaded when both use `TodoResource.getList.schema`.
+- A Collection nested in an Entity takes its args from [nestKey](https://dataclient.io/rest/api/Collection#nestKey), as `User.todos` does
+  above.
+- [argsKey](https://dataclient.io/rest/api/Collection#argsKey) chooses which args name the list. Leave out args that don't filter it, like
+  `expand`, and reads that differ only in those args share one list.
+- `push` and `unshift` choose lists by the request's args and body, not by the response. Send the fields that lists
+  filter by, like `userId`.
+- `update` and `partialUpdate` change an item where it is. When an edit changes which list holds the item, use
+  `move`.
+
 ## Other ways to query {#uses}
 
 Every API that reads the store without an endpoint takes a Queryable schema and args:
@@ -238,4 +490,6 @@ Every API that reads the store without an endpoint takes a Queryable schema and 
   to do when list items have fewer fields
 - [Expiry Policy](./expiry-policy.vue.md) - when stored data is fresh, stale or invalid, and how to change that
 - [Queryable by args](https://dataclient.io/rest/api/Entity#pk-args) - which args find an Entity, and how to change that
+- [Collection](https://dataclient.io/rest/api/Collection) - which args find a list, and the mutations that add to, move between and remove
+  from lists
 - [Queryable schemas](https://dataclient.io/rest/api/schema#queryable) - what each schema's `queryKey` returns, and every API that uses it
