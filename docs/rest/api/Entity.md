@@ -123,8 +123,8 @@ and thus will not be kept in the cache.
 #### Queryable by args {#pk-args}
 
 `pk()` also makes an Entity [Queryable](/docs/concepts/queryable): given args, [queryKey](#queryKey) returns the primary
-key when the store holds that Entity. An endpoint whose schema is the Entity then renders it before fetching, which is
-how a detail page shows an item a list already loaded
+key when the store holds that Entity. An endpoint whose schema is the Entity then renders it without waiting for a
+fetch, and makes none while it is fresh, which is how a detail page shows an item a list already loaded
 ([Lists to details](/docs/getting-started/data-dependency#list-detail)).
 
 By default `queryKey` reads the first argument:
@@ -155,8 +155,8 @@ export class Post extends Entity {
 }
 ```
 
-[useQuery(Post, ...)](/docs/api/useQuery) still takes the Entity's own fields (`{ id }`); only endpoint args can use
-`{ postId }`.
+[useQuery(Post, ...)](/docs/api/useQuery) is typed with the Entity's own fields, so pass `{ id }` there; `{ postId }`
+is for endpoint args.
 
 #### Other uses
 

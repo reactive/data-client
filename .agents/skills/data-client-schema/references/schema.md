@@ -229,13 +229,13 @@ the store holds. Endpoints use it to render data another request loaded before t
 | [Entity](./Entity.md)         | Its `pk`, when the store holds that Entity. By default, args with the fields `pk()` reads, like `{ id }`, find it ([how, and how to customize](./Entity.md#pk-args)) |
 | [Collection](./Collection.md) | Its `pk` for those args, when the store holds that Collection                                                                                                        |
 | [Object](./Object.md)         | Each member's `queryKey` with the same args                                                                                                                          |
-| [Union](./Union.md)           | The first member Entity the args find                                                                                                                                |
+| [Union](./Union.md)           | The member the args' discriminator names; without one, the first member Entity the args find                                                                         |
 | [All](./All.md)               | Every stored Entity of its type                                                                                                                                      |
 | [Query](./Query.md)           | Its inner schema's result                                                                                                                                            |
 
 [Scalar](./Scalar.md) is Queryable too, and [Lazy](./Lazy.md) fields produce a Queryable via their
 [`.query`](./Lazy.md#query) accessor. [Array](./Array.md), [Values](./Values.md) and [Invalidate](./Invalidate.md) are
-not: their `queryKey` returns `undefined`. Wrap a list in a [Collection](./Collection.md) to make it Queryable.
+not: their `queryKey` returns `undefined`. Use a [Collection](./Collection.md) or [All](./All.md) for a list that should be Queryable.
 
 ### Uses
 

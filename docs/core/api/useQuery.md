@@ -98,7 +98,8 @@ The result updates when the arguments change.
 [Union](/rest/api/Union), and [Scalar](/rest/api/Scalar). [Lazy](/rest/api/Lazy) fields produce a Queryable via their [`.query`](/rest/api/Lazy#query) accessor.
 
 Endpoints query the store the same way until they have a response of their own, so when `useQuery(Post, { id })`
-returns a post, `useSuspense(PostResource.get, { id })` renders it without waiting for a fetch
+returns a post, `useSuspense(PostResource.get, { id })` renders it without waiting for a fetch, unless that endpoint was
+invalidated, or is invalidIfStale and stale
 ([Queryable endpoints](/docs/concepts/queryable#endpoints)).
 
 ```ts

@@ -21,8 +21,8 @@ An [Entity](./Entity.md)'s `queryKey` returns its primary key. By default, args 
 ([Queryable by args](./Entity.md#pk-args)). An object schema like `{ data: Post }` combines its members' results,
 and [Collection](./Collection.md), [All](./All.md), [Union](./Union.md), [Query](./Query.md) and
 [Scalar](./Scalar.md) are Queryable too ([what each returns](./schema.md#queryable)).
-[Array](./Array.md) and [Values](./Values.md) are not: wrap a list in a [Collection](./Collection.md) to
-make it Queryable.
+[Array](./Array.md) and [Values](./Values.md) are not: use a [Collection](./Collection.md) or
+[All](./All.md) for a list that should be Queryable.
 
 [useQuery()](https://dataclient.io/docs/api/useQuery) renders a Queryable schema's result directly: `useQuery(Post, { id })`.
 
@@ -31,25 +31,29 @@ make it Queryable.
 An endpoint reads its own response when it has one. Until then, an endpoint with a Queryable schema queries the store
 with its args, and uses the result when it is complete: no part of it is `undefined`.
 
-A complete result is treated like a response. It expires when the first Entity in it expires, and the
+A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
 [expiry policy](https://dataclient.io/docs/concepts/expiry-policy) applies as usual: stale data renders while it refetches, an
-[invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) or invalidated endpoint suspends, and an Entity that fails
-[validate()](./Entity.md#validate) counts as missing. An incomplete result is missing data, so the endpoint
+[invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) endpoint suspends once stale, an invalidated one always
+does, and an Entity that fails [validate()](./Entity.md#validate) counts as missing. An incomplete result is missing data, so the endpoint
 fetches.
 
 The rest follows from these two rules:
 
-- An Entity stored by any response is found by every endpoint whose args produce its `pk`.
+- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
+  `pk`.
 - Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
 - An object schema like `{ data: Post }` is complete when every member is: an Array member never is, a Collection member
-  is when the store holds it for those args, and two Entities must both be found by the same args. The result holds only
-  the schema's members, so other values render as the schema's defaults until the endpoint's own response arrives.
+  is when the store holds it for those args, and two Entities must both be found by the same args. Until the endpoint's own
+  response arrives, the result holds only what the schema declares: plain values in it, like `total: 0`, are returned
+  as written, and response fields it leaves out, like a `meta`, are `undefined`.
 - Once the endpoint has a response of its own, it reads that, with that response's expiry.
 
 This applies wherever an endpoint is read: [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useDLE()](https://dataclient.io/docs/api/useDLE),
-[useCache()](https://dataclient.io/docs/api/useCache) and [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale).
-[Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) always requests. [useQuery()](https://dataclient.io/docs/api/useQuery) runs the same
-`queryKey` but ignores expiry, and returns an object schema even with a member missing.
+[useCache()](https://dataclient.io/docs/api/useCache), [useLive()](https://dataclient.io/docs/api/useLive), [useFetch()](https://dataclient.io/docs/api/useFetch),
+[Controller.getResponse()](https://dataclient.io/docs/api/Controller#getResponse) and
+[Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) always
+requests. [useQuery()](https://dataclient.io/docs/api/useQuery) runs the same `queryKey` but ignores expiry, and for an object schema returns
+the object even when a member is missing (that member is `undefined`).
 
 For example, a detail page opened from a list renders the Post the list stored:
 

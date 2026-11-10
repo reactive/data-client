@@ -286,7 +286,8 @@ PostResource.get({
 
 Commonly used with [useSuspense()](https://dataclient.io/vue/api/useSuspense), [Controller.invalidate](https://dataclient.io/vue/api/Controller#invalidate), [Controller.expireAll](https://dataclient.io/vue/api/Controller#expireAll)
 
-`get`'s schema is [Queryable](https://dataclient.io/vue/concepts/queryable#endpoints), so when another response, such as [getList](#getlist), already stored the Entity, `get` renders it without waiting, and without a fetch while that data is fresh.
+`get`'s schema is [Queryable](https://dataclient.io/vue/concepts/queryable#endpoints), so when another response, such as [getList](#getlist), already stored the Entity, `get` renders it without waiting, and without a fetch while that data is fresh. Its args
+must find the Entity: by default, path params named like the fields `pk()` reads ([other shapes](https://dataclient.io/rest/api/Entity#pk-args)).
 
 ### getList
 

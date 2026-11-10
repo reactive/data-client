@@ -229,13 +229,13 @@ the store holds. Endpoints use it to render data another request loaded before t
 | [Entity](./Entity.vue.md)         | Its `pk`, when the store holds that Entity. By default, args with the fields `pk()` reads, like `{ id }`, find it ([how, and how to customize](./Entity.vue.md#pk-args)) |
 | [Collection](./Collection.vue.md) | Its `pk` for those args, when the store holds that Collection                                                                                                        |
 | [Object](./Object.vue.md)         | Each member's `queryKey` with the same args                                                                                                                          |
-| [Union](./Union.vue.md)           | The first member Entity the args find                                                                                                                                |
+| [Union](./Union.vue.md)           | The member the args' discriminator names; without one, the first member Entity the args find                                                                         |
 | [All](./All.vue.md)               | Every stored Entity of its type                                                                                                                                      |
 | [Query](./Query.vue.md)           | Its inner schema's result                                                                                                                                            |
 
 [Scalar](./Scalar.vue.md) is Queryable too, and [Lazy](./Lazy.vue.md) fields produce a Queryable via their
 [`.query`](./Lazy.vue.md#query) accessor. [Array](./Array.vue.md), [Values](./Values.vue.md) and [Invalidate](./Invalidate.vue.md) are
-not: their `queryKey` returns `undefined`. Wrap a list in a [Collection](./Collection.vue.md) to make it Queryable.
+not: their `queryKey` returns `undefined`. Use a [Collection](./Collection.vue.md) or [All](./All.vue.md) for a list that should be Queryable.
 
 ### Uses
 

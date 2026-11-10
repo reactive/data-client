@@ -266,8 +266,9 @@ args, the way [`useQuery(Post, { id })`](../api/useQuery.md) does. By default, a
 `pk()` reads find the Entity ([other arg shapes](/rest/api/Entity#pk-args)).
 
 The post found this way keeps the expiry the list gave it. While it is fresh there is no request. Once
-[stale](../concepts/expiry-policy.md), it still renders, and refetches in the background. `useSuspense()` suspends only
-when the post is missing.
+[stale](../concepts/expiry-policy.md), it still renders, and refetches in the background. `useSuspense()` suspends when the
+post is missing, or when the endpoint is [invalidated](../api/Controller.md#invalidate) or
+[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) and stale.
 
 The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
 [Collection](/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint

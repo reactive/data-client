@@ -404,44 +404,36 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` is called during normalization when a processed entity is already found in the store.
 
-### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](./queryable.md) - allowing store access without an endpoint.
+This method makes `Entities` [Queryable](./queryable.md): it finds a stored Entity from args alone, so
+[useQuery()](https://dataclient.io/docs/api/useQuery) and endpoints can render it without a response.
 
-Overriding can allow customization or disabling of this behavior altogether.
+Return the `pk` of a stored Entity to use it, or `undefined` when there is none. Always returning `undefined` disables
+lookups. A result found this way expires with the entity's own meta data.
 
-Returning `undefined` will disallow this behavior.
+By **default** the first argument is looked up by [pk()](#pk), then [indexes](./Entity.md#indexes)
+([Queryable by args](./Entity.md#pk-args)).
 
-Returning `pk` string will attempt to lookup this entity and use in the response.
+#### delegate.getEntity(key, pk)
 
-When used, expiry policy is computed based on the entity's own meta data.
-
-By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](./Entity.md#indexes)
-
-#### getEntity(key, pk?)
-
-Gets all entities of a type with one argument, or a single entity with two
-
-```ts title="One argument"
-const entitiesEntry = getEntity(this.schema.key);
-if (entitiesEntry === undefined) return INVALID;
-return Object.values(entitiesEntry).map(
-  entity => entity && this.schema.pk(entity),
-);
-```
-
-```ts title="Two arguments"
-if (getEntity(this.key, id)) return id;
-```
-
-#### getIndex(key, indexName, value)
-
-Returns the index entry (value->pk map)
+Returns the stored entity, or `undefined`.
 
 ```ts
-const value = args[0][indexName];
-return getIndex(schema.key, indexName, value)[value];
+if (delegate.getEntity(this.key, id)) return id;
 ```
+
+#### delegate.getIndex(key, field, value)
+
+Returns the primary key stored under that index value.
+
+```ts
+return delegate.getIndex(this.key, field, args[0][field]);
+```
+
+#### delegate.getEntities(key)
+
+Returns every stored entity of a type (with `keys()` and `entries()`), or `undefined` when none were ever stored.
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
 

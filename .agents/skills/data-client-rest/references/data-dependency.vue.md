@@ -158,8 +158,9 @@ args, the way [`useQuery(Post, { id })`](https://dataclient.io/vue/api/useQuery)
 `pk()` reads find the Entity ([other arg shapes](https://dataclient.io/rest/api/Entity#pk-args)).
 
 The post found this way keeps the expiry the list gave it. While it is fresh there is no request. Once
-[stale](./expiry-policy.vue.md), it still renders, and refetches in the background. `useSuspense()` suspends only
-when the post is missing.
+[stale](./expiry-policy.vue.md), it still renders, and refetches in the background. `useSuspense()` suspends when the
+post is missing, or when the endpoint is [invalidated](https://dataclient.io/vue/api/Controller#invalidate) or
+[invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) and stale.
 
 The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
 [Collection](https://dataclient.io/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint
