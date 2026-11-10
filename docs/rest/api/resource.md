@@ -341,7 +341,7 @@ PostResource.get({
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
 
-When another response, such as [getList](#getlist), already stored the Entity, `get` renders it without a fetch: the lookup runs [pk()](./Entity.md#pk-args) on its args.
+`get`'s schema is [Queryable](./schema.md#queryable-endpoints), so when another response, such as [getList](#getlist), already stored the Entity, `get` renders it without waiting, and without a fetch while that data is fresh.
 
 ### getList
 

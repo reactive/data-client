@@ -183,9 +183,9 @@ function useQuery<S extends Queryable>(
 [Entity](https://dataclient.io/rest/api/Entity), [Object](https://dataclient.io/rest/api/Object), [All](https://dataclient.io/rest/api/All), [Collection](https://dataclient.io/rest/api/Collection), [Query](https://dataclient.io/rest/api/Query),
 [Union](https://dataclient.io/rest/api/Union), and [Scalar](https://dataclient.io/rest/api/Scalar). [Lazy](https://dataclient.io/rest/api/Lazy) fields produce a Queryable via their [`.query`](https://dataclient.io/rest/api/Lazy#query) accessor.
 
-Endpoints use the same lookup. When `useQuery(Post, { id })` would find a post, `useSuspense(PostResource.get, { id })`
-renders it without waiting for a fetch, until that endpoint has a response of its own
-([Lists to details](./data-dependency.md#list-detail)).
+Endpoints query the store the same way until they have a response of their own, so when `useQuery(Post, { id })`
+returns a post, `useSuspense(PostResource.get, { id })` renders it without waiting for a fetch
+([Queryable endpoints](https://dataclient.io/rest/api/schema#queryable-endpoints)).
 
 ```ts
 interface Queryable {

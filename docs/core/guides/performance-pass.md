@@ -32,16 +32,16 @@ Without a browser, count the requests each flow makes from the code and its test
 
 ### Details from lists {#list-detail}
 
-A detail endpoint whose schema holds the list's [Entity](/rest/api/Entity) renders an item the list already loaded,
-with no fetch, while that data is fresh ([Lists to details](../getting-started/data-dependency.md#list-detail)). The
-lookup runs the Entity's [pk()](/rest/api/Entity#pk-args) on the endpoint's args, then tries its
-[indexes](/rest/api/Entity#indexes).
+A detail endpoint with a [Queryable](/rest/api/schema#queryable-endpoints) schema renders an item the list already
+loaded, with no fetch, while that data is fresh ([Lists to details](../getting-started/data-dependency.md#list-detail)).
+Its args must find the Entity: by default, args with the fields `pk()` reads, like `{ id }`.
 
-- **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that `pk()`
-  can't read and no index covers (`{ issueId }` with the default `pk()`); list data copied into the
-  detail by hand.
-- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }` with no other Entity or list in it. For args `pk()`
-  can't read, add an index or override `queryKey`, or rename the args. Delete the copying. When the list returns fewer fields than the
+- **Find:** detail endpoints without a schema, or with a schema that isn't Queryable (the Entity is left out, or an Array
+  sits beside it); detail args that don't find the Entity (`{ issueId }` with the default `pk()`); list data copied
+  into the detail by hand.
+- **Change:** set the detail schema to the Entity, or an object whose members are all Queryable, like `{ data: Issue }`.
+  For args that don't find the Entity, [change how it is found](/rest/api/Entity#pk-args) or rename the args. Delete the
+  copying. When the list returns fewer fields than the
   detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a
   `validate()`, so the detail still fetches the full item ([partial entities](/rest/guides/partial-entities)).
 - **Users see:** the detail page shows at once when opened from the list. It makes no request while the list is fresh
