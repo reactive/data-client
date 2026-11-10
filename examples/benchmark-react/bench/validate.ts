@@ -645,25 +645,33 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   );
 });
 
-// ── createThenDetail ─────────────────────────────────────────────────
+// ── createThenBrowse ─────────────────────────────────────────────────
 
-test('createThenDetail opens each created issue and returns to the list', async (page, lib) => {
+test('createThenBrowse shows each created issue in both lists and its detail', async (page, lib) => {
   if (
     !(await page.evaluate(
-      () => typeof window.__BENCH__?.createThenDetail === 'function',
+      () => typeof window.__BENCH__?.createThenBrowse === 'function',
     ))
   )
     return;
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.createThenDetail!(3, 20));
+  await page.evaluate(() => window.__BENCH__!.createThenBrowse!(3, 20));
   await waitForComplete(page, 30000);
+
+  const timedOut = await page.evaluate(
+    () =>
+      document
+        .querySelector('[data-bench-harness]')
+        ?.hasAttribute('data-bench-timeout') ?? false,
+  );
+  assert(!timedOut, lib, 'createThenBrowse timeout', 'a step timed out');
 
   const hasList = await page.evaluate(
     () =>
       document.querySelector('[data-issue-list] [data-bench-item]') !== null,
   );
-  assert(hasList, lib, 'createThenDetail list', 'list not in DOM at the end');
+  assert(hasList, lib, 'createThenBrowse list', 'list not in DOM at the end');
 
   const hasDetail = await page.evaluate(
     () => document.querySelector('[data-detail-view]') !== null,
@@ -671,19 +679,20 @@ test('createThenDetail opens each created issue and returns to the list', async 
   assert(
     !hasDetail,
     lib,
-    'createThenDetail detail-gone',
+    'createThenBrowse detail-gone',
     'detail still in DOM',
   );
 
-  // One nav-step per measured round; the warmup round is not measured.
+  // Three nav-steps (create, other list, detail) per measured round; the
+  // warmup round is not measured.
   const navSteps = (await collectMeasures(page)).filter(
     m => m.name === 'nav-step',
   ).length;
   assert(
-    navSteps === 3,
+    navSteps === 9,
     lib,
-    'createThenDetail measure',
-    `expected 3 nav-step measures, got ${navSteps}`,
+    'createThenBrowse measure',
+    `expected 9 nav-step measures, got ${navSteps}`,
   );
 });
 

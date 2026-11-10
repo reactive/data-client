@@ -411,24 +411,32 @@ export function useBenchState({
 
   /**
    * Time one navigation step: from right before `fn()` until a commit shows
-   * `selector`, skipping earlier commits such as a loading state. Records one
-   * `nav-step` measure.
+   * the `done` selector (or makes `done()` true), skipping earlier commits
+   * such as a loading state. Records one `nav-step` measure unless `record`
+   * is false, as in a warmup round.
    */
-  const measureNavStep = useCallback((fn: () => void, selector: string) => {
-    const container = containerRef.current!;
-    return new Promise<void>(resolve => {
-      timedWindow(
-        container,
-        fn,
-        () => container.querySelector(selector) != null,
-        (start, end) => {
-          performance.measure('nav-step', { start, end });
-          resolve();
-        },
-        () => resolve(),
-      );
-    });
-  }, []);
+  const measureNavStep = useCallback(
+    (fn: () => void, done: string | (() => boolean), record = true) => {
+      const container = containerRef.current!;
+      const isDone =
+        typeof done === 'string' ?
+          () => container.querySelector(done) != null
+        : done;
+      return new Promise<void>(resolve => {
+        timedWindow(
+          container,
+          fn,
+          isDone,
+          (start, end) => {
+            if (record) performance.measure('nav-step', { start, end });
+            resolve();
+          },
+          () => resolve(),
+        );
+      });
+    },
+    [],
+  );
 
   /**
    * Timed: each step from its state change until the next view commits,
@@ -475,40 +483,65 @@ export function useBenchState({
   );
 
   /**
-   * Timed: opening each newly created issue, from the state change until its
-   * detail commits. Creating it, and returning to the list, are not timed.
-   * The first round is an unmeasured warmup.
+   * Timed, per round: creating an issue from the all-issues list until that
+   * list shows it, switching to the open list until it shows the issue, then
+   * opening the issue's detail. The runner sums all three steps of every
+   * round. Both lists were loaded first, like tabs the user visited. Data
+   * Client sends one request per round; libraries that cache per request also
+   * refetch the list and fetch the other list and the detail. Returning to
+   * the list is not timed, and the first round is an unmeasured warmup.
    */
-  const createThenDetail = useCallback(
+  const createThenBrowse = useCallback(
     async (navigations: number, seedCount: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
       const listItem = '[data-issue-list] [data-bench-item]';
+      setDoubleListCount(seedCount);
+      setStateList('open');
+      await waitForElement('[data-state-list="open"] [data-bench-item]');
+      setStateList(null);
       setListViewCount(seedCount);
       await waitForElement(listItem);
 
       const container = containerRef.current!;
+      const firstNumber = () =>
+        container.querySelector(listItem)?.getAttribute('data-issue-number');
       for (let i = 0; i <= navigations; i++) {
-        const number = await apiRef.current.createItem!();
-        const open = () => {
+        const step = (fn: () => void, done: string | (() => boolean)) =>
+          measureNavStep(fn, done, i > 0);
+
+        const before = firstNumber();
+        let created!: Promise<number>;
+        await step(
+          () => {
+            created = apiRef.current.createItem!();
+          },
+          () => {
+            const first = firstNumber();
+            return first != null && first !== before;
+          },
+        );
+        const number = await created;
+        await step(() => {
           setListViewCount(undefined);
+          setStateList('open');
+        }, `[data-state-list="open"] [data-issue-number="${number}"]`);
+        await step(() => {
+          setStateList(null);
           setDetailIssueNumber(number);
-        };
-        const detail = `[data-detail-view][data-issue-number="${number}"]`;
-        if (i === 0) {
-          open();
-          await waitForElement(detail);
-        } else {
-          await measureNavStep(open, detail);
-        }
+        }, `[data-detail-view][data-issue-number="${number}"]`);
+
         setDetailIssueNumber(null);
         setListViewCount(seedCount);
-        await waitForElement(listItem);
+        await waitForElement(
+          `[data-issue-list] [data-issue-number="${number}"]`,
+        );
         if (container.hasAttribute('data-bench-timeout')) break;
       }
       setComplete();
     },
     [
       setListViewCount,
+      setDoubleListCount,
       setDetailIssueNumber,
       waitForElement,
       measureNavStep,
@@ -608,7 +641,7 @@ export function useBenchState({
       mountUnmountCycle,
       mountSortedView,
       listDetailSwitch,
-      createThenDetail,
+      createThenBrowse,
       moveThenSwitch,
       getRenderedCount,
       captureRefSnapshot,

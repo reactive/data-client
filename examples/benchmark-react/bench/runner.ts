@@ -189,7 +189,7 @@ function isMountLike(scenario: Scenario): boolean {
     scenario.action === 'mountSortedView' ||
     scenario.action === 'initDoubleList' ||
     scenario.action === 'listDetailSwitch' ||
-    scenario.action === 'createThenDetail' ||
+    scenario.action === 'createThenBrowse' ||
     scenario.action === 'moveThenSwitch'
   );
 }
