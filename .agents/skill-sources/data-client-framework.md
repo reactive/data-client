@@ -116,6 +116,14 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 // GET https://jsonplaceholder.typicode.com/todos?userId=1&page=2
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
+:::react
+
+An optimistic `ctrl.fetch()` renders before the click paints. If one re-renders many components (e.g. a user's name
+on every comment), make that render cheaper first (React Compiler, `memo()`). Only if the click is still slow, wrap
+the call in `startTransition(() => { ctrl.fetch(...); })`: braces, since a returned promise makes React 19 hold the
+update until the server responds. Never for a controlled input; it flips back until the transition renders. Details:
+skill "data-client-rest", optimistic-updates reference.
+:::
 :::vue
 
 Read reactive values (`props.todo.id`, `title.value`) inside the handler so each call uses current state.
