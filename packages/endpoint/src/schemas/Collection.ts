@@ -453,8 +453,9 @@ function acceptedRefs(
 ) {
   let members: any[] | undefined;
   for (let i = 0; i < refs.length; i++) {
-    if (filterCollections(collectionKey, items[i])) members?.push(refs[i]);
-    else members ??= refs.slice(0, i);
+    if (!filterCollections(collectionKey, items[i]))
+      members ||= refs.slice(0, i);
+    else if (members) members.push(refs[i]);
   }
   if (!members) return refs;
   return members.length ? members : undefined;
@@ -474,7 +475,7 @@ function acceptedValues(
   let all = true;
   for (const k in refs) {
     if (filterCollections(collectionKey, items[k]))
-      (members ??= {})[k] = refs[k];
+      (members ||= {})[k] = refs[k];
     else all = false;
   }
   return all ? refs : members;
