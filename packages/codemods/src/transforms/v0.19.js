@@ -900,8 +900,11 @@ function renameDevToolsOptions(j, root) {
     .find(j.ObjectExpression)
     .filter(isDevToolsConfig)
     .forEach(({ node }) => {
-      // a spread may hold the new name
-      if (!node.properties.every(isProperty)) return;
+      // a spread or computed key may hold the new name
+      if (
+        !node.properties.every(p => isProperty(p) && keyName(p) !== undefined)
+      )
+        return;
       const keys = new Set(node.properties.map(keyName));
       for (const prop of node.properties) {
         if (prop.computed) continue;

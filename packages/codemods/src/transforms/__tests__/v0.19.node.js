@@ -1503,6 +1503,7 @@ const { waitForNextUpdate } = renderHook(() => useThing());
 await waitForNextUpdate();
 const devtools = new DevToolsManager({ ...base, actionsBlacklist: ['a'] });
 const other = configure({ devToolsManager: { actionsBlacklist: ['b'] } });
+const keyed = new DevToolsManager({ [filterKey]: modern, actionsBlacklist: ['c'] });
       `,
       `
 import { renderHook } from '@testing-library/react-hooks';
@@ -1512,8 +1513,9 @@ const { waitForNextUpdate } = renderHook(() => useThing());
 await waitForNextUpdate();
 const devtools = new DevToolsManager({ ...base, actionsBlacklist: ['a'] });
 const other = configure({ devToolsManager: { actionsBlacklist: ['b'] } });
+const keyed = new DevToolsManager({ [filterKey]: modern, actionsBlacklist: ['c'] });
       `,
-      'leaves other libraries and spread DevTools options alone',
+      'leaves other libraries, and DevTools options with a spread or computed key, alone',
     );
 
     defineInlineTest(
