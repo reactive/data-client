@@ -121,6 +121,7 @@ const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId:
 If an optimistic `ctrl.fetch()` re-renders many components and the click is still slow after React Compiler or
 `memo()`, wrap it in `startTransition(() => { ctrl.fetch(...); })`. Keep the braces: a returned promise makes React 19
 hold the update until the server responds. Not for controlled inputs: the input flips back until the transition renders.
+Details: skill "data-client-rest", optimistic-updates reference.
 :::
 :::vue
 

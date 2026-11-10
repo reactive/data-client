@@ -376,7 +376,7 @@ is still slow, call `ctrl.fetch()`, which applies the optimistic update, inside
 
 Skip the transition when:
 
-- The update re-renders only a few components. It is already fast, and a transition only delays it.
+- The update re-renders only a few components. The transition then delays the update with no slow render to hide.
 - The control is a controlled input, like `TodoItem`'s checkbox. React resets the input to its last rendered value, so
   the checkbox flips back until the transition renders (see the
   [startTransition() caveats](https://react.dev/reference/react/startTransition#caveats)).
