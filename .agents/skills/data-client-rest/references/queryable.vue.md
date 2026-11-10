@@ -2,90 +2,191 @@
 
 # Queryable
 
-[Normalization](https://dataclient.io/vue/concepts/normalization) stores each Entity once, by its primary key, no matter which response delivered it.
-A schema that can find its data in that store from args alone, without a response, is _Queryable_.
+A schema is _Queryable_ when it can find its data in the store from args alone, without a response.
+[Normalization](https://dataclient.io/vue/concepts/normalization) makes this possible: it stores each Entity once, by its primary key, no matter
+which response delivered it.
 
-Queryability allows for higher performance navigation: a page renders data another request already loaded, such as
-a detail page opened from a list, instead of waiting for its own fetch.
+Queryability allows for higher performance navigation. Data that one request loaded renders on every page that asks
+for it. A detail page opened from a list renders at once, and makes no request while that data is fresh.
 
-## queryKey
+Open a post below. `PostDetail` renders without a loading state, because the list already stored that `Post`.
 
-A Queryable schema has a [queryKey(args)](https://dataclient.io/rest/api/schema#queryable) method. It returns what a response would have
-normalized to, and returns it only for data the store holds.
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
-An [Entity](https://dataclient.io/rest/api/Entity)'s `queryKey` returns its primary key. By default, args with the fields `pk()` reads, like
-`{ id }`, find it; `pk()`, [indexes](https://dataclient.io/rest/api/Entity#indexes) or `queryKey` itself change which args do
-([Queryable by args](https://dataclient.io/rest/api/Entity#pk-args)). An object schema like `{ data: Post }` combines its members' results,
-and [Collection](https://dataclient.io/rest/api/Collection), [All](https://dataclient.io/rest/api/All), [Union](https://dataclient.io/rest/api/Union), [Query](https://dataclient.io/rest/api/Query) and
-[Scalar](https://dataclient.io/rest/api/Scalar) are Queryable too ([what each returns](https://dataclient.io/rest/api/schema#queryable)).
-[Array](https://dataclient.io/rest/api/Array) and [Values](https://dataclient.io/rest/api/Values) are not: use a [Collection](https://dataclient.io/rest/api/Collection) or
-[All](https://dataclient.io/rest/api/All) for a list that should be Queryable.
-
-[useQuery()](https://dataclient.io/vue/api/useQuery) renders a Queryable schema's result directly: `useQuery(Post, { id })`.
-
-## Endpoints query the store {#endpoints}
-
-An endpoint reads its own response when it has one. Until then, an endpoint with a Queryable schema queries the store
-with its args, and uses the result when it is complete: no part of it is `undefined`.
-
-A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
-[expiry policy](./expiry-policy.vue.md) applies as usual: stale data renders while it refetches, an
-[invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) endpoint suspends once stale, an invalidated one always
-does, and an Entity that fails [validate()](https://dataclient.io/rest/api/Entity#validate) counts as missing. An incomplete result is missing data, so the endpoint
-fetches.
-
-The rest follows from these two rules:
-
-- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
-  `pk`.
-- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
-- An object schema like `{ data: Post }` is complete when every member is: an Array member never is, a Collection member
-  is when the store holds it for those args, and two Entities must both be found by the same args. Until the endpoint's own
-  response arrives, the result holds only what the schema declares: plain values in it, like `total: 0`, are returned
-  as written, and response fields it leaves out, like a `meta`, are `undefined`.
-- Once the endpoint has a response of its own, it reads that, with that response's expiry.
-
-This applies wherever an endpoint is read: [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
-[useCache()](https://dataclient.io/vue/api/useCache), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch),
-[Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) and
-[Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
-requests. [useQuery()](https://dataclient.io/vue/api/useQuery) runs the same `queryKey` but ignores expiry, and for an object schema returns
-the object even when a member is missing (that member is `undefined`).
-
-For example, a detail page opened from a list renders the Post the list stored:
-
-```ts title="api/Post"
+```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+}
 
 export class Post extends Entity {
   id = 0;
+  author = User.fromJS();
   title = '';
+  body = '';
+
+  static key = 'Post';
+
+  static schema = {
+    author: User,
+  };
 }
 export const PostResource = resource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/posts/:id',
   schema: Post,
 });
 ```
 
-```html title="PostDetail.vue"
+```html title="PostList.vue" route="/"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './api/Post';
+  import { PostResource } from './Resources';
 
-  const props = defineProps<{ id: number }>();
-  // Post `id` stored by PostResource.getList renders at once, with no fetch while it is fresh
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <div v-for="post in posts" :key="post.pk()" class="listItem spaced">
+      <Avatar :src="post.author.profileImage" />
+      <div>
+        <h4>
+          <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
+        </h4>
+        <small>by {{ post.author.name }}</small>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostDetail.vue" route="/posts/:id" {7}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  // the list stored this Post, so there is nothing to wait for
   const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
 <template>
-  <h1>{{ post.title }}</h1>
+  <div>
+    <header>
+      <div class="listItem spaced">
+        <div class="author">
+          <Avatar :src="post.author.profileImage" />
+          <small>{{ post.author.name }}</small>
+        </div>
+        <h4>{{ post.title }}</h4>
+      </div>
+    </header>
+    <p>{{ post.body }}</p>
+  </div>
 </template>
 ```
+
+## Querying the store {#query}
+
+A Queryable schema has a [queryKey(args)](https://dataclient.io/rest/api/schema#queryable) method. It returns what a response would have
+normalized to, and returns it only for data the store holds.
+
+[useQuery()](https://dataclient.io/vue/api/useQuery) asks this question directly. `useQuery(Post, { id })` returns the stored `Post`, or
+`undefined` when the store doesn't hold it. It never fetches.
+
+Each schema answers in its own way:
+
+- An [Entity](https://dataclient.io/rest/api/Entity) returns its primary key. By default, args with the fields `pk()` reads, like `{ id }`,
+  find it. `pk()`, [indexes](https://dataclient.io/rest/api/Entity#indexes) or `queryKey` itself change which args do
+  ([Queryable by args](https://dataclient.io/rest/api/Entity#pk-args)).
+- An object schema like `{ data: Post }` combines its members' results.
+- [Collection](https://dataclient.io/rest/api/Collection), [All](https://dataclient.io/rest/api/All), [Union](https://dataclient.io/rest/api/Union), [Query](https://dataclient.io/rest/api/Query) and
+  [Scalar](https://dataclient.io/rest/api/Scalar) are Queryable too ([what each returns](https://dataclient.io/rest/api/schema#queryable)).
+- [Array](https://dataclient.io/rest/api/Array) and [Values](https://dataclient.io/rest/api/Values) are not. Use a [Collection](https://dataclient.io/rest/api/Collection) or
+  [All](https://dataclient.io/rest/api/All) for a list that should be Queryable.
+
+## Endpoints query before they fetch {#endpoints}
+
+An endpoint with a Queryable schema asks the same question before it fetches. Reading an endpoint uses the first of
+these that applies:
+
+1. The endpoint has a response of its own. It reads that response, with that response's expiry.
+2. The endpoint's schema is Queryable, and the store's result for its args is complete: no part of it is `undefined`.
+   It reads that result.
+3. Otherwise the data is missing, so the endpoint fetches.
+
+So what `useQuery()` can find, an endpoint doesn't wait to fetch. When `useQuery(Post, { id })` returns a post,
+`useSuspense(PostResource.get, { id })` renders it without waiting for a fetch. The exceptions are an endpoint that
+was invalidated, or one that is invalidIfStale and stale ([expiry](#expiry)).
+
+The two differ in what they do with the answer:
+
+|                               | [useQuery(schema, ...args)](https://dataclient.io/vue/api/useQuery) | Reading an endpoint with that schema         |
+| ----------------------------- | ------------------------------------------------------------------- | -------------------------------------------- |
+| Queries the store             | Always                                                              | Until the endpoint has a response of its own |
+| Part of the result is missing | Returns `undefined`; an object schema returns the object without it | Fetches                                      |
+| [Expiry](#expiry)             | Ignored                                                             | Applies                                      |
+| Fetches                       | Never                                                               | When data is missing or stale                |
+
+This applies wherever an endpoint is read: [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
+[useCache()](https://dataclient.io/vue/api/useCache), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch),
+[Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) and
+[Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
+requests.
+
+### Stored data keeps its expiry {#expiry}
+
+A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
+[expiry policy](./expiry-policy.vue.md) applies as usual:
+
+- While the result is fresh, the endpoint makes no request.
+- Once it is stale, it still renders, and the endpoint refetches.
+- An [invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) endpoint treats a stale result as
+  [Invalid](./expiry-policy.vue.md#expiry-status), and an [invalidated](./expiry-policy.vue.md#invalidate) endpoint treats any
+  result that way, so they wait for a fetch.
+- An Entity that fails [validate()](https://dataclient.io/rest/api/Entity#validate) counts as missing.
+
+### Which results are complete {#complete}
+
+- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
+  `pk`.
+- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
+- An object schema like `{ data: Post }` is complete when every member is. An Array member never is. A Collection
+  member is when the store holds it for those args. Two Entities must both be found by the same args.
+- Until the endpoint's own response arrives, the result holds only what the schema declares. Plain values in it, like
+  `total: 0`, are returned as written. Response fields it leaves out, like a `meta`, are `undefined`.
+
+### Fields are not checked {#fields}
+
+Finding an Entity doesn't check which fields it has. When list items lack fields the detail page shows, the detail
+renders those fields' defaults, and doesn't fetch while the list data is fresh. To make it fetch, give the list a
+summary Entity and make the detail Entity require the rest with [validate()](https://dataclient.io/rest/api/Entity#validate)
+([Partial entities](https://dataclient.io/rest/guides/partial-entities)).
+
+## Other ways to query {#uses}
+
+Every API that reads the store without an endpoint takes a Queryable schema and args:
+
+- [Query](https://dataclient.io/rest/api/Query) computes a sorted, filtered or aggregated view from another Queryable schema.
+- [Controller.get()](https://dataclient.io/vue/api/Controller#get) and [Snapshot.get()](https://dataclient.io/vue/api/Snapshot#get) read the store in
+  [Managers](https://dataclient.io/vue/concepts/managers), event handlers and
+  [getOptimisticResponse](./RestEndpoint.vue.md#getoptimisticresponse).
+- [Controller.set()](https://dataclient.io/vue/api/Controller#set) writes with the same schema and args.
+
+[Queryable schemas](https://dataclient.io/rest/api/schema#queryable) lists every use.
 
 ## Next steps
 
 - [Lists to details](./data-dependency.vue.md#list-detail) - a list and detail page sharing data, and what
   to do when list items have fewer fields
+- [Expiry Policy](./expiry-policy.vue.md) - when stored data is fresh, stale or invalid, and how to change that
 - [Queryable by args](https://dataclient.io/rest/api/Entity#pk-args) - which args find an Entity, and how to change that
 - [Queryable schemas](https://dataclient.io/rest/api/schema#queryable) - what each schema's `queryKey` returns, and every API that uses it
