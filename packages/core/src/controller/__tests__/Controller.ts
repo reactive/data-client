@@ -18,6 +18,16 @@ afterEach(() => {
 });
 
 describe('Controller', () => {
+  const error = new Error('network down');
+  const rejectingController = () =>
+    new Controller({
+      dispatch: (action: any) => {
+        action.meta.reject(error);
+        return Promise.resolve();
+      },
+      getState: () => initialState,
+    });
+
   it('warns when dispatching during middleware setup', () => {
     const controller = new Controller();
     expect(() =>
@@ -28,15 +38,6 @@ describe('Controller', () => {
   });
 
   describe('fetch', () => {
-    const error = new Error('network down');
-    const rejectingController = () =>
-      new Controller({
-        dispatch: (action: any) => {
-          action.meta.reject(error);
-          return Promise.resolve();
-        },
-        getState: () => initialState,
-      });
     const reads = [
       ['with a schema', CoolerArticleResource.get],
       [
@@ -63,13 +64,17 @@ describe('Controller', () => {
     it('mutation leaves its rejection to the caller', async () => {
       // jest fails the test on any unhandled rejection, so check that nothing handles it instead
       const catchSpy = jest.spyOn(Promise.prototype, 'catch');
-      const promise = rejectingController().fetch(
-        CoolerArticleResource.update,
-        { id: 5 },
-        { title: 'hi' },
-      );
-      expect(catchSpy.mock.contexts).not.toContain(promise);
-      catchSpy.mockRestore();
+      let promise: Promise<unknown>;
+      try {
+        promise = rejectingController().fetch(
+          CoolerArticleResource.update,
+          { id: 5 },
+          { title: 'hi' },
+        );
+        expect(catchSpy.mock.contexts).not.toContain(promise);
+      } finally {
+        catchSpy.mockRestore();
+      }
       await expect(promise).rejects.toBe(error);
     });
   });
@@ -156,20 +161,9 @@ describe('Controller', () => {
 
       expect(dispatch.mock.calls.length).toBe(1);
     });
-    const error = new Error('network down');
     const key = CoolerArticleResource.get.key({ id: 5 });
     describe.each([
-      [
-        'the fetch fails',
-        () =>
-          new Controller({
-            dispatch: (action: any) => {
-              action.meta.reject(error);
-              return Promise.resolve();
-            },
-            getState: () => initialState,
-          }),
-      ],
+      ['the fetch fails', rejectingController],
       [
         'the latest fetch failed within errorExpiryLength',
         () =>

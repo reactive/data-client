@@ -194,6 +194,7 @@ export default class Controller<
       ...args,
       state,
     );
+    // fetch() pre-handles only reads; this keeps the guarantee for sideEffect endpoints too
     if (expiryStatus === ExpiryStatus.Invalid || Date.now() > expiresAt)
       return prehandled(this.fetch(endpoint, ...args));
     const error = this.getError(endpoint, ...args, state);
