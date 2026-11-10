@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794248242210,
+  "lastUpdate": 1794341496332,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -144097,6 +144097,366 @@ window.BENCHMARK_DATA = {
             "range": "±0.48%",
             "unit": "ops/sec",
             "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "43d4048ab4b240554dc1f6d246a8a53a37866751",
+          "message": "fix(core): Unawaited fetch() of reads never rejects unhandled (#4670)\n\n* fix(core): Unawaited fetch() of reads never rejects unhandled\n\nController.fetch() pre-handles the Promise it returns for endpoints without\nsideEffect. Their error is stored for the components that render it, so a\ncall nobody awaits no longer rejects unhandled (crashing Node SSR loaders,\nor warning in React Native when a focus refetch fails). await and .catch()\nstill get the error. Mutations still reject unhandled.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs(blog): Link #4670\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Regenerate website editor types\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Share the rejecting test Controller; restore spy in finally\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Share the native refocus test harness\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Pass the refocus test's endpoint name explicitly; name fetchIfStale's guarantee\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* internal: Drop useDLE's now-redundant catch, like useSuspense\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs: getPage snippet shows its loading and error state with useLoading()\n\nNo component reads getPage's key, so an unawaited failure would go unseen now that\nreads never reject unhandled.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs: Migration notes, setup and Managers guidance for unawaited reads\n\n- v0.19 blog migration section: delete no-op catches on reads, optionally add an error reporting Manager\n- v0.19 migration skill: delete no-op catches on reads; useLoading() for reads nothing renders\n- setup skill: add an error reporting Manager when the app reports to a tracker\n- Managers docs: which failed fetches reach global handlers, and how to add the reporting Manager\n- TanStack Query guide: QueryCache/MutationCache onError maps to the reporting Manager\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs(skills): Shorten the fetch() row\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs: Tighten the error-reporting notes in Controller and Managers docs\n\nAlso drops the core README's now-dead catch on a read.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n* docs(skills): Audit fixes for the unawaited-read guidance\n\n- framework row uses the same wording as the fetchIfStale row, so awaited reads don't read as never rejecting\n- setup: Error Reporting is its own section, and adds the Manager only when the data layer reported errors itself\n  (matches the migration skill's don't-add-unasked rule)\n- migration skill and blog: which endpoints are reads (sideEffect, RestEndpoint's default), and keep catches after .then()\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEKJ8Qg3ppKbULfYxa\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-10T20:01:41Z",
+          "tree_id": "7ccf4e769c15bbb3d3859fbc85fdc86fe111de6a",
+          "url": "https://github.com/reactive/data-client/commit/43d4048ab4b240554dc1f6d246a8a53a37866751"
+        },
+        "date": 1794341492637,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 535,
+            "range": "±0.71%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 459,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 432,
+            "range": "±3.60%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1115,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 270,
+            "range": "±6.63%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 261,
+            "range": "±4.90%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1298,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 312,
+            "range": "±5.32%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 312,
+            "range": "±4.71%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 323,
+            "range": "±4.74%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 913,
+            "range": "±1.37%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1421,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1737,
+            "range": "±0.07%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 711,
+            "range": "±6.30%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 9021,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 4221,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 63922,
+            "range": "±0.36%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 7263,
+            "range": "±2.69%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 246,
+            "range": "±7.35%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 8890,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 8853,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 8883,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 8794,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 8634,
+            "range": "±0.77%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 7487,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 6778,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 5510,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 7471,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 7391,
+            "range": "±3.03%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1849,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4637,
+            "range": "±10.68%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 53841,
+            "range": "±1.63%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 6013,
+            "range": "±5.49%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 12778469,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 220,
+            "range": "±9.28%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 4749,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 3603,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 6108,
+            "range": "±3.41%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 4306,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 7197,
+            "range": "±2.81%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 526,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 316,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 324,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1110,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 140,
+            "range": "±0.86%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 4367,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 14.36,
+            "range": "±1.83%",
+            "unit": "ops/sec",
+            "extra": "40 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1823,
+            "range": "±3.43%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
           }
         ]
       }
