@@ -524,19 +524,26 @@ export function useBenchState({
       for (let i = 0; i <= rounds; i++) {
         const step = (fn: () => void, done: string | (() => boolean)) =>
           measureNavStep(fn, done, i > 0);
-        // A mutation's step ends when the view shows it (for Data Client,
-        // its optimistic commit). Its reply is then handled and painted
-        // before the next step, so it never lands in a later window. Unlike
-        // measureUpdate, replies are not held: with no network delay a reply
-        // can land inside this window, which only adds to Data Client's time.
+        // A mutation's step ends when the view shows it. Its reply is then
+        // handled and painted before the next step, so it never lands in a
+        // later window. Like measureUpdate, `holdReplies` keeps the reply
+        // out of an optimistic update's window; the create is not held,
+        // since holding its reply stalled it in about 1 of 8 runs.
         const mutationStep = async <T,>(
           fn: () => Promise<T>,
           done: () => boolean,
+          holdReplies = false,
         ): Promise<T> => {
+          const hold = holdReplies && optimisticMutations;
           let pending!: Promise<T>;
-          await step(() => {
-            pending = fn();
-          }, done);
+          if (hold) holdMutationReplies();
+          try {
+            await step(() => {
+              pending = fn();
+            }, done);
+          } finally {
+            if (hold) releaseMutationReplies();
+          }
           const result = await pending;
           await waitForPaint();
           return result;
@@ -568,6 +575,7 @@ export function useBenchState({
         await mutationStep(
           () => apiRef.current.editTitle!(number, title),
           titleIs(detail, title),
+          true,
         );
         await step(showOpen, titleIs(inOpen, title));
         await step(showAll, titleIs(inAll, title));
@@ -587,6 +595,7 @@ export function useBenchState({
       waitForElement,
       measureNavStep,
       setComplete,
+      optimisticMutations,
     ],
   );
 
