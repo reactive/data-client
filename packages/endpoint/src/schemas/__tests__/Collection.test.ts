@@ -1469,26 +1469,28 @@ describe(`${schema.Collection.name} normalization`, () => {
     function seed(sch: schema.Collection<any>, lists: { [k: string]: any }[]) {
       let state: any = initialState;
       lists.forEach((args, i) => {
-        state = {
-          ...state,
-          ...normalize(
-            sch,
-            [{ id: `seed${i}`, title: 'seed', userId: 1 }],
-            [args],
-            state,
-          ),
-        };
+        state = apply(
+          sch,
+          [{ id: `seed${i}`, title: 'seed', userId: 1 }],
+          [args],
+          state,
+        );
       });
       return state;
     }
+    // the store after normalizing input with args
+    function apply(sch: any, input: any, args: any[], state: any) {
+      return { ...state, ...normalize(sch, input, args, state) };
+    }
+    function list(sch: schema.Collection<any>, state: any, args: object): any {
+      return denormalize(
+        sch,
+        sch.pk(undefined, undefined, '', [args]),
+        state.entities,
+      );
+    }
     function titles(sch: schema.Collection<any>, state: any, args: object) {
-      return (
-        denormalize(
-          sch,
-          sch.pk(undefined, undefined, '', [args]),
-          state.entities,
-        ) as any[]
-      ).map(todo => todo.title);
+      return (list(sch, state, args) as any[]).map(todo => todo.title);
     }
     const lists = [
       {},
@@ -1507,15 +1509,12 @@ describe(`${schema.Collection.name} normalization`, () => {
       (_, getSchema, order) => {
         const state = seed(todos, lists);
         // POST body { title } to { userId: '1' }; the server sets completed: false
-        const next = {
-          ...state,
-          ...normalize(
-            getSchema(todos),
-            { id: 'n', title: 'new', userId: 1, completed: false },
-            [{ userId: '1' }, { title: 'new' }],
-            state,
-          ),
-        };
+        const next = apply(
+          getSchema(todos),
+          { id: 'n', title: 'new', userId: 1, completed: false },
+          [{ userId: '1' }, { title: 'new' }],
+          state,
+        );
         expect(titles(todos, next, {})).toEqual(order);
         expect(titles(todos, next, { userId: '1' })).toEqual(order);
         expect(
@@ -1532,15 +1531,12 @@ describe(`${schema.Collection.name} normalization`, () => {
     it('uses args over the item when both have the key', () => {
       const state = seed(todos, lists);
       // the item says userId 2, but the request was for userId 1
-      const next = {
-        ...state,
-        ...normalize(
-          todos.push,
-          { id: 'n', title: 'new', userId: 2, completed: false },
-          [{ userId: '1' }],
-          state,
-        ),
-      };
+      const next = apply(
+        todos.push,
+        { id: 'n', title: 'new', userId: 2, completed: false },
+        [{ userId: '1' }],
+        state,
+      );
       expect(titles(todos, next, { userId: '1' })).toEqual(['seed', 'new']);
       expect(titles(todos, next, { userId: '2' })).toEqual(['seed']);
     });
@@ -1550,42 +1546,27 @@ describe(`${schema.Collection.name} normalization`, () => {
       const followers = new Collection([User]);
       let state: any = initialState;
       for (const id of ['5', '7']) {
-        state = {
-          ...state,
-          ...normalize(followers, [{ id: `f${id}` }], [{ id }], state),
-        };
+        state = apply(followers, [{ id: `f${id}` }], [{ id }], state);
       }
       // POST /users/5/followers creates follower 7
-      const next = {
-        ...state,
-        ...normalize(followers.push, { id: '7' }, [{ id: '5' }], state),
-      };
+      const next = apply(followers.push, { id: '7' }, [{ id: '5' }], state);
       const ids = (id: string) =>
-        (
-          denormalize(
-            followers,
-            followers.pk(undefined, undefined, '', [{ id }]),
-            next.entities,
-          ) as any[]
-        ).map(user => user.id);
+        (list(followers, next, { id }) as any[]).map(user => user.id);
       expect(ids('5')).toEqual(['f5', '7']);
       expect(ids('7')).toEqual(['f7']);
     });
 
     it('filters each pushed item on its own', () => {
       const state = seed(todos, lists);
-      const next = {
-        ...state,
-        ...normalize(
-          todos.push,
-          [
-            { id: 'a', title: 'open', userId: 1, completed: false },
-            { id: 'b', title: 'done', userId: 1, completed: true },
-          ],
-          [{ userId: '1' }],
-          state,
-        ),
-      };
+      const next = apply(
+        todos.push,
+        [
+          { id: 'a', title: 'open', userId: 1, completed: false },
+          { id: 'b', title: 'done', userId: 1, completed: true },
+        ],
+        [{ userId: '1' }],
+        state,
+      );
       expect(titles(todos, next, { userId: '1' })).toEqual([
         'seed',
         'open',
@@ -1605,15 +1586,12 @@ describe(`${schema.Collection.name} normalization`, () => {
       const state = seed(todos, lists);
       const body = new FormData();
       body.append('title', 'new');
-      const next = {
-        ...state,
-        ...normalize(
-          todos.push,
-          { id: 'n', title: 'new', userId: 1, completed: false },
-          [{ userId: '1' }, body],
-          state,
-        ),
-      };
+      const next = apply(
+        todos.push,
+        { id: 'n', title: 'new', userId: 1, completed: false },
+        [{ userId: '1' }, body],
+        state,
+      );
       expect(titles(todos, next, { userId: '1', completed: 'false' })).toEqual([
         'seed',
         'new',
@@ -1625,15 +1603,12 @@ describe(`${schema.Collection.name} normalization`, () => {
         nonFilterArgumentKeys: ['sort'],
       });
       const state = seed(sorted, [{ userId: '1', sort: 'title' }]);
-      const next = {
-        ...state,
-        ...normalize(
-          sorted.push,
-          { id: 'n', title: 'new', userId: 1, sort: 'other' },
-          [{}],
-          state,
-        ),
-      };
+      const next = apply(
+        sorted.push,
+        { id: 'n', title: 'new', userId: 1, sort: 'other' },
+        [{}],
+        state,
+      );
       expect(titles(sorted, next, { userId: '1', sort: 'title' })).toEqual([
         'seed',
         'new',
@@ -1642,24 +1617,18 @@ describe(`${schema.Collection.name} normalization`, () => {
 
     it('adds to a nested Collection by the item field', () => {
       const userTodos = User.schema.todos;
-      let state: any = {
-        ...initialState,
-        ...normalize(
-          User,
-          { id: '5', todos: [{ id: 'seed', title: 'seed', userId: 5 }] },
-          [],
-          initialState,
-        ),
-      };
-      state = {
-        ...state,
-        ...normalize(
-          userTodos.push,
-          { id: 'n', title: 'new', userId: 5 },
-          [{}],
-          state,
-        ),
-      };
+      let state = apply(
+        User,
+        { id: '5', todos: [{ id: 'seed', title: 'seed', userId: 5 }] },
+        [],
+        initialState,
+      );
+      state = apply(
+        userTodos.push,
+        { id: 'n', title: 'new', userId: 5 },
+        [{}],
+        state,
+      );
       const user: any = denormalize(User, '5', state.entities);
       expect(user.todos.map((todo: Todo) => todo.title)).toEqual([
         'seed',
@@ -1675,37 +1644,25 @@ describe(`${schema.Collection.name} normalization`, () => {
       const stats = new Collection(new schema.Values(Stat));
       let state: any = initialState;
       for (const exchange of ['a', 'b']) {
-        state = {
-          ...state,
-          ...normalize(
-            stats,
-            { [`seed-${exchange}`]: { id: `seed-${exchange}`, exchange } },
-            [{ exchange }],
-            state,
-          ),
-        };
-      }
-      const next = {
-        ...state,
-        ...normalize(
-          stats.assign,
-          {
-            x: { id: 'x', exchange: 'a' },
-            gone: null,
-            y: { id: 'y', exchange: 'b' },
-          },
-          [{}],
+        state = apply(
+          stats,
+          { [`seed-${exchange}`]: { id: `seed-${exchange}`, exchange } },
+          [{ exchange }],
           state,
-        ),
-      };
-      const keys = (exchange: string) =>
-        Object.keys(
-          denormalize(
-            stats,
-            stats.pk(undefined, undefined, '', [{ exchange }]),
-            next.entities,
-          ) as any,
         );
+      }
+      const next = apply(
+        stats.assign,
+        {
+          x: { id: 'x', exchange: 'a' },
+          gone: null,
+          y: { id: 'y', exchange: 'b' },
+        },
+        [{}],
+        state,
+      );
+      const keys = (exchange: string) =>
+        Object.keys(list(stats, next, { exchange }));
       expect(keys('a')).toEqual(['seed-a', 'x']);
       expect(keys('b')).toEqual(['seed-b', 'y']);
     });
@@ -1720,23 +1677,11 @@ describe(`${schema.Collection.name} normalization`, () => {
       const pets = new Collection([new Union({ cat: Cat, dog: Dog }, 'type')]);
       let state: any = initialState;
       for (const type of ['cat', 'dog']) {
-        state = {
-          ...state,
-          ...normalize(pets, [{ id: `seed-${type}`, type }], [{ type }], state),
-        };
+        state = apply(pets, [{ id: `seed-${type}`, type }], [{ type }], state);
       }
-      const next = {
-        ...state,
-        ...normalize(pets.push, { id: 'n', type: 'dog' }, [{}], state),
-      };
+      const next = apply(pets.push, { id: 'n', type: 'dog' }, [{}], state);
       const ids = (type: string) =>
-        (
-          denormalize(
-            pets,
-            pets.pk(undefined, undefined, '', [{ type }]),
-            next.entities,
-          ) as any[]
-        ).map(pet => pet.id);
+        (list(pets, next, { type }) as any[]).map(pet => pet.id);
       expect(ids('cat')).toEqual(['seed-cat']);
       expect(ids('dog')).toEqual(['seed-dog', 'n']);
     });
@@ -1744,15 +1689,12 @@ describe(`${schema.Collection.name} normalization`, () => {
     it('remove ignores the item fields', () => {
       const state = seed(todos, lists);
       // removing from userId 1's lists must not touch { completed: 'false' }
-      const next = {
-        ...state,
-        ...normalize(
-          todos.remove,
-          { id: 'seed5', completed: false },
-          [{ userId: '1' }],
-          state,
-        ),
-      };
+      const next = apply(
+        todos.remove,
+        { id: 'seed5', completed: false },
+        [{ userId: '1' }],
+        state,
+      );
       expect(titles(todos, next, { completed: 'false' })).toEqual(['seed']);
     });
 
@@ -1766,18 +1708,15 @@ describe(`${schema.Collection.name} normalization`, () => {
           },
       });
       const state = seed(custom, [{ userId: '1' }]);
-      const next = {
-        ...state,
-        ...normalize(
-          custom.push,
-          [
-            { id: 'a', title: 'mine', userId: 1 },
-            { id: 'b', title: 'theirs', userId: 2 },
-          ],
-          [{}],
-          state,
-        ),
-      };
+      const next = apply(
+        custom.push,
+        [
+          { id: 'a', title: 'mine', userId: 1 },
+          { id: 'b', title: 'theirs', userId: 2 },
+        ],
+        [{}],
+        state,
+      );
       expect(seen).toEqual(['a', 'b']);
       expect(titles(custom, next, { userId: '1' })).toEqual(['seed', 'mine']);
     });
@@ -1806,15 +1745,12 @@ describe(`${schema.Collection.name} normalization`, () => {
           },
       });
       const state = seed(custom, [{ userId: '1' }, { userId: '2' }]);
-      const next = {
-        ...state,
-        ...normalize(
-          custom.move,
-          { id: 'seed0', userId: 2 },
-          [{ id: 'seed0' }, { userId: 2 }],
-          state,
-        ),
-      };
+      const next = apply(
+        custom.move,
+        { id: 'seed0', userId: 2 },
+        [{ id: 'seed0' }, { userId: 2 }],
+        state,
+      );
       // stored values (userId 1) pick the lists it leaves; merged (userId 2) the lists it joins
       expect(seen).toEqual([1, 2, 1, 2]);
       expect(titles(custom, next, { userId: '1' })).toEqual([]);
