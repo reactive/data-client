@@ -423,7 +423,7 @@ function normalizeCreate(
   const targetCollection =
     deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
   // an item's fields say where it belongs, not which lists it leaves
-  const accepts: CollectionFilter =
+  const itemFilter: CollectionFilter =
     removing ? key => filterCollections(key) : filterCollections;
   const accepted =
     Array.isArray(normalizedValue) ? acceptedRefs : acceptedValues;
@@ -433,7 +433,7 @@ function normalizeCreate(
       const members = accepted(
         normalizedValue,
         input,
-        accepts,
+        itemFilter,
         JSON.parse(collectionKey),
       );
       if (members)
@@ -453,7 +453,6 @@ function acceptedRefs(
   filterCollections: CollectionFilter,
   collectionKey: Record<string, string>,
 ) {
-  // nothing to add or remove leaves stored lists untouched
   if (!refs.length) return;
   let members: any[] | undefined;
   for (let i = 0; i < refs.length; i++) {
