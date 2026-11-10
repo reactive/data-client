@@ -676,7 +676,8 @@ Sets a default `createCollectionFilter` for [addWith()](#addWith),
 [push](#push), [unshift](#unshift), and [assign](#assign).
 
 This is used by these creation schemas to determine which collections to add to.
-The inner function runs once per created item, which it gets as its second argument.
+The inner function runs once per created item, which it gets as its second argument ([remove](#remove) and
+[move](#move) pass none).
 
 Default:
 
@@ -705,8 +706,8 @@ updates without network requests. For network-based mutations, see [RestEndpoint
 A creation schema that places new item(s) at the _end_ of this collection.
 
 It adds each item to every list already in the store whose [filter keys](#nonFilterArgumentKeys) all match.
-A key matches the request's args or body. When neither has the key, it matches the item's own field, such as a
-`completed: false` the server sets on a new todo. So a todo created with `{ userId: '1' }` and no `completed` in
+A key matches the request's args or body. When neither has the key, it matches the item's own field in the response
+(before [process()](./Entity.md#process)), such as a `completed: false` the server sets on a new todo. So a todo created with `{ userId: '1' }` and no `completed` in
 its body also joins the stored `{ userId: '1', completed: 'false' }` list.
 
 An item that was deleted and then added back shows once: its old id is dropped first. Other ids are added again even
@@ -804,7 +805,7 @@ This [merges](#merge) the value with the existing collection
 This function is used to determine which collections to add to. It
 uses the Object returned from [argsKey](#argsKey) or [nestKey](#nestKey) to
 determine if that collection should get the newly created values from this schema.
-It runs once per created item, which it gets as `item`.
+It runs once per created item, which it gets as `item`. [remove](#remove) and [move](#move) pass no `item`.
 
 Because arguments may be serializable types like `number`, we recommend using `==` comparisons,
 e.g., `'10' == 10`

@@ -427,7 +427,7 @@ ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
 [Collection.push](https://dataclient.io/rest/api/Collection#push) and [unshift](https://dataclient.io/rest/api/Collection#unshift) take the Collection's args,
-which pick the lists to add to, and one row or a list of rows.
+which pick the lists to add to, and one row or a list of rows. A list key the args leave out matches each row's own field.
 
 ```ts
 ctrl.set(TodoResource.getList.schema.push, { userId: '1' }, [

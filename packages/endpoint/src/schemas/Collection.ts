@@ -427,10 +427,12 @@ function normalizeCreate(
     deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
   // an item's fields say where it belongs, not which lists it leaves
   const items = removing ? [] : input;
+  const accepted =
+    Array.isArray(normalizedValue) ? acceptedRefs : acceptedValues;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
-      const members = matchingMembers(
+      const members = accepted(
         normalizedValue,
         items,
         filterCollections,
@@ -442,22 +444,33 @@ function normalizeCreate(
   return normalizedValue as any;
 }
 
-/** The members of `normalized` whose item the collection keyed by `collectionKey` accepts */
-function matchingMembers(
-  normalized: any,
-  items: any,
-  filterCollections: (collectionKey: object, item: any) => boolean,
+type CollectionFilter = (collectionKey: object, item: any) => boolean;
+
+/** The refs whose item the collection keyed by `collectionKey` accepts */
+function acceptedRefs(
+  refs: any[],
+  items: any[],
+  filterCollections: CollectionFilter,
   collectionKey: object,
 ) {
-  // Values.normalize leaves out null members, so use normalized's keys
-  const keys = Object.keys(normalized).filter(k =>
-    filterCollections(collectionKey, items[k]),
-  );
-  if (!keys.length) return;
-  const members: Record<string, any> = {};
-  for (const k of keys) members[k] = normalized[k];
-  // array index keys keep their order in Object.values()
-  return Array.isArray(normalized) ? Object.values(members) : members;
+  const members: any[] = [];
+  for (let i = 0; i < refs.length; i++)
+    if (filterCollections(collectionKey, items[i])) members.push(refs[i]);
+  return members.length ? members : undefined;
+}
+
+/** Like acceptedRefs(), for Values (which leaves out null members) */
+function acceptedValues(
+  refs: Record<string, any>,
+  items: Record<string, any>,
+  filterCollections: CollectionFilter,
+  collectionKey: object,
+) {
+  let members: Record<string, any> | undefined;
+  for (const k in refs)
+    if (filterCollections(collectionKey, items[k]))
+      (members || (members = {}))[k] = refs[k];
+  return members;
 }
 
 /** Indexes of the incoming items whose entity was deleted.
