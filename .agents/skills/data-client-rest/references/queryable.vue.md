@@ -19,6 +19,10 @@ import { Entity, resource } from '@data-client/rest';
 export class User extends Entity {
   id = 0;
   name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
 
   get profileImage() {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
@@ -26,6 +30,11 @@ export class User extends Entity {
 
   static key = 'User';
 }
+export const UserResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
 
 export class Post extends Entity {
   id = 0;
@@ -42,39 +51,16 @@ export class Post extends Entity {
 export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
+  paginationField: 'page',
 });
 ```
 
-```html title="PostList.vue" route="/"
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './Resources';
-
-  const posts = await useSuspense(PostResource.getList);
-</script>
-
-<template>
-  <div>
-    <div v-for="post in posts" :key="post.pk()" class="listItem spaced">
-      <Avatar :src="post.author.profileImage" />
-      <div>
-        <h4>
-          <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
-        </h4>
-        <small>by {{ post.author.name }}</small>
-      </div>
-    </div>
-  </div>
-</template>
-```
-
-```html title="PostDetail.vue" route="/posts/:id" {7}
+```html title="PostDetail.vue" route="/posts/:id" {6}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  // the list stored this Post, so there is nothing to wait for
   const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
@@ -90,6 +76,69 @@ export const PostResource = resource({
       </div>
     </header>
     <p>{{ post.body }}</p>
+  </div>
+</template>
+```
+
+```html title="PostItem.vue"
+<script setup lang="ts">
+  import { type Post } from './Resources';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <Avatar :src="post.author.profileImage" />
+    <div>
+      <h4>
+        <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
+      </h4>
+      <small>by {{ post.author.name }}</small>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostList.vue" route="/" {7}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import LoadMore from './LoadMore.vue';
+  import PostItem from './PostItem.vue';
+  import { PostResource } from './Resources';
+
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+    <LoadMore />
+  </div>
+</template>
+```
+
+```html title="LoadMore.vue"
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useController, useLoading, useQuery } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const ctrl = useController();
+  const posts = useQuery(PostResource.getList.schema);
+  const [nextPage, isPending] = useLoading(() =>
+    ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
+  );
+  const canLoadMore = computed(
+    () => !!posts.value && posts.value.length % 3 === 0,
+  );
+</script>
+
+<template>
+  <div v-if="canLoadMore" class="loadMore">
+    <button @click="nextPage">
+      {{ isPending ? '...' : 'Load more' }}
+    </button>
   </div>
 </template>
 ```
