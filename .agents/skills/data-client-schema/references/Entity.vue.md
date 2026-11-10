@@ -762,7 +762,7 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` is called during normalization when a processed entity is already found in the store.
 
-### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
 This method enables `Entities` to be [Queryable](./schema.vue.md#queryable) - allowing store access without an endpoint.
 
@@ -776,29 +776,14 @@ When used, expiry policy is computed based on the entity's own meta data.
 
 By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](./Entity.vue.md#indexes)
 
-#### getEntity(key, pk?)
+`delegate` reads the store. Its members are listed in [IQueryDelegate](https://dataclient.io/rest/api/SchemaSimple#iquerydelegate).
 
-Gets all entities of a type with one argument, or a single entity with two
-
-```ts title="One argument"
-const entitiesEntry = getEntity(this.schema.key);
-if (entitiesEntry === undefined) return INVALID;
-return Object.values(entitiesEntry).map(
-  entity => entity && this.schema.pk(entity),
-);
+```ts title="Look up by pk"
+if (delegate.getEntity(this.key, id)) return id;
 ```
 
-```ts title="Two arguments"
-if (getEntity(this.key, id)) return id;
-```
-
-#### getIndex(key, indexName, value)
-
-Returns the index entry (value->pk map)
-
-```ts
-const value = args[0][indexName];
-return getIndex(schema.key, indexName, value)[value];
+```ts title="Look up by index"
+return delegate.getIndex(this.key, indexName, args[0][indexName]);
 ```
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}

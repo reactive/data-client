@@ -101,9 +101,8 @@ The result updates when the arguments change.
 interface Queryable {
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (schema: any, args: readonly any[]) => any,
+    delegate: IQueryDelegate,
     // Must be non-void
   ): {};
 }
@@ -111,7 +110,7 @@ interface Queryable {
 
 ## Examples
 
-<!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index, vs pk; union needing 'type') -->
+<!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index vs pk; Union args with or without the type field) -->
 
 ### Sorting & Filtering
 
