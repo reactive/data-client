@@ -86,9 +86,12 @@ const issues: IssueData[] = [
   },
 ];
 
+/** The id the server gives the first issue created */
+const firstNewId = Math.max(...issues.map(issue => issue.id)) + 1;
+
 export const getInitialInterceptorData = (): TeamIssueServer => ({
   issues: structuredClone(issues),
-  nextId: Math.max(...issues.map(issue => issue.id)) + 1,
+  nextId: firstNewId,
 });
 
 type UserData = (typeof users)[number];
@@ -107,34 +110,9 @@ const notFound = (what: string) => ({ status: 404, message: `No ${what}` });
 /** Long enough that a page waiting on a request shows it */
 const delay = 300;
 
-/** An issue as `/issues` sends it to the list and detail demo: with its
- * assignee nested */
-const withAssignee = (issue: IssueData) => ({
-  ...issue,
-  assignee: users.find(user => user.id === issue.assigneeId),
-});
-
-/** The same issues, read only: a list whose items are each a detail page's
- * data. Both endpoints wait, so a detail that fetched would show it. */
-export const issueListFixtures: Interceptor[] = [
-  {
-    endpoint: IssueResource.getList,
-    response: () => issues.map(withAssignee),
-    delay,
-  },
-  {
-    endpoint: IssueResource.get,
-    response({ id }: Parameters<typeof IssueResource.get>[0]) {
-      const issue = issues.find(issue => issue.id === Number(id));
-      if (!issue) throw notFound(`issue ${id}`);
-      return withAssignee(issue);
-    },
-    delay,
-  },
-];
-
-/** A team's issue tracker: `/users` nests each user's issues, so one request
- * loads what the user and issue pages read. Every endpoint answers from one
+/** A team's issue tracker, for both Queryable demos. `/issues` lists every
+ * issue for the list and detail demo. `/users` nests each user's issues, so
+ * one request loads what the tracker's user and issue pages read. Every endpoint answers from one
  * server, which orders lists as the client's push and move do (new and
  * reassigned issues last), so a refetch (stale data, an edited demo) changes
  * nothing on screen. */

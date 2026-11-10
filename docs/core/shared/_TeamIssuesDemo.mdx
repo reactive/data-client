@@ -7,16 +7,16 @@ import { teamIssueFixtures, getInitialInterceptorData } from '@site/src/fixtures
   inFlight
   fixtures={teamIssueFixtures}
   getInitialInterceptorData={getInitialInterceptorData}
-  defaultTab={props.defaultTab}
 >
 
-```ts title="Resources" collapsed {31-33}
+```ts title="Resources" collapsed {32-34}
 import { Collection, Entity, resource } from '@data-client/rest';
 
 export class Issue extends Entity {
   id = 0;
   assigneeId = 0;
   title = '';
+  body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';

@@ -1,42 +1,31 @@
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
-import { issueListFixtures } from '@site/src/fixtures/team-issues';
+import { teamIssueFixtures, getInitialInterceptorData } from '@site/src/fixtures/team-issues';
 
-<FrameworkPlayground defaultOpen="n" row fixtures={issueListFixtures} defaultTab={props.defaultTab}>
+<FrameworkPlayground
+  defaultOpen="n"
+  row
+  fixtures={teamIssueFixtures}
+  getInitialInterceptorData={getInitialInterceptorData}
+  defaultTab={props.defaultTab}
+>
 
 ```ts title="Resources" collapsed
 import { Entity, resource } from '@data-client/rest';
 
-export class User extends Entity {
-  id = 0;
-  name = '';
-
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  static key = 'User';
-}
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
-});
-
 export class Issue extends Entity {
   id = 0;
-  assignee = User.fromJS();
+  assigneeId = 0;
   title = '';
   body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';
-
-  static schema = {
-    assignee: User,
-  };
 }
 export const IssueResource = resource({
   path: '/issues/:id',
+  searchParams: {} as { assigneeId?: string | number } | undefined,
   schema: Issue,
+  optimistic: true,
 });
 ```
 
@@ -50,50 +39,33 @@ export default function IssueDetail({ id }: { id: string }) {
   const issue = useSuspense(IssueResource.get, { id });
   return (
     <div>
-      <header>
-        <div className="listItem spaced">
-          <div className="author">
-            <Avatar src={issue.assignee.profileImage} />
-            <small>{issue.assignee.name}</small>
-          </div>
-          <h4>{issue.title}</h4>
-        </div>
-      </header>
+      <h2>{issue.title}</h2>
+      <p className="meta">{issue.state === 'open' ? 'Open' : 'Closed'}</p>
       <p>{issue.body}</p>
     </div>
   );
 }
 ```
 
-```tsx title="IssueItem" collapsed
-import { type Issue } from './Resources';
-
-export default function IssueItem({ issue }: { issue: Issue }) {
-  return (
-    <div className="listItem spaced">
-      <Avatar src={issue.assignee.profileImage} />
-      <div>
-        <h4>
-          <Link to={`/issues/${issue.id}`}>{issue.title}</Link>
-        </h4>
-        <small>{issue.assignee.name}</small>
-      </div>
-    </div>
-  );
-}
-```
-
-```tsx title="IssueList" route="/" {6}
+```tsx title="IssueList" route="/" {5}
 import { useSuspense } from '@data-client/react';
-import IssueItem from './IssueItem';
 import { IssueResource } from './Resources';
 
 export default function IssueList() {
   const issues = useSuspense(IssueResource.getList);
   return (
-    <div>
+    <div className="list">
       {issues.map(issue => (
-        <IssueItem key={issue.pk()} issue={issue} />
+        <Link
+          key={issue.pk()}
+          className="listItem"
+          to={`/issues/${issue.id}`}
+        >
+          {issue.title}
+          <span className="meta">
+            {issue.state === 'open' ? 'Open' : 'Closed'}
+          </span>
+        </Link>
       ))}
     </div>
   );
@@ -115,52 +87,32 @@ export default function IssueList() {
 
 <template>
   <div>
-    <header>
-      <div class="listItem spaced">
-        <div class="author">
-          <Avatar :src="issue.assignee.profileImage" />
-          <small>{{ issue.assignee.name }}</small>
-        </div>
-        <h4>{{ issue.title }}</h4>
-      </div>
-    </header>
+    <h2>{{ issue.title }}</h2>
+    <p class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</p>
     <p>{{ issue.body }}</p>
   </div>
 </template>
 ```
 
-```html title="IssueItem.vue" collapsed
-<script setup lang="ts">
-  import { type Issue } from './Resources';
-
-  defineProps<{ issue: Issue }>();
-</script>
-
-<template>
-  <div class="listItem spaced">
-    <Avatar :src="issue.assignee.profileImage" />
-    <div>
-      <h4>
-        <RouterLink :to="`/issues/${issue.id}`">{{ issue.title }}</RouterLink>
-      </h4>
-      <small>{{ issue.assignee.name }}</small>
-    </div>
-  </div>
-</template>
-```
-
-```html title="IssueList.vue" route="/" {6}
+```html title="IssueList.vue" route="/" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
-  import IssueItem from './IssueItem.vue';
   import { IssueResource } from './Resources';
 
   const issues = await useSuspense(IssueResource.getList);
 </script>
 
 <template>
-  <div>
-    <IssueItem v-for="issue in issues" :key="issue.pk()" :issue="issue" />
+  <div class="list">
+    <RouterLink
+      v-for="issue in issues"
+      :key="issue.pk()"
+      class="listItem"
+      :to="`/issues/${issue.id}`"
+    >
+      {{ issue.title }}
+      <span class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</span>
+    </RouterLink>
   </div>
 </template>
 ```

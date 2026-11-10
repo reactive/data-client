@@ -1,9 +1,11 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useSyncExternalStore } from 'react';
 
 import styles from './styles.module.css';
+import { prefersReducedMotion } from '../motion';
 import StoreIcon from '../Playground/StoreIcon';
+import { useIntersectionObserver } from '../useIntersectionObserver';
 
 const WIDTH = 420;
 /** The viewBox starts here, just above the call highlight's stroke */
@@ -12,6 +14,8 @@ const HEIGHT = 284;
 
 /** One run, in ms; then it starts over */
 const PERIOD = 7400;
+/** How long what a run added takes to fade, in ms */
+const CLEAR = 400;
 /** When each part of a run starts, in ms. styles.module.css has how long each takes */
 const AT = {
   /** the response, taken apart, leaves for the table */
@@ -26,7 +30,7 @@ const AT = {
   /** the requests are counted, this long after the last read */
   tally: 1000,
   /** what the run added fades, so the next starts clean */
-  clear: PERIOD - 400,
+  clear: PERIOD - CLEAR,
 };
 const at = (ms: number) => ({ '--at': `${ms}ms` }) as React.CSSProperties;
 
@@ -34,7 +38,13 @@ const at = (ms: number) => ({ '--at': `${ms}ms` }) as React.CSSProperties;
 const CALL_Y = 40;
 /** The width of a character, as a share of the monospace font's size */
 const CHAR = 0.6;
-const FONT = { text: 10.5, request: 9.5 };
+const FONT = { text: 10.5, small: 9.5 };
+/** What styles.module.css reads, so each value is written once */
+const VARS = {
+  '--text': `${FONT.text}px`,
+  '--small': `${FONT.small}px`,
+  '--clear': `${CLEAR}ms`,
+} as React.CSSProperties;
 
 const STORE = { x: 6, y: 52, w: 408, h: 108 };
 /** One entry of the table: its key, right-aligned, then its value */
@@ -59,9 +69,11 @@ const IDS: Id[] = ['5', '6'];
 /** Each issue's title, as a bar this wide */
 const TITLE = { 5: 56, 6: 40 };
 
+/** The assignee one list is filtered by */
+const ASSIGNEE = '1';
 /** The lists the store can hold, by the args they were fetched with */
 const LISTS = {
-  assignee: { entry: 2, request: 'GET /issues?assigneeId=1' },
+  assignee: { entry: 2, request: `GET /issues?assigneeId=${ASSIGNEE}` },
   all: { entry: 3, request: 'GET /issues' },
 };
 type List = keyof typeof LISTS;
@@ -69,6 +81,12 @@ type List = keyof typeof LISTS;
 /** How data arrives. The mutation comes first: it shows the most */
 const OPS = ['POST', 'GET', 'WebSocket'] as const;
 type Op = (typeof OPS)[number];
+/** The request or message that brings data: its text, around the value the table keys by */
+const CALLS: Record<Op, [before: string, key: string, after: string]> = {
+  POST: ['POST /issues { assigneeId: ', ASSIGNEE, ", title: '…' }"],
+  GET: ['GET /issues?assigneeId=', ASSIGNEE, ''],
+  WebSocket: ['WebSocket: { id: ', '5', ", state: 'closed' }"],
+};
 
 interface Scene {
   /** how many requests the call itself is */
@@ -113,6 +131,12 @@ const SCENES: Record<Op, Scene> = {
 const entryY = (index: number) => ENTRY.y + ENTRY.pitch * index;
 const isList = (read: List | Id): read is List => read in LISTS;
 
+const onTabShown = (sync: () => void) => {
+  document.addEventListener('visibilitychange', sync);
+  return () => document.removeEventListener('visibilitychange', sync);
+};
+const isTabShown = () => !document.hidden;
+
 /**
  * The store as one lookup table. A call above writes into it once, then each
  * read below finds its data there by args, so the request it would have made
@@ -120,19 +144,23 @@ const isList = (read: List | Id): read is List => read in LISTS;
  * request would send. The switch picks how the data arrives.
  */
 export default function LookupTable() {
-  // `run` restarts the animations
+  // `run` restarts the animations; every change of `op` starts a new one
   const [{ op, run }, setScene] = useState({ op: OPS[0] as Op, run: 0 });
   const scene = SCENES[op];
+  const [stage, entry] = useIntersectionObserver<HTMLDivElement>();
+  const tabShown = useSyncExternalStore(onTabShown, isTabShown, () => true);
+  // nothing runs where no one can see it
+  const playing = !!entry?.isIntersecting && tabShown;
 
   useEffect(() => {
     // under reduced motion nothing moves on its own: each run rests at its outcome
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!playing || prefersReducedMotion()) return;
     const timeout = window.setTimeout(
       () => setScene(s => ({ ...s, run: s.run + 1 })),
       PERIOD,
     );
     return () => window.clearTimeout(timeout);
-  }, [op, run]);
+  }, [run, playing]);
 
   // what the call brings starts out under it: the issues it stores or
   // overwrites, stacked, beside the pks of those new to the lists
@@ -162,6 +190,79 @@ export default function LookupTable() {
   });
   const total = scene.sends + reads.filter(read => !read.sent).length;
   const tallyAt = reads[reads.length - 1].at + AT.tally;
+  const callW = CALLS[op].join('').length * CHAR * FONT.text + 24;
+
+  // Each part of the table is drawn twice: as it was before the call, and
+  // (`after`) as what the call adds or changes, which travels in from the call
+
+  const issueEntries = (after: boolean) =>
+    IDS.map((id, i) => {
+      const change = scene.issues[id];
+      if (change === (after ? 'kept' : 'new')) return null;
+      return (
+        <React.Fragment key={id}>
+          {(!after || change === 'new') && (
+            <Entry index={i} lands={after}>
+              <IssueKey id={id} />
+            </Entry>
+          )}
+          {/* an issue's new fields overwrite its one entry */}
+          <Place
+            to={[ENTRY.value, entryY(i) + 3]}
+            from={after ? from(id).issue : undefined}
+          >
+            <IssueRow
+              id={id}
+              w={ISSUE.w}
+              closed={after && change === 'closed'}
+            />
+          </Place>
+        </React.Fragment>
+      );
+    });
+
+  const listEntries = (after: boolean) =>
+    scene.lists.map(list => (
+      <React.Fragment key={list}>
+        {after === !!scene.newLists && (
+          <Entry index={LISTS[list].entry} lands={after}>
+            <ListArgs list={list} />
+          </Entry>
+        )}
+        {/* a list holds pks, not copies, and every list that matches gets the new one */}
+        {IDS.map(
+          (id, i) =>
+            (scene.issues[id] === 'new') === after && (
+              <Place
+                key={id}
+                to={pkAt(list, i)}
+                from={after ? from(id).pk : undefined}
+              >
+                <Pk id={id} />
+              </Place>
+            ),
+        )}
+      </React.Fragment>
+    ));
+
+  /** A read's issues that the call did one of `changes` to */
+  const readRows = (
+    read: (typeof reads)[number],
+    changes: Change[],
+    after = false,
+  ) =>
+    read.ids.map(
+      id =>
+        changes.includes(scene.issues[id]) && (
+          <Place key={id} to={[read.x + 8, read.rowY(id)]}>
+            <IssueRow
+              id={id}
+              w={read.w - 16}
+              closed={after && scene.issues[id] === 'closed'}
+            />
+          </Place>
+        ),
+    );
 
   return (
     <div className={styles.frame}>
@@ -186,9 +287,14 @@ export default function LookupTable() {
           </button>
         ))}
       </div>
-      <div className={styles.stage}>
+      <div
+        ref={stage}
+        className={styles.stage}
+        data-paused={playing ? undefined : true}
+      >
         <svg
           className={styles.diagram}
+          style={VARS}
           viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
           role="img"
           aria-label={translate({
@@ -216,121 +322,34 @@ export default function LookupTable() {
 
           {/* what is there before the call: it stays put from run to run */}
           <Call op={op} />
-          {IDS.map(
-            (id, i) =>
-              scene.issues[id] !== 'new' && (
-                <React.Fragment key={id}>
-                  <Entry index={i}>
-                    <IssueKey id={id} />
-                  </Entry>
-                  <Place to={[ENTRY.value, entryY(i) + 3]}>
-                    <IssueRow id={id} w={ISSUE.w} />
-                  </Place>
-                </React.Fragment>
-              ),
-          )}
-          {!scene.newLists &&
-            scene.lists.map(list => (
-              <React.Fragment key={list}>
-                <Entry index={LISTS[list].entry}>
-                  <ListArgs list={list} />
-                </Entry>
-                {IDS.map(
-                  (id, i) =>
-                    scene.issues[id] !== 'new' && (
-                      <Place key={id} to={pkAt(list, i)}>
-                        <Pk id={id} />
-                      </Place>
-                    ),
-                )}
-              </React.Fragment>
-            ))}
+          {issueEntries(false)}
+          {listEntries(false)}
           {reads.map(read => (
             <ReadCard key={read.x} read={read} found={read.found}>
-              {read.found &&
-                read.ids.map(
-                  id =>
-                    scene.issues[id] !== 'new' && (
-                      <Place key={id} to={[read.x + 8, read.rowY(id)]}>
-                        <IssueRow id={id} w={read.w - 16} />
-                      </Place>
-                    ),
-                )}
+              {read.found && readRows(read, ['kept', 'closed'])}
             </ReadCard>
           ))}
 
-          {/* what the call changes. Each run starts over, so a chosen call plays right away */}
-          <g
-            key={run}
-            className={clsx(styles.anim, styles.clear)}
-            style={at(AT.clear)}
-          >
-            <rect
-              className={clsx(styles.anim, styles.flash)}
-              style={at(0)}
-              x={WIDTH / 2 - CALL_W[op] / 2}
-              y={CALL_Y - 12}
-              width={CALL_W[op]}
-              height="18"
-            />
+          {/* what the call changes. Each run starts over, so a chosen call
+              plays right away, and so does one that comes back into view */}
+          {playing && (
+            <g
+              key={run}
+              className={clsx(styles.anim, styles.clear)}
+              style={at(AT.clear)}
+            >
+              <rect
+                className={clsx(styles.anim, styles.flash)}
+                style={at(0)}
+                x={WIDTH / 2 - callW / 2}
+                y={CALL_Y - 12}
+                width={callW}
+                height="18"
+              />
+              {issueEntries(true)}
+              {listEntries(true)}
 
-            {IDS.map(
-              (id, i) =>
-                scene.issues[id] !== 'kept' && (
-                  <React.Fragment key={id}>
-                    {scene.issues[id] === 'new' && (
-                      <Entry index={i} lands>
-                        <IssueKey id={id} />
-                      </Entry>
-                    )}
-                    {/* an issue's new fields overwrite its one entry */}
-                    <Place
-                      to={[ENTRY.value, entryY(i) + 3]}
-                      from={from(id).issue}
-                    >
-                      <IssueRow
-                        id={id}
-                        w={ISSUE.w}
-                        closed={scene.issues[id] === 'closed'}
-                      />
-                    </Place>
-                  </React.Fragment>
-                ),
-            )}
-            {scene.lists.map(list => (
-              <React.Fragment key={list}>
-                {scene.newLists && (
-                  <Entry index={LISTS[list].entry} lands>
-                    <ListArgs list={list} />
-                  </Entry>
-                )}
-                {/* a list holds pks, not copies, and every list that matches gets the new one */}
-                {IDS.map(
-                  (id, i) =>
-                    scene.issues[id] === 'new' && (
-                      <Place key={id} to={pkAt(list, i)} from={from(id).pk}>
-                        <Pk id={id} />
-                      </Place>
-                    ),
-                )}
-              </React.Fragment>
-            ))}
-
-            {reads.map(read => {
-              const rows = (changes: Change[]) =>
-                read.ids.map(
-                  id =>
-                    changes.includes(scene.issues[id]) && (
-                      <Place key={id} to={[read.x + 8, read.rowY(id)]}>
-                        <IssueRow
-                          id={id}
-                          w={read.w - 16}
-                          closed={scene.issues[id] === 'closed'}
-                        />
-                      </Place>
-                    ),
-                );
-              return (
+              {reads.map(read => (
                 <g key={read.x} style={at(read.at)}>
                   {read.found ?
                     <>
@@ -343,12 +362,12 @@ export default function LookupTable() {
                         height={READ.h}
                       />
                       <g className={clsx(styles.anim, styles.show)}>
-                        {rows(['new', 'closed'])}
+                        {readRows(read, ['new', 'closed'], true)}
                       </g>
                     </>
                   : <g className={clsx(styles.anim, styles.show)}>
                       <ReadCard read={read} found>
-                        {rows(['kept', 'new', 'closed'])}
+                        {readRows(read, ['kept', 'new', 'closed'], true)}
                       </ReadCard>
                     </g>
                   }
@@ -360,41 +379,41 @@ export default function LookupTable() {
                       d={strike(
                         read.x + 5,
                         READ.y + READ.h - 11,
-                        read.request.length * CHAR * FONT.request + 6,
+                        read.request.length * CHAR * FONT.small + 6,
                       )}
                     />
                   )}
                 </g>
-              );
-            })}
+              ))}
 
-            {/* the requests sent, beside what a cache keyed by request sends */}
-            <g
-              className={clsx(styles.anim, styles.land, styles.tally)}
-              style={at(tallyAt)}
-            >
-              <text className={styles.tallyLabel} x={WIDTH / 2 + 4} y="274">
-                {translate({
-                  id: 'lookupTable.requests',
-                  message: 'Requests',
-                  description:
-                    'Label of the request tally on the lookup table diagram: before a crossed-out count and the real one',
-                })}
-              </text>
-              <text className={styles.other} x={WIDTH / 2 + 22} y="274">
-                {total}
-              </text>
-              <path
-                className={clsx(styles.anim, styles.skip)}
-                style={at(tallyAt + AT.skip)}
-                pathLength="1"
-                d={strike(WIDTH / 2 + 15, 269.5, 14)}
-              />
-              <text className={styles.sends} x={WIDTH / 2 + 42} y="274">
-                {scene.sends}
-              </text>
+              {/* the requests sent, beside what a cache keyed by request sends */}
+              <g
+                className={clsx(styles.anim, styles.land, styles.tally)}
+                style={at(tallyAt)}
+              >
+                <text className={styles.tallyLabel} x={WIDTH / 2 + 4} y="274">
+                  {translate({
+                    id: 'lookupTable.requests',
+                    message: 'Requests',
+                    description:
+                      'Label of the request tally on the lookup table diagram: before a crossed-out count and the real one',
+                  })}
+                </text>
+                <text className={styles.other} x={WIDTH / 2 + 22} y="274">
+                  {total}
+                </text>
+                <path
+                  className={clsx(styles.anim, styles.skip)}
+                  style={at(tallyAt + AT.skip)}
+                  pathLength="1"
+                  d={strike(WIDTH / 2 + 15, 269.5, 14)}
+                />
+                <text className={styles.sends} x={WIDTH / 2 + 42} y="274">
+                  {scene.sends}
+                </text>
+              </g>
             </g>
-          </g>
+          )}
         </svg>
       </div>
     </div>
@@ -412,47 +431,20 @@ function strike(x: number, y: number, w: number) {
 
 /* eslint-disable @docusaurus/no-untranslated-text -- requests, keys and API names */
 
-/** The request or message that brings data, with the values the table keys by in their color */
-const CALLS: Record<Op, { text: React.ReactNode; length: number }> = {
-  POST: {
-    text: (
-      <>
-        {'POST /issues { assigneeId: '}
-        <tspan className={styles.args}>1</tspan>
-        {", title: '…' }"}
-      </>
-    ),
-    length: 41,
-  },
-  GET: {
-    text: (
-      <>
-        {'GET /issues?assigneeId='}
-        <tspan className={styles.args}>1</tspan>
-      </>
-    ),
-    length: 24,
-  },
-  WebSocket: {
-    text: (
-      <>
-        {'WebSocket: { id: '}
-        <tspan className={styles.id5}>5</tspan>
-        {", state: 'closed' }"}
-      </>
-    ),
-    length: 37,
-  },
-};
-/** The call highlight's width */
-const CALL_W = Object.fromEntries(
-  OPS.map(op => [op, CALLS[op].length * CHAR * FONT.text + 24]),
-) as Record<Op, number>;
+/** What the table keys by, in one color wherever it appears: in the call, as
+ * the entry's key, and in the args of the read that finds it */
+function Key({ value }: { value: string }) {
+  const hue = value === ASSIGNEE ? styles.args : styles[`issue${value}`];
+  return <tspan className={clsx(styles.key, hue)}>{value}</tspan>;
+}
 
 function Call({ op }: { op: Op }) {
+  const [before, key, after] = CALLS[op];
   return (
     <text className={styles.call} x={WIDTH / 2} y={CALL_Y}>
-      {CALLS[op].text}
+      {before}
+      <Key value={key} />
+      {after}
     </text>
   );
 }
@@ -462,7 +454,7 @@ function IssueKey({ id }: { id: Id }) {
   return (
     <>
       {'Issue '}
-      <tspan className={styles[`id${id}`]}>{id}</tspan>
+      <Key value={id} />
     </>
   );
 }
@@ -473,7 +465,7 @@ function ListArgs({ list }: { list: List }) {
   return (
     <>
       {'{ assigneeId: '}
-      <tspan className={styles.args}>1</tspan>
+      <Key value={ASSIGNEE} />
       {' }'}
     </>
   );
@@ -607,7 +599,7 @@ function ReadCard({
           </>
         : <>
             {'get({ id: '}
-            <tspan className={styles[`id${read}`]}>{read}</tspan>
+            <Key value={read} />
             {' })'}
           </>
         }

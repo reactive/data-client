@@ -12,7 +12,7 @@ import DataColocation from '@site/src/components/DataColocation';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
-import ListDetailDemo from '../shared/\_ListDetailDemo.mdx';
+import { postFixtures } from '@site/src/fixtures/posts';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 import UseLive from '../shared/\_useLive.mdx';
 import AsyncBoundaryExamples from '../shared/\_AsyncBoundary.mdx';
@@ -22,7 +22,226 @@ import AsyncBoundaryExamples from '../shared/\_AsyncBoundary.mdx';
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](../api/useSuspense.md),
 which guarantees data :react[like]:vue[with] [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
-<ListDetailDemo />
+<FrameworkPlayground defaultOpen="n" row fixtures={postFixtures}>
+
+```ts title="Resources" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+}
+export const UserResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+
+export class Post extends Entity {
+  id = 0;
+  author = User.fromJS();
+  title = '';
+  body = '';
+
+  static key = 'Post';
+
+  static schema = {
+    author: User,
+  };
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+  paginationField: 'page',
+});
+```
+
+:::react
+
+```tsx title="PostDetail" route="/posts/:id" {5} collapsed
+import { useSuspense } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function PostDetail({ id }) {
+  const post = useSuspense(PostResource.get, { id });
+  return (
+    <div>
+      <header>
+        <div className="listItem spaced">
+          <div className="author">
+            <Avatar src={post.author.profileImage} />
+            <small>{post.author.name}</small>
+          </div>
+          <h4>{post.title}</h4>
+        </div>
+      </header>
+      <p>{post.body}</p>
+    </div>
+  );
+}
+```
+
+```tsx title="PostItem" collapsed
+import { type Post } from './Resources';
+
+export default function PostItem({ post }: { post: Post }) {
+  return (
+    <div className="listItem spaced">
+      <Avatar src={post.author.profileImage} />
+      <div>
+        <h4>
+          <Link to={`/posts/${post.id}`}>{post.title}</Link>
+        </h4>
+        <small>by {post.author.name}</small>
+      </div>
+    </div>
+  );
+}
+```
+
+```tsx title="PostList" route="/" {7}
+import { useSuspense } from '@data-client/react';
+import LoadMore from './LoadMore';
+import PostItem from './PostItem';
+import { PostResource } from './Resources';
+
+export default function PostList() {
+  const posts = useSuspense(PostResource.getList);
+  return (
+    <div>
+      {posts.map(post => (
+        <PostItem key={post.pk()} post={post} />
+      ))}
+      <LoadMore />
+    </div>
+  );
+}
+```
+
+```tsx title="LoadMore" collapsed
+import { useController, useLoading, useQuery } from '@data-client/react';
+import { PostResource } from './Resources';
+
+export default function LoadMore() {
+  const ctrl = useController();
+  const posts = useQuery(PostResource.getList.schema);
+  const [nextPage, isPending] = useLoading(() =>
+    ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
+  );
+  if (!posts || posts.length % 3 !== 0) return null;
+  return (
+    <div className="loadMore">
+      <button onClick={nextPage}>{isPending ? '...' : 'Load more'}</button>
+    </div>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="PostDetail.vue" route="/posts/:id" {6} collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <header>
+      <div class="listItem spaced">
+        <div class="author">
+          <Avatar :src="post.author.profileImage" />
+          <small>{{ post.author.name }}</small>
+        </div>
+        <h4>{{ post.title }}</h4>
+      </div>
+    </header>
+    <p>{{ post.body }}</p>
+  </div>
+</template>
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './Resources';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <Avatar :src="post.author.profileImage" />
+    <div>
+      <h4>
+        <RouterLink :to="`/posts/${post.id}`">{{ post.title }}</RouterLink>
+      </h4>
+      <small>by {{ post.author.name }}</small>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostList.vue" route="/" {7}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import LoadMore from './LoadMore.vue';
+  import PostItem from './PostItem.vue';
+  import { PostResource } from './Resources';
+
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+    <LoadMore />
+  </div>
+</template>
+```
+
+```html title="LoadMore.vue" collapsed
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useController, useLoading, useQuery } from '@data-client/vue';
+  import { PostResource } from './Resources';
+
+  const ctrl = useController();
+  const posts = useQuery(PostResource.getList.schema);
+  const [nextPage, isPending] = useLoading(() =>
+    ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
+  );
+  const canLoadMore = computed(
+    () => !!posts.value && posts.value.length % 3 === 0,
+  );
+</script>
+
+<template>
+  <div v-if="canLoadMore" class="loadMore">
+    <button @click="nextPage">
+      {{ isPending ? '...' : 'Load more' }}
+    </button>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 <DataColocation />
 

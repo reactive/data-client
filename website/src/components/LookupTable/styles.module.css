@@ -4,6 +4,8 @@
   --issue5: hsl(262, 52%, 48%);
   --issue6: hsl(165, 70%, 26%);
   --args: var(--ifm-color-primary-darker);
+  /* a fill behind --on-chip: darker in light mode, so the white reads */
+  --accent: var(--ifm-color-primary-darker);
   --on-chip: #fff;
   margin: 0 0 1.5rem;
 }
@@ -11,6 +13,7 @@
   --issue5: hsl(262, 75%, 74%);
   --issue6: hsl(165, 55%, 55%);
   --args: var(--ifm-color-primary-light);
+  --accent: var(--ifm-color-primary);
   --on-chip: hsl(220, 20%, 12%);
 }
 .stage {
@@ -22,7 +25,8 @@
   display: block;
   width: 100%;
   font-family: var(--ifm-font-family-monospace);
-  font-size: 10.5px;
+  /* --text, --small and --clear come from index.tsx (VARS) */
+  font-size: var(--text);
   text-anchor: middle;
   user-select: none;
 }
@@ -35,19 +39,12 @@
 }
 /* what the table keys by, in one color wherever it appears: in the call, as
    the entry's key, and in the args of the read that finds it */
-.id5,
-.id6,
 .args {
+  --c: var(--args);
+}
+.key {
+  fill: var(--c);
   font-weight: 600;
-}
-.id5 {
-  fill: var(--issue5);
-}
-.id6 {
-  fill: var(--issue6);
-}
-.args {
-  fill: var(--args);
 }
 
 /* the segmented control: POST / GET / WebSocket */
@@ -75,12 +72,8 @@
     color var(--motion-snappy);
 }
 .controls button[aria-pressed='true'] {
-  /* darker in light mode, so the white label reads */
-  background: var(--ifm-color-primary-darker);
+  background: var(--accent);
   color: var(--on-chip);
-}
-[data-theme='dark'] .controls button[aria-pressed='true'] {
-  background: var(--ifm-color-primary);
 }
 .controls button:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
@@ -155,7 +148,7 @@
 }
 .pk text {
   fill: var(--on-chip);
-  font-size: 9.5px;
+  font-size: var(--small);
   font-weight: 600;
 }
 
@@ -197,19 +190,11 @@
    table has the data, plain when the call above is that request */
 .frame .request {
   fill: var(--ifm-color-emphasis-600);
-  font-size: 9.5px;
+  font-size: var(--small);
 }
 .frame .sent {
   fill: var(--ifm-font-color-base);
 }
-.skip {
-  fill: none;
-  stroke: var(--ifm-color-emphasis-600);
-  stroke-width: 1.2;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-}
-
 /* from the table to its reads */
 .binding {
   fill: none;
@@ -223,6 +208,10 @@
   stroke-width: 2;
   animation: flow 0.8s linear infinite;
 }
+/* off screen or in a hidden tab (index.tsx) */
+.stage[data-paused] .binding {
+  animation-play-state: paused;
+}
 @keyframes flow {
   from {
     stroke-dashoffset: 6;
@@ -234,10 +223,7 @@
 
 /* found in the table */
 .badge circle {
-  fill: var(--ifm-color-primary-darker);
-}
-[data-theme='dark'] .badge circle {
-  fill: var(--ifm-color-primary);
+  fill: var(--accent);
 }
 .badge path {
   fill: none;
@@ -338,6 +324,11 @@
 }
 /* a request that isn't made, crossed out from its start */
 .skip {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-600);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
   animation-name: skip;
   animation-duration: 350ms;
 }
@@ -349,7 +340,7 @@
 /* what the run added fades, so the next starts from what was there */
 .clear {
   animation-name: clear;
-  animation-duration: 400ms;
+  animation-duration: var(--clear);
   animation-timing-function: ease-in;
 }
 @keyframes clear {

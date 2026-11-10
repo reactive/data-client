@@ -43,37 +43,20 @@ Files with a `route` are pages mounted at that path, with its params as props (v
 ```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
 
-export class User extends Entity {
-  id = 0;
-  name = '';
-
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  static key = 'User';
-}
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
-});
-
 export class Issue extends Entity {
   id = 0;
-  assignee = User.fromJS();
+  assigneeId = 0;
   title = '';
   body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';
-
-  static schema = {
-    assignee: User,
-  };
 }
 export const IssueResource = resource({
   path: '/issues/:id',
+  searchParams: {} as { assigneeId?: string | number } | undefined,
   schema: Issue,
+  optimistic: true,
 });
 ```
 
@@ -88,59 +71,40 @@ export const IssueResource = resource({
 
 <template>
   <div>
-    <header>
-      <div class="listItem spaced">
-        <div class="author">
-          <Avatar :src="issue.assignee.profileImage" />
-          <small>{{ issue.assignee.name }}</small>
-        </div>
-        <h4>{{ issue.title }}</h4>
-      </div>
-    </header>
+    <h2>{{ issue.title }}</h2>
+    <p class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</p>
     <p>{{ issue.body }}</p>
   </div>
 </template>
 ```
 
-```html title="IssueItem.vue"
-<script setup lang="ts">
-  import { type Issue } from './Resources';
-
-  defineProps<{ issue: Issue }>();
-</script>
-
-<template>
-  <div class="listItem spaced">
-    <Avatar :src="issue.assignee.profileImage" />
-    <div>
-      <h4>
-        <RouterLink :to="`/issues/${issue.id}`">{{ issue.title }}</RouterLink>
-      </h4>
-      <small>{{ issue.assignee.name }}</small>
-    </div>
-  </div>
-</template>
-```
-
-```html title="IssueList.vue" route="/" {6}
+```html title="IssueList.vue" route="/" {5}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
-  import IssueItem from './IssueItem.vue';
   import { IssueResource } from './Resources';
 
   const issues = await useSuspense(IssueResource.getList);
 </script>
 
 <template>
-  <div>
-    <IssueItem v-for="issue in issues" :key="issue.pk()" :issue="issue" />
+  <div class="list">
+    <RouterLink
+      v-for="issue in issues"
+      :key="issue.pk()"
+      class="listItem"
+      :to="`/issues/${issue.id}`"
+    >
+      {{ issue.title }}
+      <span class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</span>
+    </RouterLink>
   </div>
 </template>
 ```
 
 Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
-so one response is the data of each page it covers ([Relational data](https://dataclient.io/rest/guides/relational-data)). Each issue above
-arrives with its assignee nested, so a user's page finds that `User` by its id too.
+so one response is the data of each page it covers ([Relational data](https://dataclient.io/rest/guides/relational-data)). In the
+[issue tracker below](#mutations), `/users` nests each user's issues, and that one response is the data of every user
+and issue page.
 
 ### Faster mutations {#mutations}
 
@@ -160,13 +124,14 @@ fetched, and only mutations send requests.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
-```ts title="Resources" {31-33}
+```ts title="Resources" {32-34}
 import { Collection, Entity, resource } from '@data-client/rest';
 
 export class Issue extends Entity {
   id = 0;
   assigneeId = 0;
   title = '';
+  body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';

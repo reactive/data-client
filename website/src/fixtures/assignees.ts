@@ -8,7 +8,7 @@ export const users = [
   { id: 2, name: 'Leo Fischer', username: 'leo', email: 'leo@example.com' },
   { id: 3, name: 'Ama Owusu', username: 'ama', email: 'ama@example.com' },
 ];
-export const todos = {
+const todos = {
   1: { id: 1, userId: 1, title: 'Launch post', completed: false },
   2: { id: 2, userId: 2, title: 'Pricing page review', completed: true },
   3: { id: 3, userId: 3, title: 'Fix signup bug', completed: false },

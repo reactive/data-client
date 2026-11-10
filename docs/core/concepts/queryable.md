@@ -73,8 +73,9 @@ Open an issue below. `IssueDetail` renders without a loading state, because the 
 <IssueListDetailDemo defaultTab="IssueDetail" />
 
 Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
-so one response is the data of each page it covers ([Relational data](/rest/guides/relational-data)). Each issue above
-arrives with its assignee nested, so a user's page finds that `User` by its id too.
+so one response is the data of each page it covers ([Relational data](/rest/guides/relational-data)). In the
+[issue tracker below](#mutations), `/users` nests each user's issues, and that one response is the data of every user
+and issue page.
 
 :::react
 

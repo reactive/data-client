@@ -43,37 +43,20 @@ Files with a `route` are pages mounted at that path, with its params as props; `
 ```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
 
-export class User extends Entity {
-  id = 0;
-  name = '';
-
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  static key = 'User';
-}
-export const UserResource = resource({
-  path: '/users/:id',
-  schema: User,
-});
-
 export class Issue extends Entity {
   id = 0;
-  assignee = User.fromJS();
+  assigneeId = 0;
   title = '';
   body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';
-
-  static schema = {
-    assignee: User,
-  };
 }
 export const IssueResource = resource({
   path: '/issues/:id',
+  searchParams: {} as { assigneeId?: string | number } | undefined,
   schema: Issue,
+  optimistic: true,
 });
 ```
 
@@ -85,50 +68,33 @@ export default function IssueDetail({ id }: { id: string }) {
   const issue = useSuspense(IssueResource.get, { id });
   return (
     <div>
-      <header>
-        <div className="listItem spaced">
-          <div className="author">
-            <Avatar src={issue.assignee.profileImage} />
-            <small>{issue.assignee.name}</small>
-          </div>
-          <h4>{issue.title}</h4>
-        </div>
-      </header>
+      <h2>{issue.title}</h2>
+      <p className="meta">{issue.state === 'open' ? 'Open' : 'Closed'}</p>
       <p>{issue.body}</p>
     </div>
   );
 }
 ```
 
-```tsx title="IssueItem"
-import { type Issue } from './Resources';
-
-export default function IssueItem({ issue }: { issue: Issue }) {
-  return (
-    <div className="listItem spaced">
-      <Avatar src={issue.assignee.profileImage} />
-      <div>
-        <h4>
-          <Link to={`/issues/${issue.id}`}>{issue.title}</Link>
-        </h4>
-        <small>{issue.assignee.name}</small>
-      </div>
-    </div>
-  );
-}
-```
-
-```tsx title="IssueList" route="/" {6}
+```tsx title="IssueList" route="/" {5}
 import { useSuspense } from '@data-client/react';
-import IssueItem from './IssueItem';
 import { IssueResource } from './Resources';
 
 export default function IssueList() {
   const issues = useSuspense(IssueResource.getList);
   return (
-    <div>
+    <div className="list">
       {issues.map(issue => (
-        <IssueItem key={issue.pk()} issue={issue} />
+        <Link
+          key={issue.pk()}
+          className="listItem"
+          to={`/issues/${issue.id}`}
+        >
+          {issue.title}
+          <span className="meta">
+            {issue.state === 'open' ? 'Open' : 'Closed'}
+          </span>
+        </Link>
       ))}
     </div>
   );
@@ -136,8 +102,9 @@ export default function IssueList() {
 ```
 
 Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
-so one response is the data of each page it covers ([Relational data](./relational-data.md)). Each issue above
-arrives with its assignee nested, so a user's page finds that `User` by its id too.
+so one response is the data of each page it covers ([Relational data](./relational-data.md)). In the
+[issue tracker below](#mutations), `/users` nests each user's issues, and that one response is the data of every user
+and issue page.
 
 In the [React benchmarks](https://dataclient.io/docs/concepts/performance), with a simulated 40 ms network delay, switching between a list and its
 items is 21× faster than TanStack Query, which keys the detail query separately and fetches it.
@@ -160,13 +127,14 @@ fetched, and only mutations send requests.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
-```ts title="Resources" {31-33}
+```ts title="Resources" {32-34}
 import { Collection, Entity, resource } from '@data-client/rest';
 
 export class Issue extends Entity {
   id = 0;
   assigneeId = 0;
   title = '';
+  body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';
