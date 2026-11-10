@@ -498,21 +498,34 @@ render(<CounterPage />);
 
 Like React's [useOptimistic()](https://react.dev/reference/react/useOptimistic), an optimistic update renders
 before the browser paints the click. If many components show the changed data, that render can make the click feel
-slow. Call `ctrl.fetch()`, which applies the optimistic update, inside
-[startTransition()](https://react.dev/reference/react/startTransition) (React 18+), so the browser paints and handles
-input first:
+slow.
+
+### When to use a transition
+
+First make that render cheaper, with [React Compiler](https://react.dev/learn/react-compiler) or `memo()` on expensive
+components. A cheaper render keeps the update instant, while a transition only moves it after the paint. If the click
+is still slow, call `ctrl.fetch()`, which applies the optimistic update, inside
+[startTransition()](https://react.dev/reference/react/startTransition) (React 18+).
+
+Skip the transition when:
+
+- The update re-renders only a few components. It is already fast, and a transition only delays it.
+- The control is a controlled input, like `TodoItem`'s checkbox. React resets the input to its last rendered value, so
+  the checkbox flips back until the transition renders (see the
+  [startTransition() caveats](https://react.dev/reference/react/startTransition#caveats)).
+
+For example, renaming a user re-renders every comment that shows their name:
 
 ```tsx
 import { startTransition, type FormEvent } from 'react';
 import { useController } from '@data-client/react';
 import { UserResource, type User } from './UserResource';
 
-// Every comment shows its author's name, so a rename re-renders them all
 export function RenameUser({ user }: { user: User }) {
   const ctrl = useController();
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const name = String(new FormData(e.currentTarget).get('name'));
+    const name = new FormData(e.currentTarget).get('name') as string;
     startTransition(() => {
       ctrl.fetch(UserResource.partialUpdate, { id: user.id }, { name });
     });
@@ -526,22 +539,8 @@ export function RenameUser({ user }: { user: User }) {
 }
 ```
 
-React renders the optimistic update at transition priority, which yields to user input. Wrap the call in braces, as
-above, so the callback returns nothing. In React 19, a callback that returns the `fetch()` promise is an async Action,
-and React holds the optimistic update until the server responds.
-
-### When to use it
-
-Use a transition when an optimistic update re-renders many components, and the click is still slow after you make
-that render cheaper with [React Compiler](https://react.dev/learn/react-compiler) or `memo()` on expensive components.
-Try the cheaper render first: it keeps the update instant, while a transition only moves it after the paint.
-
-Skip it when:
-
-- The update re-renders only a few components. The render already fits in the click's frame, so a transition only
-  shows the update later.
-- The control is a controlled input, like `TodoItem`'s checkbox. React resets the input to its last rendered value, so
-  the checkbox flips back until the transition renders (see the
-  [startTransition() caveats](https://react.dev/reference/react/startTransition#caveats)).
+React renders the optimistic update at transition priority, so the browser paints and handles input first. Wrap the
+call in braces, as above, so the callback returns nothing. In React 19, a callback that returns the `fetch()` promise is
+an async Action, and React holds the optimistic update until the server responds.
 
 :::

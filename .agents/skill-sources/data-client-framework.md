@@ -118,11 +118,9 @@ const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId:
 ```
 :::react
 
-An optimistic `ctrl.fetch()` renders before the click paints. If one re-renders many components (e.g. a user's name
-on every comment), make that render cheaper first (React Compiler, `memo()`). Only if the click is still slow, wrap
-the call in `startTransition(() => { ctrl.fetch(...); })`: braces, since a returned promise makes React 19 hold the
-update until the server responds. Never for a controlled input; it flips back until the transition renders. Details:
-skill "data-client-rest", optimistic-updates reference.
+If an optimistic `ctrl.fetch()` re-renders many components and the click is still slow after React Compiler or
+`memo()`, wrap it in `startTransition(() => { ctrl.fetch(...); })`. Keep the braces: a returned promise makes React 19
+hold the update until the server responds. Not for controlled inputs: the input flips back until the transition renders.
 :::
 :::vue
 
