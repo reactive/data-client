@@ -77,8 +77,8 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
 | **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | <2% |
-| **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view`, `move-item`, `create-open-detail-10`, `move-switch-list-10` | 2–4% |
-| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5–15% |
+| **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view`, `move-item` | 2–4% |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes, `create-open-detail-10`, `move-switch-list-10` | 5–15% |
 
 CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
 
