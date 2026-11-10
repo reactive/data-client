@@ -19,4 +19,4 @@ await ctrl.fetch(
 // both lists now show the new todo
 ```
 
-A custom [createCollectionFilter](https://dataclient.io/rest/api/Collection#createcollectionfilter) now runs once per created item and gets it as a second argument: `(...args) => (collectionKey, item) => boolean`.
+A custom [createCollectionFilter](https://dataclient.io/rest/api/Collection#createcollectionfilter) now runs once per created item and gets it as a second argument: `(...args) => (collectionKey, item) => boolean`. [move](https://dataclient.io/rest/api/Collection#move) passes the entity's stored values (for the lists it leaves) and merged values (for the lists it joins). `remove` passes no item.

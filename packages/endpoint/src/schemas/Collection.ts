@@ -457,13 +457,14 @@ function acceptedRefs(
       members ||= refs.slice(0, i);
     else if (members) members.push(refs[i]);
   }
-  if (!members) return refs;
+  // an empty list leaves stored lists untouched
+  if (!members) return refs.length ? refs : undefined;
   return members.length ? members : undefined;
 }
 
 /** Like acceptedRefs(), for Values (which leaves out null members)
  *
- * Separate loops keep each one seeing a single shape.
+ * Kept apart from acceptedRefs() so each loop sees a single shape.
  */
 function acceptedValues(
   refs: Record<string, any>,
@@ -478,7 +479,7 @@ function acceptedValues(
       (members ||= {})[k] = refs[k];
     else all = false;
   }
-  return all ? refs : members;
+  return all && members ? refs : members;
 }
 
 /** Indexes of the incoming items whose entity was deleted.
