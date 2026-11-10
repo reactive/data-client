@@ -24,7 +24,7 @@
       "name": "managers-upgrade",
       "prompt": "hey, we bumped @data-client to 0.19 in our chat app (it's installed already). can you finish the upgrade so everything works like before? commit is fine to leave to me.",
       "setup": "Same as eval 1, with files/chat-app, and also symlink @data-client/test and @data-client/normalizr.",
-      "expected_output": "Codemod run; LiveManager defines middleware, opens its socket in init() and keeps `received` across cleanup(); PresenceManager gets a pass-through middleware; each store gets new Manager instances instead of the codemod's `() => managers` around a shared array; AuditNetworkManager stops reading cleanupDate; the renderDataHook test includes a NetworkManager; the console script uses __DC__.",
+      "expected_output": "Codemod run; LiveManager defines middleware, opens its socket in init() and keeps `received` across cleanup(); PresenceManager gets a pass-through middleware; each store gets new Manager instances instead of the codemod's `() => managers` around a shared array; AuditNetworkManager stops reading cleanupDate; the renderDataHook test includes a NetworkManager; the console script uses __DC__; useSendMessage uses getList.push; the test drops renderDataHook.cleanup().",
       "files": ["files/chat-app"],
       "assertions": [
         "LiveManager defines a `middleware` property and no `getMiddleware`.",
@@ -35,6 +35,23 @@
         "AuditNetworkManager no longer reads `cleanupDate`.",
         "The renderDataHook test's `managers` function includes a `NetworkManager`.",
         "scripts/dump-store.js reads `__DC__.controller` (setting `__DC__.store` is optional) instead of `__DC_CONTROLLERS__`.",
+        "useSendMessage fetches `MessageResource.getList.push` instead of the deprecated `MessageResource.create`.",
+        "The test no longer calls the deprecated `renderDataHook.cleanup()`; it uses the `cleanup` its `renderDataHook()` call returns, or drops the afterEach.",
+        "`npx tsc --noEmit -p .` passes."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "deprecations-opt-out",
+      "prompt": "we bumped @data-client to 0.19 in our chat app (installed already). please do just what 0.19 needs to keep working, nothing else; we'll deal with deprecated stuff in a later PR. it's a git repo, commit as you go.",
+      "setup": "Same as eval 2.",
+      "expected_output": "Breaking changes migrated and committed; deprecated APIs left as they were, with no deprecation TODOs: useSendMessage still uses MessageResource.create and the test still calls renderDataHook.cleanup().",
+      "files": ["files/chat-app"],
+      "assertions": [
+        "LiveManager defines a `middleware` property and no `getMiddleware`.",
+        "useSendMessage still fetches `MessageResource.create` (not `getList.push`).",
+        "The test still calls `renderDataHook.cleanup()`.",
+        "No `TODO(data-client)` comment remains.",
         "`npx tsc --noEmit -p .` passes."
       ]
     }

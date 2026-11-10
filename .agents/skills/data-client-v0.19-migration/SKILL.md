@@ -17,13 +17,13 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
   with React Navigation, stale data refetches on screen focus.
 - `@data-client/ssr` has no 0.19 release; if it's installed, read Step 3 first.
 - If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  linked skills match 0.19 (Step 8 unlinks the migration skills at the end).
+  linked skills match 0.19 (Step 9 ends by unlinking the migration skills).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`):
 
 ```bash
-npx @data-client/codemods v0.19 <source-root>
+npx @data-client/codemods v0.19 <source-root> --deprecations=false
 ```
 
 `0 errors, N unmodified` is a clean run, not a failure. The codemod parses JavaScript and TypeScript only, and skips
@@ -150,11 +150,33 @@ several stores, set `__DC__.store = name` first.
      endpoint without `sideEffect` never resolve; don't `await` them there.
    - A `DELETE` endpoint that declares `body` now sends its last argument as the body, not url params. If callers pass
      no body, remove `body` from the endpoint.
-4. If you ran `data-client-skills --upgrade` in Step 1, run `npx --no data-client-skills` last, to unlink the migration
-   skills. Not before: it removes this skill.
 
-Optional, same PR: the blog's [future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases)
-lists changes that will break later.
+## Step 9: deprecated APIs (own commit)
+
+They still work, but a later release removes them, so do this step unless the user opts out. Ask first when the user
+can answer mid-task; otherwise go ahead. Commit Steps 1-8 first and make this its own commit, so it reverts alone; if
+the user makes the commits, list the files this step changed instead.
+
+```bash
+npx @data-client/codemods v0.19 <source-root> --deprecations=only
+```
+
+It renames what has a drop-in replacement and leaves a `TODO(data-client)` comment naming the replacement on the rest.
+Fix each, then delete the comment, and repeat Step 8. Gotchas:
+
+- `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `name`,
+  never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and
+  options. Resources from another file not named `*Resource` get no TODO, so also check
+  `rg -n '\.create\b' <source-root>`.
+- `waitForNextUpdate()` in `renderDataCompose()` tests: `await result` for the first load, `await allSettled()` after
+  changing props or calling the controller.
+
+Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`. The blog's
+[future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases) lists changes that will break
+later.
+
+Last, whether or not you did this step: if you ran `data-client-skills --upgrade` in Step 1, run
+`npx --no data-client-skills` to unlink the migration skills. Not before: it removes this skill.
 
 ## Reference
 

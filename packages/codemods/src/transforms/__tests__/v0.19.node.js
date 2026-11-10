@@ -1,8 +1,21 @@
 'use strict';
 
-const { defineInlineTest } = require('jscodeshift/dist/testUtils');
+const {
+  applyTransform,
+  defineInlineTest,
+} = require('jscodeshift/dist/testUtils');
 
 const transform = require('../v0.19');
+
+const DEPRECATIONS_INPUT = `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
+ctrl.fetch(PostResource.create, body);
+renderDataHook.cleanup();
+`;
 
 describe('v0.19 codemod', () => {
   describe('DataProvider managers', () => {
@@ -1180,6 +1193,364 @@ vi.spyOn(ctrl, 'fetchIfStale').mockResolvedValueOnce(a).mockResolvedValueOnce(b)
 jest.spyOn(ctrl, 'fetch').mockReturnValue(other);
       `,
       'makes fetchIfStale() mocks resolve their value',
+    );
+  });
+
+  describe('deprecated APIs', () => {
+    defineInlineTest(
+      transform,
+      { path: 'resources.ts' },
+      `
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote', { path: '/posts/:id/vote', method: 'POST' });
+const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
+const TeamResource = resource({ path: '/teams/:id', schema: Team }).extend({ [key]: { path: '/orgs/teams' } });
+const TagListResource = resource({ path: '/tags/:id', schema: Tag }).extend('create', { path: '/tags/new' });
+const NoteResource = resource({ path: '/notes/:id', schema: Note }) as NoteResourceType;
+
+export const createPost = (ctrl, body) => ctrl.fetch(PostResource.create, body);
+export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+export const createTeam = (ctrl, body) => ctrl.fetch(TeamResource.create, body);
+export const createTagList = (ctrl, body) => ctrl.fetch(TagListResource.create, body);
+export const createNote = (ctrl, body) => ctrl.fetch(NoteResource.create, body);
+export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
+export const clone = Object.create(null);
+      `,
+      `
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post }).extend('vote', { path: '/posts/:id/vote', method: 'POST' });
+const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team/users' } });
+const TeamResource = resource({ path: '/teams/:id', schema: Team }).extend({ [key]: { path: '/orgs/teams' } });
+const TagListResource = resource({ path: '/tags/:id', schema: Tag }).extend('create', { path: '/tags/new' });
+const NoteResource = resource({ path: '/notes/:id', schema: Note }) as NoteResourceType;
+
+export const createPost = (ctrl, body) => ctrl.fetch(PostResource.getList.push, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createTeam = (ctrl, body) => ctrl.fetch(TeamResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createTagList = (ctrl, body) => ctrl.fetch(TagListResource.create, body);
+export const createNote = (ctrl, body) => ctrl.fetch(NoteResource.getList.push, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
+export const clone = Object.create(null);
+      `,
+      'renames create on a resource() declared here, and marks other resources',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'index.tsx' },
+      `
+import { DevToolsManager } from '@data-client/react';
+
+const devtools = new DevToolsManager({ actionsBlacklist: ['rdc/gc'], actionsWhitelist: ['rdc/fetch'] });
+const both = new DevToolsManager({ actionsBlacklist: ['a'], actionsDenylist: ['b'] });
+const defaults = getDefaultManagers({ devToolsManager: { actionsBlacklist: ['c'] } });
+const payload = JSON.stringify({ actionsBlacklist: ['d'] });
+      `,
+      `
+import { DevToolsManager } from '@data-client/react';
+
+const devtools = new DevToolsManager({ actionsDenylist: ['rdc/gc'], actionsAllowlist: ['rdc/fetch'] });
+const both = new DevToolsManager({ actionsBlacklist: ['a'], actionsDenylist: ['b'] });
+const defaults = getDefaultManagers({ devToolsManager: { actionsDenylist: ['c'] } });
+const payload = JSON.stringify({ actionsBlacklist: ['d'] });
+      `,
+      'renames the DevTools action filter options',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataHook } from '@data-client/test';
+
+afterEach(() => {
+  renderDataHook.cleanup();
+});
+
+it('loads', async () => {
+  const { result, waitForNextUpdate } = renderDataHook(() => useThing(), { resolverFixtures });
+  await waitForNextUpdate();
+  expect(result.current).toBeDefined();
+  await renderDataHook.allSettled();
+});
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+
+afterEach(() => {
+  // TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled
+  renderDataHook.cleanup();
+});
+
+it('loads', async () => {
+  const { result, waitForNextUpdate } = renderDataHook(() => useThing(), { resolverFixtures });
+  // TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) on what the test waits for: https://dataclient.io/docs/api/renderDataHook#waitfor
+  await waitForNextUpdate();
+  expect(result.current).toBeDefined();
+  // TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled
+  await renderDataHook.allSettled();
+});
+      `,
+      'marks deprecated test helpers',
+    );
+
+    defineInlineTest(
+      transform,
+      { deprecations: false },
+      DEPRECATIONS_INPUT,
+      `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await ctrl.fetchIfStale(PostResource.get, { id });
+ctrl.fetch(PostResource.create, body);
+renderDataHook.cleanup();
+      `,
+      'skips deprecated APIs with --deprecations=false',
+    );
+
+    defineInlineTest(
+      transform,
+      { deprecations: 'only' },
+      DEPRECATIONS_INPUT,
+      `
+import { renderDataHook } from '@data-client/test';
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+await Promise.resolve(ctrl.fetchIfStale(PostResource.get, { id }));
+ctrl.fetch(PostResource.getList.push, body);
+// TODO(data-client): renderDataHook.cleanup() and .allSettled() act only on the latest render and are deprecated; use the ones each renderDataHook() call returns: https://dataclient.io/docs/api/renderDataHook#allsettled
+renderDataHook.cleanup();
+      `,
+      'migrates only deprecated APIs with --deprecations=only',
+    );
+
+    it('rejects other --deprecations values', () => {
+      expect(() =>
+        applyTransform(
+          transform,
+          { deprecations: 'onyl' },
+          {
+            source: DEPRECATIONS_INPUT,
+          },
+        ),
+      ).toThrow('--deprecations must be false or only');
+    });
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+const { waitForNextUpdate } = await renderDataCompose(() => useThing());
+await waitForNextUpdate();
+      `,
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+const { waitForNextUpdate } = await renderDataCompose(() => useThing());
+// TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+await waitForNextUpdate();
+      `,
+      'marks Vue waitForNextUpdate() with the renderDataCompose replacement',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { act } from '@testing-library/react';
+import { useSuspense } from '@data-client/react';
+import { renderDataHook } from '../test-utils';
+
+const { waitForNextUpdate } = renderDataHook(() => useSuspense(ThingResource.get));
+await waitForNextUpdate();
+      `,
+      `
+import { act } from '@testing-library/react';
+import { useSuspense } from '@data-client/react';
+import { renderDataHook } from '../test-utils';
+
+const { waitForNextUpdate } = renderDataHook(() => useSuspense(ThingResource.get));
+// TODO(data-client): waitForNextUpdate() is deprecated; await waitFor(() => expect(...)) on what the test waits for: https://dataclient.io/docs/api/renderDataHook#waitfor
+await waitForNextUpdate();
+      `,
+      'marks waitForNextUpdate() from a re-exported renderDataHook',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'main.ts' },
+      `
+import { createDataClient, type ProvidedDataClient } from '@data-client/vue';
+
+const client: ProvidedDataClient = createDataClient({ managers: () => [] });
+      `,
+      `
+import { createDataClient, type ProvidedDataClient } from '@data-client/vue';
+
+// TODO(data-client): createDataClient() and ProvidedDataClient are deprecated and will stop being exported; install the plugin with app.use(DataClientPlugin, options) and read the controller with useController(): https://dataclient.io/vue/api/DataClientPlugin
+const client: ProvidedDataClient = createDataClient({ managers: () => [] });
+      `,
+      'marks createDataClient()',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'posts.ts' },
+      `
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+let DraftResource = resource({ path: '/drafts/:id', schema: Draft });
+DraftResource = makeOther();
+const NoteResource = resource({ path: '/notes/:id', schema: Note });
+NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
+const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
+const KeyedResource = resource({ path: '/keyed/:id', schema: Keyed, key: keyByName });
+const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
+const TagResource = resource({ path: '/tags/:id', schema: Tag });
+Object.assign(TagResource.getList, { path: '/custom' });
+const ListResource = resource({ path: '/lists/:id', schema: List });
+const lists = ListResource.getList;
+const PathResource = resource({ path: '/paths/:id', schema: Path });
+[PathResource.getList.path] = ['/other'];
+export const ExpResource = resource({ path: '/exps/:id', schema: Exp });
+class LocalResource { static create() {} }
+
+ctrl.fetch(/* new post */ PostResource.create, body);
+PostResource.create(body);
+const isCreate = action.endpoint === PostResource.create;
+ctrl.fetch(DraftResource.create, body);
+ctrl.fetch(NoteResource.create, body);
+ctrl.fetch(TaskResource.create, body);
+ctrl.fetch(KeyedResource.create, body);
+ctrl.fetch(KeyResource.create, body);
+ctrl.fetch(TagResource.create, body);
+ctrl.fetch(ListResource.create, body);
+ctrl.fetch(PathResource.create, body);
+ctrl.fetch(ExpResource.create, body);
+LocalResource.create();
+function local(resource) {
+  const ShadowResource = resource({});
+  return ShadowResource.create;
+}
+      `,
+      `
+import { resource } from '@data-client/rest';
+
+const PostResource = resource({ path: '/posts/:id', schema: Post });
+let DraftResource = resource({ path: '/drafts/:id', schema: Draft });
+DraftResource = makeOther();
+const NoteResource = resource({ path: '/notes/:id', schema: Note });
+NoteResource.getList = NoteResource.getList.extend({ path: '/team/notes' });
+const TaskResource = resource({ path: '/tasks/:id', schema: Task, Endpoint: TaskEndpoint });
+const KeyedResource = resource({ path: '/keyed/:id', schema: Keyed, key: keyByName });
+const KeyResource = resource({ path: '/keys/:id', schema: Key, [optionKey]: KeyEndpoint });
+const TagResource = resource({ path: '/tags/:id', schema: Tag });
+Object.assign(TagResource.getList, { path: '/custom' });
+const ListResource = resource({ path: '/lists/:id', schema: List });
+const lists = ListResource.getList;
+const PathResource = resource({ path: '/paths/:id', schema: Path });
+[PathResource.getList.path] = ['/other'];
+export const ExpResource = resource({ path: '/exps/:id', schema: Exp });
+class LocalResource { static create() {} }
+
+ctrl.fetch(/* new post */ PostResource.getList.push, body);
+PostResource.getList.push(body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+const isCreate = action.endpoint === PostResource.create;
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(DraftResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(NoteResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(TaskResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(KeyedResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(KeyResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(TagResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(ListResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(PathResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+ctrl.fetch(ExpResource.create, body);
+LocalResource.create();
+function local(resource) {
+  const ShadowResource = resource({});
+  // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+  return ShadowResource.create;
+}
+      `,
+      'renames create only where it runs on a resource() nothing changes',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderHook } from '@testing-library/react-hooks';
+import { DevToolsManager } from '@data-client/react';
+
+const { waitForNextUpdate } = renderHook(() => useThing());
+await waitForNextUpdate();
+const devtools = new DevToolsManager({ ...base, actionsBlacklist: ['a'] });
+const other = configure({ devToolsManager: { actionsBlacklist: ['b'] } });
+const keyed = new DevToolsManager({ [filterKey]: modern, actionsBlacklist: ['c'] });
+      `,
+      `
+import { renderHook } from '@testing-library/react-hooks';
+import { DevToolsManager } from '@data-client/react';
+
+const { waitForNextUpdate } = renderHook(() => useThing());
+await waitForNextUpdate();
+const devtools = new DevToolsManager({ ...base, actionsBlacklist: ['a'] });
+const other = configure({ devToolsManager: { actionsBlacklist: ['b'] } });
+const keyed = new DevToolsManager({ [filterKey]: modern, actionsBlacklist: ['c'] });
+      `,
+      'leaves other libraries, and DevTools options with a spread or computed key, alone',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
+import { renderDataHook } from '@data-client/test';
+
+let hook;
+beforeEach(() => {
+  hook = renderDataHook(() => useThing());
+});
+it('loads', async () => {
+  await hook.waitForNextUpdate();
+  await globalHook.waitForNextUpdate();
+});
+      `,
+      `
+import { renderDataHook } from '@data-client/test';
+
+let hook;
+beforeEach(() => {
+  hook = renderDataHook(() => useThing());
+});
+it('loads', async () => {
+  await hook.waitForNextUpdate();
+  await globalHook.waitForNextUpdate();
+});
+      `,
+      'skips waitForNextUpdate() whose render helper it cannot trace',
     );
   });
 });
