@@ -36,9 +36,9 @@ export const routes = [
     ) => {
       const query = `${search?.get('query') || 'is:open'} is:pr`;
       const q = `${query} repo:${owner}/${repo}`;
-      controller.fetchIfStale(IssueResource.search, {
-        q,
-      });
+      await Promise.allSettled([
+        controller.fetchIfStale(IssueResource.search, { q }),
+      ]);
     },
   },
   {
@@ -52,9 +52,9 @@ export const routes = [
     ) => {
       const query = `${search?.get('query') || 'is:open'} is:issue`;
       const q = `${query} repo:${owner}/${repo}`;
-      controller.fetchIfStale(IssueResource.search, {
-        q,
-      });
+      await Promise.allSettled([
+        controller.fetchIfStale(IssueResource.search, { q }),
+      ]);
     },
   },
   {
@@ -70,7 +70,9 @@ export const routes = [
         number,
       });
       controller.fetchIfStale(CommentResource.getList, { owner, repo, number });
-      controller.fetchIfStale(IssueResource.get, { owner, repo, number });
+      await Promise.allSettled([
+        controller.fetchIfStale(IssueResource.get, { owner, repo, number }),
+      ]);
     },
   },
   {

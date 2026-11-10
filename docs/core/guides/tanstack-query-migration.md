@@ -362,10 +362,8 @@ like `prefetchQuery()`: a failure never rejects unhandled, and is stored for com
 focus prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Awaited, it works like
 `fetchQuery()` with a `staleTime`: it resolves the data, waiting for the refetch when cached data is stale, or rejects
 with the error. Use the awaited form where the loader used `fetchQuery()`, and the pattern above where it used
-`ensureQueryData()` or `getQueryData() ?? fetchQuery()`. `ExpiryStatus.Valid` means the data can render, so
-[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) data waits like `useSuspense()` does. This is for
-routers that wait for loaders; with a router that doesn't, like @anansi/router, call `fetchIfStale()` without awaiting it
-([Route loaders](../api/Controller.md#fetchIfStale-loaders)). Load several endpoints the way the loader did before;
+`ensureQueryData()` or `getQueryData() ?? fetchQuery()`, for routers that wait for loaders
+([Route loaders](../api/Controller.md#fetchIfStale-loaders) covers the others). Load several endpoints the way the loader did before;
 letting the page show before secondary data arrives belongs to the [performance pass](./performance-pass.md#loaders).
 
 ## Infinite queries {#infinite}
