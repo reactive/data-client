@@ -31,6 +31,7 @@ ship into the project's skill folder, then read `.claude/skills/<skill>/SKILL.md
 | React hooks: `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` | `react` |
 | Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` | `vue` |
 | Tests | `data-client-react-testing` or `data-client-vue-testing` | `react` or `vue` |
+| Make data loading, navigation or mutations faster; the performance pass after a migration | `data-client-performance` | `react` |
 | WebSockets, SSE, polling, global side effects | `data-client-manager` | `core` |
 
 To add a protocol the app doesn't depend on yet, move axios or fetch calls to REST endpoints, write GraphQL queries or

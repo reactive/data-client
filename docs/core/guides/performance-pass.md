@@ -1,0 +1,219 @@
+---
+frameworks: [react]
+title: Performance pass
+sidebar_label: Performance pass
+description: Find the speedups an app on Data Client may be missing, such as detail pages from list data, loaders that wait for less, and optimistic updates.
+---
+
+# Performance pass
+
+Data Client can make an app faster than a plain migration shows. Run this pass after a migration, or at any time on an
+app that already uses Data Client.
+
+A migration should already give the [built-in wins](#built-in): they take little code and fix stale or slow behavior,
+so check that they are in place and correct any that are missing. The [changes with tradeoffs](#tradeoffs) need extra
+code or change what users see, such as when a loading state shows or when a change appears. They make a separate,
+optional stage: make them one at a time, keep the tests passing, and skip any you don't want.
+
+## Measure first {#measure}
+
+Record a baseline before you change anything, and measure again after each change:
+
+- **Requests:** in the browser's Network panel, count reads for each navigation and after each mutation.
+- **Time to update:** in the Performance panel, the time from a click until the screen shows its result, not just
+  the next paint. Throttle the CPU and add network latency so the numbers resemble real devices.
+- **Renders:** the React DevTools Profiler shows which components render after an update.
+
+Without a browser, count the requests each flow makes from the code and its tests, and say how you counted.
+
+## Built-in wins {#built-in}
+
+### Details from lists {#list-detail}
+
+A detail endpoint whose schema holds the list's [Entity](/rest/api/Entity) renders an item the list already loaded,
+with no fetch, while that data is fresh. The lookup uses the endpoint's args, so they must use the field name the
+Entity's `pk()` reads (`{ id }`, not `{ issueId }`), or a field in its [indexes](/rest/api/Entity#indexes).
+
+- **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that name
+  neither the primary key nor an index (`{ slug }` without `static indexes = ['slug']`); list data copied into the
+  detail by hand.
+- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. For other lookup
+  fields, add an index rather than renaming the args. Delete the copying. When the list returns fewer fields than the
+  detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a
+  `validate()`, so the detail still fetches the full item ([partial entities](/rest/guides/partial-entities)).
+- **Users see:** the detail page shows at once when opened from the list. It makes no request while the list is fresh
+  and holds every field the detail requires.
+
+### One Entity everywhere {#entities}
+
+Every place that shows a server object reads the same Entity, so one response updates all of them.
+
+- **Find:** Entity fields holding objects with their own id but no [`static schema`](/rest/api/Entity#schema) entry;
+  two Entity classes with different keys for the same server object (a summary Entity that the detail Entity extends
+  with the same `key` is fine); update endpoints with no schema; `ctrl.expireAll()`,
+  `ctrl.invalidate()` or a refetch after an update.
+- **Change:** nest the Entity in `static schema` (`{ author: User, labels: [Label] }`), give update endpoints the
+  Entity as schema, and delete the refetch.
+- **Users see:** an edit shows in every row, card and detail at once, with no request.
+
+### Mutations update lists in place {#lists}
+
+- **Find:** `ctrl.expireAll()`, `ctrl.invalidate()` or a refetch of a list after a create, delete, or a change that
+  moves an item between filtered lists.
+- **Change:** create through the list's [Collection](/rest/api/Collection) `push` or `unshift` endpoint; delete with
+  `resource().delete` or an [Invalidate](/rest/api/Invalidate) schema; move with the Collection's
+  [`move`](/rest/api/RestEndpoint#move) endpoint. Keep `expireAll()` for numbered pages, whose later items shift; for
+  lists whose order or membership the server decides; and for data the response doesn't include, such as counts and
+  totals.
+- **Users see:** the new, removed or moved item shows without a reload of the list.
+
+### Reads skip fresh data {#fetch-if-stale}
+
+- **Find:** `useEffect()` that fetches; `ctrl.fetch()` of a read endpoint in route loaders or prefetch handlers.
+- **Change:** components read with `useSuspense()` or [useFetch()](../api/useFetch.md). Only code where hooks can't
+  run, such as route loaders and prefetch on hover, calls `ctrl.fetchIfStale()`. `ctrl.fetch()` always requests, even
+  when the store holds fresh data, so keep it only where the user asks for a refresh.
+- **Users see:** no change; fewer requests per navigation.
+
+## Changes with tradeoffs {#tradeoffs}
+
+### Loaders wait only for the first view {#loaders}
+
+A router loader that awaits every request makes the page wait for the slowest one, even when the main item came from
+the list. Await only the data the page shows first. Start the rest without `await`, and give each component that reads
+it its own [AsyncBoundary](../api/AsyncBoundary.md):
+
+```ts title="Before"
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { issueId?: string } }) => {
+    const id = Number(params.issueId);
+    return Promise.all([
+      ctrl.fetchIfStale(IssueResource.get, { id }),
+      ctrl.fetchIfStale(getNotes, { issueId: id }),
+    ]);
+  };
+```
+
+```ts title="After"
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { issueId?: string } }) => {
+    const id = Number(params.issueId);
+    // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
+    ctrl.fetchIfStale(getNotes, { issueId: id });
+    return ctrl.fetchIfStale(IssueResource.get, { id });
+  };
+```
+
+```tsx title="IssuePage.tsx"
+import { AsyncBoundary } from '@data-client/react';
+import IssueDetail from './IssueDetail';
+import IssueNotes from './IssueNotes';
+import Spinner from './Spinner';
+
+export default function IssuePage({ id }: { id: number }) {
+  return (
+    <>
+      <IssueDetail id={id} />
+      <AsyncBoundary fallback={<Spinner />}>
+        <IssueNotes issueId={id} />
+      </AsyncBoundary>
+    </>
+  );
+}
+```
+
+- **Find:** loaders that `await` or `Promise.all()` several requests; components that call `useSuspense()` below the
+  page's main content with no boundary of their own.
+- **Users see:** the page shows while the secondary parts show their own loading state.
+
+### Prefetch on intent {#prefetch}
+
+- **Find:** links to pages whose data the store doesn't hold yet, on routes without a loader.
+- **Change:** call `ctrl.fetchIfStale(endpoint, args)` in the link's `onMouseEnter` and `onFocus`, or add a loader.
+- **Users see:** the page shows without a loading state. Links that are hovered but not clicked cost a request.
+
+### Expiry fits the data {#expiry}
+
+Data Client refetches data older than its endpoint's [`dataExpiryLength`](/rest/api/RestEndpoint#dataexpirylength)
+(60 seconds by default) when a component next reads it. Mutations that update the store in place keep data right
+between fetches, so most data can stay fresh longer.
+
+- **Find:** `dataExpiryLength: 0`, very short expiry or `invalidIfStale: true` copied from a TanStack Query
+  `staleTime: 0`; data that rarely changes, such as the current user, settings or option lists, left on the default.
+- **Change:** remove those overrides, and raise `dataExpiryLength` on endpoints whose data changes only through this
+  app.
+- **Users see:** fewer background refetches and no loading state when coming back to a page. Changes made elsewhere
+  show later.
+
+### Optimistic updates {#optimistic}
+
+When the client can predict a mutation's result, show it at once and let Data Client roll it back if the request fails.
+Use [getOptimisticResponse()](/rest/guides/optimistic-updates) on the endpoint, or `optimistic: true` on
+[resource()](/rest/api/resource). `optimistic: true` covers every mutation, including creates. Until the server
+answers, a new item is stored under a random temporary key, but its `id` and `pk()` keep the Entity's default (such as
+`0`), so key its row by something else and disable its other mutations; to make one mutation optimistic, add
+`getOptimisticResponse` to just that endpoint with `resource().extend('partialUpdate', { ... })`.
+
+- **Find:** `ctrl.fetch()` of updates, deletes and creates whose response the client can predict from the body and
+  the store.
+- **Users see:** changes appear on click. A failed request reverts the change, so keep showing its error.
+
+### Derived views in Query {#query}
+
+- **Find:** sorting, filtering or grouping of fetched data in render or `useMemo()`.
+- **Change:** make a [Query](/rest/api/Query) the endpoint's schema and keep reading it with `useSuspense()`
+  ([client-side sorting](/rest/guides/sorting-client-side)). Its result is memoized across components and recomputes
+  only when its inputs change. [useQuery()](../api/useQuery.md) never fetches, so use it only where the data is
+  already fetched elsewhere.
+- **Users see:** no change; updates render faster in large lists.
+
+### Parallel reads {#parallel}
+
+- **Find:** two `useSuspense()` calls in one component where neither needs the other's data; a child that starts its
+  fetch only after its parent's data arrives.
+- **Change:** start both with [useFetch()](../api/useFetch.md#parallel-data-loading) and read them with `use()`, or
+  start the child's fetch in the route loader. Below React 19, which has no `use()`, call `useFetch()` for each
+  endpoint and then `useSuspense()` for each; the reads reuse the requests already in flight.
+- **Users see:** the page loads sooner.
+
+### Keep current data during changes {#transitions}
+
+- **Find:** pagination, filters or search that flash a loading fallback.
+- **Change:** change the args inside `startTransition()`, or [useDebounce()](../api/useDebounce.md) for typed input.
+- **Users see:** the current results stay until the next ones are ready.
+
+### Stable references {#references}
+
+Data Client keeps each Entity's object the same until it changes, so memoized components and React Compiler skip rows
+that did not change.
+
+- **Find:** entities copied or reshaped in render (`{ ...issue }`, `issues.map(toViewModel)`) before they go to child
+  components.
+- **Change:** pass the Entity itself; put computed fields on the Entity class as getters.
+- **Users see:** no change; fewer components render after each update.
+
+### React 19 and React Compiler {#compiler}
+
+[React Compiler](https://react.dev/learn/react-compiler) memoizes components and hooks at build time. With the stable
+references above, fewer components render after a store update.
+
+- **Find:** `react` below 19 in package.json; no `babel-plugin-react-compiler` in the build (Babel or Vite config,
+  `reactCompiler` in Next.js config, or `experiments.reactCompiler` in Expo's app.json).
+- **Change on React 19:** follow the [installation guide](https://react.dev/learn/react-compiler/installation) and turn
+  on the `eslint-plugin-react-hooks` recommended rules. The compiler skips components that break the
+  [Rules of React](https://react.dev/reference/rules), and the lint rules name them. Leave existing memoization in
+  place, and run the tests.
+- **Below React 19:** upgrading React is its own project, so don't do it in this pass. Explain what React 19 brings
+  this app: `use()` for the [parallel reads](#parallel) above, and in 19.2,
+  [`<Activity>`](https://react.dev/reference/react/Activity) to keep hidden pages' state and rendered output. Then ask
+  whether to upgrade as a follow-up, with the [upgrade guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide),
+  and offer to add the compiler with it. The compiler also runs on React 17 and 18 with `react-compiler-runtime`; add
+  it before the upgrade only if the user asks.
+- **Until the upgrade:** wrap expensive list rows in `memo()`, so rows whose Entity did not change skip rendering.
+- **Users see:** no change. The compiled JavaScript is larger, so measure load time too.
+
+## Report {#report}
+
+For each section, record what you found, what you changed or skipped and why, and the before and after numbers.

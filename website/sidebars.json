@@ -115,6 +115,10 @@
           "items": [
             {
               "type": "doc",
+              "id": "guides/performance-pass"
+            },
+            {
+              "type": "doc",
               "id": "guides/ssr"
             },
             {

@@ -1,0 +1,85 @@
+{
+  "skill_name": "data-client-performance",
+  "evals": [
+    {
+      "id": 1,
+      "name": "discussion-page-pass",
+      "source": "bulletproof-react migration on 0.19 beta: the detail loader awaited the comments list, so the discussion served from the list's cache still waited a round trip (open discussion 961 ms vs 964 ms for TanStack Query); the other checks come from examples/benchmark-react scenarios",
+      "prompt": "Do a performance pass on our discussion page. It already uses Data Client (@data-client/react 0.19, @data-client/rest) on React 19.2. There is no browser here, so skip live measurement. Write the changed files.\n\n```ts\n// vite.config.ts\nexport default defineConfig({ plugins: [react()] });\n```\n\n```ts\n// resources.ts\nexport class Comment extends Entity {\n  id = '';\n  body = '';\n  createdAt = 0;\n  discussionId = '';\n  static key = 'Comment';\n}\nexport class Discussion extends Entity {\n  id = '';\n  title = '';\n  body = '';\n  static key = 'Discussion';\n}\nexport const DiscussionResource = resource({\n  path: '/discussions/:id',\n  schema: Discussion,\n});\nexport const CommentResource = resource({\n  path: '/comments/:id',\n  searchParams: {} as { discussionId: string },\n  schema: Comment,\n});\n```\n\n```tsx\n// routes/discussion.tsx\nexport const clientLoader =\n  (ctrl: Controller) =>\n  async ({ params }: LoaderFunctionArgs) => {\n    const id = params.discussionId as string;\n    return Promise.all([\n      ctrl.fetchIfStale(DiscussionResource.get, { id }),\n      ctrl.fetchIfStale(CommentResource.getList, { discussionId: id }),\n    ]);\n  };\n\nexport default function DiscussionRoute() {\n  const { discussionId } = useParams() as { discussionId: string };\n  const discussion = useSuspense(DiscussionResource.get, { id: discussionId });\n  return (\n    <ContentLayout title={discussion.title}>\n      <p>{discussion.body}</p>\n      <RenameDiscussion id={discussionId} />\n      <CommentsList discussionId={discussionId} />\n    </ContentLayout>\n  );\n}\n\n// features/comments/comments-list.tsx\nexport function CommentsList({ discussionId }: { discussionId: string }) {\n  const ctrl = useController();\n  const comments = useSuspense(CommentResource.getList, { discussionId });\n  const sorted = useMemo(\n    () => [...comments].sort((a, b) => b.createdAt - a.createdAt),\n    [comments],\n  );\n  const addComment = async (body: string) => {\n    await ctrl.fetch(CommentResource.create, { discussionId }, { body, discussionId });\n    ctrl.expireAll(CommentResource.getList);\n  };\n  return (\n    <>\n      <CommentForm onSubmit={addComment} />\n      <ul>{sorted.map((c) => <li key={c.id}>{c.body}</li>)}</ul>\n    </>\n  );\n}\n\n// features/discussions/rename-discussion.tsx\nexport function RenameDiscussion({ id }: { id: string }) {\n  const ctrl = useController();\n  return (\n    <TitleForm\n      onSubmit={(title) => ctrl.fetch(DiscussionResource.partialUpdate, { id }, { title })}\n    />\n  );\n}\n```\n",
+      "expected_output": "An audit of every check in the guide, then: the loader awaits only the discussion and starts the comments without awaiting, behind their own boundary; the redundant expireAll after create is gone; the sort moves to a Query schema that still fetches; the rename is optimistic; React Compiler is offered, not installed; each change states what users will see.",
+      "files": [],
+      "assertions": [
+        "The loader starts the comments fetch (`CommentResource.getList` or a Query-extended variant of it) with `fetchIfStale` without awaiting it, not inside an awaited or returned `Promise.all()`, and returns or awaits only the discussion's `fetchIfStale`. No code reads that unawaited call's return value as data (`void` or `.catch()` on it are fine).",
+        "A `<Suspense>` or `AsyncBoundary` with a loading fallback wraps `CommentsList` inside the discussion page.",
+        "`ctrl.expireAll(CommentResource.getList)` after the create is removed.",
+        "`CommentsList` reads the comments through `useSuspense`; the sort lives in a `Query` schema; no `useMemo` sort remains.",
+        "The rename is optimistic: `getOptimisticResponse` on the update endpoint or `optimistic: true` on `DiscussionResource`.",
+        "The audit flags that the build has no React Compiler (`babel-plugin-react-compiler`) and offers enabling it, without adding it to `vite.config.ts`.",
+        "Every code change in the reply states its user-visible effect (or says users see no change).",
+        "At least three of the guide's checks are reported as clean or not applicable.",
+        "The reply gives request counts for at least one flow before and after the changes, and says they were counted from the code rather than measured."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "react-18-compiler-follow-up",
+      "source": "bulletproof-react is on React 18.3 with plain @vitejs/plugin-react; its unmemoized markdown preview was about a fifth of the optimistic click's render. Policy: explain React 19's benefits and ask whether to upgrade as a follow-up, which brings React Compiler.",
+      "prompt": "Run a performance pass on our comments list. We use @data-client/react 0.19. No browser here, so skip live measurement. Write the changed files.\n\n```json\n// package.json (excerpt)\n{\n  \"dependencies\": { \"react\": \"^18.3.1\", \"react-dom\": \"^18.3.1\", \"@data-client/react\": \"^0.19.0\", \"@data-client/rest\": \"^0.19.0\" },\n  \"devDependencies\": { \"vite\": \"^6.0.0\", \"@vitejs/plugin-react\": \"^4.3.0\" }\n}\n```\n\n```ts\n// vite.config.ts\nexport default defineConfig({ plugins: [react()] });\n```\n\n```tsx\n// comments-list.tsx\nexport function CommentsList({ discussionId }: { discussionId: string }) {\n  const comments = useSuspense(CommentResource.getList, { discussionId });\n  const me = useSuspense(UserResource.current);\n  return (\n    <ul>\n      {comments.map((c) => (\n        <li key={c.id}>\n          <MDPreview value={c.body} />\n          {c.authorId === me.id && <DeleteComment id={c.id} />}\n        </li>\n      ))}\n    </ul>\n  );\n}\n```\n",
+      "expected_output": "React stays at 18 and no compiler is added; the two reads start in parallel with useFetch() for each, then useSuspense() for each (no use()); the reply explains what React 19 brings (use() for exactly this, Activity) and asks whether to upgrade as a follow-up, offering the compiler with it.",
+      "files": [],
+      "assertions": [
+        "No changed file upgrades `react` or `react-dom`, or adds `babel-plugin-react-compiler` or `react-compiler-runtime`.",
+        "`CommentsList` starts both reads in parallel: `useFetch()` for each endpoint before the `useSuspense()` calls (or both fetches started in a route loader). No `use()` import from React.",
+        "The reply explains what React 19 would bring this app, naming `use()` or `<Activity>`.",
+        "The reply asks whether to upgrade React as a follow-up step.",
+        "The reply offers to add React Compiler with that upgrade, and does not claim the compiler requires React 19."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "entities-and-refetches",
+      "source": "examples/benchmark-react update-user and update-entity-multi-view scenarios (nested Entities update every view); the TanStack guide keeps expireAll for data a response doesn't include",
+      "prompt": "Run a performance pass on our issues pages. We use @data-client/react 0.19 and @data-client/rest on React 19.2. No browser here, so skip live measurement. Write the changed files.\n\n```ts\n// resources.ts\nexport class User extends Entity {\n  id = 0;\n  name = '';\n  static key = 'User';\n}\nexport class Issue extends Entity {\n  id = 0;\n  title = '';\n  author = { id: 0, name: '' };\n  static key = 'Issue';\n}\nexport const UserResource = resource({ path: '/users/:id', schema: User });\nexport const IssueResource = resource({ path: '/issues/:id', schema: Issue });\nexport const getIssueStats = new RestEndpoint({ path: '/issues/stats' });\nexport const getIssuePage = new RestEndpoint({\n  path: '/issues',\n  searchParams: {} as { page: number },\n  schema: [Issue],\n});\n```\n\n```tsx\n// routes.tsx\nexport const issuesLoader = (ctrl: Controller) => () => ctrl.fetch(IssueResource.getList);\n\n// rename-user.tsx\nexport function RenameUser({ id }: { id: number }) {\n  const ctrl = useController();\n  const rename = async (name: string) => {\n    await ctrl.fetch(UserResource.partialUpdate, { id }, { name });\n    ctrl.expireAll(IssueResource.getList);\n  };\n  return <NameForm onSubmit={rename} />;\n}\n\n// close-issue.tsx\nexport function DeleteIssue({ id }: { id: number }) {\n  const ctrl = useController();\n  const remove = async () => {\n    await ctrl.fetch(IssueResource.delete, { id });\n    ctrl.expireAll(getIssueStats);\n    ctrl.expireAll(getIssuePage);\n  };\n  return <button onClick={remove}>Delete</button>;\n}\n```\n",
+      "expected_output": "Issue nests User via static schema so renaming a user updates every issue; the expireAll after the rename is removed; the loader uses fetchIfStale; the rename is optimistic; the expireAll calls for stats and numbered pages after delete are kept.",
+      "files": [],
+      "assertions": [
+        "`Issue` gets `static schema = { author: User }` (or equivalent), so the author is the shared `User` Entity.",
+        "`ctrl.expireAll(IssueResource.getList)` after the user rename is removed.",
+        "The loader uses `ctrl.fetchIfStale(IssueResource.getList)` instead of `ctrl.fetch`.",
+        "`ctrl.expireAll(getIssueStats)` after the delete is kept.",
+        "`ctrl.expireAll(getIssuePage)` after the delete is kept.",
+        "The rename is optimistic: `getOptimisticResponse` on `UserResource.partialUpdate` or `optimistic: true` on `UserResource`."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "partial-list-detail",
+      "source": "Guide check 'Details from lists': a list that returns fewer fields than the detail must not make the detail render a half-filled item (docs/rest/guides/partial-entities.md)",
+      "prompt": "Opening an issue from the list still shows a spinner. Can you speed it up? We use @data-client/react 0.19 and @data-client/rest on React 19.2. No browser here. Write the changed files.\n\nThe list endpoint returns `[{ \"id\": 1, \"title\": \"...\" }]`; the detail endpoint returns `{ \"id\": 1, \"title\": \"...\", \"body\": \"...\", \"assignee\": \"...\" }`.\n\n```ts\n// resources.ts\nexport class Issue extends Entity {\n  id = 0;\n  title = '';\n  body = '';\n  assignee = '';\n  static key = 'Issue';\n}\nexport const getIssues = new RestEndpoint({ path: '/issues', schema: [Issue] });\nexport const getIssue = new RestEndpoint({ path: '/issues/:issueId' });\n```\n\n```tsx\n// issue-page.tsx\nexport function IssuePage({ issueId }: { issueId: number }) {\n  const issue = useSuspense(getIssue, { issueId });\n  return (\n    <article>\n      <h1>{issue.title}</h1>\n      <p>Assigned to {issue.assignee}</p>\n      <Markdown value={issue.body} />\n    </article>\n  );\n}\n```\n",
+      "expected_output": "The detail endpoint gets an Entity schema and a lookup that matches the Entity's pk (path param renamed to id, or an index); because the list is partial, the list uses a summary Entity and the detail Entity extends it with the same key and a validate(), so the detail still fetches body and assignee; optionally the title shows from the list while the rest loads.",
+      "files": [],
+      "assertions": [
+        "`getIssue` gets a schema that holds an Issue Entity.",
+        "The detail lookup matches the Entity's primary key: the path param becomes `:id` and callers pass `{ id }`.",
+        "The detail never renders the list's partial item as complete: the list uses a summary Entity and the detail Entity extends it with the same `key` and a `validate()` (e.g. `validateRequired`) for `body`/`assignee`, or an equivalent that still fetches the detail.",
+        "No list data is copied into the detail by hand.",
+        "The reply says the full detail still needs a request because the list lacks `body` and `assignee`, rather than promising the page will show with no request."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "opt-out-and-opt-in",
+      "source": "SKILL.md step 4: the user opts out of changes by name, and dependency or build changes are made only when asked",
+      "prompt": "Do a performance pass on the issues page, but nothing optimistic: our server rewrites titles. Also turn on React Compiler. We use @data-client/react 0.19 and @data-client/rest on React 19.2. No browser here. Write the changed files.\n\n```ts\n// vite.config.ts\nexport default defineConfig({ plugins: [react()] });\n```\n\n```ts\n// resources.ts\nexport class Issue extends Entity {\n  id = 0;\n  title = '';\n  priority = 0;\n  static key = 'Issue';\n}\nexport const IssueResource = resource({ path: '/issues/:id', schema: Issue });\n```\n\n```tsx\n// issues-page.tsx\nconst IssueRow = memo(function IssueRow({ issue }: { issue: Issue }) {\n  const ctrl = useController();\n  return (\n    <li>\n      <TitleForm\n        value={issue.title}\n        onSubmit={(title) => ctrl.fetch(IssueResource.partialUpdate, { id: issue.id }, { title })}\n      />\n    </li>\n  );\n});\n\nexport function IssuesPage() {\n  const issues = useSuspense(IssueResource.getList);\n  const sorted = useMemo(() => [...issues].sort((a, b) => b.priority - a.priority), [issues]);\n  return <ul>{sorted.map((issue) => <IssueRow key={issue.id} issue={issue} />)}</ul>;\n}\n```\n",
+      "expected_output": "No optimistic updates; the sort still moves into a Query read with useSuspense; babel-plugin-react-compiler is added to the Vite config with the react-hooks lint rules; memo(IssueRow) is left in place.",
+      "files": [],
+      "assertions": [
+        "No `getOptimisticResponse` or `optimistic: true` is added anywhere.",
+        "The sort still moves out of `useMemo` into a `Query` schema read with `useSuspense`.",
+        "`babel-plugin-react-compiler` is added to the plugin options in `vite.config.ts`.",
+        "`memo(IssueRow)` is left in place.",
+        "The reply names the optimistic-updates check as skipped at the user's request."
+      ]
+    }
+  ]
+}

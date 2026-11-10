@@ -10,6 +10,10 @@
     "data-client-v0.18-migration"
   ],
   "@data-client/rest": ["data-client-rest", "path-to-regexp-v8-migration"],
-  "@data-client/react": ["data-client-react", "data-client-react-testing"],
+  "@data-client/react": [
+    "data-client-react",
+    "data-client-react-testing",
+    "data-client-performance"
+  ],
   "@data-client/vue": ["data-client-vue", "data-client-vue-testing"]
 }

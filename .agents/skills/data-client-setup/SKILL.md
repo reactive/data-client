@@ -74,7 +74,7 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | Detected | Skills |
 |----------|--------|
 | Always | `data-client-schema`, `data-client-manager` |
-| React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing` |
+| React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing`, `data-client-performance` |
 | Vue | `data-client-vue`, `data-client-vue-testing` |
 | REST | `data-client-rest` |
 | GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
@@ -270,6 +270,7 @@ When a React app uses TanStack Query, a request to set up or migrate to Data Cli
 the protocol guide above, so the REST guide's "leave how the app loads and stores data alone" does not apply here. Look up each
 TanStack Query API in its "API map" rather than working out a replacement, and finish with its "Check the migration"
 list. Libraries built on TanStack Query, like `react-query-auth`, are replaced in the same pass.
+When its checks pass, offer the optional performance pass (skill "data-client-performance") as a separate stage.
 Data Client's own `useQuery` reads the store and never fetches, so it is not the replacement for TanStack Query's
 `useQuery`: that is `useSuspense` (or `useDLE`).
 The guide is React only. For a Vue app on `@tanstack/vue-query`, tell the user this skill has no Vue migration guide

@@ -75,6 +75,8 @@ files.
   and mutation hooks, and [debugs your running app](./debugging.md#debugging-with-agents) from a browser tool such as Cursor's browser, Chrome DevTools MCP, or Playwright MCP.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
   fixtures, interceptors, and `nock`.
+- [**`/data-client-performance`**](https://skills.sh/reactive/data-client/data-client-performance) — runs the
+  [performance pass](../guides/performance-pass.md): finds speedups the app is missing and makes them, except any you opt out of.
 
 :::
 

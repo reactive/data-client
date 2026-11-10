@@ -36,6 +36,11 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 9. **Clean up.** Delete query key factories, `queryOptions()` helpers and `lib/react-query.ts`-style config. Uninstall
    `@tanstack/react-query` and `@tanstack/react-query-devtools` when no file imports them.
 
+These steps keep the app's behavior, except where Data Client fixes it with less code: lists that showed stale data
+after a mutation, refetches after a mutation, and fetches for items a list already loaded. Changes that need extra code
+or change what users see, like adding optimistic updates the app did not have, are a separate, optional
+[performance pass](https://dataclient.io/docs/guides/performance-pass). Finish and check the migration first, so you can measure each stage.
+
 ## API map {#api-map}
 
 | TanStack Query                                                               | Data Client                                                                                                                                                                                |
@@ -64,8 +69,8 @@ Keep the app's tests passing after each step; they are the proof that behavior d
 | `setQueryData()`                                                             | `ctrl.setResponse(endpoint, args, response)`; for Entities, `ctrl.set(Entity, args, value)`                                                                                                |
 | `getQueryData()`                                                             | In a component, [useCache()](https://dataclient.io/docs/api/useCache). Elsewhere, `ctrl.get(schema, args, ctrl.getState())`                                                                |
 | `prefetchQuery()`                                                            | `ctrl.fetchIfStale(endpoint, args)`, not awaited: a failure never rejects unhandled                                                                                                        |
-| `ensureQueryData()`, `getQueryData() ?? fetchQuery()`                        | `await ctrl.fetchIfStale(endpoint, args)`: rejects if the fetch fails ([Loaders](#loaders))                                                                                                |
-| `fetchQuery()`                                                               | `ctrl.fetch(endpoint, args)`                                                                                                                                                               |
+| `ensureQueryData()`, `getQueryData() ?? fetchQuery()`                        | Cached data from `ctrl.getResponseMeta()`, else `await ctrl.fetchIfStale(endpoint, args)` ([Loaders](#loaders))                                                                            |
+| `fetchQuery()`                                                               | `await ctrl.fetchIfStale(endpoint, args)` with a `staleTime`; `ctrl.fetch(endpoint, args)` without                                                                                         |
 | `onMutate` optimistic update and rollback                                    | [getOptimisticResponse()](https://dataclient.io/rest/guides/optimistic-updates) on the endpoint: Data Client rolls back on error                                                           |
 | `useInfiniteQuery()`                                                         | A [Collection](https://dataclient.io/rest/api/Collection) and `ctrl.fetch(endpoint.getPage, args)` ([Infinite queries](#infinite))                                                         |
 | `queryClient.clear()`, `removeQueries()` on logout                           | `ctrl.resetEntireStore()`                                                                                                                                                                  |
@@ -303,19 +308,27 @@ import { IssueResource } from './resources/Issue';
 
 export const issueLoader =
   (ctrl: Controller) =>
-  ({ params }: { params: { issueId?: string } }) =>
-    ctrl.fetchIfStale(IssueResource.get, { id: Number(params.issueId) });
+  ({ params }: { params: { issueId?: string } }) => {
+    const args = { id: Number(params.issueId) };
+    const { data } = ctrl.getResponseMeta(
+      IssueResource.get,
+      args,
+      ctrl.getState(),
+    );
+    // fetches only when missing or stale
+    const fetched = ctrl.fetchIfStale(IssueResource.get, args);
+    // like ensureQueryData(): cached data, even stale, navigates now; a miss waits for the fetch
+    return data === undefined ? fetched : data;
+  };
 ```
 
-`fetchIfStale()` fetches only when the data is missing or stale, and always returns a Promise. Awaited, it works like
-`fetchQuery()` with a `staleTime`: it resolves the data, or rejects with the error. Left unawaited, it works like
-`prefetchQuery()`: a failure never rejects unhandled, and is stored for components to show. Use it for hover or focus
-prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Load several endpoints with
-`Promise.all()` of `fetchIfStale()` calls.
-
-Unlike `ensureQueryData()` and `getQueryData() ?? fetchQuery()`, an awaited `fetchIfStale()` waits for the refetch
-when cached data is stale. To navigate without waiting, don't await it: `useSuspense()` renders the stale data while it
-refetches.
+`fetchIfStale()` fetches only when the data is missing or stale, and always returns a Promise. Left unawaited, it works
+like `prefetchQuery()`: a failure never rejects unhandled, and is stored for components to show. Use it for hover or
+focus prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Awaited, it works like
+`fetchQuery()` with a `staleTime`: it resolves the data, waiting for the refetch when cached data is stale, or rejects
+with the error. Use the awaited form where the loader used `fetchQuery()`, and the pattern above where it used
+`ensureQueryData()` or `getQueryData() ?? fetchQuery()`. Load several endpoints the way the loader did before; letting
+the page show before secondary data arrives belongs to the [performance pass](https://dataclient.io/docs/guides/performance-pass#loaders).
 
 ## Infinite queries {#infinite}
 
@@ -518,5 +531,6 @@ To sign out on any other 401 response, add [LogoutManager](https://dataclient.io
 - The linter passes, including its import-boundary rules, and no feature folder defines an Entity.
 - Each `<Suspense>` or `AsyncBoundary` that catches a `useSuspense()` is inside `DataProvider`.
 - The type checker, unit tests and end-to-end tests pass.
+- Opening an item from a freshly loaded list makes no request for that item, when the list returns the full item.
 - After a mutation, every page showing that Entity shows the change without a reload. A test that edits an item on
   its detail page, then goes back to the list, proves it.
