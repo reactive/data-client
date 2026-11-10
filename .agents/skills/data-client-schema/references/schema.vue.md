@@ -221,7 +221,8 @@ const data = memo.query(
 
 A `Queryable` schema can produce its data from the store using only args, without a response. Its
 [queryKey](./Entity.vue.md#queryKey) method returns what a response would have normalized to, and returns it only for data
-the store holds.
+the store holds. Endpoints use it to render data another request loaded before their own response arrives
+([Queryable](./queryable.vue.md)).
 
 | Schema                        | `queryKey(args)` returns                                                                                                                                             |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -236,35 +237,9 @@ the store holds.
 [`.query`](./Lazy.vue.md#query) accessor. [Array](./Array.vue.md), [Values](./Values.vue.md) and [Invalidate](./Invalidate.vue.md) are
 not: their `queryKey` returns `undefined`. Wrap a list in a [Collection](./Collection.vue.md) to make it Queryable.
 
-### Endpoints query the store {#queryable-endpoints}
+### Uses
 
-An endpoint reads its own response when it has one. Until then, an endpoint with a Queryable schema queries the store
-with its args, and uses the result when it is complete: no part of it is `undefined`. Queryability is what lets a page
-render data another request loaded, such as a detail page opened from a list
-([Lists to details](https://dataclient.io/vue/getting-started/data-dependency#list-detail)).
-
-A complete result is treated like a response. It expires when the first Entity in it expires, and the
-[expiry policy](https://dataclient.io/vue/concepts/expiry-policy) applies as usual: stale data renders while it refetches, an
-[invalidIfStale](https://dataclient.io/vue/concepts/expiry-policy#endpointinvalidifstale) or invalidated endpoint suspends, and an Entity
-that fails [validate()](./Entity.vue.md#validate) counts as missing. An incomplete result is missing data, so the endpoint
-fetches.
-
-The rest follows from these two rules:
-
-- An Entity stored by any response is found by every endpoint whose args produce its `pk`.
-- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
-- An object schema like `{ data: Post }` is complete when every member is: an Array member never is, a Collection member
-  is when the store holds it for those args, and two Entities must both be found by the same args. The result holds only
-  the schema's members, so other values render as the schema's defaults until the endpoint's own response arrives.
-- Once the endpoint has a response of its own, it reads that, with that response's expiry.
-
-This applies wherever an endpoint is read: [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
-[useCache()](https://dataclient.io/vue/api/useCache) and [Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale).
-[Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always requests. [useQuery()](https://dataclient.io/vue/api/useQuery) runs the same
-`queryKey` but ignores expiry, and returns an object schema even with a member missing.
-
-### Other uses
-
+- [Endpoints](./queryable.vue.md#endpoints) - [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE), [useCache()](https://dataclient.io/vue/api/useCache) and [Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale) render stored data until the endpoint has a response of its own
 - [useQuery()](https://dataclient.io/vue/api/useQuery) - Rendering in Vue
 - [schema.Query()](./Query.vue.md) - As input to produce a computed memoization.
 - [ctrl.get](https://dataclient.io/vue/api/Controller#get)/[snap.get](https://dataclient.io/vue/api/Snapshot#get)
@@ -287,17 +262,17 @@ interface Queryable {
 
 ## Schema Overview
 
-| Data Type                                                           | Mutable | Schema                                | Description                                                                            | [Queryable](./schema.vue.md#queryable) |
-| ------------------------------------------------------------------- | ------- | ------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------- |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.vue.md)                 | single _unique_ object                                                                 | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.vue.md)           | polymorphic objects (`A \| B`)                                                         | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.vue.md)                 | statically known keys                                                                  | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.vue.md) | [delete an entity](https://dataclient.io/vue/concepts/expiry-policy#invalidate-entity) | 🛑                                 |
-| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.vue.md)  | growable lists                                                                         | ✅                                  |
-| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.vue.md)                   | immutable lists                                                                        | 🛑                                 |
-| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   |         | [All](./All.vue.md)                       | list of all entities of a kind                                                         | ✅                                  |
-| [Map](https://en.wikipedia.org/wiki/Associative_array)              | ✅       | [Collection(Values)](./Collection.vue.md) | growable maps                                                                          | ✅                                  |
-| [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](./Values.vue.md)                 | immutable maps                                                                         | 🛑                                 |
-| [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](./Scalar.vue.md)                 | lens-dependent entity fields                                                           | ✅                                  |
-| any                                                                 |         | [Query(Queryable)](./Query.vue.md)        | memoized custom transforms                                                             | ✅                                  |
-| any                                                                 |         | [Lazy(Schema)](./Lazy.vue.md)             | deferred denormalization                                                               | ✅                                  |
+| Data Type                                                           | Mutable | Schema                                | Description                                                                            | [Queryable](./queryable.vue.md) |
+| ------------------------------------------------------------------- | ------- | ------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------- |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.vue.md)                 | single _unique_ object                                                                 | ✅                           |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.vue.md)           | polymorphic objects (`A \| B`)                                                         | ✅                           |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.vue.md)                 | statically known keys                                                                  | ✅                           |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.vue.md) | [delete an entity](https://dataclient.io/vue/concepts/expiry-policy#invalidate-entity) | 🛑                          |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.vue.md)  | growable lists                                                                         | ✅                           |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.vue.md)                   | immutable lists                                                                        | 🛑                          |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   |         | [All](./All.vue.md)                       | list of all entities of a kind                                                         | ✅                           |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | ✅       | [Collection(Values)](./Collection.vue.md) | growable maps                                                                          | ✅                           |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](./Values.vue.md)                 | immutable maps                                                                         | 🛑                          |
+| [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](./Scalar.vue.md)                 | lens-dependent entity fields                                                           | ✅                           |
+| any                                                                 |         | [Query(Queryable)](./Query.vue.md)        | memoized custom transforms                                                             | ✅                           |
+| any                                                                 |         | [Lazy(Schema)](./Lazy.vue.md)             | deferred denormalization                                                               | ✅                           |

@@ -496,6 +496,17 @@ per update.
 
 :::
 
+## Queryable
+
+Because each Entity is stored by its primary key, a schema can also find its data from args alone, without a response.
+This is what lets a detail page render an item its list already loaded, without waiting for a fetch.
+
+<center>
+
+<Link className="button button--secondary" to="./queryable">Queryable »</Link>
+
+</center>
+
 ## Store Inspection (debugging)
 
 [DevTools browser extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)

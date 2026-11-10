@@ -39,7 +39,7 @@ Use [Controller.snapshot()](./Controller.md#snapshot) to construct a snapshot
 
 ### get(schema, ...args) {#get}
 
-Looks up any [Queryable](./useQuery.md#queryable) [Schema](/rest/api/schema#schema-overview).
+Looks up any [Queryable](/docs/concepts/queryable) [Schema](/rest/api/schema#schema-overview).
 
 ### getResponse(endpoint, ...args) {#getResponse}
 

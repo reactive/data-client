@@ -500,7 +500,7 @@ function UserName() {
 
 ### set(queryable, ...args, value) {#set}
 
-Updates any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schema](https://dataclient.io/rest/api/schema#schema-overview), or many entities at once with an [Array](https://dataclient.io/rest/api/Array) or [Values](https://dataclient.io/rest/api/Values) schema.
+Updates any [Queryable](https://dataclient.io/docs/concepts/queryable) [Schema](https://dataclient.io/rest/api/schema#schema-overview), or many entities at once with an [Array](https://dataclient.io/rest/api/Array) or [Values](https://dataclient.io/rest/api/Values) schema.
 
 ```ts
 ctrl.set(
@@ -781,7 +781,7 @@ Removes a subscription to the [Endpoint](https://dataclient.io/rest/api/Endpoint
 
 ### get(schema, ...args, state) {#get}
 
-Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schema](https://dataclient.io/rest/api/schema#schema-overview) in `state`.
+Looks up any [Queryable](https://dataclient.io/docs/concepts/queryable) [Schema](https://dataclient.io/rest/api/schema#schema-overview) in `state`.
 
 #### Example
 

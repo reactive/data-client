@@ -153,7 +153,7 @@ bound components immediately upon [data change](./mutations.md). This is known a
 
 Open a post from `PostList` above, and `PostDetail` renders it without a fetch. The list response stored each `Post`,
 and `PostResource.get`'s schema is `Post`, an [Entity](https://dataclient.io/rest/api/Entity). Entities are
-[Queryable](https://dataclient.io/rest/api/schema#queryable): until an endpoint has a response of its own, it queries the store with its
+[Queryable](https://dataclient.io/vue/concepts/queryable): until an endpoint has a response of its own, it queries the store with its
 args, the way [`useQuery(Post, { id })`](./useQuery.md) does. By default, args like `{ id }` that match the fields
 `pk()` reads find the Entity ([other arg shapes](https://dataclient.io/rest/api/Entity#pk-args)).
 
@@ -163,7 +163,7 @@ when the post is missing.
 
 The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
 [Collection](https://dataclient.io/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint
-([how endpoints query the store](https://dataclient.io/rest/api/schema#queryable-endpoints)).
+([how endpoints query the store](https://dataclient.io/vue/concepts/queryable#endpoints)).
 
 Finding the Entity doesn't check which fields it has. When list items lack fields the detail page shows, the detail
 renders those fields' defaults and doesn't fetch while the list data is fresh. To make it fetch, give the list a

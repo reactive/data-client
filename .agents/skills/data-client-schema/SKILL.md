@@ -9,6 +9,8 @@ license: Apache 2.0
 Compose [schemas](references/schema.md) to match the JSON an endpoint returns. Import them from the protocol package
 the app uses (`@data-client/rest`, `@data-client/graphql` or `@data-client/endpoint`; both protocol packages re-export
 endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the `id` field used as `pk()`.
+[Queryable](references/queryable.md) schemas (Entity, Collection, All, Union, objects of them) also find their data in the
+store from args alone, so an endpoint renders data another response stored, like a detail page opened from a list.
 
 ### Object
 

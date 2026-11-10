@@ -239,7 +239,7 @@ data.
 
 ### queryKey {#queryKey}
 
-`Scalar` is a [Queryable](/rest/api/schema#queryable) schema. When used as a
+`Scalar` is a [Queryable](/docs/concepts/queryable) schema. When used as a
 top-level endpoint schema — or passed to [useQuery](/docs/api/useQuery),
 [Controller.get](/docs/api/Controller#get), [schema.Query](./Query.md), or any
 other Queryable consumer — it reports the cpks of all cells whose lens matches
@@ -279,4 +279,4 @@ entities['Scalar(portfolio)']['Company|1|portfolioB'] = {
 - [Entity](/rest/api/Entity) — defines the base entity that scalar fields attach to
 - [Values](./Values.md) — used for column-only endpoints (dictionary keyed by entity pk)
 - [Union](./Union.md) — similar wrapper pattern for polymorphic entities
-- [Queryable](/rest/api/schema#queryable) — Scalar participates in [useQuery](/docs/api/useQuery), [Controller.get](/docs/api/Controller#get), and [schema.Query](./Query.md)
+- [Queryable](/docs/concepts/queryable) — Scalar participates in [useQuery](/docs/api/useQuery), [Controller.get](/docs/api/Controller#get), and [schema.Query](./Query.md)

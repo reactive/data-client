@@ -4,7 +4,7 @@
 
 Data rendering without the fetch.
 
-Access any [Queryable Schema](https://dataclient.io/rest/api/schema#queryable)'s store value; like [Entity](https://dataclient.io/rest/api/Entity), [Object](https://dataclient.io/rest/api/Object), [All](https://dataclient.io/rest/api/All), [Collection](https://dataclient.io/rest/api/Collection), [Query](https://dataclient.io/rest/api/Query),
+Access any [Queryable Schema](https://dataclient.io/vue/concepts/queryable)'s store value; like [Entity](https://dataclient.io/rest/api/Entity), [Object](https://dataclient.io/rest/api/Object), [All](https://dataclient.io/rest/api/All), [Collection](https://dataclient.io/rest/api/Collection), [Query](https://dataclient.io/rest/api/Query),
 [Union](https://dataclient.io/rest/api/Union), and [Scalar](https://dataclient.io/rest/api/Scalar). [Lazy](https://dataclient.io/rest/api/Lazy) fields also work via their [`.query`](https://dataclient.io/rest/api/Lazy#query) accessor.
 If the value does not exist, returns `undefined`.
 
@@ -175,13 +175,13 @@ The result updates when the arguments change.
 
 ### Queryable
 
-[Queryable](https://dataclient.io/rest/api/schema#queryable) schemas require an `queryKey()` method that returns something. These include
+[Queryable](https://dataclient.io/vue/concepts/queryable) schemas require an `queryKey()` method that returns something. These include
 [Entity](https://dataclient.io/rest/api/Entity), [Object](https://dataclient.io/rest/api/Object), [All](https://dataclient.io/rest/api/All), [Collection](https://dataclient.io/rest/api/Collection), [Query](https://dataclient.io/rest/api/Query),
 [Union](https://dataclient.io/rest/api/Union), and [Scalar](https://dataclient.io/rest/api/Scalar). [Lazy](https://dataclient.io/rest/api/Lazy) fields produce a Queryable via their [`.query`](https://dataclient.io/rest/api/Lazy#query) accessor.
 
 Endpoints query the store the same way until they have a response of their own, so when `useQuery(Post, { id })`
 returns a post, `useSuspense(PostResource.get, { id })` renders it without waiting for a fetch
-([Queryable endpoints](https://dataclient.io/rest/api/schema#queryable-endpoints)).
+([Queryable endpoints](https://dataclient.io/vue/concepts/queryable#endpoints)).
 
 ```ts
 interface Queryable {

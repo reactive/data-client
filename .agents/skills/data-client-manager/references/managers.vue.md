@@ -382,7 +382,7 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.set()](./Controller.vue.md#set) allows directly updating [Querable Schemas](https://dataclient.io/rest/api/schema#queryable)
+[Controller.set()](./Controller.vue.md#set) allows directly updating [Queryable Schemas](https://dataclient.io/vue/concepts/queryable)
 directly with `event.data`.
 
 #### Batching high-frequency updates {#batching}

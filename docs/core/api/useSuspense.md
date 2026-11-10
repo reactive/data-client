@@ -294,7 +294,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 |               | no              | no                    | no                | `null` used as second argument                                                                                                                                               |
 
 "In store" includes data other responses stored. Until the endpoint has a response of its own, a
-[Queryable](/rest/api/schema#queryable-endpoints) schema, like an Entity, queries the store with the endpoint's args, so
+[Queryable](/docs/concepts/queryable#endpoints) schema, like an Entity, queries the store with the endpoint's args, so
 a detail page opened from a list renders without suspending, and without a fetch while that data is fresh
 ([Lists to details](../getting-started/data-dependency.md#list-detail)).
 

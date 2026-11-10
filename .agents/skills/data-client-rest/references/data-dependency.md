@@ -144,7 +144,7 @@ bound components immediately upon [data change](./mutations.md). This is known a
 
 Open a post from `PostList` above, and `PostDetail` renders it without a fetch. The list response stored each `Post`,
 and `PostResource.get`'s schema is `Post`, an [Entity](https://dataclient.io/rest/api/Entity). Entities are
-[Queryable](https://dataclient.io/rest/api/schema#queryable): until an endpoint has a response of its own, it queries the store with its
+[Queryable](./queryable.md): until an endpoint has a response of its own, it queries the store with its
 args, the way [`useQuery(Post, { id })`](https://dataclient.io/docs/api/useQuery) does. By default, args like `{ id }` that match the fields
 `pk()` reads find the Entity ([other arg shapes](https://dataclient.io/rest/api/Entity#pk-args)).
 
@@ -154,7 +154,7 @@ when the post is missing.
 
 The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
 [Collection](https://dataclient.io/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint
-([how endpoints query the store](https://dataclient.io/rest/api/schema#queryable-endpoints)).
+([how endpoints query the store](./queryable.md#endpoints)).
 
 In the [React benchmarks](https://dataclient.io/docs/concepts/performance), with a simulated 40 ms network delay, switching between a list
 and its items is 21× faster than TanStack Query, which keys the detail query separately and fetches it.

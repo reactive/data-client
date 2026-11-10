@@ -277,7 +277,7 @@ static mergeMetaWithStore(
 
 ### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](/rest/api/schema#queryable) - allowing store access without an endpoint.
+This method enables `Entities` to be [Queryable](/docs/concepts/queryable) - allowing store access without an endpoint.
 
 Overriding can allow customization or disabling of this behavior altogether.
 

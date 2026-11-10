@@ -30,7 +30,7 @@ Without a browser, count the requests each flow makes from the code and its test
 
 ### Details from lists {#list-detail}
 
-A detail endpoint with a [Queryable](/rest/api/schema#queryable-endpoints) schema renders an item the list already
+A detail endpoint with a [Queryable](/docs/concepts/queryable#endpoints) schema renders an item the list already
 loaded, with no fetch, while that data is fresh ([Lists to details](../getting-started/data-dependency.md#list-detail)).
 Its args must find the Entity: by default, args with the fields `pk()` reads, like `{ id }`.
 

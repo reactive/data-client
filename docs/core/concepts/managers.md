@@ -390,7 +390,7 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
+[Controller.set()](../api/Controller.md#set) allows directly updating [Queryable Schemas](/docs/concepts/queryable)
 directly with `event.data`.
 
 :::react
