@@ -19,7 +19,7 @@ they wrote:
 A cache keyed by request can't do this. It stores each response apart, so a new request fetches even when another
 response held the data, and a change shows only where its own response is read.
 
-## Why it matters {#benefits}
+## Benefits {#benefits}
 
 - [No overfetching on navigation](#navigation): a page renders data another page already loaded.
 - [Faster mutations](#mutations): a mutation's response updates every list it belongs in, and is the next page's
