@@ -337,14 +337,14 @@ export const issueLoader =
 ```
 
 ```ts title="After"
-import { ExpiryStatus, type Controller } from '@data-client/react';
+import type { Controller } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
 export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const args = { id: Number(params.issueId) };
-    const { data, expiryStatus } = ctrl.getResponseMeta(
+    const { data } = ctrl.getResponseMeta(
       IssueResource.get,
       args,
       ctrl.getState(),
@@ -352,7 +352,7 @@ export const issueLoader =
     // fetches only when missing or stale
     const fetched = ctrl.fetchIfStale(IssueResource.get, args);
     // like ensureQueryData(): cached data, even stale, navigates now; a miss waits for the fetch
-    return expiryStatus === ExpiryStatus.Invalid ? fetched : data;
+    return data === undefined ? fetched : data;
   };
 ```
 
