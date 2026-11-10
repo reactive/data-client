@@ -322,6 +322,7 @@ handler. It stays `async` only because @anansi/router's types expect a Promise.
 
 ```ts title="Router that waits"
 import { ExpiryStatus, type Controller } from '@data-client/react';
+import { IssueResource } from './resources/Issue';
 
 export const issueLoader =
   (ctrl: Controller) =>
