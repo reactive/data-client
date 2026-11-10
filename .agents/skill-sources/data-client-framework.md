@@ -118,9 +118,9 @@ const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId:
 ```
 :::react
 
-An optimistic `ctrl.fetch()` renders its update before the browser paints. If that render makes a click slow even with
-React Compiler or `memo()`, call `ctrl.fetch()` in a block-bodied `startTransition()`: an arrow that returns the promise
-makes React 19 hold the update until the response. Not for controlled inputs, which snap back while the transition is pending.
+An optimistic `ctrl.fetch()` renders before paint. If that slows a click even with React Compiler or `memo()`, call it in
+`startTransition(() => { ... })`: React 19 holds the update until the response if the arrow returns the promise.
+Not for controlled inputs; they snap back until the transition commits.
 :::
 :::vue
 
