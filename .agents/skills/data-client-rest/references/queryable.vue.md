@@ -18,8 +18,8 @@ An [Entity](https://dataclient.io/rest/api/Entity)'s `queryKey` returns its prim
 ([Queryable by args](https://dataclient.io/rest/api/Entity#pk-args)). An object schema like `{ data: Post }` combines its members' results,
 and [Collection](https://dataclient.io/rest/api/Collection), [All](https://dataclient.io/rest/api/All), [Union](https://dataclient.io/rest/api/Union), [Query](https://dataclient.io/rest/api/Query) and
 [Scalar](https://dataclient.io/rest/api/Scalar) are Queryable too ([what each returns](https://dataclient.io/rest/api/schema#queryable)).
-[Array](https://dataclient.io/rest/api/Array) and [Values](https://dataclient.io/rest/api/Values) are not: wrap a list in a [Collection](https://dataclient.io/rest/api/Collection) to
-make it Queryable.
+[Array](https://dataclient.io/rest/api/Array) and [Values](https://dataclient.io/rest/api/Values) are not: use a [Collection](https://dataclient.io/rest/api/Collection) or
+[All](https://dataclient.io/rest/api/All) for a list that should be Queryable.
 
 [useQuery()](https://dataclient.io/vue/api/useQuery) renders a Queryable schema's result directly: `useQuery(Post, { id })`.
 
@@ -28,25 +28,29 @@ make it Queryable.
 An endpoint reads its own response when it has one. Until then, an endpoint with a Queryable schema queries the store
 with its args, and uses the result when it is complete: no part of it is `undefined`.
 
-A complete result is treated like a response. It expires when the first Entity in it expires, and the
+A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
 [expiry policy](./expiry-policy.vue.md) applies as usual: stale data renders while it refetches, an
-[invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) or invalidated endpoint suspends, and an Entity that fails
-[validate()](https://dataclient.io/rest/api/Entity#validate) counts as missing. An incomplete result is missing data, so the endpoint
+[invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) endpoint suspends once stale, an invalidated one always
+does, and an Entity that fails [validate()](https://dataclient.io/rest/api/Entity#validate) counts as missing. An incomplete result is missing data, so the endpoint
 fetches.
 
 The rest follows from these two rules:
 
-- An Entity stored by any response is found by every endpoint whose args produce its `pk`.
+- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
+  `pk`.
 - Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
 - An object schema like `{ data: Post }` is complete when every member is: an Array member never is, a Collection member
-  is when the store holds it for those args, and two Entities must both be found by the same args. The result holds only
-  the schema's members, so other values render as the schema's defaults until the endpoint's own response arrives.
+  is when the store holds it for those args, and two Entities must both be found by the same args. Until the endpoint's own
+  response arrives, the result holds only what the schema declares: plain values in it, like `total: 0`, are returned
+  as written, and response fields it leaves out, like a `meta`, are `undefined`.
 - Once the endpoint has a response of its own, it reads that, with that response's expiry.
 
 This applies wherever an endpoint is read: [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
-[useCache()](https://dataclient.io/vue/api/useCache) and [Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale).
-[Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always requests. [useQuery()](https://dataclient.io/vue/api/useQuery) runs the same
-`queryKey` but ignores expiry, and returns an object schema even with a member missing.
+[useCache()](https://dataclient.io/vue/api/useCache), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch),
+[Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) and
+[Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
+requests. [useQuery()](https://dataclient.io/vue/api/useQuery) runs the same `queryKey` but ignores expiry, and for an object schema returns
+the object even when a member is missing (that member is `undefined`).
 
 For example, a detail page opened from a list renders the Post the list stored:
 

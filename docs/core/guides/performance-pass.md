@@ -36,10 +36,10 @@ A detail endpoint with a [Queryable](/docs/concepts/queryable#endpoints) schema 
 loaded, with no fetch, while that data is fresh ([Lists to details](../getting-started/data-dependency.md#list-detail)).
 Its args must find the Entity: by default, args with the fields `pk()` reads, like `{ id }`.
 
-- **Find:** detail endpoints without a schema, or with a schema that isn't Queryable (the Entity is left out, or an Array
-  sits beside it); detail args that don't find the Entity (`{ issueId }` with the default `pk()`); list data copied
+- **Find:** detail endpoints without a schema, or with a schema whose result can't be complete (the Entity is left out, or an
+  Array sits beside it); detail args that don't find the Entity (`{ issueId }` with the default `pk()`); list data copied
   into the detail by hand.
-- **Change:** set the detail schema to the Entity, or an object whose members are all Queryable, like `{ data: Issue }`.
+- **Change:** set the detail schema to the Entity, or an object with no Array members, like `{ data: Issue }`.
   For args that don't find the Entity, [change how it is found](/rest/api/Entity#pk-args) or rename the args. Delete the
   copying. When the list returns fewer fields than the
   detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a

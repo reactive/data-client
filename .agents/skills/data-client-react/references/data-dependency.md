@@ -149,8 +149,9 @@ args, the way [`useQuery(Post, { id })`](./useQuery.md) does. By default, args l
 `pk()` reads find the Entity ([other arg shapes](https://dataclient.io/rest/api/Entity#pk-args)).
 
 The post found this way keeps the expiry the list gave it. While it is fresh there is no request. Once
-[stale](https://dataclient.io/docs/concepts/expiry-policy), it still renders, and refetches in the background. `useSuspense()` suspends only
-when the post is missing.
+[stale](https://dataclient.io/docs/concepts/expiry-policy), it still renders, and refetches in the background. `useSuspense()` suspends when the
+post is missing, or when the endpoint is [invalidated](./Controller.md#invalidate) or
+[invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) and stale.
 
 The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
 [Collection](https://dataclient.io/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint
