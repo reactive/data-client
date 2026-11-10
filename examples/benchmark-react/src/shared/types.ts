@@ -57,6 +57,16 @@ export interface BenchAPI {
   moveItem?(id: number): void;
   /** Switch between sorted list view and individual issue detail views. Exercises normalized cache lookup (data-client) vs per-navigation fetch (others). */
   listDetailSwitch?(navigations: number, seedCount: number): Promise<void>;
+  /** Per round: create an issue, browse to the open list and its detail, back and forward, edit its title, then back through both lists. Exercises one create or edit updating every stored list and the detail through Queryable lookup (data-client) vs refetching after each mutation and fetching uncached views (TanStack Query, SWR) vs fetching every view (baseline). */
+  createEditBrowse?(rounds: number, seedCount: number): Promise<void>;
+  /** Move open issues to the closed list, switching to that list after each. Exercises Collection.move into the stored closed list (data-client) vs invalidate + refetch on mount (others). */
+  moveThenSwitch?(navigations: number, seedCount: number): Promise<void>;
+  /** Untimed: create an issue the library's usual way, resolving with its number once the library has handled the reply. */
+  createItem?(): Promise<number>;
+  /** Untimed: change an issue's state the library's usual way, resolving once the library has handled the reply. */
+  moveToState?(number: number, state: 'open' | 'closed'): Promise<void>;
+  /** Untimed: change an issue's title the library's usual way, resolving once the library has handled the reply. */
+  editTitle?(number: number, title: string): Promise<void>;
   /** Mount list + detail panel + pinned card strip for multi-view entity propagation. */
   initMultiView?(count: number): void;
   /** Update an entity that appears in list + detail + pinned views; waits for all three to reflect the change. */
