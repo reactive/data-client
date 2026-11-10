@@ -286,6 +286,8 @@ PostResource.get({
 
 Commonly used with [useSuspense()](https://dataclient.io/docs/api/useSuspense), [Controller.invalidate](https://dataclient.io/docs/api/Controller#invalidate), [Controller.expireAll](https://dataclient.io/docs/api/Controller#expireAll)
 
+When another response, such as [getList](#getlist), already stored the Entity, `get` renders it without a fetch, as long as its args name the fields [pk()](https://dataclient.io/rest/api/Entity#pk-args) reads.
+
 ### getList
 
 Retrieve a list of entities.

@@ -31,13 +31,13 @@ Without a browser, count the requests each flow makes from the code and its test
 ### Details from lists {#list-detail}
 
 A detail endpoint whose schema holds the list's [Entity](/rest/api/Entity) renders an item the list already loaded,
-with no fetch, while that data is fresh. The lookup uses the endpoint's args, so they must use the field name the
-Entity's `pk()` reads (`{ id }`, not `{ issueId }`), or a field in its [indexes](/rest/api/Entity#indexes).
+with no fetch, while that data is fresh ([Lists to details](../getting-started/data-dependency.md#list-detail)). The
+lookup uses the endpoint's args, so they must use the field name the Entity's [pk()](/rest/api/Entity#pk-args) reads (`{ id }`, not `{ issueId }`), or a field in its [indexes](/rest/api/Entity#indexes).
 
 - **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that name
   neither the primary key nor an index (`{ slug }` without `static indexes = ['slug']`); list data copied into the
   detail by hand.
-- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. For other lookup
+- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }` with no other Entity or list in it. For other lookup
   fields, add an index rather than renaming the args. Delete the copying. When the list returns fewer fields than the
   detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a
   `validate()`, so the detail still fetches the full item ([partial entities](/rest/guides/partial-entities)).

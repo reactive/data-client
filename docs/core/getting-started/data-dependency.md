@@ -260,14 +260,21 @@ bound components immediately upon [data change](./mutations.md). This is known a
 ## Lists to details {#list-detail}
 
 Open a post from `PostList` above, and `PostDetail` renders it without a fetch. `PostResource.get`'s schema is the
-`Post` [Entity](/rest/api/Entity), so `useSuspense()` first looks for that post in the store by its `id` argument
-([Entity.queryKey](/rest/api/Entity#queryKey)). The list response already put every post there. `useSuspense()`
-fetches only when the post is missing; when it is [stale](../concepts/expiry-policy.md), it renders the stored post
-and refetches in the background.
+`Post` [Entity](/rest/api/Entity), so until that endpoint has a response of its own, `useSuspense()` looks for the post
+in the store by its args ([Entity.queryKey](/rest/api/Entity#queryKey)). The list response already put each post it
+returned there. The args must name the field `pk()` reads (`{ id }`, not `{ postId }`) or one of the Entity's
+[indexes](/rest/api/Entity#indexes); other args, like `{ id, expand: 'comments' }`, don't change the lookup.
 
-This works for any schema that holds the Entity, such as an envelope like `{ data: Post }`, and for every way of
-reading an endpoint: [useDLE()](../api/useDLE.md), [useCache()](../api/useCache.md) and
-[Controller.fetchIfStale()](../api/Controller.md#fetchIfStale) in router loaders.
+`useSuspense()` fetches only when the post is missing. When the stored post is [stale](../concepts/expiry-policy.md),
+it renders it and refetches in the background (an
+[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) endpoint suspends instead). Its expiry comes from
+the response that stored it, here the list's.
+
+The Entity can also sit in an object schema, such as an envelope like `{ data: Post }`. Every other member of that
+object is looked up with the same args: plain values are fine, a list member (Array, Collection, Values) makes the
+endpoint always fetch, and a second Entity is found by the same `id`, so keep one Entity per detail schema. The lookup
+works for every way of reading an endpoint: [useDLE()](../api/useDLE.md), [useCache()](../api/useCache.md) and
+[Controller.fetchIfStale()](../api/Controller.md#fetchIfStale) in router loaders (`Controller.fetch()` always requests).
 
 :::react
 
@@ -276,9 +283,11 @@ and its items is 21× faster than TanStack Query, which keys the detail query se
 
 :::
 
-When list items lack fields the detail page shows, give the list a summary Entity with the same `key` and fewer fields,
+When list items lack fields the detail page shows, the detail page renders those fields' defaults and does not fetch
+while the list data is fresh. To make it fetch, give the list a summary Entity with the same `key` and fewer fields,
 and make the detail Entity require the rest with [Entity.validate()](/rest/api/Entity#validate)
-([Partial entities](/rest/guides/partial-entities)): the detail page then fetches until it has them.
+([Partial entities](/rest/guides/partial-entities)): opened from the list, the detail page then suspends and fetches
+the full item once.
 
 ## Loading and Error {#async-fallbacks}
 
