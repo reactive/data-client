@@ -2,12 +2,40 @@
 
 # Queryable
 
-A schema is _Queryable_ when it can find its data in the store from args alone, without a response.
-[Normalization](https://dataclient.io/vue/concepts/normalization) makes this possible: it stores each Entity once, by its primary key, no matter
-which response delivered it.
+The store is a lookup table. It holds each [Entity](./Entity.vue.md) once, by its primary key, and each
+[Collection](./Collection.vue.md)'s list by its args, like `{ userId: 1 }`. A schema is _Queryable_ when it can find
+its data in that table from args alone.
 
-Queryability allows for higher performance navigation. Data that one request loaded renders on every page that asks
-for it. A detail page opened from a list renders at once, and makes no request while that data is fresh.
+So it doesn't matter how data arrived. A list, a detail response, a mutation's response, a websocket message and
+[Controller.set()](https://dataclient.io/vue/api/Controller#set) all write to the same table, and any read with matching args finds what
+they wrote:
+
+| Data arrives from             | The table stores                         | Reads that find it                                      |
+| ----------------------------- | ---------------------------------------- | ------------------------------------------------------- |
+| A list: `GET /todos?userId=1` | Todo 5, and the list for `{ userId: 1 }` | `TodoResource.get({ id: 5 })`                           |
+| A mutation: `POST /todos`     | Todo 6, added to the lists it matches    | `TodoResource.get({ id: 6 })`, `getList({ userId: 1 })` |
+| A websocket message           | Todo 5's new fields                      | Every read of Todo 5, and every list that holds it      |
+
+A cache keyed by request can't do this. It stores each response apart, so a new request fetches even when another
+response held the data, and a change shows only where its own response is read.
+
+## Why it matters {#benefits}
+
+- [No overfetching on navigation](#navigation): a page renders data another page already loaded.
+- [Faster mutations](#mutations): a mutation's response updates every list it belongs in, and is the next page's
+  data.
+- [No data tearing](#tearing): two views never show different values for the same data, whichever transport changed
+  it.
+- [Derived views without requests](#derived): counts, filters and groupings compute from data already loaded.
+
+### No overfetching on navigation {#navigation}
+
+```ts
+// PostList loaded every post
+const posts = useSuspense(PostResource.getList);
+// PostDetail, opened from that list, finds Post 5 by its id: no request
+const post = useSuspense(PostResource.get, { id: 5 });
+```
 
 Open a post below. `PostDetail` renders without a loading state, because the list already stored that `Post`.
 
@@ -143,90 +171,20 @@ export const PostResource = resource({
 </template>
 ```
 
-## Querying the store {#query}
+### Faster mutations {#mutations}
 
-A Queryable schema has a [queryKey(args)](./schema.vue.md#queryable) method. It returns what a response would have
-normalized to, and returns it only for data the store holds.
+```ts
+const todo = await ctrl.fetch(TodoResource.getList.push, {
+  userId: 1,
+  title: 'Ship it',
+});
+// it joined every stored list for { userId: 1 }, and its detail page
+// renders the response: no request
+navigate(`/todos/${todo.id}`);
+```
 
-[useQuery()](https://dataclient.io/vue/api/useQuery) asks this question directly. `useQuery(Post, { id })` returns the stored `Post`, or
-`undefined` when the store doesn't hold it. It never fetches.
-
-Each schema answers in its own way:
-
-- An [Entity](./Entity.vue.md) returns its primary key. By default, args with the fields `pk()` reads, like `{ id }`,
-  find it. `pk()`, [indexes](./Entity.vue.md#indexes) or `queryKey` itself change which args do
-  ([Queryable by args](./Entity.vue.md#pk-args)).
-- An object schema like `{ data: Post }` combines its members' results.
-- [Collection](./Collection.vue.md), [All](./All.vue.md), [Union](./Union.vue.md), [Query](./Query.vue.md) and
-  [Scalar](./Scalar.vue.md) are Queryable too ([what each returns](./schema.vue.md#queryable)).
-- [Array](./Array.vue.md) and [Values](./Values.vue.md) are not. Use a [Collection](./Collection.vue.md) or
-  [All](./All.vue.md) for a list that should be Queryable.
-
-## Endpoints query before they fetch {#endpoints}
-
-An endpoint with a Queryable schema asks the same question before it fetches. Reading an endpoint uses the first of
-these that applies:
-
-1. The endpoint has a response of its own. It reads that response, with that response's expiry.
-2. The endpoint's schema is Queryable, and the store's result for its args is complete: no part of it is `undefined`.
-   It reads that result.
-3. Otherwise the data is missing, so the endpoint fetches.
-
-So what `useQuery()` can find, an endpoint doesn't wait to fetch. When `useQuery(Post, { id })` returns a post,
-`useSuspense(PostResource.get, { id })` renders it without waiting for a fetch. The exceptions are an endpoint that
-was invalidated, or one that is invalidIfStale and stale ([expiry](#expiry)).
-
-The two differ in what they do with the answer:
-
-|                               | [useQuery(schema, ...args)](https://dataclient.io/vue/api/useQuery) | Reading an endpoint with that schema         |
-| ----------------------------- | ------------------------------------------------------------------- | -------------------------------------------- |
-| Queries the store             | Always                                                              | Until the endpoint has a response of its own |
-| Part of the result is missing | Returns `undefined`; an object schema returns the object without it | Fetches                                      |
-| [Expiry](#expiry)             | Ignored                                                             | Applies                                      |
-| Fetches                       | Never                                                               | When data is missing or stale                |
-
-This applies wherever an endpoint is read: [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
-[useCache()](https://dataclient.io/vue/api/useCache), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch),
-[Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) and
-[Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
-requests.
-
-### Stored data keeps its expiry {#expiry}
-
-A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
-[expiry policy](https://dataclient.io/vue/concepts/expiry-policy) applies as usual:
-
-- While the result is fresh, the endpoint makes no request.
-- Once it is stale, it still renders, and the endpoint refetches.
-- An [invalidIfStale](https://dataclient.io/vue/concepts/expiry-policy#endpointinvalidifstale) endpoint treats a stale result as
-  [Invalid](https://dataclient.io/vue/concepts/expiry-policy#expiry-status), and an [invalidated](https://dataclient.io/vue/concepts/expiry-policy#invalidate) endpoint treats any
-  result that way, so they wait for a fetch.
-- An Entity that fails [validate()](./Entity.vue.md#validate) counts as missing.
-
-### Which results are complete {#complete}
-
-- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
-  `pk`.
-- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
-- An object schema like `{ data: Post }` is complete when every member is. An Array member never is. A Collection
-  member is when the store holds it for those args. Two Entities must both be found by the same args.
-- Until the endpoint's own response arrives, the result holds only what the schema declares. Plain values in it, like
-  `total: 0`, are returned as written. Response fields it leaves out, like a `meta`, are `undefined`.
-
-### Fields are not checked {#fields}
-
-Finding an Entity doesn't check which fields it has. When list items lack fields the detail page shows, the detail
-renders those fields' defaults, and doesn't fetch while the list data is fresh. To make it fetch, give the list a
-summary Entity and make the detail Entity require the rest with [validate()](./Entity.vue.md#validate)
-([Partial entities](./partial-entities.vue.md)).
-
-## After mutations {#mutations}
-
-A mutation's response is stored the way any response is. Reads that come after it find the result in the store, so
-the next page renders at once and makes no request.
-
-The app below sends one `GET`, for its `Team` page. Every page after that renders from the store, and only the
-mutations send requests.
+The app below sends one `GET`, for its `Team` page. The user and todo pages read endpoints that never fetched, and
+only mutations send requests.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
@@ -434,18 +392,14 @@ export const UserResource = resource({
 </template>
 ```
 
-- `UserPage` reads `TodoResource.getList({ userId })`, which was never fetched. `/users` nests each user's todos in a
-  [Collection](./Collection.vue.md). Its [nestKey](./Collection.vue.md#nestKey) returns the same args, so
-  `user.todos` and that list are one list in the store.
-- `NewTodo` creates with [getList.push](https://dataclient.io/rest/api/resource#push). The todo joins every stored list its args match,
-  and `TodoPage` renders it from the response.
-- `TodoPage` changes the owner with [getList.move](https://dataclient.io/rest/api/resource#move). The todo leaves the old owner's list
-  and joins the new owner's.
+- `/users` nests each user's todos in a Collection whose [nestKey](./Collection.vue.md#nestKey) returns
+  `{ userId }`, so `user.todos` and `TodoResource.getList({ userId })` are one list.
+- `NewTodo` creates with [getList.push](https://dataclient.io/rest/api/resource#push), and `TodoPage` renders the new todo from the
+  response.
+- `TodoPage` changes the owner with [getList.move](https://dataclient.io/rest/api/resource#move), so the todo leaves one user's list and
+  joins the other's.
 
-These reads keep their [expiry](#expiry). Data is stale after a minute by default: a page then still renders at once,
-and refetches.
-
-### What renders after each mutation {#mutation-reads}
+After each kind of mutation, these render without a fetch:
 
 | Mutation                                                                                                                                              | Renders next, without a fetch                                                                                                |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -456,33 +410,99 @@ and refetches.
 | [delete](https://dataclient.io/rest/api/resource#delete)                                                                                              | The lists without it. Its detail is [Invalid](https://dataclient.io/vue/concepts/expiry-policy#expiry-status), so it fetches |
 | No request, like a websocket [Manager](https://dataclient.io/vue/concepts/managers): [Controller.set()](https://dataclient.io/vue/api/Controller#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                                                      |
 
-### Lists are found by their args {#collection-args}
+### No data tearing {#tearing}
 
-A [Collection](./Collection.vue.md) stores one list for each set of args, like `{ userId: 1 }`. Reads and mutations
-both find a list by those args, not by the endpoint that fetched it.
+```ts
+// A websocket Manager writes the price it was sent
+controller.set(Ticker, { product_id: 'BTC-USD' }, message);
+// The ticker list that REST loaded, the open detail page, and any page
+// opened later all show the new price
+```
 
-- Endpoints that share a Collection read the same list for the same args. `/users/:userId/todos` renders what
-  `/todos?userId=` loaded when both use `TodoResource.getList.schema`.
-- A Collection nested in an Entity takes its args from [nestKey](./Collection.vue.md#nestKey), as `User.todos` does
-  above.
-- [argsKey](./Collection.vue.md#argsKey) chooses which args name the list. Leave out args that don't filter it, like
-  `expand`, and reads that differ only in those args share one list.
-- `push` and `unshift` choose lists by the request's args and body, not by the response. Send the fields that lists
-  filter by, like `userId`.
-- `update` and `partialUpdate` change an item where it is. When an edit changes which list holds the item, use
-  `move`.
+Each view reads the one entry in the table, not a copy of the response that delivered it. So two views never show
+different values for the same data, and no refetch is needed to bring a view up to date.
 
-## Other ways to query {#uses}
+### Derived views without requests {#derived}
 
-Every API that reads the store without an endpoint takes a Queryable schema and args:
+```ts
+const openCount = new Query(
+  TodoResource.getList.schema,
+  todos => todos.filter(todo => !todo.completed).length,
+);
+// A header badge counts the list other pages loaded: no request
+const count = useQuery(openCount, { userId: 1 });
+```
 
-- [Query](./Query.vue.md) computes a sorted, filtered or aggregated view from another Queryable schema.
-- [Controller.get()](https://dataclient.io/vue/api/Controller#get) and [Snapshot.get()](https://dataclient.io/vue/api/Snapshot#get) read the store in
-  [Managers](https://dataclient.io/vue/concepts/managers), event handlers and
-  [getOptimisticResponse](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse).
-- [Controller.set()](https://dataclient.io/vue/api/Controller#set) writes with the same schema and args.
+A [Query](./Query.vue.md) computes from any Queryable schema, and recomputes only when its inputs change.
+[useQuery()](https://dataclient.io/vue/api/useQuery) reads the table and never fetches. [Controller.get()](https://dataclient.io/vue/api/Controller#get) and
+[Snapshot.get()](https://dataclient.io/vue/api/Snapshot#get) read it the same way in [Managers](https://dataclient.io/vue/concepts/managers), event handlers and
+[getOptimisticResponse](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse).
 
-[Queryable schemas](./schema.vue.md#queryable) lists every use.
+## Endpoints read the table before they fetch {#endpoints}
+
+Every way of reading an endpoint uses the first of these that applies:
+
+1. The endpoint has a response of its own. It reads that response, with that response's expiry.
+2. The endpoint's schema is Queryable, and the table's result for its args is complete: no part of it is
+   `undefined`. It reads that result.
+3. Otherwise the data is missing, so the endpoint fetches.
+
+This applies to [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
+[useCache()](https://dataclient.io/vue/api/useCache), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch),
+[Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) and
+[Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
+requests.
+
+### Stored data keeps its expiry {#expiry}
+
+A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
+[expiry policy](https://dataclient.io/vue/concepts/expiry-policy) applies as usual:
+
+- While the result is fresh, the endpoint makes no request.
+- Once it is stale, it still renders, and the endpoint refetches.
+- An [invalidIfStale](https://dataclient.io/vue/concepts/expiry-policy#endpointinvalidifstale) endpoint treats a stale result as
+  [Invalid](https://dataclient.io/vue/concepts/expiry-policy#expiry-status), and an [invalidated](https://dataclient.io/vue/concepts/expiry-policy#invalidate) endpoint treats any
+  result that way, so they wait for a fetch.
+- An Entity that fails [validate()](./Entity.vue.md#validate) counts as missing.
+
+### Which results are complete {#complete}
+
+- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
+  `pk`.
+- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
+- An object schema like `{ data: Post }` is complete when every member is. An Array member never is. A Collection
+  member is when the store holds it for those args. Two Entities must both be found by the same args.
+- Until the endpoint's own response arrives, the result holds only what the schema declares. Plain values in it, like
+  `total: 0`, are returned as written. Response fields it leaves out, like a `meta`, are `undefined`.
+
+### Fields are not checked {#fields}
+
+Finding an Entity doesn't check which fields it has. When list items lack fields the detail page shows, the detail
+renders those fields' defaults, and doesn't fetch while the list data is fresh. To make it fetch, give the list a
+summary Entity and make the detail Entity require the rest with [validate()](./Entity.vue.md#validate)
+([Partial entities](./partial-entities.vue.md)).
+
+## How each schema finds its data {#query}
+
+A Queryable schema has a [queryKey(args)](./schema.vue.md#queryable) method. It returns what a response would have
+normalized to, and returns it only for data the table holds.
+
+- An [Entity](./Entity.vue.md) returns its primary key. By default, args with the fields `pk()` reads, like `{ id }`,
+  find it. `pk()`, [indexes](./Entity.vue.md#indexes) or `queryKey` itself change which args do
+  ([Queryable by args](./Entity.vue.md#pk-args)).
+- A [Collection](./Collection.vue.md) returns the list stored for its args. Endpoints that share a Collection read
+  the same list: `/users/:userId/todos` renders what `/todos?userId=` loaded when both use
+  `TodoResource.getList.schema`. A nested Collection takes its args from [nestKey](./Collection.vue.md#nestKey), and
+  [argsKey](./Collection.vue.md#argsKey) leaves out args that don't filter the list, like `expand`.
+- An object schema like `{ data: Post }` combines its members' results.
+- [All](./All.vue.md), [Union](./Union.vue.md), [Query](./Query.vue.md) and [Scalar](./Scalar.vue.md) are
+  Queryable too ([what each returns](./schema.vue.md#queryable)).
+- [Array](./Array.vue.md) and [Values](./Values.vue.md) are not. Use a Collection or All for a list that should be
+  Queryable.
+
+Mutations find lists by args too. `push` and `unshift` add to the lists that the request's args and body match, so
+send the fields lists filter by, like `userId`. `update` and `partialUpdate` change an item where it is; when an edit
+changes which list holds the item, use `move`.
 
 ## Next steps
 

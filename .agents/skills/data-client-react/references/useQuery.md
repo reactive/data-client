@@ -11,6 +11,10 @@ If the value does not exist, returns `undefined`.
 `useQuery()` is reactive to data [mutations](./mutations.md); rerendering only when necessary. Returns `undefined`
 when data is [Invalid](https://dataclient.io/docs/concepts/expiry-policy#invalid), or when `null` is the second argument.
 
+It never fetches, and it ignores expiry: stale data is returned as stored. Where part of an object schema's result is
+missing, it returns the object with that member `undefined`. An endpoint with the same schema
+[fetches in both cases](https://dataclient.io/docs/concepts/queryable#endpoints).
+
 > **Tip**
 >
 > [Queries](https://dataclient.io/rest/api/Query) are a great companion to efficiently render aggregate computations like those that use [groupBy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy#browser_compatibility),
