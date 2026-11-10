@@ -30,17 +30,114 @@ screen, then fetches the other list and the detail as each one opens: four reque
 ### No overfetching on navigation {#navigation}
 
 ```ts
-// Team loaded every user, each with their issues nested inside
-const users = useSuspense(UserResource.getList);
-// IssuePage finds Issue 5 by its id: no request
+// IssueList loaded every issue
+const issues = useSuspense(IssueResource.getList);
+// IssueDetail, opened from that list, finds Issue 5 by its id: no request
 const issue = useSuspense(IssueResource.get, { id: 5 });
-// UserPage finds one user's issues by their args: no request
-const issues = useSuspense(IssueResource.getList, { assigneeId: 1 });
+```
+
+Open an issue below. `IssueDetail` renders without a loading state, because the list already stored that `Issue`.
+
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
+```ts title="Resources"
+import { Entity, resource } from '@data-client/rest';
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+}
+export const UserResource = resource({
+  path: '/users/:id',
+  schema: User,
+});
+
+export class Issue extends Entity {
+  id = 0;
+  assignee = User.fromJS();
+  title = '';
+  body = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+
+  static schema = {
+    assignee: User,
+  };
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  schema: Issue,
+});
+```
+
+```tsx title="IssueDetail" route="/issues/:id" {5}
+import { useSuspense } from '@data-client/react';
+import { IssueResource } from './Resources';
+
+export default function IssueDetail({ id }: { id: string }) {
+  const issue = useSuspense(IssueResource.get, { id });
+  return (
+    <div>
+      <header>
+        <div className="listItem spaced">
+          <div className="author">
+            <Avatar src={issue.assignee.profileImage} />
+            <small>{issue.assignee.name}</small>
+          </div>
+          <h4>{issue.title}</h4>
+        </div>
+      </header>
+      <p>{issue.body}</p>
+    </div>
+  );
+}
+```
+
+```tsx title="IssueItem"
+import { type Issue } from './Resources';
+
+export default function IssueItem({ issue }: { issue: Issue }) {
+  return (
+    <div className="listItem spaced">
+      <Avatar src={issue.assignee.profileImage} />
+      <div>
+        <h4>
+          <Link to={`/issues/${issue.id}`}>{issue.title}</Link>
+        </h4>
+        <small>{issue.assignee.name}</small>
+      </div>
+    </div>
+  );
+}
+```
+
+```tsx title="IssueList" route="/" {6}
+import { useSuspense } from '@data-client/react';
+import IssueItem from './IssueItem';
+import { IssueResource } from './Resources';
+
+export default function IssueList() {
+  const issues = useSuspense(IssueResource.getList);
+  return (
+    <div>
+      {issues.map(issue => (
+        <IssueItem key={issue.pk()} issue={issue} />
+      ))}
+    </div>
+  );
+}
 ```
 
 Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
-so one response is the data of each page it covers ([Relational data](./relational-data.md)). The
-[app below](#mutations) loads this way: only its first page sends a `GET`.
+so one response is the data of each page it covers ([Relational data](./relational-data.md)). Each issue above
+arrives with its assignee nested, so a user's page finds that `User` by its id too.
 
 In the [React benchmarks](https://dataclient.io/docs/concepts/performance), with a simulated 40 ms network delay, switching between a list and its
 items is 21× faster than TanStack Query, which keys the detail query separately and fetches it.

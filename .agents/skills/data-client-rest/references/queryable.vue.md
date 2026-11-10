@@ -30,17 +30,117 @@ screen, then fetches the other list and the detail as each one opens: four reque
 ### No overfetching on navigation {#navigation}
 
 ```ts
-// Team loaded every user, each with their issues nested inside
-const users = useSuspense(UserResource.getList);
-// IssuePage finds Issue 5 by its id: no request
+// IssueList loaded every issue
+const issues = useSuspense(IssueResource.getList);
+// IssueDetail, opened from that list, finds Issue 5 by its id: no request
 const issue = useSuspense(IssueResource.get, { id: 5 });
-// UserPage finds one user's issues by their args: no request
-const issues = useSuspense(IssueResource.getList, { assigneeId: 1 });
+```
+
+Open an issue below. `IssueDetail` renders without a loading state, because the list already stored that `Issue`.
+
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
+```ts title="Resources"
+import { Entity, resource } from '@data-client/rest';
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+}
+export const UserResource = resource({
+  path: '/users/:id',
+  schema: User,
+});
+
+export class Issue extends Entity {
+  id = 0;
+  assignee = User.fromJS();
+  title = '';
+  body = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+
+  static schema = {
+    assignee: User,
+  };
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  schema: Issue,
+});
+```
+
+```html title="IssueDetail.vue" route="/issues/:id" {6}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { IssueResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const issue = await useSuspense(IssueResource.get, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <header>
+      <div class="listItem spaced">
+        <div class="author">
+          <Avatar :src="issue.assignee.profileImage" />
+          <small>{{ issue.assignee.name }}</small>
+        </div>
+        <h4>{{ issue.title }}</h4>
+      </div>
+    </header>
+    <p>{{ issue.body }}</p>
+  </div>
+</template>
+```
+
+```html title="IssueItem.vue"
+<script setup lang="ts">
+  import { type Issue } from './Resources';
+
+  defineProps<{ issue: Issue }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <Avatar :src="issue.assignee.profileImage" />
+    <div>
+      <h4>
+        <RouterLink :to="`/issues/${issue.id}`">{{ issue.title }}</RouterLink>
+      </h4>
+      <small>{{ issue.assignee.name }}</small>
+    </div>
+  </div>
+</template>
+```
+
+```html title="IssueList.vue" route="/" {6}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import IssueItem from './IssueItem.vue';
+  import { IssueResource } from './Resources';
+
+  const issues = await useSuspense(IssueResource.getList);
+</script>
+
+<template>
+  <div>
+    <IssueItem v-for="issue in issues" :key="issue.pk()" :issue="issue" />
+  </div>
+</template>
 ```
 
 Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
-so one response is the data of each page it covers ([Relational data](https://dataclient.io/rest/guides/relational-data)). The
-[app below](#mutations) loads this way: only its first page sends a `GET`.
+so one response is the data of each page it covers ([Relational data](https://dataclient.io/rest/guides/relational-data)). Each issue above
+arrives with its assignee nested, so a user's page finds that `User` by its id too.
 
 ### Faster mutations {#mutations}
 

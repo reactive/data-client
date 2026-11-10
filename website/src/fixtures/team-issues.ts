@@ -7,6 +7,7 @@ class Issue extends Entity {
   id = 0;
   assigneeId = 0;
   title = '';
+  body = '';
   state: 'open' | 'closed' = 'open';
 
   static key = 'Issue';
@@ -29,18 +30,60 @@ const UserResource = resource({
 });
 
 /** An issue as the server sends it */
-type IssueData = Pick<Issue, 'id' | 'assigneeId' | 'title' | 'state'>;
+type IssueData = Pick<Issue, 'id' | 'assigneeId' | 'title' | 'body' | 'state'>;
 /** The demo's server: its issues in list order, and the next id it gives */
 type TeamIssueServer = { issues: IssueData[]; nextId: number };
 
 const issues: IssueData[] = [
-  { id: 1, assigneeId: 1, title: 'Signup email not sent', state: 'open' },
-  { id: 2, assigneeId: 2, title: 'Old plans on pricing page', state: 'closed' },
-  { id: 3, assigneeId: 3, title: 'Search ignores accents', state: 'open' },
-  { id: 4, assigneeId: 1, title: 'Avatar upload fails', state: 'open' },
-  { id: 5, assigneeId: 3, title: 'CSV export drops a column', state: 'open' },
-  { id: 6, assigneeId: 2, title: 'Dark mode flickers', state: 'open' },
-  { id: 7, assigneeId: 1, title: 'Invite link expires early', state: 'open' },
+  {
+    id: 1,
+    assigneeId: 1,
+    title: 'Signup email not sent',
+    body: 'New accounts never get the confirmation email, so they cannot sign in.',
+    state: 'open',
+  },
+  {
+    id: 2,
+    assigneeId: 2,
+    title: 'Old plans on pricing page',
+    body: 'The pricing page still lists the plans we retired in March.',
+    state: 'closed',
+  },
+  {
+    id: 3,
+    assigneeId: 3,
+    title: 'Search ignores accents',
+    body: 'Searching for "cafe" does not find "café".',
+    state: 'open',
+  },
+  {
+    id: 4,
+    assigneeId: 1,
+    title: 'Avatar upload fails',
+    body: 'Uploading a PNG over 2 MB fails with no error message.',
+    state: 'open',
+  },
+  {
+    id: 5,
+    assigneeId: 3,
+    title: 'CSV export drops a column',
+    body: 'The exported file has no "Created" column.',
+    state: 'open',
+  },
+  {
+    id: 6,
+    assigneeId: 2,
+    title: 'Dark mode flickers',
+    body: 'Pages flash white on load before the dark theme applies.',
+    state: 'open',
+  },
+  {
+    id: 7,
+    assigneeId: 1,
+    title: 'Invite link expires early',
+    body: 'Invite links stop working after an hour instead of a day.',
+    state: 'open',
+  },
 ];
 
 export const getInitialInterceptorData = (): TeamIssueServer => ({
@@ -63,6 +106,32 @@ const notFound = (what: string) => ({ status: 404, message: `No ${what}` });
 
 /** Long enough that a page waiting on a request shows it */
 const delay = 300;
+
+/** An issue as `/issues` sends it to the list and detail demo: with its
+ * assignee nested */
+const withAssignee = (issue: IssueData) => ({
+  ...issue,
+  assignee: users.find(user => user.id === issue.assigneeId),
+});
+
+/** The same issues, read only: a list whose items are each a detail page's
+ * data. Both endpoints wait, so a detail that fetched would show it. */
+export const issueListFixtures: Interceptor[] = [
+  {
+    endpoint: IssueResource.getList,
+    response: () => issues.map(withAssignee),
+    delay,
+  },
+  {
+    endpoint: IssueResource.get,
+    response({ id }: Parameters<typeof IssueResource.get>[0]) {
+      const issue = issues.find(issue => issue.id === Number(id));
+      if (!issue) throw notFound(`issue ${id}`);
+      return withAssignee(issue);
+    },
+    delay,
+  },
+];
 
 /** A team's issue tracker: `/users` nests each user's issues, so one request
  * loads what the user and issue pages read. Every endpoint answers from one
@@ -113,6 +182,7 @@ export const teamIssueFixtures: Interceptor<TeamIssueServer>[] = [
       const issue: IssueData = {
         assigneeId: 0,
         title: '',
+        body: '',
         state: 'open',
         ...body,
         id: this.nextId++,
