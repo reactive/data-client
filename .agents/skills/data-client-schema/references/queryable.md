@@ -3,162 +3,44 @@
 # Queryable
 
 The store is a lookup table. It holds each [Entity](./Entity.md) once, by its primary key, and each
-[Collection](./Collection.md)'s list by its args, like `{ userId: 1 }`. A schema is _Queryable_ when it can find
+[Collection](./Collection.md)'s list by its args, like `{ assigneeId: 1 }`. A schema is _Queryable_ when it can find
 its data in that table from args alone.
 
 So it doesn't matter how data arrived. A list, a detail response, a mutation's response, a websocket message and
 [Controller.set()](https://dataclient.io/docs/api/Controller#set) all write to the same table, and any read with matching args finds what
 they wrote.
 
-One write serves every read it matches. When [getList.push](https://dataclient.io/rest/api/resource#push) creates a todo, its one `POST`
-stores the todo and adds it to every stored list it belongs in. Those lists and the todo's detail page then render it
-without a request.
+One write serves every read it matches. When [getList.push](https://dataclient.io/rest/api/resource#push) creates an issue, its one `POST`
+stores the issue and adds it to every stored list it belongs in. Those lists and the issue's detail page then render
+it without a request.
 
 A cache keyed by request can't do this. It stores each response apart. After the same `POST` it refetches the list on
 screen, then fetches the other list and the detail as each one opens: four requests where the table needs one.
 
 ## Benefits {#benefits}
 
-- [No overfetching on navigation](#navigation): a page renders data another page already loaded.
+- [No overfetching on navigation](#navigation): a page renders data another page already loaded, wherever it sat in
+  that page's response.
 - [Faster mutations](#mutations): a mutation's response updates every list it belongs in, and is the next page's
   data.
 - [No data tearing](#tearing): two views never show different values for the same data, whichever transport changed
   it.
-- [Derived views without requests](#derived): counts, filters and groupings compute from data already loaded.
+- [Derived views without requests](#derived): counts, filters, sorts and joins compute from data already loaded.
 
 ### No overfetching on navigation {#navigation}
 
 ```ts
-// PostList loaded every post
-const posts = useSuspense(PostResource.getList);
-// PostDetail, opened from that list, finds Post 5 by its id: no request
-const post = useSuspense(PostResource.get, { id: 5 });
+// Team loaded every user, each with their issues nested inside
+const users = useSuspense(UserResource.getList);
+// IssuePage finds Issue 5 by its id: no request
+const issue = useSuspense(IssueResource.get, { id: 5 });
+// UserPage finds one user's issues by their args: no request
+const issues = useSuspense(IssueResource.getList, { assigneeId: 1 });
 ```
 
-Open a post below. `PostDetail` renders without a loading state, because the list already stored that `Post`.
-
-Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
-
-```ts title="Resources"
-import { Entity, resource } from '@data-client/rest';
-
-export class User extends Entity {
-  id = 0;
-  name = '';
-  username = '';
-  email = '';
-  phone = '';
-  website = '';
-
-  get profileImage() {
-    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
-  }
-
-  static key = 'User';
-}
-export const UserResource = resource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/users/:id',
-  schema: User,
-});
-
-export class Post extends Entity {
-  id = 0;
-  author = User.fromJS();
-  title = '';
-  body = '';
-
-  static key = 'Post';
-
-  static schema = {
-    author: User,
-  };
-}
-export const PostResource = resource({
-  path: '/posts/:id',
-  schema: Post,
-  paginationField: 'page',
-});
-```
-
-```tsx title="PostDetail" route="/posts/:id" {5}
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './Resources';
-
-export default function PostDetail({ id }) {
-  const post = useSuspense(PostResource.get, { id });
-  return (
-    <div>
-      <header>
-        <div className="listItem spaced">
-          <div className="author">
-            <Avatar src={post.author.profileImage} />
-            <small>{post.author.name}</small>
-          </div>
-          <h4>{post.title}</h4>
-        </div>
-      </header>
-      <p>{post.body}</p>
-    </div>
-  );
-}
-```
-
-```tsx title="PostItem"
-import { type Post } from './Resources';
-
-export default function PostItem({ post }: { post: Post }) {
-  return (
-    <div className="listItem spaced">
-      <Avatar src={post.author.profileImage} />
-      <div>
-        <h4>
-          <Link to={`/posts/${post.id}`}>{post.title}</Link>
-        </h4>
-        <small>by {post.author.name}</small>
-      </div>
-    </div>
-  );
-}
-```
-
-```tsx title="PostList" route="/" {7}
-import { useSuspense } from '@data-client/react';
-import LoadMore from './LoadMore';
-import PostItem from './PostItem';
-import { PostResource } from './Resources';
-
-export default function PostList() {
-  const posts = useSuspense(PostResource.getList);
-  return (
-    <div>
-      {posts.map(post => (
-        <PostItem key={post.pk()} post={post} />
-      ))}
-      <LoadMore />
-    </div>
-  );
-}
-```
-
-```tsx title="LoadMore"
-import { useController, useLoading, useQuery } from '@data-client/react';
-import { PostResource } from './Resources';
-
-export default function LoadMore() {
-  const ctrl = useController();
-  const posts = useQuery(PostResource.getList.schema);
-  const [nextPage, isPending] = useLoading(() =>
-    ctrl.fetch(PostResource.getList.getPage, { page: 2 }),
-  );
-  if (!posts || posts.length % 3 !== 0) return null;
-  return (
-    <div className="loadMore">
-      <button onClick={nextPage}>{isPending ? '...' : 'Load more'}</button>
-    </div>
-  );
-}
-```
+Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
+so one response is the data of each page it covers ([Relational data](./relational-data.md)). The
+[app below](#mutations) loads this way: only its first page sends a `GET`.
 
 In the [React benchmarks](https://dataclient.io/docs/concepts/performance), with a simulated 40 ms network delay, switching between a list and its
 items is 21× faster than TanStack Query, which keys the detail query separately and fetches it.
@@ -166,44 +48,43 @@ items is 21× faster than TanStack Query, which keys the detail query separately
 ### Faster mutations {#mutations}
 
 ```ts
-const todo = await ctrl.fetch(TodoResource.getList.push, {
-  userId: 1,
-  title: 'Ship it',
+const issue = await ctrl.fetch(IssueResource.getList.push, {
+  assigneeId: 1,
+  title: 'Fix signup redirect',
 });
-// That POST is the only request. The todo joined every stored list it
-// matches, like getList({ userId: 1 }) and getList(), and its detail
+// That POST is the only request. The issue joined every stored list it
+// matches, like getList({ assigneeId: 1 }) and getList(), and its detail
 // page renders the response
-navigate(`/todos/${todo.id}`);
+navigate(`/issues/${issue.id}`);
 ```
 
-The app below sends one `GET`, for its `Team` page. The user and todo pages read endpoints that never fetched, and
-only mutations send requests.
+The issue tracker below sends one `GET`, for its `Team` page. The user and issue pages read endpoints that never
+fetched, and only mutations send requests.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
-```ts title="Resources" {32-34}
+```ts title="Resources" {31-33}
 import { Collection, Entity, resource } from '@data-client/rest';
 
-export class Todo extends Entity {
+export class Issue extends Entity {
   id = 0;
-  userId = 0;
+  assigneeId = 0;
   title = '';
-  completed = false;
+  state: 'open' | 'closed' = 'open';
 
-  static key = 'Todo';
+  static key = 'Issue';
 }
-export const TodoResource = resource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-  searchParams: {} as { userId?: string | number } | undefined,
-  schema: Todo,
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { assigneeId?: string | number } | undefined,
+  schema: Issue,
   optimistic: true,
 });
 
 export class User extends Entity {
   id = 0;
   name = '';
-  todos: Todo[] = [];
+  issues: Issue[] = [];
 
   get profileImage() {
     return `https://i.pravatar.cc/64?img=${this.id + 4}`;
@@ -212,14 +93,13 @@ export class User extends Entity {
   static key = 'User';
 
   static schema = {
-    // the list TodoResource.getList({ userId }) reads
-    todos: new Collection([Todo], {
-      nestKey: parent => ({ userId: parent.id }),
+    // the list IssueResource.getList({ assigneeId }) reads
+    issues: new Collection([Issue], {
+      nestKey: parent => ({ assigneeId: parent.id }),
     }),
   };
 }
 export const UserResource = resource({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/users/:id',
   schema: User,
 });
@@ -240,15 +120,15 @@ export default function Team() {
             <Link to={`/users/${user.id}`}>{user.name}</Link>
           </h3>
           <div className="list">
-            {user.todos
-              .filter(todo => !todo.completed)
-              .map(todo => (
+            {user.issues
+              .filter(issue => issue.state === 'open')
+              .map(issue => (
                 <Link
-                  key={todo.pk()}
+                  key={issue.pk()}
                   className="listItem"
-                  to={`/todos/${todo.id}`}
+                  to={`/issues/${issue.id}`}
                 >
-                  {todo.title}
+                  {issue.title}
                 </Link>
               ))}
           </div>
@@ -261,50 +141,50 @@ export default function Team() {
 
 ```tsx title="UserPage" route="/users/:id" {7-8}
 import { useSuspense } from '@data-client/react';
-import NewTodo from './NewTodo';
-import { TodoResource, UserResource } from './Resources';
-import TodoItem from './TodoItem';
+import IssueItem from './IssueItem';
+import NewIssue from './NewIssue';
+import { IssueResource, UserResource } from './Resources';
 
 export default function UserPage({ id }: { id: string }) {
   const user = useSuspense(UserResource.get, { id });
-  const todos = useSuspense(TodoResource.getList, { userId: id });
+  const issues = useSuspense(IssueResource.getList, { assigneeId: id });
   return (
     <div>
       <h2>{user.name}</h2>
       <div className="list">
-        {todos.map(todo => (
-          <TodoItem key={todo.pk()} todo={todo} />
+        {issues.map(issue => (
+          <IssueItem key={issue.pk()} issue={issue} />
         ))}
-        <NewTodo userId={user.id} />
+        <NewIssue assigneeId={user.id} />
       </div>
     </div>
   );
 }
 ```
 
-```tsx title="TodoItem" {7-11,13}
+```tsx title="IssueItem" {7-11,13}
 import { useController } from '@data-client/react';
-import { TodoResource, type Todo } from './Resources';
+import { IssueResource, type Issue } from './Resources';
 
-export default function TodoItem({ todo }: { todo: Todo }) {
+export default function IssueItem({ issue }: { issue: Issue }) {
   const ctrl = useController();
   const handleChange = e =>
     ctrl.fetch(
-      TodoResource.partialUpdate,
-      { id: todo.id },
-      { completed: e.currentTarget.checked },
+      IssueResource.partialUpdate,
+      { id: issue.id },
+      { state: e.currentTarget.checked ? 'closed' : 'open' },
     );
   const handleDelete = () =>
-    ctrl.fetch(TodoResource.delete, { id: todo.id });
+    ctrl.fetch(IssueResource.delete, { id: issue.id });
   return (
     <div className="listItem nogap">
       <label>
         <input
           type="checkbox"
-          checked={todo.completed}
+          checked={issue.state === 'closed'}
           onChange={handleChange}
         />
-        <Link to={`/todos/${todo.id}`}>{todo.title}</Link>
+        <Link to={`/issues/${issue.id}`}>{issue.title}</Link>
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -312,16 +192,16 @@ export default function TodoItem({ todo }: { todo: Todo }) {
 }
 ```
 
-```tsx title="NewTodo" {8-11}
+```tsx title="NewIssue" {8-11}
 import { useController } from '@data-client/react';
-import { TodoResource } from './Resources';
+import { IssueResource } from './Resources';
 
-export default function NewTodo({ userId }: { userId: number }) {
+export default function NewIssue({ assigneeId }: { assigneeId: number }) {
   const ctrl = useController();
   const handleKeyDown = e => {
     if (e.key === 'Enter') {
-      ctrl.fetch(TodoResource.getList.push, {
-        userId,
+      ctrl.fetch(IssueResource.getList.push, {
+        assigneeId,
         title: e.currentTarget.value,
       });
       e.currentTarget.value = '';
@@ -333,8 +213,8 @@ export default function NewTodo({ userId }: { userId: number }) {
         <input type="checkbox" name="new" checked={false} disabled />
         <input
           type="text"
-          aria-label="New todo"
-          placeholder="New todo"
+          aria-label="New issue"
+          placeholder="New issue"
           onKeyDown={handleKeyDown}
         />
       </label>
@@ -343,29 +223,33 @@ export default function NewTodo({ userId }: { userId: number }) {
 }
 ```
 
-```tsx title="TodoPage" route="/todos/:id" {5,10}
+```tsx title="IssuePage" route="/issues/:id" {5,10-14}
 import { useController, useSuspense } from '@data-client/react';
-import { TodoResource, UserResource } from './Resources';
+import { IssueResource, UserResource } from './Resources';
 
-export default function TodoPage({ id }: { id: string }) {
-  const todo = useSuspense(TodoResource.get, { id });
+export default function IssuePage({ id }: { id: string }) {
+  const issue = useSuspense(IssueResource.get, { id });
   const users = useSuspense(UserResource.getList);
   const ctrl = useController();
-  // move, not partialUpdate: the todo changes lists
-  const assign = (userId: number) =>
-    ctrl.fetch(TodoResource.getList.move, { id: todo.id }, { userId });
+  // move, not partialUpdate: the issue changes lists
+  const assign = (assigneeId: number) =>
+    ctrl.fetch(
+      IssueResource.getList.move,
+      { id: issue.id },
+      { assigneeId },
+    );
   return (
     <div>
-      <h2>{todo.title}</h2>
-      <p className="meta">{todo.completed ? 'Done' : 'Open'}</p>
+      <h2>{issue.title}</h2>
+      <p className="meta">{issue.state === 'open' ? 'Open' : 'Closed'}</p>
       <section>
-        <h3>Owner</h3>
+        <h3>Assignee</h3>
         <div className="list">
           {users.map(user => (
             <button
               key={user.pk()}
               className="listItem"
-              aria-current={user.id === todo.userId}
+              aria-current={user.id === issue.assigneeId}
               onClick={() => assign(user.id)}
             >
               <Avatar src={user.profileImage} size={24} />
@@ -379,12 +263,12 @@ export default function TodoPage({ id }: { id: string }) {
 }
 ```
 
-- `/users` nests each user's todos in a Collection whose [nestKey](./Collection.md#nestKey) returns
-  `{ userId }`, so `user.todos` and `TodoResource.getList({ userId })` are one list.
-- `NewTodo` creates with [getList.push](https://dataclient.io/rest/api/resource#push). That one request puts the todo in the user's list
-  and on `Team`, and `TodoPage` renders it from the response.
-- `TodoPage` changes the owner with [getList.move](https://dataclient.io/rest/api/resource#move), so the todo leaves one user's list and
-  joins the other's.
+- `/users` nests the issues assigned to each user in a Collection whose [nestKey](./Collection.md#nestKey)
+  returns `{ assigneeId }`, so `user.issues` and `IssueResource.getList({ assigneeId })` are one list.
+- `NewIssue` creates with [getList.push](https://dataclient.io/rest/api/resource#push). That one request puts the issue in the user's list
+  and on `Team`, and `IssuePage` renders it from the response.
+- `IssuePage` changes the assignee with [getList.move](https://dataclient.io/rest/api/resource#move), so the issue leaves one user's list
+  and joins the other's.
 
 After each kind of mutation, these render without a fetch:
 
@@ -397,13 +281,18 @@ After each kind of mutation, these render without a fetch:
 | [delete](https://dataclient.io/rest/api/resource#delete)                                                                                                | The lists without it. Its detail is [Invalid](https://dataclient.io/docs/concepts/expiry-policy#expiry-status), so it fetches |
 | No request, like a websocket [Manager](https://dataclient.io/docs/concepts/managers): [Controller.set()](https://dataclient.io/docs/api/Controller#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                                                       |
 
+A response can hold more than the item it changed. Every Entity in it is written the same way, so return what else
+the mutation changed instead of refetching it ([Side effects](./side-effects.md)). An
+[optimistic update](https://dataclient.io/rest/guides/optimistic-updates) makes the same writes before the response arrives.
+
 ### No data tearing {#tearing}
 
 ```ts
-// A websocket Manager writes the price it was sent
-controller.set(Ticker, { product_id: 'BTC-USD' }, message);
-// The ticker list that REST loaded, the open detail page, and any page
-// opened later all show the new price
+// A websocket Manager writes the message it was sent, when a teammate
+// closes Issue 5: { id: 5, state: 'closed' }
+controller.set(Issue, { id: message.id }, message);
+// Team, the assignee's list, the open issue page and any page opened
+// later all show it closed
 ```
 
 Each view reads the one entry in the table, not a copy of the response that delivered it. So two views never show
@@ -413,14 +302,18 @@ different values for the same data, and no refetch is needed to bring a view up 
 
 ```ts
 const openCount = new Query(
-  TodoResource.getList.schema,
-  todos => todos.filter(todo => !todo.completed).length,
+  IssueResource.getList.schema,
+  issues => issues.filter(issue => issue.state === 'open').length,
 );
-// A header badge counts the list other pages loaded: no request
-const count = useQuery(openCount, { userId: 1 });
+// A badge counts a list other pages loaded: no request
+const count = useQuery(openCount, { assigneeId: 1 });
+// An Entity reads the same way, like the issue's assignee
+const assignee = useQuery(User, { id: issue.assigneeId });
 ```
 
-A [Query](./Query.md) computes from any Queryable schema, and recomputes only when its inputs change.
+A [Query](./Query.md) computes from any Queryable schema, and recomputes only when its inputs change. So a
+[sorted list](./Query.md#sorting) stays sorted after a push, and a [grouping](./Query.md#groupby) or
+[join](./Query.md#object-schema-joins) follows every later write.
 [useQuery()](https://dataclient.io/docs/api/useQuery) reads the table and never fetches. [Controller.get()](https://dataclient.io/docs/api/Controller#get) and
 [Snapshot.get()](https://dataclient.io/docs/api/Snapshot#get) read it the same way in [Managers](https://dataclient.io/docs/concepts/managers), event handlers and
 [getOptimisticResponse](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse).
@@ -457,7 +350,7 @@ A complete result is treated like a response. It expires when the earliest-expir
 - An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
   `pk`.
 - Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
-- An object schema like `{ data: Post }` is complete when every member is. An Array member never is. A Collection
+- An object schema like `{ data: Issue }` is complete when every member is. An Array member never is. A Collection
   member is when the store holds it for those args. Two Entities must both be found by the same args.
 - Until the endpoint's own response arrives, the result holds only what the schema declares. Plain values in it, like
   `total: 0`, are returned as written. Response fields it leaves out, like a `meta`, are `undefined`.
@@ -478,23 +371,25 @@ normalized to, and returns it only for data the table holds.
   find it. `pk()`, [indexes](./Entity.md#indexes) or `queryKey` itself change which args do
   ([Queryable by args](./Entity.md#pk-args)).
 - A [Collection](./Collection.md) returns the list stored for its args. Endpoints that share a Collection read
-  the same list: `/users/:userId/todos` renders what `/todos?userId=` loaded when both use
-  `TodoResource.getList.schema`. A nested Collection takes its args from [nestKey](./Collection.md#nestKey), and
+  the same list: `/users/:assigneeId/issues` renders what `/issues?assigneeId=` loaded when both use
+  `IssueResource.getList.schema`. A nested Collection takes its args from [nestKey](./Collection.md#nestKey), and
   [argsKey](./Collection.md#argsKey) leaves out args that don't filter the list, like `expand`.
-- An object schema like `{ data: Post }` combines its members' results.
+- An object schema like `{ data: Issue }` combines its members' results.
 - [All](./All.md), [Union](./Union.md), [Query](./Query.md) and [Scalar](./Scalar.md) are
   Queryable too ([what each returns](./schema.md#queryable)).
 - [Array](./Array.md) and [Values](./Values.md) are not. Use a Collection or All for a list that should be
   Queryable.
 
 Mutations find lists by args too. `push` and `unshift` add to the lists that the request's args and body match, so
-send the fields lists filter by, like `userId`. `update` and `partialUpdate` change an item where it is; when an edit
+send the fields lists filter by, like `assigneeId`. `update` and `partialUpdate` change an item where it is; when an edit
 changes which list holds the item, use `move`.
 
 ## Next steps
 
 - [Lists to details](https://dataclient.io/docs/getting-started/data-dependency#list-detail) - a list and detail page sharing data, and what
   to do when list items have fewer fields
+- [Relational data](./relational-data.md) - nested Entities and Collections, client-side joins and reverse
+  lookups
 - [Expiry Policy](https://dataclient.io/docs/concepts/expiry-policy) - when stored data is fresh, stale or invalid, and how to change that
 - [Queryable by args](./Entity.md#pk-args) - which args find an Entity, and how to change that
 - [Collection](./Collection.md) - which args find a list, and the mutations that add to, move between and remove

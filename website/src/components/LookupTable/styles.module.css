@@ -1,15 +1,15 @@
 /* the transport switch, and the diagram under it */
 .frame {
   --line: var(--ifm-color-emphasis-300);
-  --todo5: hsl(262, 52%, 48%);
-  --todo6: hsl(165, 70%, 26%);
+  --issue5: hsl(262, 52%, 48%);
+  --issue6: hsl(165, 70%, 26%);
   --args: var(--ifm-color-primary-darker);
   --on-chip: #fff;
   margin: 0 0 1.5rem;
 }
 [data-theme='dark'] .frame {
-  --todo5: hsl(262, 75%, 74%);
-  --todo6: hsl(165, 55%, 55%);
+  --issue5: hsl(262, 75%, 74%);
+  --issue6: hsl(165, 55%, 55%);
   --args: var(--ifm-color-primary-light);
   --on-chip: hsl(220, 20%, 12%);
 }
@@ -27,11 +27,11 @@
   user-select: none;
 }
 
-.todo5 {
-  --c: var(--todo5);
+.issue5 {
+  --c: var(--issue5);
 }
-.todo6 {
-  --c: var(--todo6);
+.issue6 {
+  --c: var(--issue6);
 }
 /* what the table keys by, in one color wherever it appears: in the call, as
    the entry's key, and in the args of the read that finds it */
@@ -41,10 +41,10 @@
   font-weight: 600;
 }
 .id5 {
-  fill: var(--todo5);
+  fill: var(--issue5);
 }
 .id6 {
-  fill: var(--todo6);
+  fill: var(--issue6);
 }
 .args {
   fill: var(--args);
@@ -119,37 +119,36 @@
   text-anchor: end;
 }
 
-/* a todo: its checkbox and title */
-.todo > rect:first-child {
+/* an issue: its state and title */
+.issue > rect:first-child {
   fill: color-mix(in srgb, var(--c) 14%, var(--ifm-background-surface-color));
   rx: 7px;
 }
-.todo .box {
+.issue .state {
   fill: none;
   stroke: var(--c);
   stroke-width: 1.2;
-  rx: 2px;
 }
-.todo .title {
+.issue .title {
   fill: var(--c);
   opacity: 0.5;
   rx: 2px;
 }
-.done .box {
+.closed .state {
   fill: var(--c);
 }
-.done path {
+.closed path {
   fill: none;
   stroke: var(--on-chip);
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.done .title {
+.closed .title {
   opacity: 0.25;
 }
 
-/* a todo's pk, as a list holds it */
+/* an issue's pk, as a list holds it */
 .pk rect {
   fill: var(--c);
   rx: 7px;

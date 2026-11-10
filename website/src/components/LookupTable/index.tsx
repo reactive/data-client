@@ -39,30 +39,30 @@ const FONT = { text: 10.5, request: 9.5 };
 const STORE = { x: 6, y: 52, w: 408, h: 108 };
 /** One entry of the table: its key, right-aligned, then its value */
 const ENTRY = { x: 42, y: 60, w: 364, h: 20, pitch: 24, key: 196, value: 208 };
-const TODO = { w: 120, h: 14 };
-/** A todo's pk, as a list holds it */
+const ISSUE = { w: 120, h: 14 };
+/** An issue's pk, as a list holds it */
 const PK = { w: 22, pitch: 26 };
 /** What reads an endpoint: a page or component, and the request it would make */
 const READ = { y: 178, h: 74 };
 /** The first is wider: a list's label is its longest */
 const READS = [
-  { x: 6, w: 170 },
-  { x: 184, w: 111 },
-  { x: 303, w: 111 },
+  { x: 6, w: 184 },
+  { x: 198, w: 104 },
+  { x: 310, w: 104 },
 ];
 
 type Id = '5' | '6';
 type Point = [number, number];
-/** What a call does to a todo: nothing, stores it, or completes it */
-type Change = 'kept' | 'new' | 'done';
+/** What a call does to an issue: nothing, stores it, or closes it */
+type Change = 'kept' | 'new' | 'closed';
 const IDS: Id[] = ['5', '6'];
-/** Each todo's title, as a bar this wide */
+/** Each issue's title, as a bar this wide */
 const TITLE = { 5: 56, 6: 40 };
 
 /** The lists the store can hold, by the args they were fetched with */
 const LISTS = {
-  user: { entry: 2, request: 'GET /todos?userId=1' },
-  all: { entry: 3, request: 'GET /todos' },
+  assignee: { entry: 2, request: 'GET /issues?assigneeId=1' },
+  all: { entry: 3, request: 'GET /issues' },
 };
 type List = keyof typeof LISTS;
 
@@ -73,39 +73,39 @@ type Op = (typeof OPS)[number];
 interface Scene {
   /** how many requests the call itself is */
   sends: number;
-  todos: Record<Id, Change>;
-  /** the lists in the table; each holds every todo */
+  issues: Record<Id, Change>;
+  /** the lists in the table; each holds every issue */
   lists: List[];
   /** whether this call stores the lists, or they were there */
   newLists?: boolean;
-  /** what reads the table next: a list by its args, or a todo by its pk */
+  /** what reads the table next: a list by its args, or an issue by its pk */
   reads: (List | Id)[];
   /** whether the reads are all on screen, so they change together; otherwise
    * each is the next page opened */
   together?: boolean;
 }
 const SCENES: Record<Op, Scene> = {
-  // getList.push({ userId: 1 }, { title }): both lists get the todo, and its detail is ready
+  // getList.push({ assigneeId: 1, title }): both lists get the issue, and its detail is ready
   POST: {
     sends: 1,
-    todos: { 5: 'kept', 6: 'new' },
-    lists: ['user', 'all'],
-    reads: ['user', 'all', '6'],
+    issues: { 5: 'kept', 6: 'new' },
+    lists: ['assignee', 'all'],
+    reads: ['assignee', 'all', '6'],
   },
   // a list's response is also each item's detail
   GET: {
     sends: 1,
-    todos: { 5: 'new', 6: 'new' },
-    lists: ['user'],
+    issues: { 5: 'new', 6: 'new' },
+    lists: ['assignee'],
     newLists: true,
-    reads: ['user', '5', '6'],
+    reads: ['assignee', '5', '6'],
   },
   // a message changes the one entry every read shows, so none shows the old value
   WebSocket: {
     sends: 0,
-    todos: { 5: 'done', 6: 'kept' },
-    lists: ['user', 'all'],
-    reads: ['user', 'all', '5'],
+    issues: { 5: 'closed', 6: 'kept' },
+    lists: ['assignee', 'all'],
+    reads: ['assignee', 'all', '5'],
     together: true,
   },
 };
@@ -134,14 +134,14 @@ export default function LookupTable() {
     return () => window.clearTimeout(timeout);
   }, [op, run]);
 
-  // what the call brings starts out under it: the todos it stores or
+  // what the call brings starts out under it: the issues it stores or
   // overwrites, stacked, beside the pks of those new to the lists
-  const arriving = IDS.filter(id => scene.todos[id] !== 'kept');
-  const stored = IDS.filter(id => scene.todos[id] === 'new');
-  const x0 = WIDTH / 2 - (TODO.w + PK.pitch * stored.length) / 2;
-  const from = (id: Id): { todo: Point; pk: Point } => ({
-    todo: [x0, CALL_Y + 6 + (TODO.h + 3) * arriving.indexOf(id)],
-    pk: [x0 + TODO.w + 4 + PK.pitch * stored.indexOf(id), CALL_Y + 6],
+  const arriving = IDS.filter(id => scene.issues[id] !== 'kept');
+  const stored = IDS.filter(id => scene.issues[id] === 'new');
+  const x0 = WIDTH / 2 - (ISSUE.w + PK.pitch * stored.length) / 2;
+  const from = (id: Id): { issue: Point; pk: Point } => ({
+    issue: [x0, CALL_Y + 6 + (ISSUE.h + 3) * arriving.indexOf(id)],
+    pk: [x0 + ISSUE.w + 4 + PK.pitch * stored.indexOf(id), CALL_Y + 6],
   });
 
   const reads = scene.reads.map((read, i) => {
@@ -151,9 +151,9 @@ export default function LookupTable() {
       ...READS[i],
       read,
       ids,
-      // a list is in the table once fetched; a todo, once any response held it
-      found: list ? !scene.newLists : scene.todos[read] !== 'new',
-      request: list ? LISTS[read].request : `GET /todos/${read}`,
+      // a list is in the table once fetched; an issue, once any response held it
+      found: list ? !scene.newLists : scene.issues[read] !== 'new',
+      request: list ? LISTS[read].request : `GET /issues/${read}`,
       // the call above is this read's own request
       sent: list && !!scene.newLists,
       at: AT.read + (scene.together ? 0 : AT.next * i),
@@ -194,7 +194,7 @@ export default function LookupTable() {
           aria-label={translate({
             id: 'lookupTable.label',
             message:
-              'The store as one lookup table: Todo 5 and Todo 6 by pk, and the lists for { userId: 1 } and { } by args. POST /todos with userId 1 is one request. It stores Todo 6 and adds it to both lists, so getList({ userId: 1 }), getList() and get({ id: 6 }) each render it without the request they would otherwise make: 1 request, where a cache keyed by request sends 4. GET /todos?userId=1 stores Todo 5, Todo 6 and their list, so get({ id: 5 }) and get({ id: 6 }) render without a request: 1 request, not 3. A websocket message that completes Todo 5 changes its one entry, so both lists and get({ id: 5 }) show it completed: 0 requests, not 3',
+              'The store as one lookup table: Issue 5 and Issue 6 by pk, and the lists for { assigneeId: 1 } and { } by args. POST /issues with assigneeId 1 is one request. It stores Issue 6 and adds it to both lists, so getList({ assigneeId: 1 }), getList() and get({ id: 6 }) each render it without the request they would otherwise make: 1 request, where a cache keyed by request sends 4. GET /issues?assigneeId=1 stores Issue 5, Issue 6 and their list, so get({ id: 5 }) and get({ id: 6 }) render without a request: 1 request, not 3. A websocket message that closes Issue 5 changes its one entry, so both lists and get({ id: 5 }) show it closed: 0 requests, not 3',
             description:
               'Accessible label of the lookup table diagram on the Queryable page',
           })}
@@ -218,13 +218,13 @@ export default function LookupTable() {
           <Call op={op} />
           {IDS.map(
             (id, i) =>
-              scene.todos[id] !== 'new' && (
+              scene.issues[id] !== 'new' && (
                 <React.Fragment key={id}>
                   <Entry index={i}>
-                    <TodoKey id={id} />
+                    <IssueKey id={id} />
                   </Entry>
                   <Place to={[ENTRY.value, entryY(i) + 3]}>
-                    <TodoRow id={id} w={TODO.w} />
+                    <IssueRow id={id} w={ISSUE.w} />
                   </Place>
                 </React.Fragment>
               ),
@@ -237,7 +237,7 @@ export default function LookupTable() {
                 </Entry>
                 {IDS.map(
                   (id, i) =>
-                    scene.todos[id] !== 'new' && (
+                    scene.issues[id] !== 'new' && (
                       <Place key={id} to={pkAt(list, i)}>
                         <Pk id={id} />
                       </Place>
@@ -250,9 +250,9 @@ export default function LookupTable() {
               {read.found &&
                 read.ids.map(
                   id =>
-                    scene.todos[id] !== 'new' && (
+                    scene.issues[id] !== 'new' && (
                       <Place key={id} to={[read.x + 8, read.rowY(id)]}>
-                        <TodoRow id={id} w={read.w - 16} />
+                        <IssueRow id={id} w={read.w - 16} />
                       </Place>
                     ),
                 )}
@@ -276,22 +276,22 @@ export default function LookupTable() {
 
             {IDS.map(
               (id, i) =>
-                scene.todos[id] !== 'kept' && (
+                scene.issues[id] !== 'kept' && (
                   <React.Fragment key={id}>
-                    {scene.todos[id] === 'new' && (
+                    {scene.issues[id] === 'new' && (
                       <Entry index={i} lands>
-                        <TodoKey id={id} />
+                        <IssueKey id={id} />
                       </Entry>
                     )}
-                    {/* a todo's new fields overwrite its one entry */}
+                    {/* an issue's new fields overwrite its one entry */}
                     <Place
                       to={[ENTRY.value, entryY(i) + 3]}
-                      from={from(id).todo}
+                      from={from(id).issue}
                     >
-                      <TodoRow
+                      <IssueRow
                         id={id}
-                        w={TODO.w}
-                        done={scene.todos[id] === 'done'}
+                        w={ISSUE.w}
+                        closed={scene.issues[id] === 'closed'}
                       />
                     </Place>
                   </React.Fragment>
@@ -307,7 +307,7 @@ export default function LookupTable() {
                 {/* a list holds pks, not copies, and every list that matches gets the new one */}
                 {IDS.map(
                   (id, i) =>
-                    scene.todos[id] === 'new' && (
+                    scene.issues[id] === 'new' && (
                       <Place key={id} to={pkAt(list, i)} from={from(id).pk}>
                         <Pk id={id} />
                       </Place>
@@ -320,12 +320,12 @@ export default function LookupTable() {
               const rows = (changes: Change[]) =>
                 read.ids.map(
                   id =>
-                    changes.includes(scene.todos[id]) && (
+                    changes.includes(scene.issues[id]) && (
                       <Place key={id} to={[read.x + 8, read.rowY(id)]}>
-                        <TodoRow
+                        <IssueRow
                           id={id}
                           w={read.w - 16}
-                          done={scene.todos[id] === 'done'}
+                          closed={scene.issues[id] === 'closed'}
                         />
                       </Place>
                     ),
@@ -343,12 +343,12 @@ export default function LookupTable() {
                         height={READ.h}
                       />
                       <g className={clsx(styles.anim, styles.show)}>
-                        {rows(['new', 'done'])}
+                        {rows(['new', 'closed'])}
                       </g>
                     </>
                   : <g className={clsx(styles.anim, styles.show)}>
                       <ReadCard read={read} found>
-                        {rows(['kept', 'new', 'done'])}
+                        {rows(['kept', 'new', 'closed'])}
                       </ReadCard>
                     </g>
                   }
@@ -401,7 +401,7 @@ export default function LookupTable() {
   );
 }
 
-/** Where a list's entry holds the pk of its `index`th todo */
+/** Where a list's entry holds the pk of its `index`th issue */
 function pkAt(list: List, index: number): Point {
   return [ENTRY.value + PK.pitch * index, entryY(LISTS[list].entry) + 3];
 }
@@ -417,28 +417,28 @@ const CALLS: Record<Op, { text: React.ReactNode; length: number }> = {
   POST: {
     text: (
       <>
-        {'POST /todos { userId: '}
+        {'POST /issues { assigneeId: '}
         <tspan className={styles.args}>1</tspan>
         {", title: '…' }"}
       </>
     ),
-    length: 36,
+    length: 41,
   },
   GET: {
     text: (
       <>
-        {'GET /todos?userId='}
+        {'GET /issues?assigneeId='}
         <tspan className={styles.args}>1</tspan>
       </>
     ),
-    length: 19,
+    length: 24,
   },
   WebSocket: {
     text: (
       <>
         {'WebSocket: { id: '}
         <tspan className={styles.id5}>5</tspan>
-        {', completed: true }'}
+        {", state: 'closed' }"}
       </>
     ),
     length: 37,
@@ -457,22 +457,22 @@ function Call({ op }: { op: Op }) {
   );
 }
 
-/** `Todo 5`: the key an Entity is stored under */
-function TodoKey({ id }: { id: Id }) {
+/** `Issue 5`: the key an Entity is stored under */
+function IssueKey({ id }: { id: Id }) {
   return (
     <>
-      {'Todo '}
+      {'Issue '}
       <tspan className={styles[`id${id}`]}>{id}</tspan>
     </>
   );
 }
 
-/** `{ userId: 1 }`: the args a list is stored under, and found by */
+/** `{ assigneeId: 1 }`: the args a list is stored under, and found by */
 function ListArgs({ list }: { list: List }) {
   if (list === 'all') return <>{'{ }'}</>;
   return (
     <>
-      {'{ userId: '}
+      {'{ assigneeId: '}
       <tspan className={styles.args}>1</tspan>
       {' }'}
     </>
@@ -533,13 +533,19 @@ function Place({
   );
 }
 
-/** A todo as an app draws it: a checkbox and its title. Drawn at the origin */
-function TodoRow({ id, w, done }: { id: Id; w: number; done?: boolean }) {
+/** An issue as an app draws it: its state and title. Drawn at the origin */
+function IssueRow({ id, w, closed }: { id: Id; w: number; closed?: boolean }) {
   return (
-    <g className={clsx(styles.todo, styles[`todo${id}`], done && styles.done)}>
-      <rect width={w} height={TODO.h} />
-      <rect className={styles.box} x="5" y="3" width="8" height="8" />
-      {done && <path d="M7 7.2l1.6 1.6 2.8-3.4" />}
+    <g
+      className={clsx(
+        styles.issue,
+        styles[`issue${id}`],
+        closed && styles.closed,
+      )}
+    >
+      <rect width={w} height={ISSUE.h} />
+      <circle className={styles.state} cx="9" cy="7" r="4" />
+      {closed && <path d="M7 7.2l1.6 1.6 2.8-3.4" />}
       <rect
         className={styles.title}
         x="19"
@@ -551,11 +557,11 @@ function TodoRow({ id, w, done }: { id: Id; w: number; done?: boolean }) {
   );
 }
 
-/** A todo's pk, as a list holds it. Drawn at the origin */
+/** An issue's pk, as a list holds it. Drawn at the origin */
 function Pk({ id }: { id: Id }) {
   return (
-    <g className={clsx(styles.pk, styles[`todo${id}`])}>
-      <rect width={PK.w} height={TODO.h} />
+    <g className={clsx(styles.pk, styles[`issue${id}`])}>
+      <rect width={PK.w} height={ISSUE.h} />
       <text x={PK.w / 2} y="10.5">
         {id}
       </text>
@@ -596,7 +602,7 @@ function ReadCard({
         {isList(read) ?
           <>
             {'getList('}
-            {read === 'user' && <ListArgs list={read} />}
+            {read === 'assignee' && <ListArgs list={read} />}
             {')'}
           </>
         : <>
