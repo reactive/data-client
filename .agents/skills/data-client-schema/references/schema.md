@@ -224,6 +224,11 @@ const data = memo.query(
 
 This enables their use in these additional cases:
 
+- Endpoints whose schema is Queryable: until the endpoint has a response of its own,
+  [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useDLE()](https://dataclient.io/docs/api/useDLE), [useCache()](https://dataclient.io/docs/api/useCache) and
+  [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) build it from the store the same way. Whatever
+  `useQuery()` finds for a schema and args, an endpoint with that schema renders with the same args without waiting
+  for a fetch ([Lists to details](https://dataclient.io/docs/getting-started/data-dependency#list-detail)).
 - [useQuery()](https://dataclient.io/docs/api/useQuery) - Rendering in React
 - [schema.Query()](./Query.md) - As input to produce a computed memoization.
 - [ctrl.get](https://dataclient.io/docs/api/Controller#get)/[snap.get](https://dataclient.io/docs/api/Snapshot#get)
