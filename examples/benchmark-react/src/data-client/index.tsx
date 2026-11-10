@@ -242,6 +242,13 @@ function BenchmarkHarness() {
     return issue.number as number;
   }, [controller]);
 
+  const editTitle = useCallback(
+    async (number: number, title: string) => {
+      await controller.fetch(IssueResource.update, { number }, { title });
+    },
+    [controller],
+  );
+
   const moveToState = useCallback(
     async (number: number, state: 'open' | 'closed') => {
       await controller.fetch(IssueResource.move, { number }, { state });
@@ -381,6 +388,7 @@ function BenchmarkHarness() {
     moveItem,
     createItem,
     moveToState,
+    editTitle,
     initTickerStream,
     streamTickers,
     triggerGC: () => benchGC.sweep(),

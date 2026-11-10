@@ -199,6 +199,18 @@ function BenchmarkHarness() {
     return issue.number;
   }, [mutate]);
 
+  const editTitle = useCallback(
+    async (number: number, title: string) => {
+      await IssueResource.update({ number }, { title });
+      await mutate(
+        key =>
+          typeof key === 'string' &&
+          (key.startsWith('issues:') || key.startsWith('issue:')),
+      );
+    },
+    [mutate],
+  );
+
   const moveToState = useCallback(
     async (number: number, state: 'open' | 'closed') => {
       await IssueResource.update({ number }, { state });
@@ -273,6 +285,7 @@ function BenchmarkHarness() {
     moveItem,
     createItem,
     moveToState,
+    editTitle,
     resetStore,
   });
 

@@ -645,18 +645,18 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   );
 });
 
-// ── createThenBrowse ─────────────────────────────────────────────────
+// ── createEditBrowse ─────────────────────────────────────────────────
 
-test('createThenBrowse shows each created issue in both lists and its detail', async (page, lib) => {
+test('createEditBrowse shows each created and edited issue in both lists and its detail', async (page, lib) => {
   if (
     !(await page.evaluate(
-      () => typeof window.__BENCH__?.createThenBrowse === 'function',
+      () => typeof window.__BENCH__?.createEditBrowse === 'function',
     ))
   )
     return;
 
   await clearComplete(page);
-  await page.evaluate(() => window.__BENCH__!.createThenBrowse!(3, 20));
+  await page.evaluate(() => window.__BENCH__!.createEditBrowse!(3, 20));
   await waitForComplete(page, 30000);
 
   const timedOut = await page.evaluate(
@@ -665,34 +665,35 @@ test('createThenBrowse shows each created issue in both lists and its detail', a
         .querySelector('[data-bench-harness]')
         ?.hasAttribute('data-bench-timeout') ?? false,
   );
-  assert(!timedOut, lib, 'createThenBrowse timeout', 'a step timed out');
+  assert(!timedOut, lib, 'createEditBrowse timeout', 'a step timed out');
 
   const hasList = await page.evaluate(
     () =>
       document.querySelector('[data-issue-list] [data-bench-item]') !== null,
   );
-  assert(hasList, lib, 'createThenBrowse list', 'list not in DOM at the end');
+  assert(hasList, lib, 'createEditBrowse list', 'list not in DOM at the end');
 
-  const hasDetail = await page.evaluate(
-    () => document.querySelector('[data-detail-view]') !== null,
+  const editedTitle = await page.evaluate(
+    () =>
+      document.querySelector('[data-issue-list] [data-bench-item] [data-title]')
+        ?.textContent,
   );
   assert(
-    !hasDetail,
+    editedTitle?.startsWith('Edited ') ?? false,
     lib,
-    'createThenBrowse detail-gone',
-    'detail still in DOM',
+    'createEditBrowse edited',
+    `first row title is ${editedTitle}`,
   );
 
-  // Three nav-steps (create, other list, detail) per measured round; the
-  // warmup round is not measured.
+  // Ten steps per measured round; the warmup round is not measured.
   const navSteps = (await collectMeasures(page)).filter(
     m => m.name === 'nav-step',
   ).length;
   assert(
-    navSteps === 9,
+    navSteps === 30,
     lib,
-    'createThenBrowse measure',
-    `expected 9 nav-step measures, got ${navSteps}`,
+    'createEditBrowse measure',
+    `expected 30 nav-step measures, got ${navSteps}`,
   );
 });
 

@@ -242,6 +242,14 @@ function BenchmarkHarness() {
     return issue.number;
   }, [triggerRefetch]);
 
+  const editTitle = useCallback(
+    async (number: number, title: string) => {
+      await IssueResource.update({ number }, { title });
+      triggerRefetch();
+    },
+    [triggerRefetch],
+  );
+
   const moveToState = useCallback(
     async (number: number, state: 'open' | 'closed') => {
       await IssueResource.update({ number }, { state });
@@ -307,6 +315,7 @@ function BenchmarkHarness() {
     moveItem,
     createItem,
     moveToState,
+    editTitle,
   });
 
   return (

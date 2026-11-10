@@ -483,16 +483,18 @@ export function useBenchState({
   );
 
   /**
-   * Timed, per round: creating an issue from the all-issues list until that
-   * list shows it, switching to the open list until it shows the issue, then
-   * opening the issue's detail. The runner sums all three steps of every
-   * round. Both lists were loaded first, like tabs the user visited. Data
-   * Client sends one request per round; libraries that cache per request also
-   * refetch the list and fetch the other list and the detail. Returning to
-   * the list is not timed, and the first round is an unmeasured warmup.
+   * Timed, per round, ten steps the runner sums: create an issue from the
+   * all-issues list, switch to the open list, open the issue, go back, go
+   * forward, edit its title, go back to the open list and the all-issues
+   * list, then forward to the open list and the issue. Each step ends when
+   * its view shows the new issue or the new title. Both lists were loaded first, like tabs the user visited.
+   * Data Client sends only the create and the edit; per-request caches also
+   * refetch after each mutation and fetch views they haven't cached; the
+   * baseline fetches every view. Returning to the start is not timed, and
+   * the first round is an unmeasured warmup.
    */
-  const createThenBrowse = useCallback(
-    async (navigations: number, seedCount: number) => {
+  const createEditBrowse = useCallback(
+    async (rounds: number, seedCount: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
       const listItem = '[data-issue-list] [data-bench-item]';
       setDoubleListCount(seedCount);
@@ -505,7 +507,20 @@ export function useBenchState({
       const container = containerRef.current!;
       const firstNumber = () =>
         container.querySelector(listItem)?.getAttribute('data-issue-number');
-      for (let i = 0; i <= navigations; i++) {
+      const titleIs = (selector: string, title: string) => () =>
+        container.querySelector(`${selector} [data-title]`)?.textContent ===
+        title;
+      const showAll = () => {
+        setStateList(null);
+        setDetailIssueNumber(null);
+        setListViewCount(seedCount);
+      };
+      const showOpen = () => {
+        setListViewCount(undefined);
+        setDetailIssueNumber(null);
+        setStateList('open');
+      };
+      for (let i = 0; i <= rounds; i++) {
         const step = (fn: () => void, done: string | (() => boolean)) =>
           measureNavStep(fn, done, i > 0);
 
@@ -521,20 +536,36 @@ export function useBenchState({
           },
         );
         const number = await created;
-        await step(() => {
+        const inOpen = `[data-state-list="open"] [data-issue-number="${number}"]`;
+        const inAll = `[data-issue-list] [data-issue-number="${number}"]`;
+        const detail = `[data-detail-view][data-issue-number="${number}"]`;
+        const showDetail = () => {
           setListViewCount(undefined);
-          setStateList('open');
-        }, `[data-state-list="open"] [data-issue-number="${number}"]`);
-        await step(() => {
           setStateList(null);
           setDetailIssueNumber(number);
-        }, `[data-detail-view][data-issue-number="${number}"]`);
+        };
 
-        setDetailIssueNumber(null);
-        setListViewCount(seedCount);
-        await waitForElement(
-          `[data-issue-list] [data-issue-number="${number}"]`,
+        await step(showOpen, inOpen);
+        await step(showDetail, detail);
+        await step(showOpen, inOpen);
+        await step(showDetail, detail);
+
+        const title = `Edited ${number} (${i})`;
+        let edited!: Promise<void>;
+        await step(
+          () => {
+            edited = apiRef.current.editTitle!(number, title);
+          },
+          titleIs(detail, title),
         );
+        await edited;
+        await step(showOpen, titleIs(inOpen, title));
+        await step(showAll, titleIs(inAll, title));
+        await step(showOpen, titleIs(inOpen, title));
+        await step(showDetail, titleIs(detail, title));
+        showAll();
+        await waitForElement(inAll);
+
         if (container.hasAttribute('data-bench-timeout')) break;
       }
       setComplete();
@@ -641,7 +672,7 @@ export function useBenchState({
       mountUnmountCycle,
       mountSortedView,
       listDetailSwitch,
-      createThenBrowse,
+      createEditBrowse,
       moveThenSwitch,
       getRenderedCount,
       captureRefSnapshot,

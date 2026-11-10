@@ -228,6 +228,17 @@ function BenchmarkHarness() {
     return issue.number;
   }, [client]);
 
+  const editTitle = useCallback(
+    async (number: number, title: string) => {
+      await IssueResource.update({ number }, { title });
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['issues'] }),
+        client.invalidateQueries({ queryKey: ['issue'] }),
+      ]);
+    },
+    [client],
+  );
+
   const moveToState = useCallback(
     async (number: number, state: 'open' | 'closed') => {
       await IssueResource.update({ number }, { state });
@@ -298,6 +309,7 @@ function BenchmarkHarness() {
     moveItem,
     createItem,
     moveToState,
+    editTitle,
     resetStore,
   });
 
