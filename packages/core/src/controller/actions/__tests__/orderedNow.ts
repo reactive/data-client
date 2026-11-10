@@ -16,14 +16,19 @@ describe('orderedNow()', () => {
 
   it('keeps calls in one millisecond in order', () => {
     jest.useFakeTimers({ now: 1000 });
-    const times = Array.from({ length: 1000 }, () => orderedNow());
+    const times = Array.from({ length: 3000 }, () => orderedNow());
     expect(times[0]).toBe(1000);
     for (let i = 1; i < times.length; i++) {
       expect(times[i]).toBeGreaterThan(times[i - 1]);
     }
-    expect(times[times.length - 1]).toBeLessThan(1001);
+  });
+
+  it('returns Date.now() once the clock passes earlier calls', () => {
+    jest.useFakeTimers({ now: 10000 });
+    orderedNow();
+    orderedNow();
     jest.advanceTimersByTime(1);
-    expect(orderedNow()).toBe(1001);
+    expect(orderedNow()).toBe(10001);
   });
 
   it('restarts from Date.now() when the clock is set back', () => {

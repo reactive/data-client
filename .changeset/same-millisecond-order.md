@@ -6,8 +6,8 @@
 
 Fix an item showing twice when a create and a list fetch start in the same millisecond
 
-Clicking create and then showing a list often starts both requests in the same millisecond. When the list response already had the new item, the create's [push](https://dataclient.io/rest/api/Collection#push) or [unshift](https://dataclient.io/rest/api/Collection#unshift) added it again, so the list showed it twice. React then warned about duplicate keys and could render rows in the wrong place, like a later optimistic create not showing at the top.
+When the list response already had the new item, the create's [push](https://dataclient.io/rest/api/Collection#push) or [unshift](https://dataclient.io/rest/api/Collection#unshift) added it again. React then warned about duplicate keys and could render rows in the wrong place. Now the item shows once.
 
-Now fetches, [set](https://dataclient.io/docs/api/Controller#set) calls and [resets](https://dataclient.io/docs/api/Controller#resetEntireStore) started in the same millisecond keep their order. So the create's response counts as older than the list and adds only items the list doesn't have. This also drops a response to a fetch started just before a reset, and lets two optimistic creates to the same endpoint in one millisecond settle separately.
+Also fixed for requests in the same millisecond: a response to a fetch started just before [resetEntireStore()](https://dataclient.io/docs/api/Controller#resetEntireStore) is dropped, and two optimistic creates to one endpoint settle separately.
 
-`fetchedAt` can now be a fraction of a millisecond above `Date.now()`. Tests that freeze time and expect `meta.fetchedAt` to equal `Date.now()` for a second fetch in the same millisecond should compare against the action's own `meta.fetchedAt` instead.
+Tests that freeze time can now see `meta.fetchedAt` slightly above `Date.now()` for the second fetch in the same millisecond; compare with the action's own `meta.fetchedAt` instead.
