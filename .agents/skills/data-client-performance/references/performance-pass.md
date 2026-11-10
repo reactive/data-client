@@ -36,14 +36,16 @@ Entity's `pk()` reads (`{ id }`, not `{ issueId }`), or a field in its [indexes]
   fields, add an index rather than renaming the args. Delete the copying. When the list returns fewer fields than the
   detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a
   `validate()`, so the detail still fetches the full item ([partial entities](https://dataclient.io/rest/guides/partial-entities)).
-- **Users see:** the detail page shows at once when opened from the list, with no request while the list is fresh.
+- **Users see:** the detail page shows at once when opened from the list. It makes no request while the list is fresh
+  and holds every field the detail requires.
 
 ### One Entity everywhere {#entities}
 
 Every place that shows a server object reads the same Entity, so one response updates all of them.
 
 - **Find:** Entity fields holding objects with their own id but no [`static schema`](https://dataclient.io/rest/api/Entity#schema) entry;
-  two Entity classes for the same server object; update endpoints with no schema; `ctrl.expireAll()`,
+  two Entity classes with different keys for the same server object (a summary Entity that the detail Entity extends
+  with the same `key` is fine); update endpoints with no schema; `ctrl.expireAll()`,
   `ctrl.invalidate()` or a refetch after an update.
 - **Change:** nest the Entity in `static schema` (`{ author: User, labels: [Label] }`), give update endpoints the
   Entity as schema, and delete the refetch.
@@ -116,7 +118,8 @@ export default function IssuePage({ id }: { id: number }) {
 }
 ```
 
-An unawaited `fetchIfStale()` is safe from 0.19 on; on earlier versions, add `.catch(() => {})` to it.
+An unawaited `fetchIfStale()` is safe from 0.19 on. Earlier versions return fresh data without a Promise and leave a
+failed fetch unhandled, so write `void Promise.resolve(ctrl.fetchIfStale(endpoint, args)).catch(() => {})`.
 
 - **Find:** loaders that `await` or `Promise.all()` several requests; components that call `useSuspense()` below the
   page's main content with no boundary of their own.
@@ -126,6 +129,7 @@ An unawaited `fetchIfStale()` is safe from 0.19 on; on earlier versions, add `.c
 
 - **Find:** links to pages whose data the store doesn't hold yet, on routes without a loader.
 - **Change:** call `ctrl.fetchIfStale(endpoint, args)` in the link's `onMouseEnter` and `onFocus`, or add a loader.
+  Before 0.19, wrap it as the [loaders](#loaders) check shows.
 - **Users see:** the page shows without a loading state. Links that are hovered but not clicked cost a request.
 
 ### Expiry fits the data {#expiry}
