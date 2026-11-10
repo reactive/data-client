@@ -4,23 +4,22 @@ import { Controller } from '../../..';
 import createReducer, {
   initialState,
 } from '../../../state/reducer/createReducer';
+import type { FetchAction, State } from '../../../types';
 import { createFetch } from '../createFetch';
 import { createReset } from '../createReset';
 import { createSetResponse } from '../createSetResponse';
 import { orderedNow } from '../orderedNow';
 
-describe('orderedNow()', () => {
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+afterEach(() => {
+  jest.useRealTimers();
+});
 
+describe('orderedNow()', () => {
   it('keeps calls in one millisecond in order', () => {
     jest.useFakeTimers({ now: 1000 });
     const times = Array.from({ length: 3000 }, () => orderedNow());
     expect(times[0]).toBe(1000);
-    for (let i = 1; i < times.length; i++) {
-      expect(times[i]).toBeGreaterThan(times[i - 1]);
-    }
+    expect(times.every((t, i) => i === 0 || t > times[i - 1])).toBe(true);
   });
 
   it('returns Date.now() once the clock passes earlier calls', () => {
@@ -41,12 +40,19 @@ describe('orderedNow()', () => {
 
 describe('actions in one millisecond', () => {
   const reducer = createReducer(new Controller());
+  /** Reduces the response to `fetch` */
+  const settle = (state: State<unknown>, fetch: FetchAction, response: any) =>
+    reducer(
+      state,
+      createSetResponse(fetch.endpoint, {
+        args: fetch.args,
+        response,
+        fetchedAt: fetch.meta.fetchedAt,
+      }),
+    );
 
   beforeEach(() => {
     jest.useFakeTimers({ now: 1000 });
-  });
-  afterEach(() => {
-    jest.useRealTimers();
   });
 
   it('a create adds an item once to a list fetched after it, whose response already has it', () => {
@@ -55,22 +61,8 @@ describe('actions in one millisecond', () => {
       args: [body],
     });
     const list = createFetch(ArticleResource.getList, { args: [] });
-    let state = reducer(
-      initialState,
-      createSetResponse(ArticleResource.getList, {
-        args: [],
-        response: [{ id: 2, ...body }, { id: 1 }],
-        fetchedAt: list.meta.fetchedAt,
-      }),
-    );
-    state = reducer(
-      state,
-      createSetResponse(ArticleResource.getList.unshift, {
-        args: [body],
-        response: { id: 2, ...body },
-        fetchedAt: create.meta.fetchedAt,
-      }),
-    );
+    let state = settle(initialState, list, [{ id: 2, ...body }, { id: 1 }]);
+    state = settle(state, create, { id: 2, ...body });
     expect(
       state.entities[ArticleResource.getList.schema.key as string],
     ).toEqual({ '{}': ['2', '1'] });
@@ -80,16 +72,8 @@ describe('actions in one millisecond', () => {
     const before = createFetch(ArticleResource.get, { args: [{ id: 1 }] });
     let state = reducer(initialState, createReset());
     const after = createFetch(ArticleResource.get, { args: [{ id: 2 }] });
-    for (const { args, meta } of [before, after]) {
-      state = reducer(
-        state,
-        createSetResponse(ArticleResource.get, {
-          args,
-          response: { id: args[0].id },
-          fetchedAt: meta.fetchedAt,
-        }),
-      );
-    }
+    state = settle(state, before, { id: 1 });
+    state = settle(state, after, { id: 2 });
     expect(Object.keys(state.endpoints)).toEqual([after.key]);
   });
 
@@ -99,14 +83,7 @@ describe('actions in one millisecond', () => {
     const second = createFetch(create, { args: [{ title: 'second' }] });
     let state = reducer(reducer(initialState, first), second);
     expect(state.optimistic).toHaveLength(2);
-    state = reducer(
-      state,
-      createSetResponse(create, {
-        args: first.args,
-        response: { id: 1, title: 'first' },
-        fetchedAt: first.meta.fetchedAt,
-      }),
-    );
+    state = settle(state, first, { id: 1, title: 'first' });
     expect(state.optimistic.map(action => action.meta.fetchedAt)).toEqual([
       second.meta.fetchedAt,
     ]);
