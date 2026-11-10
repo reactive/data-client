@@ -398,12 +398,12 @@ Every way of reading an endpoint uses the first of these that applies:
 1. The endpoint has a response of its own. It reads that response, with that response's expiry.
 2. The endpoint's schema is Queryable, and the table's result for its args is complete: no part of it is
    `undefined`. It reads that result.
-3. Otherwise the data is missing, so the endpoint fetches.
+3. Otherwise the data is missing.
 
-This applies to [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE),
-[useCache()](https://dataclient.io/vue/api/useCache), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch),
-[Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) and
-[Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale). [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
+[useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE), [useLive()](https://dataclient.io/vue/api/useLive),
+[useFetch()](https://dataclient.io/vue/api/useFetch) and [Controller.fetchIfStale()](https://dataclient.io/vue/api/Controller#fetchIfStale) fetch missing or
+stale data. [useCache()](https://dataclient.io/vue/api/useCache) and [Controller.getResponse()](https://dataclient.io/vue/api/Controller#getResponse) follow the
+same steps but never fetch, so missing data stays `undefined`. [Controller.fetch()](https://dataclient.io/vue/api/Controller#fetch) always
 requests.
 
 ### Stored data keeps its expiry {#expiry}
@@ -411,8 +411,8 @@ requests.
 A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
 [expiry policy](./expiry-policy.vue.md) applies as usual:
 
-- While the result is fresh, the endpoint makes no request.
-- Once it is stale, it still renders, and the endpoint refetches.
+- While the result is fresh, no request is made.
+- Once it is stale, it still renders, and the APIs that fetch refetch it.
 - An [invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) endpoint treats a stale result as
   [Invalid](./expiry-policy.vue.md#expiry-status), and an [invalidated](./expiry-policy.vue.md#invalidate) endpoint treats any
   result that way, so they wait for a fetch.

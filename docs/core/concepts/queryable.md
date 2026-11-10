@@ -176,12 +176,12 @@ Every way of reading an endpoint uses the first of these that applies:
 1. The endpoint has a response of its own. It reads that response, with that response's expiry.
 2. The endpoint's schema is Queryable, and the table's result for its args is complete: no part of it is
    `undefined`. It reads that result.
-3. Otherwise the data is missing, so the endpoint fetches.
+3. Otherwise the data is missing.
 
-This applies to [useSuspense()](../api/useSuspense.md), [useDLE()](../api/useDLE.md),
-[useCache()](../api/useCache.md), [useLive()](../api/useLive.md), [useFetch()](../api/useFetch.md),
-[Controller.getResponse()](../api/Controller.md#getResponse) and
-[Controller.fetchIfStale()](../api/Controller.md#fetchIfStale). [Controller.fetch()](../api/Controller.md#fetch) always
+[useSuspense()](../api/useSuspense.md), [useDLE()](../api/useDLE.md), [useLive()](../api/useLive.md),
+[useFetch()](../api/useFetch.md) and [Controller.fetchIfStale()](../api/Controller.md#fetchIfStale) fetch missing or
+stale data. [useCache()](../api/useCache.md) and [Controller.getResponse()](../api/Controller.md#getResponse) follow the
+same steps but never fetch, so missing data stays `undefined`. [Controller.fetch()](../api/Controller.md#fetch) always
 requests.
 
 ### Stored data keeps its expiry {#expiry}
@@ -189,8 +189,8 @@ requests.
 A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
 [expiry policy](./expiry-policy.md) applies as usual:
 
-- While the result is fresh, the endpoint makes no request.
-- Once it is stale, it still renders, and the endpoint refetches.
+- While the result is fresh, no request is made.
+- Once it is stale, it still renders, and the APIs that fetch refetch it.
 - An [invalidIfStale](./expiry-policy.md#endpointinvalidifstale) endpoint treats a stale result as
   [Invalid](./expiry-policy.md#expiry-status), and an [invalidated](./expiry-policy.md#invalidate) endpoint treats any
   result that way, so they wait for a fetch.
