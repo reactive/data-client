@@ -241,9 +241,8 @@ This enables their use in these additional cases:
 interface Queryable {
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (schema: any, args: readonly any[]) => any,
+    delegate: IQueryDelegate,
     // `{}` means non-void
   ): {};
 }
@@ -264,4 +263,4 @@ interface Queryable {
 | [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](./Values.vue.md)                 | immutable maps                                                                         | 🛑                                 |
 | [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](./Scalar.vue.md)                 | lens-dependent entity fields                                                           | ✅                                  |
 | any                                                                 |         | [Query(Queryable)](./Query.vue.md)        | memoized custom transforms                                                             | ✅                                  |
-| any                                                                 |         | [Lazy(Schema)](./Lazy.vue.md)             | deferred denormalization                                                               | ✅                                  |
+| any                                                                 |         | [Lazy(Schema)](./Lazy.vue.md)             | deferred denormalization; [.query](./Lazy.vue.md#query) is Queryable                       | 🛑                                 |
