@@ -504,22 +504,26 @@ expensive components. If the click is still slow, call `ctrl.fetch()`, which app
 input before the update renders:
 
 ```tsx
-import { startTransition } from 'react';
+import { startTransition, type FormEvent } from 'react';
 import { useController } from '@data-client/react';
-import { TodoResource, type Todo } from './TodoResource';
+import { UserResource, type User } from './UserResource';
 
-export function CompleteButton({ todo }: { todo: Todo }) {
+// Every comment shows its author's name, so a rename re-renders them all
+export function RenameUser({ user }: { user: User }) {
   const ctrl = useController();
-  const complete = () => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const name = String(new FormData(e.currentTarget).get('name'));
     startTransition(() => {
-      ctrl.fetch(
-        TodoResource.partialUpdate,
-        { id: todo.id },
-        { completed: true },
-      );
+      ctrl.fetch(UserResource.partialUpdate, { id: user.id }, { name });
     });
   };
-  return <button onClick={complete}>Complete</button>;
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" defaultValue={user.name} />
+      <button type="submit">Rename</button>
+    </form>
+  );
 }
 ```
 
