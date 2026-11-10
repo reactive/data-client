@@ -19,7 +19,7 @@ describe('orderedNow()', () => {
     jest.useFakeTimers({ now: 1000 });
     const times = Array.from({ length: 3000 }, () => orderedNow());
     expect(times[0]).toBe(1000);
-    expect(times.every((t, i) => i === 0 || t > times[i - 1])).toBe(true);
+    expect(times.findIndex((t, i) => i > 0 && t <= times[i - 1])).toBe(-1);
   });
 
   it('returns Date.now() once the clock passes earlier calls', () => {
@@ -40,14 +40,14 @@ describe('orderedNow()', () => {
 
 describe('actions in one millisecond', () => {
   const reducer = createReducer(new Controller());
-  /** Reduces the response to `fetch` */
-  const settle = (state: State<unknown>, fetch: FetchAction, response: any) =>
+  /** Reduces the response to a fetch action */
+  const settle = (state: State<unknown>, action: FetchAction, response: any) =>
     reducer(
       state,
-      createSetResponse(fetch.endpoint, {
-        args: fetch.args,
+      createSetResponse(action.endpoint, {
+        args: action.args,
         response,
-        fetchedAt: fetch.meta.fetchedAt,
+        fetchedAt: action.meta.fetchedAt,
       }),
     );
 
