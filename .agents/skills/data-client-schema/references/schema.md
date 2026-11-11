@@ -219,16 +219,27 @@ const data = memo.query(
 
 ## Queryable
 
-`Queryable` Schemas allow store access without an endpoint. They achieve this using the
-[queryKey](./Entity.md#queryKey) method that produces the results normally stored in the endpoint cache.
+A `Queryable` schema can produce its data from the store using only args, without a response. Its
+[queryKey](./Entity.md#queryKey) method returns what a response would have normalized to, and returns it only for data
+the store holds. Endpoints use it to render data another request loaded before their own response arrives
+([Queryable](./queryable.md)).
 
-This enables their use in these additional cases:
+| Schema                        | `queryKey(args)` returns                                                                                                                                             |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Entity](./Entity.md)         | Its `pk`, when the store holds that Entity. By default, args with the fields `pk()` reads, like `{ id }`, find it ([how, and how to customize](./Entity.md#pk-args)) |
+| [Collection](./Collection.md) | Its `pk` for those args, when the store holds that Collection                                                                                                        |
+| [Object](./Object.md)         | Each member's `queryKey` with the same args                                                                                                                          |
+| [Union](./Union.md)           | The member the args' discriminator names; without one, the first member Entity the args find                                                                         |
+| [All](./All.md)               | Every stored Entity of its type                                                                                                                                      |
+| [Query](./Query.md)           | Its inner schema's result                                                                                                                                            |
 
-- Endpoints whose schema is Queryable: until the endpoint has a response of its own,
-  [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useDLE()](https://dataclient.io/docs/api/useDLE), [useCache()](https://dataclient.io/docs/api/useCache) and
-  [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) build it from the store the same way. Whatever
-  `useQuery()` finds for a schema and args, an endpoint with that schema renders with the same args without waiting
-  for a fetch ([Lists to details](https://dataclient.io/docs/getting-started/data-dependency#list-detail)).
+[Scalar](./Scalar.md) is Queryable too, and [Lazy](./Lazy.md) fields produce a Queryable via their
+[`.query`](./Lazy.md#query) accessor. [Array](./Array.md), [Values](./Values.md) and [Invalidate](./Invalidate.md) are
+not: their `queryKey` returns `undefined`. Use a [Collection](./Collection.md) or [All](./All.md) for a list that should be Queryable.
+
+### Uses
+
+- [Endpoints](./queryable.md#endpoints) - [useSuspense()](https://dataclient.io/docs/api/useSuspense), [useDLE()](https://dataclient.io/docs/api/useDLE), [useCache()](https://dataclient.io/docs/api/useCache) and [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) render stored data until the endpoint has a response of its own
 - [useQuery()](https://dataclient.io/docs/api/useQuery) - Rendering in React
 - [schema.Query()](./Query.md) - As input to produce a computed memoization.
 - [ctrl.get](https://dataclient.io/docs/api/Controller#get)/[snap.get](https://dataclient.io/docs/api/Snapshot#get)
@@ -237,10 +248,6 @@ This enables their use in these additional cases:
   - [RestEndpoint.getOptimisticResponse](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse)
   - [Unit testing hooks](https://dataclient.io/docs/guides/unit-testing-hooks) with [renderDataHook()](https://dataclient.io/docs/api/renderDataHook)
 - [memo.query()](#memoquery)
-- Improve performance of [useSuspense](https://dataclient.io/docs/api/useSuspense), [useDLE](https://dataclient.io/docs/api/useDLE) by rendering before endpoint resolution
-
-`Querables` include [Entity](./Entity.md), [Object](./Object.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
-[Union](./Union.md), and [Scalar](./Scalar.md). [Lazy](./Lazy.md) fields produce a Queryable via their [`.query`](./Lazy.md#query) accessor.
 
 ```ts
 interface Queryable {
@@ -255,17 +262,17 @@ interface Queryable {
 
 ## Schema Overview
 
-| Data Type                                                           | Mutable | Schema                                | Description                                                                             | [Queryable](./schema.md#queryable) |
-| ------------------------------------------------------------------- | ------- | ------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------- |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.md)                 | single _unique_ object                                                                  | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.md)           | polymorphic objects (`A \| B`)                                                          | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.md)                 | statically known keys                                                                   | ✅                                  |
-| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.md) | [delete an entity](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity) | 🛑                                 |
-| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.md)  | growable lists                                                                          | ✅                                  |
-| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.md)                   | immutable lists                                                                         | 🛑                                 |
-| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   |         | [All](./All.md)                       | list of all entities of a kind                                                          | ✅                                  |
-| [Map](https://en.wikipedia.org/wiki/Associative_array)              | ✅       | [Collection(Values)](./Collection.md) | growable maps                                                                           | ✅                                  |
-| [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](./Values.md)                 | immutable maps                                                                          | 🛑                                 |
-| [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](./Scalar.md)                 | lens-dependent entity fields                                                            | ✅                                  |
-| any                                                                 |         | [Query(Queryable)](./Query.md)        | memoized custom transforms                                                              | ✅                                  |
-| any                                                                 |         | [Lazy(Schema)](./Lazy.md)             | deferred denormalization; [.query](./Lazy.md#query) is Queryable                        | 🛑                                 |
+| Data Type                                                           | Mutable | Schema                                | Description                                                                             | [Queryable](./queryable.md) |
+| ------------------------------------------------------------------- | ------- | ------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------- |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.md)                 | single _unique_ object                                                                  | ✅                           |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.md)           | polymorphic objects (`A \| B`)                                                          | ✅                           |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.md)                 | statically known keys                                                                   | ✅                           |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.md) | [delete an entity](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity) | 🛑                          |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.md)  | growable lists                                                                          | ✅                           |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.md)                   | immutable lists                                                                         | 🛑                          |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   |         | [All](./All.md)                       | list of all entities of a kind                                                          | ✅                           |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | ✅       | [Collection(Values)](./Collection.md) | growable maps                                                                           | ✅                           |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](./Values.md)                 | immutable maps                                                                          | 🛑                          |
+| [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](./Scalar.md)                 | lens-dependent entity fields                                                            | ✅                           |
+| any                                                                 |         | [Query(Queryable)](./Query.md)        | memoized custom transforms                                                              | ✅                           |
+| any                                                                 |         | [Lazy(Schema)](./Lazy.md)             | deferred denormalization; [.query](./Lazy.md#query) is Queryable                        | 🛑                          |

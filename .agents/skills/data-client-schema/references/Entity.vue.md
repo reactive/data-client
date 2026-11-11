@@ -98,8 +98,8 @@ and thus will not be kept in the cache.
 #### Queryable by args {#pk-args}
 
 `pk()` also makes an Entity [Queryable](./queryable.vue.md): given args, [queryKey](#queryKey) returns the primary
-key when the store holds that Entity. An endpoint whose schema is the Entity then renders it before fetching, which is
-how a detail page shows an item a list already loaded
+key when the store holds that Entity. An endpoint whose schema is the Entity then renders it without waiting for a
+fetch, and makes none while it is fresh, which is how a detail page shows an item a list already loaded
 ([Lists to details](https://dataclient.io/vue/getting-started/data-dependency#list-detail)).
 
 By default `queryKey` reads the first argument:
@@ -130,8 +130,8 @@ export class Post extends Entity {
 }
 ```
 
-[useQuery(Post, ...)](https://dataclient.io/vue/api/useQuery) still takes the Entity's own fields (`{ id }`); only endpoint args can use
-`{ postId }`.
+[useQuery(Post, ...)](https://dataclient.io/vue/api/useQuery) is typed with the Entity's own fields, so pass `{ id }` there; `{ postId }`
+is for endpoint args.
 
 #### Other uses
 
@@ -802,17 +802,14 @@ static mergeMetaWithStore(
 
 ### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](./queryable.vue.md) - allowing store access without an endpoint.
+This method makes `Entities` [Queryable](./queryable.vue.md): it finds a stored Entity from args alone, so
+[useQuery()](https://dataclient.io/vue/api/useQuery) and endpoints can render it without a response.
 
-Overriding can allow customization or disabling of this behavior altogether.
+Return the `pk` of a stored Entity to use it, or `undefined` when there is none. Always returning `undefined` disables
+lookups. A result found this way expires with the entity's own meta data.
 
-Returning `undefined` will disallow this behavior.
-
-Returning `pk` string will attempt to lookup this entity and use in the response.
-
-When used, expiry policy is computed based on the entity's own meta data.
-
-By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](./Entity.vue.md#indexes)
+By **default** the first argument is looked up by [pk()](#pk), then [indexes](./Entity.vue.md#indexes)
+([Queryable by args](./Entity.vue.md#pk-args)).
 
 `delegate` reads the store. Its members are listed in [IQueryDelegate](https://dataclient.io/rest/api/SchemaSimple#iquerydelegate).
 
