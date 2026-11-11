@@ -17,9 +17,11 @@ import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
-`Controller` 是一个单例，提供对 Reactive Data Client [flux store 及其生命周期](./Manager.md#control-flow)的安全访问。
-`Controller` 会对所有 store 访问进行记忆化，从而保证全局引用相等，并提供最快的渲染
-和读取性能。
+`Controller` 提供对 Reactive Data Client [store 及其生命周期](./Manager.md#control-flow)的类型安全访问。
+每个 store 有一个 `Controller`。
+
+`Controller` 会对反规范化进行记忆化，以保证全局引用相等：未变化的 store 数据无论在哪里读取，都会得到同一个对象。
+这让渲染和查找保持快速。
 
 `Controller` 会提供给：
 
@@ -31,7 +33,7 @@ import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
+  fetchIfStale(endpoint, ...args): Promise<Denormalize<E['schema']>>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -44,7 +46,7 @@ class Controller {
   subscribe(endpoint, ...args): Promise<void>;
   unsubscribe(endpoint, ...args): Promise<void>;
   /*************** Data Access ***************/
-  get(queryable, ...args, state): Denormalized<typeof queryable>;
+  get(queryable, ...args, state): DenormalizeNullable<typeof queryable> | undefined;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
@@ -56,8 +58,7 @@ class Controller {
 
 ### fetch(endpoint, ...args) {#fetch}
 
-使用给定参数获取 endpoint，并在完成时用响应或错误
-更新 Reactive Data Client 缓存。
+使用给定的 args 获取该 endpoint。获取完成后，响应或错误会写入缓存。
 
 <Tabs
 defaultValue="Create"
@@ -233,7 +234,7 @@ function PostListItem({ post }: { post: Post }) {
 :::tip
 
 `fetch` 的返回值与传给它的 [Endpoint](/rest/api/Endpoint) 相同。
-使用 schema 时，返回的是反规范化后的值
+使用 schema 时，它返回反规范化后的值。
 
 ```ts
 const controller = useController();
@@ -250,51 +251,113 @@ post.pk();
 
 #### Endpoint.sideEffect {#endpointsideeffect}
 
-[sideEffect](/rest/api/Endpoint#sideeffect) 会改变其行为
+[sideEffect](/rest/api/Endpoint#sideeffect) 会改变 `fetch()` 的行为：
 
 ##### true {#true}
 
-- 在[提交](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client 缓存更新*之前* resolve。（React 16、17）
-- 每次调用都一定会发起新的获取。
+- 在缓存更新被[提交](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)*之前* resolve。
+- 每次调用都会发起新的获取。
+- 不 await 时，它会产生未处理的 reject，因为没有组件读取它的错误。请 await 它，或使用
+  [useLoading()](./useLoading.md) 显示错误。
 
 ##### false | undefined {#false--undefined}
 
-- 在[提交](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) Reactive Data Client 缓存更新*之后* resolve。
-- 相同的请求会在全局范围内去重；同一时间只允许一个进行中的请求。
-  - 若要确保发起一个*新的*请求，请务必先中止所有进行中的请求。
+- 在缓存更新被[提交](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)*之后* resolve。
+- 相同的请求会被去重，因此同一时间只有一个在进行中。
+  - 若要发起一个*新的*请求，请先中止进行中的那个。
+- 不 await 也安全：错误会存储起来，供读取该 endpoint 的组件使用，因此永远不会到达全局的
+  未处理 rejection 处理函数（请改为[上报它](../concepts/managers.md#error-reporting)）。`await` 仍然会 reject。
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-仅当 endpoint 被视为“[过时](../concepts/expiry-policy.md#stale)”或[无效](../concepts/expiry-policy.md#invalid)时才获取，
-并返回与 [fetch()](#fetch) 相同的 Promise。否则不发起获取，直接同步返回缓存的数据。
+仅当数据缺失、[过时](../concepts/expiry-policy.md#stale)或[无效](../concepts/expiry-policy.md#invalid)时才获取，
+并且总是返回一个代表最近一次获取结果的 Promise。这样在预取时可以避免重复获取仍然新鲜的数据。
 
-这在预取数据时很有用，因为它可以避免重复获取仍然新鲜的数据。
+| 缓存 | 是否获取 | `await` 得到 | 不 await |
+| --- | --- | --- | --- |
+| 缺失、过时或无效 | 是，与 [fetch()](#fetch) 相同 | 获取到的数据，或以其错误 reject | 错误会被存储；没有未处理的 rejection |
+| 新鲜 | 否 | 缓存的数据 | 什么也不会发生 |
+| 最近一次获取在 [errorExpiryLength](/rest/api/Endpoint#errorexpirylength) 内失败 | 否 | 以该错误 reject，就像 [useSuspense()](./useSuspense.md) 抛出它一样 | 什么也不会发生 |
 
-下面是一个配合“边渲染边获取”（fetch-as-you-render）路由的[示例](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx)：
+因此预取无需 await，也无需捕获错误：读取该 endpoint 的组件会照常显示已存储的错误。
+未 await 的失败不会到达全局的未处理 rejection 处理函数，所以请用
+[错误上报 Manager](../concepts/managers.md#error-reporting) 上报获取错误。在结果上链式调用 `.then()` 会生成一个新的
+Promise，所以请以 `.catch()` 结束这条链。
 
 ```ts
-{
-  name: 'IssueList',
-  component: lazyPage('IssuesPage'),
-  title: 'issue list',
-  resolveData: async (
-    controller: Controller,
-    { owner, repo }: { owner: string; repo: string },
-    searchParams: URLSearchParams,
-  ) => {
-    const q = searchParams?.get('q') || 'is:issue is:open';
-    // highlight-start
-    await controller.fetchIfStale(IssueResource.search, {
-      owner,
-      repo,
-      q,
-    });
-    // highlight-end
-  },
+// start a secondary request without waiting for it
+controller.fetchIfStale(CommentResource.getList, { issueId });
+// wait for the data; rejects if that fetch fails
+const issue = await controller.fetchIfStale(IssueResource.get, { id: issueId });
+```
+
+若想在不获取的情况下检查数据是否已缓存且新鲜，请同步读取 [getResponse()](#getResponse)。
+
+:::react
+
+#### 在路由 loader 中 {#fetchIfStale-loaders}
+
+loader 会在下一个页面渲染之前开始它的获取。与 [useSuspense()](./useSuspense.md) 一样，导航只应在缓存数据无法渲染时等待：
+数据缺失、已失效，或者来自
+[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) endpoint 且已过时。过时数据会立即渲染并
+重新获取。具体做法取决于路由器在等待什么：
+
+| 路由器 | 在 loader 中 | 没有缓存 |
+| --- | --- | --- |
+| 在 [transition](https://react.dev/reference/react/startTransition) 中切换路由，如 Next.js App Router、React Router 7、TanStack Router 或 [@anansi/router](https://www.npmjs.com/package/@anansi/router) | 启动每个 `fetchIfStale()` 但不 await，让路由器无需等待任何东西 | 当前页面会保留，直到新页面准备就绪；除非新页面有自己的 Suspense 边界（如 [AsyncBoundary](./AsyncBoundary.md) 或 TanStack Router 的 `pendingComponent`），此时会显示它的 fallback。@anansi/router 在后退和前进时会跳过 transition |
+| 渲染 loader 的返回值，或者不在 transition 中切换路由（未开启 `v7_startTransition` 标志的 React Router 6） | 缓存数据能渲染时返回它；否则返回 `fetchIfStale()` | 路由器会等待获取完成 |
+
+Next.js App Router 没有 loader：`useSuspense()` 会在页面渲染时获取数据。
+
+```ts title="Router with transitions"
+import type { Controller } from '@data-client/react';
+import { CommentResource } from './resources/Comment';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    // not awaited: the route changes at once, and useSuspense() waits inside the transition
+    ctrl.fetchIfStale(IssueResource.get, { id: params.id });
+    ctrl.fetchIfStale(CommentResource.getList, { issueId: params.id });
+    // React Router 6 requires a return value
+    return null;
+  };
+```
+
+当服务端渲染会等待 loader 时（例如 @anansi/core 的 `prefetchSpout` 会等待 @anansi/router 的 `resolveData`），
+还要 await 首屏视图的获取，让首个 HTML 包含它的数据。加上 `.catch(() => {})`（多个时使用
+`Promise.allSettled()`），这样失败在客户端永远不会产生未处理的 reject；`useSuspense()` 仍会显示该
+错误。
+
+```ts
+resolveData: async (controller: Controller, { id }: { id: string }) => {
+  controller.fetchIfStale(CommentResource.getList, { issueId: id });
+  await controller.fetchIfStale(IssueResource.get, { id }).catch(() => {});
 },
 ```
 
-:::react
+```ts title="Router that renders loader data"
+import { ExpiryStatus, type Controller } from '@data-client/react';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    const args = { id: params.id };
+    const { data, expiryStatus } = ctrl.getResponse(
+      IssueResource.get,
+      args,
+      ctrl.getState(),
+    );
+    const fetched = ctrl.fetchIfStale(IssueResource.get, args);
+    // stale data is still Valid, so it returns at once
+    return expiryStatus === ExpiryStatus.Valid ? data : fetched;
+  };
+```
+
+返回进行中获取的 loader 可以让路由器显示它自己的等待和错误 UI，但在请求进行期间会阻塞导航。
+只要等待 loader 数据就会有这个取舍，不论由谁来获取。
 
 <StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
 
@@ -304,8 +367,7 @@ post.pk();
 
 将所有匹配 `testKey` 的响应的[过期状态](../concepts/expiry-policy.md)设为 [Stale](../concepts/expiry-policy.md#stale)。
 
-当缓存中存在许多不同参数组合时，这可以用来只刷新
-当前正在显示的数据。
+当缓存中有很多组 args 时，可以用它只刷新屏幕上的数据。
 
 :::react
 
@@ -371,8 +433,8 @@ function CreateTrade({ userId }: { userId: string }) {
 
 :::tip
 
-为了减少负载、提升性能并改善状态一致性，通常更好的做法是
-[在变更响应中包含变更的副作用](/rest/guides/side-effects)。
+通常更好的做法是[把变更的副作用包含在变更响应中](/rest/guides/side-effects)。这样可以
+降低负载、提升性能，并保持状态一致。
 
 :::
 
@@ -483,7 +545,7 @@ function ArticleName({ id }: { id: string }) {
 
 使用 [schema.Invalidate](/rest/api/Invalidate) 可以使所有包含某个 Entity 的 endpoint 失效。
 
-对于 REST，可以尝试使用 [Resource.delete](/rest/api/resource#delete)
+对于 REST，可以试试 [Resource.delete](/rest/api/resource#delete)。
 
 ```ts
 // deletes MyResource(5)
@@ -496,7 +558,7 @@ controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 
 ### invalidateAll(\{ testKey }) {#invalidateAll}
 
-使所有匹配 `testKey` 的 [endpoint key](/rest/api/RestEndpoint#key) [失效](../concepts/expiry-policy#invalid)。
+使所有匹配 `testKey` 的 [endpoint key](/rest/api/RestEndpoint#key) [失效](../concepts/expiry-policy.md#invalid)。
 
 :::react
 
@@ -557,7 +619,7 @@ function ArticleName({ id }: { id: string }) {
 
 ::::
 
-这里我们只清除使用 test.com 域名的 GET endpoint。这意味着其他域名的数据仍保留在缓存中。
+下面的代码只让 test.com 域名上的 GET endpoint 失效。其他域名的数据仍保留在缓存中。
 
 ```ts
 const myDomain = 'http://test.com';
@@ -569,8 +631,7 @@ function useLogout() {
 }
 ```
 
-通常最好也使用 [LogoutManager](./LogoutManager.md)，在遇到 401（未授权）时
-清除缓存。
+遇到 401（未授权）时，也请使用 [LogoutManager](./LogoutManager.md) 清除缓存。
 
 <ProviderManagers imports={['LogoutManager', 'getDefaultManagers']}>
 
@@ -597,9 +658,9 @@ const managers = () => [
 
 ### resetEntireStore() {#resetEntireStore}
 
-重置/清空整个 Reactive Data Client 缓存。所有进行中的请求都不会 resolve。
+清除整个 Reactive Data Client 缓存。进行中的获取的响应不会被存储。这些获取会以 `ResetError`（`error.name === 'ResetError'`）reject，但 `sideEffect` 获取除外，它们仍会以自身的结果或错误结束。
 
-通常在退出登录或切换已认证用户时使用。
+在用户登出或已认证用户切换时使用它。
 
 :::react
 
@@ -704,7 +765,7 @@ ctrl.set(TodoResource.getList.schema.push, { userId: '1' }, [
 
 :::
 
-当使用派生数据时，value 中可以使用函数。这可以[防止竞态条件](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state)。
+传入一个函数，根据已存储的值推导出新值。这样可以[避免竞态条件](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state)。
 
 ```ts
 const id = '2';
@@ -780,9 +841,7 @@ Array、Values 和 Invalidate schema 不接受 `args`（因此 [Entity.pk()](/re
 
 把 `response` 存入给定 [Endpoint](/rest/api/Endpoint) 和参数对应的缓存中。
 
-所有因给定 [Endpoint](/rest/api/Endpoint) 和参数而挂起的组件都会 resolve。
-
-如果给定 [Endpoint](/rest/api/Endpoint) 和参数已有数据，则会更新它。
+正在为这个 [Endpoint](/rest/api/Endpoint) 和 args 挂起的组件会 resolve。该 Endpoint 和 args 已有的数据会被更新；entity 会与其已存储的字段合并。
 
 :::react
 
@@ -831,33 +890,32 @@ onUnmounted(() => websocket.close());
 
 :::
 
-这里展示的是在 :react[React]:vue[Vue] 中的概念验证；不过[基于 Manager 的 websocket 实现](../concepts/managers.md#data-stream)
-会健壮得多。
+这是在 :react[React]:vue[Vue] 中的概念验证。[基于 Manager 的 websocket 实现](../concepts/managers.md#data-stream)
+更加健壮。
 
 ### setError(endpoint, ...args, error) {#setError}
 
-把 [Endpoint](/rest/api/Endpoint) 和参数对应的结果存储为所提供的错误。
+将 `error` 存储为该 [Endpoint](/rest/api/Endpoint) 和 args 的结果。
 
 ### resolve(endpoint, \{ args, response, fetchedAt, error }) {#resolve}
 
 resolve 某次特定的获取，并把 `response` 存入缓存。
 
-它与 setResponse 类似，区别在于它会触发某个进行中获取的 resolve。
-这意味着对应的乐观更新将不再生效。
+与 [setResponse](#setResponse) 类似，但 `fetchedAt` 会把响应绑定到某一次获取，从而移除那次获取的
+乐观更新。
 
-[NetworkManager](./NetworkManager.md) 中使用了它，处理获取请求时
-也应当使用它。
+[NetworkManager](./NetworkManager.md) 会使用它。在 Manager 处理获取请求时使用它。
 
 把获取 action 的 `action.meta.fetchedAt` 作为 `fetchedAt` 传入。这样 store 会丢弃在
 [resetEntireStore()](#resetEntireStore) 之前发起的获取的响应，旧的响应也不会让同一个键上更新的获取完成。
 
 ### subscribe(endpoint, ...args) {#subscribe}
 
-标记对给定 [Endpoint](/rest/api/Endpoint) 的一个新订阅。这应当使订阅计数加一。
+为该 [Endpoint](/rest/api/Endpoint) 和 args 添加一个订阅。每次调用都会让它的订阅者计数加一。
 
 [useSubscription](./useSubscription.md) 和 [useLive](./useLive.md) 会在挂载时调用它。
 
-这对于需要根据其他因素订阅/取消订阅的自定义 :react[hook]:vue[composable] 可能很有用。
+自定义 :react[hook]:vue[composable] 可以调用它，根据其他条件进行订阅。
 
 :::react
 
@@ -904,8 +962,8 @@ watchEffect(onCleanup => {
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
 
-标记对给定 [Endpoint](/rest/api/Endpoint) 的订阅结束。这应当
-使订阅计数减一；当计数降到 0 时，将不再自动接收后续更新。
+移除该 [Endpoint](/rest/api/Endpoint) 和 args 的一个订阅。每次调用都会让它的订阅者计数减一；
+计数为 0 时，自动更新停止。
 
 [useSubscription](./useSubscription.md) 和 [useLive](./useLive.md) 会在卸载时调用它。
 
@@ -917,8 +975,7 @@ watchEffect(onCleanup => {
 
 #### Example {#example}
 
-[useQuery](./useQuery.md) 中使用了它，你也可以在
-[Manager](./Manager.md) 中使用它来安全地访问 store。
+[useQuery](./useQuery.md) 基于它构建，[Manager](./Manager.md) 也可以用它安全地读取 store。
 
 :::react
 
@@ -948,15 +1005,20 @@ function useQuery<S extends Queryable>(
 
 :::vue
 
-在组件中，[useQuery()](./useQuery.md) 会让结果保持响应式。在事件处理函数中，传入
-[getState()](#getState) 来读取最新的 store：
+在组件中，[useQuery()](./useQuery.md) 会让结果保持响应式。事件处理函数读取它的当前值：
 
 ```ts
+const props = defineProps<{ id: string }>();
 const ctrl = useController();
+const todo = useQuery(Todo, () => ({ id: props.id }));
 
-const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
-  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+const toggle = () => {
+  if (!todo.value) return;
+  ctrl.set(
+    Todo,
+    { id: props.id },
+    { id: props.id, completed: !todo.value.completed },
+  );
 };
 ```
 
@@ -972,11 +1034,11 @@ const toggle = (id: string) => {
 }
 ```
 
-从给定的状态中获取指定 endpoint/args 组合对应的响应（具有全局引用稳定性）。
+从给定的 `state` 中获取某个 endpoint 和 args 的响应。
 
 #### data {#data}
 
-反规范化后的响应数据。保证所有成员都具有全局引用稳定性。
+反规范化后的响应。只要数据未变化，每个成员都保持同一个引用。
 
 #### [expiryStatus](../concepts/expiry-policy.md#expiry-status) {#expirystatus}
 
@@ -1005,12 +1067,12 @@ export enum ExpiryStatus {
 
 #### expiresAt {#expiresat}
 
-表示过期时间的数字。可与 Date.now() 进行比较。
+数据过期的时间戳。可与 `Date.now()` 比较。
 
 #### Example {#example-1}
 
-[useCache](./useCache.md) 和 [useSuspense](./useSuspense.md) 中使用了它，你也可以在
-[Manager](./Manager.md) 中用它根据给定的状态查找响应。
+[useCache](./useCache.md) 和 [useSuspense](./useSuspense.md) 基于它构建。[Manager](./Manager.md) 可以用它在给定的 state 中
+查找响应。
 
 :::react
 
@@ -1037,8 +1099,8 @@ function useCache<E extends EndpointInterface>(
 
 :::vue
 
-在事件处理函数中，传入 [getState()](#getState) 来读取最新的 store，如
-[getState() 示例](#getState)所示。
+在组件中，[useCache()](./useCache.md) 和 [useSuspense()](./useSuspense.md) 会让结果保持响应式。事件处理函数
+读取它们的当前值。
 
 :::
 
@@ -1076,7 +1138,7 @@ export default class MyManager implements Manager {
 
 ### getError(endpoint, ...args, state) {#getError}
 
-获取指定 endpoint 的错误（如果有）。没有错误时返回 undefined。
+获取某个 endpoint 和 args 的错误，没有错误时返回 `undefined`。
 
 ### snapshot(state, fetchedAt) {#snapshot}
 
@@ -1088,11 +1150,11 @@ export default class MyManager implements Manager {
 
 ::::warning
 
-它只应在事件处理函数或 [Manager](./Manager.md) 中使用。
+只在组件之外使用它：在 [Manager](./Manager.md) 中，或在路由 loader 之类的代码中。
 
 :::react
 
-在 React 的渲染生命周期中使用 getState() 可能导致数据撕裂（tearing）。
+在渲染期间调用 getState() 可能导致数据撕裂（tearing）。
 
 :::
 
@@ -1105,39 +1167,32 @@ export default class MyManager implements Manager {
 
 ::::
 
+要根据变更的结果做后续操作，请使用 `fetch()` resolve 的值，而不是 `getState()`。
+[变更](#endpointsideeffect)会在 store 更新*之前* resolve，所以 `getState()` 中还没有它的响应。
+resolve 的值是反规范化后的响应。
+
 :::react
 
 ```tsx
 import { useController } from '@data-client/react';
-import { useCallback } from 'react';
-import { MyResource } from './resources/MyResource';
-import { redirect } from './routing';
+import { useNavigate } from 'react-router';
+import { PostResource } from './PostResource';
 
-function useUpdateHandler(id: string) {
-  const controller = useController();
+function UpdatePost({ id }: { id: string }) {
+  const ctrl = useController();
+  const navigate = useNavigate();
 
-  return useCallback(
-    async updatePayload => {
-      const response = await controller.fetch(
-        MyResource.update,
-        { id },
-        updatePayload,
-      );
-      // the fetch has completed, but react has not yet re-rendered
-      // this lets use sequence after the next re-render
-      // we're working on a better solution to this specific case
-      setTimeout(() => {
-        const { data: denormalized } = controller.getResponse(
-          MyResource.update,
-          { id },
-          updatePayload,
-          controller.getState(),
-        );
-        redirect(denormalized.getterUrl);
-      }, 40);
-    },
-    [id],
-  );
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const post = await ctrl.fetch(
+      PostResource.update,
+      { id },
+      new FormData(e.currentTarget),
+    );
+    navigate(`/posts/${post.id}`);
+  };
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 ```
 
@@ -1145,21 +1200,29 @@ function useUpdateHandler(id: string) {
 
 :::vue
 
-```ts
-const controller = useController();
+```html title="UpdatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
 
-const handleShare = () => {
-  // reads the latest store without making this handler reactive
-  const { data: article } = controller.getResponse(
-    ArticleResource.get,
-    { id: props.id },
-    controller.getState(),
-  );
-  if (article) navigator.share({ title: article.title, url: article.url });
-};
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const router = useRouter();
+
+  const handleSubmit = async (e: Event) => {
+    const post = await ctrl.fetch(
+      PostResource.update,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+    router.push(`/posts/${post.id}`);
+  };
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
 ```
-
-[变更](#endpointsideeffect)会在 store 更新*之前* resolve，因此请从
-`fetch()` resolve 的值中读取结果，而不是从 `getState()` 中读取。
 
 :::
