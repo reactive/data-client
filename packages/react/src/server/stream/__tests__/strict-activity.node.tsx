@@ -71,6 +71,11 @@ describeReact19('S: StrictMode and Activity', () => {
       // StrictMode runs each `useState` initializer twice
       expect(release).toEqual({ ...R1_RELEASED, snapshotsBuilt: 4 });
     });
+
+    it('R1/quiet-page (recorded)', async () => {
+      const { release } = await releaseAfterJoin({ strict: true }, false);
+      expect(release).toEqual(S1_R1_QUIET);
+    });
   });
 
   it('S2/activity-visible', async () => {
@@ -285,3 +290,15 @@ describeReact19('S: StrictMode and Activity', () => {
     });
   });
 });
+
+/** Observed on React 19.3.1 */
+const S1_R1_QUIET = {
+  pinnedBeforeJoin: true,
+  liveAfterJoin: true,
+  pins: 0,
+  holders: { found: 2, empty: 2 },
+  snapshotsBuilt: 4,
+  mounted: true,
+  // the second initializer call's snapshots were dropped with its result
+  snapshotsRetained: 2,
+};

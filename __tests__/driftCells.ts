@@ -175,12 +175,66 @@ export function joinOf(states: WeakRef<object>[], live: object) {
 }
 
 /**
- * D1, then the join and the effect after it, on a quiet page, then `extraRenders`
- * socket writes that render the islands again
+ * Each snapshot scope's holder on the committed tree: whether it is empty.
+ * Found by shape (`state`, `live`, `views`) in the hook list of each fiber.
+ */
+export function scopeHolders(container: Element) {
+  const key = Object.keys(container).find(k =>
+    k.startsWith('__reactContainer$'),
+  )!;
+  const root = (container as any)[key].stateNode.current;
+  const holders: boolean[] = [];
+  const visit = (first: any) => {
+    for (let fiber = first; fiber; fiber = fiber.sibling) {
+      for (
+        let hook = fiber.memoizedState;
+        hook && typeof hook === 'object' && 'next' in hook;
+        hook = hook.next
+      ) {
+        const value = hook.memoizedState;
+        if (
+          value &&
+          typeof value === 'object' &&
+          'state' in value &&
+          'live' in value &&
+          'views' in value
+        )
+          holders.push(value.state === null && value.live === null);
+      }
+      visit(fiber.child);
+    }
+  };
+  visit(root.child);
+  return { found: holders.length, empty: holders.filter(Boolean).length };
+}
+
+/** Entity records of each still-reachable snapshot against live state */
+function sharedRecords(snapshots: WeakRef<object>[], live: any) {
+  let same = 0;
+  let copies = 0;
+  let differ = 0;
+  for (const ref of snapshots) {
+    const snapshot = ref.deref() as any;
+    if (!snapshot) continue;
+    for (const key in snapshot.entities)
+      for (const pk in snapshot.entities[key]) {
+        const record = snapshot.entities[key][pk];
+        const current = live.entities[key]?.[pk];
+        if (record === current) same++;
+        else if (JSON.stringify(record) === JSON.stringify(current)) copies++;
+        else differ++;
+      }
+  }
+  return { same, copies, differ };
+}
+
+/**
+ * D1, then the join and the effect after it, on a quiet page. With `update`,
+ * one store update follows that no island reads: a ticker no reader shows.
  */
 export async function releaseAfterJoin(
   opts: ClientOptions = {},
-  extraRenders = 0,
+  update = true,
 ) {
   const { capture } = await driftServer(() => serverOptions(opts));
   return inBrowser(async b => {
@@ -207,13 +261,14 @@ export async function releaseAfterJoin(
     const result = {
       ...joinOf(page.log.states!.b1, page.controller.current!.getState()),
       pins: page.ledger().stats().pins,
+      holders: scopeHolders(b.container),
       snapshotsBuilt: spy.snapshots.length,
     };
-    for (let i = 0; i < extraRenders; i++) {
+    if (update) {
       page.controller.current!.setResponse(
         page.endpoints.getTicker,
-        { id: 'BTC' },
-        { id: 'BTC', price: 200 + i },
+        { id: 'SOL' },
+        { id: 'SOL', price: 1 },
       );
       await settle(30);
     }
@@ -227,6 +282,10 @@ export async function releaseAfterJoin(
           s => s.ref.deref() !== undefined,
         ).length,
       },
+      shared: sharedRecords(
+        spy.snapshots.map(s => s.ref),
+        page.controller.current!.getState(),
+      ),
     };
   });
 }
@@ -244,6 +303,7 @@ export const R1_RELEASED = {
   pinnedBeforeJoin: true,
   liveAfterJoin: true,
   pins: 0,
+  holders: { found: 2, empty: 2 },
   snapshotsBuilt: 2,
   mounted: true,
   snapshotsRetained: 0,

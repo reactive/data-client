@@ -44,15 +44,20 @@ describeReact19('R: snapshot release at the first commit', () => {
   it('R1/released-after-join', async () => {
     const r = await releaseAfterJoin();
     expect(r.pinned).toEqual(D1_PINNED);
+    // after the join the scope provides live state, its pin is gone and its
+    // holder is empty; one store update that no island reads frees the snapshot
     expect(r.release).toEqual(R1_RELEASED);
   });
 
-  // recorded: the render after the join replaces what React's alternate fibers
-  // still hold from hydration (the Provider's old props, each reader's old
-  // context dependency)
-  it('R1/released-after-next-render (recorded)', async () => {
-    const r = await releaseAfterJoin({}, 1);
-    expect(r.release).toEqual(R1_RELEASED);
+  // recorded: with no store update, React's alternate fibers still hold what the
+  // last pinned render read (the provider's previous props, each reader's
+  // previous context value). Those are the snapshot's own tables; its records
+  // are live state's objects.
+  it('R1/quiet-page (recorded)', async () => {
+    const r = await releaseAfterJoin({}, false);
+    expect(r.pinned).toEqual(D1_PINNED);
+    expect(r.release).toEqual({ ...R1_RELEASED, snapshotsRetained: 2 });
+    expect(r.shared).toEqual(R1_QUIET_SHARED);
   });
 
   it('R1/control-state-held', async () => {
@@ -60,6 +65,7 @@ describeReact19('R: snapshot release at the first commit', () => {
     expect(release.pinnedBeforeJoin).toBe(true);
     expect(release.liveAfterJoin).toBe(true);
     expect(release.mounted).toBe(true);
+    // the same store update as R1, and the snapshot is still reachable
     expect(release.snapshotsRetained).toBeGreaterThanOrEqual(1);
   });
 
@@ -301,3 +307,12 @@ describeReact19('R: snapshot release at the first commit', () => {
     expect(r.discardedRetained).toBe(0);
   });
 });
+
+/** Observed on React 19.3.1 */
+const R1_QUIET_SHARED = {
+  // ETH in B1's snapshot, BTC and ETH in B2's: the objects live state holds
+  same: 3,
+  copies: 0,
+  // B1's BTC at revision 1, which live state replaced
+  differ: 1,
+};
