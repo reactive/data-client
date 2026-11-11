@@ -35,7 +35,8 @@ In most cases the best time to pre-fetch data is at the routing layer. Doing thi
 makes incorporating all of the above capabilities quite easy.
 
 Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) in the route event handler (before startTransition),
-awaiting only the first view's data ([route loaders](../api/Controller.md#fetchIfStale-loaders)).
+without awaiting it. Server rendering waits for the route's Promise, so await the first view's data inside
+`Promise.allSettled()` ([route loaders](../api/Controller.md#fetchIfStale-loaders)).
 
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 

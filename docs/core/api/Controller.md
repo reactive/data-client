@@ -298,13 +298,13 @@ To check whether data is cached and fresh without fetching, read [getResponse()]
 #### In route loaders {#fetchIfStale-loaders}
 
 A loader starts the next page's fetches before it renders. Like [useSuspense()](./useSuspense.md), navigation should wait
-only when the cached data can't render: when it's missing, or comes from an
+only when the cached data can't render: when it's missing, invalidated, or stale from an
 [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) endpoint. Stale data renders at once and
 refetches. How to get that depends on what the router waits for:
 
 | Router | In the loader | Nothing cached |
 | --- | --- | --- |
-| Changes the route in a [transition](https://react.dev/reference/react/startTransition), like the Next.js App Router, React Router 7, TanStack Router or [@anansi/router](https://www.npmjs.com/package/@anansi/router) | Start every `fetchIfStale()` without awaiting it, so the router has nothing to wait for | The current page stays until the new one is ready, unless the new page has its own Suspense boundary (like an [AsyncBoundary](./AsyncBoundary.md) or a TanStack Router `pendingComponent`), which shows its fallback |
+| Changes the route in a [transition](https://react.dev/reference/react/startTransition), like the Next.js App Router, React Router 7, TanStack Router or [@anansi/router](https://www.npmjs.com/package/@anansi/router) | Start every `fetchIfStale()` without awaiting it, so the router has nothing to wait for | The current page stays until the new one is ready, unless the new page has its own Suspense boundary (like an [AsyncBoundary](./AsyncBoundary.md) or a TanStack Router `pendingComponent`), which shows its fallback. @anansi/router skips the transition on back and forward |
 | Renders the loader's return value, or doesn't change the route in a transition (React Router 6 without its `v7_startTransition` flag) | Return the cached data when it can render; otherwise return `fetchIfStale()` | The router waits for the fetch |
 
 The Next.js App Router has no loaders: `useSuspense()` fetches as the page renders.
@@ -320,6 +320,8 @@ export const issueLoader =
     // not awaited: the route changes at once, and useSuspense() waits inside the transition
     ctrl.fetchIfStale(IssueResource.get, { id: params.id });
     ctrl.fetchIfStale(CommentResource.getList, { issueId: params.id });
+    // React Router 6 requires a return value
+    return null;
   };
 ```
 
