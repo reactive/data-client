@@ -494,7 +494,7 @@ type IndexParams<S extends Schema> = S extends ({
     [K in Extract<ArrayElement<S['indexes']>, keyof AbstractInstanceType<S>>]?: AbstractInstanceType<S>[K];
 } : Readonly<object>;
 
-declare const enum ExpiryStatus {
+declare enum ExpiryStatus {
     Invalid = 1,
     InvalidIfStale = 2,
     Valid = 3

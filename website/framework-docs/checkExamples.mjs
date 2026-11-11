@@ -402,6 +402,8 @@ function check(framework, examples) {
         moduleResolution: 'bundler',
         // each example is its own module, even without imports
         moduleDetection: 'force',
+        // like Vite and Next.js apps: no ambient const enums or type-only re-exports without `type`
+        isolatedModules: true,
         // no esnext: Temporal needs its polyfill import
         lib: ['dom', 'es2024'],
         types: ['jest'],

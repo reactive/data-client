@@ -407,7 +407,7 @@ type ErrorTypes = NetworkError | UnknownError;
 /** What the function's promise resolves to */
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
 
-declare const enum ExpiryStatus {
+declare enum ExpiryStatus {
     Invalid = 1,
     InvalidIfStale = 2,
     Valid = 3

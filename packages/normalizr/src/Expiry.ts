@@ -1,4 +1,4 @@
-export const enum ExpiryStatus {
+export enum ExpiryStatus {
   Invalid = 1,
   InvalidIfStale,
   Valid,
