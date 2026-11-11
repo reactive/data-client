@@ -28,6 +28,7 @@ import {
 } from '@data-client/react';
 import type { Controller, Manager } from '@data-client/react';
 
+import type { Step } from './streamingHarness';
 import {
   BoundaryContext,
   type BoundaryWrap,
@@ -413,12 +414,14 @@ export const DATA = {
 };
 
 export type ServerPage = ReturnType<typeof createServerPage>;
-export type ServerStep = (page: ServerPage) => void;
+export type ServerStep = Step<ServerPage>;
 
-export const resolveGroup =
-  (group: 'b' | 'c' | 'd'): ServerStep =>
-  page =>
-    page.server.resolve('getList', { group }, DATA[group]);
+export const resolveGroup = (group: 'b' | 'c' | 'd'): ServerStep =>
+  Object.assign(
+    (page: ServerPage) =>
+      page.server.resolve('getList', { group }, DATA[group]),
+    { completes: true },
+  );
 
 /** A server store change that completes no boundary: A's todo gets a new title */
 export const serverWrite =
@@ -443,23 +446,18 @@ export async function runServerPage(
     onAbortable?: (abort: () => void) => void;
   } = {},
 ) {
-  const { captureStream } =
+  const { captureStream, stepper } =
     require('./streamingHarness') as typeof import('./streamingHarness');
   const page = createServerPage(opts);
   page.server.resolve('getTodo', { id: '1' }, DATA.a);
   await page.stream.controller.fetch(page.endpoints.getTodo, { id: '1' });
   const steps = opts.steps ?? [resolveGroup('b'), resolveGroup('c')];
-  const gapMs = opts.gapMs ?? 20;
+  const run = stepper(page, steps, opts.gapMs ?? 20);
   const capture = await captureStream(page.element, {
     ledger: page.stream.ledger,
     onAbortable: opts.onAbortable,
-    releaseAfterShell: [
-      () => {
-        steps.forEach((step, i) =>
-          setTimeout(() => step(page), gapMs * (i + 1)),
-        );
-      },
-    ],
+    onFlush: run.onFlush,
+    releaseAfterShell: [run.release],
   });
   return { page, capture };
 }

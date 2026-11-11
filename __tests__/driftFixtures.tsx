@@ -33,6 +33,7 @@ import type {
 
 import { Toggle, makeServerFetch } from './streamFixtures';
 import type { ActivityHandle, FetchImpl, PageLog } from './streamFixtures';
+import type { Step } from './streamingHarness';
 import { BoundaryContext } from '../packages/react/src/context';
 import type { BoundaryWrap } from '../packages/react/src/context';
 import {
@@ -257,11 +258,16 @@ export function countScopedReads(ledger: ServerLedger) {
   return reads;
 }
 
-export type DriftStep = (page: DriftServerPage) => void;
-export const resolveTickers: DriftStep = page =>
-  page.server.resolve('getTickers', {}, TICKERS);
-export const resolveBtc: DriftStep = page =>
-  page.server.resolve('getTicker', { id: 'BTC' }, BTC_2);
+export type DriftStep = Step<DriftServerPage>;
+export const resolveTickers: DriftStep = Object.assign(
+  (page: DriftServerPage) => page.server.resolve('getTickers', {}, TICKERS),
+  { completes: true },
+);
+export const resolveBtc: DriftStep = Object.assign(
+  (page: DriftServerPage) =>
+    page.server.resolve('getTicker', { id: 'BTC' }, BTC_2),
+  { completes: true },
+);
 /** BTC moves to revision 2 on the server without a fetch */
 export const writeBtc: DriftStep = page => {
   page.stream.controller.setResponse(
@@ -301,21 +307,16 @@ export async function runDriftServer(
     before?: (page: DriftServerPage) => Promise<void>;
   } = {},
 ) {
-  const { captureStream } =
+  const { captureStream, stepper } =
     require('./streamingHarness') as typeof import('./streamingHarness');
   const page = createDriftServerPage(opts);
   await opts.before?.(page);
   const steps = opts.steps ?? [resolveTickers, resolveBtc];
-  const gapMs = opts.gapMs ?? 20;
+  const run = stepper(page, steps, opts.gapMs ?? 20);
   const capture = await captureStream(page.element, {
     ledger: page.stream.ledger,
-    releaseAfterShell: [
-      () => {
-        steps.forEach((step, i) =>
-          setTimeout(() => step(page), gapMs * (i + 1)),
-        );
-      },
-    ],
+    onFlush: run.onFlush,
+    releaseAfterShell: [run.release],
   });
   return { page, capture };
 }

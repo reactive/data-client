@@ -58,6 +58,41 @@ export interface CaptureOptions {
   ledger?: ServerLedger;
   /** Calls the abort function React returns, once the shell is written */
   onAbortable?: (abort: () => void) => void;
+  /** Ledger capture: called after each chunk is emitted */
+  onFlush?: () => void;
+}
+
+/** A step that completes a boundary: the next step waits for its flush */
+export type Step<P> = ((page: P) => void) & { completes?: boolean };
+
+/**
+ * Runs `steps` one after another, `gapMs` apart, from the shell's flush. After a
+ * step that completes a boundary, waits for the next flush (at most 500 ms), so
+ * two boundaries never share a chunk because timers bunched up.
+ */
+export function stepper<P>(page: P, steps: Step<P>[], gapMs: number) {
+  let waiters: Array<() => void> = [];
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  return {
+    onFlush() {
+      const ready = waiters;
+      waiters = [];
+      for (const resolve of ready) resolve();
+    },
+    release() {
+      void (async () => {
+        for (const step of steps) {
+          await sleep(gapMs);
+          const flushed =
+            step.completes ?
+              new Promise<void>(resolve => waiters.push(resolve))
+            : undefined;
+          step(page);
+          if (flushed) await Promise.race([flushed, sleep(500)]);
+        }
+      })();
+    },
+  };
 }
 
 export function captureStream(
@@ -158,6 +193,7 @@ function captureLedgerStream(
     if (flushes.length === 1) {
       for (const release of opts.releaseAfterShell) release();
     }
+    opts.onFlush?.();
   };
 
   return new Promise((resolve, reject) => {
