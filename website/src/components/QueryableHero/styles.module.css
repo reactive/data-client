@@ -850,3 +850,20 @@
     visibility: hidden;
   }
 }
+
+/* Text beside the demo: on its left while both fit, else above it */
+.beside {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  align-items: flex-start;
+  margin-bottom: var(--ifm-leading);
+}
+.text {
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+.beside > .frame {
+  flex: 1 1 24rem;
+  max-width: 30rem;
+}

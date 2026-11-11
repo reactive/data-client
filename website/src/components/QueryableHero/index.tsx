@@ -102,7 +102,23 @@ function usePlayer(pace: Pace) {
  * lists the requests it sends under it. The pills above show the beat
  * playing, the last one both apps have reached, and start one.
  */
-export default function QueryableHero() {
+export default function QueryableHero({
+  children,
+}: {
+  /** text to show beside the demo, on its left where there is room */
+  children?: React.ReactNode;
+}) {
+  const demo = <Demo />;
+  if (!children) return demo;
+  return (
+    <div className={styles.beside}>
+      <div className={styles.text}>{children}</div>
+      {demo}
+    </div>
+  );
+}
+
+function Demo() {
   const [pace, setPace] = useState<Pace>('own');
   const { script, frame, take, live, stage, playing, play, replay } =
     usePlayer(pace);

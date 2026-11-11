@@ -25,6 +25,8 @@ response, a mutation's response, a websocket message or any other code calling
 
 ## Benefits {#benefits}
 
+<QueryableHero>
+
 - [No overfetching on navigation](#navigation): a page renders data another page already loaded, wherever it sat in
   that page's response.
 - [Faster mutations](#mutations): a mutation's response updates every list it belongs in, and is the next page's
@@ -33,11 +35,7 @@ response, a mutation's response, a websocket message or any other code calling
   it.
 - [Derived views without requests](#derived): counts, filters, sorts and joins compute from data already loaded.
 
-<SiteOnly>
-
-<QueryableHero />
-
-</SiteOnly>
+</QueryableHero>
 
 <AgentOnly>
 
