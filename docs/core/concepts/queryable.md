@@ -12,7 +12,7 @@ import IssueListDetailDemo from '../shared/\_IssueListDetailDemo.mdx';
 import TeamIssuesDemo from '../shared/\_TeamIssuesDemo.mdx';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
-import LookupTable from '@site/src/components/LookupTable';
+import QueryableHero from '@site/src/components/QueryableHero';
 import MutationReads from '@site/src/components/MutationReads';
 
 # Queryable
@@ -25,17 +25,22 @@ response, a mutation's response, a websocket message or any other code calling
 
 <SiteOnly>
 
-<LookupTable />
+<QueryableHero />
 
 </SiteOnly>
 
 <AgentOnly>
 
-| Data arrives from                                 | The table stores                                             | Reads that render it without a request                      | Requests sent |
-| ------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | ------------- |
-| A mutation: `POST /issues` with `assigneeId: 1`   | Issue 6, added to the lists for `{ assigneeId: 1 }` and `{}` | `getList({ assigneeId: 1 })`, `getList()`, `get({ id: 6 })` | 1, not 4      |
-| A list: `GET /issues?assigneeId=1`                | Issue 5, Issue 6 and the list for `{ assigneeId: 1 }`        | `get({ id: 5 })`, `get({ id: 6 })`                          | 1, not 3      |
-| A websocket message: `{ id: 5, state: 'closed' }` | Issue 5's new fields                                         | Both lists and `get({ id: 5 })` show them                   | 0, not 3      |
+The same three clicks in an issue tracker that shows a list, its counts and the open issue on one screen:
+
+| Click                      | A cache keyed by request sends                                                        | Data Client sends  | Why Data Client sends no more                                       |
+| -------------------------- | ------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------- |
+| Open issue 5 from the list | `GET /issues/5`: 1                                                                    | 0                  | The list's response already stored Issue 5                          |
+| Close issue 5              | `PUT /issues/5`, then `GET /issues?assigneeId=1` and `GET /issues`: 3                 | `PUT /issues/5`: 1 | The response overwrites Issue 5's one entry, which every view reads |
+| Create issue 6             | `POST /issues`, then `GET /issues/6`, `GET /issues?assigneeId=1` and `GET /issues`: 4 | `POST /issues`: 1  | The response joins both lists, and is the detail of Issue 6         |
+| Total                      | 8                                                                                     | 2                  |                                                                     |
+
+Until its refetches return, the cache keyed by request shows issue 5 closed in the detail and open in the list.
 
 </AgentOnly>
 
