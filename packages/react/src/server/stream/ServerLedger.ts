@@ -25,9 +25,7 @@ export interface ServerLedger {
   end(): StreamMessage[];
 }
 
-export function createServerLedger(
-  now: () => number = Date.now,
-): ServerLedger {
+export function createServerLedger(now: () => number = Date.now): ServerLedger {
   let root: Store<State<unknown>> | undefined;
   let prevState: State<unknown> = initialState;
   let rev = 0;

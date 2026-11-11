@@ -143,8 +143,20 @@ describe('applyPiece', () => {
 
   it('replaces a record that is still the object a piece placed', () => {
     const placed = new WeakSet<object>();
-    const s1 = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 100 }, 1000);
-    const s2 = setResponse(s1, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 101 }, 2000);
+    const s1 = setResponse(
+      initialState,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 100 },
+      1000,
+    );
+    const s2 = setResponse(
+      s1,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 101 },
+      2000,
+    );
     const [p1, p2] = wire([initialState, s1, s2], placed);
     const live = applyPiece(initialState, p1, new Map(), placed, OPENED);
     const next = applyPiece(live, p2, classes(Ticker), placed, OPENED);
@@ -154,8 +166,20 @@ describe('applyPiece', () => {
 
   it('replaces a record whose only copy came from the seed', () => {
     const placed = new WeakSet<object>();
-    const s1 = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 100 }, 1000);
-    const s2 = setResponse(s1, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 101 }, 2000);
+    const s1 = setResponse(
+      initialState,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 100 },
+      1000,
+    );
+    const s2 = setResponse(
+      s1,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 101 },
+      2000,
+    );
     const pieces = wire([initialState, s1, s2], placed);
     const seed = foldPieces(pieces, 1);
     // no class is known: a client copy would be kept and the endpoint marked stale
@@ -170,12 +194,30 @@ describe('applyPiece', () => {
     const placed = new WeakSet<object>();
     const server = [
       initialState,
-      setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 90, volume: 7 }, 1000),
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 90, volume: 7 },
+        1000,
+      ),
     ];
     const [piece] = wire(server, placed);
     // the client wrote 100 later than the server's 90
-    const client = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 100 }, 2000);
-    const next = applyPiece(client, piece, classes(getTicker.schema), placed, OPENED);
+    const client = setResponse(
+      initialState,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 100 },
+      2000,
+    );
+    const next = applyPiece(
+      client,
+      piece,
+      classes(getTicker.schema),
+      placed,
+      OPENED,
+    );
     // older server copy merges underneath: shouldReorder swaps, client price wins, volume fills in
     expect(next.entities.Ticker!.BTC).toEqual(
       Ticker.mergeWithStore(
@@ -192,13 +234,31 @@ describe('applyPiece', () => {
 
     const books = [
       initialState,
-      setResponse(initialState, getBook, [{ id: 'b' }], { id: 'b', lastUpdateId: 510 }, 3000),
+      setResponse(
+        initialState,
+        getBook,
+        [{ id: 'b' }],
+        { id: 'b', lastUpdateId: 510 },
+        3000,
+      ),
     ];
     const [bookPiece] = wire(books, placed);
-    const held = setResponse(initialState, getBook, [{ id: 'b' }], { id: 'b', lastUpdateId: 520 }, 1000);
+    const held = setResponse(
+      initialState,
+      getBook,
+      [{ id: 'b' }],
+      { id: 'b', lastUpdateId: 520 },
+      1000,
+    );
     const kept = applyPiece(held, bookPiece, classes(Book), placed, OPENED);
     expect((kept.entities.Book!.b as any).lastUpdateId).toBe(520);
-    const older = setResponse(initialState, getBook, [{ id: 'b' }], { id: 'b', lastUpdateId: 500 }, 1000);
+    const older = setResponse(
+      initialState,
+      getBook,
+      [{ id: 'b' }],
+      { id: 'b', lastUpdateId: 500 },
+      1000,
+    );
     const updated = applyPiece(older, bookPiece, classes(Book), placed, OPENED);
     expect((updated.entities.Book!.b as any).lastUpdateId).toBe(510);
   });
@@ -207,11 +267,21 @@ describe('applyPiece', () => {
     const placed = new WeakSet<object>();
     const client = reducer(
       initialState,
-      actions.createSet(Ticker, { args: [{ id: 'BTC' }], value: { id: 'BTC', price: 100 }, fetchedAt: 500 }) as any,
+      actions.createSet(Ticker, {
+        args: [{ id: 'BTC' }],
+        value: { id: 'BTC', price: 100 },
+        fetchedAt: 500,
+      }) as any,
     );
     const server = [
       initialState,
-      setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 101, volume: 7 }, 1000),
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 101, volume: 7 },
+        1000,
+      ),
     ];
     const [piece] = wire(server, placed);
     const next = applyPiece(client, piece, classes(Ticker), placed, OPENED);
@@ -222,10 +292,22 @@ describe('applyPiece', () => {
 
   it('keeps a client-written record of unknown class and marks the piece endpoints stale', () => {
     const placed = new WeakSet<object>();
-    const client = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 100 }, 500);
+    const client = setResponse(
+      initialState,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 100 },
+      500,
+    );
     const server = [
       initialState,
-      setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 101, volume: 7 }, 1000),
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 101, volume: 7 },
+        1000,
+      ),
     ];
     const [piece] = wire(server, placed);
     const next = applyPiece(client, piece, new Map(), placed, OPENED);
@@ -240,27 +322,57 @@ describe('applyPiece', () => {
     const key = getTicker.key({ id: 'BTC' });
     const server = [
       initialState,
-      setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 101 }, 1000),
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 101 },
+        1000,
+      ),
     ];
     const [piece] = wire(server, placed);
-    const newer = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 100 }, 2000);
-    expect(applyPiece(newer, piece, classes(Ticker), placed, OPENED).meta[key]).toBe(newer.meta[key]);
-    const older = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 100 }, 500);
-    expect(applyPiece(older, piece, classes(Ticker), placed, OPENED).meta[key]).toBe(piece.meta![key]);
+    const newer = setResponse(
+      initialState,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 100 },
+      2000,
+    );
+    expect(
+      applyPiece(newer, piece, classes(Ticker), placed, OPENED).meta[key],
+    ).toBe(newer.meta[key]);
+    const older = setResponse(
+      initialState,
+      getTicker,
+      [{ id: 'BTC' }],
+      { id: 'BTC', price: 100 },
+      500,
+    );
+    expect(
+      applyPiece(older, piece, classes(Ticker), placed, OPENED).meta[key],
+    ).toBe(piece.meta![key]);
   });
 
   it('ignores a piece after a client RESET during the stream', () => {
     const placed = new WeakSet<object>();
     const server = [
       initialState,
-      setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 101 }, 1000),
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 101 },
+        1000,
+      ),
     ];
     const [piece] = wire(server, placed);
     const reset = reducer(initialState, actions.createReset() as any);
     expect(reset.lastReset).toBeGreaterThanOrEqual(OPENED);
     expect(applyPiece(reset, piece, new Map(), placed, OPENED)).toBe(reset);
     const before = { ...initialState, lastReset: OPENED - 1 };
-    expect(applyPiece(before, piece, new Map(), placed, OPENED)).not.toBe(before);
+    expect(applyPiece(before, piece, new Map(), placed, OPENED)).not.toBe(
+      before,
+    );
   });
 
   describe('removed (null) and INVALID (0) slots', () => {
@@ -275,18 +387,41 @@ describe('applyPiece', () => {
       t: 'piece',
       rev: 2,
       entities: { Ticker: { BTC: 0 } },
-      entitiesMeta: { Ticker: { BTC: { fetchedAt, date: fetchedAt, expiresAt: fetchedAt } } },
+      entitiesMeta: {
+        Ticker: { BTC: { fetchedAt, date: fetchedAt, expiresAt: fetchedAt } },
+      },
     });
     const placedState = () => {
-      const s1 = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 1 }, 1000);
+      const s1 = setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 1 },
+        1000,
+      );
       return foldPieces(wire([initialState, s1], placed), 1);
     };
     const clientState = () =>
-      setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 1 }, 1000);
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 1 },
+        1000,
+      );
 
     it('null removes an absent or placed record with its meta, and keeps a client one', () => {
-      expect(applyPiece(initialState, removal, new Map(), placed, OPENED).entities.Ticker).toEqual({});
-      const fromPiece = applyPiece(placedState(), removal, new Map(), placed, OPENED);
+      expect(
+        applyPiece(initialState, removal, new Map(), placed, OPENED).entities
+          .Ticker,
+      ).toEqual({});
+      const fromPiece = applyPiece(
+        placedState(),
+        removal,
+        new Map(),
+        placed,
+        OPENED,
+      );
       expect(fromPiece.entities.Ticker!.BTC).toBeUndefined();
       expect(fromPiece.entitiesMeta.Ticker.BTC).toBeUndefined();
       const client = clientState();
@@ -295,15 +430,32 @@ describe('applyPiece', () => {
     });
 
     it('0 is INVALID for an absent or placed record, and for a client one only when newer', () => {
-      expect(applyPiece(initialState, invalid(900), new Map(), placed, OPENED).entities.Ticker!.BTC).toBe(INVALID);
-      expect(applyPiece(placedState(), invalid(900), new Map(), placed, OPENED).entities.Ticker!.BTC).toBe(INVALID);
+      expect(
+        applyPiece(initialState, invalid(900), new Map(), placed, OPENED)
+          .entities.Ticker!.BTC,
+      ).toBe(INVALID);
+      expect(
+        applyPiece(placedState(), invalid(900), new Map(), placed, OPENED)
+          .entities.Ticker!.BTC,
+      ).toBe(INVALID);
       const client = clientState();
-      expect(applyPiece(client, invalid(900), classes(Ticker), placed, OPENED).entities.Ticker!.BTC).toBe(client.entities.Ticker!.BTC);
-      expect(applyPiece(client, invalid(1100), classes(Ticker), placed, OPENED).entities.Ticker!.BTC).toBe(INVALID);
+      expect(
+        applyPiece(client, invalid(900), classes(Ticker), placed, OPENED)
+          .entities.Ticker!.BTC,
+      ).toBe(client.entities.Ticker!.BTC);
+      expect(
+        applyPiece(client, invalid(1100), classes(Ticker), placed, OPENED)
+          .entities.Ticker!.BTC,
+      ).toBe(INVALID);
     });
 
     it('an object replaces a client INVALID only when its fetchedAt is not older', () => {
-      const client = reducer(clientState(), actions.createInvalidate(getTicker, { args: [{ id: 'BTC' }] } as any) as any);
+      const client = reducer(
+        clientState(),
+        actions.createInvalidate(getTicker, {
+          args: [{ id: 'BTC' }],
+        } as any) as any,
+      );
       const withInvalid = {
         ...client,
         entities: { Ticker: { BTC: INVALID } },
@@ -312,10 +464,20 @@ describe('applyPiece', () => {
         t: 'piece',
         rev: 2,
         entities: { Ticker: { BTC: { id: 'BTC', price: 5 } } },
-        entitiesMeta: { Ticker: { BTC: { fetchedAt, date: fetchedAt, expiresAt: fetchedAt + 1 } } },
+        entitiesMeta: {
+          Ticker: {
+            BTC: { fetchedAt, date: fetchedAt, expiresAt: fetchedAt + 1 },
+          },
+        },
       });
-      expect(applyPiece(withInvalid, object(999), classes(Ticker), placed, OPENED).entities.Ticker!.BTC).toBe(INVALID);
-      expect(applyPiece(withInvalid, object(1000), classes(Ticker), placed, OPENED).entities.Ticker!.BTC).toMatchObject({ price: 5 });
+      expect(
+        applyPiece(withInvalid, object(999), classes(Ticker), placed, OPENED)
+          .entities.Ticker!.BTC,
+      ).toBe(INVALID);
+      expect(
+        applyPiece(withInvalid, object(1000), classes(Ticker), placed, OPENED)
+          .entities.Ticker!.BTC,
+      ).toMatchObject({ price: 5 });
     });
   });
 
@@ -324,30 +486,77 @@ describe('applyPiece', () => {
       t: 'piece',
       rev: 2,
       entities: { Ticker: { [pk]: { id: pk, price: 9, symbol: 'new' } } },
-      entitiesMeta: { Ticker: { [pk]: { fetchedAt: 900, date: 900, expiresAt: 2000 } } },
+      entitiesMeta: {
+        Ticker: { [pk]: { fetchedAt: 900, date: 900, expiresAt: 2000 } },
+      },
       indexes: { Ticker: { symbol: { new: pk, old: 0 } } },
     });
 
     it('applies an entry as sent for a taken record', () => {
-      const next = applyPiece(initialState, indexPiece('BTC'), new Map(), new WeakSet(), OPENED);
+      const next = applyPiece(
+        initialState,
+        indexPiece('BTC'),
+        new Map(),
+        new WeakSet(),
+        OPENED,
+      );
       expect(next.indexes.Ticker!.symbol).toEqual({ new: 'BTC', old: INVALID });
     });
 
     it('recomputes the entry from the merged record for a known class', () => {
-      const client = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 1, symbol: 'old' }, 1000);
+      const client = setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 1, symbol: 'old' },
+        1000,
+      );
       const piece = indexPiece('BTC');
-      const next = applyPiece(client, piece, classes(Ticker), new WeakSet(), OPENED);
+      const next = applyPiece(
+        client,
+        piece,
+        classes(Ticker),
+        new WeakSet(),
+        OPENED,
+      );
       // client copy is newer, so merged symbol stays 'old'
       expect((next.entities.Ticker!.BTC as any).symbol).toBe('old');
       expect(next.indexes.Ticker!.symbol).toEqual({ old: 'BTC' });
-      const older = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 1, symbol: 'old' }, 500);
-      const moved = applyPiece(older, piece, classes(Ticker), new WeakSet(), OPENED);
-      expect(moved.indexes.Ticker!.symbol).toEqual({ old: INVALID, new: 'BTC' });
+      const older = setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 1, symbol: 'old' },
+        500,
+      );
+      const moved = applyPiece(
+        older,
+        piece,
+        classes(Ticker),
+        new WeakSet(),
+        OPENED,
+      );
+      expect(moved.indexes.Ticker!.symbol).toEqual({
+        old: INVALID,
+        new: 'BTC',
+      });
     });
 
     it('skips the entry for a kept record', () => {
-      const client = setResponse(initialState, getTicker, [{ id: 'BTC' }], { id: 'BTC', price: 1, symbol: 'old' }, 1000);
-      const next = applyPiece(client, indexPiece('BTC'), new Map(), new WeakSet(), OPENED);
+      const client = setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 1, symbol: 'old' },
+        1000,
+      );
+      const next = applyPiece(
+        client,
+        indexPiece('BTC'),
+        new Map(),
+        new WeakSet(),
+        OPENED,
+      );
       expect(next.indexes.Ticker!.symbol).toBe(client.indexes.Ticker!.symbol);
     });
   });
@@ -379,19 +588,44 @@ describe('applyPiece', () => {
       expect(learned.get(collection.key)).toBe(collection);
     });
 
-    it('merges a list the client pushed to with master\'s list rule', () => {
+    it("merges a list the client pushed to with master's list rule", () => {
       const placed = new WeakSet<object>();
-      const list = (titles: string[]) => titles.map((title, i) => ({ id: String(i), title }));
-      const s1 = setResponse(initialState, TodoResource.getList, [], list(['a', 'b']), 1000);
+      const list = (titles: string[]) =>
+        titles.map((title, i) => ({ id: String(i), title }));
+      const s1 = setResponse(
+        initialState,
+        TodoResource.getList,
+        [],
+        list(['a', 'b']),
+        1000,
+      );
       const [p1] = wire([initialState, s1], placed);
       const seeded = applyPiece(initialState, p1, new Map(), placed, OPENED);
       // the client pushes after the server rendered
-      const pushed = setResponse(seeded, TodoResource.getList.push, [], { id: '9', title: 'mine' }, 3000);
-      const s2 = setResponse(s1, TodoResource.getList, [], list(['a', 'b', 'c']), 2000);
+      const pushed = setResponse(
+        seeded,
+        TodoResource.getList.push,
+        [],
+        { id: '9', title: 'mine' },
+        3000,
+      );
+      const s2 = setResponse(
+        s1,
+        TodoResource.getList,
+        [],
+        list(['a', 'b', 'c']),
+        2000,
+      );
       const [, p2] = wire([initialState, s1, s2], placed);
       const learned = classes(TodoResource.getList.push);
       const next = applyPiece(pushed, p2, learned, placed, OPENED);
-      const expected = setResponse(pushed, TodoResource.getList, [], list(['a', 'b', 'c']), 2000);
+      const expected = setResponse(
+        pushed,
+        TodoResource.getList,
+        [],
+        list(['a', 'b', 'c']),
+        2000,
+      );
       const key = (TodoResource.getList.schema as any).key;
       expect(next.entities[key]).toEqual(expected.entities[key]);
       expect(Object.values(next.entities[key]!)[0]).toContain('9');
@@ -400,7 +634,13 @@ describe('applyPiece', () => {
       const s3 = setResponse(s2, TodoResource.getList, [], list(['x']), 4000);
       const [, , p3] = wire([initialState, s1, s2, s3], placed);
       const replaced = applyPiece(next, p3, learned, placed, OPENED);
-      const expected3 = setResponse(next, TodoResource.getList, [], list(['x']), 4000);
+      const expected3 = setResponse(
+        next,
+        TodoResource.getList,
+        [],
+        list(['x']),
+        4000,
+      );
       expect(replaced.entities[key]).toEqual(expected3.entities[key]);
     });
   });
@@ -417,6 +657,8 @@ describe('applyPiece', () => {
       endpoints: { k: 1 },
       meta: { k: { fetchedAt: 1, date: 1, expiresAt: 2 } },
     };
-    expect(reduce(initialState, { type: PIECE, piece } as any).endpoints).toEqual({ k: 1 });
+    expect(
+      reduce(initialState, { type: PIECE, piece } as any).endpoints,
+    ).toEqual({ k: 1 });
   });
 });

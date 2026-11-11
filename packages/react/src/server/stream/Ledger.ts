@@ -147,8 +147,9 @@ class DocumentLedger implements Ledger {
       });
     }
     if (message.entitiesMeta) {
-      piece.entitiesMeta = mapTables(message.entitiesMeta, meta =>
-        meta && this.shiftEntityMeta(meta),
+      piece.entitiesMeta = mapTables(
+        message.entitiesMeta,
+        meta => meta && this.shiftEntityMeta(meta),
       );
     }
     if (message.indexes) {

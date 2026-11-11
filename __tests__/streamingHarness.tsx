@@ -2,6 +2,9 @@ import React, { useLayoutEffect } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import { Writable } from 'stream';
 
+import { serialize } from '../packages/react/src/server/stream/serialize';
+import type { ServerLedger } from '../packages/react/src/server/stream/ServerLedger';
+
 const MULTIPLE_RENDERERS =
   'Detected multiple renderers concurrently rendering the same context provider';
 const USE_LAYOUT_EFFECT_SSR = 'useLayoutEffect does nothing on the server';
@@ -33,10 +36,43 @@ export function Gate({
   return children as React.ReactElement;
 }
 
+/** One flush of a ledger capture: the ledger's script source, then React's HTML */
+export interface LedgerFlush {
+  script: string;
+  html: string;
+}
+
+export interface LedgerCapture {
+  shell: string;
+  rest: string[];
+  flushes: LedgerFlush[];
+}
+
+export interface CaptureOptions {
+  releaseAfterShell: Array<() => void>;
+  abortMs?: number;
+  /**
+   * When set, the writable buffers React's writes. On each `flush()` it emits
+   * one chunk: the ledger's script, then the buffered HTML. On finish it emits `end`.
+   */
+  ledger?: ServerLedger;
+  /** Calls the abort function React returns, once the shell is written */
+  onAbortable?: (abort: () => void) => void;
+}
+
+export function captureStream(
+  element: ReactElement,
+  opts: CaptureOptions & { ledger: ServerLedger },
+): Promise<LedgerCapture>;
+export function captureStream(
+  element: ReactElement,
+  opts: CaptureOptions,
+): Promise<{ shell: string; rest: string[] }>;
 export async function captureStream(
   element: ReactElement,
-  opts: { releaseAfterShell: Array<() => void>; abortMs?: number },
-): Promise<{ shell: string; rest: string[] }> {
+  opts: CaptureOptions,
+): Promise<{ shell: string; rest: string[] } | LedgerCapture> {
+  if (opts.ledger) return captureLedgerStream(element, opts, opts.ledger);
   // jsdom matches the "browser" export: React 18's server.browser has
   // renderToReadableStream only. Pin the Node build so every version exposes
   // renderToPipeableStream (18.3, 19.2, 19.3).
@@ -85,6 +121,87 @@ export async function captureStream(
       onError() {
         // Recoverable render errors must not abort capture; onShellError is fatal.
       },
+    });
+
+    abortTimer.id = setTimeout(() => {
+      abort();
+      finish(() =>
+        reject(new Error(`renderToPipeableStream aborted after ${abortMs}ms`)),
+      );
+    }, abortMs);
+  });
+}
+
+function captureLedgerStream(
+  element: ReactElement,
+  opts: CaptureOptions,
+  ledger: ServerLedger,
+): Promise<LedgerCapture> {
+  const { renderToPipeableStream } = jest.requireActual(
+    'react-dom/server.node',
+  ) as {
+    renderToPipeableStream: typeof import('react-dom/server').renderToPipeableStream;
+  };
+  const abortMs = opts.abortMs ?? 4000;
+  const flushes: LedgerFlush[] = [];
+  let buffered = '';
+
+  const emit = (messages: ReturnType<ServerLedger['take']>) => {
+    const source = serialize(messages);
+    const flush = {
+      script: source && `<script>${source}</script>`,
+      html: buffered,
+    };
+    buffered = '';
+    if (!flush.script && !flush.html) return;
+    flushes.push(flush);
+    if (flushes.length === 1) {
+      for (const release of opts.releaseAfterShell) release();
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const abortTimer: { id?: ReturnType<typeof setTimeout> } = {};
+    const finish = (fn: () => void) => {
+      if (settled) return;
+      settled = true;
+      if (abortTimer.id !== undefined) clearTimeout(abortTimer.id);
+      fn();
+    };
+
+    const writable = new Writable({
+      write(chunk, _enc, cb) {
+        buffered += String(chunk);
+        cb();
+      },
+      final(cb) {
+        if (buffered) emit(ledger.take());
+        emit(ledger.end());
+        cb();
+      },
+    }) as Writable & { flush(): void };
+    // React calls `flush()` after each batch of writes, reveal scripts included
+    writable.flush = () => emit(ledger.take());
+    writable.on('finish', () => {
+      const chunks = flushes.map(f => f.script + f.html);
+      finish(() =>
+        resolve({ shell: chunks[0] ?? '', rest: chunks.slice(1), flushes }),
+      );
+    });
+    writable.on('error', err => {
+      finish(() => reject(err));
+    });
+
+    const { pipe, abort } = renderToPipeableStream(element, {
+      onShellReady() {
+        pipe(writable);
+        opts.onAbortable?.(abort);
+      },
+      onShellError(err) {
+        finish(() => reject(err));
+      },
+      onError() {},
     });
 
     abortTimer.id = setTimeout(() => {

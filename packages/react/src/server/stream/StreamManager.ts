@@ -75,10 +75,7 @@ export default class StreamManager implements Manager {
       Object.prototype.hasOwnProperty.call(cls, 'merge')
     )
       cls = Object.getPrototypeOf(cls);
-    if (
-      typeof cls.key === 'string' &&
-      typeof cls.mergeWithStore === 'function'
-    )
+    if (typeof cls.key === 'string' && typeof cls.mergeWithStore === 'function')
       this.classes.set(cls.key, cls as EntityInterface);
     if (Array.isArray(schema)) schema.forEach(s => this.learn(s));
     else if (schema.constructor === Object)

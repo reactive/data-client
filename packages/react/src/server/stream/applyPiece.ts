@@ -124,9 +124,10 @@ export function applyPiece(
         const pk = entries[value];
         const target = typeof pk === 'string' ? pk : current?.[value];
         const outcome =
-          target === undefined ? 'taken'
-          : (keyOutcomes?.get(target) ??
-            (isServerOwned(state, key, target, isPlaced) ? 'taken' : 'kept'));
+          target === undefined ? 'taken' : (
+            (keyOutcomes?.get(target) ??
+            (isServerOwned(state, key, target, isPlaced) ? 'taken' : 'kept'))
+          );
         if (outcome !== 'taken') continue;
         if (pk === null) w.removeIndex(key, indexName, value);
         else w.setIndex(key, indexName, value, fromWire(pk));
@@ -141,14 +142,19 @@ export function applyPiece(
       if (before !== undefined && before !== next[indexName]) {
         w.setIndex(cls.key, indexName, before, INVALID);
       }
-      if (indexName in next) w.setIndex(cls.key, indexName, next[indexName], pk);
+      if (indexName in next)
+        w.setIndex(cls.key, indexName, next[indexName], pk);
     }
   }
 
   for (const key of keysOf(piece.endpoints, piece.meta)) {
     const meta = piece.meta?.[key];
     const clientMeta = state.meta[key];
-    if (meta && clientMeta !== undefined && clientMeta.fetchedAt > meta.fetchedAt)
+    if (
+      meta &&
+      clientMeta !== undefined &&
+      clientMeta.fetchedAt > meta.fetchedAt
+    )
       continue;
     if (piece.endpoints && key in piece.endpoints) {
       const value = piece.endpoints[key];

@@ -69,11 +69,7 @@ export interface EndMessage {
   t: 'end';
 }
 export type StreamMessage =
-  | OpenMessage
-  | PieceMessage
-  | PinMessage
-  | AnnounceMessage
-  | EndMessage;
+  OpenMessage | PieceMessage | PinMessage | AnnounceMessage | EndMessage;
 
 /** Keys a message may not create on an object */
 export const isUnsafeKey = (key: string) =>

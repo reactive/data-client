@@ -22,10 +22,13 @@ const getTicker = new Endpoint(
   ({ id }: { id: string }) => Promise.resolve({ id, price: 0 }),
   { schema: Ticker, name: 'getTicker' },
 );
-const getTickers = new Endpoint(() => Promise.resolve([]), {
-  schema: [Ticker],
-  name: 'getTickers',
-});
+const getTickers = new Endpoint(
+  () => Promise.resolve([] as { id: string; price: number }[]),
+  {
+    schema: [Ticker],
+    name: 'getTickers',
+  },
+);
 
 const reducer = createReducer(new Controller());
 const set = (
@@ -53,7 +56,9 @@ describe('diffState', () => {
   it('sends added slots per table', () => {
     const s1 = set(initialState, 'BTC', 100);
     const slots = diffState(initialState, s1)!;
-    expect(slots.entities).toEqual({ Ticker: { BTC: { id: 'BTC', price: 100 } } });
+    expect(slots.entities).toEqual({
+      Ticker: { BTC: { id: 'BTC', price: 100 } },
+    });
     expect(slots.entities!.Ticker.BTC).toBe(s1.entities.Ticker!.BTC);
     expect(Object.keys(slots.entitiesMeta!.Ticker)).toEqual(['BTC']);
     expect(slots.indexes).toEqual({ Ticker: { price: { 100: 'BTC' } } });
@@ -105,7 +110,9 @@ describe('diffState', () => {
 
     const s4 = {
       ...s2,
-      entities: { Ticker: { ...s2.entities.Ticker, ETH: __INTERNAL__.INVALID } },
+      entities: {
+        Ticker: { ...s2.entities.Ticker, ETH: __INTERNAL__.INVALID },
+      },
     };
     expect(diffState(s2, s4)).toEqual({ entities: { Ticker: { ETH: 0 } } });
   });
@@ -123,7 +130,7 @@ describe('diffState', () => {
       }),
     );
     const slots = diffState(initialState, s1)!;
-    expect(slots.meta![getTicker.key({ id: 'BTC' })].error).toEqual({
+    expect(slots.meta![getTicker.key({ id: 'BTC' })]!.error).toEqual({
       name: 'Error',
       message: 'nope',
       status: 503,

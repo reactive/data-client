@@ -67,7 +67,7 @@ describe('createServerLedger', () => {
     const pieces = ledger.take();
     expect(pieces.map(m => m.t === 'piece' && m.rev)).toEqual([1, 2, 3]);
     expect((pieces[2] as any).entities.Ticker.ETH).toBe(
-      store.getState().entities.Ticker.ETH,
+      store.getState().entities.Ticker!.ETH,
     );
     // a dispatch that leaves the state as it is records nothing
     store.dispatch({ type: 'unknown' } as any);

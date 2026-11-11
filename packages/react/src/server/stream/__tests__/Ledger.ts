@@ -32,7 +32,10 @@ describe('getLedger', () => {
   });
 
   it('is one ledger per document and replays messages pushed before it', () => {
-    push({ t: 'open', v: 1, rev: 1, at: 50_000 }, { ...btc(100, 49_000), rev: 1 });
+    push(
+      { t: 'open', v: 1, rev: 1, at: 50_000 },
+      { ...btc(100, 49_000), rev: 1 },
+    );
     const ledger = getLedger()!;
     expect(getLedger()).toBe(ledger);
     expect(ledger.shellRev).toBe(1);
@@ -127,7 +130,10 @@ describe('getLedger', () => {
     await expect(a).resolves.toBe(3);
     // a pin already in the ledger gives a settled promise
     push({ t: 'pin', id: 'c', rev: 1 });
-    expect(ledger.whenPin('c')).toMatchObject({ status: 'fulfilled', value: 1 });
+    expect(ledger.whenPin('c')).toMatchObject({
+      status: 'fulfilled',
+      value: 1,
+    });
     // a moved pin replaces the old one
     push({ t: 'pin', id: 'c', rev: 2 });
     expect(ledger.pin('c')).toBe(2);
@@ -143,7 +149,10 @@ describe('getLedger', () => {
 
   it('drops the pin at commit and any pin that arrives later for that id', () => {
     const ledger = getLedger()!;
-    push({ t: 'open', v: 1, rev: 0, at: 50_000 }, { t: 'pin', id: 'a', rev: 1 });
+    push(
+      { t: 'open', v: 1, rev: 0, at: 50_000 },
+      { t: 'pin', id: 'a', rev: 1 },
+    );
     expect(ledger.stats().pins).toBe(1);
     ledger.commit('a');
     ledger.commit('a');
@@ -208,7 +217,10 @@ describe('getLedger', () => {
   it('ends the stream on an unknown wire version', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const ledger = getLedger()!;
-    push({ t: 'open', v: 2 as any, rev: 1, at: 50_000 }, { ...btc(100, 1), rev: 1 });
+    push(
+      { t: 'open', v: 2 as any, rev: 1, at: 50_000 },
+      { ...btc(100, 1), rev: 1 },
+    );
     expect(ledger.ended).toBe(true);
     expect(ledger.shellRev).toBeUndefined();
     expect(ledger.stats().pieces).toBe(0);
@@ -220,7 +232,11 @@ describe('getLedger', () => {
     const ledger = getLedger()!;
     const seen: number[] = [];
     const unsubscribe = ledger.subscribe(() => seen.push(ledger.rev));
-    push({ t: 'open', v: 1, rev: 0, at: 50_000 }, { ...btc(1, 1), rev: 1 }, { ...btc(2, 1), rev: 2 });
+    push(
+      { t: 'open', v: 1, rev: 0, at: 50_000 },
+      { ...btc(1, 1), rev: 1 },
+      { ...btc(2, 1), rev: 2 },
+    );
     push({ ...btc(3, 1), rev: 3 });
     unsubscribe();
     push({ ...btc(4, 1), rev: 4 });
