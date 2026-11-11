@@ -1,3 +1,10 @@
+import React from 'react';
+
+/** False on a React without `use` and `useId`. A host then keeps the one-shot handoff. */
+export const supported: boolean =
+  typeof (React as any).use === 'function' &&
+  typeof (React as any).useId === 'function';
+
 export { WIRE_VERSION, STREAM_GLOBAL } from './wire.js';
 export type {
   StreamMessage,
