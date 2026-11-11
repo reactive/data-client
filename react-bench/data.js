@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794341306519,
+  "lastUpdate": 1794371578110,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -14081,6 +14081,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 564.99,
             "range": "± 4.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c679e1704ae9b0fcfeeb222d4f480de9d3c0a25f",
+          "message": "docs: Show how to call fetchIfStale in route loaders for each kind of router (#4671)\n\n* docs: Show how to call fetchIfStale in route loaders for each kind of router\n\nRouters that change the route in a transition without waiting (like\n@anansi/router) call fetchIfStale() without await; routers that wait for\nloaders return cached data that can render and fetch only on a miss.\nFix async resolveData examples whose awaited fetches rejected unhandled.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Import IssueResource in the waiting-router loader example\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Address review of route loader docs\n\nUse documented getResponse(), note invalidIfStale waits, keep the\nperformance pass example consistent with its rule.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Await the first view's fetches in anansi resolveData with allSettled\n\n@anansi/core's prefetchSpout awaits resolveData during SSR, so dropping the\nawait would ship the boundary fallback in the first HTML. Await the main\ndata inside Promise.allSettled() (no unhandled rejection on the client,\nwhere the router ignores the Promise) and start secondary data unawaited.\nAlso trim duplicated prose from the simplify pass.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Use .catch() for a single awaited first-view fetch\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Defer github-app loader .catch() until the 0.19 release\n\ngithub-app installs published 0.18.2, where a fresh fetchIfStale() returns\ndata synchronously, so .catch() throws. Queue the edit in\nplans/after-release.md per examples/AGENTS.md.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Lead route loaders section with the useSuspense() wait rule\n\nState once that navigation waits only when cached data can't render, move\nthe AsyncBoundary exception into the transition row, and note in the\nwaiting-router example that stale data is still Valid.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Lead route loaders with the popular routers that navigate in transitions\n\nReact Router 7 and TanStack Router commit navigations in startTransition, so\na loader that doesn't await fetchIfStale() lets useSuspense() wait inside the\ntransition, like @anansi/router and the Next.js App Router. The cache-first\nreturn is now only for loaders whose data the page renders, or routers\nwithout transitions. Keep the @anansi/router SSR example as a note.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs(performance-pass): Show the loader change in DiffEditor\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Align loader guidance with transition routers across pages\n\nPerformance pass loaders no longer await the main item on transition routers,\nrender-as-you-fetch awaits only for server rendering, Route loaders lists\ninvalidated data and @anansi/router's back/forward caveat, and the example\nreturns null for React Router 6. Performance skill eval 1 follows.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* fix(normalizr): ExpiryStatus works with isolatedModules\n\nIts typings declared an ambient const enum, so ExpiryStatus.Valid failed with\nTS2748 under isolatedModules (Vite, Next.js). Make it a regular enum, matching\nthe object the packages already export at runtime. The doc-example checker now\nsets isolatedModules, which catches the Route loaders examples on the old\ntypings.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-11T04:29:10Z",
+          "tree_id": "462e01c93e1df13e2ecded056aae8181542b43b5",
+          "url": "https://github.com/reactive/data-client/commit/c679e1704ae9b0fcfeeb222d4f480de9d3c0a25f"
+        },
+        "date": 1794371574654,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 261.27,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 74.13,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 666.67,
+            "range": "± 3.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 757.58,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 69.16,
+            "range": "± 3.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 619.2,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 665.57,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.29,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 115.94,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 86.47,
+            "range": "± 2.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 11.48,
+            "range": "± 2.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 321.8,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 532.63,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 312.01,
+            "range": "± 2.0%",
             "unit": "ops/s"
           }
         ]
