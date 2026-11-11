@@ -107,6 +107,8 @@ export function actionRecorder(log: PageLog): Manager {
   };
 }
 
+export type WakeKind = 'children' | 'fallback' | 'error' | 'same';
+
 /** Client wraps the G1 controls compare */
 export type Variant = 'shield' | 'none' | 'scope-only' | 'frozen';
 
@@ -115,8 +117,11 @@ export interface PageOptions {
   nested?: boolean;
   /** Browser: B's code is this lazy's, so B cannot hydrate until it resolves */
   lazyB?: Promise<void>;
-  /** Re-renders B's parent with a new `children` element when set */
-  wakeB?: { current: (() => void) | undefined };
+  /**
+   * Set: B's parent re-renders on `current(kind)` with a new `children` element,
+   * a new `fallback` element, a new error prop, or (`same`) the same three
+   */
+  wakeB?: { current: ((kind?: WakeKind) => void) | undefined };
   /** B's boundary is inside this `<Activity>` */
   activityB?: ActivityHandle;
   /** The provider is inside this `<Activity>` */
@@ -166,12 +171,23 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
       lazy(() => opts.lazyB!.then(() => ({ default: IslandB })))
     : IslandB;
   const bFallback = <span>loading b</span>;
+  const bChildren = <LazyB />;
   function BParent() {
-    const [, setTick] = useState(0);
-    if (opts.wakeB) opts.wakeB.current = () => setTick(tick => tick + 1);
+    const [wake, setWake] = useState<{ kind: WakeKind; n: number }>({
+      kind: 'same',
+      n: 0,
+    });
+    if (opts.wakeB)
+      opts.wakeB.current = (kind = 'children') =>
+        setWake(w => ({ kind, n: w.n + 1 }));
     return (
-      <AsyncBoundary fallback={bFallback}>
-        <LazyB />
+      <AsyncBoundary
+        fallback={wake.kind === 'fallback' ? <span>loading b</span> : bFallback}
+        errorClassName={wake.kind === 'error' ? `error-${wake.n}` : undefined}
+      >
+        {wake.kind === 'children' ?
+          <LazyB />
+        : bChildren}
       </AsyncBoundary>
     );
   }

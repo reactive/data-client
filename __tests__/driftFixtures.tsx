@@ -86,8 +86,11 @@ type TickerEndpoints = ReturnType<typeof makeTickerEndpoints>;
  * - `nested`: B1 reads the list and holds boundary D, which reads BTC.
  * - `one-boundary`: one boundary holds a list reader and a BTC reader.
  * - `shell-reader`: a reader of the list outside any boundary, and B2.
+ * - `controller-reader`: B1 also holds a reader of `useController().getState()`
+ *   that waits for `ctrlGate`, and B2.
  */
-export type DriftLayout = 'pair' | 'nested' | 'one-boundary' | 'shell-reader';
+export type DriftLayout =
+  'pair' | 'nested' | 'one-boundary' | 'shell-reader' | 'controller-reader';
 
 export interface DriftOptions {
   layout?: DriftLayout;
@@ -101,6 +104,8 @@ export interface DriftOptions {
   activityB1?: ActivityHandle;
   /** Island H, a BTC reader in its own boundary, is inside this `<Activity>` */
   activityH?: ActivityHandle;
+  /** `controller-reader`: the `getState` reader suspends on this until it resolves */
+  ctrlGate?: Promise<void> & { done?: boolean };
 }
 
 function makeDriftIslands(
@@ -137,6 +142,13 @@ function makeDriftIslands(
     useRecord(name, text);
     return <p data-testid={name}>{text}</p>;
   }
+  function CtrlReader() {
+    if (opts.ctrlGate && !opts.ctrlGate.done) throw opts.ctrlGate;
+    const state = useController().getState();
+    const text = `ctrl:${(state.entities.Ticker?.BTC as any)?.price}`;
+    log.renders.push('ctrl');
+    return <p data-testid="ctrl">{text}</p>;
+  }
   function Hold() {
     if (opts.holdB2 && !opts.holdB2.done) throw opts.holdB2;
     return null;
@@ -163,6 +175,18 @@ function makeDriftIslands(
             <AsyncBoundary fallback={<span>loading d</span>}>
               <TickerOne name="d" />
             </AsyncBoundary>
+          </AsyncBoundary>
+        </div>
+      );
+    if (layout === 'controller-reader')
+      return (
+        <div data-testid="layout">
+          <AsyncBoundary fallback={<span>loading b1</span>}>
+            <TickerList name="b1" />
+            <CtrlReader />
+          </AsyncBoundary>
+          <AsyncBoundary fallback={<span>loading b2</span>}>
+            <LazyB2 />
           </AsyncBoundary>
         </div>
       );
