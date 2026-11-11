@@ -2,7 +2,7 @@ import * as _data_client_core from '@data-client/core';
 import { NetworkManager, Manager, State, GCInterface, Controller, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as React from 'react';
-import React__default, { JSX, Context } from 'react';
+import React__default, { JSX, Context, ReactNode, ReactElement } from 'react';
 
 /** Can help prevent stuttering by waiting for idle for sideEffect free fetches */
 declare class WebIdlingNetworkManager extends NetworkManager {
@@ -285,6 +285,15 @@ interface Store<S> {
     getState(): S;
     uninitialized?: boolean;
 }
+/**
+ * Builds the Suspense of an AsyncBoundary. Provided by a streaming SSR adapter.
+ * @internal
+ */
+type BoundaryWrap = (suspenseProps: {
+    fallback?: ReactNode;
+}, content: ReactElement) => ReactElement;
+/** @internal */
+declare const BoundaryContext: Context<BoundaryWrap | null>;
 declare const StoreContext: Context<Store<State<unknown>>>;
 
 declare const useCacheState: () => State<unknown>;
@@ -294,6 +303,7 @@ declare const initialState: _data_client_core.State<unknown>;
 declare const INVALID: symbol;
 declare const MemoCache: typeof __INTERNAL__.MemoCache;
 
+declare const internal_d_BoundaryContext: typeof BoundaryContext;
 declare const internal_d_INVALID: typeof INVALID;
 declare const internal_d_MemoCache: typeof MemoCache;
 declare const internal_d_actions: typeof actions;
@@ -303,7 +313,7 @@ declare const internal_d_initManager: typeof initManager;
 declare const internal_d_initialState: typeof initialState;
 declare const internal_d_useCacheState: typeof useCacheState;
 declare namespace internal_d {
-  export { internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_actions as actions, internal_d_applyManager as applyManager, internal_d_createReducer as createReducer, internal_d_initManager as initManager, internal_d_initialState as initialState, internal_d_useCacheState as useCacheState };
+  export { internal_d_BoundaryContext as BoundaryContext, internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_actions as actions, internal_d_applyManager as applyManager, internal_d_createReducer as createReducer, internal_d_initManager as initManager, internal_d_initialState as initialState, internal_d_useCacheState as useCacheState };
 }
 
 type ReducerAction<R extends React__default.Reducer<any, any>> = R extends React__default.Reducer<any, infer A> ? A : never;

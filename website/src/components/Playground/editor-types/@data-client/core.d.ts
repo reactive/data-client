@@ -876,6 +876,11 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Handles garbage collection
      */
     readonly gcPolicy: GCInterface;
+    /**
+     * Reduces actions core does not know. Set by an adapter.
+     * @internal
+     */
+    reduce?: (state: State<unknown>, action: any) => State<unknown>;
     constructor({ dispatch, getState, memo, gcPolicy, }?: ControllerConstructorProps<D>);
     set dispatch(dispatch: D);
     get dispatch(): D;
