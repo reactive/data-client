@@ -5,6 +5,8 @@ sidebar_label: Performance pass
 description: Find the speedups an app on Data Client may be missing, such as detail pages from list data, loaders that wait for less, and optimistic updates.
 ---
 
+import DiffEditor from '@site/src/components/DiffEditor';
+
 # Performance pass
 
 Data Client can make an app faster than a plain migration shows. Run this pass after a migration, or at any time on an
@@ -83,6 +85,8 @@ A router loader that awaits every request makes the page wait for the slowest on
 the list. Await only the data the page shows first. Start the rest without `await`, and give each component that reads
 it its own [AsyncBoundary](../api/AsyncBoundary.md):
 
+<DiffEditor>
+
 ```ts title="Before"
 export const issueLoader =
   (ctrl: Controller) =>
@@ -100,11 +104,13 @@ export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const id = Number(params.issueId);
-    // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
+    // callout: Not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
     ctrl.fetchIfStale(getNotes, { issueId: id });
     return ctrl.fetchIfStale(IssueResource.get, { id });
   };
 ```
+
+</DiffEditor>
 
 ```tsx title="IssuePage.tsx"
 import { AsyncBoundary } from '@data-client/react';

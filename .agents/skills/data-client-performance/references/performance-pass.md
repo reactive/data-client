@@ -95,7 +95,7 @@ export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const id = Number(params.issueId);
-    // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
+    // callout: Not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
     ctrl.fetchIfStale(getNotes, { issueId: id });
     return ctrl.fetchIfStale(IssueResource.get, { id });
   };
