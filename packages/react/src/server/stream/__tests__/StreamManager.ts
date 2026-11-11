@@ -249,7 +249,7 @@ describe('StreamManager', () => {
       static schema = { rooms: new Lazy([Room]) };
     }
     const items = new Collection([Item]);
-    const writes: [Endpoint<any>, any, any][] = [
+    const writes: [ReturnType<typeof endpoint>, any, any][] = [
       [endpoint('article', Article), {}, { id: 'a1' }],
       [endpoint('post', Post), {}, { id: 'p1', author: { id: 'u1' } }],
       [endpoint('tags', [Tag]), {}, [{ id: 't1' }]],
@@ -319,10 +319,10 @@ describe('StreamManager', () => {
 
     const merges: string[] = [];
     for (const [key, cls] of classes) {
-      const original = cls.mergeWithStore.bind(cls);
+      const original = (cls as any).mergeWithStore.bind(cls);
       (cls as any).mergeWithStore = (...args: any[]) => {
         merges.push(key);
-        return (original as any)(...args);
+        return original(...args);
       };
     }
     try {
