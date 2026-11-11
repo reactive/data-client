@@ -180,7 +180,7 @@ describeReact19('D: no mis-hydration under drift', () => {
     expect(r.adopted).toBe(true);
     expect(r.b1First).toBe('b1=BTC:100ETH:10');
     expect(r.fallbackShown).toBe(false);
-    // the server content stays while the revalidation is in flight
+    // the server content stays while the revalidation is pending
     expect(r.b1).toMatch(/^BTC:/);
     expect(r.listFetches).toBeLessThanOrEqual(1);
   });
