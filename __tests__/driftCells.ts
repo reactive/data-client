@@ -12,7 +12,7 @@ import {
   settle,
   until,
 } from './splitEnvHarness';
-import { loadBrowserHalf } from './streamBrowser';
+import { expectNoUnknownClass, loadBrowserHalf } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 import type { LedgerCapture, LedgerFlush } from './streamingHarness';
 import type { Ledger } from '../packages/react/src/server/stream';
@@ -98,7 +98,9 @@ export async function inBrowser<T>(
   let b: BrowserHalf | undefined;
   try {
     b = loadBrowserHalf();
-    return await run(b);
+    const result = await run(b);
+    expectNoUnknownClass();
+    return result;
   } finally {
     b?.teardown();
     await teardownDom();

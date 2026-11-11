@@ -144,3 +144,9 @@ export function loadBrowserHalf() {
   };
 }
 export type BrowserHalf = ReturnType<typeof loadBrowserHalf>;
+
+/** Every DOM test ends here: no piece met a client-written record of a class the page never showed */
+export function expectNoUnknownClass() {
+  const ledger = (globalThis as any).__RDC_STREAM__?.ledger;
+  expect(ledger?.stats().unknown ?? 0).toBe(0);
+}

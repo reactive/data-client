@@ -41,8 +41,16 @@ export interface Ledger {
   commit(id: string): void;
   /** True when the server announced this endpoint key. For the waiter in PR 3. */
   announced(key: string): boolean;
-  /** Counts held, for tests and devtools */
-  stats(): { pieces: number; pins: number };
+  /**
+   * A piece met a record the client wrote whose class was not learned.
+   * Warns once per document in development.
+   */
+  noteUnknown(key: string, pk: string): void;
+  /**
+   * Counts held, for tests and devtools. `unknown` counts client-written records
+   * a piece met whose class was not learned.
+   */
+  stats(): { pieces: number; pins: number; unknown: number };
 }
 
 /** A promise `use()` reads without suspending once it settled */
@@ -89,6 +97,8 @@ class DocumentLedger implements Ledger {
   protected pinWaiters = new Map<string, Tracked<number | null>>();
   protected open = tracked<void>();
   protected keys = new Set<string>();
+  /** `key pk` of each record `noteUnknown` reported; a rebased reducer reports one again */
+  protected unknown = new Set<string>();
   protected listeners = new Set<() => void>();
   /** Highest revision `after()` handed to the publisher */
   protected handedOut = 0;
@@ -272,8 +282,21 @@ class DocumentLedger implements Ledger {
     return this.keys.has(key);
   }
 
+  noteUnknown(key: string, pk: string): void {
+    /* istanbul ignore else */
+    if (process.env.NODE_ENV !== 'production' && this.unknown.size === 0)
+      console.warn(
+        `Data Client: a streamed update met ${key} ${pk}, which this page wrote with a schema it never passed through an action. Keeping the client's copy and marking the update's endpoints stale.`,
+      );
+    this.unknown.add(`${key} ${pk}`);
+  }
+
   stats() {
-    return { pieces: this.pieces.length, pins: this.pins.size };
+    return {
+      pieces: this.pieces.length,
+      pins: this.pins.size,
+      unknown: this.unknown.size,
+    };
   }
 }
 

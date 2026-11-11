@@ -29,7 +29,11 @@ export default class StreamManager implements Manager {
     this.published = seedRev;
   }
 
-  /** Learns entity classes from SET, FETCH, SET_RESPONSE and OPTIMISTIC. Sets `controller.reduce`. */
+  /**
+   * Learns entity classes from SET, FETCH, SET_RESPONSE and OPTIMISTIC. Sets `controller.reduce`.
+   * The schema walk covers Entity, Array, Object, Values, Union (every member), Collection,
+   * Invalidate, All, Query, Scalar and Lazy (through its getter).
+   */
   middleware: Middleware = controller => {
     this.controller = controller as any;
     (controller as any).reduce = this.reduce;
@@ -55,8 +59,12 @@ export default class StreamManager implements Manager {
         this.classes,
         this.ledger.placed,
         this.ledger.openedAt,
+        this.noteUnknown,
       )
     : state;
+
+  protected noteUnknown = (key: string, pk: string) =>
+    this.ledger.noteUnknown(key, pk);
 
   /** Walks a schema like normalize does: arrays, plain objects and `.schema` */
   learn(schema: any) {

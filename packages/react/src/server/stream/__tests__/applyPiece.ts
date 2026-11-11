@@ -317,6 +317,54 @@ describe('applyPiece', () => {
     expect(next.meta[key].fetchedAt).toBe(1000);
   });
 
+  it('unknown class: an endpoint the client fetched later than the piece is kept and not marked stale', () => {
+    const placed = new WeakSet<object>();
+    const getTickers = new Endpoint(() => Promise.resolve([] as any[]), {
+      schema: [Ticker],
+      name: 'getTickers',
+    });
+    const one = getTicker.key({ id: 'BTC' });
+    const list = getTickers.key();
+    const client = setResponse(
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 100 },
+        500,
+      ),
+      getTickers,
+      [],
+      [{ id: 'BTC', price: 102 }],
+      2000,
+    );
+    const atServer = setResponse(
+      setResponse(
+        initialState,
+        getTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC', price: 101 },
+        1000,
+      ),
+      getTickers,
+      [],
+      [{ id: 'BTC', price: 101 }],
+      1000,
+    );
+    const [piece] = wire([initialState, atServer], placed);
+    const unknown: string[] = [];
+    const next = applyPiece(client, piece, new Map(), placed, OPENED, key =>
+      unknown.push(key),
+    );
+    expect(next.entities.Ticker!.BTC).toBe(client.entities.Ticker!.BTC);
+    expect(unknown).toEqual(['Ticker']);
+    // taken from the piece, so stale
+    expect(next.meta[one]).toMatchObject({ fetchedAt: 1000, expiresAt: 0 });
+    // the client's own later response, as it was
+    expect(next.meta[list]).toBe(client.meta[list]);
+    expect(next.endpoints[list]).toBe(client.endpoints[list]);
+  });
+
   it('takes an endpoint unless the client fetched it later', () => {
     const placed = new WeakSet<object>();
     const key = getTicker.key({ id: 'BTC' });

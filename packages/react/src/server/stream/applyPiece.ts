@@ -43,6 +43,8 @@ export function applyPiece(
   placed: WeakSet<object>,
   /** `ledger.openedAt`. A state reset at or after it ignores the piece. */
   openedAt: number,
+  /** `ledger.noteUnknown`: a client-written record whose class was not learned */
+  onUnknown?: (key: string, pk: string) => void,
 ): State<unknown> {
   if (state.lastReset >= openedAt) return state;
   const w = new Writer(state);
@@ -109,6 +111,7 @@ export function applyPiece(
         merged.push([cls, pk, held, next]);
       } else {
         keptUnknown = true;
+        onUnknown?.(key, pk);
         keyOutcomes.set(pk, 'kept');
       }
     }

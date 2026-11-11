@@ -109,7 +109,7 @@ describeReact19('R: snapshot release at the first commit', () => {
       adopted: true,
       errors: 0,
       pinDropped: true,
-      stats: { pieces: 0, pins: 0 },
+      stats: { pieces: 0, pins: 0, unknown: 0 },
       // after the join
       b2: 'BTC:999',
     });

@@ -41,7 +41,7 @@ describe('getLedger', () => {
     expect(getLedger()).toBe(ledger);
     expect(ledger.shellRev).toBe(1);
     expect(ledger.rev).toBe(1);
-    expect(ledger.stats()).toEqual({ pieces: 1, pins: 0 });
+    expect(ledger.stats()).toEqual({ pieces: 1, pins: 0, unknown: 0 });
     // the queue keeps nothing the ledger already holds
     expect((globalThis as any)[STREAM_GLOBAL]).toHaveLength(0);
     push({ ...btc(101, 49_500), rev: 2 });
@@ -229,11 +229,11 @@ describe('getLedger', () => {
       { t: 'pin', id: 'a', rev: 2 },
       { t: 'end' },
     );
-    expect(ledger.stats()).toEqual({ pieces: 2, pins: 1 });
+    expect(ledger.stats()).toEqual({ pieces: 2, pins: 1, unknown: 0 });
     ledger.after(1);
     expect(ledger.stats().pieces).toBe(2);
     ledger.commit('a');
-    expect(ledger.stats()).toEqual({ pieces: 0, pins: 0 });
+    expect(ledger.stats()).toEqual({ pieces: 0, pins: 0, unknown: 0 });
   });
 
   it('keeps the pieces until the publisher took them', () => {

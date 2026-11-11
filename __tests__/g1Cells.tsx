@@ -9,7 +9,7 @@ import {
   settle,
   until,
 } from './splitEnvHarness';
-import { loadBrowserHalf } from './streamBrowser';
+import { expectNoUnknownClass, loadBrowserHalf } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 import type * as Fixtures from './streamFixtures';
 import type { LedgerFlush } from './streamingHarness';
@@ -109,7 +109,9 @@ export async function inBrowser<T>(
         ),
       };
     };
-    return await run(b, finish);
+    const result = await run(b, finish);
+    expectNoUnknownClass();
+    return result;
   } finally {
     b?.teardown();
     await teardownDom();
