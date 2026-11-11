@@ -1,7 +1,8 @@
-import React, { memo, Suspense } from 'react';
+import React, { memo, Suspense, useContext } from 'react';
 import type { JSX } from 'react';
 
 import ErrorBoundary, { ErrorBoundaryProps } from './ErrorBoundary.js';
+import { BoundaryContext } from '../context.js';
 
 /**
  * Handles loading and error conditions of Suspense
@@ -13,14 +14,16 @@ function AsyncBoundary({
   fallback,
   ...errorProps
 }: Props): JSX.Element {
+  const wrap = useContext(BoundaryContext);
   const susProps = fallback !== undefined ? { fallback } : {};
-  return (
-    <Suspense {...susProps}>
-      <ErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
-        {children}
-      </ErrorBoundary>
-    </Suspense>
+  const content = (
+    <ErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
+      {children}
+    </ErrorBoundary>
   );
+  return wrap ?
+      wrap(susProps, content)
+    : <Suspense {...susProps}>{content}</Suspense>;
 }
 export default memo(AsyncBoundary) as typeof AsyncBoundary;
 

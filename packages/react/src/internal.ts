@@ -8,6 +8,8 @@ export {
 } from '@data-client/core';
 
 export { default as useCacheState } from './hooks/useCacheState.js';
+export { BoundaryContext } from './context.js';
+export type { BoundaryWrap } from './context.js';
 
 export const initialState = __INTERNAL__.initialState;
 export const INVALID = __INTERNAL__.INVALID;

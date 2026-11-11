@@ -667,6 +667,22 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
   });
+  it('other types reach controller.reduce when set', () => {
+    const controller = new Controller();
+    const adapterReducer = createReducer(controller);
+    const iniState = { ...initialState, endpoints: { abc: '5' } };
+    const reduced = { ...iniState, endpoints: { abc: '6' } };
+    const reduce = jest.fn(() => reduced);
+    controller.reduce = reduce;
+    const action: any = { type: 'adapter/action' };
+
+    expect(adapterReducer(iniState, action)).toBe(reduced);
+    expect(reduce).toHaveBeenCalledWith(iniState, action);
+
+    reduce.mockClear();
+    adapterReducer(iniState, { type: RESET, date: 0 });
+    expect(reduce).not.toHaveBeenCalled();
+  });
   describe('RESET', () => {
     let warnspy: jest.Spied<any>;
     beforeEach(() => {

@@ -112,6 +112,12 @@ export default class Controller<
    */
   declare readonly gcPolicy: GCInterface;
 
+  /**
+   * Reduces actions core does not know. Set by an adapter.
+   * @internal
+   */
+  declare reduce?: (state: State<unknown>, action: any) => State<unknown>;
+
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,

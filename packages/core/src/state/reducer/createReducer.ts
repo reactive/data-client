@@ -63,7 +63,7 @@ export default function createReducer(controller: Controller): ReducerType {
       default:
         // A reducer must always return a valid state.
         // Alternatively you can throw an error if an invalid action is dispatched.
-        return state;
+        return controller.reduce ? controller.reduce(state, action) : state;
     }
   } as any;
 }
