@@ -29,11 +29,13 @@ import {
 import {
   expectKept,
   inBrowser,
+  liveList,
   runCell,
   serverHalf,
   socketWrite,
   splitServerWrites,
   srvSteps,
+  watch,
 } from '__tests__/g1Cells';
 import { settle, until } from '__tests__/splitEnvHarness';
 import type { ActivityHandle } from '__tests__/streamFixtures';
@@ -254,8 +256,9 @@ describeReact19('S: StrictMode and Activity', () => {
     expect(r.flushSyncCalls).toBe(0);
   });
 
-  it('S6/hidden-while-pending (recorded)', async () => {
+  it('S6/hidden-while-pending', async () => {
     const server = await serverHalf(() => ({ activityB: {} }));
+    const bFlush = server.with('b');
     const r = await inBrowser(async (b, finish) => {
       const activityB: ActivityHandle = {};
       const page = b.fx.createClientPage({ activityB });
@@ -267,27 +270,58 @@ describeReact19('S: StrictMode and Activity', () => {
       const pendingWhenHidden = b.pending('B:0');
       socketWrite(b, page, 'socket-1');
       await settle(30);
+      const pendingAfterWrite = b.pending('B:0');
+      const bRenderedWhileHidden = page.log.renders.includes('b');
+      const a = b.text('a');
+      b.script(bFlush);
+      const streamed = b.html(bFlush, 'b');
+      await settle(30);
+      const pendingAfterHtml = b.pending('B:0');
+      const seen = watch(b, 'b', 'loading b');
+      activityB.current!('visible');
+      try {
+        await until(() => page.log.commits.includes('b'), 'B committed', 1500);
+      } catch {
+        // gated below
+      }
+      await settle(50);
+      const { fallbackOverContent } = seen.stop();
+      const base = await finish(page);
       return {
-        pendingBefore,
-        pendingWhenHidden,
-        pendingAfterWrite: b.pending('B:0'),
-        bRendered: page.log.renders.includes('b'),
-        a: b.text('a'),
-        ...(await finish(page)),
+        gating: {
+          bOnLive: b.text('b') === liveList(page, 'b'),
+          b: b.text('b'),
+          errors: base.errors,
+          fetchesAtMostOne: base.fetches.length <= 1,
+          fallbackOverContent,
+          a,
+          immediateCommits: base.immediateCommits,
+          flushSyncCalls: base.flushSyncCalls,
+          detectorOnly: base.detectorOnly,
+        },
+        recorded: {
+          pendingBefore,
+          pendingWhenHidden,
+          pendingAfterWrite,
+          bRenderedWhileHidden,
+          pendingAfterHtml,
+          adopted: b.byTestId('b') === streamed,
+          fetches: base.fetches,
+        },
       };
     });
-    expect(r).toEqual({
-      pendingBefore: true,
-      pendingWhenHidden: true,
-      pendingAfterWrite: true,
-      bRendered: false,
-      a: 'socket-1',
+    expect(r.gating).toEqual({
+      bOnLive: true,
+      b: 'socket-1b2',
       errors: 0,
-      fetches: [],
+      fetchesAtMostOne: true,
+      fallbackOverContent: false,
+      a: 'socket-1',
       immediateCommits: 0,
       flushSyncCalls: 0,
       detectorOnly: true,
     });
+    expect(r.recorded).toEqual(S6_RECORDED);
   });
 });
 
@@ -301,4 +335,15 @@ const S1_R1_QUIET = {
   mounted: true,
   // the second initializer call's snapshots were dropped with its result
   snapshotsRetained: 2,
+};
+// While hidden, the write does not wake B; its HTML arrives and is adopted
+// when the Activity is shown
+const S6_RECORDED = {
+  pendingBefore: true,
+  pendingWhenHidden: true,
+  pendingAfterWrite: true,
+  bRenderedWhileHidden: false,
+  pendingAfterHtml: true,
+  adopted: true,
+  fetches: [],
 };
