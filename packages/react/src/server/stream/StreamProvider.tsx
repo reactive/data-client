@@ -6,10 +6,10 @@ import type { JSX } from 'react';
 import { LedgerContext, clientWrap } from './boundary.js';
 import { getLedger } from './Ledger.js';
 import StreamManager from './StreamManager.js';
+import { BoundaryContext } from '../../components/BoundaryContext.js';
 import DataProvider from '../../components/DataProvider.js';
 import type { ProviderProps } from '../../components/DataProvider.js';
 import { getDefaultManagers } from '../../components/getDefaultManagers.js';
-import { BoundaryContext } from '../../components/BoundaryContext.js';
 
 export type StreamProviderProps = Omit<ProviderProps, 'initialState'>;
 

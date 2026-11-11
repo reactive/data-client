@@ -1,8 +1,8 @@
 import React, { memo, Suspense, useContext } from 'react';
 import type { JSX } from 'react';
 
-import ErrorBoundary, { ErrorBoundaryProps } from './ErrorBoundary.js';
 import { BoundaryContext } from './BoundaryContext.js';
+import ErrorBoundary, { ErrorBoundaryProps } from './ErrorBoundary.js';
 
 /**
  * Handles loading and error conditions of Suspense

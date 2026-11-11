@@ -25,8 +25,8 @@ import {
   deliverB,
 } from '__tests__/g1Cells';
 import type { PageOptions, Variant } from '__tests__/g1Cells';
-import type { LanesHandle } from '__tests__/streamFixtures';
 import { settle, until } from '__tests__/splitEnvHarness';
+import type { LanesHandle } from '__tests__/streamFixtures';
 
 const { version } = require('react') as typeof import('react');
 const describeReact19 =
