@@ -16,9 +16,10 @@ afterEach(() => {
 
 describe('orderedNow()', () => {
   it('keeps calls in one millisecond in order', () => {
-    jest.useFakeTimers({ now: 1000 });
+    // a time no other test uses, since calls at one frozen time keep counting
+    jest.useFakeTimers({ now: 30000 });
     const times = Array.from({ length: 3000 }, () => orderedNow());
-    expect(times[0]).toBe(1000);
+    expect(times[0]).toBe(30000);
     expect(times.findIndex((t, i) => i > 0 && t <= times[i - 1])).toBe(-1);
   });
 
@@ -35,6 +36,13 @@ describe('orderedNow()', () => {
     orderedNow();
     jest.setSystemTime(1000);
     expect(orderedNow()).toBe(1000);
+  });
+
+  it('recovers after Date.now() returns NaN', () => {
+    jest.useFakeTimers({ now: 40000 });
+    jest.spyOn(Date, 'now').mockReturnValueOnce(NaN);
+    orderedNow();
+    expect(orderedNow()).toBe(40000);
   });
 });
 

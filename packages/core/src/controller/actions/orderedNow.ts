@@ -12,10 +12,11 @@ const last = new Float64Array(2);
  * Fetches, sets and resets compare these times, so ones started in the same
  * millisecond must keep their order.
  */
-export function orderedNow(): number {
-  const now = Date.now();
-  // a clock set back (or fake timers) starts over from now
-  last[ORDERED] = now < last[WALL] ? now : Math.max(now, last[ORDERED] + STEP);
+export function orderedNow(now = Date.now()): number {
+  const next = last[ORDERED] + STEP;
+  // a clock set back (or fake timers) starts over from now;
+  // `!(next > now)` rather than `next <= now` so one NaN can't stick
+  last[ORDERED] = now < last[WALL] || !(next > now) ? now : next;
   last[WALL] = now;
   return last[ORDERED];
 }

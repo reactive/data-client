@@ -100,7 +100,8 @@ Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
 ### fetchedAt
 
-When the fetch was called that resulted in this snapshot.
+When the fetch was called that resulted in this snapshot, in milliseconds like `Date.now()`. Fetches started in the
+same millisecond get times a fraction of a millisecond apart, so they keep their order.
 
 ### abort
 

@@ -7,7 +7,7 @@ export function createMeta(
 ): ActionMeta {
   const now = Date.now();
   return {
-    fetchedAt: fetchedAt ?? orderedNow(),
+    fetchedAt: fetchedAt ?? orderedNow(now),
     date: now,
     expiresAt: now + expiryLength,
   };
