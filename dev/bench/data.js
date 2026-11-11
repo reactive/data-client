@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794341496332,
+  "lastUpdate": 1794371718996,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -144457,6 +144457,366 @@ window.BENCHMARK_DATA = {
             "range": "±3.43%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c679e1704ae9b0fcfeeb222d4f480de9d3c0a25f",
+          "message": "docs: Show how to call fetchIfStale in route loaders for each kind of router (#4671)\n\n* docs: Show how to call fetchIfStale in route loaders for each kind of router\n\nRouters that change the route in a transition without waiting (like\n@anansi/router) call fetchIfStale() without await; routers that wait for\nloaders return cached data that can render and fetch only on a miss.\nFix async resolveData examples whose awaited fetches rejected unhandled.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Import IssueResource in the waiting-router loader example\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Address review of route loader docs\n\nUse documented getResponse(), note invalidIfStale waits, keep the\nperformance pass example consistent with its rule.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Await the first view's fetches in anansi resolveData with allSettled\n\n@anansi/core's prefetchSpout awaits resolveData during SSR, so dropping the\nawait would ship the boundary fallback in the first HTML. Await the main\ndata inside Promise.allSettled() (no unhandled rejection on the client,\nwhere the router ignores the Promise) and start secondary data unawaited.\nAlso trim duplicated prose from the simplify pass.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Use .catch() for a single awaited first-view fetch\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Defer github-app loader .catch() until the 0.19 release\n\ngithub-app installs published 0.18.2, where a fresh fetchIfStale() returns\ndata synchronously, so .catch() throws. Queue the edit in\nplans/after-release.md per examples/AGENTS.md.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Lead route loaders section with the useSuspense() wait rule\n\nState once that navigation waits only when cached data can't render, move\nthe AsyncBoundary exception into the transition row, and note in the\nwaiting-router example that stale data is still Valid.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Lead route loaders with the popular routers that navigate in transitions\n\nReact Router 7 and TanStack Router commit navigations in startTransition, so\na loader that doesn't await fetchIfStale() lets useSuspense() wait inside the\ntransition, like @anansi/router and the Next.js App Router. The cache-first\nreturn is now only for loaders whose data the page renders, or routers\nwithout transitions. Keep the @anansi/router SSR example as a note.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs(performance-pass): Show the loader change in DiffEditor\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* docs: Align loader guidance with transition routers across pages\n\nPerformance pass loaders no longer await the main item on transition routers,\nrender-as-you-fetch awaits only for server rendering, Route loaders lists\ninvalidated data and @anansi/router's back/forward caveat, and the example\nreturns null for React Router 6. Performance skill eval 1 follows.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n* fix(normalizr): ExpiryStatus works with isolatedModules\n\nIts typings declared an ambient const enum, so ExpiryStatus.Valid failed with\nTS2748 under isolatedModules (Vite, Next.js). Make it a regular enum, matching\nthe object the packages already export at runtime. The doc-example checker now\nsets isolatedModules, which catches the Route loaders examples on the old\ntypings.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBGswWtbMtjQrqnunW\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-11T04:29:10Z",
+          "tree_id": "462e01c93e1df13e2ecded056aae8181542b43b5",
+          "url": "https://github.com/reactive/data-client/commit/c679e1704ae9b0fcfeeb222d4f480de9d3c0a25f"
+        },
+        "date": 1794371715320,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 503,
+            "range": "±5.45%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 453,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 461,
+            "range": "±2.94%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 947,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 286,
+            "range": "±7.35%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 261,
+            "range": "±4.17%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1311,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing",
+            "value": 334,
+            "range": "±5.55%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null",
+            "value": 329,
+            "range": "±5.03%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID",
+            "value": 342,
+            "range": "±4.32%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 902,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1307,
+            "range": "±0.52%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1655,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 805,
+            "range": "±6.70%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 8610,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 4850,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 70188,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 7513,
+            "range": "±5.83%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 277,
+            "range": "±8.74%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 7736,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 7848,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% missing withCache",
+            "value": 9151,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% null withCache",
+            "value": 8401,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong nested 25% INVALID withCache",
+            "value": 9239,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 4790,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 6427,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 3397,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6499,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 7649,
+            "range": "±8.18%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1636,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 5470,
+            "range": "±11.17%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 57102,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4959,
+            "range": "±7.19%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 13692778,
+            "range": "±1.35%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 255,
+            "range": "±9.43%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 5219,
+            "range": "±2.39%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 4412,
+            "range": "±1.26%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4809,
+            "range": "±3.64%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2509,
+            "range": "±0.36%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5522,
+            "range": "±5.06%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 541,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 316,
+            "range": "±0.83%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 334,
+            "range": "±0.60%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1111,
+            "range": "±0.64%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 173,
+            "range": "±2.94%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 4463,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 18.92,
+            "range": "±3.20%",
+            "unit": "ops/sec",
+            "extra": "36 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1653,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
           }
         ]
       }
