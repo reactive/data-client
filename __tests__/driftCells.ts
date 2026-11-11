@@ -107,6 +107,19 @@ export async function inBrowser<T>(
 
 export type ClientOptions = Parameters<typeof Drift.createDriftClientPage>[0];
 
+/** The options that shape the server's tree, with handles of its own */
+export function serverOptions(opts: ClientOptions = {}): DriftOptions {
+  const handle = (h?: { initial?: 'visible' | 'hidden' }) =>
+    h && { initial: h.initial };
+  return {
+    layout: opts.layout,
+    invalidIfStale: opts.invalidIfStale,
+    dataExpiryLength: opts.dataExpiryLength,
+    activityB1: handle(opts.activityB1),
+    activityH: handle(opts.activityH),
+  };
+}
+
 export function clientPage(opts: ClientOptions = {}) {
   const drift = require('./driftFixtures') as typeof Drift;
   return drift.createDriftClientPage(opts);
@@ -167,7 +180,7 @@ export async function releaseAfterJoin(
   opts: ClientOptions = {},
   extraRenders = 0,
 ) {
-  const { capture } = await driftServer(() => ({}));
+  const { capture } = await driftServer(() => serverOptions(opts));
   return inBrowser(async b => {
     const page = clientPage(opts);
     const spy = spyLedger(page.ledger());

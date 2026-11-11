@@ -4,6 +4,8 @@
  * build the same tree from their own copies of React and the library.
  */
 import React, {
+  Activity,
+  StrictMode,
   Suspense,
   lazy,
   memo,
@@ -73,6 +75,36 @@ export interface PageLog {
   texts?: string[];
   /** Reader layout effects: the `StateContext` value each commit read, held weakly */
   states?: Record<string, WeakRef<object>[]>;
+  /** Every action the client store's middleware saw */
+  actions?: { type: string; [k: string]: any }[];
+}
+
+/** An `<Activity>` the test hides and shows */
+export interface ActivityHandle {
+  initial?: 'visible' | 'hidden';
+  current?: (mode: 'visible' | 'hidden') => void;
+}
+export function Toggle({
+  handle,
+  children,
+}: {
+  handle: ActivityHandle;
+  children: ReactNode;
+}) {
+  const [mode, setMode] = useState(handle.initial ?? 'visible');
+  handle.current = setMode;
+  return <Activity mode={mode}>{children}</Activity>;
+}
+
+/** Records every action into `log.actions` */
+export function actionRecorder(log: PageLog): Manager {
+  return {
+    middleware: () => next => action => {
+      log.actions?.push(action);
+      return next(action);
+    },
+    cleanup() {},
+  };
 }
 
 /** Client wraps the G1 controls compare */
@@ -85,6 +117,12 @@ export interface PageOptions {
   lazyB?: Promise<void>;
   /** Re-renders B's parent with a new `children` element when set */
   wakeB?: { current: (() => void) | undefined };
+  /** B's boundary is inside this `<Activity>` */
+  activityB?: ActivityHandle;
+  /** The provider is inside this `<Activity>` */
+  activityAbove?: ActivityHandle;
+  /** Browser: the root is `<StrictMode>` */
+  strict?: boolean;
 }
 
 function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
@@ -145,6 +183,12 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
         </AsyncBoundary>
         {opts.wakeB ?
           <BParent />
+        : opts.activityB ?
+          <Toggle handle={opts.activityB}>
+            <AsyncBoundary fallback={bFallback}>
+              <LazyB />
+            </AsyncBoundary>
+          </Toggle>
         : <AsyncBoundary fallback={bFallback}>
             <LazyB />
           </AsyncBoundary>
@@ -207,7 +251,7 @@ export function createServerPage(opts: PageOptions = {}) {
   const stream = createServerStream();
   const { Layout } = makeIslands(endpoints, log, opts);
   const controller: { current?: Controller } = {};
-  const element = (
+  const provider = (
     <stream.Provider>
       <>
         <ControllerGrab into={controller} />
@@ -215,6 +259,10 @@ export function createServerPage(opts: PageOptions = {}) {
       </>
     </stream.Provider>
   );
+  const element =
+    opts.activityAbove ?
+      <Toggle handle={opts.activityAbove}>{provider}</Toggle>
+    : provider;
   return { element, stream, endpoints, server, log };
 }
 
@@ -301,10 +349,13 @@ export function createClientPage(
     fetches.push(keyOf(name, params));
     return new Promise(() => {});
   });
-  const log: PageLog = { renders: [], commits: [] };
+  const log: PageLog = { renders: [], commits: [], actions: [] };
   const { Layout } = makeIslands(endpoints, log, opts);
   const controller: { current?: Controller } = {};
-  const managers = () => getDefaultManagers({ devToolsManager: null });
+  const managers = () => [
+    actionRecorder(log),
+    ...getDefaultManagers({ devToolsManager: null }),
+  ];
   const body = (
     <>
       <ControllerGrab into={controller} />
@@ -312,7 +363,7 @@ export function createClientPage(
     </>
   );
   const variant = opts.variant ?? 'shield';
-  const element =
+  const provider =
     variant === 'shield' ?
       <StreamProvider managers={managers} devButton={null}>
         {body}
@@ -320,6 +371,11 @@ export function createClientPage(
     : <VariantProvider variant={variant} managers={managers}>
         {body}
       </VariantProvider>;
+  const above =
+    opts.activityAbove ?
+      <Toggle handle={opts.activityAbove}>{provider}</Toggle>
+    : provider;
+  const element = opts.strict ? <StrictMode>{above}</StrictMode> : above;
   return {
     element,
     endpoints,

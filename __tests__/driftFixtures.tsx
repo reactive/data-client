@@ -31,8 +31,8 @@ import type {
   State,
 } from '@data-client/react';
 
-import { makeServerFetch } from './streamFixtures';
-import type { FetchImpl, PageLog } from './streamFixtures';
+import { Toggle, makeServerFetch } from './streamFixtures';
+import type { ActivityHandle, FetchImpl, PageLog } from './streamFixtures';
 import { BoundaryContext } from '../packages/react/src/context';
 import type { BoundaryWrap } from '../packages/react/src/context';
 import {
@@ -97,6 +97,10 @@ export interface DriftOptions {
   lazyB2?: Promise<void>;
   /** Browser: B2 has a sibling in its boundary that suspends on this until it resolves */
   holdB2?: Promise<void> & { done?: boolean };
+  /** B1's boundary is inside this `<Activity>` */
+  activityB1?: ActivityHandle;
+  /** Island H, a BTC reader in its own boundary, is inside this `<Activity>` */
+  activityH?: ActivityHandle;
 }
 
 function makeDriftIslands(
@@ -175,6 +179,12 @@ function makeDriftIslands(
       <div data-testid="layout">
         {layout === 'shell-reader' ?
           <TickerList name="shell" />
+        : opts.activityB1 ?
+          <Toggle handle={opts.activityB1}>
+            <AsyncBoundary fallback={<span>loading b1</span>}>
+              <TickerList name="b1" />
+            </AsyncBoundary>
+          </Toggle>
         : <AsyncBoundary fallback={<span>loading b1</span>}>
             <TickerList name="b1" />
           </AsyncBoundary>
@@ -182,6 +192,13 @@ function makeDriftIslands(
         <AsyncBoundary fallback={<span>loading b2</span>}>
           <LazyB2 />
         </AsyncBoundary>
+        {opts.activityH ?
+          <Toggle handle={opts.activityH}>
+            <AsyncBoundary fallback={<span>loading h</span>}>
+              <TickerOne name="h" />
+            </AsyncBoundary>
+          </Toggle>
+        : null}
       </div>
     );
   });
@@ -365,6 +382,8 @@ export function createDriftClientPage(
     handoff?: State<unknown>;
     variant?: 'shield' | 'aliased' | 'held';
     gcPolicy?: GCInterface;
+    /** The root is `<StrictMode>` */
+    strict?: boolean;
   } = {},
 ) {
   const fetches: string[] = [];
@@ -382,7 +401,7 @@ export function createDriftClientPage(
       <Layout />
     </>
   );
-  const element =
+  const provider =
     opts.handoff ?
       <DataProvider
         initialState={opts.handoff}
@@ -406,6 +425,8 @@ export function createDriftClientPage(
       >
         {body}
       </StreamProvider>;
+  const element =
+    opts.strict ? <React.StrictMode>{provider}</React.StrictMode> : provider;
   return {
     element,
     endpoints,
