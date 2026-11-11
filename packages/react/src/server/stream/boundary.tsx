@@ -70,22 +70,55 @@ export function Scope({
   }
   // The holder, not the snapshot, is the state. Emptying it frees the snapshot
   // from this fiber and from its alternate.
-  const [holder] = useState(() => ({
+  const [holder] = useState<PinHolder>(() => ({
     state: rev == null ? null : ledger.snapshot(rev),
+    live,
+    views: new WeakMap(),
   }));
   const [joined, setJoined] = useState(holder.state === null);
   useLayoutEffect(() => {
     ledger.commit(id);
   }, [ledger, id]);
   useEffect(() => {
-    if (joined) holder.state = null;
-    else startTransition(() => setJoined(true));
+    if (joined) {
+      holder.state = null;
+      holder.live = null;
+      holder.views = new WeakMap();
+    } else startTransition(() => setJoined(true));
   }, [joined, holder]);
   return (
-    <StateContext.Provider value={joined ? live : (holder.state ?? live)}>
+    <StateContext.Provider
+      value={joined ? live : (pinnedView(holder, live) ?? live)}
+    >
       {children}
     </StateContext.Provider>
   );
+}
+
+interface PinHolder {
+  state: object | null;
+  /** Outer state of the hydration render */
+  live: object | null;
+  views: WeakMap<object, object>;
+}
+
+/**
+ * The pinned snapshot, with a new identity for each outer state.
+ *
+ * A Shield inside this scope must see its value change whenever the outer
+ * state changes. When a consumer React visits reads an unchanged value, React
+ * reuses its last output and propagates every changed provider above it, even
+ * one this scope hides, starting from its children. That wakes a dehydrated
+ * boundary below the Shield.
+ */
+function pinnedView(holder: PinHolder, live: object): any {
+  if (holder.state === null || live === holder.live) return holder.state;
+  let view = holder.views.get(live);
+  if (!view) {
+    view = { ...holder.state };
+    holder.views.set(live, view);
+  }
+  return view;
 }
 
 /**

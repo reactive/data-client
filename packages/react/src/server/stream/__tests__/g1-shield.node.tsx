@@ -120,7 +120,11 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     expect(r.flushSyncCalls).toBe(0);
   });
 
-  it('G1/nested', async () => {
+  /**
+   * `b-commit` publishes the first piece from B's layout effect, before B's
+   * scope joins live state; B's scope still provides the pinned snapshot.
+   */
+  async function runNested(firstPiece: 'after-hydration' | 'b-commit') {
     const server = await serverHalf(fx => ({
       nested: true,
       steps: [
@@ -139,6 +143,18 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       await b.start(page, server.shell);
       b.probe.resetCommits();
       b.script(bFlush);
+      let pushedAtCommit = false;
+      if (firstPiece === 'b-commit') {
+        const commits = page.log.commits;
+        const push = commits.push.bind(commits);
+        commits.push = (...names: string[]) => {
+          if (names.includes('b') && !pushedAtCommit) {
+            pushedAtCommit = true;
+            b.push([writes[0]]);
+          }
+          return push(...names);
+        };
+      }
       const bAdopted = await deliverB(b, page, bFlush);
       const dTemplate = b.templateOf('loading d');
       expect(dTemplate).toBeDefined();
@@ -148,7 +164,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
         if (b.pending(dTemplate!)) writesWhileDPending++;
       };
       for (let k = 0; k < 5; k++) {
-        b.push([writes[k]]);
+        if (!(k === 0 && pushedAtCommit)) b.push([writes[k]]);
         await count();
         socketWrite(b, page, `socket-${k + 1}`);
         await count();
@@ -165,9 +181,11 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
         dRendered,
         dPendingBeforeHtml,
         dAdopted: b.byTestId('d') === streamed,
+        pushedAtCommit,
         ...(await finish(page)),
       };
     });
+    expect(r.pushedAtCommit).toBe(firstPiece === 'b-commit');
     expect(r.bAdopted).toBe(true);
     expect(r.writesWhileDPending).toBe(10);
     expect(r.dRendered).toBe(false);
@@ -177,7 +195,11 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     expect(r.fetches).toEqual([]);
     expect(r.immediateCommits).toBe(0);
     expect(r.flushSyncCalls).toBe(0);
-  });
+  }
+
+  it('G1/nested', () => runNested('after-hydration'));
+
+  it('G1/nested-before-join', () => runNested('b-commit'));
 
   it('G1/seeded-record-updates', async () => {
     const server = await defaultServer();
