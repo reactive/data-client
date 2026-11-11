@@ -18,11 +18,9 @@ import LookupTable from '@site/src/components/LookupTable';
 
 The store is a lookup table. It holds each [Entity](/rest/api/Entity) once, by its primary key, and each
 [Collection](/rest/api/Collection)'s list by its args, like `{ assigneeId: 1 }`. A schema is _Queryable_ when it can find
-its data in that table from args alone.
-
-So it doesn't matter how data arrived. A list, a detail response, a mutation's response, a websocket message and
-[Controller.set()](../api/Controller.md#set) all write to the same table, and any read with matching args finds what
-they wrote.
+its data in that table from args alone. Every write goes to that one table, whatever delivered it: a list, a detail
+response, a mutation's response, a websocket message or any other code calling
+[Controller.set()](../api/Controller.md#set).
 
 <SiteOnly>
 
@@ -38,16 +36,12 @@ they wrote.
 | A list: `GET /issues?assigneeId=1`                | Issue 5, Issue 6 and the list for `{ assigneeId: 1 }`        | `get({ id: 5 })`, `get({ id: 6 })`                          | 1, not 3      |
 | A websocket message: `{ id: 5, state: 'closed' }` | Issue 5's new fields                                         | Both lists and `get({ id: 5 })` show them                   | 0, not 3      |
 
-The second count is what a cache keyed by request sends.
-
 </AgentOnly>
 
 One write serves every read it matches. When [getList.push](/rest/api/resource#push) creates an issue, its one `POST`
-stores the issue and adds it to every stored list it belongs in. Those lists and the issue's detail page then render
-it without a request.
-
-A cache keyed by request can't do this. It stores each response apart. After the same `POST` it refetches the list on
-screen, then fetches the other list and the detail as each one opens: four requests where the table needs one.
+adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
+response apart, so after the same `POST` it refetches the list on screen, then fetches the other list and the detail as
+each one opens: four requests where the table needs one.
 
 ## Benefits {#benefits}
 
@@ -72,10 +66,9 @@ Open an issue below. `IssueDetail` renders without a loading state, because the 
 
 <IssueListDetailDemo defaultTab="IssueDetail" />
 
-Where data sits in a response doesn't matter. Every Entity and Collection nested in it gets its own entry in the table,
-so one response is the data of each page it covers ([Relational data](/rest/guides/relational-data)). In the
-[issue tracker below](#mutations), `/users` nests each user's issues, and that one response is the data of every user
-and issue page.
+Every Entity and Collection nested in a response gets its own entry, so one response is the data of every page it
+covers ([Relational data](/rest/guides/relational-data)). In the [issue tracker below](#mutations), `/users` nests each
+user's issues, and that one response is the data of every user and issue page.
 
 :::react
 
@@ -91,14 +84,13 @@ const issue = await ctrl.fetch(IssueResource.getList.push, {
   assigneeId: 1,
   title: 'Fix signup redirect',
 });
-// That POST is the only request. The issue joined every stored list it
-// matches, like getList({ assigneeId: 1 }) and getList(), and its detail
-// page renders the response
+// That POST is the only request: the issue is already in getList({ assigneeId: 1 })
+// and getList(), and is its detail page's data
 navigate(`/issues/${issue.id}`);
 ```
 
-The issue tracker below sends one `GET`, for its `Team` page. The user and issue pages read endpoints that never
-fetched, and only mutations send requests.
+The issue tracker below sends one `GET`, for its `Team` page. Every other page reads data that response or a mutation
+wrote, so only mutations send requests.
 
 <SiteOnly>
 
@@ -114,12 +106,10 @@ fetches in flight between mutations, and its Actions tab lists each request.
 
 <TeamIssuesDemo />
 
-- `/users` nests the issues assigned to each user in a Collection whose [nestKey](/rest/api/Collection#nestKey)
-  returns `{ assigneeId }`, so `user.issues` and `IssueResource.getList({ assigneeId })` are one list.
-- `NewIssue` creates with [getList.push](/rest/api/resource#push). That one request puts the issue in the user's list
-  and on `Team`, and `IssuePage` renders it from the response.
-- `IssuePage` changes the assignee with [getList.move](/rest/api/resource#move), so the issue leaves one user's list
-  and joins the other's.
+- `/users` nests each user's issues in a Collection whose [nestKey](/rest/api/Collection#nestKey) returns
+  `{ assigneeId }`, so `user.issues` and `IssueResource.getList({ assigneeId })` are one list.
+- `NewIssue` creates with [getList.push](/rest/api/resource#push), and `IssuePage` reassigns with
+  [getList.move](/rest/api/resource#move), which takes the issue out of one user's list and into the other's.
 
 After each kind of mutation, these render without a fetch:
 
@@ -132,9 +122,13 @@ After each kind of mutation, these render without a fetch:
 | [delete](/rest/api/resource#delete)                                                                 | The lists without it. Its detail is [Invalid](./expiry-policy.md#expiry-status), so it fetches |
 | No request, like a websocket [Manager](./managers.md): [Controller.set()](../api/Controller.md#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                        |
 
-A response can hold more than the item it changed. Every Entity in it is written the same way, so return what else
-the mutation changed instead of refetching it ([Side effects](/rest/guides/side-effects)). An
-[optimistic update](/rest/guides/optimistic-updates) makes the same writes before the response arrives.
+Writes find lists by args, like reads. `push` and `unshift` add to the lists that the request's args and body match, so
+send the fields lists filter by, like `assigneeId`. `update` and `partialUpdate` change an item where it is, so when an
+edit changes which list holds the item, use `move`.
+
+Every Entity in a response is written the same way, so a mutation can return what else it changed instead of
+refetching it ([Side effects](/rest/guides/side-effects)), and an [optimistic update](/rest/guides/optimistic-updates)
+makes the same writes before the response arrives.
 
 ### No data tearing {#tearing}
 
@@ -146,8 +140,8 @@ controller.set(Issue, { id: message.id }, message);
 // later all show it closed
 ```
 
-Each view reads the one entry in the table, not a copy of the response that delivered it. So two views never show
-different values for the same data, and no refetch is needed to bring a view up to date.
+Each view reads the one entry in the table, not a copy of the response that delivered it, so views never disagree and
+none needs a refetch to catch up.
 
 ### Derived views without requests {#derived}
 
@@ -162,49 +156,29 @@ const count = useQuery(openCount, { assigneeId: 1 });
 const assignee = useQuery(User, { id: issue.assigneeId });
 ```
 
-A [Query](/rest/api/Query) computes from any Queryable schema, and recomputes only when its inputs change. So a
-[sorted list](/rest/api/Query#sorting) stays sorted after a push, and a [grouping](/rest/api/Query#groupby) or
-[join](/rest/api/Query#object-schema-joins) follows every later write.
-[useQuery()](../api/useQuery.md) reads the table and never fetches. [Controller.get()](../api/Controller.md#get) and
-[Snapshot.get()](../api/Snapshot.md#get) read it the same way in [Managers](./managers.md), event handlers and
-[getOptimisticResponse](/rest/api/RestEndpoint#getoptimisticresponse).
+A [Query](/rest/api/Query) computes from any Queryable schema and recomputes when its inputs change, so a
+[sort](/rest/api/Query#sorting), [grouping](/rest/api/Query#groupby) or [join](/rest/api/Query#object-schema-joins)
+follows every later write. [useQuery()](../api/useQuery.md) reads the table and never fetches;
+[Controller.get()](../api/Controller.md#get) and [Snapshot.get()](../api/Snapshot.md#get) read it the same way in
+[Managers](./managers.md), event handlers and [getOptimisticResponse](/rest/api/RestEndpoint#getoptimisticresponse).
 
 ## Endpoints read the table before they fetch {#endpoints}
 
-Every way of reading an endpoint uses the first of these that applies:
-
-1. The endpoint has a response of its own. It reads that response, with that response's expiry.
-2. The endpoint's schema is Queryable, and the table's result for its args is complete: no part of it is
-   `undefined`. It reads that result.
-3. Otherwise the data is missing.
-
+An endpoint read uses its own response, with that response's expiry, when it has one. Otherwise, if its schema is
+Queryable and the table's result for its args is complete, it uses that result as if it were a response. Otherwise the data is missing.
 [useSuspense()](../api/useSuspense.md), [useDLE()](../api/useDLE.md), [useLive()](../api/useLive.md),
 [useFetch()](../api/useFetch.md) and [Controller.fetchIfStale()](../api/Controller.md#fetchIfStale) fetch missing or
-stale data. [useCache()](../api/useCache.md) and [Controller.getResponse()](../api/Controller.md#getResponse) follow the
-same steps but never fetch, so missing data stays `undefined`. [Controller.fetch()](../api/Controller.md#fetch) always
-requests.
+stale data. [useCache()](../api/useCache.md) and [Controller.getResponse()](../api/Controller.md#getResponse) never
+fetch, so missing data stays `undefined`. [Controller.fetch()](../api/Controller.md#fetch) always requests.
 
 ### Stored data keeps its expiry {#expiry}
 
-A complete result is treated like a response. It expires when the earliest-expiring Entity in it does, and the
-[expiry policy](./expiry-policy.md) applies as usual:
-
-- While the result is fresh, no request is made.
-- Once it is stale, it still renders, and the APIs that fetch refetch it.
-- An [invalidIfStale](./expiry-policy.md#endpointinvalidifstale) endpoint treats a stale result as
-  [Invalid](./expiry-policy.md#expiry-status), and an [invalidated](./expiry-policy.md#invalidate) endpoint treats any
-  result that way, so they wait for a fetch.
-- An Entity that fails [validate()](/rest/api/Entity#validate) counts as missing.
-
-### Which results are complete {#complete}
-
-- An Entity stored by any response is found by every endpoint whose schema holds that Entity and whose args produce its
-  `pk`.
-- Args `queryKey` doesn't read, like `expand` in `{ id, expand: 'comments' }`, don't affect the result.
-- An object schema like `{ data: Issue }` is complete when every member is. An Array member never is. A Collection
-  member is when the store holds it for those args. Two Entities must both be found by the same args.
-- Until the endpoint's own response arrives, the result holds only what the schema declares. Plain values in it, like
-  `total: 0`, are returned as written. Response fields it leaves out, like a `meta`, are `undefined`.
+A result from the table expires when its earliest-expiring Entity does, and the [expiry policy](./expiry-policy.md)
+applies as to any response: fresh data makes no request, and stale data still renders while the APIs that fetch
+refetch it. Data that is [Invalid](./expiry-policy.md#expiry-status) waits for a fetch: a stale result for an
+[invalidIfStale](./expiry-policy.md#endpointinvalidifstale) endpoint, and any result for an
+[invalidated](./expiry-policy.md#invalidate) one. An Entity that fails [validate()](/rest/api/Entity#validate) counts
+as missing.
 
 ### Fields are not checked {#fields}
 
@@ -215,25 +189,25 @@ summary Entity and make the detail Entity require the rest with [validate()](/re
 
 ## How each schema finds its data {#query}
 
-A Queryable schema has a [queryKey(args)](/rest/api/schema#queryable) method. It returns what a response would have
-normalized to, and returns it only for data the table holds.
+A Queryable schema's [queryKey(args)](/rest/api/schema#queryable) returns what a response would have normalized to,
+only for data the table holds, and reads nothing else: args it ignores, like `expand` in `{ id, expand: 'comments' }`,
+don't change the result. A result is complete when no part of it is `undefined`.
 
-- An [Entity](/rest/api/Entity) returns its primary key. By default, args with the fields `pk()` reads, like `{ id }`,
-  find it. `pk()`, [indexes](/rest/api/Entity#indexes) or `queryKey` itself change which args do
+- An [Entity](/rest/api/Entity) returns its primary key, so any endpoint whose schema holds it and whose args produce
+  that key finds it, whichever response stored it. By default those are the fields `pk()` reads, like `{ id }`;
+  `pk()`, [indexes](/rest/api/Entity#indexes) or `queryKey` itself change that
   ([Queryable by args](/rest/api/Entity#pk-args)).
-- A [Collection](/rest/api/Collection) returns the list stored for its args. Endpoints that share a Collection read
-  the same list: `/users/:assigneeId/issues` renders what `/issues?assigneeId=` loaded when both use
+- A [Collection](/rest/api/Collection) returns the list stored for its args, so endpoints sharing one read the same
+  list: `/users/:assigneeId/issues` renders what `/issues?assigneeId=` loaded when both use
   `IssueResource.getList.schema`. A nested Collection takes its args from [nestKey](/rest/api/Collection#nestKey), and
   [argsKey](/rest/api/Collection#argsKey) leaves out args that don't filter the list, like `expand`.
-- An object schema like `{ data: Issue }` combines its members' results.
+- An object schema like `{ data: Issue }` is complete when every member is, so two Entity members must both be found by
+  the same args. Plain values it declares, like `total: 0`, are returned as written, and response fields it leaves out,
+  like a `meta`, are `undefined` until the endpoint's own response arrives.
 - [All](/rest/api/All), [Union](/rest/api/Union), [Query](/rest/api/Query) and [Scalar](/rest/api/Scalar) are
-  Queryable too ([what each returns](/rest/api/schema#queryable)).
-- [Array](/rest/api/Array) and [Values](/rest/api/Values) are not. Use a Collection or All for a list that should be
-  Queryable.
-
-Mutations find lists by args too. `push` and `unshift` add to the lists that the request's args and body match, so
-send the fields lists filter by, like `assigneeId`. `update` and `partialUpdate` change an item where it is; when an edit
-changes which list holds the item, use `move`.
+  Queryable too ([what each returns](/rest/api/schema#queryable)). [Array](/rest/api/Array) and
+  [Values](/rest/api/Values) are not, so a schema with one never finds a complete result; use a Collection or All for a
+  list that should be Queryable.
 
 ## Next steps
 
