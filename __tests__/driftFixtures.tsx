@@ -3,16 +3,7 @@
  * of its rows at revision 2, so the browser's live state is newer than B1's HTML.
  * Each half of a split test requires this module in its own module graph.
  */
-import React, {
-  lazy,
-  memo,
-  startTransition,
-  use,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { lazy, memo, use, useLayoutEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { Endpoint, Entity } from '@data-client/endpoint';
@@ -31,20 +22,17 @@ import type {
   State,
 } from '@data-client/react';
 
-import { Toggle, makeServerFetch } from './streamFixtures';
+import { Toggle, heldWrap, makeServerFetch } from './streamFixtures';
 import type { ActivityHandle, FetchImpl, PageLog } from './streamFixtures';
 import type { Step } from './streamingHarness';
 import { BoundaryContext } from '../packages/react/src/context';
-import type { BoundaryWrap } from '../packages/react/src/context';
 import {
   LedgerContext,
-  Shield,
   StreamManager,
   StreamProvider,
   clientWrap,
   createServerStream,
   getLedger,
-  useHydrating,
 } from '../packages/react/src/server/stream';
 import type { Ledger, ServerLedger } from '../packages/react/src/server/stream';
 
@@ -322,40 +310,6 @@ export async function runDriftServer(
 }
 
 /** R1's control: keeps the snapshot in `useState` and never empties it */
-function HeldScope({ children }: { children: ReactNode }) {
-  const ledger = use(LedgerContext)!;
-  const id = useId();
-  const hydrating = useHydrating();
-  const live = use(StateContext);
-  let rev: number | null = null;
-  if (hydrating) {
-    use(ledger.whenPin(id));
-    rev = ledger.pin(id) ?? null;
-  }
-  const [snapshot] = useState(() =>
-    rev == null ? null : ledger.snapshot(rev),
-  );
-  const [joined, setJoined] = useState(snapshot === null);
-  useLayoutEffect(() => {
-    ledger.commit(id);
-  }, [ledger, id]);
-  useEffect(() => {
-    if (!joined) startTransition(() => setJoined(true));
-  }, [joined]);
-  return (
-    <StateContext.Provider value={joined ? live : (snapshot ?? live)}>
-      {children}
-    </StateContext.Provider>
-  );
-}
-const heldWrap: BoundaryWrap = (suspenseProps, content) => (
-  <Shield>
-    <React.Suspense {...suspenseProps}>
-      <HeldScope>{content}</HeldScope>
-    </React.Suspense>
-  </Shield>
-);
-
 /**
  * `aliased`: R5's control. Seeds with the server state at the latest revision and
  * makes every snapshot share that seed's tables.

@@ -24,7 +24,7 @@ import {
   srvSteps,
   deliverB,
 } from '__tests__/g1Cells';
-import type { PageOptions } from '__tests__/g1Cells';
+import type { PageOptions, Variant } from '__tests__/g1Cells';
 import { settle, until } from '__tests__/splitEnvHarness';
 
 const { version } = require('react') as typeof import('react');
@@ -124,7 +124,10 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
    * `b-commit` publishes the first piece from B's layout effect, before B's
    * scope joins live state; B's scope still provides the pinned snapshot.
    */
-  async function runNested(firstPiece: 'after-hydration' | 'b-commit') {
+  async function runNested(
+    firstPiece: 'after-hydration' | 'b-commit',
+    variant: Variant = 'shield',
+  ) {
     const server = await serverHalf(fx => ({
       nested: true,
       steps: [
@@ -139,24 +142,26 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     const { writes, rest } = splitServerWrites(dFlush);
     expect(writes).toHaveLength(5);
     const r = await inBrowser(async (b, finish) => {
-      const page = b.fx.createClientPage({ nested: true });
+      const page = b.fx.createClientPage({ nested: true, variant });
       await b.start(page, server.shell);
       b.probe.resetCommits();
       b.script(bFlush);
       let pushedAtCommit = false;
+      let dTemplate: string | undefined;
       if (firstPiece === 'b-commit') {
         const commits = page.log.commits;
         const push = commits.push.bind(commits);
         commits.push = (...names: string[]) => {
           if (names.includes('b') && !pushedAtCommit) {
             pushedAtCommit = true;
+            dTemplate = b.templateOf('loading d');
             b.push([writes[0]]);
           }
           return push(...names);
         };
       }
       const bAdopted = await deliverB(b, page, bFlush);
-      const dTemplate = b.templateOf('loading d');
+      dTemplate ??= b.templateOf('loading d');
       expect(dTemplate).toBeDefined();
       let writesWhileDPending = 0;
       const count = async () => {
@@ -174,7 +179,9 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       await settle(20);
       const dPendingBeforeHtml = b.pending(dTemplate!);
       const streamed = b.html(dFlush, 'd');
-      await until(() => page.log.commits.includes('d'), 'D hydrated');
+      await until(() => page.log.commits.includes('d'), 'D hydrated').catch(
+        () => {},
+      );
       return {
         bAdopted,
         writesWhileDPending,
@@ -186,6 +193,11 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       };
     });
     expect(r.pushedAtCommit).toBe(firstPiece === 'b-commit');
+    return r;
+  }
+
+  async function expectNestedKept(firstPiece: 'after-hydration' | 'b-commit') {
+    const r = await runNested(firstPiece);
     expect(r.bAdopted).toBe(true);
     expect(r.writesWhileDPending).toBe(10);
     expect(r.dRendered).toBe(false);
@@ -197,9 +209,19 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     expect(r.flushSyncCalls).toBe(0);
   }
 
-  it('G1/nested', () => runNested('after-hydration'));
+  it('G1/nested', () => expectNestedKept('after-hydration'));
 
-  it('G1/nested-before-join', () => runNested('b-commit'));
+  it('G1/nested-before-join', () => expectNestedKept('b-commit'));
+
+  it('G1/control-nested-same-identity', async () => {
+    // A scope whose value stays the snapshot object while the outer state changes
+    const r = await runNested('b-commit', 'held');
+    expect(r.bAdopted).toBe(true);
+    expect(r.writesWhileDPending).toBe(0);
+    expect(r.dPendingBeforeHtml).toBe(false);
+    expect(r.dAdopted).toBe(false);
+    expect(r.fetches).toEqual(['getList {"group":"d"}']);
+  });
 
   it('G1/seeded-record-updates', async () => {
     const server = await defaultServer();

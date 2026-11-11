@@ -11,6 +11,7 @@ import React, {
   memo,
   startTransition,
   use,
+  useId,
   useLayoutEffect,
   useEffect,
   useState,
@@ -36,11 +37,13 @@ import {
 import {
   LedgerContext,
   Scope,
+  Shield,
   StreamManager,
   StreamProvider,
   clientWrap,
   createServerStream,
   getLedger,
+  useHydrating,
 } from '../packages/react/src/server/stream';
 import type { Ledger } from '../packages/react/src/server/stream';
 
@@ -111,7 +114,7 @@ export function actionRecorder(log: PageLog): Manager {
 export type WakeKind = 'children' | 'fallback' | 'error' | 'same';
 
 /** Client wraps the G1 controls compare */
-export type Variant = 'shield' | 'none' | 'scope-only' | 'frozen';
+export type Variant = 'shield' | 'none' | 'scope-only' | 'frozen' | 'held';
 
 export interface PageOptions {
   /** Island B holds a pending inner boundary D */
@@ -318,6 +321,45 @@ const frozenWrap: BoundaryWrap = (suspenseProps, content) => (
   </FrozenShield>
 );
 
+/**
+ * A scope that provides its snapshot object itself until the join and never
+ * empties it: the same value while the outer state changes. R1's control and
+ * `G1/control-nested-same-identity`'s wrap.
+ */
+function HeldScope({ children }: { children: ReactNode }) {
+  const ledger = use(LedgerContext)!;
+  const id = useId();
+  const hydrating = useHydrating();
+  const live = use(StateContext);
+  let rev: number | null = null;
+  if (hydrating) {
+    use(ledger.whenPin(id));
+    rev = ledger.pin(id) ?? null;
+  }
+  const [snapshot] = useState(() =>
+    rev == null ? null : ledger.snapshot(rev),
+  );
+  const [joined, setJoined] = useState(snapshot === null);
+  useLayoutEffect(() => {
+    ledger.commit(id);
+  }, [ledger, id]);
+  useEffect(() => {
+    if (!joined) startTransition(() => setJoined(true));
+  }, [joined]);
+  return (
+    <StateContext.Provider value={joined ? live : (snapshot ?? live)}>
+      {children}
+    </StateContext.Provider>
+  );
+}
+export const heldWrap: BoundaryWrap = (suspenseProps, content) => (
+  <Shield>
+    <Suspense {...suspenseProps}>
+      <HeldScope>{content}</HeldScope>
+    </Suspense>
+  </Shield>
+);
+
 /** `StreamProvider` with another wrap, or with no adapter at all */
 function VariantProvider({
   variant,
@@ -350,7 +392,12 @@ function VariantProvider({
   return (
     <LedgerContext.Provider value={seed.ledger}>
       <BoundaryContext.Provider
-        value={variant === 'scope-only' ? scopeOnlyWrap : frozenWrap}
+        value={
+          variant === 'scope-only' ? scopeOnlyWrap
+          : variant === 'held' ?
+            heldWrap
+          : frozenWrap
+        }
       >
         {provider}
       </BoundaryContext.Provider>
