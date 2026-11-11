@@ -98,6 +98,9 @@ const ALL: Request = 'GET /issues';
  * The three clicks. Both apps get the same clicks, every request takes its
  * latency(), and schedule() says when each app clicks.
  *
+ * Both apps start with the same responses loaded: the two issue lists and
+ * the team, GET /users.
+ *
  * The cache keyed by request is set up well: the detail on screen is
  * written from the mutation's own response (the closed issue, the new one),
  * the lists are refetched together, and they keep their old rows meanwhile.
@@ -113,14 +116,15 @@ export const BEATS: Beat[] = [
         sends: ['GET /issues/5'],
         waits: { detail: 'loading' },
       },
-      // the issue names its assignee by id; the detail shows their name
+      // the issue names its assignee by id, and the detail shows their name.
+      // User 1 came in GET /users, which this cache stores under that request
       {
         sends: ['GET /users/1'],
         waits: { detail: 'loading' },
         lands: ['detail'],
       },
     ],
-    // the list already stored Issue 5, and the user it is assigned to
+    // the list stored Issue 5, and GET /users stored the user it is assigned to
     client: [{ lands: ['detail'] }],
   },
   {
@@ -146,7 +150,7 @@ export const BEATS: Beat[] = [
     id: 'create',
     target: 'new',
     keyed: [
-      // its assignee, user 1, is still cached from opening issue 5
+      // its assignee is still cached under GET /users/1, from opening issue 5
       { sends: ['POST /issues'], lands: ['detail'] },
       {
         sends: [MINE, ALL],
