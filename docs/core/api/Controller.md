@@ -297,19 +297,17 @@ To check whether data is cached and fresh without fetching, read [getResponse()]
 
 #### In route loaders {#fetchIfStale-loaders}
 
-A loader starts the next page's fetches before it renders. How to call `fetchIfStale()` there depends on whether the
-router waits for the loader before it changes the route:
+A loader starts the next page's fetches before it renders. Like [useSuspense()](./useSuspense.md), navigation should wait
+only when the cached data can't render: when it's missing, or comes from an
+[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) endpoint. Stale data renders at once and
+refetches. How to get that depends on whether the router waits for the loader before it changes the route:
 
 | Router | In the loader | Nothing cached |
 | --- | --- | --- |
-| Changes the route in a [transition](https://react.dev/reference/react/startTransition) without waiting for the loader, like [@anansi/router](https://www.npmjs.com/package/@anansi/router)'s `resolveData` | Start every `fetchIfStale()`; await only the first view's, with `.catch(() => {})` (or `Promise.allSettled()` for several) | The current page stays until the new one is ready |
+| Changes the route in a [transition](https://react.dev/reference/react/startTransition) and ignores the loader's Promise, like [@anansi/router](https://www.npmjs.com/package/@anansi/router)'s `resolveData` | Start every `fetchIfStale()`; await only the first view's, with `.catch(() => {})` (or `Promise.allSettled()` for several) | The current page stays until the new one is ready, unless the new page has its own [AsyncBoundary](./AsyncBoundary.md), which shows its fallback |
 | Waits for the loader, like React Router data loaders or TanStack Router | Return the cached data when it can render; otherwise return `fetchIfStale()` | The router waits for the fetch |
 
-Either way, stale data shows at once and refetches, except from an
-[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) endpoint, which waits like a miss, as
-[useSuspense()](./useSuspense.md) does. Routers without loaders, like the Next.js App Router, need no
-`fetchIfStale()` call: `useSuspense()` fetches as the page renders. During a transition, a new page with its own [AsyncBoundary](./AsyncBoundary.md) shows
-that boundary's fallback instead of keeping the current page.
+Routers without loaders, like the Next.js App Router, need no call: `useSuspense()` fetches as the page renders.
 
 ```ts title="Router that doesn't wait"
 resolveData: async (controller: Controller, { id }: { id: string }) => {
@@ -319,9 +317,9 @@ resolveData: async (controller: Controller, { id }: { id: string }) => {
 },
 ```
 
-The client router ignores the Promise `resolveData` returns, but server rendering (like @anansi/core's `prefetchSpout`)
-waits for it, so the first HTML includes the main data. The `.catch()` keeps a failed fetch from rejecting that Promise
-with no handler on the client; the page's `useSuspense()` shows the stored error.
+Server rendering (like @anansi/core's `prefetchSpout`) does wait for `resolveData`, so the first HTML includes the
+awaited data. The `.catch()` keeps a failure from rejecting unhandled on the client; `useSuspense()` still shows the
+error.
 
 ```ts title="Router that waits"
 import { ExpiryStatus, type Controller } from '@data-client/react';
@@ -337,12 +335,12 @@ export const issueLoader =
       ctrl.getState(),
     );
     const fetched = ctrl.fetchIfStale(IssueResource.get, args);
-    // like useSuspense(): wait only when the cached data can't render
+    // stale data is still Valid, so it returns at once
     return expiryStatus === ExpiryStatus.Valid ? data : fetched;
   };
 ```
 
-Waiting for loaders lets a router show its own pending and error UI, and it holds navigation while a request runs.
+A router that waits for loaders can show its own pending and error UI, but it holds navigation while a request runs.
 That tradeoff comes with the router, whatever fetches the data.
 
 <StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
