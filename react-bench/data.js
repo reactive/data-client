@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794371578110,
+  "lastUpdate": 1794374680328,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -14189,6 +14189,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 312.01,
             "range": "± 2.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "80d319803b602e11d85cdf2342a36e2b89adc993",
+          "message": "fix(core): Keep fetches, sets and resets in one millisecond in order (#4677)\n\n* fix(core): Keep fetches, sets and resets in one millisecond in order\n\nA create and a list fetch started in the same millisecond had equal\nfetchedAt. When the list response already had the new item, the create's\nresponse counted as newer and added it again, so the list showed it twice.\n\nfetchedAt for fetches and sets, and the reset date, now come from a clock\nthat is later than earlier calls in the same millisecond. The create's\nresponse then counts as older and skips items the list already has. This\nalso drops replies to fetches started just before a reset in the same\nmillisecond, and lets same-millisecond optimistic creates settle separately.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* docs(blog): Note same-millisecond create fix in v0.19 Collection updates\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* fix(core): Keep orderedNow() increasing past 1024 calls in one millisecond\n\nDetect a clock set back from the wall-clock millisecond, not from the\naccumulated steps, so a burst of calls keeps rising instead of wrapping.\nTrim the changeset to user-visible outcomes.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* test(core): Share a settle() helper in orderedNow tests\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* chore(core): Clarify orderedNow names and changeset wording\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* perf(core): Keep orderedNow() state in a Float64Array\n\nModule-level let doubles allocate a heap number on every write, two per\ncall. A Float64Array stores them in place: ~20 ns less per call in Node 22,\n~10 ns in Chromium 153, and a third of the scavenges in a tight loop.\n+18 B brotli (UMD).\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* fix(core): Address adversarial review of orderedNow()\n\n- One NaN from Date.now() no longer makes every later call NaN\n- createMeta passes its Date.now() in, so the default path reads the clock once\n- The burst test uses its own frozen time, so it passes in any test order\n- Changeset and blog: the fix applies when the list fetch starts after the\n  create; frozen-time note covers sets, resets and carry-over across tests;\n  custom Managers should pass meta.fetchedAt to resolve()\n- Snapshot and optimistic-updates docs: fetchedAt can be a fraction of a\n  millisecond after Date.now()\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n* chore(skills): Regenerate optimistic-updates references\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZAyHmChpNrJVPyCcTp\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-11T05:18:32Z",
+          "tree_id": "ceafdb210e95533167f80d9c1025db2cb3c266ea",
+          "url": "https://github.com/reactive/data-client/commit/80d319803b602e11d85cdf2342a36e2b89adc993"
+        },
+        "date": 1794374677378,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 311.77,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 88.97,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 679.12,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 547.2,
+            "range": "± 1.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 81.6,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 430.11,
+            "range": "± 1.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 621.33,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 18.05,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 114.88,
+            "range": "± 1.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 98.35,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 14.45,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 340.14,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 572.25,
+            "range": "± 2.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 297.18,
+            "range": "± 1.7%",
             "unit": "ops/s"
           }
         ]
