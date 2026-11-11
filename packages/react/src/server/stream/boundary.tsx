@@ -59,11 +59,15 @@ export function Scope({
   const id = useId();
   const hydrating = useHydrating();
   const live = use(StateContext);
-  // A boundary the server rendered waits for its pin while the stream is open
-  const rev =
-    hydrating ?
-      (ledger.pin(id) ?? (ledger.ended ? null : use(ledger.whenPin(id))))
-    : null;
+  // A boundary the server rendered waits for its pin while the stream is open.
+  // `use()` runs on every hydration render, not only the one that suspends:
+  // React warns when a mount that suspended in `use()` finishes without it.
+  // A settled `whenPin()` carries its status, so this does not suspend again.
+  let rev: number | null = null;
+  if (hydrating) {
+    use(ledger.whenPin(id));
+    rev = ledger.pin(id) ?? null;
+  }
   // The holder, not the snapshot, is the state. Emptying it frees the snapshot
   // from this fiber and from its alternate.
   const [holder] = useState(() => ({

@@ -15,7 +15,7 @@ export type StreamProviderProps = Omit<ProviderProps, 'initialState'>;
 
 /**
  * DataProvider seeded from the document's ledger. Without a ledger it renders DataProvider.
- * Calls `use(ledger.whenOpen())` only while the ledger has neither `shellRev` nor `ended`.
+ * Suspends on `ledger.whenOpen()` until `open` or `end` has arrived.
  * Provides `LedgerContext` and `BoundaryContext` with the constant `clientWrap`.
  * `StreamManager` is first in the manager list, before the application's managers.
  */
@@ -24,7 +24,9 @@ export default function StreamProvider(
 ): JSX.Element {
   const [ledger] = useState(getLedger);
   if (!ledger) return <DataProvider {...props} />;
-  if (ledger.shellRev === undefined && !ledger.ended) use(ledger.whenOpen());
+  // Unconditional: React warns when a mount that suspended in `use()` finishes
+  // without it. Once `open` or `end` arrived the promise carries its status.
+  use(ledger.whenOpen());
   return <SeededProvider {...props} ledger={ledger} />;
 }
 

@@ -344,6 +344,17 @@ export const resolveGroup =
   page =>
     page.server.resolve('getList', { group }, DATA[group]);
 
+/** A server store change that completes no boundary: A's todo gets a new title */
+export const serverWrite =
+  (k: number): ServerStep =>
+  page => {
+    page.stream.controller.setResponse(
+      page.endpoints.getTodo,
+      { id: '1' },
+      { id: '1', title: `srv-${k}` },
+    );
+  };
+
 /**
  * Server half of the page: A's data is in the store before the render, so A is
  * in the shell. After the shell each step runs `gapMs` after the previous one.

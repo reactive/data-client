@@ -106,6 +106,8 @@ export function installDom(): () => Promise<void> {
   // the commit probe needs the hook before react-dom loads
   define('__REACT_DEVTOOLS_GLOBAL_HOOK__', { ...DEVTOOLS_HOOK });
   define('IS_REACT_ACT_ENVIRONMENT', false);
+  // one document, one ledger
+  delete g.__RDC_STREAM__;
   jest.resetModules();
   return async () => {
     // work React scheduled before an unmount still reads `window`
@@ -114,6 +116,7 @@ export function installDom(): () => Promise<void> {
       if (descriptor) Object.defineProperty(g, key, descriptor);
       else delete g[key];
     }
+    delete g.__RDC_STREAM__;
     window.close();
   };
 }

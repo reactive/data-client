@@ -73,6 +73,27 @@ export function loadBrowserHalf() {
     root?.unmount();
     finishDocument();
   };
+  /** Messages as a script would push them; one call is one script */
+  const push = (messages: readonly unknown[]) => {
+    const queue = ((globalThis as any).__RDC_STREAM__ ??= []);
+    queue.push(...messages);
+  };
+  /** Template id of the pending boundary whose fallback shows `fallbackText` */
+  const templateOf = (fallbackText: string) =>
+    harness.discoverPendingBoundary(container, fallbackText).id;
+  /** The shell, then hydrate, then wait for A's commit and its join */
+  const start = async (page: {
+    element: ReactElement;
+    log: Fixtures.PageLog;
+  }, shellFlush: LedgerFlush, firstCommit = 'a') => {
+    shell(shellFlush);
+    hydrate(page.element);
+    await until(
+      () => page.log.commits.includes(firstCommit),
+      `${firstCommit} hydrated`,
+    );
+    await settle(30);
+  };
   return {
     fx,
     probe,
@@ -89,6 +110,9 @@ export function loadBrowserHalf() {
     text,
     byTestId,
     teardown,
+    push,
+    templateOf,
+    start,
     until,
     settle,
   };
