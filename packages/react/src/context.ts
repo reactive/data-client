@@ -2,7 +2,7 @@
 import { Controller, initialState } from '@data-client/core';
 import type { ActionTypes, State } from '@data-client/core';
 import { createContext } from 'react';
-import type { Context, ReactElement, ReactNode } from 'react';
+import type { Context } from 'react';
 
 export const StateContext: Context<State<unknown>> =
   createContext(initialState);
@@ -34,19 +34,6 @@ export interface Store<S> {
   getState(): S;
   uninitialized?: boolean;
 }
-/**
- * Builds the Suspense of an AsyncBoundary. Provided by a streaming SSR adapter.
- * @internal
- */
-export type BoundaryWrap = (
-  suspenseProps: { fallback?: ReactNode },
-  content: ReactElement,
-) => ReactElement;
-
-/** @internal */
-export const BoundaryContext: Context<BoundaryWrap | null> =
-  createContext<BoundaryWrap | null>(null);
-
 /* istanbul ignore next */
 export const StoreContext = createContext<Store<State<unknown>>>({
   subscribe: listener => () => {},

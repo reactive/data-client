@@ -33,7 +33,7 @@ import type { Step } from './streamingHarness';
 import {
   BoundaryContext,
   type BoundaryWrap,
-} from '../packages/react/src/context';
+} from '../packages/react/src/components/BoundaryContext';
 import {
   LedgerContext,
   Scope,

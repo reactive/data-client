@@ -57,9 +57,12 @@ describe('package entry import graph', () => {
       path.join(SRC, 'components', 'AsyncBoundary.tsx'),
     );
     expect([...reached].filter(under(STREAM))).toEqual([]);
+    expect(reached).toContain(
+      path.join(SRC, 'components', 'BoundaryContext.ts'),
+    );
   });
 
-  it('N2/no-stream-code: React Native reaches nothing under server/', () => {
+  it('N2/no-stream-code: React Native reaches nothing under server/ and no BoundaryContext', () => {
     const reached = walk(index, true);
     const twin = path.join(SRC, 'components', 'AsyncBoundary.native.tsx');
     expect(reached).toContain(twin);
@@ -67,6 +70,9 @@ describe('package entry import graph', () => {
       path.join(SRC, 'components', 'AsyncBoundary.tsx'),
     );
     expect([...reached].filter(under(SERVER))).toEqual([]);
+    expect(reached).not.toContain(
+      path.join(SRC, 'components', 'BoundaryContext.ts'),
+    );
     expect(fs.readFileSync(twin, 'utf8')).not.toMatch(/BoundaryContext/);
   });
 });

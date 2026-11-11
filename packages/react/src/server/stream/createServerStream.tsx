@@ -13,7 +13,7 @@ import type { JSX } from 'react';
 import { ServerLedgerContext, serverWrap } from './boundary.js';
 import { createServerLedger } from './ServerLedger.js';
 import type { ServerLedger } from './ServerLedger.js';
-import { BoundaryContext } from '../../context.js';
+import { BoundaryContext } from '../../components/BoundaryContext.js';
 import { NetworkManager } from '../../managers/index.js';
 import PromiseifyMiddleware from '../redux/PromiseifyMiddleware.js';
 import { applyMiddleware, createStore } from '../redux/redux.js';

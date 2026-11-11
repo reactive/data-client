@@ -11,7 +11,7 @@ import { render } from '@testing-library/react-native';
 import React, { Suspense, useSyncExternalStore } from 'react';
 import { Text, View } from 'react-native';
 
-import { BoundaryContext } from '../../context';
+import { BoundaryContext } from '../BoundaryContext';
 import AsyncBoundary from '../AsyncBoundary';
 import DataProvider from '../DataProvider';
 import ErrorBoundary from '../ErrorBoundary';

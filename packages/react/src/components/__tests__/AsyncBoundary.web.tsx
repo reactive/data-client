@@ -2,10 +2,10 @@ import { NetworkError, Endpoint } from '@data-client/rest';
 import { render } from '@testing-library/react';
 import { ReactElement, StrictMode, Suspense } from 'react';
 
-import type { BoundaryWrap } from '../../context';
 import { useSuspense } from '../../hooks';
-import { __INTERNAL__ } from '../../internalNamespace';
 import AsyncBoundary from '../AsyncBoundary';
+import { BoundaryContext } from '../BoundaryContext';
+import type { BoundaryWrap } from '../BoundaryContext';
 import DataProvider from '../DataProvider';
 
 describe('<AsyncBoundary />', () => {
@@ -110,8 +110,7 @@ describe('<AsyncBoundary />', () => {
     expect(queryByText(/hi/i)).toBe(null);
     errorSpy.mockRestore();
   });
-  it('lets the wrap from __INTERNAL__.BoundaryContext build the Suspense', () => {
-    const { BoundaryContext } = __INTERNAL__;
+  it('lets the wrap from BoundaryContext build the Suspense', () => {
     const wrap = jest.fn<ReactElement, Parameters<BoundaryWrap>>(
       (suspenseProps, content) => (
         <section data-testid="wrap">

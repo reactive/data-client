@@ -25,7 +25,7 @@ import type {
 import { Toggle, heldWrap, makeServerFetch } from './streamFixtures';
 import type { ActivityHandle, FetchImpl, PageLog } from './streamFixtures';
 import type { Step } from './streamingHarness';
-import { BoundaryContext } from '../packages/react/src/context';
+import { BoundaryContext } from '../packages/react/src/components/BoundaryContext';
 import {
   LedgerContext,
   StreamManager,

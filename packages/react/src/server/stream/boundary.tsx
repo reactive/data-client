@@ -14,7 +14,7 @@ import React, {
 import type { Ledger } from './Ledger.js';
 import type { ServerLedger } from './ServerLedger.js';
 import { StateContext, StoreContext } from '../../context.js';
-import type { BoundaryWrap } from '../../context.js';
+import type { BoundaryWrap } from '../../components/BoundaryContext.js';
 
 /** Ledger of the document (browser) */
 export const LedgerContext: React.Context<Ledger | null> =

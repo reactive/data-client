@@ -9,7 +9,7 @@ import StreamManager from './StreamManager.js';
 import DataProvider from '../../components/DataProvider.js';
 import type { ProviderProps } from '../../components/DataProvider.js';
 import { getDefaultManagers } from '../../components/getDefaultManagers.js';
-import { BoundaryContext } from '../../context.js';
+import { BoundaryContext } from '../../components/BoundaryContext.js';
 
 export type StreamProviderProps = Omit<ProviderProps, 'initialState'>;
 
