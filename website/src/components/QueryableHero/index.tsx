@@ -1,5 +1,3 @@
-/* eslint-disable @docusaurus/no-untranslated-text -- the app's text, as the
-   page's live demos (never translated) render it under this, and names */
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
@@ -7,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import {
   BEATS,
   LANES,
-  LONGEST,
   ROWS,
   SIDES,
   TRAVEL,
@@ -16,7 +13,6 @@ import {
   latency,
   runOf,
   type AppState,
-  type Issue,
   type Pace,
   type Run,
   type Sent,
@@ -33,7 +29,6 @@ const VARS = {
   '--clear': `${CLEAR}ms`,
   '--rows': ROWS,
   '--lanes': LANES,
-  '--longest': LONGEST,
 } as React.CSSProperties;
 
 /** A time in seconds, to a tenth: 6850 ms is 6.9 */
@@ -253,7 +248,7 @@ function Demo() {
           {
             id: 'queryableHero.label',
             message:
-              'Two copies of one issue tracker, one on a cache keyed by request and one on Data Client, start with the same issue lists and team of users loaded, and take the same three clicks on the same network: a quarter second to read one issue, half a second to write one, a second for a list. Data Client’s mutations are optimistic. Opening issue 5 from the list: the cache keyed by request shows a loading placeholder, sends GET /issues/5, then GET /users/1 for its assignee’s name, while Data Client renders the issue and its assignee at once from the list and team it already loaded, with no request. Closing issue 5: both send PUT /issues/5. Data Client’s detail, list row and counts change together at once. The cache keyed by request changes its detail when the response returns, but its list still shows the issue open and its counts are out of date until it has refetched both lists: 3 requests. Creating issue 6: both send POST /issues. At once, Data Client adds the issue to the list and updates the counts, and opens its detail when the response returns. The cache keyed by request shows the new issue’s detail from the response, but refetches both lists: 3 requests. In total the cache keyed by request sends 8 requests, and Data Client sends 2. With each app clicking again as soon as its screen shows the last click’s result, Data Client is done in {client} seconds and the cache keyed by request in {keyed}',
+              'Two copies of one issue tracker, one on a cache keyed by request and one on Data Client, start with the same issue lists and team of users loaded, and take the same three clicks on the same network: a quarter second to read one issue, half a second to write one, a second for a list. Data Client’s mutations are optimistic. Opening issue 5 from the list: the cache keyed by request shows a loading placeholder and sends GET /issues/5, then shows the issue with a placeholder for its assignee’s avatar until GET /users/1 returns, while Data Client renders the issue and its assignee’s avatar at once from the list and team it already loaded, with no request. Closing issue 5: both send PUT /issues/5. Data Client’s detail, list row and counts change together at once. The cache keyed by request changes its detail when the response returns, but its list still shows the issue open and its counts are out of date until it has refetched both lists: 3 requests. Creating issue 6: both send POST /issues. At once, Data Client adds the issue to the list and updates the counts, and opens its detail when the response returns. The cache keyed by request shows the new issue’s detail from the response, but refetches both lists: 3 requests. In total the cache keyed by request sends 8 requests, and Data Client sends 2. With each app clicking again as soon as its screen shows the last click’s result, Data Client is done in {client} seconds and the cache keyed by request in {keyed}',
             description:
               'Accessible label of the hero on the Queryable page. {client} and {keyed} are times in seconds, like 4.1',
           },
@@ -285,6 +280,7 @@ function Demo() {
               <App
                 key={take}
                 app={now.apps[side]}
+                requests={whole.requests[side]}
                 live={live}
                 clearing={now.clearing}
               />
@@ -306,14 +302,76 @@ function Demo() {
   );
 }
 
+/** Every issue an app lists, in the list's order: an issue's place here
+ * picks its mark */
+const LISTED = WORLDS[WORLDS.length - 1].rows.map(({ id }) => id);
+/** A mark's shape, in a 12 by 12 box: a square, a triangle, a diamond and a
+ * star */
+const SHAPES = [
+  'M2.6 2.6h6.8v6.8H2.6z',
+  'M6 2.3l4.1 7.2H1.9z',
+  'M6 1.7L10.3 6 6 10.3 1.7 6z',
+  'M6 1.45l1.32 3.08 3.34.31-2.52 2.21.74 3.26L6 8.6l-2.88 1.71.74-3.26-2.52-2.21 3.34-.31z',
+];
+/** Line icons, in the same box */
+const ICONS = {
+  list: 'M2 3h8M2 6h8M2 9h8',
+  plus: 'M6 2.5v7M2.5 6h7',
+  down: 'M6 2v7.6M2.9 6.7L6 9.8l3.1-3.1',
+  up: 'M6 10V2.4M2.9 5.3L6 2.2l3.1 3.1',
+};
+
+/** An issue's mark: a shape and a color of its own, wherever the issue
+ * shows, so its row, its detail and its requests read as one thing */
+function Mark({ id }: { id: number }) {
+  const mark = LISTED.indexOf(id);
+  return (
+    <svg
+      className={styles.mark}
+      data-mark={mark}
+      viewBox="0 0 12 12"
+      aria-hidden="true"
+    >
+      <path d={SHAPES[mark]} />
+    </svg>
+  );
+}
+
+/** User 1, who every issue here is assigned to and whose issues the list
+ * holds: a figure on a disc */
+function Avatar() {
+  return (
+    <svg className={styles.avatar} viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="8" />
+      <circle cx="8" cy="6.3" r="2.7" />
+      <path d="M3 13.2a5.2 5.2 0 0 1 10 0A7.6 7.6 0 0 1 8 15a7.6 7.6 0 0 1-5-1.8z" />
+    </svg>
+  );
+}
+
+function Icon({ d, className }: { d: string; className?: string }) {
+  return (
+    <svg
+      className={clsx(styles.icon, className)}
+      viewBox="0 0 12 12"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
 /** The issue tracker on one screen: open counts, my issues, and the open
  * issue. Inert: the pointer is the only thing that clicks */
 function App({
   app,
+  requests,
   live,
   clearing,
 }: {
   app: AppState;
+  /** a whole run's, where the app's `landed` counts */
+  requests: Sent[];
   /** a run is playing: at rest, nothing has just happened */
   live: boolean;
   clearing: boolean;
@@ -323,24 +381,44 @@ function App({
   const list = WORLDS[app.shows.list];
   const counts = WORLDS[app.shows.counts];
   const stale = (view: View) => app.waits[view] === 'stale';
-  const issue = WORLDS[app.shows.detail].open;
-  const routed = WORLDS[app.route].open?.id;
+  const loading = app.waits.detail === 'loading';
+  /** the issue the route opens: the detail's own, once that has loaded */
+  const routed = WORLDS[app.route].open;
+  /** the detail is loading, and its issue's own response is back: what is
+   * still out is the assignee's */
+  const assigneeOut =
+    loading &&
+    !!routed &&
+    requests
+      .slice(0, app.landed)
+      .some(({ request }) => request === `GET /issues/${routed.id}`);
+  const issue =
+    !loading ? WORLDS[app.shows.detail].open
+    : assigneeOut ? routed
+    : undefined;
 
   return (
     <div className={styles.run} data-clearing={clearing || undefined}>
       <div className={styles.app}>
         <div className={styles.head}>
-          <span className={styles.title}>Issues</span>
           <span className={styles.counts}>
             <Flash at={news('counts')} />
-            <Count label="Mine" value={counts.mine} stale={stale('counts')} />
-            <Count label="All" value={counts.all} stale={stale('counts')} />
+            <Count
+              of={<Avatar />}
+              value={counts.mine}
+              stale={stale('counts')}
+            />
+            <Count
+              of={<Icon d={ICONS.list} />}
+              value={counts.all}
+              stale={stale('counts')}
+            />
           </span>
           <span
-            className={clsx(styles.button, styles.primary)}
+            className={styles.button}
             data-busy={app.busy === 'new' || undefined}
           >
-            + New
+            <Icon d={ICONS.plus} />
           </span>
         </div>
         <div className={styles.list}>
@@ -354,44 +432,41 @@ function App({
               <div
                 key={row.id}
                 className={styles.row}
-                data-selected={row.id === routed || undefined}
+                data-selected={row.id === routed?.id || undefined}
                 data-arrived={arrived || undefined}
               >
                 <Flash at={changed || undefined} />
-                <span className={styles.num}>#{row.id}</span>
-                <span className={styles.name}>{row.title}</span>
-                <State issue={row} stale={stale('list')} />
+                <Mark id={row.id} />
+                <span className={styles.title}>{row.title}</span>
+                <State closed={row.closed} stale={stale('list')} />
               </div>
             );
           })}
         </div>
         <div className={styles.detail}>
           <Flash at={news('detail')} />
-          {app.waits.detail === 'loading' ?
-            <div key="loading" className={styles.skeleton}>
-              <i />
-              <i />
-            </div>
-          : issue ?
+          {issue ?
             <div key={issue.id} className={styles.issue}>
               <div className={styles.name}>
-                <span className={styles.num}>#{issue.id}</span> {issue.title}
+                <Mark id={issue.id} />
+                <span className={styles.title}>{issue.title}</span>
               </div>
               <div className={styles.meta}>
-                <State issue={issue} worded />
-                <span className={styles.who}>· Maya</span>
-                <span
-                  className={styles.button}
-                  data-busy={app.busy === 'close' || undefined}
-                >
-                  {issue.closed ? 'Reopen' : 'Close'}
-                </span>
+                {assigneeOut ?
+                  <i className={styles.ghost} />
+                : <Avatar />}
+                <Toggle closed={issue.closed} busy={app.busy === 'close'} />
               </div>
             </div>
-          : <div key="empty" className={styles.empty}>
-              Select an issue
+          : loading ?
+            <div key="loading" className={styles.skeleton}>
+              <i className={styles.line} />
+              <div className={styles.meta}>
+                <i className={styles.ghost} />
+                <i className={styles.line} />
+              </div>
             </div>
-          }
+          : null}
         </div>
         <span className={styles.pointer} data-at={app.pointer ?? 'rest'}>
           {/* the arrow the playgrounds' self-playing demos click with
@@ -408,53 +483,63 @@ function App({
   );
 }
 
-/** How many issues are open, from a list. Stale, it is being refetched */
+/** How many issues are open, from a list: mine, by my avatar, or
+ * everyone's, by a list. Stale, it is being refetched */
 function Count({
-  label,
+  of,
   value,
   stale,
 }: {
-  label: string;
+  of: React.ReactNode;
   value: number;
   stale: boolean;
 }) {
   return (
     <span className={styles.count}>
-      {label} <b key={value}>{value}</b>
+      {of}
+      <b key={value}>{value}</b>
       <i className={styles.spin} data-on={stale || undefined} />
     </span>
   );
 }
 
-/** An issue's state: a ring while open, a check once closed. `worded` adds
- * the word at any width. Stale, its list is being refetched */
-function State({
-  issue: { closed },
-  stale,
-  worded,
-}: {
-  issue: Issue;
-  stale?: boolean;
-  worded?: boolean;
-}) {
+/** An issue's state: a ring while open, a check once closed. Stale, its
+ * list is being refetched */
+function State({ closed, stale }: { closed?: boolean; stale?: boolean }) {
   return (
     <span
       key={closed ? 'closed' : 'open'}
-      className={clsx(styles.state, worded && styles.worded)}
+      className={styles.state}
       data-closed={closed || undefined}
       data-stale={stale || undefined}
     >
-      <span className={styles.word}>{closed ? 'Closed' : 'Open'}</span>
-      <span className={styles.dot}>
-        <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          {closed ?
-            <>
-              <circle cx="6" cy="6" r="5.5" />
-              <path d="M3.6 6.2l1.7 1.7 3.2-3.7" />
-            </>
-          : <circle cx="6" cy="6" r="4.25" />}
-        </svg>
-      </span>
+      <svg viewBox="0 0 12 12" aria-hidden="true">
+        {closed ?
+          <>
+            <circle cx="6" cy="6" r="5.5" />
+            <path d="M3.6 6.2l1.7 1.7 3.2-3.7" />
+          </>
+        : <circle cx="6" cy="6" r="4.25" />}
+      </svg>
+    </span>
+  );
+}
+
+/** The detail's control: both states an issue can be in, the one it is in
+ * lit. The pointer clicks the other. Busy, its mutation is out */
+function Toggle({ closed, busy }: { closed?: boolean; busy: boolean }) {
+  return (
+    <span className={styles.toggle} data-busy={busy || undefined}>
+      {[false, true].map(state => (
+        <span
+          key={state ? 'closed' : 'open'}
+          className={styles.option}
+          data-closed={state || undefined}
+          data-on={state === !!closed || undefined}
+        >
+          <State closed={state} />
+        </span>
+      ))}
     </span>
   );
 }
@@ -464,11 +549,33 @@ function Flash({ at }: { at: number | undefined }) {
   return at === undefined ? null : <i key={at} className={styles.flash} />;
 }
 
+/** What a request is for, drawn as the app draws it: an issue's mark, the
+ * assignee's avatar, the new issue's button, or a list, mine with my avatar */
+function Subject({ request }: { request: Sent['request'] }) {
+  const [method, path] = request.split(' ');
+  const issue = /^\/issues\/(\d+)$/.exec(path);
+  if (issue) return <Mark id={Number(issue[1])} />;
+  if (path.startsWith('/users/')) return <Avatar />;
+  if (method === 'POST')
+    return (
+      <span className={styles.button}>
+        <Icon d={ICONS.plus} />
+      </span>
+    );
+  return (
+    <>
+      <Icon d={ICONS.list} />
+      {path.includes('assigneeId=') && <Avatar />}
+    </>
+  );
+}
+
 /** The requests an app has sent: their count, then a waterfall, as a
  * browser's network panel draws one. Each request has a row, in the order
- * sent, with a bar that starts when it leaves and is as long as it takes.
- * Both apps' bars are on one `axis`, and every row keeps its place from the
- * start, so both waterfalls are as tall as the longer from the first frame */
+ * sent: an arrow down for a read or up for a write, what it is for, and a
+ * bar that starts when it leaves and is as long as it takes. Both apps' bars
+ * are on one `axis`, and every row keeps its place from the start, so both
+ * waterfalls are as tall as the longer from the first frame */
 function Requests({
   app: { sent, landed, done },
   requests,
@@ -498,35 +605,23 @@ function Requests({
         {label} <b>{sent}</b>
       </div>
       <div className={styles.waterfall}>
-        {/* a line each second of the run, every other one named */}
+        {/* a line each second of the run */}
         <div className={styles.ticks}>
           {ticks.map(second => (
             <i
               key={second}
               style={{ '--at': along(second * 1000) } as React.CSSProperties}
-            >
-              {second % 2 === 0 && (
-                <span>
-                  {translate(
-                    {
-                      id: 'queryableHero.tick',
-                      message: '{seconds}s',
-                      description:
-                        'Queryable page hero: a mark on the time axis under an app’s requests, in whole seconds since the animation started, like 2s. Keep it as short as possible',
-                    },
-                    { seconds: second },
-                  )}
-                </span>
-              )}
-            </i>
+            />
           ))}
         </div>
         {requests.map(({ request, at, after }, i) => {
-          const [method, path] = request.split(' ');
+          const reads = request.startsWith('GET');
           return (
             <div
               key={i}
               className={styles.request}
+              // the request in words, for a pointer that rests on its row
+              title={request}
               style={
                 {
                   '--at': along(at),
@@ -536,7 +631,7 @@ function Requests({
                   '--up': after === undefined ? undefined : i - after,
                 } as React.CSSProperties
               }
-              data-mutation={method !== 'GET' || undefined}
+              data-mutation={!reads || undefined}
               data-waited={after === undefined ? undefined : true}
               data-state={
                 i >= sent ? 'queued'
@@ -546,8 +641,11 @@ function Requests({
               }
             >
               <span className={styles.what}>
-                <b>{method}</b>
-                <span className={styles.path}> {path}</span>
+                <Icon
+                  d={reads ? ICONS.down : ICONS.up}
+                  className={styles.way}
+                />
+                <Subject request={request} />
               </span>
               <span className={styles.lane}>
                 <i className={styles.bar} />

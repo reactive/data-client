@@ -19,6 +19,13 @@
   --elapsed: rgb(0 0 0 / 0.18);
   --open: #0d8257;
   --closed: hsl(262, 52%, 48%);
+  /* an issue's mark, by its place in the list */
+  --mark-0: hsl(42, 92%, 37%);
+  --mark-1: hsl(188, 78%, 34%);
+  --mark-2: hsl(20, 90%, 48%);
+  --mark-3: hsl(335, 72%, 50%);
+  /* the disc of the assignee's avatar */
+  --who: color-mix(in srgb, var(--ink) 70%, var(--sheet));
   /* what is waiting: a skeleton's bar, an unanswered request's edge */
   --wait: color-mix(in srgb, var(--ink) 14%, transparent);
   --ease: cubic-bezier(0.3, 0.6, 0.2, 1);
@@ -46,6 +53,10 @@
   --elapsed: rgb(255 255 255 / 0.25);
   --open: #3ddc97;
   --closed: hsl(262, 75%, 74%);
+  --mark-0: hsl(45, 90%, 58%);
+  --mark-1: hsl(188, 65%, 55%);
+  --mark-2: hsl(22, 95%, 62%);
+  --mark-3: hsl(335, 85%, 70%);
 }
 @media (min-width: 600px) {
   .frame {
@@ -193,11 +204,13 @@
   --button: 20px;
   --text: 11px;
   --small: 10px;
-  --lane: 13px;
+  --lane: 14px;
   --bar: 7px;
-  --mono: 9px;
-  /* between a state's word and its ring, which an arc circles while stale */
-  --state-gap: 5px;
+  /* what stands for words: an issue's mark, its state, my avatar, an icon */
+  --mark: 11px;
+  --state: 12px;
+  --avatar: 13px;
+  --icon: 12px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px 8px;
@@ -214,10 +227,12 @@
     --button: 24px;
     --text: 13px;
     --small: 12px;
-    --lane: 15px;
+    --lane: 16px;
     --bar: 8px;
-    --mono: 10px;
-    --state-gap: 7px;
+    --mark: 13px;
+    --state: 14px;
+    --avatar: 15px;
+    --icon: 14px;
     column-gap: 12px;
   }
 }
@@ -332,43 +347,70 @@
   padding: var(--pad);
   font-size: var(--text);
 }
+
+/* An issue's mark: a shape and a color of its own, wherever the issue
+   shows */
+.mark {
+  flex: none;
+  width: var(--mark);
+  height: var(--mark);
+  fill: var(--c);
+  stroke: var(--c);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.mark[data-mark='0'] {
+  --c: var(--mark-0);
+}
+.mark[data-mark='1'] {
+  --c: var(--mark-1);
+}
+.mark[data-mark='2'] {
+  --c: var(--mark-2);
+}
+.mark[data-mark='3'] {
+  --c: var(--mark-3);
+}
+/* the assignee, who is me: a figure on a disc */
+.avatar {
+  flex: none;
+  width: var(--avatar);
+  height: var(--avatar);
+  fill: var(--sheet);
+}
+.avatar circle:first-child {
+  fill: var(--who);
+}
+/* a line icon */
+.icon {
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
   min-width: 0;
 }
-/* the wordmark: only where there is room beside the counts */
-.title {
-  display: none;
-  color: var(--muted);
-  font-size: calc(var(--small) - 1px);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+/* how many issues are open: mine, by my avatar, and everyone's, by a list */
 .counts {
   position: relative;
   display: flex;
   gap: 4px;
-  margin-right: auto;
   color: var(--muted);
-  font-size: var(--small);
   white-space: nowrap;
-}
-@container queryable-hero (min-width: 520px) {
-  .title {
-    display: inline;
-    margin-right: auto;
-  }
-  .counts {
-    margin-right: 0;
-  }
 }
 .count {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 .count b {
   color: var(--ink);
@@ -403,27 +445,21 @@
   }
 }
 
-/* a control: it keeps an edge, as the design system's do */
+/* the button that creates an issue: a plus */
 .button {
   flex: none;
-  display: inline-flex;
-  align-items: center;
+  display: inline-grid;
+  place-items: center;
+  width: var(--button);
   height: var(--button);
-  padding: 0 8px;
-  border: 1px solid var(--edge);
   border-radius: 6px;
-  font-size: var(--small);
-  font-weight: 500;
-  white-space: nowrap;
-  transition: opacity 150ms;
-}
-.primary {
-  border-color: transparent;
   background: var(--accent);
   color: var(--on-accent);
+  transition: opacity 150ms;
 }
 /* waiting on its mutation's response: in both apps alike */
-.button[data-busy] {
+.button[data-busy],
+.toggle[data-busy] {
   opacity: 0.5;
 }
 
@@ -452,13 +488,7 @@
     transform: translateY(-6px);
   }
 }
-.num {
-  color: var(--muted);
-  font-size: var(--small);
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-}
-.name {
+.title {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -468,36 +498,20 @@
 
 /* an issue's state: a ring while open, a check once closed */
 .state {
+  position: relative;
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--state-gap);
+  display: flex;
   color: var(--open);
-  font-size: var(--small);
-  font-weight: 500;
   animation: enter 200ms ease-out backwards;
 }
 .state[data-closed] {
   color: var(--closed);
 }
-/* in a row the word needs room; the detail always has it */
-.word {
-  display: none;
+.state svg {
+  width: var(--state);
+  height: var(--state);
 }
-.worded .word {
-  display: inline;
-  order: 1;
-}
-@container queryable-hero (min-width: 520px) {
-  .word {
-    display: inline;
-  }
-}
-.dot {
-  position: relative;
-  display: flex;
-}
-.dot circle {
+.state circle {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -506,7 +520,7 @@
   fill: currentColor;
   stroke: none;
 }
-.dot path {
+.state path {
   fill: none;
   stroke: var(--on-accent);
   stroke-width: 1.5;
@@ -514,7 +528,7 @@
   stroke-linejoin: round;
 }
 /* its list is being refetched: an arc circles the state it still shows */
-.dot::after {
+.state::after {
   content: '';
   position: absolute;
   inset: -3.5px;
@@ -524,12 +538,13 @@
   opacity: 0;
   transition: opacity 150ms;
 }
-.state[data-stale] .dot::after {
+.state[data-stale]::after {
   opacity: 1;
   animation: spin 800ms linear infinite;
 }
 
-/* the open issue, in a well */
+/* the open issue, in a well: its mark and title, then its assignee and the
+   control that closes it */
 .detail {
   position: relative;
   display: grid;
@@ -556,47 +571,75 @@
     transform: translateY(3px);
   }
 }
-.issue .name {
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
   font-weight: 600;
 }
 .meta {
+  --avatar: calc(var(--button) - 2px);
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: space-between;
   min-width: 0;
-  color: var(--muted);
-  font-size: var(--small);
 }
-/* the assignee: only where there is room beside "Closed" and the button */
-.who {
-  display: none;
-  white-space: nowrap;
+/* the assignee's response brings their avatar */
+.meta .avatar {
+  animation: pop 300ms var(--ease) backwards;
 }
-@container queryable-hero (min-width: 520px) {
-  .who {
-    display: inline;
-  }
+/* Both states an issue can be in, side by side: the one it is in is lit in
+   its color, and the pointer clicks the other */
+.toggle {
+  flex: none;
+  display: inline-flex;
+  gap: 1px;
+  height: var(--button);
+  padding: 1px;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  transition: opacity 150ms;
 }
-.meta .button {
-  margin-left: auto;
-}
-.empty {
-  color: var(--muted);
-  font-size: var(--small);
-  text-align: center;
-}
-/* no data for this issue yet: a bar where each line will land */
-.skeleton i {
-  height: 8px;
+.option {
+  display: grid;
+  place-items: center;
+  width: calc(var(--button) + 2px);
   border-radius: 4px;
+  transition: background-color 200ms;
+}
+.option .state {
+  animation: none;
+  transition: color 200ms;
+}
+.option:not([data-on]) .state {
+  color: var(--edge);
+}
+.option[data-on] {
+  background: color-mix(in srgb, var(--open) 20%, transparent);
+}
+.option[data-on][data-closed] {
+  background: color-mix(in srgb, var(--closed) 20%, transparent);
+}
+/* No data yet: a bar where the title and the control will land, a disc
+   where the avatar will */
+.line,
+.ghost {
   background: var(--wait);
   animation: pulse 600ms ease-in-out infinite alternate;
 }
-.skeleton i:first-child {
-  width: 72%;
+.line {
+  width: 62%;
+  height: 8px;
+  border-radius: 4px;
 }
-.skeleton i:last-child {
-  width: 44%;
+.meta .line {
+  width: calc(var(--button) * 2 + 9px);
+}
+.ghost {
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: 50%;
 }
 @keyframes pulse {
   to {
@@ -644,23 +687,24 @@
   --x: 64%;
   --y: calc(var(--rows-top) + var(--row) * 3.5);
 }
-/* the third row: issue 5 */
+/* the third row: issue 5, past its title */
 .pointer[data-at='row'] {
-  --x: 38%;
+  --x: 56%;
   --y: calc(var(--rows-top) + var(--row) * 2.5 + 2px);
 }
-/* the detail's button, at its lower right */
+/* the detail's control, at its lower right: just off the middle of its
+   last option, so the check shows past the arrow */
 .pointer[data-at='close'] {
-  --x: calc(100% - var(--pad) - var(--inset) - 20px);
+  --x: calc(100% - var(--pad) - var(--inset) - var(--button) / 2 + 1px);
   --y: calc(
     var(--rows-top) + var(--row) * var(--rows) + var(--gap) + var(--detail) /
-      2 + 0.625em + 4px
+      2 + 0.625em + 5px
   );
 }
 /* the header's button, at its right */
 .pointer[data-at='new'] {
-  --x: calc(100% - var(--pad) - 20px);
-  --y: calc(var(--pad) + var(--head) / 2 + 2px);
+  --x: calc(100% - var(--pad) - var(--button) / 2 + 2px);
+  --y: calc(var(--pad) + var(--head) / 2 + 3px);
 }
 .pointer svg {
   display: block;
@@ -747,30 +791,20 @@
    time in both; each keeps a row for every request of the one that sends
    most */
 .waterfall {
-  /* a row's name: a method */
-  --name: 4ch;
+  /* what a row's name is drawn with, at a lane's size */
+  --icon: calc(var(--lane) - 4px);
+  --mark: calc(var(--lane) - 3px);
+  --avatar: calc(var(--lane) - 3px);
+  --button: calc(var(--lane) - 3px);
+  /* a row's name: an arrow, and the widest of what requests are for, a
+     list's icon and my avatar */
+  --name: calc(var(--icon) * 2 + var(--avatar) + 6px);
   --name-gap: 6px;
-  /* the height of the axis's marks, under the rows */
-  --axis: 12px;
   position: relative;
   display: grid;
   grid-auto-rows: var(--lane);
-  height: calc(var(--lanes) * var(--lane) + var(--axis));
-  margin-top: 4px;
-  font: 500 var(--mono) / var(--lane) var(--ifm-font-family-monospace);
-}
-/* with its path, cut where that is long */
-@container queryable-hero (min-width: 380px) {
-  .waterfall {
-    --name: 14ch;
-  }
-}
-/* whole: the longest, and a character to spare */
-@container queryable-hero (min-width: 580px) {
-  .waterfall {
-    --name: calc((var(--longest) + 1) * 1ch);
-    --name-gap: 8px;
-  }
+  height: calc(var(--lanes) * var(--lane));
+  margin-top: 6px;
 }
 .request {
   display: grid;
@@ -782,27 +816,28 @@
 .request[data-state='queued'] {
   opacity: 0;
 }
+/* A request without words: which way its data goes, down for a read in
+   ink or up for a write in the accent, then what it is for, drawn as the
+   app draws it */
 .what {
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 2px;
   color: var(--muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.what b {
-  color: var(--ink);
-  font-weight: 700;
+.way {
+  margin-right: 2px;
+  stroke-width: 2;
 }
-.request[data-mutation] .what b {
+.request[data-mutation] .way {
   color: var(--accent-ink);
 }
-/* a phone has room for the method alone */
-.path {
-  display: none;
+.what .button {
+  --icon: calc(var(--button) - 2px);
+  border-radius: 3px;
 }
-@container queryable-hero (min-width: 380px) {
-  .path {
-    display: inline;
-  }
+.what .button .icon {
+  stroke-width: 2;
 }
 .lane {
   position: relative;
@@ -849,31 +884,21 @@
 .request[data-state='landed'] .bar::before {
   transform: none;
 }
-/* the axis: a line each second behind the rows, named under them */
+/* the axis: a line each second, behind the rows */
 .ticks {
   position: absolute;
   inset: 0 0 0 calc(var(--name) + var(--name-gap));
 }
 .ticks i {
   position: absolute;
-  top: 0;
-  bottom: var(--axis);
+  inset-block: 0;
   left: calc(var(--at) * 100%);
   width: 1px;
   background: color-mix(in srgb, var(--ink) 9%, transparent);
 }
-.ticks span {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  color: var(--muted);
-  font-style: normal;
-  line-height: var(--axis);
-  transform: translateX(-50%);
-}
 
 /* off screen or in a hidden tab (useRuns), what repeats waits too */
-.frame[data-paused] :is(.spin, .dot::after, .skeleton i, .progress) {
+.frame[data-paused] :is(.spin, .state::after, .line, .ghost, .progress) {
   animation-play-state: paused;
 }
 
@@ -888,10 +913,12 @@
   .count b,
   .row[data-arrived],
   .issue,
+  .meta .avatar,
   .state,
   .spin[data-on],
-  .state[data-stale] .dot::after,
-  .skeleton i,
+  .state[data-stale]::after,
+  .line,
+  .ghost,
   .progress,
   .request[data-state='sent'] .bar::before {
     animation: none;

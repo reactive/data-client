@@ -48,11 +48,11 @@ export interface World {
   open?: Issue;
 }
 
-const search = { id: 3, title: 'Search ignores accents' };
-const avatar = { id: 4, title: 'Avatar upload fails' };
-const csv = { id: 5, title: 'CSV export drops a column' };
+const search = { id: 3, title: 'Search accents' };
+const avatar = { id: 4, title: 'Avatar upload' };
+const csv = { id: 5, title: 'CSV export' };
 const csvClosed = { ...csv, closed: true };
-const darkMode = { id: 6, title: 'Dark mode flickers' };
+const darkMode = { id: 6, title: 'Dark mode' };
 export const WORLDS: World[] = [
   { rows: [search, avatar, csv], mine: 3, all: 5 },
   // issue 5 is opened
@@ -177,11 +177,6 @@ const sendsOf = (side: Side, beats: Beat[]) =>
  * keeps a row for them */
 export const LANES = Math.max(
   ...SIDES.map(side => sendsOf(side, BEATS).length),
-);
-/** The longest request's length, in characters: a waterfall's names are
- * that wide where there is room */
-export const LONGEST = Math.max(
-  ...SIDES.flatMap(side => sendsOf(side, BEATS)).map(({ length }) => length),
 );
 
 /** A request an app sends in a run */
