@@ -39,8 +39,12 @@ export const BTC_2 = { id: 'BTC', price: 101.5 };
 
 export function makeTickerEndpoints(
   fetchImpl: FetchImpl,
-  extra: { invalidIfStale?: boolean } = {},
+  { invalidIfStale, dataExpiryLength }: DriftOptions = {},
 ) {
+  const extra = {
+    ...(invalidIfStale !== undefined && { invalidIfStale }),
+    ...(dataExpiryLength !== undefined && { dataExpiryLength }),
+  };
   return {
     getTickers: new Endpoint(() => fetchImpl('getTickers', {}), {
       schema: [Ticker],
@@ -66,6 +70,7 @@ export type DriftLayout = 'pair' | 'nested' | 'one-boundary' | 'shell-reader';
 export interface DriftOptions {
   layout?: DriftLayout;
   invalidIfStale?: boolean;
+  dataExpiryLength?: number;
   /** Browser: B2's code is this lazy's, so B2 cannot hydrate until it resolves */
   lazyB2?: Promise<void>;
   /** Browser: B2 has a sibling in its boundary that suspends on this until it resolves */
@@ -77,27 +82,30 @@ function makeDriftIslands(
   log: PageLog,
   opts: DriftOptions,
 ) {
-  function useRecord(name: string) {
+  function useRecord(name: string, text: string) {
     log.renders.push(name);
     useLayoutEffect(() => {
       log.commits.push(name);
-    }, [name]);
+      log.texts?.push(`${name}=${text}`);
+    }, [name, text]);
   }
   function TickerList({ name }: { name: string }) {
     const tickers = useSuspense(endpoints.getTickers);
-    useRecord(name);
+    const rows = tickers.map(t => `${t.id}:${t.price}`);
+    useRecord(name, rows.join(''));
     return (
       <ul data-testid={name}>
-        {tickers.map(t => (
-          <li key={t.id}>{`${t.id}:${t.price}`}</li>
+        {tickers.map((t, i) => (
+          <li key={t.id}>{rows[i]}</li>
         ))}
       </ul>
     );
   }
   function TickerOne({ name }: { name: string }) {
     const btc = useSuspense(endpoints.getTicker, { id: 'BTC' });
-    useRecord(name);
-    return <p data-testid={name}>{`${btc.id}:${btc.price}`}</p>;
+    const text = `${btc.id}:${btc.price}`;
+    useRecord(name, text);
+    return <p data-testid={name}>{text}</p>;
   }
   function Hold() {
     if (opts.holdB2 && !opts.holdB2.done) throw opts.holdB2;
@@ -187,6 +195,14 @@ export const resolveTickers: DriftStep = page =>
   page.server.resolve('getTickers', {}, TICKERS);
 export const resolveBtc: DriftStep = page =>
   page.server.resolve('getTicker', { id: 'BTC' }, BTC_2);
+/** BTC moves to revision 2 on the server without a fetch */
+export const writeBtc: DriftStep = page => {
+  page.stream.controller.setResponse(
+    page.endpoints.getTicker,
+    { id: 'BTC' },
+    BTC_2,
+  );
+};
 
 export function createDriftServerPage(opts: DriftOptions = {}) {
   const server = makeServerFetch();
@@ -248,7 +264,7 @@ export function createDriftClientPage(
     fetches.push(`${name} ${JSON.stringify(params)}`);
     return new Promise(() => {});
   }, opts);
-  const log: PageLog = { renders: [], commits: [] };
+  const log: PageLog = { renders: [], commits: [], texts: [] };
   const Layout = makeDriftIslands(endpoints, log, opts);
   const controller: { current?: Controller } = {};
   const managers = () => getDefaultManagers({ devToolsManager: null });

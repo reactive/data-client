@@ -69,6 +69,8 @@ export interface PageLog {
   renders: string[];
   /** Reader layout effects, by island name */
   commits: string[];
+  /** Reader layout effects, as `name=text` of what committed */
+  texts?: string[];
 }
 
 /** Client wraps the G1 controls compare */

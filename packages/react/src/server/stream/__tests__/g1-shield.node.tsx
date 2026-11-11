@@ -164,10 +164,7 @@ async function deliverB(b: BrowserHalf, page: Page, flush: LedgerFlush) {
 }
 
 type Cell =
-  | 'publish-transition'
-  | 'socket-default'
-  | 'socket-transition'
-  | 'interleaved';
+  'publish-transition' | 'socket-default' | 'socket-transition' | 'interleaved';
 
 async function runCell(variant: Variant, cell: Cell): Promise<Outcome> {
   const server =

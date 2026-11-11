@@ -4,7 +4,7 @@
  */
 import type { ReactElement } from 'react';
 
-import { runLedgerScript, settle, until } from './splitEnvHarness';
+import { messagesOf, runLedgerScript, settle, until } from './splitEnvHarness';
 import type * as Fixtures from './streamFixtures';
 import type { LedgerFlush } from './streamingHarness';
 
@@ -24,8 +24,19 @@ export function loadBrowserHalf() {
   const errors: unknown[] = [];
   let root: ReturnType<typeof hydrateRoot> | undefined;
 
-  /** The flush's ledger script, as the parser would run it */
-  const script = (flush: LedgerFlush) => runLedgerScript(flush.script);
+  /** Messages as a script would push them; one call is one script */
+  const push = (messages: readonly unknown[]) => {
+    const queue = ((globalThis as any).__RDC_STREAM__ ??= []);
+    queue.push(...messages);
+  };
+  /**
+   * The flush's ledger script, as the parser would run it.
+   * With `keep`, only the messages it keeps, pushed as one script.
+   */
+  const script = (flush: LedgerFlush, keep?: (message: any) => boolean) => {
+    if (keep) push(messagesOf(flush.script).filter(keep));
+    else runLedgerScript(flush.script);
+  };
   /**
    * The flush's HTML and React's inline scripts. Returns the streamed element
    * with `testId`, found before the scripts move it.
@@ -40,9 +51,21 @@ export function loadBrowserHalf() {
     harness.executeScripts(scripts);
     return streamed;
   };
+  /** Every flush's HTML, finding these streamed test ids before React's scripts move them */
+  const htmlFind = (flush: LedgerFlush, testIds: string[]) => {
+    const { insertedElements, scripts } = harness.appendChunk(
+      container,
+      flush.html,
+    );
+    const found: Record<string, Element | undefined> = {};
+    for (const testId of testIds)
+      found[testId] = harness.findTestId(insertedElements, testId);
+    harness.executeScripts(scripts);
+    return found;
+  };
   /** The shell: its script, then its HTML */
-  const shell = (flush: LedgerFlush) => {
-    script(flush);
+  const shell = (flush: LedgerFlush, keep?: (message: any) => boolean) => {
+    script(flush, keep);
     container.innerHTML = flush.html;
     harness.executeScripts(Array.from(container.querySelectorAll('script')));
   };
@@ -54,6 +77,8 @@ export function loadBrowserHalf() {
     });
     return root;
   };
+  /** Renders the root again, as a parent of the provider would */
+  const rootRender = (element: ReactElement) => root!.render(element);
   /** `<!--$?-->` or `<!--$~-->` before the boundary's template, so not yet hydrated */
   const pending = (templateId: string) => {
     const template = container.querySelector(`template[id="${templateId}"]`);
@@ -73,19 +98,18 @@ export function loadBrowserHalf() {
     root?.unmount();
     finishDocument();
   };
-  /** Messages as a script would push them; one call is one script */
-  const push = (messages: readonly unknown[]) => {
-    const queue = ((globalThis as any).__RDC_STREAM__ ??= []);
-    queue.push(...messages);
-  };
   /** Template id of the pending boundary whose fallback shows `fallbackText` */
   const templateOf = (fallbackText: string) =>
     harness.discoverPendingBoundary(container, fallbackText).id;
   /** The shell, then hydrate, then wait for A's commit and its join */
-  const start = async (page: {
-    element: ReactElement;
-    log: Fixtures.PageLog;
-  }, shellFlush: LedgerFlush, firstCommit = 'a') => {
+  const start = async (
+    page: {
+      element: ReactElement;
+      log: Fixtures.PageLog;
+    },
+    shellFlush: LedgerFlush,
+    firstCommit = 'a',
+  ) => {
     shell(shellFlush);
     hydrate(page.element);
     await until(
@@ -105,7 +129,9 @@ export function loadBrowserHalf() {
     script,
     html,
     shell,
+    htmlFind,
     hydrate,
+    rootRender,
     pending,
     text,
     byTestId,

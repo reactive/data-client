@@ -147,6 +147,27 @@ describe('getLedger', () => {
     });
   });
 
+  it('settles a promise use() marked pending', async () => {
+    const ledger = getLedger()!;
+    // what `use()` does to a promise without a status before it suspends
+    const open: any = ledger.whenOpen();
+    open.status = 'pending';
+    const pin: any = ledger.whenPin('a');
+    pin.status = 'pending';
+    const late: any = ledger.whenPin('b');
+    late.status = 'pending';
+    push(
+      { t: 'open', v: 1, rev: 0, at: 50_000 },
+      { t: 'pin', id: 'a', rev: 2 },
+    );
+    await expect(open).resolves.toBeUndefined();
+    expect(open.status).toBe('fulfilled');
+    await expect(pin).resolves.toBe(2);
+    expect(pin).toMatchObject({ status: 'fulfilled', value: 2 });
+    push({ t: 'end' });
+    await expect(late).resolves.toBeNull();
+  });
+
   it('drops the pin at commit and any pin that arrives later for that id', () => {
     const ledger = getLedger()!;
     push(

@@ -53,11 +53,15 @@ interface Tracked<T> extends Promise<T> {
 
 function tracked<T>(): Tracked<T> {
   let resolve!: (value: T) => void;
+  let settled = false;
   const promise = new Promise<T>(r => {
     resolve = r;
   }) as Tracked<T>;
+  // `use()` sets `status: 'pending'` on a promise it has not seen settle,
+  // so `status` cannot tell whether this one has
   promise.settle = value => {
-    if (promise.status) return;
+    if (settled) return;
+    settled = true;
     promise.status = 'fulfilled';
     promise.value = value;
     resolve(value);
