@@ -9,6 +9,10 @@
 
 import vm from 'vm';
 
+// Each test loads React's server and browser module graphs and a jsdom. A test
+// that times out keeps running and tears down the next test's DOM.
+jest.setTimeout(30_000);
+
 /** Messages an inline ledger script pushes, read in a sandbox */
 export function messagesOf(scriptTag: string): any[] {
   const source = scriptTag.replace(/^<script>/, '').replace(/<\/script>$/, '');

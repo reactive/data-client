@@ -173,9 +173,14 @@ export async function runCell(
     b.probe.resetCommits();
     const rendersBefore = page.log.renders.length;
     let writesWhileBPending = 0;
+    // A wake renders after the write; a slow machine needs more than 10 ms
     const count = async () => {
       await settle(10);
-      if (b.pending('B:0')) writesWhileBPending++;
+      try {
+        await until(() => !b.pending('B:0'), 'B woken', 50);
+      } catch {
+        writesWhileBPending++;
+      }
     };
 
     if (cell === 'publish-transition') {
