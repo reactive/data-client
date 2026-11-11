@@ -266,7 +266,8 @@ can differ, and optimistic updates happen on the client, so use the client's clo
 3. Override [shouldReorder](https://dataclient.io/rest/api/Entity#shouldreorder) to reorder out-of-order responses by `updatedAt`.
 
 [getOptimisticResponse](./RestEndpoint.vue.md#getoptimisticresponse) uses [snap.fetchedAt](https://dataclient.io/vue/api/Snapshot#fetchedat).
-It is the moment the fetch starts, on the same clock as `updatedAt`.
+It is the moment the fetch starts, on the same clock as `updatedAt` (a fraction of a millisecond later when several
+fetches start in one millisecond).
 
 ```ts title="count" {11-13}
 import { Entity, RestEndpoint } from '@data-client/rest';

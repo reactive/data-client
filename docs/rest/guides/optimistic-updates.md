@@ -327,7 +327,8 @@ can differ, and optimistic updates happen on the client, so use the client's clo
 1. Override [shouldReorder](../api/Entity.md#shouldreorder) to reorder out-of-order responses by `updatedAt`.
 
 [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) uses [snap.fetchedAt](/docs/api/Snapshot#fetchedat).
-It is the moment the fetch starts, on the same clock as `updatedAt`.
+It is the moment the fetch starts, on the same clock as `updatedAt` (a fraction of a millisecond later when several
+fetches start in one millisecond).
 
 <FrameworkPlayground fixtures={[
 {

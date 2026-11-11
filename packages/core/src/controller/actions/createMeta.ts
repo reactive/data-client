@@ -1,3 +1,4 @@
+import { orderedNow } from './orderedNow.js';
 import type { ActionMeta } from '../../actions.js';
 
 export function createMeta(
@@ -6,7 +7,7 @@ export function createMeta(
 ): ActionMeta {
   const now = Date.now();
   return {
-    fetchedAt: fetchedAt ?? now,
+    fetchedAt: fetchedAt ?? orderedNow(now),
     date: now,
     expiresAt: now + expiryLength,
   };
