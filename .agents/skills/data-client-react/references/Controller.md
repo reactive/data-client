@@ -181,28 +181,42 @@ To check whether data is cached and fresh without fetching, read [getResponse()]
 A loader starts the next page's fetches before it renders. Like [useSuspense()](./useSuspense.md), navigation should wait
 only when the cached data can't render: when it's missing, or comes from an
 [invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) endpoint. Stale data renders at once and
-refetches. How to get that depends on whether the router waits for the loader before it changes the route:
+refetches. How to get that depends on what the router waits for:
 
-| Router                                                                                                                                                                                                       | In the loader                                                                                                              | Nothing cached                                                                                                                                   |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Changes the route in a [transition](https://react.dev/reference/react/startTransition) and ignores the loader's Promise, like [@anansi/router](https://www.npmjs.com/package/@anansi/router)'s `resolveData` | Start every `fetchIfStale()`; await only the first view's, with `.catch(() => {})` (or `Promise.allSettled()` for several) | The current page stays until the new one is ready, unless the new page has its own [AsyncBoundary](./AsyncBoundary.md), which shows its fallback |
-| Waits for the loader, like React Router data loaders or TanStack Router                                                                                                                                      | Return the cached data when it can render; otherwise return `fetchIfStale()`                                               | The router waits for the fetch                                                                                                                   |
+| Router                                                                                                                                                                                                                 | In the loader                                                                           | Nothing cached                                                                                                                                                                                                       |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Changes the route in a [transition](https://react.dev/reference/react/startTransition), like the Next.js App Router, React Router 7, TanStack Router or [@anansi/router](https://www.npmjs.com/package/@anansi/router) | Start every `fetchIfStale()` without awaiting it, so the router has nothing to wait for | The current page stays until the new one is ready, unless the new page has its own Suspense boundary (like an [AsyncBoundary](./AsyncBoundary.md) or a TanStack Router `pendingComponent`), which shows its fallback |
+| Renders the loader's return value, or doesn't change the route in a transition (React Router 6 without its `v7_startTransition` flag)                                                                                  | Return the cached data when it can render; otherwise return `fetchIfStale()`            | The router waits for the fetch                                                                                                                                                                                       |
 
-Routers without loaders, like the Next.js App Router, need no call: `useSuspense()` fetches as the page renders.
+The Next.js App Router has no loaders: `useSuspense()` fetches as the page renders.
 
-```ts title="Router that doesn't wait"
+```ts title="Router with transitions"
+import type { Controller } from '@data-client/react';
+import { CommentResource } from './resources/Comment';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    // not awaited: the route changes at once, and useSuspense() waits inside the transition
+    ctrl.fetchIfStale(IssueResource.get, { id: params.id });
+    ctrl.fetchIfStale(CommentResource.getList, { issueId: params.id });
+  };
+```
+
+When server rendering waits for the loader, as @anansi/core's `prefetchSpout` does for @anansi/router's `resolveData`,
+also await the first view's fetch so the first HTML includes its data. Add `.catch(() => {})` (or use
+`Promise.allSettled()` for several), so a failure never rejects unhandled on the client; `useSuspense()` still shows the
+error.
+
+```ts
 resolveData: async (controller: Controller, { id }: { id: string }) => {
-  // not awaited: the page shows before the comments arrive
   controller.fetchIfStale(CommentResource.getList, { issueId: id });
   await controller.fetchIfStale(IssueResource.get, { id }).catch(() => {});
 },
 ```
 
-Server rendering (like @anansi/core's `prefetchSpout`) does wait for `resolveData`, so the first HTML includes the
-awaited data. The `.catch()` keeps a failure from rejecting unhandled on the client; `useSuspense()` still shows the
-error.
-
-```ts title="Router that waits"
+```ts title="Router that renders loader data"
 import { ExpiryStatus, type Controller } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
@@ -221,8 +235,8 @@ export const issueLoader =
   };
 ```
 
-A router that waits for loaders can show its own pending and error UI, but it holds navigation while a request runs.
-That tradeoff comes with the router, whatever fetches the data.
+A loader that returns a pending fetch lets the router show its own pending and error UI, but it holds navigation while
+the request runs. That tradeoff comes with waiting for loader data, whatever fetches it.
 
 Example app: [github-app](https://github.com/reactive/data-client/tree/master/examples/github-app) ([`src/routing/routes.tsx`](https://github.com/reactive/data-client/blob/master/examples/github-app/src/routing/routes.tsx))
 

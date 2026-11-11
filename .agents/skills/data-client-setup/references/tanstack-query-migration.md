@@ -328,8 +328,8 @@ like `prefetchQuery()`: a failure never rejects unhandled, and is stored for com
 focus prefetching too: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Awaited, it works like
 `fetchQuery()` with a `staleTime`: it resolves the data, waiting for the refetch when cached data is stale, or rejects
 with the error. Use the awaited form where the loader used `fetchQuery()`, and the pattern above where it used
-`ensureQueryData()` or `getQueryData() ?? fetchQuery()`, for routers that wait for loaders
-([Route loaders](https://dataclient.io/docs/api/Controller#fetchIfStale-loaders) covers the others). Load several endpoints the way the loader did before;
+`ensureQueryData()` or `getQueryData() ?? fetchQuery()`. [Route loaders](https://dataclient.io/docs/api/Controller#fetchIfStale-loaders)
+shows loaders that don't make navigation wait. Load several endpoints the way the loader did before;
 letting the page show before secondary data arrives belongs to the [performance pass](https://dataclient.io/docs/guides/performance-pass#loaders).
 
 ## Infinite queries {#infinite}
