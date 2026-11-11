@@ -193,8 +193,9 @@
   --button: 20px;
   --text: 11px;
   --small: 10px;
-  --chip: 16px;
-  --chip-text: 9px;
+  --lane: 13px;
+  --bar: 7px;
+  --mono: 9px;
   /* between a state's word and its ring, which an arc circles while stale */
   --state-gap: 5px;
   display: grid;
@@ -213,8 +214,9 @@
     --button: 24px;
     --text: 13px;
     --small: 12px;
-    --chip: 18px;
-    --chip-text: 10px;
+    --lane: 15px;
+    --bar: 8px;
+    --mono: 10px;
     --state-gap: 7px;
     column-gap: 12px;
   }
@@ -739,68 +741,135 @@
 .client .tally[data-on] b {
   color: var(--accent-ink);
 }
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+/* An app's requests as a browser's network panel draws them: a row each,
+   in the order sent, its bar starting when the request leaves and as long
+   as it takes. Both apps' rows are the same widths, so a width is the same
+   time in both; each keeps a row for every request of the one that sends
+   most */
+.waterfall {
+  /* a row's name: a method */
+  --name: 4ch;
+  --name-gap: 6px;
+  /* the height of the axis's marks, under the rows */
+  --axis: 12px;
+  position: relative;
+  display: grid;
+  grid-auto-rows: var(--lane);
+  height: calc(var(--lanes) * var(--lane) + var(--axis));
   margin-top: 4px;
+  font: 500 var(--mono) / var(--lane) var(--ifm-font-family-monospace);
 }
-/* A request: an outline as it leaves, filling as its response comes, and
-   solid once it has */
-.chip {
-  position: relative;
-  overflow: hidden;
-  display: inline-flex;
+/* with its path, cut where that is long */
+@container queryable-hero (min-width: 380px) {
+  .waterfall {
+    --name: 14ch;
+  }
+}
+/* whole: the longest, and a character to spare */
+@container queryable-hero (min-width: 580px) {
+  .waterfall {
+    --name: calc((var(--longest) + 1) * 1ch);
+    --name-gap: 8px;
+  }
+}
+.request {
+  display: grid;
+  grid-template-columns: var(--name) minmax(0, 1fr);
+  column-gap: var(--name-gap);
   align-items: center;
-  gap: 0.6em;
-  height: var(--chip);
-  padding: 0 5px;
-  border-radius: 5px;
-  box-shadow: inset 0 0 0 1px var(--wait);
+  transition: opacity 200ms;
+}
+.request[data-state='queued'] {
+  opacity: 0;
+}
+.what {
+  overflow: hidden;
   color: var(--muted);
-  font: 500 var(--chip-text) / 1 var(--ifm-font-family-monospace);
+  text-overflow: ellipsis;
   white-space: nowrap;
-  transition:
-    opacity 200ms,
-    transform 200ms var(--ease);
 }
-.chip::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--sheet);
-  transform: scaleX(0);
-  transform-origin: left;
-}
-.chip > * {
-  position: relative;
-}
-.chip b {
+.what b {
   color: var(--ink);
   font-weight: 700;
 }
-.chip[data-mutation] b {
+.request[data-mutation] .what b {
   color: var(--accent-ink);
-}
-.chip[data-state='queued'] {
-  opacity: 0;
-  transform: scale(0.9);
-}
-.chip[data-state='sent']::before {
-  animation: fill var(--latency) linear both;
-  transform: none;
-}
-.chip[data-state='landed']::before {
-  transform: none;
 }
 /* a phone has room for the method alone */
 .path {
   display: none;
 }
-@container queryable-hero (min-width: 520px) {
+@container queryable-hero (min-width: 380px) {
   .path {
     display: inline;
   }
+}
+.lane {
+  position: relative;
+  height: var(--bar);
+}
+/* A request that waited for another's response hangs from the end of that
+   one's bar: the line runs down from it to this row */
+.request[data-waited] .lane::before {
+  content: '';
+  position: absolute;
+  bottom: 50%;
+  left: calc(var(--at) * 100% - 1px);
+  width: 1px;
+  height: calc(var(--up) * var(--lane) - var(--bar) / 2);
+  background: var(--edge);
+}
+/* A request's time on the axis: marked out as it leaves, filling as its
+   response comes, and solid once it has: a read in ink, a write in the
+   accent */
+.bar {
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--at) * 100%);
+  width: calc(var(--lasts) * 100%);
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--wait);
+}
+.bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--muted);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.request[data-mutation] .bar::before {
+  background: var(--accent);
+}
+.request[data-state='sent'] .bar::before {
+  animation: fill var(--latency) linear both;
+  transform: none;
+}
+.request[data-state='landed'] .bar::before {
+  transform: none;
+}
+/* the axis: a line each second behind the rows, named under them */
+.ticks {
+  position: absolute;
+  inset: 0 0 0 calc(var(--name) + var(--name-gap));
+}
+.ticks i {
+  position: absolute;
+  top: 0;
+  bottom: var(--axis);
+  left: calc(var(--at) * 100%);
+  width: 1px;
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+}
+.ticks span {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  color: var(--muted);
+  font-style: normal;
+  line-height: var(--axis);
+  transform: translateX(-50%);
 }
 
 /* off screen or in a hidden tab (useRuns), what repeats waits too */
@@ -824,19 +893,15 @@
   .state[data-stale] .dot::after,
   .skeleton i,
   .progress,
-  .chip[data-state='sent']::before {
+  .request[data-state='sent'] .bar::before {
     animation: none;
   }
-  .chip,
   .tally,
   .tally b {
-    transition-property: opacity, color;
-  }
-  .chip[data-state='queued'] {
-    transform: none;
+    transition-property: color;
   }
   /* out, half full */
-  .chip[data-state='sent']::before {
+  .request[data-state='sent'] .bar::before {
     transform: scaleX(0.5);
   }
   .beats button,

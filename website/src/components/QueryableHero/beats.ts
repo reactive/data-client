@@ -4,10 +4,10 @@
 import { CLEAR } from '../LookupTable/parts';
 
 /** How long a request takes, in ms, the same in both apps: a list takes
- * longest, then a write of one issue, then a read of one */
+ * longest, then a write, then a read of one thing, by its id */
 export function latency(request: Request) {
   if (!request.startsWith('GET')) return 500;
-  return request.includes('/issues/') ? 250 : 1000;
+  return /\/\d+$/.test(request) ? 250 : 1000;
 }
 /** The pointer's trip to what it clicks next */
 export const TRAVEL = 600;
@@ -160,13 +160,29 @@ export const BEATS: Beat[] = [
   },
 ];
 
-/** Every request an app sends over a run, in order */
-export const REQUESTS = Object.fromEntries(
-  SIDES.map(side => [
-    side,
-    BEATS.flatMap(beat => beat[side].flatMap(step => step.sends ?? [])),
-  ]),
-) as Record<Side, Request[]>;
+/** Every request an app sends over `beats`, in order */
+const sendsOf = (side: Side, beats: Beat[]) =>
+  beats.flatMap(beat => beat[side].flatMap(step => step.sends ?? []));
+/** The most requests an app sends over a whole run: each app's waterfall
+ * keeps a row for them */
+export const LANES = Math.max(
+  ...SIDES.map(side => sendsOf(side, BEATS).length),
+);
+/** The longest request's length, in characters: a waterfall's names are
+ * that wide where there is room */
+export const LONGEST = Math.max(
+  ...SIDES.flatMap(side => sendsOf(side, BEATS)).map(({ length }) => length),
+);
+
+/** A request an app sends in a run */
+export interface Sent {
+  request: Request;
+  /** when it leaves, in ms from the run's start. It is back latency() later */
+  at: number;
+  /** the request whose response it waited for, as an index of the run's:
+   * the slowest of its beat's step before */
+  after?: number;
+}
 
 /** One app at one moment */
 export interface AppState {
@@ -181,7 +197,8 @@ export interface AppState {
   waits: Partial<Record<View, Wait>>;
   /** the world whose issue is open. It leads the detail while that loads */
   route: number;
-  /** how many of its REQUESTS are sent, and how many of those are back */
+  /** how many of a whole run's requests are sent, and how many of those are
+   * back */
   sent: number;
   landed: number;
   /** what was clicked, while its mutation is out */
@@ -208,6 +225,11 @@ export interface Run {
   period: number;
   /** how long each app took, in ms */
   took: Record<Side, number>;
+  /** the requests each app sends, in order */
+  requests: Record<Side, Sent[]>;
+  /** the time both apps' waterfalls span, in ms from the run's start: from
+   * the first click to the last response */
+  axis: { from: number; to: number };
   /** how long each beat is the one playing, in ms */
   spans: number[];
 }
@@ -264,9 +286,12 @@ type Change = {
  * each at its time in `clicks`: as changes to its state */
 function appChanges(side: Side, from: number, beats: Beat[], clicks: number[]) {
   const changes: Change[] = [];
+  const requests: Sent[] = [];
   let at = 0;
   beats.forEach((beat, i) => {
     const world = from + i + 1;
+    /** the request this beat's next step waits for */
+    let after: number | undefined;
     at = clicks[i];
     changes.push(
       // the first beat starts with the run
@@ -310,6 +335,10 @@ function appChanges(side: Side, from: number, beats: Beat[], clicks: number[]) {
               busy: mutates ? beat.target : undefined,
             },
       });
+      const first = requests.length;
+      for (const request of sends) requests.push({ request, at, after });
+      if (sends.length)
+        after = first + sends.findIndex(sent => latency(sent) === lasts(step));
       at += lasts(step);
       changes.push({
         at,
@@ -322,14 +351,12 @@ function appChanges(side: Side, from: number, beats: Beat[], clicks: number[]) {
     }
   });
   changes.push({ at, change: state => ({ ...state, done: true }) });
-  return { changes, took: at };
+  return { changes, requests, took: at };
 }
 
 /** An app with BEATS before `from` played and settled */
 function startAt(side: Side, from: number): AppState {
-  const sent = BEATS.slice(0, from).flatMap(beat =>
-    beat[side].flatMap(step => step.sends ?? []),
-  ).length;
+  const sent = sendsOf(side, BEATS.slice(0, from)).length;
   return {
     beat: from,
     pointer: BEATS[from - 1]?.target,
@@ -381,6 +408,11 @@ function compile(pace: Pace, from: number, count: number): Run {
     end,
     period: clearAt + CLEAR,
     took,
+    requests: { keyed: keyed.requests, client: client.requests },
+    axis: {
+      from: Math.min(clicks.keyed[0], clicks.client[0]),
+      to: Math.max(took.keyed, took.client),
+    },
     spans: BEATS.map((_, i) =>
       i + 1 < from + count ?
         starts(i + 1) - starts(i)

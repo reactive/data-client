@@ -6,7 +6,8 @@ import React, { useEffect, useState } from 'react';
 
 import {
   BEATS,
-  REQUESTS,
+  LANES,
+  LONGEST,
   ROWS,
   SIDES,
   TRAVEL,
@@ -17,6 +18,8 @@ import {
   type AppState,
   type Issue,
   type Pace,
+  type Run,
+  type Sent,
   type Side,
   type View,
 } from './beats';
@@ -29,6 +32,8 @@ const VARS = {
   '--travel': `${TRAVEL}ms`,
   '--clear': `${CLEAR}ms`,
   '--rows': ROWS,
+  '--lanes': LANES,
+  '--longest': LONGEST,
 } as React.CSSProperties;
 
 /** A time in seconds, to a tenth: 6850 ms is 6.9 */
@@ -99,7 +104,7 @@ function usePlayer(pace: Pace) {
  * cache keyed by request, one on Data Client. Each clicks at its own pace,
  * as soon as its screen shows the last click's result, and says how long it
  * took; Sync makes the faster wait, so both click at the same moments. Each
- * lists the requests it sends under it. The pills above show the beat
+ * charts the requests it sends under it. The pills above show the beat
  * playing, the last one both apps have reached, and start one.
  */
 export default function QueryableHero({
@@ -124,7 +129,10 @@ function Demo() {
     usePlayer(pace);
   const now = script.frames[frame];
   const beat = beatOf(now);
-  const whole = runOf('own');
+  /** every beat at this pace: what the waterfalls chart, whichever beats
+   * are playing */
+  const whole = runOf(pace);
+  const timed = runOf('own');
   const beatLabels = {
     open: translate({
       id: 'queryableHero.beat.open',
@@ -250,8 +258,8 @@ function Demo() {
               'Accessible label of the hero on the Queryable page. {client} and {keyed} are times in seconds, like 4.1',
           },
           {
-            client: seconds(whole.took.client),
-            keyed: seconds(whole.took.keyed),
+            client: seconds(timed.took.client),
+            keyed: seconds(timed.took.keyed),
           },
         )}
       >
@@ -285,7 +293,8 @@ function Demo() {
               <Requests
                 key={take}
                 app={now.apps[side]}
-                side={side}
+                requests={whole.requests[side]}
+                axis={whole.axis}
                 clearing={now.clearing}
                 label={requestsLabel}
               />
@@ -455,36 +464,80 @@ function Flash({ at }: { at: number | undefined }) {
   return at === undefined ? null : <i key={at} className={styles.flash} />;
 }
 
-/** The requests an app has sent: their count, then each as a chip that
- * fills while it is out. Every chip keeps its place from the start, so
- * both strips are as tall as the longer one from the first frame */
+/** The requests an app has sent: their count, then a waterfall, as a
+ * browser's network panel draws one. Each request has a row, in the order
+ * sent, with a bar that starts when it leaves and is as long as it takes.
+ * Both apps' bars are on one `axis`, and every row keeps its place from the
+ * start, so both waterfalls are as tall as the longer from the first frame */
 function Requests({
   app: { sent, landed, done },
-  side,
+  requests,
+  axis,
   clearing,
   label,
 }: {
   app: AppState;
-  side: Side;
+  /** a whole run's, where the app's `sent` and `landed` count */
+  requests: Sent[];
+  axis: Run['axis'];
   clearing: boolean;
   label: string;
 }) {
+  const span = axis.to - axis.from;
+  /** how far along the axis a time is, from 0 to 1 */
+  const along = (at: number) => (at - axis.from) / span;
+  const firstSecond = Math.ceil(axis.from / 1000);
+  const ticks = Array.from(
+    { length: Math.floor(axis.to / 1000) - firstSecond + 1 },
+    (_, i) => firstSecond + i,
+  );
+
   return (
     <div className={styles.run} data-clearing={clearing || undefined}>
       <div className={styles.tally} data-on={done || undefined}>
         {label} <b>{sent}</b>
       </div>
-      <div className={styles.chips}>
-        {REQUESTS[side].map((request, i) => {
+      <div className={styles.waterfall}>
+        {/* a line each second of the run, every other one named */}
+        <div className={styles.ticks}>
+          {ticks.map(second => (
+            <i
+              key={second}
+              style={{ '--at': along(second * 1000) } as React.CSSProperties}
+            >
+              {second % 2 === 0 && (
+                <span>
+                  {translate(
+                    {
+                      id: 'queryableHero.tick',
+                      message: '{seconds}s',
+                      description:
+                        'Queryable page hero: a mark on the time axis under an app’s requests, in whole seconds since the animation started, like 2s. Keep it as short as possible',
+                    },
+                    { seconds: second },
+                  )}
+                </span>
+              )}
+            </i>
+          ))}
+        </div>
+        {requests.map(({ request, at, after }, i) => {
           const [method, path] = request.split(' ');
           return (
-            <span
+            <div
               key={i}
-              className={styles.chip}
+              className={styles.request}
               style={
-                { '--latency': `${latency(request)}ms` } as React.CSSProperties
+                {
+                  '--at': along(at),
+                  '--lasts': latency(request) / span,
+                  '--latency': `${latency(request)}ms`,
+                  // how many rows up the request it waited for is
+                  '--up': after === undefined ? undefined : i - after,
+                } as React.CSSProperties
               }
               data-mutation={method !== 'GET' || undefined}
+              data-waited={after === undefined ? undefined : true}
               data-state={
                 i >= sent ? 'queued'
                 : i >= landed ?
@@ -492,9 +545,14 @@ function Requests({
                 : 'landed'
               }
             >
-              <b>{method}</b>
-              <span className={styles.path}>{path}</span>
-            </span>
+              <span className={styles.what}>
+                <b>{method}</b>
+                <span className={styles.path}> {path}</span>
+              </span>
+              <span className={styles.lane}>
+                <i className={styles.bar} />
+              </span>
+            </div>
           );
         })}
       </div>
