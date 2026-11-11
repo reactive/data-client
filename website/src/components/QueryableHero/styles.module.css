@@ -53,11 +53,17 @@
   }
 }
 
+/* over the apps: the beats in the middle, the pace's switch at the end */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 8px;
+}
 /* the beats: the one playing fills as it plays; each starts a run there */
 .beats {
+  grid-column: 2;
   display: flex;
-  width: fit-content;
-  margin: 0 auto 8px;
   padding: 2px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--ink) 6%, transparent);
@@ -93,7 +99,8 @@
     color: var(--ink);
   }
 }
-.beats button:focus-visible {
+.beats button:focus-visible,
+.sync:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -101,6 +108,58 @@
 @media (pointer: coarse) {
   .beats button {
     padding: 8px 14px;
+  }
+  .sync {
+    padding-block: 10px;
+  }
+}
+/* Whether both apps click together: quieter than the beats, a word and a
+   small switch whose knob crosses over when on */
+.sync {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px 6px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 600 0.75rem var(--ifm-font-family-base);
+  cursor: pointer;
+  transition: color var(--motion-snappy);
+}
+.sync i {
+  position: relative;
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--edge);
+  transition: background-color var(--motion-snappy);
+}
+.sync i::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sheet);
+  transition: transform var(--motion-snappy);
+}
+.sync[aria-checked='true'] {
+  color: var(--ink);
+}
+.sync[aria-checked='true'] i {
+  background: var(--accent);
+}
+.sync[aria-checked='true'] i::after {
+  transform: translateX(10px);
+}
+@media (hover: hover) {
+  .sync:hover {
+    color: var(--ink);
   }
 }
 /* how much of the beat has played */
@@ -167,18 +226,63 @@
   grid-column: 2;
 }
 
+/* an app's name, and how long it has been at it */
 .label {
   grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* a stopwatch's height, with or without one */
+  min-height: calc(var(--small) * 1.25 + 4px);
   padding: 0 2px;
-  overflow: hidden;
   color: var(--muted);
   font-size: calc(var(--small) + 1px);
   font-weight: 600;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .label.client {
   color: var(--accent-ink);
+}
+.side {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Counting while its app works, in the label's color; once the app is
+   done, a filled badge with a check: Data Client's in the accent */
+.stopwatch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: var(--small);
+  font-variant-numeric: tabular-nums;
+}
+.stopwatch[data-done] {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  color: var(--ink);
+  animation: pop 300ms var(--ease) backwards;
+}
+.client .stopwatch[data-done] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.stopwatch path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
 }
 .long {
   display: none;
@@ -623,7 +727,8 @@
     transform 300ms var(--ease),
     color 300ms;
 }
-/* the run's last word: each side's count, larger, and the number most */
+/* an app's last word, once it is done: its count, larger, and the number
+   most */
 .tally[data-on] {
   color: var(--ink);
   transform: scale(1.3);
@@ -710,6 +815,7 @@
     display: none;
   }
   .run,
+  .stopwatch[data-done],
   .count b,
   .row[data-arrived],
   .issue,
@@ -733,7 +839,14 @@
   .chip[data-state='sent']::before {
     transform: scaleX(0.5);
   }
-  .beats button {
+  .beats button,
+  .sync,
+  .sync i,
+  .sync i::after {
     transition: none;
+  }
+  /* no clock runs: an app's time shows once it is done */
+  .stopwatch:not([data-done]) {
+    visibility: hidden;
   }
 }

@@ -6,17 +6,23 @@ import { CLEAR } from '../LookupTable/parts';
 /** How long a request takes, in ms, the same in both apps: a list takes
  * longest, then a write of one issue, then a read of one */
 export function latency(request: Request) {
-  if (!request.includes('/issues/')) return 1000;
-  return request.startsWith('GET') ? 250 : 500;
+  if (!request.startsWith('GET')) return 500;
+  return request.includes('/issues/') ? 250 : 1000;
 }
 /** The pointer's trip to what it clicks next */
 export const TRAVEL = 600;
+/** How long a click's result stays on screen before the pointer leaves for
+ * the next click */
+const DWELL = 600;
 /** A beat starts this long before its pointer leaves */
 const LEAD = 100;
-/** When the requests are counted */
-const TALLY = 7700;
-/** One run; then it starts over */
-export const PERIOD = 10000;
+/** How long a finished run rests before it fades */
+const REST = 2500;
+
+/** When the apps click: each `own` its pace, as soon as its screen shows
+ * the last click's result, or in `sync`, the faster app waiting for the
+ * slower so both click at the same moments */
+export type Pace = 'own' | 'sync';
 
 /** The two apps: a cache keyed by request, and Data Client */
 export const SIDES = ['keyed', 'client'] as const;
@@ -81,8 +87,6 @@ interface Step {
 export type Wait = 'loading' | 'stale';
 interface Beat {
   id: 'open' | 'close' | 'create';
-  /** when it is clicked, in ms from the run's start */
-  at: number;
   target: Target;
   keyed: Step[];
   client: Step[];
@@ -91,8 +95,8 @@ interface Beat {
 const MINE: Request = 'GET /issues?assigneeId=1';
 const ALL: Request = 'GET /issues';
 /**
- * The three clicks. Both apps get each one at the same moment, and every
- * request takes its latency().
+ * The three clicks. Both apps get the same clicks, every request takes its
+ * latency(), and schedule() says when each app clicks.
  *
  * The cache keyed by request is set up well: the detail on screen is
  * written from the mutation's own response (the closed issue, the new one),
@@ -103,7 +107,6 @@ const ALL: Request = 'GET /issues';
 export const BEATS: Beat[] = [
   {
     id: 'open',
-    at: 700,
     target: 'row',
     keyed: [
       {
@@ -117,7 +120,6 @@ export const BEATS: Beat[] = [
   },
   {
     id: 'close',
-    at: 2400,
     target: 'close',
     keyed: [
       { sends: ['PUT /issues/5'], lands: ['detail'] },
@@ -137,7 +139,6 @@ export const BEATS: Beat[] = [
   },
   {
     id: 'create',
-    at: 5200,
     target: 'new',
     keyed: [
       { sends: ['POST /issues'], lands: ['detail'] },
@@ -169,6 +170,12 @@ export const REQUESTS = Object.fromEntries(
 
 /** One app at one moment */
 export interface AppState {
+  /** the beat it is on, as an index of BEATS */
+  beat: number;
+  /** where its pointer is, or is heading */
+  pointer?: Target;
+  /** how many clicks so far this run */
+  clicks: number;
   /** the world each view shows */
   shows: Record<View, number>;
   waits: Partial<Record<View, Wait>>;
@@ -181,31 +188,98 @@ export interface AppState {
   busy?: Target;
   /** the frame each view last re-rendered at */
   rendered: Partial<Record<View, number>>;
+  /** every click's result is on screen, and every response back */
+  done: boolean;
 }
 /** Both apps at one moment, which holds until the next frame's */
 export interface Frame {
   at: number;
-  /** the beat playing, as an index of BEATS */
-  beat: number;
-  /** where the pointer is, or is heading */
-  pointer?: Target;
-  /** how many clicks so far */
-  clicks: number;
-  /** the requests are counted */
-  tally: boolean;
   /** the run is fading out */
   clearing: boolean;
   apps: Record<Side, AppState>;
 }
+/** Some of the beats, played once */
+export interface Run {
+  /** every moment something changes; the first is its start */
+  frames: Frame[];
+  /** the frame it rests at: both apps done, nothing fading */
+  end: number;
+  /** from its start until the next run's, in ms */
+  period: number;
+  /** how long each app took, in ms */
+  took: Record<Side, number>;
+  /** how long each beat is the one playing, in ms */
+  spans: number[];
+}
 
-type Change<T> = { at: number; change: (state: T, frame: number) => T };
+/** How long a step takes: as long as its slowest request */
+const lasts = ({ sends = [] }: Step) => Math.max(0, ...sends.map(latency));
 
-/** What an app does over a run, as changes to its state */
-function appChanges(side: Side) {
-  const changes: Change<AppState>[] = [];
-  BEATS.forEach((beat, i) => {
-    const world = i + 1;
-    let at = beat.at;
+/** A beat in one app, in ms after its click: when its result is all on
+ * screen, and when its last response is back */
+function timing(steps: Step[]) {
+  let back = 0;
+  let shown = 0;
+  for (const step of steps) {
+    const sent = back;
+    back += lasts(step);
+    if (step.lands?.length) shown = step.optimistic ? sent : back;
+  }
+  return { shown, back };
+}
+
+/**
+ * When each app clicks each of `beats`, in ms from the run's start. An app's
+ * pointer leaves for its next click DWELL after its screen shows the last
+ * click's result, and takes TRAVEL to get there: the same for both apps, so
+ * what differs is only how long each waits for its data. In `sync`, both
+ * leave when the slower is ready.
+ */
+function schedule(pace: Pace, beats: Beat[]) {
+  const clicks: Record<Side, number[]> = { keyed: [], client: [] };
+  /** when each app's pointer is free to leave */
+  let free: Record<Side, number> = { keyed: LEAD, client: LEAD };
+  for (const beat of beats) {
+    if (pace === 'sync') {
+      const both = Math.max(free.keyed, free.client);
+      free = { keyed: both, client: both };
+    }
+    for (const side of SIDES) {
+      const click = free[side] + TRAVEL;
+      clicks[side].push(click);
+      const { shown, back } = timing(beat[side]);
+      // it never clicks while a request is out: the strip counts them back in order
+      free[side] = click + Math.max(shown + DWELL, back - TRAVEL);
+    }
+  }
+  return clicks;
+}
+
+type Change = {
+  at: number;
+  change: (state: AppState, frame: number) => AppState;
+};
+
+/** What an app does over `beats`, the first of them BEATS[from], clicking
+ * each at its time in `clicks`: as changes to its state */
+function appChanges(side: Side, from: number, beats: Beat[], clicks: number[]) {
+  const changes: Change[] = [];
+  let at = 0;
+  beats.forEach((beat, i) => {
+    const world = from + i + 1;
+    at = clicks[i];
+    changes.push(
+      // the first beat starts with the run
+      {
+        at: i ? at - TRAVEL - LEAD : 0,
+        change: state => ({ ...state, beat: from + i }),
+      },
+      {
+        at: at - TRAVEL,
+        change: state => ({ ...state, pointer: beat.target }),
+      },
+      { at, change: state => ({ ...state, clicks: i + 1 }) },
+    );
     for (const step of beat[side]) {
       const { sends = [], waits = {}, lands = [], optimistic } = step;
       const mutates = sends.some(request => !request.startsWith('GET'));
@@ -236,7 +310,7 @@ function appChanges(side: Side) {
               busy: mutates ? beat.target : undefined,
             },
       });
-      if (sends.length) at += Math.max(...sends.map(latency));
+      at += lasts(step);
       changes.push({
         at,
         change: (state, frame) => ({
@@ -247,69 +321,84 @@ function appChanges(side: Side) {
       });
     }
   });
-  return changes;
+  changes.push({ at, change: state => ({ ...state, done: true }) });
+  return { changes, took: at };
 }
 
-type Stage = Omit<Frame, 'at' | 'apps'>;
-/** What the pointer, the beats and the tally do over a run */
-const stageChanges: Change<Stage>[] = [
-  ...BEATS.flatMap((beat, i): Change<Stage>[] => [
-    // the first beat starts with the run
-    {
-      at: i ? beat.at - TRAVEL - LEAD : 0,
-      change: stage => ({ ...stage, beat: i }),
-    },
-    {
-      at: beat.at - TRAVEL,
-      change: stage => ({ ...stage, pointer: beat.target }),
-    },
-    { at: beat.at, change: stage => ({ ...stage, clicks: i + 1 }) },
-  ]),
-  { at: TALLY, change: stage => ({ ...stage, tally: true }) },
-  { at: PERIOD - CLEAR, change: stage => ({ ...stage, clearing: true }) },
-];
-
-function compile(): Frame[] {
-  const changes = {
-    stage: stageChanges,
-    keyed: appChanges('keyed'),
-    client: appChanges('client'),
-  };
-  const times = [
-    ...new Set(
-      Object.values(changes).flatMap(list => list.map(change => change.at)),
-    ),
-  ].sort((a, b) => a - b);
-  const start: AppState = {
-    shows: { detail: 0, list: 0, counts: 0 },
-    waits: {},
-    route: 0,
-    sent: 0,
-    landed: 0,
-    rendered: {},
-  };
-  let stage: Stage = { beat: 0, clicks: 0, tally: false, clearing: false };
-  const apps = { keyed: start, client: start };
-  return times.map((at, frame) => {
-    const apply = <T>(state: T, list: Change<T>[]) =>
-      list
-        .filter(change => change.at === at)
-        .reduce((next, { change }) => change(next, frame), state);
-    stage = apply(stage, changes.stage);
-    for (const side of SIDES) apps[side] = apply(apps[side], changes[side]);
-    return { at, ...stage, apps: { ...apps } };
-  });
-}
-
-/** A run, as every moment something changes */
-export const FRAMES = compile();
-/** The frame a run rests at: every request counted, nothing fading */
-export const END = FRAMES.findIndex(frame => frame.tally);
-/** The frame each beat starts at, and the one it has settled by */
-export const SPANS = BEATS.map((_, i) => {
-  const next = FRAMES.findIndex(frame => frame.beat === i + 1);
+/** An app with BEATS before `from` played and settled */
+function startAt(side: Side, from: number): AppState {
+  const sent = BEATS.slice(0, from).flatMap(beat =>
+    beat[side].flatMap(step => step.sends ?? []),
+  ).length;
   return {
-    from: FRAMES.findIndex(frame => frame.beat === i),
-    to: next === -1 ? END : next - 1,
+    beat: from,
+    pointer: BEATS[from - 1]?.target,
+    clicks: 0,
+    shows: { detail: from, list: from, counts: from },
+    waits: {},
+    route: from,
+    sent,
+    landed: sent,
+    rendered: {},
+    done: false,
   };
-});
+}
+
+function compile(pace: Pace, from: number, count: number): Run {
+  const beats = BEATS.slice(from, from + count);
+  const clicks = schedule(pace, beats);
+  const keyed = appChanges('keyed', from, beats, clicks.keyed);
+  const client = appChanges('client', from, beats, clicks.client);
+  const changes = { keyed: keyed.changes, client: client.changes };
+  const took = { keyed: keyed.took, client: client.took };
+  const clearAt = Math.max(took.keyed, took.client) + REST;
+  const times = [
+    ...new Set([
+      0,
+      ...SIDES.flatMap(side => changes[side].map(change => change.at)),
+      clearAt,
+    ]),
+  ].sort((a, b) => a - b);
+  const apps = {
+    keyed: startAt('keyed', from),
+    client: startAt('client', from),
+  };
+  const frames = times.map((at, frame): Frame => {
+    for (const side of SIDES)
+      apps[side] = changes[side]
+        .filter(change => change.at === at)
+        .reduce((next, { change }) => change(next, frame), apps[side]);
+    return { at, clearing: at === clearAt, apps: { ...apps } };
+  });
+  const end = frames.findIndex(
+    ({ apps }) => apps.keyed.done && apps.client.done,
+  );
+  /** when BEATS[beat] starts playing: the end, for one that never does */
+  const starts = (beat: number) =>
+    (frames.find(frame => beatOf(frame) >= beat) ?? frames[end]).at;
+  return {
+    frames,
+    end,
+    period: clearAt + CLEAR,
+    took,
+    spans: BEATS.map((_, i) =>
+      i + 1 < from + count ?
+        starts(i + 1) - starts(i)
+      : frames[end].at - starts(i),
+    ),
+  };
+}
+
+/** The beat a frame is on: the last one both apps have reached */
+export const beatOf = ({ apps }: Frame) =>
+  Math.min(apps.keyed.beat, apps.client.beat);
+
+const runs = new Map<string, Run>();
+/** `count` beats from BEATS[from] on, to the last by default, with both
+ * apps starting together */
+export function runOf(pace: Pace, from = 0, count = BEATS.length - from) {
+  const key = `${pace} ${from} ${count}`;
+  let run = runs.get(key);
+  if (!run) runs.set(key, (run = compile(pace, from, count)));
+  return run;
+}
