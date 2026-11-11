@@ -150,9 +150,11 @@ export const BEATS: Beat[] = [
     client: [
       {
         sends: ['POST /issues'],
-        lands: ['detail', 'list', 'counts'],
+        lands: ['list', 'counts'],
         optimistic: true,
       },
+      // the new issue's id comes in the response
+      { lands: ['detail'] },
     ],
   },
 ];
