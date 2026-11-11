@@ -33,12 +33,12 @@ response, a mutation's response, a websocket message or any other code calling
 
 The same three clicks in an issue tracker that shows a list, its counts and the open issue on one screen:
 
-| Click                      | A cache keyed by request sends                                                        | Data Client sends  | Why Data Client sends no more                                       |
-| -------------------------- | ------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------- |
-| Open issue 5 from the list | `GET /issues/5`: 1                                                                    | 0                  | The list's response already stored Issue 5                          |
-| Close issue 5              | `PUT /issues/5`, then `GET /issues?assigneeId=1` and `GET /issues`: 3                 | `PUT /issues/5`: 1 | The response overwrites Issue 5's one entry, which every view reads |
-| Create issue 6             | `POST /issues`, then `GET /issues/6`, `GET /issues?assigneeId=1` and `GET /issues`: 4 | `POST /issues`: 1  | The response joins both lists, and is the detail of Issue 6         |
-| Total                      | 8                                                                                     | 2                  |                                                                     |
+| Click                      | A cache keyed by request sends                                        | Data Client sends  | Why Data Client sends no more                                                |
+| -------------------------- | --------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------- |
+| Open issue 5 from the list | `GET /issues/5`: 1                                                    | 0                  | The list's response already stored Issue 5                                   |
+| Close issue 5              | `PUT /issues/5`, then `GET /issues?assigneeId=1` and `GET /issues`: 3 | `PUT /issues/5`: 1 | Its optimistic update overwrites Issue 5's one entry, which every view reads |
+| Create issue 6             | `POST /issues`, then `GET /issues?assigneeId=1` and `GET /issues`: 3  | `POST /issues`: 1  | Its optimistic update joins both lists, and is the detail of Issue 6         |
+| Total                      | 7                                                                     | 2                  |                                                                              |
 
 Until its refetches return, the cache keyed by request shows issue 5 closed in the detail and open in the list.
 
@@ -46,8 +46,8 @@ Until its refetches return, the cache keyed by request shows issue 5 closed in t
 
 One write serves every read it matches. When [getList.push](/rest/api/resource#push) creates an issue, its one `POST`
 adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
-response apart, so after the same `POST` it refetches the list on screen, then fetches the other list and the detail as
-each one opens: four requests where the table needs one.
+response apart, so after the same `POST` it refetches every list the issue could belong in: three requests where the
+table needs one.
 
 ## Benefits {#benefits}
 

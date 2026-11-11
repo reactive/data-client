@@ -1,8 +1,14 @@
 /* The script both apps play: three clicks, and what each cache does with
    them. index.tsx draws it; styles.module.css has how it looks and moves. */
 
-/** How long every request takes, in ms: the same in both apps */
-export const LATENCY = 800;
+import { CLEAR } from '../LookupTable/parts';
+
+/** How long a request takes, in ms, the same in both apps: a list takes
+ * longest, then a write of one issue, then a read of one */
+export function latency(request: Request) {
+  if (!request.includes('/issues/')) return 1000;
+  return request.startsWith('GET') ? 250 : 500;
+}
 /** The pointer's trip to what it clicks next */
 export const TRAVEL = 600;
 /** A beat starts this long before its pointer leaves */
@@ -11,8 +17,6 @@ const LEAD = 100;
 const TALLY = 7700;
 /** One run; then it starts over */
 export const PERIOD = 10000;
-/** How long a run takes to fade, so the next starts clean */
-export const CLEAR = 400;
 
 /** The two apps: a cache keyed by request, and Data Client */
 export const SIDES = ['keyed', 'client'] as const;
@@ -71,6 +75,8 @@ interface Step {
   waits?: Partial<Record<View, Wait>>;
   /** the views it re-renders as it lands, which then show the beat's world */
   lands?: View[];
+  /** it re-renders its views as it sends, before its response lands */
+  optimistic?: boolean;
 }
 export type Wait = 'loading' | 'stale';
 interface Beat {
@@ -85,13 +91,14 @@ interface Beat {
 const MINE: Request = 'GET /issues?assigneeId=1';
 const ALL: Request = 'GET /issues';
 /**
- * The three clicks. Both apps get each one at the same moment, wait LATENCY
- * for every request and wait for a mutation's response before showing it.
+ * The three clicks. Both apps get each one at the same moment, and every
+ * request takes its latency().
  *
  * The cache keyed by request is set up well: the detail on screen is
- * written from the mutation's own response, the lists are refetched
- * together, and they keep their old rows meanwhile. Data Client reads every
- * view from one table, so a response re-renders every view it changes.
+ * written from the mutation's own response (the closed issue, the new one),
+ * the lists are refetched together, and they keep their old rows meanwhile.
+ * Data Client reads every view from one table, and its mutations are
+ * optimistic, so a click re-renders every view it changes at once.
  */
 export const BEATS: Beat[] = [
   {
@@ -120,21 +127,33 @@ export const BEATS: Beat[] = [
         lands: ['list', 'counts'],
       },
     ],
-    client: [{ sends: ['PUT /issues/5'], lands: ['detail', 'list', 'counts'] }],
+    client: [
+      {
+        sends: ['PUT /issues/5'],
+        lands: ['detail', 'list', 'counts'],
+        optimistic: true,
+      },
+    ],
   },
   {
     id: 'create',
     at: 5200,
     target: 'new',
     keyed: [
-      { sends: ['POST /issues'] },
+      { sends: ['POST /issues'], lands: ['detail'] },
       {
-        sends: ['GET /issues/6', MINE, ALL],
-        waits: { detail: 'loading', list: 'stale', counts: 'stale' },
-        lands: ['detail', 'list', 'counts'],
+        sends: [MINE, ALL],
+        waits: { list: 'stale', counts: 'stale' },
+        lands: ['list', 'counts'],
       },
     ],
-    client: [{ sends: ['POST /issues'], lands: ['detail', 'list', 'counts'] }],
+    client: [
+      {
+        sends: ['POST /issues'],
+        lands: ['detail', 'list', 'counts'],
+        optimistic: true,
+      },
+    ],
   },
 ];
 
@@ -185,35 +204,43 @@ function appChanges(side: Side) {
   BEATS.forEach((beat, i) => {
     const world = i + 1;
     let at = beat.at;
-    for (const { sends = [], waits = {}, lands = [] } of beat[side]) {
+    for (const step of beat[side]) {
+      const { sends = [], waits = {}, lands = [], optimistic } = step;
       const mutates = sends.some(request => !request.startsWith('GET'));
+      /** shows the beat's world in the views it lands */
+      const render = (state: AppState, frame: number): AppState => ({
+        ...state,
+        waits: {},
+        route: lands.includes('detail') ? world : state.route,
+        shows: {
+          ...state.shows,
+          ...Object.fromEntries(lands.map(view => [view, world])),
+        },
+        rendered: {
+          ...state.rendered,
+          ...Object.fromEntries(lands.map(view => [view, frame])),
+        },
+      });
       changes.push({
         at,
-        change: state => ({
-          ...state,
-          waits,
-          route: waits.detail === 'loading' ? world : state.route,
-          sent: state.sent + sends.length,
-          busy: mutates ? beat.target : undefined,
-        }),
+        change: (state, frame) =>
+          optimistic ?
+            { ...render(state, frame), sent: state.sent + sends.length }
+          : {
+              ...state,
+              waits,
+              route: waits.detail === 'loading' ? world : state.route,
+              sent: state.sent + sends.length,
+              busy: mutates ? beat.target : undefined,
+            },
       });
-      if (sends.length) at += LATENCY;
+      if (sends.length) at += Math.max(...sends.map(latency));
       changes.push({
         at,
         change: (state, frame) => ({
-          ...state,
-          waits: {},
-          route: lands.includes('detail') ? world : state.route,
+          ...(optimistic ? state : render(state, frame)),
           landed: state.sent,
           busy: undefined,
-          shows: {
-            ...state.shows,
-            ...Object.fromEntries(lands.map(view => [view, world])),
-          },
-          rendered: {
-            ...state.rendered,
-            ...Object.fromEntries(lands.map(view => [view, frame])),
-          },
         }),
       });
     }

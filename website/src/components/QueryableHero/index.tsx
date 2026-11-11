@@ -6,10 +6,8 @@ import React, { useEffect, useState } from 'react';
 
 import {
   BEATS,
-  CLEAR,
   END,
   FRAMES,
-  LATENCY,
   PERIOD,
   REQUESTS,
   ROWS,
@@ -17,6 +15,7 @@ import {
   SPANS,
   TRAVEL,
   WORLDS,
+  latency,
   type AppState,
   type Frame,
   type Issue,
@@ -24,12 +23,11 @@ import {
   type View,
 } from './beats';
 import styles from './styles.module.css';
-import { useRuns } from '../LookupTable/parts';
+import { CLEAR, useRuns } from '../LookupTable/parts';
 import { prefersReducedMotion } from '../motion';
 
 /** What styles.module.css reads, so each value is written once */
 const VARS = {
-  '--latency': `${LATENCY}ms`,
   '--travel': `${TRAVEL}ms`,
   '--clear': `${CLEAR}ms`,
   '--rows': ROWS,
@@ -186,7 +184,7 @@ export default function QueryableHero() {
         aria-label={translate({
           id: 'queryableHero.label',
           message:
-            'Two copies of one issue tracker, one on a cache keyed by request and one on Data Client, take the same three clicks with the same network delay. Opening issue 5 from the list: the cache keyed by request shows a loading placeholder and sends GET /issues/5, while Data Client renders the issue at once from the list’s data, with no request. Closing issue 5: both send PUT /issues/5. When it returns, Data Client’s detail, list row and counts change together. The cache keyed by request changes its detail, but its list still shows the issue open and its counts are out of date until it has refetched both lists: 3 requests. Creating issue 6: both send POST /issues. From that one response, Data Client adds the issue to the list, updates the counts and opens its detail. The cache keyed by request refetches both lists and fetches the new issue’s detail: 4 requests. In total the cache keyed by request sends 8 requests, and Data Client sends 2',
+            'Two copies of one issue tracker, one on a cache keyed by request and one on Data Client, take the same three clicks on the same network: a quarter second to read one issue, half a second to write one, a second for a list. Data Client’s mutations are optimistic. Opening issue 5 from the list: the cache keyed by request shows a loading placeholder and sends GET /issues/5, while Data Client renders the issue at once from the list’s data, with no request. Closing issue 5: both send PUT /issues/5. Data Client’s detail, list row and counts change together at once. The cache keyed by request changes its detail when the response returns, but its list still shows the issue open and its counts are out of date until it has refetched both lists: 3 requests. Creating issue 6: both send POST /issues. At once, Data Client adds the issue to the list, updates the counts and opens its detail. The cache keyed by request shows the new issue’s detail from the response, but refetches both lists: 3 requests. In total the cache keyed by request sends 7 requests, and Data Client sends 2',
           description: 'Accessible label of the hero on the Queryable page',
         })}
       >
@@ -391,6 +389,9 @@ function Requests({
             <span
               key={i}
               className={styles.chip}
+              style={
+                { '--latency': `${latency(request)}ms` } as React.CSSProperties
+              }
               data-mutation={method !== 'GET' || undefined}
               data-state={
                 i >= sent ? 'queued'

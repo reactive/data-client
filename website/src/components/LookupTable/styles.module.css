@@ -245,28 +245,6 @@
   stroke-linejoin: round;
 }
 
-/* the requests sent, after the count a cache keyed by request sends */
-.tallyLabel {
-  fill: var(--ifm-color-emphasis-700);
-  font-family: var(--ifm-font-family-base);
-  font-size: 11.5px;
-  text-anchor: end;
-}
-.other,
-.sends {
-  font-size: 13px;
-  font-weight: 700;
-}
-.other {
-  fill: var(--ifm-color-emphasis-600);
-}
-.tally .skip {
-  stroke-width: 1.6;
-}
-.sends {
-  fill: var(--args);
-}
-
 /* One run. Each part starts at the --at its diagram gives it (AT), plays once
    and holds its end, until the run starts over */
 .anim {

@@ -10,8 +10,8 @@ response, a mutation's response, a websocket message or any other code calling
 
 One write serves every read it matches. When [getList.push](./resource.vue.md#push) creates an issue, its one `POST`
 adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
-response apart, so after the same `POST` it refetches the list on screen, then fetches the other list and the detail as
-each one opens: four requests where the table needs one.
+response apart, so after the same `POST` it refetches every list the issue could belong in: three requests where the
+table needs one.
 
 ## Benefits {#benefits}
 
