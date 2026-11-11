@@ -1,4 +1,4 @@
-/* the transport switch, and the diagram under it */
+/* the switch, and the diagram under it. parts.tsx draws with these */
 .frame {
   --line: var(--ifm-color-emphasis-300);
   --issue5: hsl(262, 52%, 48%);
@@ -25,7 +25,7 @@
   display: block;
   width: 100%;
   font-family: var(--ifm-font-family-monospace);
-  /* --text, --small and --clear come from index.tsx (VARS) */
+  /* --text, --small and --clear come from parts.tsx (VARS) */
   font-size: var(--text);
   text-anchor: middle;
   user-select: none;
@@ -47,7 +47,7 @@
   font-weight: 600;
 }
 
-/* the segmented control: POST / GET / WebSocket */
+/* the segmented control */
 .controls {
   display: flex;
   justify-content: center;
@@ -83,6 +83,18 @@
 @media (pointer: coarse) {
   .controls button {
     padding: 8px 14px;
+  }
+}
+/* more options than three: narrower sides keep them on one line at phone width */
+.dense {
+  flex-wrap: wrap;
+}
+.dense button {
+  padding-inline: 8px;
+}
+@media (max-width: 359px) {
+  .dense button {
+    padding-inline: 4px;
   }
 }
 
@@ -208,7 +220,7 @@
   stroke-width: 2;
   animation: flow 0.8s linear infinite;
 }
-/* off screen or in a hidden tab (index.tsx) */
+/* off screen or in a hidden tab (useRuns) */
 .stage[data-paused] .binding {
   animation-play-state: paused;
 }
@@ -255,7 +267,7 @@
   fill: var(--args);
 }
 
-/* One run. Each part starts at the --at index.tsx gives it (AT), plays once
+/* One run. Each part starts at the --at its diagram gives it (AT), plays once
    and holds its end, until the run starts over */
 .anim {
   animation-fill-mode: both;

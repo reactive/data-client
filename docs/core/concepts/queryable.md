@@ -13,6 +13,7 @@ import TeamIssuesDemo from '../shared/\_TeamIssuesDemo.mdx';
 import SiteOnly from '@site/src/components/SiteOnly';
 import AgentOnly from '@site/src/components/AgentOnly';
 import LookupTable from '@site/src/components/LookupTable';
+import MutationReads from '@site/src/components/MutationReads';
 
 # Queryable
 
@@ -113,6 +114,8 @@ fetches in flight between mutations, and its Actions tab lists each request.
 
 After each kind of mutation, these render without a fetch:
 
+<MutationReads>
+
 | Mutation                                                                                            | Renders next, without a fetch                                                                  |
 | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | Create: [getList.push](/rest/api/resource#push), [getList.unshift](/rest/api/resource#unshift)      | The new item's detail. Every stored list whose args match, and any [All](/rest/api/All) list   |
@@ -121,6 +124,8 @@ After each kind of mutation, these render without a fetch:
 | Take out of a list: [getList.remove](/rest/api/RestEndpoint#remove)                                 | The lists without it. Its detail still renders                                                 |
 | [delete](/rest/api/resource#delete)                                                                 | The lists without it. Its detail is [Invalid](./expiry-policy.md#expiry-status), so it fetches |
 | No request, like a websocket [Manager](./managers.md): [Controller.set()](../api/Controller.md#set) | The detail of an Entity it wrote, and the list of a Collection it wrote                        |
+
+</MutationReads>
 
 Writes find lists by args, like reads. `push` and `unshift` add to the lists that the request's args and body match, so
 send the fields lists filter by, like `assigneeId`. `update` and `partialUpdate` change an item where it is, so when an
