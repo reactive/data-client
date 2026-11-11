@@ -146,6 +146,10 @@ export interface PageOptions {
   strict?: boolean;
   /** The shell holds the lanes probe */
   lanes?: LanesHandle;
+  /** B is under a plain `<Suspense>`, not `AsyncBoundary` */
+  plainB?: boolean;
+  /** Browser: `current()` mounts island N, an `AsyncBoundary` around A's todo, in the shell */
+  mountN?: { current?: () => void };
 }
 
 function Waiter({ promise }: { promise: Promise<void> }) {
@@ -221,6 +225,20 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
       </AsyncBoundary>
     );
   }
+  function IslandN() {
+    const todo = useSuspense(endpoints.getTodo, { id: '1' });
+    useRecord('n');
+    return <p data-testid="n">{todo.title}</p>;
+  }
+  function MountN({ handle }: { handle: { current?: () => void } }) {
+    const [on, setOn] = useState(false);
+    handle.current = () => setOn(true);
+    return on ?
+        <AsyncBoundary fallback={<span>loading n</span>}>
+          <IslandN />
+        </AsyncBoundary>
+      : null;
+  }
   function LanesProbe({ handle }: { handle: LanesHandle }) {
     const sock = useCache(endpoints.getTodo, { id: 'sock' });
     const [promise, setPromise] = useState<Promise<void> | null>(null);
@@ -255,6 +273,10 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
               <LazyB />
             </AsyncBoundary>
           </Toggle>
+        : opts.plainB ?
+          <Suspense fallback={bFallback}>
+            <LazyB />
+          </Suspense>
         : <AsyncBoundary fallback={bFallback}>
             <LazyB />
           </AsyncBoundary>
@@ -262,6 +284,9 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
         <AsyncBoundary fallback={<span>loading c</span>}>
           <List group="c" />
         </AsyncBoundary>
+        {opts.mountN ?
+          <MountN handle={opts.mountN} />
+        : null}
       </div>
     );
   });

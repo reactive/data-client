@@ -113,6 +113,8 @@ export async function inBrowser<T>(
     expectNoUnknownClass();
     return result;
   } finally {
+    for (const timer of watchers) clearInterval(timer);
+    watchers.clear();
     b?.teardown();
     await teardownDom();
   }
@@ -244,4 +246,52 @@ export function expectWoken(r: Outcome) {
   expect(r.pendingAfterWrites.b).toBe(false);
   expect(r.writesWhileBPending).toBe(0);
   expect(r.adopted).toBe(false);
+}
+
+/** B's or C's list as live state has it: the titles its reader would render */
+export function liveList(page: Page, group: string) {
+  const state = page.controller.current!.getState();
+  const ids = state.endpoints[page.endpoints.getList.key({ group })] as
+    string[] | undefined;
+  return ids?.map(id => (state.entities.Todo?.[id] as any)?.title).join('');
+}
+
+const watchers = new Set<ReturnType<typeof setInterval>>();
+const shown = (el: Element | null | undefined) => {
+  for (let n = el as HTMLElement | null; n; n = n.parentElement)
+    if (n.hidden || n.style?.display === 'none') return false;
+  return !!el;
+};
+
+/**
+ * Samples, every 2 ms, what the user sees of island `testId`: each distinct
+ * text it shows, and whether its fallback is painted after its content was visible
+ */
+export function watch(b: BrowserHalf, testId: string, fallbackText: string) {
+  const seen: string[] = [];
+  let contentVisible = false;
+  let fallbackOverContent = false;
+  const tick = () => {
+    const el = b.byTestId(testId);
+    if (shown(el)) {
+      contentVisible = true;
+      const text = el!.textContent ?? '';
+      if (seen[seen.length - 1] !== text) seen.push(text);
+    }
+    const fallback = [...b.container.querySelectorAll('span')].some(
+      span => span.textContent === fallbackText && shown(span),
+    );
+    if (fallback && contentVisible) fallbackOverContent = true;
+  };
+  tick();
+  const timer = setInterval(tick, 2);
+  watchers.add(timer);
+  return {
+    stop() {
+      clearInterval(timer);
+      watchers.delete(timer);
+      tick();
+      return { seen, fallbackOverContent };
+    },
+  };
 }

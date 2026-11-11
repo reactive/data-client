@@ -13,8 +13,8 @@ import React, {
 
 import type { Ledger } from './Ledger.js';
 import type { ServerLedger } from './ServerLedger.js';
-import { StateContext, StoreContext } from '../../context.js';
 import type { BoundaryWrap } from '../../components/BoundaryContext.js';
+import { StateContext, StoreContext } from '../../context.js';
 
 /** Ledger of the document (browser) */
 export const LedgerContext: React.Context<Ledger | null> =
@@ -76,9 +76,11 @@ export function Scope({
     views: new WeakMap(),
   }));
   const [joined, setJoined] = useState(holder.state === null);
+  // A client-rendered mount has a client id, which no pin can match
+  const [hydrated] = useState(hydrating);
   useLayoutEffect(() => {
-    ledger.commit(id);
-  }, [ledger, id]);
+    if (hydrated) ledger.commit(id);
+  }, [ledger, id, hydrated]);
   useEffect(() => {
     if (joined) {
       holder.state = null;

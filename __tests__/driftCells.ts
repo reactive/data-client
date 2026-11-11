@@ -119,6 +119,7 @@ export function serverOptions(opts: ClientOptions = {}): DriftOptions {
     dataExpiryLength: opts.dataExpiryLength,
     activityB1: handle(opts.activityB1),
     activityH: handle(opts.activityH),
+    plain: opts.plain,
   };
 }
 

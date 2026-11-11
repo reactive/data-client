@@ -3,7 +3,14 @@
  * of its rows at revision 2, so the browser's live state is newer than B1's HTML.
  * Each half of a split test requires this module in its own module graph.
  */
-import React, { lazy, memo, use, useLayoutEffect, useState } from 'react';
+import React, {
+  Suspense,
+  lazy,
+  memo,
+  use,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 
 import { Endpoint, Entity } from '@data-client/endpoint';
@@ -95,6 +102,8 @@ export interface DriftOptions {
   activityH?: ActivityHandle;
   /** `controller-reader`: the `getState` reader suspends on this until it resolves */
   ctrlGate?: Promise<void> & { done?: boolean };
+  /** `pair`: this island is under a plain `<Suspense>`, not `AsyncBoundary` */
+  plain?: 'b1' | 'b2';
 }
 
 function makeDriftIslands(
@@ -198,13 +207,22 @@ function makeDriftIslands(
               <TickerList name="b1" />
             </AsyncBoundary>
           </Toggle>
+        : opts.plain === 'b1' ?
+          <Suspense fallback={<span>loading b1</span>}>
+            <TickerList name="b1" />
+          </Suspense>
         : <AsyncBoundary fallback={<span>loading b1</span>}>
             <TickerList name="b1" />
           </AsyncBoundary>
         }
-        <AsyncBoundary fallback={<span>loading b2</span>}>
-          <LazyB2 />
-        </AsyncBoundary>
+        {opts.plain === 'b2' ?
+          <Suspense fallback={<span>loading b2</span>}>
+            <LazyB2 />
+          </Suspense>
+        : <AsyncBoundary fallback={<span>loading b2</span>}>
+            <LazyB2 />
+          </AsyncBoundary>
+        }
         {opts.activityH ?
           <Toggle handle={opts.activityH}>
             <AsyncBoundary fallback={<span>loading h</span>}>
