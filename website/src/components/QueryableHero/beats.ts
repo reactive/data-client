@@ -112,10 +112,15 @@ export const BEATS: Beat[] = [
       {
         sends: ['GET /issues/5'],
         waits: { detail: 'loading' },
+      },
+      // the issue names its assignee by id; the detail shows their name
+      {
+        sends: ['GET /users/1'],
+        waits: { detail: 'loading' },
         lands: ['detail'],
       },
     ],
-    // the list already stored Issue 5
+    // the list already stored Issue 5, and the user it is assigned to
     client: [{ lands: ['detail'] }],
   },
   {
@@ -141,6 +146,7 @@ export const BEATS: Beat[] = [
     id: 'create',
     target: 'new',
     keyed: [
+      // its assignee, user 1, is still cached from opening issue 5
       { sends: ['POST /issues'], lands: ['detail'] },
       {
         sends: [MINE, ALL],

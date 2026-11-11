@@ -43,10 +43,10 @@ The same three clicks in an issue tracker that shows a list, its counts and the 
 
 | Click                      | A cache keyed by request sends                                        | Data Client sends  | Why Data Client sends no more                                       |
 | -------------------------- | --------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------- |
-| Open issue 5 from the list | `GET /issues/5`: 1                                                    | 0                  | The list's response already stored Issue 5                          |
+| Open issue 5 from the list | `GET /issues/5`, then its assignee's `GET /users/1`: 2                | 0                  | The list's response already stored Issue 5 and its assignee         |
 | Close issue 5              | `PUT /issues/5`, then `GET /issues?assigneeId=1` and `GET /issues`: 3 | `PUT /issues/5`: 1 | The response overwrites Issue 5's one entry, which every view reads |
 | Create issue 6             | `POST /issues`, then `GET /issues?assigneeId=1` and `GET /issues`: 3  | `POST /issues`: 1  | The response joins both lists, and is the detail of Issue 6         |
-| Total                      | 7                                                                     | 2                  |                                                                     |
+| Total                      | 8                                                                     | 2                  |                                                                     |
 
 Until its refetches return, the cache keyed by request shows issue 5 closed in the detail and open in the list.
 The Data Client app's mutations are also [optimistic](/rest/guides/optimistic-updates), so its lists and counts change
