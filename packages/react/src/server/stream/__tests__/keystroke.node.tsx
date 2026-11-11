@@ -71,7 +71,10 @@ interface KeysRecord {
   nodeKept: boolean;
   valueKept: boolean;
   fallbackShown: boolean;
+  /** The streamed node is the one on screen at the end */
   adopted: boolean;
+  /** B's reader committed: B hydrated, or rendered on the client */
+  committed: boolean;
   errors: number;
   /** A's text after the keystrokes, before B could hydrate */
   aBeforeHydrate: string | undefined;
@@ -98,15 +101,19 @@ async function runKeys(
     holdScript?: boolean;
   } = {},
 ): Promise<KeysRecord> {
+  // Pieces with a held script: the writes happen before B's data, so their
+  // pieces precede B's piece and pin in revision order, as the ledger requires
+  const writesFirst = mode === 'pieces' && holdScript;
   const server = await serverHalf(fx => ({
-    steps: [
-      fx.resolveGroup('b'),
-      ...srvSteps(fx).slice(0, 3),
-      fx.resolveGroup('c'),
-    ],
+    steps:
+      writesFirst ?
+        [...srvSteps(fx).slice(0, 3), fx.resolveGroup('b'), fx.resolveGroup('c')]
+      : [fx.resolveGroup('b'), ...srvSteps(fx).slice(0, 3), fx.resolveGroup('c')],
   }));
   const bFlush = server.with('b');
-  const { writes } = splitServerWrites(server.with('c'));
+  const { writes, rest } = splitServerWrites(
+    writesFirst ? bFlush : server.with('c'),
+  );
   expect(writes).toHaveLength(3);
   return inBrowser(async (b, finish) => {
     let resolveCode!: () => void;
@@ -168,7 +175,8 @@ async function runKeys(
     }
     const aBeforeHydrate = b.text('a');
     if (holdScript) {
-      b.script(bFlush);
+      if (writesFirst) b.push(rest);
+      else b.script(bFlush);
       await settle(20);
       check();
     }
@@ -190,6 +198,7 @@ async function runKeys(
       valueKept: onScreen?.value === KEYS.join(''),
       fallbackShown,
       adopted: b.byTestId('b') === streamed,
+      committed: page.log.commits.includes('b'),
       errors: base.errors,
       aBeforeHydrate,
       a: b.text('a'),
@@ -208,6 +217,7 @@ describeReact19('K: the lost keystroke on a not-yet-hydrated island', () => {
       valueKept: true,
       fallbackShown: false,
       adopted: true,
+      committed: true,
       errors: 0,
       aBeforeHydrate: 'srv-3',
       a: 'srv-3',
@@ -215,9 +225,12 @@ describeReact19('K: the lost keystroke on a not-yet-hydrated island', () => {
   });
 
   it('K1/control-no-adapter', async () => {
-    const r = await runKeys('none', 'pieces');
+    // B's own pieces would wake it before the first keystroke; held back, the
+    // input is there and each publish lands during the keystrokes
+    const r = await runKeys('none', 'pieces', { holdScript: true });
+    expect(r.typed).toBeGreaterThanOrEqual(1);
     // the transition publish reached B
-    expect(!r.adopted || r.aBeforeHydrate !== 'srv-3').toBe(true);
+    expect(!r.nodeKept || r.aBeforeHydrate !== 'srv-3').toBe(true);
     expect(r).toEqual(K1_CONTROL);
   });
 
@@ -253,15 +266,18 @@ describeReact19('K: the lost keystroke on a not-yet-hydrated island', () => {
 const K1_CONTROL: KeysRecord = {
   batched: false,
   batchedKeys: [],
-  // B's own piece woke it and replaced its node before the first keystroke
-  typed: 0,
-  nodeKept: false,
-  valueKept: false,
+  typed: 3,
+  // each publish woke B and C in its transition; they suspend on lists the
+  // client lacks, so the transition never commits: A shows no piece and B's
+  // server node stays, not hydrated
+  nodeKept: true,
+  valueKept: true,
   fallbackShown: false,
-  adopted: false,
+  adopted: true,
+  committed: false,
   errors: 0,
-  aBeforeHydrate: 'a@2',
-  a: 'a@2',
+  aBeforeHydrate: 'a@1',
+  a: 'a@1',
 };
 // The write joins the keydown's synchronous hydration attempt of B, B's code is
 // not there, and B is client-rendered with its fallback, with or without the shield
@@ -273,6 +289,7 @@ const K2_SHIELD: KeysRecord = {
   valueKept: false,
   fallbackShown: true,
   adopted: false,
+  committed: true,
   errors: 0,
   aBeforeHydrate: 'socket-3',
   a: 'socket-3',
@@ -285,6 +302,7 @@ const K2_CONTROL: KeysRecord = {
   valueKept: false,
   fallbackShown: true,
   adopted: false,
+  committed: true,
   errors: 0,
   aBeforeHydrate: 'socket-3',
   a: 'socket-3',
@@ -297,6 +315,7 @@ const K3_SHIELD: KeysRecord = {
   valueKept: true,
   fallbackShown: false,
   adopted: true,
+  committed: true,
   errors: 0,
   aBeforeHydrate: 'socket-3',
   a: 'socket-3',
