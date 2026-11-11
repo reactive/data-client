@@ -3,25 +3,47 @@
  * of its rows at revision 2, so the browser's live state is newer than B1's HTML.
  * Each half of a split test requires this module in its own module graph.
  */
-import React, { lazy, memo, useLayoutEffect } from 'react';
+import React, {
+  lazy,
+  memo,
+  startTransition,
+  use,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   AsyncBoundary,
   DataProvider,
+  StateContext,
   getDefaultManagers,
   useController,
   useSuspense,
 } from '@data-client/react';
-import type { Controller, State } from '@data-client/react';
+import type {
+  Controller,
+  GCInterface,
+  Manager,
+  State,
+} from '@data-client/react';
 
 import { makeServerFetch } from './streamFixtures';
 import type { FetchImpl, PageLog } from './streamFixtures';
+import { BoundaryContext } from '../packages/react/src/context';
+import type { BoundaryWrap } from '../packages/react/src/context';
 import {
+  LedgerContext,
+  Shield,
+  StreamManager,
   StreamProvider,
+  clientWrap,
   createServerStream,
   getLedger,
+  useHydrating,
 } from '../packages/react/src/server/stream';
 import type { Ledger, ServerLedger } from '../packages/react/src/server/stream';
 
@@ -83,11 +105,15 @@ function makeDriftIslands(
   opts: DriftOptions,
 ) {
   function useRecord(name: string, text: string) {
+    const state = use(StateContext);
     log.renders.push(name);
     useLayoutEffect(() => {
       log.commits.push(name);
       log.texts?.push(`${name}=${text}`);
     }, [name, text]);
+    useLayoutEffect(() => {
+      if (log.states) (log.states[name] ??= []).push(new WeakRef(state));
+    }, [name, state]);
   }
   function TickerList({ name }: { name: string }) {
     const tickers = useSuspense(endpoints.getTickers);
@@ -253,10 +279,92 @@ export async function runDriftServer(
   return { page, capture };
 }
 
+/** R1's control: keeps the snapshot in `useState` and never empties it */
+function HeldScope({ children }: { children: ReactNode }) {
+  const ledger = use(LedgerContext)!;
+  const id = useId();
+  const hydrating = useHydrating();
+  const live = use(StateContext);
+  let rev: number | null = null;
+  if (hydrating) {
+    use(ledger.whenPin(id));
+    rev = ledger.pin(id) ?? null;
+  }
+  const [snapshot] = useState(() =>
+    rev == null ? null : ledger.snapshot(rev),
+  );
+  const [joined, setJoined] = useState(snapshot === null);
+  useLayoutEffect(() => {
+    ledger.commit(id);
+  }, [ledger, id]);
+  useEffect(() => {
+    if (!joined) startTransition(() => setJoined(true));
+  }, [joined]);
+  return (
+    <StateContext.Provider value={joined ? live : (snapshot ?? live)}>
+      {children}
+    </StateContext.Provider>
+  );
+}
+const heldWrap: BoundaryWrap = (suspenseProps, content) => (
+  <Shield>
+    <React.Suspense {...suspenseProps}>
+      <HeldScope>{content}</HeldScope>
+    </React.Suspense>
+  </Shield>
+);
+
+/**
+ * `aliased`: R5's control. Seeds with the server state at the latest revision and
+ * makes every snapshot share that seed's tables.
+ * `held`: R1's control wrap.
+ */
+function ControlProvider({
+  variant,
+  managers,
+  gcPolicy,
+  children,
+}: {
+  variant: 'aliased' | 'held';
+  managers: () => Manager[];
+  gcPolicy?: GCInterface;
+  children: ReactNode;
+}) {
+  const [seed] = useState(() => {
+    const ledger = getLedger()!;
+    const rev = variant === 'aliased' ? ledger.rev : (ledger.shellRev ?? 0);
+    const state = ledger.fold(rev);
+    if (variant === 'aliased') ledger.snapshot = () => ({ ...state });
+    return {
+      ledger,
+      state,
+      managers: () => [new StreamManager(ledger, rev), ...managers()],
+    };
+  });
+  return (
+    <LedgerContext.Provider value={seed.ledger}>
+      <BoundaryContext.Provider
+        value={variant === 'held' ? heldWrap : clientWrap}
+      >
+        <DataProvider
+          initialState={seed.state}
+          managers={seed.managers}
+          gcPolicy={gcPolicy}
+          devButton={null}
+        >
+          {children}
+        </DataProvider>
+      </BoundaryContext.Provider>
+    </LedgerContext.Provider>
+  );
+}
+
 export function createDriftClientPage(
   opts: DriftOptions & {
     /** No adapter: `DataProvider` with this `initialState` */
     handoff?: State<unknown>;
+    variant?: 'shield' | 'aliased' | 'held';
+    gcPolicy?: GCInterface;
   } = {},
 ) {
   const fetches: string[] = [];
@@ -264,7 +372,7 @@ export function createDriftClientPage(
     fetches.push(`${name} ${JSON.stringify(params)}`);
     return new Promise(() => {});
   }, opts);
-  const log: PageLog = { renders: [], commits: [], texts: [] };
+  const log: PageLog = { renders: [], commits: [], texts: [], states: {} };
   const Layout = makeDriftIslands(endpoints, log, opts);
   const controller: { current?: Controller } = {};
   const managers = () => getDefaultManagers({ devToolsManager: null });
@@ -283,7 +391,19 @@ export function createDriftClientPage(
       >
         {body}
       </DataProvider>
-    : <StreamProvider managers={managers} devButton={null}>
+    : opts.variant === 'aliased' || opts.variant === 'held' ?
+      <ControlProvider
+        variant={opts.variant}
+        managers={managers}
+        gcPolicy={opts.gcPolicy}
+      >
+        {body}
+      </ControlProvider>
+    : <StreamProvider
+        managers={managers}
+        gcPolicy={opts.gcPolicy}
+        devButton={null}
+      >
         {body}
       </StreamProvider>;
   return {

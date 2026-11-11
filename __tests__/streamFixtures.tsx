@@ -71,6 +71,8 @@ export interface PageLog {
   commits: string[];
   /** Reader layout effects, as `name=text` of what committed */
   texts?: string[];
+  /** Reader layout effects: the `StateContext` value each commit read, held weakly */
+  states?: Record<string, WeakRef<object>[]>;
 }
 
 /** Client wraps the G1 controls compare */
