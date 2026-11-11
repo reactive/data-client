@@ -2,8 +2,10 @@
 frameworks: [react]
 title: Performance pass
 sidebar_label: Performance pass
-description: Find the speedups an app on Data Client may be missing, such as detail pages from list data, loaders that wait for less, and optimistic updates.
+description: Find the speedups an app on Data Client may be missing, such as detail pages from list data, loaders that don't wait for secondary data, and optimistic updates.
 ---
+
+import DiffEditor from '@site/src/components/DiffEditor';
 
 # Performance pass
 
@@ -77,11 +79,16 @@ Every place that shows a server object reads the same Entity, so one response up
 
 ## Changes with tradeoffs {#tradeoffs}
 
-### Loaders wait only for the first view {#loaders}
+### Loaders don't wait for secondary data {#loaders}
 
 A router loader that awaits every request makes the page wait for the slowest one, even when the main item came from
-the list. Await only the data the page shows first. Start the rest without `await`, and give each component that reads
-it its own [AsyncBoundary](../api/AsyncBoundary.md):
+the list. In a router that changes the route in a transition, start every `fetchIfStale()` without awaiting it: the page
+renders what's cached and suspends for the rest, keeping the current page meanwhile. Give each component that reads
+secondary data its own [AsyncBoundary](../api/AsyncBoundary.md), so it loads without holding the page. Where the page
+renders the loader's return value, return only the main item, as [Route loaders](../api/Controller.md#fetchIfStale-loaders)
+shows.
+
+<DiffEditor>
 
 ```ts title="Before"
 export const issueLoader =
@@ -100,11 +107,15 @@ export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const id = Number(params.issueId);
-    // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
+    // callout: Not awaited: the route changes at once, and the page suspends inside the transition until the issue arrives.
+    ctrl.fetchIfStale(IssueResource.get, { id });
+    // callout: IssueNotes suspends inside its own boundary, which also shows a failure.
     ctrl.fetchIfStale(getNotes, { issueId: id });
-    return ctrl.fetchIfStale(IssueResource.get, { id });
+    return null;
   };
 ```
+
+</DiffEditor>
 
 ```tsx title="IssuePage.tsx"
 import { AsyncBoundary } from '@data-client/react';

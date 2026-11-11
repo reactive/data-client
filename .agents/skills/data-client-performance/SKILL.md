@@ -1,6 +1,6 @@
 ---
 name: data-client-performance
-description: Find and make the speedups a React app on @data-client/react may be missing - detail pages from list data, one Entity per server object, lists updated in place, reads that skip fresh data, loaders that wait only for the first view, prefetching, expiry, optimistic updates, Query memoization, parallel reads, transitions, stable references and React Compiler. Use for the optional performance pass after a migration, or when asked to make data loading, navigation or mutations faster.
+description: Find and make the speedups a React app on @data-client/react may be missing - detail pages from list data, one Entity per server object, lists updated in place, reads that skip fresh data, loaders that don't wait for secondary data, prefetching, expiry, optimistic updates, Query memoization, parallel reads, transitions, stable references and React Compiler. Use for the optional performance pass after a migration, or when asked to make data loading, navigation or mutations faster.
 license: Apache 2.0
 ---
 

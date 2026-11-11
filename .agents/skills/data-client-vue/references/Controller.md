@@ -169,33 +169,11 @@ Promise, so end that chain with `.catch()`.
 ```ts
 // start a secondary request without waiting for it
 controller.fetchIfStale(CommentResource.getList, { issueId });
-// wait for the data the page needs first; rejects if that fetch fails
-await controller.fetchIfStale(IssueResource.get, { id: issueId });
+// wait for the data; rejects if that fetch fails
+const issue = await controller.fetchIfStale(IssueResource.get, { id: issueId });
 ```
 
 To check whether data is cached and fresh without fetching, read [getResponse()](#getResponse) synchronously.
-
-An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
-
-```ts
-{
-  name: 'IssueList',
-  component: lazyPage('IssuesPage'),
-  title: 'issue list',
-  resolveData: async (
-    controller: Controller,
-    { owner, repo }: { owner: string; repo: string },
-    searchParams: URLSearchParams,
-  ) => {
-    const q = searchParams?.get('q') || 'is:issue is:open';
-    await controller.fetchIfStale(IssueResource.search, {
-      owner,
-      repo,
-      q,
-    });
-  },
-},
-```
 
 ### expireAll({ testKey }) {#expireAll}
 

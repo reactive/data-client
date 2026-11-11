@@ -72,11 +72,14 @@ Every place that shows a server object reads the same Entity, so one response up
 
 ## Changes with tradeoffs {#tradeoffs}
 
-### Loaders wait only for the first view {#loaders}
+### Loaders don't wait for secondary data {#loaders}
 
 A router loader that awaits every request makes the page wait for the slowest one, even when the main item came from
-the list. Await only the data the page shows first. Start the rest without `await`, and give each component that reads
-it its own [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary):
+the list. In a router that changes the route in a transition, start every `fetchIfStale()` without awaiting it: the page
+renders what's cached and suspends for the rest, keeping the current page meanwhile. Give each component that reads
+secondary data its own [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary), so it loads without holding the page. Where the page
+renders the loader's return value, return only the main item, as [Route loaders](https://dataclient.io/docs/api/Controller#fetchIfStale-loaders)
+shows.
 
 ```ts title="Before"
 export const issueLoader =
@@ -95,9 +98,11 @@ export const issueLoader =
   (ctrl: Controller) =>
   ({ params }: { params: { issueId?: string } }) => {
     const id = Number(params.issueId);
-    // not awaited: IssueNotes suspends inside its own boundary, which also shows a failure.
+    // callout: Not awaited: the route changes at once, and the page suspends inside the transition until the issue arrives.
+    ctrl.fetchIfStale(IssueResource.get, { id });
+    // callout: IssueNotes suspends inside its own boundary, which also shows a failure.
     ctrl.fetchIfStale(getNotes, { issueId: id });
-    return ctrl.fetchIfStale(IssueResource.get, { id });
+    return null;
   };
 ```
 

@@ -170,33 +170,75 @@ Promise, so end that chain with `.catch()`.
 ```ts
 // start a secondary request without waiting for it
 controller.fetchIfStale(CommentResource.getList, { issueId });
-// wait for the data the page needs first; rejects if that fetch fails
-await controller.fetchIfStale(IssueResource.get, { id: issueId });
+// wait for the data; rejects if that fetch fails
+const issue = await controller.fetchIfStale(IssueResource.get, { id: issueId });
 ```
 
 To check whether data is cached and fresh without fetching, read [getResponse()](#getResponse) synchronously.
 
-An [example](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) with a fetch-as-you-render router:
+#### In route loaders {#fetchIfStale-loaders}
+
+A loader starts the next page's fetches before it renders. Like [useSuspense()](https://dataclient.io/docs/api/useSuspense), navigation should wait
+only when the cached data can't render: when it's missing, invalidated, or stale from an
+[invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) endpoint. Stale data renders at once and
+refetches. How to get that depends on what the router waits for:
+
+| Router                                                                                                                                                                                                                 | In the loader                                                                           | Nothing cached                                                                                                                                                                                                                                                                                          |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Changes the route in a [transition](https://react.dev/reference/react/startTransition), like the Next.js App Router, React Router 7, TanStack Router or [@anansi/router](https://www.npmjs.com/package/@anansi/router) | Start every `fetchIfStale()` without awaiting it, so the router has nothing to wait for | The current page stays until the new one is ready, unless the new page has its own Suspense boundary (like an [AsyncBoundary](https://dataclient.io/docs/api/AsyncBoundary) or a TanStack Router `pendingComponent`), which shows its fallback. @anansi/router skips the transition on back and forward |
+| Renders the loader's return value, or doesn't change the route in a transition (React Router 6 without its `v7_startTransition` flag)                                                                                  | Return the cached data when it can render; otherwise return `fetchIfStale()`            | The router waits for the fetch                                                                                                                                                                                                                                                                          |
+
+The Next.js App Router has no loaders: `useSuspense()` fetches as the page renders.
+
+```ts title="Router with transitions"
+import type { Controller } from '@data-client/react';
+import { CommentResource } from './resources/Comment';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    // not awaited: the route changes at once, and useSuspense() waits inside the transition
+    ctrl.fetchIfStale(IssueResource.get, { id: params.id });
+    ctrl.fetchIfStale(CommentResource.getList, { issueId: params.id });
+    // React Router 6 requires a return value
+    return null;
+  };
+```
+
+When server rendering waits for the loader, as @anansi/core's `prefetchSpout` does for @anansi/router's `resolveData`,
+also await the first view's fetch so the first HTML includes its data. Add `.catch(() => {})` (or use
+`Promise.allSettled()` for several), so a failure never rejects unhandled on the client; `useSuspense()` still shows the
+error.
 
 ```ts
-{
-  name: 'IssueList',
-  component: lazyPage('IssuesPage'),
-  title: 'issue list',
-  resolveData: async (
-    controller: Controller,
-    { owner, repo }: { owner: string; repo: string },
-    searchParams: URLSearchParams,
-  ) => {
-    const q = searchParams?.get('q') || 'is:issue is:open';
-    await controller.fetchIfStale(IssueResource.search, {
-      owner,
-      repo,
-      q,
-    });
-  },
+resolveData: async (controller: Controller, { id }: { id: string }) => {
+  controller.fetchIfStale(CommentResource.getList, { issueId: id });
+  await controller.fetchIfStale(IssueResource.get, { id }).catch(() => {});
 },
 ```
+
+```ts title="Router that renders loader data"
+import { ExpiryStatus, type Controller } from '@data-client/react';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    const args = { id: params.id };
+    const { data, expiryStatus } = ctrl.getResponse(
+      IssueResource.get,
+      args,
+      ctrl.getState(),
+    );
+    const fetched = ctrl.fetchIfStale(IssueResource.get, args);
+    // stale data is still Valid, so it returns at once
+    return expiryStatus === ExpiryStatus.Valid ? data : fetched;
+  };
+```
+
+A loader that returns a pending fetch lets the router show its own pending and error UI, but it holds navigation while
+the request runs. That tradeoff comes with waiting for loader data, whatever fetches it.
 
 Example app: [github-app](https://github.com/reactive/data-client/tree/master/examples/github-app) ([`src/routing/routes.tsx`](https://github.com/reactive/data-client/blob/master/examples/github-app/src/routing/routes.tsx))
 

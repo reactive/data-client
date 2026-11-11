@@ -34,7 +34,9 @@ and fetch optimization _loosely coupled_.
 In most cases the best time to pre-fetch data is at the routing layer. Doing this
 makes incorporating all of the above capabilities quite easy.
 
-Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) in the route event handler (before startTransition)
+Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) in the route event handler (before startTransition),
+without awaiting it. Server rendering waits for the route's Promise, so await the first view's data inside
+`Promise.allSettled()` ([route loaders](../api/Controller.md#fetchIfStale-loaders)).
 
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
@@ -58,7 +60,8 @@ export const routes: Route<Controller>[] = [
         });
         // don't block on posts but start fetching
         controller.fetchIfStale(PostResource.getList, { userId: match.id });
-        await Promise.all([
+        // server rendering waits for these; allSettled so a failure never rejects unhandled
+        await Promise.allSettled([
           controller.fetchIfStale(UserResource.get, match),
           controller.fetchIfStale(getImage, {
             src: fakeUser.profileImage,
