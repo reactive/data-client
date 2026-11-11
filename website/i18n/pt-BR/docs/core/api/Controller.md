@@ -17,9 +17,11 @@ import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
-`Controller` é um singleton que fornece acesso seguro ao [store flux e ao ciclo de vida](./Manager.md#control-flow) do Reactive Data Client.
-`Controller` memoiza todo o acesso ao store, permitindo uma garantia global de igualdade referencial e o melhor desempenho
-de renderização e de obtenção de dados.
+`Controller` oferece acesso com tipagem segura ao [store do Reactive Data Client e ao seu ciclo de vida](./Manager.md#control-flow).
+Cada store tem um único `Controller`.
+
+`Controller` memoiza a desnormalização para garantir igualdade referencial global: dados do store que não mudam resultam no
+mesmo objeto onde quer que sejam lidos. Isso mantém a renderização e as consultas rápidas.
 
 `Controller` é fornecido:
 
@@ -31,7 +33,7 @@ de renderização e de obtenção de dados.
 class Controller {
   /*************** Action Dispatchers ***************/
   fetch(endpoint, ...args): ReturnType<E>;
-  fetchIfStale(endpoint, ...args): ReturnType<E> | Denormalize<E['schema']>;
+  fetchIfStale(endpoint, ...args): Promise<Denormalize<E['schema']>>;
   expireAll({ testKey }): Promise<void>;
   invalidate(endpoint, ...args): Promise<void>;
   invalidateAll({ testKey }): Promise<void>;
@@ -44,7 +46,7 @@ class Controller {
   subscribe(endpoint, ...args): Promise<void>;
   unsubscribe(endpoint, ...args): Promise<void>;
   /*************** Data Access ***************/
-  get(queryable, ...args, state): Denormalized<typeof queryable>;
+  get(queryable, ...args, state): DenormalizeNullable<typeof queryable> | undefined;
   getResponse(endpoint, ...args, state): { data; expiryStatus; expiresAt };
   getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
@@ -56,8 +58,7 @@ class Controller {
 
 ### fetch(endpoint, ...args) {#fetch}
 
-Faz o fetch do endpoint com os args fornecidos, atualizando o cache do Reactive Data Client com
-a resposta ou o erro ao concluir.
+Faz o fetch do endpoint com os args fornecidos. Quando o fetch termina, a resposta ou o erro vai para o cache.
 
 <Tabs
 defaultValue="Create"
@@ -232,8 +233,8 @@ function PostListItem({ post }: { post: Post }) {
 
 :::tip
 
-`fetch` tem o mesmo valor de retorno que o [Endpoint](/rest/api/Endpoint) passado a ele.
-Ao usar schemas, o valor desnormalizado é retornado
+`fetch` tem o mesmo valor de retorno do [Endpoint](/rest/api/Endpoint) passado a ele.
+Com um schema, ele retorna o valor desnormalizado.
 
 ```ts
 const controller = useController();
@@ -250,51 +251,113 @@ post.pk();
 
 #### Endpoint.sideEffect {#endpointsideeffect}
 
-[sideEffect](/rest/api/Endpoint#sideeffect) altera o comportamento
+[sideEffect](/rest/api/Endpoint#sideeffect) altera como `fetch()` se comporta:
 
 ##### true {#true}
 
-- Resolve _antes_ de [confirmar (commit)](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) as atualizações de cache do Reactive Data Client. (React 16, 17)
-- Cada chamada sempre causará um novo fetch.
+- Resolve _antes_ de a atualização do cache ser [confirmada (commit)](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
+- Cada chamada inicia um novo fetch.
+- Sem await, ela é rejeitada sem tratamento, já que nenhum componente lê seu erro. Aguarde-a, ou use
+  [useLoading()](./useLoading.md) para exibir o erro.
 
 ##### false | undefined {#false--undefined}
 
-- Resolve _depois_ de [confirmar (commit)](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom) as atualizações de cache do Reactive Data Client.
-- Requisições idênticas são deduplicadas globalmente, permitindo apenas uma requisição em andamento por vez.
-  - Para garantir que uma _nova_ requisição seja iniciada, certifique-se de abortar quaisquer requisições em andamento.
+- Resolve _depois_ de a atualização do cache ser [confirmada (commit)](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom).
+- Requisições idênticas são deduplicadas, então só uma fica em andamento por vez.
+  - Para iniciar uma _nova_ requisição, aborte primeiro a que está em andamento.
+- Seguro sem await: o erro é armazenado para os componentes que leem esse endpoint, então nunca chega aos handlers
+  globais de rejeições não tratadas ([reporte-o](../concepts/managers.md#error-reporting) em vez disso). `await` ainda rejeita.
 
 ### fetchIfStale(endpoint, ...args) {#fetchIfStale}
 
-Faz o fetch apenas se o endpoint for considerado '[desatualizado (stale)](../concepts/expiry-policy.md#stale)' ou [inválido (invalid)](../concepts/expiry-policy.md#invalid),
-retornando a mesma Promise de [fetch()](#fetch). Caso contrário, retorna os dados em cache de forma síncrona, sem fazer o fetch.
+Faz o fetch apenas quando os dados estão ausentes, [desatualizados](../concepts/expiry-policy.md#stale) ou [inválidos](../concepts/expiry-policy.md#invalid),
+e sempre retorna uma Promise com o resultado do fetch mais recente. Isso evita buscar dados ainda atualizados ao fazer prefetch.
 
-Isso pode ser útil ao fazer prefetch de dados, pois evita buscar em excesso dados que ainda estão atualizados.
+| Cache | Faz fetch | `await` retorna | Sem aguardar |
+| --- | --- | --- | --- |
+| Ausente, desatualizado ou inválido | Sim, como [fetch()](#fetch) | Os dados buscados, ou rejeita com o erro | O erro é armazenado; sem rejeição não tratada |
+| Atualizado | Não | Os dados em cache | Nada acontece |
+| O fetch mais recente falhou dentro de [errorExpiryLength](/rest/api/Endpoint#errorexpirylength) | Não | Rejeita com esse erro, como [useSuspense()](./useSuspense.md) o lança | Nada acontece |
 
-Um [exemplo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Frouting%2Froutes.tsx) com um roteador fetch-as-you-render:
+Assim, prefetches não precisam ser aguardados nem capturados: os componentes que leem esse endpoint exibem um erro armazenado como de costume.
+Falhas não aguardadas não chegam aos handlers globais de rejeições não tratadas, então reporte os erros de fetch com um
+[Manager de relatório de erros](../concepts/managers.md#error-reporting). Um `.then()` encadeado no resultado cria uma nova
+Promise, então termine essa cadeia com `.catch()`.
 
 ```ts
-{
-  name: 'IssueList',
-  component: lazyPage('IssuesPage'),
-  title: 'issue list',
-  resolveData: async (
-    controller: Controller,
-    { owner, repo }: { owner: string; repo: string },
-    searchParams: URLSearchParams,
-  ) => {
-    const q = searchParams?.get('q') || 'is:issue is:open';
-    // highlight-start
-    await controller.fetchIfStale(IssueResource.search, {
-      owner,
-      repo,
-      q,
-    });
-    // highlight-end
-  },
+// start a secondary request without waiting for it
+controller.fetchIfStale(CommentResource.getList, { issueId });
+// wait for the data; rejects if that fetch fails
+const issue = await controller.fetchIfStale(IssueResource.get, { id: issueId });
+```
+
+Para verificar se os dados estão em cache e atualizados sem fazer fetch, leia [getResponse()](#getResponse) de forma síncrona.
+
+:::react
+
+#### Em loaders de rota {#fetchIfStale-loaders}
+
+Um loader inicia os fetches da próxima página antes que ela seja renderizada. Assim como o [useSuspense()](./useSuspense.md), a navegação só deve esperar
+quando os dados em cache não podem ser renderizados: quando estão ausentes, invalidados ou desatualizados em um endpoint com
+[invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale). Dados desatualizados são renderizados imediatamente e
+buscados de novo. Como conseguir isso depende do que o roteador espera:
+
+| Roteador | No loader | Nada em cache |
+| --- | --- | --- |
+| Muda a rota em uma [transição](https://react.dev/reference/react/startTransition), como o App Router do Next.js, React Router 7, TanStack Router ou [@anansi/router](https://www.npmjs.com/package/@anansi/router) | Inicie cada `fetchIfStale()` sem aguardá-lo, para que o roteador não tenha nada a esperar | A página atual permanece até a nova estar pronta, a menos que a nova página tenha seu próprio limite de Suspense (como um [AsyncBoundary](./AsyncBoundary.md) ou um `pendingComponent` do TanStack Router), que exibe seu fallback. O @anansi/router pula a transição ao voltar e avançar |
+| Renderiza o valor retornado pelo loader, ou não muda a rota em uma transição (React Router 6 sem a flag `v7_startTransition`) | Retorne os dados em cache quando puderem ser renderizados; caso contrário, retorne `fetchIfStale()` | O roteador espera pelo fetch |
+
+O App Router do Next.js não tem loaders: `useSuspense()` faz o fetch enquanto a página é renderizada.
+
+```ts title="Router with transitions"
+import type { Controller } from '@data-client/react';
+import { CommentResource } from './resources/Comment';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    // not awaited: the route changes at once, and useSuspense() waits inside the transition
+    ctrl.fetchIfStale(IssueResource.get, { id: params.id });
+    ctrl.fetchIfStale(CommentResource.getList, { issueId: params.id });
+    // React Router 6 requires a return value
+    return null;
+  };
+```
+
+Quando a renderização no servidor espera pelo loader, como o `prefetchSpout` do @anansi/core faz com o `resolveData` do @anansi/router,
+aguarde também o fetch da primeira view para que o primeiro HTML inclua seus dados. Adicione `.catch(() => {})` (ou use
+`Promise.allSettled()` para vários), para que uma falha nunca seja rejeitada sem tratamento no cliente; `useSuspense()` ainda exibe o
+erro.
+
+```ts
+resolveData: async (controller: Controller, { id }: { id: string }) => {
+  controller.fetchIfStale(CommentResource.getList, { issueId: id });
+  await controller.fetchIfStale(IssueResource.get, { id }).catch(() => {});
 },
 ```
 
-:::react
+```ts title="Router that renders loader data"
+import { ExpiryStatus, type Controller } from '@data-client/react';
+import { IssueResource } from './resources/Issue';
+
+export const issueLoader =
+  (ctrl: Controller) =>
+  ({ params }: { params: { id: string } }) => {
+    const args = { id: params.id };
+    const { data, expiryStatus } = ctrl.getResponse(
+      IssueResource.get,
+      args,
+      ctrl.getState(),
+    );
+    const fetched = ctrl.fetchIfStale(IssueResource.get, args);
+    // stale data is still Valid, so it returns at once
+    return expiryStatus === ExpiryStatus.Valid ? data : fetched;
+  };
+```
+
+Um loader que retorna um fetch pendente permite que o roteador exiba sua própria UI de carregamento e de erro, mas segura a navegação enquanto
+a requisição está em andamento. Essa contrapartida vem de esperar pelos dados do loader, seja lá o que os busque.
 
 <StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
 
@@ -304,8 +367,7 @@ Um [exemplo](https://stackblitz.com/github/reactive/data-client/tree/master/exam
 
 Define o [status de expiração](../concepts/expiry-policy.md) de todas as respostas que correspondem a `testKey` como [Stale](../concepts/expiry-policy.md#stale).
 
-Isso às vezes é útil para disparar a atualização apenas dos dados exibidos no momento
-quando há muitas parametrizações em cache.
+Use-o para atualizar apenas os dados na tela quando o cache guarda muitos conjuntos de args.
 
 :::react
 
@@ -371,8 +433,8 @@ function CreateTrade({ userId }: { userId: string }) {
 
 :::tip
 
-Para reduzir a carga, melhorar o desempenho e melhorar a consistência do estado, muitas vezes é
-melhor [incluir os efeitos colaterais da mutação na resposta da mutação](/rest/guides/side-effects).
+Muitas vezes é melhor [incluir os efeitos colaterais da mutação na resposta da mutação](/rest/guides/side-effects). Isso
+reduz a carga, melhora o desempenho e mantém o estado consistente.
 
 :::
 
@@ -473,7 +535,7 @@ redefine o estado local do componente.
 
 :::tip
 
-Para atualizar continuando a exibir dados desatualizados - [Controller.fetch](#fetch).
+Para atualizar enquanto ainda exibe dados desatualizados, use [Controller.fetch](#fetch).
 
 :::
 
@@ -483,7 +545,7 @@ Para atualizar continuando a exibir dados desatualizados - [Controller.fetch](#f
 
 Use [schema.Invalidate](/rest/api/Invalidate) para invalidar todos os endpoints que contêm uma determinada entity.
 
-Para REST, experimente usar [Resource.delete](/rest/api/resource#delete)
+Para REST, experimente [Resource.delete](/rest/api/resource#delete).
 
 ```ts
 // deletes MyResource(5)
@@ -496,7 +558,7 @@ controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 
 ### invalidateAll(\{ testKey }) {#invalidateAll}
 
-[Invalida](../concepts/expiry-policy#invalid) todas as [chaves de endpoint](/rest/api/RestEndpoint#key) que correspondem a `testKey`.
+[Invalida](../concepts/expiry-policy.md#invalid) todas as [chaves de endpoint](/rest/api/RestEndpoint#key) que correspondem a `testKey`.
 
 :::react
 
@@ -551,13 +613,13 @@ function ArticleName({ id }: { id: string }) {
 
 :::tip
 
-Para atualizar continuando a exibir dados desatualizados - use [Controller.expireAll](#expireAll).
+Para atualizar enquanto ainda exibe dados desatualizados, use [Controller.expireAll](#expireAll) em vez disso.
 
 :::
 
 ::::
 
-Aqui limpamos apenas os endpoints GET que usam o domínio test.com. Isso significa que outros domínios permanecem em cache.
+O código abaixo invalida apenas os endpoints GET do domínio test.com. Outros domínios permanecem no cache.
 
 ```ts
 const myDomain = 'http://test.com';
@@ -569,7 +631,7 @@ function useLogout() {
 }
 ```
 
-Geralmente também é uma boa ideia limpar o cache em um 401 (não autorizado) com o [LogoutManager](./LogoutManager.md).
+Limpe também o cache em um 401 (não autorizado) com o [LogoutManager](./LogoutManager.md).
 
 <ProviderManagers imports={['LogoutManager', 'getDefaultManagers']}>
 
@@ -596,9 +658,9 @@ const managers = () => [
 
 ### resetEntireStore() {#resetEntireStore}
 
-Redefine/limpa todo o cache do Reactive Data Client. Nenhuma requisição em andamento será resolvida.
+Limpa todo o cache do Reactive Data Client. As respostas de fetches em andamento não são armazenadas. Esses fetches são rejeitados com um `ResetError` (`error.name === 'ResetError'`), exceto os fetches com `sideEffect`, que ainda são concluídos com o próprio resultado ou erro.
 
-Isso normalmente é usado ao fazer logout ou ao trocar de usuário autenticado.
+Use-o quando um usuário faz logout ou o usuário autenticado muda.
 
 :::react
 
@@ -703,7 +765,7 @@ função `schemaAttribute` deve ser declarada em cada membro.
 
 :::
 
-Funções podem ser usadas no valor quando são usados dados derivados. Isso [evita condições de corrida](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
+Passe uma função para derivar o valor a partir do armazenado. Isso [evita condições de corrida](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
 ```ts
 const id = '2';
@@ -779,9 +841,7 @@ recebem `[]`) nem função de atualização. Linhas que compartilham uma pk são
 
 Armazena `response` no cache para o [Endpoint](/rest/api/Endpoint) e os args fornecidos.
 
-Quaisquer componentes suspensos aguardando o [Endpoint](/rest/api/Endpoint) e os args fornecidos serão resolvidos.
-
-Se já existirem dados para o [Endpoint](/rest/api/Endpoint) e os args fornecidos, eles serão atualizados.
+Componentes em suspense para este [Endpoint](/rest/api/Endpoint) e args são resolvidos. Dados existentes para esse Endpoint e args são atualizados; as entities são mescladas com seus campos armazenados.
 
 :::react
 
@@ -830,33 +890,32 @@ onUnmounted(() => websocket.close());
 
 :::
 
-Isto mostra uma prova de conceito em :react[React]:vue[Vue]; no entanto, uma [implementação de websockets com Manager](../concepts/managers.md#data-stream)
-seria muito mais robusta.
+Isto é uma prova de conceito em :react[React]:vue[Vue]. Uma [implementação de websockets com Manager](../concepts/managers.md#data-stream)
+é mais robusta.
 
 ### setError(endpoint, ...args, error) {#setError}
 
-Armazena o resultado do [Endpoint](/rest/api/Endpoint) e dos args como o erro fornecido.
+Armazena `error` como o resultado do [Endpoint](/rest/api/Endpoint) e dos args.
 
 ### resolve(endpoint, \{ args, response, fetchedAt, error }) {#resolve}
 
 Resolve um fetch específico, armazenando a `response` no cache.
 
-É semelhante a setResponse, exceto que dispara a resolução de um fetch em andamento.
-Isso significa que a atualização otimista correspondente deixará de ser aplicada.
+Como [setResponse](#setResponse), mas `fetchedAt` vincula a resposta a um fetch específico, de modo que a atualização
+otimista desse fetch é removida.
 
-É usado no [NetworkManager](./NetworkManager.md) e deve ser usado ao
-processar requisições de fetch.
+O [NetworkManager](./NetworkManager.md) o utiliza. Use-o quando um Manager processar requisições de fetch.
 
 Passe o `action.meta.fetchedAt` da action de fetch como `fetchedAt`. Assim, o store descarta respostas de fetches iniciados antes de
 [resetEntireStore()](#resetEntireStore), e uma resposta antiga não conclui um fetch mais recente da mesma chave.
 
 ### subscribe(endpoint, ...args) {#subscribe}
 
-Marca uma nova subscription a um [Endpoint](/rest/api/Endpoint). Isso deve incrementar a subscription.
+Adiciona uma assinatura ao [Endpoint](/rest/api/Endpoint) e aos args. Cada chamada incrementa sua contagem de assinantes.
 
 [useSubscription](./useSubscription.md) e [useLive](./useLive.md) chamam isso na montagem.
 
-Isso pode ser útil para :react[hooks]:vue[composables] personalizados que façam subscribe/unsubscribe com base em outros fatores.
+:react[Hooks]:vue[Composables] personalizados podem chamá-lo para assinar com base em outras condições.
 
 :::react
 
@@ -903,8 +962,8 @@ watchEffect(onCleanup => {
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
 
-Marca o fim da subscription a um [Endpoint](/rest/api/Endpoint). Isso deve
-decrementar a subscription e, se a contagem chegar a 0, novas atualizações não serão mais recebidas automaticamente.
+Remove uma assinatura do [Endpoint](/rest/api/Endpoint) e dos args. Cada chamada decrementa sua contagem de assinantes; ao
+chegar a 0, as atualizações automáticas param.
 
 [useSubscription](./useSubscription.md) e [useLive](./useLive.md) chamam isso na desmontagem.
 
@@ -916,8 +975,7 @@ Busca qualquer [Schema](/rest/api/schema#schema-overview) [Queryable](/rest/api/
 
 #### Exemplo {#example}
 
-Isso é usado em [useQuery](./useQuery.md) e pode ser usado em
-[Managers](./Manager.md) para acessar o store com segurança.
+O [useQuery](./useQuery.md) é construído sobre ele, e os [Managers](./Manager.md) podem usá-lo para ler o store com segurança.
 
 :::react
 
@@ -947,15 +1005,20 @@ function useQuery<S extends Queryable>(
 
 :::vue
 
-Em componentes, [useQuery()](./useQuery.md) mantém o resultado reativo. Em handlers de eventos, passe
-[getState()](#getState) para ler o store mais recente:
+Nos componentes, [useQuery()](./useQuery.md) mantém o resultado reativo. Os handlers de eventos leem o valor atual dele:
 
 ```ts
+const props = defineProps<{ id: string }>();
 const ctrl = useController();
+const todo = useQuery(Todo, () => ({ id: props.id }));
 
-const toggle = (id: string) => {
-  const todo = ctrl.get(Todo, { id }, ctrl.getState());
-  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+const toggle = () => {
+  if (!todo.value) return;
+  ctrl.set(
+    Todo,
+    { id: props.id },
+    { id: props.id, completed: !todo.value.completed },
+  );
 };
 ```
 
@@ -971,11 +1034,11 @@ const toggle = (id: string) => {
 }
 ```
 
-Obtém a resposta (globalmente estável em termos de referência) para um determinado par endpoint/args a partir do state fornecido.
+Obtém a resposta de um endpoint e args a partir do `state` fornecido.
 
 #### data {#data}
 
-Os dados da resposta desnormalizados. Garante estabilidade referencial global para todos os membros.
+A resposta desnormalizada. Cada membro mantém a mesma referência enquanto seus dados não mudam.
 
 #### [expiryStatus](../concepts/expiry-policy.md#expiry-status) {#expirystatus}
 
@@ -1004,12 +1067,12 @@ export enum ExpiryStatus {
 
 #### expiresAt {#expiresat}
 
-Um número que representa o momento em que expira. Compare com Date.now().
+Quando os dados expiram, como timestamp. Compare-o com `Date.now()`.
 
 #### Example {#example-1}
 
-Isso é usado em [useCache](./useCache.md), [useSuspense](./useSuspense.md) e pode ser usado em
-[Managers](./Manager.md) para buscar uma resposta com o state fornecido.
+[useCache](./useCache.md) e [useSuspense](./useSuspense.md) são construídos sobre ele. Os [Managers](./Manager.md) podem usá-lo para buscar uma
+resposta no state fornecido.
 
 :::react
 
@@ -1036,8 +1099,8 @@ function useCache<E extends EndpointInterface>(
 
 :::vue
 
-Em handlers de eventos, passe [getState()](#getState) para ler o store mais recente, como no
-[exemplo de getState()](#getState).
+Nos componentes, [useCache()](./useCache.md) e [useSuspense()](./useSuspense.md) mantêm o resultado reativo. Os handlers
+de eventos leem o valor atual deles.
 
 :::
 
@@ -1075,7 +1138,7 @@ export default class MyManager implements Manager {
 
 ### getError(endpoint, ...args, state) {#getError}
 
-Obtém o erro, se houver, de um determinado endpoint. Retorna undefined quando não há erros.
+Obtém o erro de um endpoint e args, ou `undefined` se não houver nenhum.
 
 ### snapshot(state, fetchedAt) {#snapshot}
 
@@ -1087,11 +1150,11 @@ Obtém o estado interno do Reactive Data Client que _já foi [confirmado (commit
 
 ::::warning
 
-Isso deve ser usado apenas em handlers de eventos ou [Managers](./Manager.md).
+Use-o apenas fora de componentes: em [Managers](./Manager.md) ou em código como loaders de roteador.
 
 :::react
 
-Usar getState() no ciclo de renderização do React pode resultar em data tearing.
+Chamar getState() durante a renderização pode causar inconsistência de dados (data tearing).
 
 :::
 
@@ -1104,39 +1167,32 @@ Usar getState() em um `computed()` ou template não atualizará quando o store m
 
 ::::
 
+Para agir sobre o resultado de uma mutação, use o valor com que `fetch()` resolve em vez de `getState()`. Uma
+[mutação](#endpointsideeffect) resolve _antes_ de o store ser atualizado, então `getState()` ainda não tem a resposta dela.
+O valor resolvido é a resposta desnormalizada.
+
 :::react
 
 ```tsx
 import { useController } from '@data-client/react';
-import { useCallback } from 'react';
-import { MyResource } from './resources/MyResource';
-import { redirect } from './routing';
+import { useNavigate } from 'react-router';
+import { PostResource } from './PostResource';
 
-function useUpdateHandler(id: string) {
-  const controller = useController();
+function UpdatePost({ id }: { id: string }) {
+  const ctrl = useController();
+  const navigate = useNavigate();
 
-  return useCallback(
-    async updatePayload => {
-      const response = await controller.fetch(
-        MyResource.update,
-        { id },
-        updatePayload,
-      );
-      // the fetch has completed, but react has not yet re-rendered
-      // this lets use sequence after the next re-render
-      // we're working on a better solution to this specific case
-      setTimeout(() => {
-        const { data: denormalized } = controller.getResponse(
-          MyResource.update,
-          { id },
-          updatePayload,
-          controller.getState(),
-        );
-        redirect(denormalized.getterUrl);
-      }, 40);
-    },
-    [id],
-  );
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const post = await ctrl.fetch(
+      PostResource.update,
+      { id },
+      new FormData(e.currentTarget),
+    );
+    navigate(`/posts/${post.id}`);
+  };
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 ```
 
@@ -1144,21 +1200,29 @@ function useUpdateHandler(id: string) {
 
 :::vue
 
-```ts
-const controller = useController();
+```html title="UpdatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
 
-const handleShare = () => {
-  // reads the latest store without making this handler reactive
-  const { data: article } = controller.getResponse(
-    ArticleResource.get,
-    { id: props.id },
-    controller.getState(),
-  );
-  if (article) navigator.share({ title: article.title, url: article.url });
-};
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const router = useRouter();
+
+  const handleSubmit = async (e: Event) => {
+    const post = await ctrl.fetch(
+      PostResource.update,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+    router.push(`/posts/${post.id}`);
+  };
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
 ```
-
-[Mutações](#endpointsideeffect) resolvem _antes_ de o store ser atualizado, então leia o resultado delas a partir
-do valor com que `fetch()` resolve, em vez de `getState()`.
 
 :::
