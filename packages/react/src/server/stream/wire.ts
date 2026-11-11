@@ -7,16 +7,18 @@ export interface WireError {
   message: string;
   status?: number;
 }
+/** JSON writes a number that is not finite as `null`; for an expiry that means never */
+export type WireExpiry = number | null;
 export interface WireEntityMeta {
   fetchedAt: number;
   date: number;
-  expiresAt: number;
+  expiresAt: WireExpiry;
 }
 export interface WireEndpointMeta {
   date: number;
   fetchedAt: number;
-  expiresAt: number;
-  prevExpiresAt?: number;
+  expiresAt: WireExpiry;
+  prevExpiresAt?: WireExpiry;
   error?: WireError;
   invalidated?: boolean;
   errorPolicy?: 'hard' | 'soft';

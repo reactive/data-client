@@ -7,6 +7,7 @@ import type {
   StreamMessage,
   WireEndpointMeta,
   WireEntityMeta,
+  WireExpiry,
 } from './wire.js';
 
 export interface Ledger {
@@ -178,8 +179,12 @@ class DocumentLedger implements Ledger {
     return {
       fetchedAt: meta.fetchedAt + this.shift,
       date: meta.date + this.shift,
-      expiresAt: meta.expiresAt + this.shift,
+      expiresAt: this.shiftExpiry(meta.expiresAt),
     };
+  }
+
+  protected shiftExpiry(expiresAt: WireExpiry): number {
+    return expiresAt === null ? Infinity : expiresAt + this.shift;
   }
 
   protected shiftEndpointMeta(meta: WireEndpointMeta): WireEndpointMeta {
@@ -187,10 +192,10 @@ class DocumentLedger implements Ledger {
       ...meta,
       fetchedAt: meta.fetchedAt + this.shift,
       date: meta.date + this.shift,
-      expiresAt: meta.expiresAt + this.shift,
+      expiresAt: this.shiftExpiry(meta.expiresAt),
     };
     if (meta.prevExpiresAt !== undefined)
-      out.prevExpiresAt = meta.prevExpiresAt + this.shift;
+      out.prevExpiresAt = this.shiftExpiry(meta.prevExpiresAt);
     if (meta.error !== undefined) {
       const error: any = new Error(meta.error.message);
       error.name = meta.error.name;

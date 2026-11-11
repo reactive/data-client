@@ -53,4 +53,21 @@ describe('serialize', () => {
       ...second,
     ]);
   });
+
+  it('carries an expiry that is not finite as null', () => {
+    const [piece] = run(
+      serialize([
+        {
+          t: 'piece',
+          rev: 1,
+          entitiesMeta: {
+            Todo: { 1: { fetchedAt: 1, date: 1, expiresAt: Infinity } },
+          },
+          meta: { 'GET /todo': { fetchedAt: 1, date: 1, expiresAt: Infinity } },
+        },
+      ]),
+    );
+    expect(piece.entitiesMeta.Todo['1'].expiresAt).toBeNull();
+    expect(piece.meta['GET /todo'].expiresAt).toBeNull();
+  });
 });

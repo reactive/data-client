@@ -1,4 +1,5 @@
 import { getLedger } from '../Ledger';
+import { serialize } from '../serialize';
 import { STREAM_GLOBAL } from '../wire';
 import type { PieceMessage, StreamMessage } from '../wire';
 
@@ -62,6 +63,38 @@ describe('getLedger', () => {
       expiresAt: 51_500,
     });
     expect(piece.meta!['GET /btc']!.expiresAt).toBe(51_500);
+  });
+
+  it('stores an expiry that crossed the wire as null as never expiring, unshifted', () => {
+    const ledger = getLedger()!;
+    const never = { fetchedAt: 40_500, date: 40_500, expiresAt: Infinity };
+    // the script the server writes, run as the parser would
+    new Function(
+      serialize([
+        { t: 'open', v: 1, rev: 0, at: 40_000 },
+        {
+          t: 'piece',
+          rev: 1,
+          entities: { Ticker: { BTC: { id: 'BTC' } } },
+          entitiesMeta: { Ticker: { BTC: never } },
+          endpoints: { 'GET /btc': 'BTC' },
+          meta: { 'GET /btc': { ...never, prevExpiresAt: Infinity } },
+        },
+      ]),
+    )();
+    const [piece] = ledger.after(0);
+    expect(piece.entitiesMeta!.Ticker.BTC).toEqual({
+      fetchedAt: 50_500,
+      date: 50_500,
+      expiresAt: Infinity,
+    });
+    expect(piece.meta!['GET /btc']).toEqual({
+      fetchedAt: 50_500,
+      date: 50_500,
+      expiresAt: Infinity,
+      prevExpiresAt: Infinity,
+    });
+    expect(ledger.fold(1).meta['GET /btc'].expiresAt).toBe(Infinity);
   });
 
   it('records every entity object of a piece as placed, and the seed is built from them', () => {
