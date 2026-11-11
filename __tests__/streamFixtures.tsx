@@ -24,6 +24,7 @@ import {
   DataProvider,
   StateContext,
   getDefaultManagers,
+  useCache,
   useController,
   useSuspense,
 } from '@data-client/react';
@@ -113,6 +114,17 @@ export function actionRecorder(log: PageLog): Manager {
 
 export type WakeKind = 'children' | 'fallback' | 'error' | 'same';
 
+/**
+ * A shell probe: shows the todo only a socket writes (`sock`), and `start()`
+ * switches it, in a transition, to a reader that suspends until `release()`
+ */
+export interface LanesHandle {
+  start?: () => void;
+  release?: () => void;
+  /** Browser: island A suspends on this while its todo is `srv-1` */
+  holdA?: Promise<void>;
+}
+
 /** Client wraps the G1 controls compare */
 export type Variant = 'shield' | 'none' | 'scope-only' | 'frozen' | 'held';
 
@@ -132,6 +144,13 @@ export interface PageOptions {
   activityAbove?: ActivityHandle;
   /** Browser: the root is `<StrictMode>` */
   strict?: boolean;
+  /** The shell holds the lanes probe */
+  lanes?: LanesHandle;
+}
+
+function Waiter({ promise }: { promise: Promise<void> }) {
+  use(promise);
+  return <>+resolved</>;
 }
 
 function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
@@ -144,7 +163,14 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
   function IslandA() {
     const todo = useSuspense(endpoints.getTodo, { id: '1' });
     useRecord('a');
-    return <p data-testid="a">{todo.title}</p>;
+    return (
+      <p data-testid="a">
+        {todo.title}
+        {opts.lanes?.holdA && todo.title === 'srv-1' ?
+          <Waiter promise={opts.lanes.holdA} />
+        : null}
+      </p>
+    );
   }
   function List({ group }: { group: string }) {
     const todos = useSuspense(endpoints.getList, { group });
@@ -195,9 +221,29 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
       </AsyncBoundary>
     );
   }
+  function LanesProbe({ handle }: { handle: LanesHandle }) {
+    const sock = useCache(endpoints.getTodo, { id: 'sock' });
+    const [promise, setPromise] = useState<Promise<void> | null>(null);
+    handle.start = () => {
+      const waiting = deferred<void>();
+      handle.release = () => waiting.resolve();
+      startTransition(() => setPromise(waiting.promise));
+    };
+    return (
+      <p data-testid="lanes">
+        {sock?.title ?? 'none'}
+        {promise ?
+          <Waiter promise={promise} />
+        : null}
+      </p>
+    );
+  }
   const Layout = memo(function Layout() {
     return (
       <div data-testid="layout">
+        {opts.lanes ?
+          <LanesProbe handle={opts.lanes} />
+        : null}
         <AsyncBoundary fallback={<span>loading a</span>}>
           <IslandA />
         </AsyncBoundary>

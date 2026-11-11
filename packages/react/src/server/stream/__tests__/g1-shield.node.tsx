@@ -25,6 +25,7 @@ import {
   deliverB,
 } from '__tests__/g1Cells';
 import type { PageOptions, Variant } from '__tests__/g1Cells';
+import type { LanesHandle } from '__tests__/streamFixtures';
 import { settle, until } from '__tests__/splitEnvHarness';
 
 const { version } = require('react') as typeof import('react');
@@ -118,6 +119,101 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     expect(r.fetches).toEqual([]);
     expect(r.immediateCommits).toBe(0);
     expect(r.flushSyncCalls).toBe(0);
+  });
+
+  /**
+   * `behind`: an application transition whose reader suspends is pending when
+   * the piece arrives. `hold`: A's island suspends while it shows the piece, in
+   * a boundary that is already showing content.
+   */
+  async function runLanes(mode: 'hold' | 'behind') {
+    const server = await serverHalf(fx => ({
+      lanes: {},
+      steps: [fx.serverWrite(1), fx.resolveGroup('b'), fx.resolveGroup('c')],
+    }));
+    const { writes } = splitServerWrites(server.with('b'));
+    expect(writes).toHaveLength(1);
+    return inBrowser(async (b, finish) => {
+      let releaseA!: () => void;
+      const lanes: LanesHandle = {};
+      if (mode === 'hold')
+        lanes.holdA = new Promise<void>(resolve => {
+          releaseA = resolve;
+        });
+      const page = b.fx.createClientPage({ lanes });
+      await b.start(page, server.shell);
+      b.probe.resetCommits();
+      if (mode === 'behind') {
+        lanes.start!();
+        await settle(30);
+      }
+      b.push(writes);
+      await settle(30);
+      const aWhileHeld = b.text('a');
+      const fallbackA = b.container.textContent!.includes('loading a');
+      page.controller.current!.setResponse(
+        page.endpoints.getTodo,
+        { id: 'sock' },
+        { id: 'sock', title: 'socket-1' },
+      );
+      await settle(30);
+      const socketShown = b.text('lanes');
+      const aAfterSocket = b.text('a');
+      if (mode === 'hold') releaseA();
+      else lanes.release!();
+      await settle(50);
+      return {
+        aWhileHeld,
+        fallbackA,
+        socketShown,
+        aAfterSocket,
+        aAfterRelease: b.text('a'),
+        lanesAfterRelease: b.text('lanes'),
+        pending: { b: b.pending('B:0'), c: b.pending('B:1') },
+        ...(await finish(page)),
+      };
+    });
+  }
+
+  it('G1/lanes', async () => {
+    const r = await runLanes('hold');
+    expect(r).toEqual({
+      // published in a transition: A's boundary keeps its content while the
+      // piece's render suspends; at default lane it would show its fallback
+      aWhileHeld: 'a@1',
+      fallbackA: false,
+      // the socket write keeps its default lane: shown at once
+      socketShown: 'socket-1',
+      aAfterSocket: 'a@1',
+      aAfterRelease: 'srv-1+resolved',
+      lanesAfterRelease: 'socket-1',
+      pending: { b: true, c: true },
+      errors: 0,
+      fetches: [],
+      immediateCommits: 0,
+      flushSyncCalls: 0,
+      detectorOnly: true,
+    });
+  });
+
+  // recorded: React renders a transition apart from one that suspended on
+  // another lane, so the piece does not wait for the application's transition
+  it('G1/lanes-behind-app-transition (recorded)', async () => {
+    const r = await runLanes('behind');
+    expect(r).toEqual({
+      aWhileHeld: 'srv-1',
+      fallbackA: false,
+      socketShown: 'socket-1',
+      aAfterSocket: 'srv-1',
+      aAfterRelease: 'srv-1',
+      lanesAfterRelease: 'socket-1+resolved',
+      pending: { b: true, c: true },
+      errors: 0,
+      fetches: [],
+      immediateCommits: 0,
+      flushSyncCalls: 0,
+      detectorOnly: true,
+    });
   });
 
   /**
