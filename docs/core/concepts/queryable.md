@@ -23,34 +23,6 @@ its data in that table from args alone. Every write goes to that one table, what
 response, a mutation's response, a websocket message or any other code calling
 [Controller.set()](../api/Controller.md#set).
 
-<SiteOnly>
-
-<QueryableHero />
-
-</SiteOnly>
-
-<AgentOnly>
-
-The same three clicks in an issue tracker that shows a list, its counts and the open issue on one screen:
-
-| Click                      | A cache keyed by request sends                                        | Data Client sends  | Why Data Client sends no more                                                |
-| -------------------------- | --------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------- |
-| Open issue 5 from the list | `GET /issues/5`: 1                                                    | 0                  | The list's response already stored Issue 5                                   |
-| Close issue 5              | `PUT /issues/5`, then `GET /issues?assigneeId=1` and `GET /issues`: 3 | `PUT /issues/5`: 1 | The response overwrites Issue 5's one entry, which every view reads |
-| Create issue 6             | `POST /issues`, then `GET /issues?assigneeId=1` and `GET /issues`: 3  | `POST /issues`: 1  | The response joins both lists, and is the detail of Issue 6         |
-| Total                      | 7                                                                     | 2                  |                                                                              |
-
-Until its refetches return, the cache keyed by request shows issue 5 closed in the detail and open in the list.
-The Data Client app's mutations are also [optimistic](/rest/guides/optimistic-updates), so its lists and counts change
-before the response arrives; it sends the same requests either way.
-
-</AgentOnly>
-
-One write serves every read it matches. When [getList.push](/rest/api/resource#push) creates an issue, its one `POST`
-adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
-response apart, so after the same `POST` it refetches every list the issue could belong in: three requests where the
-table needs one.
-
 ## Benefits {#benefits}
 
 - [No overfetching on navigation](#navigation): a page renders data another page already loaded, wherever it sat in
@@ -97,8 +69,36 @@ const issue = await ctrl.fetch(IssueResource.getList.push, {
 navigate(`/issues/${issue.id}`);
 ```
 
-The issue tracker below sends one `GET`, for its `Team` page. Every other page reads data that response or a mutation
-wrote, so only mutations send requests.
+One write serves every read it matches. When [getList.push](/rest/api/resource#push) creates an issue, its one `POST`
+adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
+response apart, so after the same `POST` it refetches every list the issue could belong in: three requests where the
+table needs one.
+
+<SiteOnly>
+
+<QueryableHero />
+
+</SiteOnly>
+
+<AgentOnly>
+
+The same three clicks in an issue tracker that shows a list, its counts and the open issue on one screen:
+
+| Click                      | A cache keyed by request sends                                        | Data Client sends  | Why Data Client sends no more                                       |
+| -------------------------- | --------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------- |
+| Open issue 5 from the list | `GET /issues/5`: 1                                                    | 0                  | The list's response already stored Issue 5                          |
+| Close issue 5              | `PUT /issues/5`, then `GET /issues?assigneeId=1` and `GET /issues`: 3 | `PUT /issues/5`: 1 | The response overwrites Issue 5's one entry, which every view reads |
+| Create issue 6             | `POST /issues`, then `GET /issues?assigneeId=1` and `GET /issues`: 3  | `POST /issues`: 1  | The response joins both lists, and is the detail of Issue 6         |
+| Total                      | 7                                                                     | 2                  |                                                                     |
+
+Until its refetches return, the cache keyed by request shows issue 5 closed in the detail and open in the list.
+The Data Client app's mutations are also [optimistic](/rest/guides/optimistic-updates), so its lists and counts change
+before the response arrives; it sends the same requests either way.
+
+</AgentOnly>
+
+The live issue tracker below sends one `GET`, for its `Team` page. Every other page reads data that response or a
+mutation wrote, so only mutations send requests.
 
 <SiteOnly>
 

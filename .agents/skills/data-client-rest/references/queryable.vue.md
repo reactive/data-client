@@ -8,11 +8,6 @@ its data in that table from args alone. Every write goes to that one table, what
 response, a mutation's response, a websocket message or any other code calling
 [Controller.set()](https://dataclient.io/vue/api/Controller#set).
 
-One write serves every read it matches. When [getList.push](./resource.vue.md#push) creates an issue, its one `POST`
-adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
-response apart, so after the same `POST` it refetches every list the issue could belong in: three requests where the
-table needs one.
-
 ## Benefits {#benefits}
 
 - [No overfetching on navigation](#navigation): a page renders data another page already loaded, wherever it sat in
@@ -113,8 +108,13 @@ const issue = await ctrl.fetch(IssueResource.getList.push, {
 navigate(`/issues/${issue.id}`);
 ```
 
-The issue tracker below sends one `GET`, for its `Team` page. Every other page reads data that response or a mutation
-wrote, so only mutations send requests.
+One write serves every read it matches. When [getList.push](./resource.vue.md#push) creates an issue, its one `POST`
+adds the issue to every stored list it belongs in, and is the issue's detail. A cache keyed by request stores each
+response apart, so after the same `POST` it refetches every list the issue could belong in: three requests where the
+table needs one.
+
+The live issue tracker below sends one `GET`, for its `Team` page. Every other page reads data that response or a
+mutation wrote, so only mutations send requests.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
