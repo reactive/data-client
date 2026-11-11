@@ -1,77 +1,24 @@
-import type * as Drift from '__tests__/driftFixtures';
 import {
-  installDom,
-  loadServerHalf,
-  messagesOf,
-  settle,
-  until,
-} from '__tests__/splitEnvHarness';
-import { loadBrowserHalf } from '__tests__/streamBrowser';
-import type { BrowserHalf } from '__tests__/streamBrowser';
-import type { GatePromise, LedgerCapture } from '__tests__/streamingHarness';
-import v8 from 'v8';
-import vm from 'vm';
-
-import type { Ledger } from '..';
+  D1_PINNED,
+  R1_RELEASED,
+  TEST_IDS,
+  clientPage,
+  collect,
+  deliverAll,
+  driftServer,
+  firstText,
+  inBrowser,
+  pinOf,
+  releaseAfterJoin,
+  spyLedger,
+} from '__tests__/driftCells';
+import type * as Drift from '__tests__/driftFixtures';
+import { settle, until } from '__tests__/splitEnvHarness';
+import type { GatePromise } from '__tests__/streamingHarness';
 
 const { version } = require('react') as typeof import('react');
 const describeReact19 =
   Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
-
-v8.setFlagsFromString('--expose-gc');
-const gc: () => void = vm.runInNewContext('gc');
-/** Several collections, each in its own job, so no WeakRef is kept by the current one */
-async function collect() {
-  for (let i = 0; i < 3; i++) {
-    await settle(10);
-    gc();
-  }
-}
-
-async function driftServer(
-  build: (drift: typeof Drift) => Parameters<typeof Drift.runDriftServer>[0],
-) {
-  const drift = loadServerHalf(
-    () => require('__tests__/driftFixtures') as typeof Drift,
-  );
-  const { capture } = await drift.runDriftServer(build(drift));
-  return capture;
-}
-
-function pinIdOf(capture: LedgerCapture, testId: string) {
-  const flush = capture.flushes.find(f =>
-    f.html.includes(`data-testid="${testId}"`),
-  )!;
-  const pins = messagesOf(flush.script).filter(m => m.t === 'pin');
-  expect(pins).toHaveLength(1);
-  return pins[0] as { id: string; rev: number };
-}
-
-/** Records what the ledger builds and commits, holding built states weakly */
-function spyLedger(ledger: Ledger) {
-  const target = ledger as any;
-  const snapshots: { rev: number; ref: WeakRef<object> }[] = [];
-  const folds: WeakRef<object>[] = [];
-  const commits: string[] = [];
-  const snapshot = target.snapshot.bind(ledger);
-  const fold = target.fold.bind(ledger);
-  const commit = target.commit.bind(ledger);
-  target.snapshot = (rev: number) => {
-    const state = snapshot(rev);
-    snapshots.push({ rev, ref: new WeakRef(state) });
-    return state;
-  };
-  target.fold = (rev: number) => {
-    const state = fold(rev);
-    folds.push(new WeakRef(state));
-    return state;
-  };
-  target.commit = (id: string) => {
-    commits.push(id);
-    return commit(id);
-  };
-  return { snapshots, folds, commits };
-}
 
 /** Every table object of a state: the slot maps and each entity and index table */
 function tablesOf(state: any): Set<object> {
@@ -93,133 +40,32 @@ function tablesOf(state: any): Set<object> {
 const shares = (a: Set<object>, b: Set<object>) =>
   [...a].some(table => b.has(table));
 
-const TEST_IDS = ['b1', 'b2'];
-
-async function deliverAll(b: BrowserHalf, capture: LedgerCapture) {
-  const found: Record<string, Element | undefined> = {};
-  const [shell, ...rest] = capture.flushes;
-  b.shell(shell);
-  for (const flush of rest) {
-    b.script(flush);
-    const ids = TEST_IDS.filter(id =>
-      flush.html.includes(`data-testid="${id}"`),
-    );
-    Object.assign(found, b.htmlFind(flush, ids));
-  }
-  await until(
-    () => !/<!--\$[?~]-->/.test(b.container.innerHTML),
-    'every boundary revealed',
-  );
-  return found;
-}
-
-async function inBrowser<T>(run: (b: BrowserHalf) => Promise<T>): Promise<T> {
-  const teardownDom = installDom();
-  let b: BrowserHalf | undefined;
-  try {
-    b = loadBrowserHalf();
-    return await run(b);
-  } finally {
-    b?.teardown();
-    await teardownDom();
-  }
-}
-
-function clientPage(
-  opts: Parameters<typeof Drift.createDriftClientPage>[0] = {},
-) {
-  const drift = require('__tests__/driftFixtures') as typeof Drift;
-  return drift.createDriftClientPage(opts);
-}
-
-const firstText = (texts: string[] | undefined, name: string) =>
-  texts?.find(t => t.startsWith(`${name}=`));
-
-function joinOf(states: WeakRef<object>[], live: object) {
-  const first = states[0].deref();
-  return {
-    pinnedBeforeJoin: first !== undefined && first !== live,
-    liveAfterJoin: states[states.length - 1].deref() === live,
-  };
-}
-
-/** D1, then the join and the effect after it, on a quiet page */
-async function releaseAfterJoin(variant: 'shield' | 'held', extraRenders = 0) {
-  const capture = await driftServer(() => ({}));
-  return inBrowser(async b => {
-    const page = clientPage({ variant });
-    const spy = spyLedger(page.ledger());
-    await deliverAll(b, capture);
-    b.hydrate(page.element);
-    await until(
-      () => page.log.commits.includes('b1') && page.log.commits.includes('b2'),
-      'B1 and B2 hydrated',
-    );
-    await until(() => b.text('b1') === 'BTC:101.5ETH:10', 'B1 joined');
-    await settle(50);
-    // no local of this async function may hold a state across the collection
-    const result = {
-      ...joinOf(page.log.states!.b1, page.controller.current!.getState()),
-      pins: page.ledger().stats().pins,
-      snapshotsBuilt: spy.snapshots.length,
-    };
-    for (let i = 0; i < extraRenders; i++) {
-      page.controller.current!.setResponse(
-        page.endpoints.getTicker,
-        { id: 'BTC' },
-        { id: 'BTC', price: 200 + i },
-      );
-      await settle(30);
-    }
-    await collect();
-    return {
-      ...result,
-      mounted: b.byTestId('b1') !== null && b.byTestId('b2') !== null,
-      snapshotsRetained: spy.snapshots.filter(s => s.ref.deref() !== undefined)
-        .length,
-    };
-  });
-}
-
 describeReact19('R: snapshot release at the first commit', () => {
   it('R1/released-after-join', async () => {
-    const r = await releaseAfterJoin('shield');
-    expect(r).toEqual({
-      pinnedBeforeJoin: true,
-      liveAfterJoin: true,
-      pins: 0,
-      snapshotsBuilt: 2,
-      mounted: true,
-      snapshotsRetained: 0,
-    });
+    const r = await releaseAfterJoin();
+    expect(r.pinned).toEqual(D1_PINNED);
+    expect(r.release).toEqual(R1_RELEASED);
   });
 
   // recorded: the render after the join replaces what React's alternate fibers
   // still hold from hydration (the Provider's old props, each reader's old
   // context dependency)
   it('R1/released-after-next-render (recorded)', async () => {
-    const r = await releaseAfterJoin('shield', 1);
-    expect(r).toEqual({
-      pinnedBeforeJoin: true,
-      liveAfterJoin: true,
-      pins: 0,
-      snapshotsBuilt: 2,
-      mounted: true,
-      snapshotsRetained: 0,
-    });
+    const r = await releaseAfterJoin({}, 1);
+    expect(r.release).toEqual(R1_RELEASED);
   });
 
   it('R1/control-state-held', async () => {
-    const r = await releaseAfterJoin('held');
-    expect(r.pinnedBeforeJoin).toBe(true);
-    expect(r.liveAfterJoin).toBe(true);
-    expect(r.mounted).toBe(true);
-    expect(r.snapshotsRetained).toBeGreaterThanOrEqual(1);
+    const { release } = await releaseAfterJoin({ variant: 'held' });
+    expect(release.pinnedBeforeJoin).toBe(true);
+    expect(release.liveAfterJoin).toBe(true);
+    expect(release.mounted).toBe(true);
+    expect(release.snapshotsRetained).toBeGreaterThanOrEqual(1);
   });
 
   it('R2/late-island', async () => {
-    const capture = await driftServer(() => ({}));
-    const b2Pin = pinIdOf(capture, 'b2');
+    const { capture } = await driftServer(() => ({}));
+    const b2Pin = pinOf(capture, 'b2');
     const r = await inBrowser(async b => {
       let resolveCode!: () => void;
       const lazyB2 = new Promise<void>(resolve => {
@@ -270,8 +116,8 @@ describeReact19('R: snapshot release at the first commit', () => {
   });
 
   it('R3/pin-after-commit', async () => {
-    const capture = await driftServer(() => ({}));
-    const b1Pin = pinIdOf(capture, 'b1');
+    const { capture } = await driftServer(() => ({}));
+    const b1Pin = pinOf(capture, 'b1');
     const r = await inBrowser(async b => {
       const page = clientPage();
       const ledger = page.ledger();
@@ -298,8 +144,8 @@ describeReact19('R: snapshot release at the first commit', () => {
 
   /** Every script first, HTML only for the shell; GC sweeps BTC; then B1's and B2's HTML */
   async function sweepWhilePinned(variant: 'shield' | 'aliased') {
-    const capture = await driftServer(() => ({}));
-    const b2Pin = pinIdOf(capture, 'b2');
+    const { capture } = await driftServer(() => ({}));
+    const b2Pin = pinOf(capture, 'b2');
     return inBrowser(async b => {
       const { GCPolicy } =
         require('@data-client/react') as typeof import('@data-client/react');
@@ -400,8 +246,8 @@ describeReact19('R: snapshot release at the first commit', () => {
   });
 
   it('R6/discarded-render', async () => {
-    const capture = await driftServer(() => ({}));
-    const b2Pin = pinIdOf(capture, 'b2');
+    const { capture } = await driftServer(() => ({}));
+    const b2Pin = pinOf(capture, 'b2');
     const { makeGate } =
       require('__tests__/streamingHarness') as typeof import('__tests__/streamingHarness');
     const r = await inBrowser(async b => {

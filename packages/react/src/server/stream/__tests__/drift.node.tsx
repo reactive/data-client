@@ -1,3 +1,14 @@
+import {
+  clientPage,
+  deliverAll,
+  driftServer,
+  firstText,
+  inBrowser,
+  lastPins,
+  pinIdOf,
+  pinsOf,
+} from '__tests__/driftCells';
+import type { DriftOptions } from '__tests__/driftCells';
 import type * as Drift from '__tests__/driftFixtures';
 import {
   installDom,
@@ -14,91 +25,6 @@ import type { LedgerCapture, LedgerFlush } from '__tests__/streamingHarness';
 const { version } = require('react') as typeof import('react');
 const describeReact19 =
   Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
-
-type DriftOptions = Drift.DriftOptions;
-
-async function driftServer(
-  build: (drift: typeof Drift) => Parameters<typeof Drift.runDriftServer>[0],
-) {
-  const drift = loadServerHalf(
-    () => require('__tests__/driftFixtures') as typeof Drift,
-  );
-  const { page, capture } = await drift.runDriftServer(build(drift));
-  return {
-    capture,
-    reads: page.reads,
-    finalState: JSON.stringify(page.stream.controller.getState()),
-  };
-}
-
-const pinsOf = (capture: LedgerCapture) =>
-  capture.flushes
-    .flatMap(f => messagesOf(f.script))
-    .filter(m => m.t === 'pin') as { id: string; rev: number }[];
-
-const lastPins = (capture: LedgerCapture) => {
-  const out = new Map<string, number>();
-  for (const pin of pinsOf(capture)) out.set(pin.id, pin.rev);
-  return out;
-};
-
-/** Id of the boundary whose HTML holds `testId`: the one pin in that flush */
-function pinIdOf(capture: LedgerCapture, testId: string) {
-  const flush = capture.flushes.find(f =>
-    f.html.includes(`data-testid="${testId}"`),
-  )!;
-  const pins = messagesOf(flush.script).filter(m => m.t === 'pin');
-  expect(pins).toHaveLength(1);
-  return pins[0].id as string;
-}
-
-const TEST_IDS = ['b1', 'b2', 'd', 'shell', 'layout'];
-
-/** Every flush in order: its script (filtered by `keep`), then its HTML */
-async function deliverAll(
-  b: BrowserHalf,
-  capture: LedgerCapture,
-  keep?: (message: any) => boolean,
-  flushes: LedgerFlush[] = capture.flushes,
-) {
-  const found: Record<string, Element | undefined> = {};
-  const [shell, ...rest] = flushes;
-  b.shell(shell, keep);
-  for (const testId of TEST_IDS)
-    if (b.byTestId(testId)) found[testId] = b.byTestId(testId)!;
-  for (const flush of rest) {
-    b.script(flush, keep);
-    const ids = TEST_IDS.filter(id =>
-      flush.html.includes(`data-testid="${id}"`),
-    );
-    Object.assign(found, b.htmlFind(flush, ids));
-  }
-  await until(
-    () => !/<!--\$[?~]-->/.test(b.container.innerHTML),
-    'every boundary revealed',
-  );
-  return found;
-}
-
-async function inBrowser<T>(run: (b: BrowserHalf) => Promise<T>): Promise<T> {
-  const teardownDom = installDom();
-  let b: BrowserHalf | undefined;
-  try {
-    b = loadBrowserHalf();
-    return await run(b);
-  } finally {
-    b?.teardown();
-    await teardownDom();
-  }
-}
-
-function clientPage(opts: DriftOptions & { handoff?: any } = {}) {
-  const drift = require('__tests__/driftFixtures') as typeof Drift;
-  return drift.createDriftClientPage(opts);
-}
-
-const firstText = (texts: string[] | undefined, name: string) =>
-  texts?.find(t => t.startsWith(`${name}=`));
 
 describeReact19('D: no mis-hydration under drift', () => {
   it('D1/pinned', async () => {
