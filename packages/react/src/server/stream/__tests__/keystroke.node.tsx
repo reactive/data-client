@@ -107,8 +107,16 @@ async function runKeys(
   const server = await serverHalf(fx => ({
     steps:
       writesFirst ?
-        [...srvSteps(fx).slice(0, 3), fx.resolveGroup('b'), fx.resolveGroup('c')]
-      : [fx.resolveGroup('b'), ...srvSteps(fx).slice(0, 3), fx.resolveGroup('c')],
+        [
+          ...srvSteps(fx).slice(0, 3),
+          fx.resolveGroup('b'),
+          fx.resolveGroup('c'),
+        ]
+      : [
+          fx.resolveGroup('b'),
+          ...srvSteps(fx).slice(0, 3),
+          fx.resolveGroup('c'),
+        ],
   }));
   const bFlush = server.with('b');
   const { writes, rest } = splitServerWrites(

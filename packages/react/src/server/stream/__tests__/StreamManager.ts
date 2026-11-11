@@ -260,7 +260,9 @@ describe('StreamManager', () => {
       ],
       [endpoint('prices', new Values(Price)), {}, { x: { id: 'x' } }],
       [
-        endpoint('pets', [new Union({ cat: Cat, dog: Dog, bird: Bird }, 'type')]),
+        endpoint('pets', [
+          new Union({ cat: Cat, dog: Dog, bird: Bird }, 'type'),
+        ]),
         {},
         [
           { id: 'c1', type: 'cat' },
@@ -271,10 +273,7 @@ describe('StreamManager', () => {
       [endpoint('gone', new Invalidate(Gone)), {}, { id: 'g1' }],
       [endpoint('every', new All(Every)), {}, [{ id: 'e1' }]],
       [
-        endpoint(
-          'queried',
-          new Query(new All(Queried), (list: any) => list),
-        ),
+        endpoint('queried', new Query(new All(Queried), (list: any) => list)),
         {},
         [{ id: 'q1' }],
       ],
@@ -311,7 +310,8 @@ describe('StreamManager', () => {
       ].sort(),
     );
     const { classes } = store.manager;
-    for (const key of written) expect([key, classes.has(key)]).toEqual([key, true]);
+    for (const key of written)
+      expect([key, classes.has(key)]).toEqual([key, true]);
     // every Union member, written or not
     expect(classes.get('Bird')).toBe(Bird);
     expect(classes.get(items.key)).toBe(items);
@@ -345,8 +345,16 @@ describe('StreamManager', () => {
       }
       const getArticle = endpoint('article', Article);
       const store = liveStore();
-      store.controller.setResponse(getArticle, { id: 'a1' }, { id: 'a1', title: 'client' });
-      store.controller.setResponse(getArticle, { id: 'a2' }, { id: 'a2', title: 'client' });
+      store.controller.setResponse(
+        getArticle,
+        { id: 'a1' },
+        { id: 'a1', title: 'client' },
+      );
+      store.controller.setResponse(
+        getArticle,
+        { id: 'a2' },
+        { id: 'a2', title: 'client' },
+      );
       store.manager.classes.clear();
       const held = store.state().entities.Article!.a1;
       const key = getArticle.key({ id: 'a1' });
