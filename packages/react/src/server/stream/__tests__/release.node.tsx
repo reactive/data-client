@@ -178,6 +178,7 @@ describeReact19('R: snapshot release at the first commit', () => {
       b.shell(shell);
       for (const flush of rest) b.script(flush);
       b.hydrate(page.element);
+      await until(() => b.probe.commits.length > 0, 'shell hydrated');
       await settle(50);
       const liveHadBtc =
         'BTC' in (page.controller.current!.getState().entities.Ticker ?? {});
