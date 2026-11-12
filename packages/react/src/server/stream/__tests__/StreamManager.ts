@@ -9,6 +9,8 @@ jest.mock('react', () => {
 
 import {
   Controller,
+  DevToolsManager,
+  applyManager,
   createReducer,
   initialState,
   __INTERNAL__,
@@ -29,7 +31,9 @@ import {
 } from '@data-client/endpoint';
 import { startTransition } from 'react';
 
-import { PIECE } from '../applyPiece';
+import { getDefaultManagers } from '../../../components/getDefaultManagers';
+
+import { APPLY } from '../applyPiece';
 import { getLedger } from '../Ledger';
 import StreamManager from '../StreamManager';
 import { STREAM_GLOBAL } from '../wire';
@@ -65,7 +69,8 @@ describe('StreamManager', () => {
     });
     const controller: any = {
       dispatch: jest.fn((action: any) => {
-        expect(action.type).toBe(PIECE);
+        expect(action.type).toBe(APPLY);
+        expect(typeof action.apply).toBe('function');
         if (!inTransition) dispatched.push({ revs: [], inTransition: false });
         dispatched[dispatched.length - 1].revs.push(action.piece.rev);
         return Promise.resolve();
@@ -82,8 +87,7 @@ describe('StreamManager', () => {
       piece(2),
       piece(3),
     ];
-    const { manager, controller, dispatched } = setup(1);
-    expect(typeof controller.reduce).toBe('function');
+    const { manager, dispatched } = setup(1);
 
     manager.init();
     expect(dispatched).toEqual([{ revs: [2, 3], inTransition: true }]);
@@ -124,6 +128,63 @@ describe('StreamManager', () => {
     manager.cleanup();
   });
 
+  it("passes its action through the default managers and DevToolsManager's own reducer", () => {
+    const sent: [any, State<unknown>][] = [];
+    let listener: (msg: any) => void = () => {};
+    (window as any).__REDUX_DEVTOOLS_EXTENSION__ = {
+      connect: () => ({
+        init() {},
+        send: (action: any, state: State<unknown>) =>
+          sent.push([action, state]),
+        subscribe: (fn: typeof listener) => {
+          listener = fn;
+          return () => {};
+        },
+      }),
+    };
+    try {
+      (globalThis as any)[STREAM_GLOBAL] = [{ t: 'open', v: 1, rev: 0, at: 0 }];
+      const manager = new StreamManager(getLedger()!, 0);
+      const managers = [...getDefaultManagers(), manager];
+      expect(managers[0]).toBeInstanceOf(DevToolsManager);
+      const controller = new Controller();
+      const reducer = createReducer(controller);
+      let state: State<unknown> = initialState;
+      const api = {
+        getState: () => state,
+        dispatch: (action: any) => dispatch(action),
+      };
+      const dispatch = applyManager(managers, controller)
+        .map(middleware => middleware(api as any))
+        .reduceRight(
+          (next: any, middleware: any) => middleware(next),
+          (action: any) => {
+            state = reducer(state, action);
+            return Promise.resolve();
+          },
+        );
+      managers.forEach(m => m.init?.(state));
+      listener({ type: 'START' });
+
+      const revs = Array.from({ length: 25 }, (_, i) => i + 1);
+      push(...revs.map(piece));
+
+      expect(Object.keys(state.entities.Todo)).toEqual(revs.map(String));
+      return Promise.resolve().then(() => {
+        expect(sent).toHaveLength(25);
+        expect(sent.every(([action]) => action.type === APPLY)).toBe(true);
+        expect(Object.keys(sent[24][1].entities.Todo)).toEqual(
+          revs.map(String),
+        );
+        const log = (globalThis as any).__DC__.actions;
+        expect(log.map((a: any) => a.type)).toEqual(revs.map(() => APPLY));
+        managers.forEach(m => m.cleanup());
+      });
+    } finally {
+      delete (window as any).__REDUX_DEVTOOLS_EXTENSION__;
+    }
+  });
+
   /** A real controller and reducer behind the manager's middleware */
   function liveStore() {
     (globalThis as any)[STREAM_GLOBAL] = [{ t: 'open', v: 1, rev: 0, at: 0 }];
@@ -155,7 +216,7 @@ describe('StreamManager', () => {
       };
     };
     const reduce = (piece: StreamMessage) => {
-      state = (controller as any).reduce(state, { type: PIECE, piece });
+      controller.dispatch((manager as any).pieceAction(piece));
     };
     return {
       ledger,

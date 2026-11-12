@@ -3,10 +3,13 @@ import type { EntityInterface, State } from '@data-client/core';
 
 import type { PieceMessage, WireEntityMeta } from './wire.js';
 
-export const PIECE = 'rdc/piece' as const;
+/** Core's reducer applies an action of this type by calling its `apply` */
+export const APPLY = 'rdc/apply' as const;
+/** One server piece, carried for devtools, with the reducer that merges it */
 export interface PieceAction {
-  type: typeof PIECE;
+  type: typeof APPLY;
   piece: PieceMessage;
+  apply(state: State<unknown>): State<unknown>;
 }
 /** Entity key to the class that wrote it */
 export type ClassMap = Map<string, EntityInterface>;

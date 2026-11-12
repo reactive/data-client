@@ -7,9 +7,10 @@ import type {
 } from '@data-client/core';
 import { startTransition } from 'react';
 
-import { PIECE, applyPiece } from './applyPiece.js';
+import { APPLY, applyPiece } from './applyPiece.js';
 import type { ClassMap, PieceAction } from './applyPiece.js';
 import type { Ledger } from './Ledger.js';
+import type { PieceMessage } from './wire.js';
 
 /**
  * Publishes the document's server pieces into the live store, each in a transition.
@@ -30,13 +31,12 @@ export default class StreamManager implements Manager {
   }
 
   /**
-   * Learns entity classes from SET, FETCH, SET_RESPONSE and OPTIMISTIC. Sets `controller.reduce`.
+   * Learns entity classes from SET, FETCH, SET_RESPONSE and OPTIMISTIC.
    * The schema walk covers Entity, Array, Object, Values, Union (every member), Collection,
    * Invalidate, All, Query, Scalar and Lazy (through its getter).
    */
   middleware: Middleware = controller => {
     this.controller = controller as any;
-    (controller as any).reduce = this.reduce;
     return next => action => {
       switch (action.type) {
         case actionTypes.SET:
@@ -51,17 +51,22 @@ export default class StreamManager implements Manager {
     };
   };
 
-  protected reduce = (state: any, action: any) =>
-    action.type === PIECE ?
-      applyPiece(
-        state,
-        (action as PieceAction).piece,
-        this.classes,
-        this.ledger.placed,
-        this.ledger.openedAt,
-        this.noteUnknown,
-      )
-    : state;
+  /** The action core's reducer applies: the piece, for devtools, and its merge */
+  protected pieceAction(piece: PieceMessage): PieceAction {
+    return {
+      type: APPLY,
+      piece,
+      apply: state =>
+        applyPiece(
+          state,
+          piece,
+          this.classes,
+          this.ledger.placed,
+          this.ledger.openedAt,
+          this.noteUnknown,
+        ),
+    };
+  }
 
   protected noteUnknown = (key: string, pk: string) =>
     this.ledger.noteUnknown(key, pk);
@@ -110,7 +115,7 @@ export default class StreamManager implements Manager {
     this.published = pieces[pieces.length - 1].rev;
     startTransition(() => {
       for (const piece of pieces) {
-        controller.dispatch({ type: PIECE, piece } as any);
+        controller.dispatch(this.pieceAction(piece) as any);
       }
     });
   };

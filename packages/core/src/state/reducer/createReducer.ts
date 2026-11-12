@@ -17,13 +17,22 @@ import {
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
 
+/** Internal: an adapter's action that carries its own reducer. Not in `actionTypes`. */
+const APPLY = 'rdc/apply';
+interface ApplyAction {
+  type: typeof APPLY;
+  apply(state: State<unknown>): State<unknown>;
+}
+
 export default function createReducer(controller: Controller): ReducerType {
   return function reducer(
     state: State<unknown> | undefined,
-    action: ActionTypes,
+    action: ActionTypes | ApplyAction,
   ): State<unknown> {
     if (!state) state = initialState;
     switch (action.type) {
+      case APPLY:
+        return action.apply(state);
       case GC:
         // inline deletes are fine as these should have 0 refcounts
         action.entities.forEach(({ key, pk }) => {
@@ -63,7 +72,7 @@ export default function createReducer(controller: Controller): ReducerType {
       default:
         // A reducer must always return a valid state.
         // Alternatively you can throw an error if an invalid action is dispatched.
-        return controller.reduce ? controller.reduce(state, action) : state;
+        return state;
     }
   } as any;
 }

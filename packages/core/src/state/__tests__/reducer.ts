@@ -667,21 +667,30 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
   });
-  it('other types reach controller.reduce when set', () => {
-    const controller = new Controller();
-    const adapterReducer = createReducer(controller);
+  it('applies the reducer an rdc/apply action carries, for each adapter in one store', () => {
     const iniState = { ...initialState, endpoints: { abc: '5' } };
-    const reduced = { ...iniState, endpoints: { abc: '6' } };
-    const reduce = jest.fn(() => reduced);
-    controller.reduce = reduce;
-    const action: any = { type: 'adapter/action' };
+    const first = jest.fn((state: State<unknown>) => ({
+      ...state,
+      endpoints: { ...state.endpoints, first: 1 },
+    }));
+    const second = jest.fn((state: State<unknown>) => ({
+      ...state,
+      endpoints: { ...state.endpoints, second: 2 },
+    }));
+    const apply = (fn: typeof first): any => ({ type: 'rdc/apply', apply: fn });
 
-    expect(adapterReducer(iniState, action)).toBe(reduced);
-    expect(reduce).toHaveBeenCalledWith(iniState, action);
+    let state = reducer(iniState, apply(first));
+    state = reducer(state, apply(second));
+    state = reducer(state, apply(first));
 
-    reduce.mockClear();
-    adapterReducer(iniState, { type: RESET, date: 0 });
-    expect(reduce).not.toHaveBeenCalled();
+    expect(state.endpoints).toEqual({ abc: '5', first: 1, second: 2 });
+    expect(first).toHaveBeenCalledTimes(2);
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledWith(first.mock.results[0].value);
+    // other types still do nothing, and do not call an applier
+    first.mockClear();
+    expect(reducer(state, { type: 'whatever' } as any)).toBe(state);
+    expect(first).not.toHaveBeenCalled();
   });
   describe('RESET', () => {
     let warnspy: jest.Spied<any>;

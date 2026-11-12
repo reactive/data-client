@@ -9,7 +9,7 @@ import type { State } from '@data-client/core';
 import { Collection, Endpoint, Entity } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
 
-import { PIECE, applyPiece, foldPieces } from '../applyPiece';
+import { APPLY, applyPiece, foldPieces } from '../applyPiece';
 import type { ClassMap } from '../applyPiece';
 import { diffState } from '../diffState';
 import StreamManager from '../StreamManager';
@@ -693,7 +693,7 @@ describe('applyPiece', () => {
     });
   });
 
-  it('is installed as controller.reduce by StreamManager', () => {
+  it("is StreamManager's rdc/apply action, which core's reducer applies", () => {
     const ledger: any = { placed: new WeakSet(), openedAt: OPENED };
     const manager = new StreamManager(ledger, 0);
     const controller = new Controller();
@@ -705,8 +705,10 @@ describe('applyPiece', () => {
       endpoints: { k: 1 },
       meta: { k: { fetchedAt: 1, date: 1, expiresAt: 2 } },
     };
-    expect(
-      reduce(initialState, { type: PIECE, piece } as any).endpoints,
-    ).toEqual({ k: 1 });
+    const action = (manager as any).pieceAction(piece);
+    expect(action.type).toBe(APPLY);
+    expect(action.piece).toBe(piece);
+    expect(reduce(initialState, action).endpoints).toEqual({ k: 1 });
+    expect((controller as any).reduce).toBeUndefined();
   });
 });

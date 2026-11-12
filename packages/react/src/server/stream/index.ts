@@ -21,7 +21,7 @@ export { createServerLedger } from './ServerLedger.js';
 export type { ServerLedger } from './ServerLedger.js';
 export { getLedger } from './Ledger.js';
 export type { Ledger } from './Ledger.js';
-export { PIECE, applyPiece, foldPieces } from './applyPiece.js';
+export { APPLY, applyPiece, foldPieces } from './applyPiece.js';
 export type { PieceAction, ClassMap } from './applyPiece.js';
 export { default as StreamManager } from './StreamManager.js';
 export {
