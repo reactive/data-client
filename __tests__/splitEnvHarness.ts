@@ -114,11 +114,16 @@ export function installDom(): () => Promise<void> {
   return async () => {
     // work React scheduled before an unmount still reads `window`
     await settle(30);
+    // React's reveal script holds completed boundaries in `$RB` for up to
+    // 300 ms on Node's setTimeout, which window.close() does not clear
+    await until(() => !g.$RB?.length, "React's reveal batch ran", 1000);
     for (const [key, descriptor] of saved) {
       if (descriptor) Object.defineProperty(g, key, descriptor);
       else delete g[key];
     }
     delete g.__RDC_STREAM__;
+    // React's inline runtime ($RC, $RV, $RB, $RT, ...) belongs to this document
+    for (const key of Object.keys(g)) if (/^\$R[A-Z]$/.test(key)) delete g[key];
     window.close();
   };
 }
