@@ -1,6 +1,7 @@
 import { __INTERNAL__ } from '@data-client/core';
-import type { EntityInterface, State } from '@data-client/core';
+import type { Mergeable, State } from '@data-client/core';
 
+import { keysOf } from './wire.js';
 import type { PieceMessage, WireEntityMeta } from './wire.js';
 
 /** Core's reducer applies an action of this type by calling its `apply` */
@@ -11,28 +12,12 @@ export interface PieceAction {
   piece: PieceMessage;
   apply(state: State<unknown>): State<unknown>;
 }
+type EntityClass = Mergeable & { indexes?: readonly string[] };
 /** Entity key to the class that wrote it */
-export type ClassMap = Map<string, EntityInterface>;
+export type ClassMap = Map<string, EntityClass>;
 
-type Mergeable = EntityInterface & {
-  mergeWithStore(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ): any;
-  mergeMetaWithStore(
-    existingMeta: any,
-    incomingMeta: any,
-    existing: any,
-    incoming: any,
-  ): any;
-  indexes?: readonly string[];
-};
 type Table = { [key: string]: any };
-type Root = 'entities' | 'entitiesMeta' | 'indexes';
-/** What this piece did to a record */
-type Outcome = 'taken' | 'merged' | 'kept';
+type Root = 'entities' | 'entitiesMeta' | 'indexes' | 'endpoints' | 'meta';
 
 const INVALID = __INTERNAL__.INVALID;
 const fromWire = (value: unknown) => (value === 0 ? INVALID : value);
@@ -51,25 +36,27 @@ export function applyPiece(
 ): State<unknown> {
   if (state.lastReset >= openedAt) return state;
   const w = new Writer(state);
-  const isPlaced = (value: unknown) =>
-    typeof value === 'object' && value !== null && placed.has(value);
-  /** Outcome per entity key and pk, for the index rows */
-  const outcomes = new Map<string, Map<string, Outcome>>();
-  const merged: [Mergeable, string, any, any][] = [];
+  /** Absent, or still the object a piece placed: no client write to keep */
+  const isServerOwned = (held: unknown) =>
+    held === undefined ||
+    (typeof held === 'object' && held !== null && placed.has(held));
+  /** Whether the piece's value was written as sent, per entity key and pk, for the index rows */
+  const taken = new Map<string, Map<string, boolean>>();
+  const merged: [EntityClass, string, any, any][] = [];
   let keptUnknown = false;
 
   for (const key of keysOf(piece.entities, piece.entitiesMeta)) {
     const incomingTable = piece.entities?.[key] ?? {};
     const incomingMetaTable = piece.entitiesMeta?.[key] ?? {};
-    const cls = classes.get(key) as Mergeable | undefined;
-    const keyOutcomes = new Map<string, Outcome>();
-    outcomes.set(key, keyOutcomes);
+    const cls = classes.get(key);
+    const keyTaken = new Map<string, boolean>();
+    taken.set(key, keyTaken);
     for (const pk of keysOf(incomingTable, incomingMetaTable)) {
       const incoming = incomingTable[pk];
       const meta = incomingMetaTable[pk];
       const held = state.entities[key]?.[pk];
       const heldMeta = state.entitiesMeta[key]?.[pk];
-      const serverOwned = held === undefined || isPlaced(held);
+      const serverOwned = isServerOwned(held);
       const newer = (strict: boolean) =>
         meta != null &&
         (heldMeta === undefined ||
@@ -77,70 +64,72 @@ export function applyPiece(
             meta.fetchedAt > heldMeta.fetchedAt
           : meta.fetchedAt >= heldMeta.fetchedAt));
 
+      let asSent = true;
       if (incoming === undefined) {
         // meta only
-        if (serverOwned) {
-          w.setMeta(key, pk, meta);
-          keyOutcomes.set(pk, 'taken');
-        } else keyOutcomes.set(pk, 'kept');
+        if (serverOwned) w.setMeta(key, pk, meta);
+        else asSent = false;
       } else if (incoming === null) {
-        if (serverOwned) {
-          w.remove(key, pk);
-          keyOutcomes.set(pk, 'taken');
-        } else keyOutcomes.set(pk, 'kept');
+        if (serverOwned) w.remove(key, pk);
+        else asSent = false;
       } else if (incoming === 0) {
-        if (serverOwned || held === INVALID || newer(true)) {
+        if (serverOwned || held === INVALID || newer(true))
           w.set(key, pk, INVALID, meta ?? heldMeta);
-          keyOutcomes.set(pk, 'taken');
-        } else keyOutcomes.set(pk, 'kept');
+        else asSent = false;
       } else if (serverOwned) {
         w.set(key, pk, incoming, meta ?? heldMeta);
-        keyOutcomes.set(pk, 'taken');
       } else if (held === INVALID) {
-        if (newer(false)) {
-          w.set(key, pk, incoming, meta);
-          keyOutcomes.set(pk, 'taken');
-        } else keyOutcomes.set(pk, 'kept');
-      } else if (cls !== undefined) {
-        const incomingMeta = meta ?? heldMeta;
-        const next = cls.mergeWithStore(heldMeta, incomingMeta, held, incoming);
-        w.set(
-          key,
-          pk,
-          next,
-          cls.mergeMetaWithStore(heldMeta, incomingMeta, held, incoming),
-        );
-        keyOutcomes.set(pk, 'merged');
-        merged.push([cls, pk, held, next]);
+        if (newer(false)) w.set(key, pk, incoming, meta);
+        else asSent = false;
       } else {
-        keptUnknown = true;
-        onUnknown?.(key, pk);
-        keyOutcomes.set(pk, 'kept');
+        asSent = false;
+        if (cls !== undefined) {
+          const incomingMeta = meta ?? heldMeta;
+          const next = cls.mergeWithStore(
+            heldMeta,
+            incomingMeta,
+            held,
+            incoming,
+          );
+          w.set(
+            key,
+            pk,
+            next,
+            cls.mergeMetaWithStore(heldMeta, incomingMeta, held, incoming),
+          );
+          merged.push([cls, pk, held, next]);
+        } else {
+          keptUnknown = true;
+          onUnknown?.(key, pk);
+        }
       }
+      keyTaken.set(pk, asSent);
     }
   }
 
   const pieceIndexes = piece.indexes ?? {};
   for (const key in pieceIndexes) {
-    const keyOutcomes = outcomes.get(key);
+    const keyTaken = taken.get(key);
     for (const indexName in pieceIndexes[key]) {
       const entries = pieceIndexes[key][indexName];
       const current = state.indexes[key]?.[indexName];
       for (const value in entries) {
         const pk = entries[value];
         const target = typeof pk === 'string' ? pk : current?.[value];
-        const outcome =
-          target === undefined ? 'taken' : (
-            (keyOutcomes?.get(target) ??
-            (isServerOwned(state, key, target, isPlaced) ? 'taken' : 'kept'))
-          );
-        if (outcome !== 'taken') continue;
+        if (
+          target !== undefined &&
+          !(
+            keyTaken?.get(target) ??
+            isServerOwned(state.entities[key]?.[target])
+          )
+        )
+          continue;
         if (pk === null) w.removeIndex(key, indexName, value);
         else w.setIndex(key, indexName, value, fromWire(pk));
       }
     }
   }
-  // as master's normalize does for a merged record
+  // as normalize does for a merged record
   for (const [cls, pk, held, next] of merged) {
     if (!cls.indexes) continue;
     for (const indexName of cls.indexes) {
@@ -154,7 +143,10 @@ export function applyPiece(
   }
 
   const removed = new Set(piece.x);
-  for (const key of endpointKeysOf(piece)) {
+  for (const key of new Set([
+    ...removed,
+    ...keysOf(piece.endpoints, piece.meta),
+  ])) {
     const meta = piece.meta?.[key];
     const clientMeta = state.meta[key];
     // without a meta (another endpoint's update(), a removal), the change is as old as the piece
@@ -164,25 +156,15 @@ export function applyPiece(
     )
       continue;
     if (removed.has(key)) {
-      w.removeEndpoint(key);
-      w.removeEndpointMeta(key);
+      delete w.top('endpoints')[key];
+      delete w.top('meta')[key];
     }
     if (piece.endpoints && key in piece.endpoints)
-      w.setEndpoint(key, piece.endpoints[key]);
+      w.top('endpoints')[key] = piece.endpoints[key];
     if (meta !== undefined)
-      w.setEndpointMeta(key, keptUnknown ? { ...meta, expiresAt: 0 } : meta);
+      w.top('meta')[key] = keptUnknown ? { ...meta, expiresAt: 0 } : meta;
   }
   return w.done();
-}
-
-function isServerOwned(
-  state: State<unknown>,
-  key: string,
-  pk: string,
-  isPlaced: (value: unknown) => boolean,
-) {
-  const held = state.entities[key]?.[pk];
-  return held === undefined || isPlaced(held);
 }
 
 /** Server state at `rev`: pieces up to `rev` applied as is to empty tables */
@@ -256,20 +238,6 @@ export function foldPieces(
   } as any;
 }
 
-function endpointKeysOf(piece: PieceMessage): Iterable<string> {
-  const keys = keysOf(piece.endpoints, piece.meta);
-  return piece.x ? new Set([...piece.x, ...keys]) : keys;
-}
-
-function keysOf(
-  a: object | undefined,
-  b: object | undefined,
-): Iterable<string> {
-  if (!b) return Object.keys(a ?? {});
-  if (!a) return Object.keys(b);
-  return new Set([...Object.keys(a), ...Object.keys(b)]);
-}
-
 /** Copy-on-write over the tables a piece touches; untouched tables and records keep identity */
 class Writer {
   declare protected state: State<unknown>;
@@ -296,9 +264,14 @@ class Writer {
     return next;
   }
 
+  /** Own (cloned once) copy of `this[root]` */
+  top(root: Root): Table {
+    return (this[root] = this.copy(this[root]));
+  }
+
   /** Own (cloned once) copy of `this[root][key]` */
   protected own(root: Root, key: string): Table {
-    const parent = (this[root] = this.copy(this[root]));
+    const parent = this.top(root);
     return (parent[key] = this.copy(parent[key]));
   }
 
@@ -328,22 +301,6 @@ class Writer {
 
   removeIndex(key: string, indexName: string, value: string) {
     delete this.ownIndex(key, indexName)[value];
-  }
-
-  setEndpoint(key: string, value: unknown) {
-    (this.endpoints = this.copy(this.endpoints))[key] = value;
-  }
-
-  removeEndpoint(key: string) {
-    delete (this.endpoints = this.copy(this.endpoints))[key];
-  }
-
-  setEndpointMeta(key: string, meta: unknown) {
-    (this.meta = this.copy(this.meta))[key] = meta;
-  }
-
-  removeEndpointMeta(key: string) {
-    delete (this.meta = this.copy(this.meta))[key];
   }
 
   done(): State<unknown> {

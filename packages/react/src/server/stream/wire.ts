@@ -70,7 +70,7 @@ export interface PinMessage {
   /** Id of the boundary this one is inside, if any */
   p?: string;
 }
-/** Endpoint keys the server started to fetch. Read by the waiter in PR 3. */
+/** Endpoint keys the server started to fetch, for a waiter that holds client fetches of them */
 export interface AnnounceMessage {
   t: 'ann';
   keys: string[];
@@ -80,6 +80,16 @@ export interface EndMessage {
 }
 export type StreamMessage =
   OpenMessage | PieceMessage | PinMessage | AnnounceMessage | EndMessage;
+
+/** Keys of either object, each once, `a`'s first */
+export function keysOf(
+  a: object | undefined,
+  b: object | undefined,
+): Iterable<string> {
+  if (!b) return Object.keys(a ?? {});
+  if (!a) return Object.keys(b);
+  return new Set([...Object.keys(a), ...Object.keys(b)]);
+}
 
 /** Keys a message may not create on an object */
 export const isUnsafeKey = (key: string) =>

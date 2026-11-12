@@ -5,6 +5,7 @@ import type { JSX } from 'react';
 
 import { LedgerContext, clientWrap, useHydrating } from './boundary.js';
 import { getLedger } from './Ledger.js';
+import type { Ledger } from './Ledger.js';
 import StreamManager from './StreamManager.js';
 import { BoundaryContext } from '../../components/BoundaryContext.js';
 import DataProvider from '../../components/DataProvider.js';
@@ -35,9 +36,7 @@ function SeededProvider({
   ledger,
   managers,
   ...props
-}: StreamProviderProps & {
-  ledger: NonNullable<ReturnType<typeof getLedger>>;
-}) {
+}: StreamProviderProps & { ledger: Ledger }) {
   const hydrating = useHydrating();
   const [hydrated] = useState(hydrating);
   useLayoutEffect(() => {

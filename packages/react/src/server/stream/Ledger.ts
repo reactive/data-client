@@ -20,7 +20,7 @@ export interface Ledger {
   readonly openedAt: number;
   /**
    * Resolves when `open` or `end` arrives. Always the same promise.
-   * Callers check `shellRev` and `ended` first and call `use()` only when both are unset.
+   * Once it has, `use()` reads it without suspending.
    */
   whenOpen(): Promise<void>;
   /** Entity objects that came from a piece, and so from the server, not from a client write */
@@ -45,7 +45,7 @@ export interface Ledger {
   commit(id: string, hydrated: boolean): void;
   /** The page rendered on the client, not by hydrating: drops every pin, now and later */
   abandon(): void;
-  /** True when the server announced this endpoint key. For the waiter in PR 3. */
+  /** True when the server announced this endpoint key, for a waiter that holds client fetches of it */
   announced(key: string): boolean;
   /**
    * A piece met a record the client wrote whose class was not learned.
@@ -216,12 +216,7 @@ class DocumentLedger implements Ledger {
   }
 
   protected shiftEndpointMeta(meta: WireEndpointMeta): WireEndpointMeta {
-    const out = {
-      ...meta,
-      fetchedAt: meta.fetchedAt + this.shift,
-      date: meta.date + this.shift,
-      expiresAt: this.shiftExpiry(meta.expiresAt),
-    };
+    const out = { ...meta, ...this.shiftEntityMeta(meta) };
     if (meta.prevExpiresAt !== undefined)
       out.prevExpiresAt = this.shiftExpiry(meta.prevExpiresAt);
     if (meta.error !== undefined) {
@@ -258,9 +253,10 @@ class DocumentLedger implements Ledger {
 
   after(rev: number): readonly PieceMessage[] {
     const out = this.pieces.filter(piece => piece.rev > rev);
-    if (out.length)
-      this.handedOut = Math.max(this.handedOut, out[out.length - 1].rev);
-    else this.handedOut = Math.max(this.handedOut, rev);
+    this.handedOut = Math.max(
+      this.handedOut,
+      out.length ? out[out.length - 1].rev : rev,
+    );
     this.release();
     return out;
   }
@@ -293,7 +289,7 @@ class DocumentLedger implements Ledger {
     this.drop(id);
     if (!hydrated) {
       this.clientRendered.add(id);
-      for (const pinned of [...this.pins.keys()])
+      for (const pinned of this.pins.keys())
         if (this.insideClientRendered(pinned)) this.drop(pinned);
     }
     this.release();
@@ -301,7 +297,7 @@ class DocumentLedger implements Ledger {
 
   abandon(): void {
     this.abandoned = true;
-    for (const pinned of [...this.pins.keys()]) this.drop(pinned);
+    for (const pinned of this.pins.keys()) this.drop(pinned);
     for (const waiter of this.pinWaiters.values()) waiter.settle(null);
     this.release();
   }

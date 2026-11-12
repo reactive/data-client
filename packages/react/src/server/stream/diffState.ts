@@ -1,5 +1,6 @@
 import type { State } from '@data-client/core';
 
+import { keysOf } from './wire.js';
 import type {
   PieceSlots,
   WireEndpointMeta,
@@ -16,43 +17,37 @@ export function diffState(
   next: State<unknown>,
 ): PieceSlots | undefined {
   const slots: PieceSlots = {};
-  let changed = false;
-
-  const entities = diffTables(prev.entities, next.entities, toWireEntity);
-  if (entities) {
-    slots.entities = entities;
-    changed = true;
-  }
+  const entities = diffTables(
+    prev.entities,
+    next.entities,
+    invalidAsZero<object>,
+  );
+  if (entities) slots.entities = entities;
   const entitiesMeta = diffTables(
     prev.entitiesMeta,
     next.entitiesMeta,
     toWireEntityMeta,
   );
-  if (entitiesMeta) {
-    slots.entitiesMeta = entitiesMeta;
-    changed = true;
-  }
+  if (entitiesMeta) slots.entitiesMeta = entitiesMeta;
   if (prev.indexes !== next.indexes) {
     const indexes: NonNullable<PieceSlots['indexes']> = {};
-    let any = false;
     for (const key of keysOf(prev.indexes, next.indexes)) {
       const diff = diffTables(
         prev.indexes[key] ?? {},
         next.indexes[key] ?? {},
-        toWireIndex,
+        invalidAsZero<string>,
       );
-      if (diff) {
-        indexes[key] = diff;
-        any = true;
-      }
+      if (diff) indexes[key] = diff;
     }
-    if (any) {
-      slots.indexes = indexes;
-      changed = true;
-    }
+    if (hasKeys(indexes)) slots.indexes = indexes;
   }
-  if (diffEndpoints(prev, next, slots)) changed = true;
-  return changed ? slots : undefined;
+  diffEndpoints(prev, next, slots);
+  return hasKeys(slots) ? slots : undefined;
+}
+
+function hasKeys(object: object): boolean {
+  for (const _ in object) return true;
+  return false;
 }
 
 /**
@@ -63,9 +58,8 @@ function diffEndpoints(
   prev: State<unknown>,
   next: State<unknown>,
   slots: PieceSlots,
-): boolean {
-  if (prev.endpoints === next.endpoints && prev.meta === next.meta)
-    return false;
+): void {
+  if (prev.endpoints === next.endpoints && prev.meta === next.meta) return;
   const endpoints = changedValues(prev.endpoints, next.endpoints, identity);
   const meta = changedValues(prev.meta, next.meta, toWireEndpointMeta);
   const removed = new Set([
@@ -77,20 +71,9 @@ function diffEndpoints(
     if (next.meta[key] !== undefined)
       meta[key] = toWireEndpointMeta(next.meta[key]);
   }
-  let changed = false;
-  if (Object.keys(endpoints).length) {
-    slots.endpoints = endpoints;
-    changed = true;
-  }
-  if (Object.keys(meta).length) {
-    slots.meta = meta;
-    changed = true;
-  }
-  if (removed.size) {
-    slots.x = [...removed];
-    changed = true;
-  }
-  return changed;
+  if (hasKeys(endpoints)) slots.endpoints = endpoints;
+  if (hasKeys(meta)) slots.meta = meta;
+  if (removed.size) slots.x = [...removed];
 }
 
 function changedValues<T>(
@@ -112,10 +95,6 @@ function removedKeys(prev: Table, next: Table): string[] {
   return Object.keys(prev).filter(
     key => prev[key] !== undefined && next[key] === undefined,
   );
-}
-
-function keysOf(a: object, b: object): Set<string> {
-  return new Set([...Object.keys(a), ...Object.keys(b)]);
 }
 
 function diffTables<T>(
@@ -140,18 +119,14 @@ function diffTable<T>(
   if (prev === next) return undefined;
   const out: { [key: string]: T | null } = changedValues(prev, next, convert);
   for (const key of removedKeys(prev, next)) out[key] = null;
-  for (const _ in out) return out;
-  return undefined;
+  return hasKeys(out) ? out : undefined;
 }
 
 const identity = <T>(value: T) => value;
 
-/** INVALID is the only symbol an entity table holds */
-const toWireEntity = (value: unknown): object | 0 =>
-  typeof value === 'symbol' ? 0 : (value as object);
-
-const toWireIndex = (value: unknown): string | 0 =>
-  typeof value === 'symbol' ? 0 : (value as string);
+/** INVALID is the only symbol an entity or index table holds */
+const invalidAsZero = <T>(value: T | symbol): T | 0 =>
+  typeof value === 'symbol' ? 0 : value;
 
 const toWireEntityMeta = (meta: WireEntityMeta): WireEntityMeta => ({
   fetchedAt: meta.fetchedAt,

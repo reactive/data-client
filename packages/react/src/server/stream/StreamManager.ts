@@ -1,10 +1,5 @@
 import { actionTypes } from '@data-client/core';
-import type {
-  Controller,
-  EntityInterface,
-  Manager,
-  Middleware,
-} from '@data-client/core';
+import type { Controller, Manager, Middleware } from '@data-client/core';
 import { startTransition } from 'react';
 
 import { APPLY, applyPiece } from './applyPiece.js';
@@ -63,13 +58,10 @@ export default class StreamManager implements Manager {
           this.classes,
           this.ledger.placed,
           this.ledger.openedAt,
-          this.noteUnknown,
+          (key, pk) => this.ledger.noteUnknown(key, pk),
         ),
     };
   }
-
-  protected noteUnknown = (key: string, pk: string) =>
-    this.ledger.noteUnknown(key, pk);
 
   /** Walks a schema like normalize does: arrays, plain objects and `.schema` */
   learn(schema: any) {
@@ -89,7 +81,7 @@ export default class StreamManager implements Manager {
     )
       cls = Object.getPrototypeOf(cls);
     if (typeof cls.key === 'string' && typeof cls.mergeWithStore === 'function')
-      this.classes.set(cls.key, cls as EntityInterface);
+      this.classes.set(cls.key, cls);
     if (Array.isArray(schema)) schema.forEach(s => this.learn(s));
     else if (schema.constructor === Object)
       Object.values(schema).forEach(s => this.learn(s));
@@ -104,7 +96,6 @@ export default class StreamManager implements Manager {
 
   cleanup() {
     this.unsubscribe?.();
-    this.unsubscribe = undefined;
   }
 
   protected publish = () => {

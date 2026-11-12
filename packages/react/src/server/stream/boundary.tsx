@@ -11,6 +11,7 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 import type { ReactNode } from 'react';
+import type { State } from '@data-client/core';
 
 import type { Ledger } from './Ledger.js';
 import type { ScopedStore, ServerLedger } from './ServerLedger.js';
@@ -40,6 +41,8 @@ export function useHydrating(): boolean {
   return hydrating;
 }
 
+type SuspenseProps = Parameters<BoundaryWrap>[0];
+
 /** One AsyncBoundary's identity and progress, shared by its Shield and its Scope */
 export interface BoundaryCell {
   /** `useId()` of the boundary, outside its Suspense; the server's pin key */
@@ -61,7 +64,7 @@ export function Boundary({
   suspenseProps,
   children,
 }: {
-  suspenseProps: { fallback?: ReactNode };
+  suspenseProps: SuspenseProps;
   children: ReactNode;
 }): React.ReactElement {
   const cell = useBoundaryCell();
@@ -107,16 +110,16 @@ export function Scope({
   // `use()` runs on every hydration render, not only the one that suspends:
   // React warns when a mount that suspended in `use()` finishes without it.
   // A settled `whenPin()` carries its status, so this does not suspend again.
-  let rev: number | null = null;
+  let rev: number | undefined;
   if (hydrating) {
     use(ledger.whenPin(cell.id));
-    rev = ledger.pin(cell.id) ?? null;
+    rev = ledger.pin(cell.id);
   }
   // Decided at mount. The holder, not the snapshot, is the state: emptying it
   // frees the snapshot from this fiber and from its alternate.
-  const mountLive = rev === null ? null : use(StateContext);
+  const mountLive = rev === undefined ? null : use(StateContext);
   const [holder] = useState<PinHolder | null>(() =>
-    rev === null ? null : (
+    rev === undefined ? null : (
       { state: ledger.snapshot(rev), live: mountLive, views: new WeakMap() }
     ),
   );
@@ -145,9 +148,10 @@ export function Scope({
 }
 
 interface PinHolder {
-  state: object | null;
-  live: object | null;
-  views: WeakMap<object, object>;
+  state: State<unknown> | null;
+  /** Outer state of the hydration render */
+  live: State<unknown> | null;
+  views: WeakMap<State<unknown>, State<unknown>>;
 }
 
 /**
@@ -159,7 +163,10 @@ interface PinHolder {
  * one this scope hides, starting from its children. That wakes a dehydrated
  * boundary below the Shield.
  */
-function pinnedView(holder: PinHolder, live: object): any {
+function pinnedView(
+  holder: PinHolder,
+  live: State<unknown>,
+): State<unknown> | null {
   if (holder.state === null || live === holder.live) return holder.state;
   let view = holder.views.get(live);
   if (!view) {
@@ -174,7 +181,7 @@ export function ServerBoundary({
   suspenseProps,
   children,
 }: {
-  suspenseProps: { fallback?: ReactNode };
+  suspenseProps: SuspenseProps;
   children: ReactNode;
 }): React.ReactElement {
   const id = useId();
