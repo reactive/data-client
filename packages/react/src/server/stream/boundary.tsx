@@ -1,4 +1,5 @@
 'use client';
+import type { State } from '@data-client/core';
 import React, {
   Suspense,
   createContext,
@@ -11,7 +12,6 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 import type { ReactNode } from 'react';
-import type { State } from '@data-client/core';
 
 import type { Ledger } from './Ledger.js';
 import type { ScopedStore, ServerLedger } from './ServerLedger.js';
