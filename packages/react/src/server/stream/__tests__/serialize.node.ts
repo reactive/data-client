@@ -55,6 +55,48 @@ describe('serialize', () => {
     ]);
   });
 
+  it('carries quotes, backslashes and line breaks in strings unchanged', () => {
+    const messages: StreamMessage[] = [
+      {
+        t: 'piece',
+        at: 0,
+        rev: 1,
+        endpoints: {
+          a: `it's a "quoted" \\ path`,
+          b: 'two\nlines\ttabbed',
+          "it's": "\\'",
+        },
+      },
+    ];
+    expect(JSON.parse(JSON.stringify(run(serialize(messages))))).toEqual(
+      messages,
+    );
+  });
+
+  it('keeps a "__proto__" key from API data as data', () => {
+    // as a fetch response parsed with JSON.parse holds it: an own key
+    const record = JSON.parse('{"id":"1","__proto__":{"isAdmin":true}}');
+    const table = JSON.parse('{"__proto__":{"id":"x"},"BTC":{"id":"BTC"}}');
+    const [piece] = run(
+      serialize([
+        {
+          t: 'piece',
+          at: 0,
+          rev: 1,
+          entities: { Ticker: table },
+          endpoints: { k: record },
+        },
+      ]),
+    );
+    // no object's prototype came from the data
+    expect(piece.endpoints.k.isAdmin).toBeUndefined();
+    expect(Object.keys(piece.endpoints.k)).toEqual(['id', '__proto__']);
+    expect(Object.keys(piece.entities.Ticker)).toEqual(['__proto__', 'BTC']);
+    const inherited: string[] = [];
+    for (const key in piece.entities.Ticker) inherited.push(key);
+    expect(inherited).toEqual(['__proto__', 'BTC']);
+  });
+
   it('carries an expiry that is not finite as null', () => {
     const [piece] = run(
       serialize([
