@@ -43,7 +43,7 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
     if (next === prevState) return;
     const slots = diffState(prevState, next);
     prevState = next;
-    if (slots) pieces.push({ t: 'piece', rev: ++rev, ...slots });
+    if (slots) pieces.push({ t: 'piece', rev: ++rev, at: now(), ...slots });
   };
 
   const middleware: Middleware = () => next => action => {

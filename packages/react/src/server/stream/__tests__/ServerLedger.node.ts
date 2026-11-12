@@ -49,12 +49,13 @@ function setup() {
 }
 
 describe('createServerLedger', () => {
-  it('sends open first, with the revision and the server clock', () => {
+  it('sends open first, with the revision and the server clock; each piece has the clock when recorded', () => {
     const { ledger, set } = setup();
     set('BTC', 100);
     const messages = ledger.take();
-    expect(messages[0]).toEqual({ t: 'open', v: 1, rev: 1, at: 5000 });
+    expect(messages[0]).toEqual({ t: 'open', v: 1, rev: 1, at: 5001 });
     expect(messages.map(m => m.t)).toEqual(['open', 'piece']);
+    expect(messages[1]).toMatchObject({ t: 'piece', rev: 1, at: 5000 });
     expect(ledger.take()).toEqual([]);
   });
 

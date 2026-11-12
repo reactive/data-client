@@ -59,6 +59,8 @@ export interface OpenMessage {
 export interface PieceMessage extends PieceSlots {
   t: 'piece';
   rev: number;
+  /** Server clock (ms) when the change was recorded */
+  at: number;
 }
 /** The revision a boundary was rendered from, keyed by its `useId` */
 export interface PinMessage {

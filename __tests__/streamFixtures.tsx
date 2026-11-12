@@ -560,8 +560,7 @@ export const resolveGroup = (group: 'b' | 'c' | 'd'): ServerStep =>
 /** Completes island V with this value */
 export const resolveValue = (value: unknown): ServerStep =>
   Object.assign(
-    (page: ServerPage) =>
-      page.server.resolve('getValue', { name: 'v' }, value),
+    (page: ServerPage) => page.server.resolve('getValue', { name: 'v' }, value),
     { completes: true },
   );
 

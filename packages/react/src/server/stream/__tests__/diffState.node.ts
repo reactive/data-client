@@ -180,7 +180,8 @@ describe('diffState', () => {
     const pieces: PieceMessage[] = [];
     for (let i = 1; i < states.length; i++) {
       const slots = diffState(states[i - 1], states[i]);
-      if (slots) pieces.push({ t: 'piece', rev: pieces.length + 1, ...slots });
+      if (slots)
+        pieces.push({ t: 'piece', at: 0, rev: pieces.length + 1, ...slots });
     }
     expect(pieces).toHaveLength(4);
     const wire = JSON.parse(JSON.stringify(pieces));

@@ -31,7 +31,7 @@ function serverStore() {
       return () => listeners.delete(listener);
     },
   };
-  const ledger = createServerLedger(() => 10_000);
+  const ledger = createServerLedger();
   ledger.attach(store as any);
   return {
     ledger,
@@ -110,6 +110,82 @@ describe('endpoint values over the stream', () => {
       expect(applied.endpoints[key]).toBe(value);
       expect(applied.meta[key].fetchedAt).toBe(10_000);
     });
+
+  describe("another endpoint's update(), which leaves that endpoint's meta alone", () => {
+    const getIds = new Endpoint(() => Promise.resolve([] as string[]), {
+      name: 'getIds',
+    });
+    const createId = new Endpoint(
+      ({ id }: { id: string }) => Promise.resolve(id),
+      {
+        name: 'createId',
+        sideEffect: true,
+        update: (id: string) => ({
+          [getIds.key()]: (ids: string[] = []) => [...ids, id],
+        }),
+      },
+    );
+    const idsKey = getIds.key();
+    const setIds = (
+      state: State<unknown>,
+      response: string[],
+      fetchedAt: number,
+    ) =>
+      reducer(
+        state,
+        actions.createSetResponse(getIds, { args: [], response, fetchedAt }),
+      );
+
+    /** The server holds ['1'] in the shell, then creates '2' at server time 11_000 */
+    function serverPiece(withIds = true) {
+      const server = serverStore();
+      if (withIds) server.write(setIds(server.state(), ['1'], 10_000));
+      const shell = serialize(server.ledger.take());
+      now.mockReturnValue(11_000);
+      server.write(
+        reducer(
+          server.state(),
+          actions.createSetResponse(createId, {
+            args: [{ id: '2' }],
+            response: '2',
+            fetchedAt: 11_000,
+          }),
+        ),
+      );
+      const later = serialize(server.ledger.take());
+      // the client's clock is 1s ahead of the server's
+      now.mockReturnValue(11_000);
+      const ledger = deliver([shell]);
+      now.mockReturnValue(12_000);
+      deliver([later]);
+      const [piece] = ledger.after(ledger.shellRev!);
+      expect(piece.endpoints![idsKey]).toEqual(withIds ? ['1', '2'] : ['2']);
+      expect(piece.meta?.[idsKey]).toBeUndefined();
+      return { ledger, piece };
+    }
+    const apply = (
+      client: State<unknown>,
+      { ledger, piece }: ReturnType<typeof serverPiece>,
+    ) => applyPiece(client, piece, new Map(), ledger.placed, ledger.openedAt);
+
+    it('keeps the list the client fetched after the change', () => {
+      const run = serverPiece();
+      // the change happened at client time 12_000; the client fetched at 12_500
+      const client = setIds(initialState, ['1', '2', '3'], 12_500);
+      expect(apply(client, run).endpoints[idsKey]).toEqual(['1', '2', '3']);
+    });
+
+    it('takes the list when the client fetched it before the change', () => {
+      const run = serverPiece();
+      const client = setIds(initialState, ['1'], 11_500);
+      expect(apply(client, run).endpoints[idsKey]).toEqual(['1', '2']);
+    });
+
+    it('takes the list for a key the client lacks', () => {
+      const run = serverPiece(false);
+      expect(apply(initialState, run).endpoints[idsKey]).toEqual(['2']);
+    });
+  });
 
   it('a removed endpoint result is removed; its meta stays when only the result went', () => {
     const server = serverStore();

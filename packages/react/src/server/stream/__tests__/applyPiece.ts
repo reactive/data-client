@@ -84,7 +84,7 @@ function wire(states: State<unknown>[], placed: WeakSet<object>) {
     const slots = diffState(states[i - 1], states[i]);
     if (!slots) continue;
     const piece: PieceMessage = JSON.parse(
-      JSON.stringify({ t: 'piece', rev: pieces.length + 1, ...slots }),
+      JSON.stringify({ t: 'piece', at: 0, rev: pieces.length + 1, ...slots }),
     );
     for (const key in piece.entities) {
       for (const pk in piece.entities[key]) {
@@ -427,12 +427,14 @@ describe('applyPiece', () => {
     const placed = new WeakSet<object>();
     const removal: PieceMessage = {
       t: 'piece',
+      at: 0,
       rev: 2,
       entities: { Ticker: { BTC: null } },
       entitiesMeta: { Ticker: { BTC: null } },
     };
     const invalid = (fetchedAt: number): PieceMessage => ({
       t: 'piece',
+      at: 0,
       rev: 2,
       entities: { Ticker: { BTC: 0 } },
       entitiesMeta: {
@@ -510,6 +512,7 @@ describe('applyPiece', () => {
       } as State<unknown>;
       const object = (fetchedAt: number): PieceMessage => ({
         t: 'piece',
+        at: 0,
         rev: 2,
         entities: { Ticker: { BTC: { id: 'BTC', price: 5 } } },
         entitiesMeta: {
@@ -532,6 +535,7 @@ describe('applyPiece', () => {
   describe('index entries', () => {
     const indexPiece = (pk: string): PieceMessage => ({
       t: 'piece',
+      at: 0,
       rev: 2,
       entities: { Ticker: { [pk]: { id: pk, price: 9, symbol: 'new' } } },
       entitiesMeta: {
@@ -701,6 +705,7 @@ describe('applyPiece', () => {
     const reduce = createReducer(controller);
     const piece: PieceMessage = {
       t: 'piece',
+      at: 0,
       rev: 1,
       endpoints: { k: 1 },
       meta: { k: { fetchedAt: 1, date: 1, expiresAt: 2 } },

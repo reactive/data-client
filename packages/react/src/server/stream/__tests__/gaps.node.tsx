@@ -311,6 +311,7 @@ describeReact19('X: cases added after the invariants review', () => {
         b.push([
           {
             t: 'piece',
+            at: 0,
             rev: rev + 1,
             entities: { Todo: { 9: { id: '9', title: 'late' } } },
           },

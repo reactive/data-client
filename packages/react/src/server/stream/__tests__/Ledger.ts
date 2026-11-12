@@ -8,6 +8,7 @@ const push = (...messages: StreamMessage[]) =>
 
 const btc = (price: number, fetchedAt: number): PieceMessage => ({
   t: 'piece',
+  at: 0,
   rev: 0,
   entities: { Ticker: { BTC: { id: 'BTC', price } } },
   entitiesMeta: {
@@ -74,6 +75,7 @@ describe('getLedger', () => {
         { t: 'open', v: 1, rev: 0, at: 40_000 },
         {
           t: 'piece',
+          at: 0,
           rev: 1,
           entities: { Ticker: { BTC: { id: 'BTC' } } },
           entitiesMeta: { Ticker: { BTC: never } },
@@ -103,6 +105,7 @@ describe('getLedger', () => {
     const object = piece.entities!.Ticker.BTC as object;
     push({ t: 'open', v: 1, rev: 1, at: 50_000 }, piece, {
       t: 'piece',
+      at: 0,
       rev: 2,
       entities: { Ticker: { ETH: 0, SOL: null } },
     });

@@ -20,6 +20,7 @@ describe('serialize', () => {
     const messages: StreamMessage[] = [
       {
         t: 'piece',
+        at: 0,
         rev: 1,
         endpoints: {
           a: '</script><script>alert(1)</script>',
@@ -59,6 +60,7 @@ describe('serialize', () => {
       serialize([
         {
           t: 'piece',
+          at: 0,
           rev: 1,
           entitiesMeta: {
             Todo: { 1: { fetchedAt: 1, date: 1, expiresAt: Infinity } },

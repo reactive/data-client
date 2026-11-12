@@ -152,9 +152,13 @@ class DocumentLedger implements Ledger {
     for (const waiter of this.pinWaiters.values()) waiter.settle(null);
   }
 
-  /** Shifts meta times to the client clock, records placed objects and drops unsafe keys */
+  /** Shifts the piece's and its metas' times to the client clock, records placed objects and drops unsafe keys */
   protected adopt(message: PieceMessage): PieceMessage {
-    const piece: PieceMessage = { t: 'piece', rev: message.rev };
+    const piece: PieceMessage = {
+      t: 'piece',
+      rev: message.rev,
+      at: message.at + this.shift,
+    };
     if (message.entities) {
       piece.entities = mapTables(message.entities, value => {
         if (typeof value === 'object' && value !== null) this.placed.add(value);

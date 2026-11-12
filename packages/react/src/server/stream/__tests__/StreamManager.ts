@@ -32,7 +32,6 @@ import {
 import { startTransition } from 'react';
 
 import { getDefaultManagers } from '../../../components/getDefaultManagers';
-
 import { APPLY } from '../applyPiece';
 import { getLedger } from '../Ledger';
 import StreamManager from '../StreamManager';
@@ -41,6 +40,7 @@ import type { StreamMessage } from '../wire';
 
 const piece = (rev: number): StreamMessage => ({
   t: 'piece',
+  at: 0,
   rev,
   entities: { Todo: { [rev]: { id: String(rev) } } },
 });
@@ -169,11 +169,11 @@ describe('StreamManager', () => {
       const revs = Array.from({ length: 25 }, (_, i) => i + 1);
       push(...revs.map(piece));
 
-      expect(Object.keys(state.entities.Todo)).toEqual(revs.map(String));
+      expect(Object.keys(state.entities.Todo!)).toEqual(revs.map(String));
       return Promise.resolve().then(() => {
         expect(sent).toHaveLength(25);
         expect(sent.every(([action]) => action.type === APPLY)).toBe(true);
-        expect(Object.keys(sent[24][1].entities.Todo)).toEqual(
+        expect(Object.keys(sent[24][1].entities.Todo!)).toEqual(
           revs.map(String),
         );
         const log = (globalThis as any).__DC__.actions;
@@ -210,6 +210,7 @@ describe('StreamManager', () => {
       }
       return {
         t: 'piece',
+        at: 0,
         rev,
         entities: { [key]: entities },
         entitiesMeta: { [key]: entitiesMeta },

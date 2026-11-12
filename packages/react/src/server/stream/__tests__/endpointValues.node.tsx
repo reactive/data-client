@@ -24,7 +24,11 @@ describeReact19('V: endpoint values', () => {
     it(`V1/hydrating-reader: a schema-less endpoint that resolved ${JSON.stringify(value)} on the server`, async () => {
       const server = await serverHalf(fx => ({
         valueV: true,
-        steps: [fx.resolveGroup('b'), fx.resolveGroup('c'), fx.resolveValue(value)],
+        steps: [
+          fx.resolveGroup('b'),
+          fx.resolveGroup('c'),
+          fx.resolveValue(value),
+        ],
       }));
       const vFlush = server.with('v');
       const r = await inBrowser(async (b, finish) => {

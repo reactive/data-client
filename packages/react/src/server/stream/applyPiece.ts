@@ -157,10 +157,10 @@ export function applyPiece(
   for (const key of endpointKeysOf(piece)) {
     const meta = piece.meta?.[key];
     const clientMeta = state.meta[key];
+    // without a meta (another endpoint's update(), a removal), the change is as old as the piece
     if (
-      meta &&
       clientMeta !== undefined &&
-      clientMeta.fetchedAt > meta.fetchedAt
+      clientMeta.fetchedAt > (meta ? meta.fetchedAt : piece.at)
     )
       continue;
     if (removed.has(key)) {
