@@ -1,11 +1,15 @@
 /**
  * Makes JSON text safe to inline inside a `<script>`.
  *
- * `<` cannot end the script early, and the result is still valid JSON.
+ * Without `<`, `>` or `&` the text cannot end the script or open a comment, and
+ * U+2028 and U+2029 are escaped so it is also valid JavaScript. The result is
+ * still valid JSON.
  */
 export function escapeJsonForScript(json: string): string {
-  return json.replace(
-    /[<>&\u2028\u2029]/g,
-    char => '\\u' + ('000' + char.charCodeAt(0).toString(16)).slice(-4),
-  );
+  return json
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
 }
