@@ -1,7 +1,8 @@
 import React, { memo, Suspense } from 'react';
 import type { JSX } from 'react';
 
-import { boundaryParts, type Props } from './boundaryParts.js';
+import { boundaryParts } from './boundaryParts.js';
+import type { Props } from './boundaryParts.js';
 
 /**
  * Handles loading and error conditions of Suspense

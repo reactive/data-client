@@ -1,8 +1,9 @@
 import React, { memo, Suspense, useContext } from 'react';
 import type { JSX } from 'react';
 
-import { boundaryParts, type Props } from './boundaryParts.js';
 import { BoundaryContext } from './BoundaryContext.js';
+import { boundaryParts } from './boundaryParts.js';
+import type { Props } from './boundaryParts.js';
 
 /**
  * Handles loading and error conditions of Suspense

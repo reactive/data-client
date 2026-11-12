@@ -10,12 +10,12 @@ export function boundaryParts({
   fallback,
   ...errorProps
 }: Props): [{ fallback?: ReactNode }, ReactElement] {
-  return [
-    fallback !== undefined ? { fallback } : {},
+  const content = (
     <ErrorBoundary {...errorProps} fallbackComponent={errorComponent}>
       {children}
-    </ErrorBoundary>,
-  ];
+    </ErrorBoundary>
+  );
+  return [fallback !== undefined ? { fallback } : {}, content];
 }
 
 export interface Props {
