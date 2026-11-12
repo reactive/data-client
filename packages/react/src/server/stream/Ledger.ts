@@ -199,7 +199,8 @@ class DocumentLedger implements Ledger {
       piece.indexes = {};
       for (const key in message.indexes) {
         if (isUnsafeKey(key)) continue;
-        piece.indexes[key] = mapTables(message.indexes[key], v => v);
+        const byName = message.indexes[key];
+        piece.indexes[key] = byName && mapTables(byName, v => v);
       }
     }
     if (message.endpoints)
@@ -364,14 +365,16 @@ function mapTable<T, U>(
   return out;
 }
 
+/** A `null` in a table's place (the table was removed) is kept */
 function mapTables<T, U>(
-  tables: { [key: string]: { [pk: string]: T } },
+  tables: { [key: string]: { [pk: string]: T } | null },
   convert: (value: T) => U,
-): { [key: string]: { [pk: string]: U } } {
-  const out: { [key: string]: { [pk: string]: U } } = {};
+): { [key: string]: { [pk: string]: U } | null } {
+  const out: { [key: string]: { [pk: string]: U } | null } = {};
   for (const key in tables) {
     if (isUnsafeKey(key)) continue;
-    out[key] = mapTable(tables[key], convert);
+    const table = tables[key];
+    out[key] = table && mapTable(table, convert);
   }
   return out;
 }

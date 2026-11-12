@@ -1,7 +1,7 @@
 import { __INTERNAL__ } from '@data-client/core';
 import type { Mergeable, State } from '@data-client/core';
 
-import { keysOf } from './wire.js';
+import { hasKeys, keysOf } from './wire.js';
 import type { PieceMessage, WireEntityMeta } from './wire.js';
 
 /** Core's reducer applies an action of this type by calling its `apply` */
@@ -21,6 +21,15 @@ type Root = 'entities' | 'entitiesMeta' | 'indexes' | 'endpoints' | 'meta';
 
 const INVALID = __INTERNAL__.INVALID;
 const fromWire = (value: unknown) => (value === 0 ? INVALID : value);
+
+/** A removed table (`null`) reads as the removal of everything the client holds in it */
+const sentOrAll = <T>(
+  sent: { [key: string]: T | null } | null | undefined,
+  held: object | undefined,
+): { [key: string]: T | null } =>
+  sent === null ?
+    Object.fromEntries(Object.keys(held ?? {}).map(key => [key, null]))
+  : (sent ?? {});
 
 /** Merges one piece into live state. Copy-on-write per touched table. */
 export function applyPiece(
@@ -53,8 +62,11 @@ export function applyPiece(
   let keptUnknown = false;
 
   for (const key of keysOf(piece.entities, piece.entitiesMeta)) {
-    const incomingTable = piece.entities?.[key] ?? {};
-    const incomingMetaTable = piece.entitiesMeta?.[key] ?? {};
+    const incomingTable = sentOrAll(piece.entities?.[key], state.entities[key]);
+    const incomingMetaTable = sentOrAll(
+      piece.entitiesMeta?.[key],
+      state.entitiesMeta[key],
+    );
     const cls = classes.get(key);
     const keyTaken = new Map<string, boolean>();
     taken.set(key, keyTaken);
@@ -112,14 +124,17 @@ export function applyPiece(
       }
       keyTaken.set(pk, asSent);
     }
+    if (piece.entities?.[key] === null) w.dropEmpty('entities', key);
+    if (piece.entitiesMeta?.[key] === null) w.dropEmpty('entitiesMeta', key);
   }
 
   const pieceIndexes = piece.indexes ?? {};
   for (const key in pieceIndexes) {
     const keyTaken = taken.get(key);
-    for (const indexName in pieceIndexes[key]) {
-      const entries = pieceIndexes[key][indexName];
+    const byName = sentOrAll(pieceIndexes[key], state.indexes[key]);
+    for (const indexName in byName) {
       const current = state.indexes[key]?.[indexName];
+      const entries = sentOrAll(byName[indexName], current);
       for (const value in entries) {
         const pk = entries[value];
         const target = typeof pk === 'string' ? pk : current?.[value];
@@ -137,7 +152,9 @@ export function applyPiece(
         if (pk === null) w.removeIndex(key, indexName, value);
         else w.setIndex(key, indexName, value, fromWire(pk));
       }
+      if (byName[indexName] === null) w.dropEmptyIndex(key, indexName);
     }
+    if (pieceIndexes[key] === null) w.dropEmpty('indexes', key);
   }
   // as normalize does for a merged record
   for (const [cls, pk, held, next] of merged) {
@@ -194,6 +211,10 @@ export function foldPieces(
     if (piece.rev > rev) break;
     for (const key in piece.entities) {
       const incoming = piece.entities[key];
+      if (incoming === null) {
+        delete entities[key];
+        continue;
+      }
       for (const pk in incoming) {
         const value = incoming[pk];
         if (value === null) {
@@ -204,6 +225,10 @@ export function foldPieces(
     }
     for (const key in piece.entitiesMeta) {
       const incoming = piece.entitiesMeta[key];
+      if (incoming === null) {
+        delete entitiesMeta[key];
+        continue;
+      }
       for (const pk in incoming) {
         const value = incoming[pk];
         if (value === null) delete table(entitiesMeta, key)[pk];
@@ -211,9 +236,18 @@ export function foldPieces(
       }
     }
     for (const key in piece.indexes) {
+      const sent = piece.indexes[key];
+      if (sent === null) {
+        delete indexes[key];
+        continue;
+      }
       const byName = (indexes[key] ??= {});
-      for (const name in piece.indexes[key]) {
-        const entries = piece.indexes[key][name];
+      for (const name in sent) {
+        const entries = sent[name];
+        if (entries === null) {
+          delete byName[name];
+          continue;
+        }
         const index = (byName[name] ??= {});
         for (const value in entries) {
           const pk = entries[value];
@@ -311,6 +345,19 @@ class Writer {
 
   removeIndex(key: string, indexName: string, value: string) {
     delete this.ownIndex(key, indexName)[value];
+  }
+
+  /** Removes the table `this[root][key]` when nothing is left in it */
+  dropEmpty(root: Root, key: string) {
+    const table = this[root][key];
+    if (table !== undefined && !hasKeys(table)) delete this.top(root)[key];
+  }
+
+  /** Removes the index `indexName` of `key` when nothing is left in it */
+  dropEmptyIndex(key: string, indexName: string) {
+    const index = this.indexes[key]?.[indexName];
+    if (index !== undefined && !hasKeys(index))
+      delete this.own('indexes', key)[indexName];
   }
 
   done(): State<unknown> {

@@ -7,7 +7,6 @@ import {
   createReducer,
   initialState,
 } from '@data-client/core';
-import type { State } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 
 import { PromiseifyMiddleware } from '../../redux/index.js';
@@ -164,35 +163,19 @@ describe('createServerLedger', () => {
         ]),
       { schema: [Ticker], name: 'getTickers' },
     );
-    // a fold keeps a table whose records were all deleted; the store may not
-    const dropEmpty = (state: State<unknown>) => {
-      const nonEmpty = (tables: { [key: string]: object | undefined }) =>
-        Object.fromEntries(
-          Object.entries(tables).filter(
-            ([, table]) => Object.keys(table ?? {}).length,
-          ),
-        );
-      return {
-        ...state,
-        entities: nonEmpty(state.entities),
-        entitiesMeta: nonEmpty(state.entitiesMeta),
-        indexes: nonEmpty(state.indexes),
-      };
-    };
     const taken: StreamMessage[] = [];
     const takeAndFold = () => {
       taken.push(...ledger.take());
       const wire = JSON.parse(
         JSON.stringify(taken.filter(m => m.t === 'piece')),
       );
-      return dropEmpty(foldPieces(wire, Infinity));
+      return foldPieces(wire, Infinity);
     };
-    const serverState = () =>
-      dropEmpty({
-        ...controller.getState(),
-        optimistic: [],
-        lastReset: 0,
-      });
+    const serverState = () => ({
+      ...controller.getState(),
+      optimistic: [],
+      lastReset: 0,
+    });
     const fetchBoth = () =>
       Promise.all([
         controller.fetch(getTicker, { id: 'BTC' }),
@@ -209,6 +192,7 @@ describe('createServerLedger', () => {
     );
     expect(takeAndFold()).toEqual(serverState());
 
+    // a reset removes the tables, and a fold must too: `All` reads a missing table as not loaded
     await controller.resetEntireStore();
     expect(controller.getState().entities).toEqual({});
     expect(takeAndFold()).toEqual(serverState());

@@ -6,7 +6,7 @@ import {
   __INTERNAL__,
 } from '@data-client/core';
 import type { State } from '@data-client/core';
-import { Collection, Endpoint, Entity } from '@data-client/endpoint';
+import { Collection, Endpoint, Entity, schema } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
 
 import { APPLY, applyPiece, foldPieces } from '../applyPiece';
@@ -133,7 +133,7 @@ describe('applyPiece', () => {
     );
     const [piece] = wire([initialState, server1], placed);
     const next = applyPiece(client, piece, new Map(), placed, OPENED);
-    expect(next.entities.Ticker!.BTC).toBe(piece.entities!.Ticker.BTC);
+    expect(next.entities.Ticker!.BTC).toBe(piece.entities!.Ticker!.BTC);
     expect(next.entities.Other).toBe(client.entities.Other);
     expect(next.entitiesMeta.Other).toBe(client.entitiesMeta.Other);
     expect(next.indexes).toEqual({ Ticker: { symbol: { btc: 'BTC' } } });
@@ -163,7 +163,7 @@ describe('applyPiece', () => {
     const live = applyPiece(initialState, p1, new Map(), placed, OPENED);
     const next = applyPiece(live, p2, classes(Ticker), placed, OPENED);
     // replaced: merging would have built a new object
-    expect(next.entities.Ticker!.BTC).toBe(p2.entities!.Ticker.BTC);
+    expect(next.entities.Ticker!.BTC).toBe(p2.entities!.Ticker!.BTC);
   });
 
   it('replaces a record whose only copy came from the seed', () => {
@@ -224,9 +224,9 @@ describe('applyPiece', () => {
     expect(next.entities.Ticker!.BTC).toEqual(
       Ticker.mergeWithStore(
         client.entitiesMeta.Ticker.BTC,
-        piece.entitiesMeta!.Ticker.BTC!,
+        piece.entitiesMeta!.Ticker!.BTC!,
         client.entities.Ticker!.BTC,
-        piece.entities!.Ticker.BTC,
+        piece.entities!.Ticker!.BTC,
       ),
     );
     expect(next.entities.Ticker!.BTC).toMatchObject({ price: 100, volume: 7 });
@@ -534,6 +534,67 @@ describe('applyPiece', () => {
     });
   });
 
+  describe('a removed table (null in its place), as a server reset sends', () => {
+    const placed = new WeakSet<object>();
+    const row = (id: string, price: number) => ({
+      id,
+      price,
+      symbol: id.toLowerCase(),
+    });
+    const s1 = [row('BTC', 1), row('ETH', 2)].reduce(
+      (state, ticker) =>
+        setResponse(state, getTicker, [{ id: ticker.id }], ticker, 1000),
+      initialState,
+    );
+    const server = reducer(s1, actions.createReset() as any);
+    const [first, reset] = wire([initialState, s1, server], placed);
+    const all = (state: State<unknown>) =>
+      new Controller().get(new schema.All(Ticker), state);
+
+    it('removes the table when every record in it came from the server', () => {
+      expect(reset).toMatchObject({
+        entities: { Ticker: null },
+        entitiesMeta: { Ticker: null },
+        indexes: { Ticker: null },
+      });
+      const seed = foldPieces([first], 1);
+      expect(all(seed)).toHaveLength(2);
+      const next = applyPiece(seed, reset, new Map(), placed, OPENED);
+      expect(next.entities).toEqual({});
+      expect(next.entitiesMeta).toEqual({});
+      expect(next.indexes).toEqual({});
+      // as on the server: no table reads as not loaded, an empty one as an empty list
+      expect(all(server)).toBeUndefined();
+      expect(all(next)).toBeUndefined();
+    });
+
+    it('keeps a record the client wrote, with its meta and its index entry', () => {
+      const client = setResponse(
+        foldPieces([first], 1),
+        getTicker,
+        [{ id: 'ETH' }],
+        row('ETH', 5),
+        3000,
+      );
+      const next = applyPiece(client, reset, classes(Ticker), placed, OPENED);
+      expect(next.entities).toEqual({
+        Ticker: { ETH: client.entities.Ticker!.ETH },
+      });
+      expect(next.entities.Ticker!.ETH).toBe(client.entities.Ticker!.ETH);
+      expect(next.entitiesMeta).toEqual({
+        Ticker: { ETH: client.entitiesMeta.Ticker.ETH },
+      });
+      expect(next.indexes).toEqual({ Ticker: { symbol: { eth: 'ETH' } } });
+    });
+
+    it('leaves the tables of a state that has no such table as they are', () => {
+      const next = applyPiece(initialState, reset, new Map(), placed, OPENED);
+      expect(next.entities).toBe(initialState.entities);
+      expect(next.entitiesMeta).toBe(initialState.entitiesMeta);
+      expect(next.indexes).toBe(initialState.indexes);
+    });
+  });
+
   describe('index entries', () => {
     const indexPiece = (pk: string): PieceMessage => ({
       t: 'piece',
@@ -764,7 +825,7 @@ describe('applyPiece, a client write that keeps the server object', () => {
     const [p1, p2] = wire([initialState, server1, server2], placed);
     const seed = foldPieces([p1], 1);
     const next = applyPiece(seed, p2, new Map(), placed, OPENED);
-    expect(next.entities.Quote!.q).toBe(p2.entities!.Quote.q);
+    expect(next.entities.Quote!.q).toBe(p2.entities!.Quote!.q);
     expect(quote(next)).toEqual([5, 2000]);
   });
 });

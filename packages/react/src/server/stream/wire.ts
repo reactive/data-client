@@ -26,20 +26,23 @@ export interface WireEndpointMeta {
 
 /**
  * Normalized slots one committed server change wrote.
- * In `entities`, `entitiesMeta` and `indexes`, `null` means the slot was removed, and `0`
- * in `entities` (and as an index value) means INVALID. Every value in `endpoints` and
- * `meta` is a value; endpoint removals are listed in `x`.
+ * In `entities`, `entitiesMeta` and `indexes`, `null` means removed: a record or an
+ * index entry, or the whole table when `null` is in the table's place. `0` in `entities`
+ * (and as an index value) means INVALID. Every value in `endpoints` and `meta` is a
+ * value; endpoint removals are listed in `x`.
  */
 export interface PieceSlots {
-  entities?: { [entityKey: string]: { [pk: string]: object | 0 | null } };
-  entitiesMeta?: {
-    [entityKey: string]: { [pk: string]: WireEntityMeta | null };
+  entities?: {
+    [entityKey: string]: { [pk: string]: object | 0 | null } | null;
   };
-  /** Index entries that changed: value to pk. `null` removes the entry. */
+  entitiesMeta?: {
+    [entityKey: string]: { [pk: string]: WireEntityMeta | null } | null;
+  };
+  /** Index entries that changed: value to pk */
   indexes?: {
     [entityKey: string]: {
-      [indexName: string]: { [value: string]: string | 0 | null };
-    };
+      [indexName: string]: { [value: string]: string | 0 | null } | null;
+    } | null;
   };
   endpoints?: { [key: string]: unknown };
   meta?: { [key: string]: WireEndpointMeta };
@@ -89,6 +92,11 @@ export function keysOf(
   if (!b) return Object.keys(a ?? {});
   if (!a) return Object.keys(b);
   return new Set([...Object.keys(a), ...Object.keys(b)]);
+}
+
+export function hasKeys(object: object): boolean {
+  for (const _ in object) return true;
+  return false;
 }
 
 /** Keys a message may not create on an object */

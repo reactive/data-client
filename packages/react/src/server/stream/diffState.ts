@@ -1,6 +1,6 @@
 import type { State } from '@data-client/core';
 
-import { keysOf } from './wire.js';
+import { hasKeys, keysOf } from './wire.js';
 import type {
   PieceSlots,
   WireEndpointMeta,
@@ -32,22 +32,15 @@ export function diffState(
   if (prev.indexes !== next.indexes) {
     const indexes: NonNullable<PieceSlots['indexes']> = {};
     for (const key of keysOf(prev.indexes, next.indexes)) {
-      const diff = diffTables(
-        prev.indexes[key] ?? {},
-        next.indexes[key] ?? {},
-        invalidAsZero<string>,
+      const diff = removedOr(prev.indexes[key], next.indexes[key], (p, n) =>
+        diffTables(p, n, invalidAsZero<string>),
       );
-      if (diff) indexes[key] = diff;
+      if (diff !== undefined) indexes[key] = diff;
     }
     if (hasKeys(indexes)) slots.indexes = indexes;
   }
   diffEndpoints(prev, next, slots);
   return hasKeys(slots) ? slots : undefined;
-}
-
-function hasKeys(object: object): boolean {
-  for (const _ in object) return true;
-  return false;
 }
 
 /**
@@ -97,16 +90,28 @@ function removedKeys(prev: Table, next: Table): string[] {
   );
 }
 
+/** `null` when `next` lost the table `prev` had; otherwise what `diff` finds between them */
+function removedOr<P extends object, D>(
+  prev: P | undefined,
+  next: P | undefined,
+  diff: (prev: P, next: P) => D | undefined,
+): D | null | undefined {
+  if (next === undefined) return prev === undefined ? undefined : null;
+  return diff(prev ?? ({} as P), next);
+}
+
 function diffTables<T>(
   prev: Tables,
   next: Tables,
   convert: (value: any) => T,
-): { [key: string]: { [pk: string]: T | null } } | undefined {
+): { [key: string]: { [pk: string]: T | null } | null } | undefined {
   if (prev === next) return undefined;
-  let out: { [key: string]: { [pk: string]: T | null } } | undefined;
+  let out: { [key: string]: { [pk: string]: T | null } | null } | undefined;
   for (const key of keysOf(prev, next)) {
-    const diff = diffTable(prev[key] ?? {}, next[key] ?? {}, convert);
-    if (diff) (out ??= {})[key] = diff;
+    const diff = removedOr(prev[key], next[key], (p, n) =>
+      diffTable(p, n, convert),
+    );
+    if (diff !== undefined) (out ??= {})[key] = diff;
   }
   return out;
 }

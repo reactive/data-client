@@ -59,8 +59,8 @@ describe('diffState', () => {
     expect(slots.entities).toEqual({
       Ticker: { BTC: { id: 'BTC', price: 100 } },
     });
-    expect(slots.entities!.Ticker.BTC).toBe(s1.entities.Ticker!.BTC);
-    expect(Object.keys(slots.entitiesMeta!.Ticker)).toEqual(['BTC']);
+    expect(slots.entities!.Ticker!.BTC).toBe(s1.entities.Ticker!.BTC);
+    expect(Object.keys(slots.entitiesMeta!.Ticker!)).toEqual(['BTC']);
     expect(slots.indexes).toEqual({ Ticker: { price: { 100: 'BTC' } } });
     const key = getTicker.key({ id: 'BTC' });
     expect(slots.endpoints).toEqual({ [key]: 'BTC' });
@@ -75,7 +75,7 @@ describe('diffState', () => {
     const s1 = set(set(initialState, 'BTC', 100), 'ETH', 10);
     const s2 = set(s1, 'ETH', 11, 2000);
     const slots = diffState(s1, s2)!;
-    expect(Object.keys(slots.entities!.Ticker)).toEqual(['ETH']);
+    expect(Object.keys(slots.entities!.Ticker!)).toEqual(['ETH']);
     expect(slots.endpoints).toBeUndefined();
     expect(Object.keys(slots.meta!)).toEqual([getTicker.key({ id: 'ETH' })]);
     // the old price is INVALID, the new one points at ETH
@@ -114,8 +114,9 @@ describe('diffState', () => {
       meta: { [ethKey]: s2.meta[ethKey] },
       x: [ethKey],
     });
+    // a table that is gone is null in the table's place
     const s3 = { ...s2, entities: {} };
-    expect(diffState(s2, s3)!.entities).toEqual({ Ticker: { ETH: null } });
+    expect(diffState(s2, s3)!.entities).toEqual({ Ticker: null });
 
     const s4 = {
       ...s2,
@@ -144,6 +145,33 @@ describe('diffState', () => {
       message: 'nope',
       status: 503,
     });
+  });
+
+  it('sends the tables a reset removes as null, and a fold of it has no table', () => {
+    const s1 = set(initialState, 'BTC', 100);
+    const s2 = reducer(s1, actions.createReset());
+    const s3 = set(s2, 'ETH', 10);
+    const slots = diffState(s1, s2);
+    expect(slots).toEqual({
+      entities: { Ticker: null },
+      entitiesMeta: { Ticker: null },
+      indexes: { Ticker: null },
+      x: [getTicker.key({ id: 'BTC' })],
+    });
+    const pieces: PieceMessage[] = JSON.parse(
+      JSON.stringify(
+        [diffState(initialState, s1), slots, diffState(s2, s3)].map(
+          (piece, i) => ({ t: 'piece', at: 0, rev: i + 1, ...piece }),
+        ),
+      ),
+    );
+    const asFolded = (state: State<unknown>) => ({
+      ...state,
+      optimistic: [],
+      lastReset: 0,
+    });
+    expect(foldPieces(pieces, 2)).toEqual(asFolded(s2));
+    expect(foldPieces(pieces, 3)).toEqual(asFolded(s3));
   });
 
   it('round trips: foldPieces of the diffs equals the server state', () => {

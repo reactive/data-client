@@ -58,7 +58,7 @@ describe('getLedger', () => {
     now.mockReturnValue(60_000);
     push({ ...btc(100, 40_500), rev: 1 });
     const [piece] = ledger.after(0);
-    expect(piece.entitiesMeta!.Ticker.BTC).toEqual({
+    expect(piece.entitiesMeta!.Ticker!.BTC).toEqual({
       fetchedAt: 50_500,
       date: 50_500,
       expiresAt: 51_500,
@@ -85,7 +85,7 @@ describe('getLedger', () => {
       ]),
     )();
     const [piece] = ledger.after(0);
-    expect(piece.entitiesMeta!.Ticker.BTC).toEqual({
+    expect(piece.entitiesMeta!.Ticker!.BTC).toEqual({
       fetchedAt: 50_500,
       date: 50_500,
       expiresAt: Infinity,
@@ -102,7 +102,7 @@ describe('getLedger', () => {
   it('records every entity object of a piece as placed, and the seed is built from them', () => {
     const ledger = getLedger()!;
     const piece = { ...btc(100, 49_000), rev: 1 };
-    const object = piece.entities!.Ticker.BTC as object;
+    const object = piece.entities!.Ticker!.BTC as object;
     push({ t: 'open', v: 1, rev: 1, at: 50_000 }, piece, {
       t: 'piece',
       at: 0,
@@ -115,6 +115,24 @@ describe('getLedger', () => {
     expect(ledger.placed.has(seed.entities.Ticker!.BTC as object)).toBe(true);
     // a client write can keep the object and move the meta, so the meta is recorded too
     expect(ledger.placed.has(seed.entitiesMeta.Ticker!.BTC)).toBe(true);
+  });
+
+  it('keeps a removed table (null in its place), and a fold has no such table', () => {
+    const ledger = getLedger()!;
+    const removed = {
+      entities: { Ticker: null },
+      entitiesMeta: { Ticker: null },
+      indexes: { Ticker: null },
+    };
+    push(
+      { t: 'open', v: 1, rev: 1, at: 50_000 },
+      { ...btc(100, 49_000), rev: 1 },
+      { t: 'piece', at: 0, rev: 2, ...removed },
+    );
+    expect(ledger.after(1)[0]).toMatchObject(removed);
+    expect(ledger.fold(1).entities).toHaveProperty('Ticker');
+    expect(ledger.fold(2).entities).toEqual({});
+    expect(ledger.fold(2).entitiesMeta).toEqual({});
   });
 
   it('folds into fresh tables every call; snapshot reports entries unexpired', () => {
