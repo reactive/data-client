@@ -18,7 +18,7 @@ export type {
 export { serialize } from './serialize.js';
 export { diffState } from './diffState.js';
 export { createServerLedger } from './ServerLedger.js';
-export type { ServerLedger } from './ServerLedger.js';
+export type { ScopedStore, ServerLedger } from './ServerLedger.js';
 export { getLedger } from './Ledger.js';
 export type { Ledger } from './Ledger.js';
 export { APPLY, applyPiece, foldPieces } from './applyPiece.js';
@@ -28,12 +28,16 @@ export {
   LedgerContext,
   ServerLedgerContext,
   useHydrating,
+  useBoundaryCell,
+  Boundary,
   Shield,
   Scope,
+  ServerBoundary,
   ServerScope,
   clientWrap,
   serverWrap,
 } from './boundary.js';
+export type { BoundaryCell } from './boundary.js';
 export { default as StreamProvider } from './StreamProvider.js';
 export type { StreamProviderProps } from './StreamProvider.js';
 export { default as createServerStream } from './createServerStream.js';

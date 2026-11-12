@@ -6,16 +6,23 @@ import { WIRE_VERSION } from './wire.js';
 import type { PieceMessage, StreamMessage } from './wire.js';
 import type { Store } from '../../context.js';
 
+/** A boundary's view of the request's store */
+export interface ScopedStore extends Store<State<unknown>> {
+  /** The boundary this view pins; boundaries inside it read it as their parent */
+  readonly boundaryId: string;
+}
+
 export interface ServerLedger {
   /** Records the key of each FETCH as an announcement. First in the server store's managers. */
   readonly manager: Manager;
   /** Sets the request's root store and starts recording one piece for each committed change */
   attach(store: Store<State<unknown>>): void;
   /**
-   * A view of the root store whose `getState` sets the pin of boundary `id`,
-   * and of no other boundary, to the current revision. The same view per id.
+   * A view of the root store for boundary `id`, inside boundary `parent` when set.
+   * Creating it, and each `getState`, sets the pin of `id`, and of no other boundary,
+   * to the current revision. The same view per id.
    */
-  scope(id: string): Store<State<unknown>>;
+  scope(id: string, parent?: string): ScopedStore;
   /**
    * Messages not sent yet, in order: `open` on the first call, then pieces,
    * then each pin that is new or moved, then announcements.
@@ -36,7 +43,8 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
   const sentPins = new Map<string, number>();
   const announced = new Set<string>();
   let announce: string[] = [];
-  const scopes = new Map<string, Store<State<unknown>>>();
+  const scopes = new Map<string, ScopedStore>();
+  const parents = new Map<string, string>();
 
   const record = () => {
     const next = root!.getState();
@@ -66,7 +74,12 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
     for (const [id, pinRev] of pins) {
       if (sentPins.get(id) === pinRev) continue;
       sentPins.set(id, pinRev);
-      out.push({ t: 'pin', id, rev: pinRev });
+      const parent = parents.get(id);
+      out.push(
+        parent === undefined ?
+          { t: 'pin', id, rev: pinRev }
+        : { t: 'pin', id, rev: pinRev, p: parent },
+      );
     }
     if (announce.length) {
       out.push({ t: 'ann', keys: announce });
@@ -82,10 +95,14 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
       record();
       store.subscribe(record);
     },
-    scope(id) {
+    scope(id, parent) {
       let view = scopes.get(id);
       if (!view) {
+        // a boundary that reads nothing still has a revision to hydrate on
+        pins.set(id, rev);
+        if (parent !== undefined) parents.set(id, parent);
         view = {
+          boundaryId: id,
           subscribe: listener => root!.subscribe(listener),
           getState() {
             pins.set(id, rev);

@@ -67,6 +67,8 @@ export interface PinMessage {
   t: 'pin';
   id: string;
   rev: number;
+  /** Id of the boundary this one is inside, if any */
+  p?: string;
 }
 /** Endpoint keys the server started to fetch. Read by the waiter in PR 3. */
 export interface AnnounceMessage {

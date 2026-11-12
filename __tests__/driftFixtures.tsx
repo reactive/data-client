@@ -29,7 +29,12 @@ import type {
   State,
 } from '@data-client/react';
 
-import { Toggle, heldWrap, makeServerFetch } from './streamFixtures';
+import {
+  Toggle,
+  countScopedReads,
+  heldWrap,
+  makeServerFetch,
+} from './streamFixtures';
 import type { ActivityHandle, FetchImpl, PageLog } from './streamFixtures';
 import type { Step } from './streamingHarness';
 import { BoundaryContext } from '../packages/react/src/components/BoundaryContext';
@@ -239,29 +244,6 @@ function makeDriftIslands(
 function ControllerGrab({ into }: { into: { current?: Controller } }) {
   into.current = useController();
   return null;
-}
-
-/** Counts the scoped `getState` calls of each boundary id */
-export function countScopedReads(ledger: ServerLedger) {
-  const reads = new Map<string, number>();
-  const scope = ledger.scope.bind(ledger);
-  const views = new Map<string, ReturnType<ServerLedger['scope']>>();
-  (ledger as any).scope = (id: string) => {
-    let view = views.get(id);
-    if (!view) {
-      const inner = scope(id);
-      view = {
-        subscribe: inner.subscribe,
-        getState() {
-          reads.set(id, (reads.get(id) ?? 0) + 1);
-          return inner.getState();
-        },
-      };
-      views.set(id, view);
-    }
-    return view;
-  };
-  return reads;
 }
 
 export type DriftStep = Step<DriftServerPage>;

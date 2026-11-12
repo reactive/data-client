@@ -22,6 +22,8 @@ export interface ServerHalf {
   shell: LedgerFlush;
   /** The flush whose HTML holds this test id */
   with(testId: string): LedgerFlush;
+  /** Scoped `getState` calls of each boundary id over the whole request */
+  reads: Map<string, number>;
 }
 
 export async function serverHalf(
@@ -30,9 +32,10 @@ export async function serverHalf(
   const fx = loadServerHalf(
     () => require('./streamFixtures') as typeof Fixtures,
   );
-  const { capture } = await fx.runServerPage(build(fx));
+  const { capture, page } = await fx.runServerPage(build(fx));
   const { flushes } = capture;
   return {
+    reads: page.reads,
     flushes,
     shell: flushes[0],
     with(testId) {

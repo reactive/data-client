@@ -160,9 +160,9 @@ export function spyLedger(ledger: Ledger) {
     folds.push(new WeakRef(state));
     return state;
   };
-  target.commit = (id: string) => {
+  target.commit = (id: string, hydrated: boolean) => {
     commits.push(id);
-    return commit(id);
+    return commit(id, hydrated);
   };
   return { snapshots, folds, commits };
 }
@@ -176,7 +176,7 @@ export function joinOf(states: WeakRef<object>[], live: object) {
 }
 
 /**
- * Each snapshot scope's holder on the committed tree: whether it is empty.
+ * Each pinned scope's holder on the committed tree: whether it is empty.
  * Found by shape (`state`, `live`, `views`) in the hook list of each fiber.
  */
 export function scopeHolders(container: Element) {

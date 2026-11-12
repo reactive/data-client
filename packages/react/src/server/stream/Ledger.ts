@@ -37,8 +37,14 @@ export interface Ledger {
   pin(id: string): number | undefined;
   /** Resolves with the pin, or `null` when the stream ends without one. Same promise per id. */
   whenPin(id: string): Promise<number | null>;
-  /** First commit of the boundary with this id. Drops its pin now and later. Idempotent. */
-  commit(id: string): void;
+  /**
+   * First commit of the scope of the boundary with this id. Drops its pin now and later.
+   * When the scope did not hydrate (`hydrated` false), React rendered its content on the
+   * client, so the pins of the boundaries inside it are dropped too, now and later.
+   */
+  commit(id: string, hydrated: boolean): void;
+  /** The page rendered on the client, not by hydrating: drops every pin, now and later */
+  abandon(): void;
   /** True when the server announced this endpoint key. For the waiter in PR 3. */
   announced(key: string): boolean;
   /**
@@ -94,6 +100,11 @@ class DocumentLedger implements Ledger {
   protected pieces: PieceMessage[] = [];
   protected pins = new Map<string, number>();
   protected committed = new Set<string>();
+  /** Boundary id to the id of the boundary it is inside, from pins */
+  protected parents = new Map<string, string>();
+  /** Boundaries whose content React rendered on the client */
+  protected clientRendered = new Set<string>();
+  protected abandoned = false;
   protected pinWaiters = new Map<string, Tracked<number | null>>();
   protected open = tracked<void>();
   protected keys = new Set<string>();
@@ -133,9 +144,15 @@ class DocumentLedger implements Ledger {
         this.rev = Math.max(this.rev, message.rev);
         return;
       case 'pin': {
-        if (isUnsafeKey(message.id) || this.committed.has(message.id)) return;
-        this.pins.set(message.id, message.rev);
-        this.pinWaiters.get(message.id)?.settle(message.rev);
+        const { id, p } = message;
+        if (isUnsafeKey(id) || this.committed.has(id)) return;
+        if (typeof p === 'string' && !isUnsafeKey(p)) this.parents.set(id, p);
+        if (this.abandoned || this.insideClientRendered(id)) {
+          this.committed.add(id);
+          return;
+        }
+        this.pins.set(id, message.rev);
+        this.pinWaiters.get(id)?.settle(message.rev);
         return;
       }
       case 'ann':
@@ -265,18 +282,42 @@ class DocumentLedger implements Ledger {
       const pin = this.pins.get(id);
       waiter =
         pin !== undefined ? fulfilled<number | null>(pin)
-        : this.ended ? fulfilled<number | null>(null)
+        : this.ended || this.abandoned ? fulfilled<number | null>(null)
         : tracked<number | null>();
       this.pinWaiters.set(id, waiter);
     }
     return waiter;
   }
 
-  commit(id: string): void {
+  commit(id: string, hydrated: boolean): void {
+    this.drop(id);
+    if (!hydrated) {
+      this.clientRendered.add(id);
+      for (const pinned of [...this.pins.keys()])
+        if (this.insideClientRendered(pinned)) this.drop(pinned);
+    }
+    this.release();
+  }
+
+  abandon(): void {
+    this.abandoned = true;
+    for (const pinned of [...this.pins.keys()]) this.drop(pinned);
+    for (const waiter of this.pinWaiters.values()) waiter.settle(null);
+    this.release();
+  }
+
+  protected drop(id: string) {
     this.committed.add(id);
     this.pins.delete(id);
     this.pinWaiters.delete(id);
-    this.release();
+  }
+
+  /** Some boundary this one is inside rendered its content on the client */
+  protected insideClientRendered(id: string): boolean {
+    if (this.clientRendered.size === 0) return false;
+    for (let p = this.parents.get(id); p !== undefined; p = this.parents.get(p))
+      if (this.clientRendered.has(p)) return true;
+    return false;
   }
 
   announced(key: string): boolean {

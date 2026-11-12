@@ -1,9 +1,9 @@
 'use client';
 import type { Manager } from '@data-client/core';
-import React, { use, useState } from 'react';
+import React, { use, useLayoutEffect, useState } from 'react';
 import type { JSX } from 'react';
 
-import { LedgerContext, clientWrap } from './boundary.js';
+import { LedgerContext, clientWrap, useHydrating } from './boundary.js';
 import { getLedger } from './Ledger.js';
 import StreamManager from './StreamManager.js';
 import { BoundaryContext } from '../../components/BoundaryContext.js';
@@ -18,6 +18,7 @@ export type StreamProviderProps = Omit<ProviderProps, 'initialState'>;
  * Suspends on `ledger.whenOpen()` until `open` or `end` has arrived.
  * Provides `LedgerContext` and `BoundaryContext` with the constant `clientWrap`.
  * `StreamManager` is first in the manager list, before the application's managers.
+ * Mounted without hydrating, no boundary can hydrate, so it drops the ledger's pins.
  */
 export default function StreamProvider(
   props: StreamProviderProps,
@@ -37,6 +38,11 @@ function SeededProvider({
 }: StreamProviderProps & {
   ledger: NonNullable<ReturnType<typeof getLedger>>;
 }) {
+  const hydrating = useHydrating();
+  const [hydrated] = useState(hydrating);
+  useLayoutEffect(() => {
+    if (!hydrated) ledger.abandon();
+  }, [ledger, hydrated]);
   const [seed] = useState(() => {
     const rev = ledger.shellRev ?? ledger.rev;
     return {

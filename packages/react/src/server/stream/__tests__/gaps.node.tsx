@@ -274,31 +274,58 @@ describeReact19('X: cases added after the invariants review', () => {
   });
 
   describe('M1/ledger-bounded', () => {
-    async function run(kind: 'all' | 'woken' | 'never') {
-      const server = await serverHalf(() =>
-        kind === 'woken' ? { wakeB: { current: undefined } } : {},
-      );
+    type Kind = 'all' | 'woken' | 'woken-nested' | 'client-root' | 'never';
+    async function run(kind: Kind) {
+      const woken = kind === 'woken' || kind === 'woken-nested';
+      const nested = kind === 'woken-nested';
+      const server = await serverHalf(fx => ({
+        ...(woken && { wakeB: { current: undefined } }),
+        ...(nested && {
+          nested: true,
+          steps: [
+            fx.resolveGroup('b'),
+            fx.resolveGroup('d'),
+            fx.resolveGroup('c'),
+          ],
+        }),
+      }));
+      const messages = server.flushes.flatMap(f => messagesOf(f.script));
+      const pins = messages.filter(m => m.t === 'pin') as {
+        id: string;
+        p?: string;
+      }[];
       return inBrowser(async (b, finish) => {
         const wake: { current: ((kind?: WakeKind) => void) | undefined } = {
           current: undefined,
         };
-        const page = b.fx.createClientPage(
-          kind === 'woken' ? { wakeB: wake }
-          : kind === 'never' ? { lazyB: new Promise(() => {}) }
-          : {},
-        );
-        await b.start(page, server.shell);
-        if (kind === 'woken') {
+        const page = b.fx.createClientPage({
+          ...(woken && { wakeB: wake }),
+          ...(nested && { nested: true }),
+          ...(kind === 'never' && { lazyB: new Promise<void>(() => {}) }),
+        });
+        if (kind === 'client-root') {
+          b.shell(server.shell);
+          b.mount(page.element);
+          await until(() => page.log.commits.includes('a'), 'A rendered');
+          await settle(30);
+        } else await b.start(page, server.shell);
+        if (woken) {
           wake.current!('children');
           await settle(30);
         }
-        deliverRest(b, server.flushes);
-        await until(() => page.log.commits.includes('c'), 'C hydrated');
+        // React's own scripts would throw on the nodes the client root replaced
+        if (kind === 'client-root')
+          for (const flush of server.flushes.slice(1)) b.script(flush);
+        else deliverRest(b, server.flushes);
+        await until(() => page.log.commits.includes('c'), 'C committed');
         if (kind !== 'never')
           await until(() => page.log.commits.includes('b'), 'B committed');
+        if (nested)
+          await until(() => page.log.commits.includes('d'), 'D committed');
         await settle(50);
         const ledger = page.ledger();
         const atEnd = ledger.stats();
+        const retainedBytes = JSON.stringify((ledger as any).pieces).length;
         for (let i = 1; i <= 100; i++) {
           socketWrite(b, page, `socket-${i}`);
           if (i % 10 === 0) await settle(5);
@@ -328,12 +355,52 @@ describeReact19('X: cases added after the invariants review', () => {
             ledger.rev === rev &&
             !page.controller.current!.getState().entities.Todo?.['9'],
           errors: base.errors,
+          retainedBytes,
+          payloadBytes: JSON.stringify(messages).length,
+          pins,
         };
       });
     }
+    const released = { pieces: 0, pins: 0, unknown: 0 };
+    function expectReleased(r: Awaited<ReturnType<typeof run>>) {
+      expect(r).toEqual({
+        ended: true,
+        received: r.received,
+        atEnd: released,
+        afterWrites: released,
+        afterLate: released,
+        lateIgnored: true,
+        errors: 0,
+        retainedBytes: 2,
+        payloadBytes: r.payloadBytes,
+        pins: r.pins,
+      });
+      expect(r.received).toBeGreaterThan(0);
+    }
     it('every island hydrates', async () => {
-      const r = await run('all');
-      const held = { pieces: 0, pins: 0, unknown: 0 };
+      expectReleased(await run('all'));
+    });
+    // B renders on the client, so its pin is dropped when it arrives
+    it('one island is woken', async () => {
+      expectReleased(await run('woken'));
+    });
+    it('one island is woken with a pending boundary inside', async () => {
+      const r = await run('woken-nested');
+      expectReleased(r);
+      // D's pin names B, so it is dropped with B's
+      const inner = r.pins.filter(pin => pin.p !== undefined);
+      expect(inner.length).toBeGreaterThan(0);
+      expect(new Set(inner.map(pin => `${pin.id} in ${pin.p}`)).size).toBe(1);
+      expect(r.pins.map(pin => pin.id)).toContain(inner[0].p);
+    });
+    it('the root renders on the client over server HTML', async () => {
+      expectReleased(await run('client-root'));
+    });
+    // the open question: its pin holds every piece for the life of the document
+    it('one island never hydrates', async () => {
+      const r = await run('never');
+      const held = { pieces: r.received, pins: 1, unknown: 0 };
+      expect(r.received).toBeGreaterThan(0);
       expect(r).toEqual({
         ended: true,
         received: r.received,
@@ -342,23 +409,13 @@ describeReact19('X: cases added after the invariants review', () => {
         afterLate: held,
         lateIgnored: true,
         errors: 0,
+        retainedBytes: r.retainedBytes,
+        payloadBytes: r.payloadBytes,
+        pins: r.pins,
       });
+      expect(r.retainedBytes).toBeGreaterThan(2);
+      expect(r.retainedBytes).toBeLessThanOrEqual(r.payloadBytes);
     });
-    for (const kind of ['woken', 'never'] as const)
-      it(`${kind === 'woken' ? 'one island is woken' : 'one island never hydrates'}`, async () => {
-        const r = await run(kind);
-        const held = { pieces: r.received, pins: 1, unknown: 0 };
-        expect(r.received).toBeGreaterThan(0);
-        expect(r).toEqual({
-          ended: true,
-          received: r.received,
-          atEnd: held,
-          afterWrites: held,
-          afterLate: held,
-          lateIgnored: true,
-          errors: 0,
-        });
-      });
   });
 
   async function mountN(
@@ -581,8 +638,9 @@ const R7_RECORDED = {
   retainedAfterJoin: 1,
 };
 const R9_RECORDED = {
-  // B's scope never commits, so its pin and the document's pieces stay, as in R8
-  stats: { pieces: 3, pins: 1, unknown: 0 },
+  // React renders B's boundary on the client to show its error component; the
+  // scope commits without hydrating, so B's pin is dropped and the pieces with it
+  stats: { pieces: 0, pins: 0, unknown: 0 },
   errors: 0,
   fetches: [],
   immediateCommits: 0,

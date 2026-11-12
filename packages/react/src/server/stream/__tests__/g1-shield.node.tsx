@@ -25,7 +25,7 @@ import {
   deliverB,
 } from '__tests__/g1Cells';
 import type { PageOptions, Variant } from '__tests__/g1Cells';
-import { settle, until } from '__tests__/splitEnvHarness';
+import { messagesOf, settle, until } from '__tests__/splitEnvHarness';
 import type { LanesHandle } from '__tests__/streamFixtures';
 
 const { version } = require('react') as typeof import('react');
@@ -317,6 +317,178 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     expect(r.dPendingBeforeHtml).toBe(false);
     expect(r.dAdopted).toBe(false);
     expect(r.fetches).toEqual(['getList {"group":"d"}']);
+  });
+
+  /**
+   * S and O read no state; O holds I, which reads in a boundary of its own.
+   * `unpinned` drops S's and O's pins from the shell's script, which is what a
+   * server that pins a boundary only on its first read sends.
+   */
+  async function runNoRead(unpinned: boolean) {
+    const server = await serverHalf(() => ({ noRead: true }));
+    const shellPins = messagesOf(server.shell.script).filter(
+      m => m.t === 'pin',
+    ) as { id: string }[];
+    const noReadIds = shellPins
+      .map(pin => pin.id)
+      .filter(id => !server.reads.get(id));
+    const r = await inBrowser(async (b, finish) => {
+      const page = b.fx.createClientPage({ noRead: true });
+      b.shell(
+        server.shell,
+        unpinned ?
+          m => !(m.t === 'pin' && noReadIds.includes(m.id))
+        : undefined,
+      );
+      const names = ['s', 'o', 'i'] as const;
+      const streamed = names.map(name => b.byTestId(name));
+      b.hydrate(page.element);
+      await until(() => page.log.commits.includes('a'), 'A hydrated');
+      await settle(50);
+      const ledger = page.ledger();
+      const beforeEnd = {
+        ended: ledger.ended,
+        hydrated: names.filter(name => page.log.commits.includes(name)),
+      };
+      for (const flush of server.flushes.slice(1)) {
+        b.script(flush);
+        b.html(flush);
+      }
+      await until(
+        () => names.every(name => page.log.commits.includes(name)),
+        'S, O and I hydrated',
+      );
+      await settle(30);
+      return {
+        beforeEnd,
+        adopted: names.filter((name, i) => b.byTestId(name) === streamed[i]),
+        ...(await finish(page)),
+      };
+    });
+    return { noReadIds, ...r };
+  }
+
+  it('G1/no-read-boundary', async () => {
+    const r = await runNoRead(false);
+    expect(r).toEqual({
+      noReadIds: [expect.any(String), expect.any(String)],
+      beforeEnd: { ended: false, hydrated: ['s', 'o', 'i'] },
+      adopted: ['s', 'o', 'i'],
+      errors: 0,
+      fetches: [],
+      immediateCommits: 0,
+      flushSyncCalls: 0,
+      detectorOnly: true,
+    });
+  });
+
+  it('G1/control-no-read-unpinned', async () => {
+    const r = await runNoRead(true);
+    expect(r.noReadIds).toHaveLength(2);
+    // they wait for the end of the stream, and I waits inside O
+    expect(r.beforeEnd).toEqual({ ended: false, hydrated: [] });
+    expect(r.adopted).toEqual(['s', 'o', 'i']);
+    expect(r.errors).toBe(0);
+  });
+
+  it('G1/boundary-ids-match', async () => {
+    const server = await serverHalf(fx => ({
+      noRead: true,
+      nested: true,
+      steps: [fx.resolveGroup('b'), fx.resolveGroup('d'), fx.resolveGroup('c')],
+    }));
+    const pins = server.flushes
+      .flatMap(f => messagesOf(f.script))
+      .filter(m => m.t === 'pin') as { id: string; p?: string }[];
+    const serverIds = [...new Set(pins.map(pin => pin.id))].sort();
+    const r = await inBrowser(async (b, finish) => {
+      const page = b.fx.createClientPage({ noRead: true, nested: true });
+      const ledger = page.ledger();
+      const commit = ledger.commit.bind(ledger);
+      const committed: [string, boolean][] = [];
+      ledger.commit = (id, hydrated) => {
+        committed.push([id, hydrated]);
+        commit(id, hydrated);
+      };
+      await b.start(page, server.shell);
+      for (const flush of server.flushes.slice(1)) {
+        b.script(flush);
+        b.html(flush);
+      }
+      await until(
+        () => ['b', 'c', 'd', 'i'].every(n => page.log.commits.includes(n)),
+        'every island hydrated',
+      );
+      await settle(30);
+      return { committed, stats: ledger.stats(), ...(await finish(page)) };
+    });
+    // A, B, C, D, S, O and I: every boundary the server pinned hydrated on
+    // its own id, once
+    expect(serverIds).toHaveLength(7);
+    expect(r.committed.every(([, hydrated]) => hydrated)).toBe(true);
+    expect(r.committed.map(([id]) => id).sort()).toEqual(serverIds);
+    expect(r.stats).toEqual({ pieces: 0, pins: 0, unknown: 0 });
+    expect(r.errors).toBe(0);
+    expect(r.fetches).toEqual([]);
+  });
+
+  /** Shield and Scope renders over 10 socket writes, before and after N mounts on the client */
+  async function quietRenders(variant: Variant) {
+    const server = await serverHalf(() => ({ mountN: {} }));
+    return inBrowser(async (b, finish) => {
+      const handle: { current?: () => void } = {};
+      const page = b.fx.createClientPage({ mountN: handle, variant });
+      await b.start(page, server.shell);
+      for (const flush of server.flushes.slice(1)) {
+        b.script(flush);
+        b.html(flush);
+      }
+      await until(
+        () => ['b', 'c'].every(name => page.log.commits.includes(name)),
+        'B and C hydrated',
+      );
+      await settle(50);
+      let k = 0;
+      const tenWrites = async () => {
+        b.probe.resetRenders();
+        for (let i = 0; i < 10; i++) {
+          socketWrite(b, page, `quiet-${++k}`);
+          await settle(5);
+        }
+        await settle(30);
+        const count = (name: string) => b.probe.renders.get(name) ?? 0;
+        return {
+          Shield: count('Shield'),
+          Scope: count('Scope'),
+          IslandA: count('IslandA'),
+        };
+      };
+      const joined = await tenWrites();
+      handle.current!();
+      await until(() => page.log.commits.includes('n'), 'N mounted');
+      await settle(30);
+      const withN = await tenWrites();
+      return { joined, withN, a: b.text('a'), ...(await finish(page)) };
+    });
+  }
+
+  it('F2/quiet-after-join', async () => {
+    const r = await quietRenders('shield');
+    // A, B and C hydrated on pins: each scope reads live state once per write
+    expect(r.joined.Scope).toBe(30);
+    // and each shield at most once
+    expect(r.joined.Shield).toBeLessThanOrEqual(30);
+    // N mounted on the client: its shield and scope never render again
+    expect(r.withN).toEqual(r.joined);
+    expect(r.a).toBe('quiet-20');
+    expect(r.errors).toBe(0);
+    expect(r.immediateCommits).toBe(0);
+  });
+
+  it('F2/quiet-after-join without the adapter', async () => {
+    const r = await quietRenders('none');
+    expect(r.joined).toEqual({ Shield: 0, Scope: 0, IslandA: 10 });
+    expect(r.withN).toEqual(r.joined);
   });
 
   it('G1/seeded-record-updates', async () => {

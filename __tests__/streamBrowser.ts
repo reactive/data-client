@@ -14,7 +14,7 @@ export function loadBrowserHalf() {
     require('./reactCommitProbe') as typeof import('./reactCommitProbe');
   const harness =
     require('./streamingHarness') as typeof import('./streamingHarness');
-  const { hydrateRoot } =
+  const { createRoot, hydrateRoot } =
     require('react-dom/client') as typeof import('react-dom/client');
   const React = require('react') as typeof import('react');
 
@@ -22,7 +22,7 @@ export function loadBrowserHalf() {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const errors: unknown[] = [];
-  let root: ReturnType<typeof hydrateRoot> | undefined;
+  let root: ReturnType<typeof createRoot> | undefined;
 
   /** Messages as a script would push them; one call is one script */
   const push = (messages: readonly unknown[]) => {
@@ -75,6 +75,16 @@ export function loadBrowserHalf() {
         errors.push(error);
       },
     });
+    return root;
+  };
+  /** Renders on the client over whatever the container holds, without hydrating */
+  const mount = (element: ReactElement) => {
+    root = createRoot(container, {
+      onRecoverableError(error) {
+        errors.push(error);
+      },
+    });
+    root.render(element);
     return root;
   };
   /** Renders the root again, as a parent of the provider would */
@@ -131,6 +141,7 @@ export function loadBrowserHalf() {
     shell,
     htmlFind,
     hydrate,
+    mount,
     rootRender,
     pending,
     text,

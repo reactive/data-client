@@ -10,9 +10,10 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
+import type { ReactNode } from 'react';
 
 import type { Ledger } from './Ledger.js';
-import type { ServerLedger } from './ServerLedger.js';
+import type { ScopedStore, ServerLedger } from './ServerLedger.js';
 import type { BoundaryWrap } from '../../components/BoundaryContext.js';
 import { StateContext, StoreContext } from '../../context.js';
 
@@ -39,55 +40,101 @@ export function useHydrating(): boolean {
   return hydrating;
 }
 
-/** Reads StateContext so that context propagation stops here. Returns `children` by reference. */
-export function Shield({
+/** One AsyncBoundary's identity and progress, shared by its Shield and its Scope */
+export interface BoundaryCell {
+  /** `useId()` of the boundary, outside its Suspense; the server's pin key */
+  readonly id: string;
+  /** The boundary itself mounted by hydrating server HTML */
+  readonly hydrated: boolean;
+}
+
+/** The boundary's cell, created at mount. Call outside the boundary's Suspense. */
+export function useBoundaryCell(): BoundaryCell {
+  const id = useId();
+  const hydrating = useHydrating();
+  const [cell] = useState<BoundaryCell>(() => ({ id, hydrated: hydrating }));
+  return cell;
+}
+
+/** Browser: the Suspense of an AsyncBoundary under `StreamProvider` */
+export function Boundary({
+  suspenseProps,
   children,
 }: {
-  children: React.ReactNode;
+  suspenseProps: { fallback?: ReactNode };
+  children: ReactNode;
 }): React.ReactElement {
-  use(StateContext);
+  const cell = useBoundaryCell();
+  // No fiber may sit between the Shield and the Suspense
+  return (
+    <Shield cell={cell}>
+      <Suspense {...suspenseProps}>
+        <Scope cell={cell}>{children}</Scope>
+      </Suspense>
+    </Shield>
+  );
+}
+
+/**
+ * When its boundary hydrated, reads StateContext so that context propagation
+ * stops here. Returns `children` by reference.
+ */
+export function Shield({
+  cell,
+  children,
+}: {
+  cell: BoundaryCell;
+  children: ReactNode;
+}): React.ReactElement {
+  if (cell.hydrated) use(StateContext);
   return children as React.ReactElement;
 }
 
-/** Browser: pinned snapshot from the hydration render until the join commits */
+/**
+ * Browser: a scope that hydrated on a pin provides the pinned snapshot until its
+ * join commits, and the outer state after. Any other scope renders `children`.
+ */
 export function Scope({
+  cell,
   children,
 }: {
-  children: React.ReactNode;
+  cell: BoundaryCell;
+  children: ReactNode;
 }): React.ReactElement {
   const ledger = use(LedgerContext)!;
-  const id = useId();
   const hydrating = useHydrating();
-  const live = use(StateContext);
   // A boundary the server rendered waits for its pin while the stream is open.
   // `use()` runs on every hydration render, not only the one that suspends:
   // React warns when a mount that suspended in `use()` finishes without it.
   // A settled `whenPin()` carries its status, so this does not suspend again.
   let rev: number | null = null;
   if (hydrating) {
-    use(ledger.whenPin(id));
-    rev = ledger.pin(id) ?? null;
+    use(ledger.whenPin(cell.id));
+    rev = ledger.pin(cell.id) ?? null;
   }
-  // The holder, not the snapshot, is the state. Emptying it frees the snapshot
-  // from this fiber and from its alternate.
-  const [holder] = useState<PinHolder>(() => ({
-    state: rev == null ? null : ledger.snapshot(rev),
-    live,
-    views: new WeakMap(),
-  }));
-  const [joined, setJoined] = useState(holder.state === null);
-  // A client-rendered mount has a client id, which no pin can match
-  const [hydrated] = useState(hydrating);
+  // Decided at mount. The holder, not the snapshot, is the state: emptying it
+  // frees the snapshot from this fiber and from its alternate.
+  const mountLive = rev === null ? null : use(StateContext);
+  const [holder] = useState<PinHolder | null>(() =>
+    rev === null ? null : (
+      { state: ledger.snapshot(rev), live: mountLive, views: new WeakMap() }
+    ),
+  );
+  const [joined, setJoined] = useState(false);
+  const [mountHydrated] = useState(hydrating);
   useLayoutEffect(() => {
-    if (hydrated) ledger.commit(id);
-  }, [ledger, id, hydrated]);
+    if (cell.hydrated) ledger.commit(cell.id, mountHydrated);
+  }, [cell, ledger, mountHydrated]);
   useEffect(() => {
+    if (!holder) return;
     if (joined) {
       holder.state = null;
       holder.live = null;
       holder.views = new WeakMap();
     } else startTransition(() => setJoined(true));
-  }, [joined, holder]);
+  }, [holder, joined]);
+  if (holder === null) return children as React.ReactElement;
+  const live = use(StateContext);
   return (
     <StateContext.Provider
       value={joined ? live : (pinnedView(holder, live) ?? live)}
@@ -99,7 +146,6 @@ export function Scope({
 
 interface PinHolder {
   state: object | null;
-  /** Outer state of the hydration render */
   live: object | null;
   views: WeakMap<object, object>;
 }
@@ -123,19 +169,37 @@ function pinnedView(holder: PinHolder, live: object): any {
   return view;
 }
 
-/**
- * Server: provides `ledger.scope(useId())` as StoreContext.
- * Same position and same `useId` call as Scope.
- */
-export function ServerScope({
+/** Server: the boundary's id, and its parent's from the scoped store above */
+export function ServerBoundary({
+  suspenseProps,
   children,
 }: {
-  children: React.ReactNode;
+  suspenseProps: { fallback?: ReactNode };
+  children: ReactNode;
+}): React.ReactElement {
+  const id = useId();
+  const parent = (use(StoreContext) as Partial<ScopedStore>).boundaryId;
+  const [cell] = useState(() => ({ id, parent, hydrated: false }));
+  return (
+    <Shield cell={cell}>
+      <Suspense {...suspenseProps}>
+        <ServerScope cell={cell}>{children}</ServerScope>
+      </Suspense>
+    </Shield>
+  );
+}
+
+/** Server: provides the boundary's scoped store, which pins its revision */
+export function ServerScope({
+  cell,
+  children,
+}: {
+  cell: { id: string; parent?: string };
+  children: ReactNode;
 }): React.ReactElement {
   const ledger = use(ServerLedgerContext)!;
-  const id = useId();
   return (
-    <StoreContext.Provider value={ledger.scope(id)}>
+    <StoreContext.Provider value={ledger.scope(cell.id, cell.parent)}>
       {children}
     </StoreContext.Provider>
   );
@@ -143,16 +207,8 @@ export function ServerScope({
 
 /** Module constants. A provider passes them as they are, never a new function. */
 export const clientWrap: BoundaryWrap = (suspenseProps, content) => (
-  <Shield>
-    <Suspense {...suspenseProps}>
-      <Scope>{content}</Scope>
-    </Suspense>
-  </Shield>
+  <Boundary suspenseProps={suspenseProps}>{content}</Boundary>
 );
 export const serverWrap: BoundaryWrap = (suspenseProps, content) => (
-  <Shield>
-    <Suspense {...suspenseProps}>
-      <ServerScope>{content}</ServerScope>
-    </Suspense>
-  </Shield>
+  <ServerBoundary suspenseProps={suspenseProps}>{content}</ServerBoundary>
 );

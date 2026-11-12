@@ -211,14 +211,14 @@ describe('getLedger', () => {
       { t: 'pin', id: 'a', rev: 1 },
     );
     expect(ledger.stats().pins).toBe(1);
-    ledger.commit('a');
-    ledger.commit('a');
+    ledger.commit('a', true);
+    ledger.commit('a', true);
     expect(ledger.pin('a')).toBeUndefined();
     expect(ledger.stats().pins).toBe(0);
     push({ t: 'pin', id: 'a', rev: 2 });
     expect(ledger.pin('a')).toBeUndefined();
     expect(ledger.stats().pins).toBe(0);
-    ledger.commit('never-pinned');
+    ledger.commit('never-pinned', true);
     push({ t: 'pin', id: 'never-pinned', rev: 2 });
     expect(ledger.stats().pins).toBe(0);
   });
@@ -235,8 +235,64 @@ describe('getLedger', () => {
     expect(ledger.stats()).toEqual({ pieces: 2, pins: 1, unknown: 0 });
     ledger.after(1);
     expect(ledger.stats().pieces).toBe(2);
-    ledger.commit('a');
+    ledger.commit('a', true);
     expect(ledger.stats()).toEqual({ pieces: 0, pins: 0, unknown: 0 });
+  });
+
+  it('a scope that did not hydrate drops its pin and the pins inside it, now and later', () => {
+    const ledger = getLedger()!;
+    push(
+      { t: 'open', v: 1, rev: 1, at: 50_000 },
+      { ...btc(100, 49_000), rev: 1 },
+      { t: 'pin', id: 'outer', rev: 1 },
+      { t: 'pin', id: 'child', rev: 1, p: 'outer' },
+      { t: 'pin', id: 'sibling', rev: 1 },
+    );
+    expect(ledger.stats().pins).toBe(3);
+    ledger.commit('outer', false);
+    expect(ledger.stats().pins).toBe(1);
+    expect(ledger.pin('sibling')).toBe(1);
+    // a grandchild and a moved child pin that arrive later are dropped as well
+    push(
+      { t: 'pin', id: 'grandchild', rev: 1, p: 'child' },
+      { t: 'pin', id: 'child', rev: 2, p: 'outer' },
+      { t: 'end' },
+    );
+    expect(ledger.stats().pins).toBe(1);
+    ledger.after(1);
+    ledger.commit('sibling', true);
+    expect(ledger.stats()).toEqual({ pieces: 0, pins: 0, unknown: 0 });
+  });
+
+  it('a scope that hydrated drops only its own pin', () => {
+    const ledger = getLedger()!;
+    push(
+      { t: 'open', v: 1, rev: 1, at: 50_000 },
+      { t: 'pin', id: 'outer', rev: 1 },
+      { t: 'pin', id: 'child', rev: 1, p: 'outer' },
+    );
+    ledger.commit('outer', true);
+    expect(ledger.pin('child')).toBe(1);
+  });
+
+  it('abandon drops every pin, now and later, and settles waiters with null', async () => {
+    const ledger = getLedger()!;
+    push(
+      { t: 'open', v: 1, rev: 1, at: 50_000 },
+      { ...btc(100, 49_000), rev: 1 },
+      { t: 'pin', id: 'a', rev: 1 },
+    );
+    const waiting = ledger.whenPin('b');
+    ledger.abandon();
+    expect(ledger.stats().pins).toBe(0);
+    await expect(waiting).resolves.toBeNull();
+    await expect(ledger.whenPin('c')).resolves.toBeNull();
+    push({ t: 'pin', id: 'b', rev: 1 }, { t: 'end' });
+    expect(ledger.stats().pins).toBe(0);
+    // pieces still publish, then go
+    expect(ledger.stats().pieces).toBe(1);
+    expect(ledger.after(0)).toHaveLength(1);
+    expect(ledger.stats().pieces).toBe(0);
   });
 
   it('keeps the pieces until the publisher took them', () => {

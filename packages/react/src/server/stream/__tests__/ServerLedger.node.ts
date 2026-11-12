@@ -101,6 +101,25 @@ describe('createServerLedger', () => {
     ]);
   });
 
+  it('pins a scope at creation, names its parent, and a nested read moves only the nested pin', () => {
+    const { ledger, set } = setup();
+    set('BTC', 100);
+    const outer = ledger.scope('outer');
+    expect(outer.boundaryId).toBe('outer');
+    set('BTC', 101);
+    const inner = ledger.scope('inner', 'outer');
+    set('BTC', 102);
+    inner.getState();
+    expect(ledger.take().filter(m => m.t === 'pin')).toEqual([
+      { t: 'pin', id: 'outer', rev: 1 },
+      { t: 'pin', id: 'inner', rev: 3, p: 'outer' },
+    ]);
+    // the same view; creating it again does not move the pin
+    set('BTC', 103);
+    expect(ledger.scope('outer')).toBe(outer);
+    expect(ledger.take().filter(m => m.t === 'pin')).toEqual([]);
+  });
+
   it('announces each fetched key once', async () => {
     const { ledger, controller } = setup();
     ledger.take();

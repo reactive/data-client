@@ -11,7 +11,6 @@ import React, {
   memo,
   startTransition,
   use,
-  useId,
   useLayoutEffect,
   useEffect,
   useState,
@@ -44,9 +43,14 @@ import {
   clientWrap,
   createServerStream,
   getLedger,
+  useBoundaryCell,
   useHydrating,
 } from '../packages/react/src/server/stream';
-import type { Ledger } from '../packages/react/src/server/stream';
+import type {
+  BoundaryCell,
+  Ledger,
+  ServerLedger,
+} from '../packages/react/src/server/stream';
 
 export class Todo extends Entity {
   id = '';
@@ -156,6 +160,11 @@ export interface PageOptions {
   mountN?: { current?: () => void };
   /** Island V reads `getValue({ name: 'v' })`, which has no schema; resolve it with `resolveValue` */
   valueV?: boolean;
+  /**
+   * The shell holds boundaries that read no state: S around static content, and
+   * O around island I, which reads A's todo in a boundary of its own
+   */
+  noRead?: boolean;
 }
 
 function Waiter({ promise }: { promise: Promise<void> }) {
@@ -231,6 +240,15 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
       </AsyncBoundary>
     );
   }
+  function Mark({ name }: { name: string }) {
+    useRecord(name);
+    return <p data-testid={name}>{name}</p>;
+  }
+  function IslandI() {
+    const todo = useSuspense(endpoints.getTodo, { id: '1' });
+    useRecord('i');
+    return <p data-testid="i">{todo.title}</p>;
+  }
   function IslandV() {
     const value = useSuspense(endpoints.getValue, { name: 'v' });
     useRecord('v');
@@ -303,6 +321,19 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
             <IslandV />
           </AsyncBoundary>
         : null}
+        {opts.noRead ?
+          <>
+            <AsyncBoundary fallback={<span>loading s</span>}>
+              <Mark name="s" />
+            </AsyncBoundary>
+            <AsyncBoundary fallback={<span>loading o</span>}>
+              <Mark name="o" />
+              <AsyncBoundary fallback={<span>loading i</span>}>
+                <IslandI />
+              </AsyncBoundary>
+            </AsyncBoundary>
+          </>
+        : null}
       </div>
     );
   });
@@ -356,6 +387,7 @@ export function createServerPage(opts: PageOptions = {}) {
   const endpoints = makeEndpoints(server.fetch);
   const log: PageLog = { renders: [], commits: [] };
   const stream = createServerStream();
+  const reads = countScopedReads(stream.ledger);
   const { Layout } = makeIslands(endpoints, log, opts);
   const controller: { current?: Controller } = {};
   const provider = (
@@ -370,7 +402,31 @@ export function createServerPage(opts: PageOptions = {}) {
     opts.activityAbove ?
       <Toggle handle={opts.activityAbove}>{provider}</Toggle>
     : provider;
-  return { element, stream, endpoints, server, log };
+  return { element, stream, endpoints, server, log, reads };
+}
+
+/** Counts the scoped `getState` calls of each boundary id */
+export function countScopedReads(ledger: ServerLedger) {
+  const reads = new Map<string, number>();
+  const scope = ledger.scope.bind(ledger);
+  const views = new Map<string, ReturnType<ServerLedger['scope']>>();
+  (ledger as any).scope = (id: string, parent?: string) => {
+    let view = views.get(id);
+    if (!view) {
+      const inner = scope(id, parent);
+      view = {
+        boundaryId: inner.boundaryId,
+        subscribe: inner.subscribe,
+        getState() {
+          reads.set(id, (reads.get(id) ?? 0) + 1);
+          return inner.getState();
+        },
+      };
+      views.set(id, view);
+    }
+    return view;
+  };
+  return reads;
 }
 
 function FrozenShield({ children }: { children: ReactNode }) {
@@ -389,23 +445,45 @@ function FrozenShield({ children }: { children: ReactNode }) {
   );
 }
 const FrozenCommitContext = React.createContext<() => void>(() => {});
-function FrozenScope({ children }: { children: ReactNode }) {
+function FrozenScope({
+  cell,
+  children,
+}: {
+  cell: BoundaryCell;
+  children: ReactNode;
+}) {
   const onCommit = use(FrozenCommitContext);
   useEffect(onCommit, [onCommit]);
-  return <Scope>{children}</Scope>;
+  return <Scope cell={cell}>{children}</Scope>;
 }
 
-const scopeOnlyWrap: BoundaryWrap = (suspenseProps, content) => (
-  <Suspense {...suspenseProps}>
-    <Scope>{content}</Scope>
-  </Suspense>
-);
-const frozenWrap: BoundaryWrap = (suspenseProps, content) => (
-  <FrozenShield>
+interface WrapProps {
+  suspenseProps: { fallback?: ReactNode };
+  children: ReactNode;
+}
+function ScopeOnlyBoundary({ suspenseProps, children }: WrapProps) {
+  const cell = useBoundaryCell();
+  return (
     <Suspense {...suspenseProps}>
-      <FrozenScope>{content}</FrozenScope>
+      <Scope cell={cell}>{children}</Scope>
     </Suspense>
-  </FrozenShield>
+  );
+}
+const scopeOnlyWrap: BoundaryWrap = (suspenseProps, content) => (
+  <ScopeOnlyBoundary suspenseProps={suspenseProps}>{content}</ScopeOnlyBoundary>
+);
+function FrozenBoundary({ suspenseProps, children }: WrapProps) {
+  const cell = useBoundaryCell();
+  return (
+    <FrozenShield>
+      <Suspense {...suspenseProps}>
+        <FrozenScope cell={cell}>{children}</FrozenScope>
+      </Suspense>
+    </FrozenShield>
+  );
+}
+const frozenWrap: BoundaryWrap = (suspenseProps, content) => (
+  <FrozenBoundary suspenseProps={suspenseProps}>{content}</FrozenBoundary>
 );
 
 /**
@@ -413,23 +491,29 @@ const frozenWrap: BoundaryWrap = (suspenseProps, content) => (
  * empties it: the same value while the outer state changes. R1's control and
  * `G1/control-nested-same-identity`'s wrap.
  */
-function HeldScope({ children }: { children: ReactNode }) {
+function HeldScope({
+  cell,
+  children,
+}: {
+  cell: BoundaryCell;
+  children: ReactNode;
+}) {
   const ledger = use(LedgerContext)!;
-  const id = useId();
   const hydrating = useHydrating();
   const live = use(StateContext);
   let rev: number | null = null;
   if (hydrating) {
-    use(ledger.whenPin(id));
-    rev = ledger.pin(id) ?? null;
+    use(ledger.whenPin(cell.id));
+    rev = ledger.pin(cell.id) ?? null;
   }
   const [snapshot] = useState(() =>
     rev == null ? null : ledger.snapshot(rev),
   );
   const [joined, setJoined] = useState(snapshot === null);
+  const [mountHydrated] = useState(hydrating);
   useLayoutEffect(() => {
-    ledger.commit(id);
-  }, [ledger, id]);
+    if (cell.hydrated) ledger.commit(cell.id, mountHydrated);
+  }, [cell, ledger, mountHydrated]);
   useEffect(() => {
     if (!joined) startTransition(() => setJoined(true));
   }, [joined]);
@@ -439,12 +523,18 @@ function HeldScope({ children }: { children: ReactNode }) {
     </StateContext.Provider>
   );
 }
+function HeldBoundary({ suspenseProps, children }: WrapProps) {
+  const cell = useBoundaryCell();
+  return (
+    <Shield cell={cell}>
+      <Suspense {...suspenseProps}>
+        <HeldScope cell={cell}>{children}</HeldScope>
+      </Suspense>
+    </Shield>
+  );
+}
 export const heldWrap: BoundaryWrap = (suspenseProps, content) => (
-  <Shield>
-    <Suspense {...suspenseProps}>
-      <HeldScope>{content}</HeldScope>
-    </Suspense>
-  </Shield>
+  <HeldBoundary suspenseProps={suspenseProps}>{content}</HeldBoundary>
 );
 
 /** `StreamProvider` with another wrap, or with no adapter at all */
