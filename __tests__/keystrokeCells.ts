@@ -158,6 +158,7 @@ export async function runKeys(
       await settle(20);
       check();
     }
+    await quiet(b);
     const aBeforeHydrate = b.text('a');
     if (holdScript) {
       if (writesFirst) b.push(rest);
