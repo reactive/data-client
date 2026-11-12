@@ -257,9 +257,13 @@ describeReact19('R: snapshot release at the first commit', () => {
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('b1'), 'B1 hydrated');
       await settle(30);
-      const attempt = (gate: GatePromise) => {
+      // each hydration attempt renders B2's reader before `Hold` suspends
+      const b2Renders = () => page.log.renders.filter(n => n === 'b2').length;
+      const attempt = async (gate: GatePromise) => {
+        const before = b2Renders();
         gate.release();
-        return settle(30);
+        await until(() => b2Renders() > before, 'B2 retried');
+        await settle(30);
       };
       opts.holdB2 = second;
       await attempt(first);
