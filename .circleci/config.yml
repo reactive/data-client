@@ -300,6 +300,10 @@ jobs:
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
+            elif [ "<< parameters.react-version >>" == "canary" ]; then
+            npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
+            # A canary is published every day, inside yarn's minimum release age
+            YARN_NPM_MINIMAL_AGE_GATE=0 yarn up react@canary react-dom@canary react-test-renderer@canary
             fi
       - run:
           name: Running Jest
@@ -322,6 +326,11 @@ jobs:
               yarn up react@$V react-dom@$V react-test-renderer@$V test-renderer@~1.2.0
               V=$V node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== process.env.V) throw new Error(p+' resolved to '+v) }"
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
+            elif [ "<< parameters.react-version >>" == "canary" ]; then
+              node -e "const v=require('react/package.json').version; if (!v.includes('-canary-')) throw new Error('react resolved to '+v); for (const p of ['react-dom','react-test-renderer']) { const w=require(p+'/package.json').version; if (w !== v) throw new Error(p+' resolved to '+w) } console.log('React '+v)"
+              # The streaming adapter's shield depends on how the reconciler propagates
+              # context into a dehydrated boundary: its gating tests run on the next React
+              yarn test:ci --maxWorkers=4 --selectProjects Node ReactDOM --testPathPatterns packages/react/src/server/stream
             elif [ "<< parameters.react-version >>" == "latest" ]; then
               # Coverage floors and projects live in the test:coverage script
               yarn run test:coverage --ci --maxWorkers=4 --coverageReporters=lcovonly --coverageReporters=text-summary
@@ -562,7 +571,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17", "^18", "native", "latest"]
+              react-version: ["^17", "^18", "native", "latest", "canary"]
           requires:
             - setup
       - node_matrix:
