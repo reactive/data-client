@@ -82,8 +82,9 @@ const S1_R1_QUIET = {
   holders: { found: 2, empty: 2 },
   snapshotsBuilt: 4,
   mounted: true,
-  // the second initializer call's snapshots were dropped with its result
-  snapshotsRetained: 2,
+  // the second initializer call gets the snapshot the first built, so each of
+  // B1's and B2's is counted once per call
+  snapshotsRetained: 4,
 };
 const P1_DRIFT = {
   errors: 1,

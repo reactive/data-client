@@ -8,8 +8,10 @@ import {
   driftServer,
   firstText,
   inBrowser,
+  lastPins,
   pinOf,
   releaseAfterJoin,
+  scopeHolders,
   spyLedger,
 } from '__tests__/driftCells';
 import type * as Drift from '__tests__/driftFixtures';
@@ -283,15 +285,18 @@ describeReact19('R: snapshot release at the first commit', () => {
         adopted: b.byTestId('b2') === streamed.b2,
       };
       await collect();
+      const committed = b2Snapshots.at(-1)!.ref.deref();
       return {
         ...result,
-        discardedRetained: b2Snapshots
-          .slice(0, -1)
-          .filter(s => s.ref.deref() !== undefined).length,
+        // an attempt may get the snapshot an earlier one built while that is alive
+        discardedRetained: b2Snapshots.slice(0, -1).filter(s => {
+          const state = s.ref.deref();
+          return state !== undefined && state !== committed;
+        }).length,
       };
     });
     expect(r.committedWhileHeld).toBe(false);
-    // the hydration render built a snapshot each time it ran
+    // the hydration render asked for a snapshot each time it ran
     expect(r.discarded).toBeGreaterThanOrEqual(2);
     expect(r.b2Builds).toBeGreaterThanOrEqual(3);
     expect(r.b2Commits).toBe(1);
@@ -299,5 +304,122 @@ describeReact19('R: snapshot release at the first commit', () => {
     expect(r.errors).toBe(0);
     expect(r.adopted).toBe(true);
     expect(r.discardedRetained).toBe(0);
+  });
+
+  /** `trio`: B1, T2 and T3 pinned at revision 1, B2 at 2. Each `snapshot()` call, by the object it returned. */
+  async function trioSnapshots(uncached: boolean) {
+    const { capture } = await driftServer(() => ({ layout: 'trio' }));
+    const pins = [...lastPins(capture).values()];
+    return inBrowser(async b => {
+      const page = clientPage({ layout: 'trio' });
+      const target = page.ledger() as any;
+      const snapshot = target.snapshot.bind(target);
+      const ids = new WeakMap<object, number>();
+      let objects = 0;
+      const calls: { rev: number; object: number; commitsBefore: number }[] =
+        [];
+      target.snapshot = (rev: number) => {
+        if (uncached) target.snapshots.clear();
+        const state = snapshot(rev);
+        if (!ids.has(state)) ids.set(state, objects++);
+        calls.push({
+          rev,
+          object: ids.get(state)!,
+          commitsBefore: page.log.commits.length,
+        });
+        return state;
+      };
+      await deliverAll(b, capture);
+      b.hydrate(page.element);
+      await until(
+        () => ['b1', 't2', 't3', 'b2'].every(n => page.log.commits.includes(n)),
+        'every island hydrated',
+      );
+      const byRev = (rev: number) => calls.filter(c => c.rev === rev);
+      return {
+        pins: [...pins].sort(),
+        onePass: byRev(1).every(c => c.commitsBefore === 0),
+        rev1: byRev(1).map(c => c.object),
+        rev2: byRev(2).map(c => c.object),
+        errors: b.errors.length,
+        firstTexts: ['b1', 't2', 't3', 'b2'].map(n =>
+          firstText(page.log.texts, n),
+        ),
+      };
+    });
+  }
+  // each hydrated on its pin
+  const TRIO_TEXTS = [
+    'b1=BTC:100ETH:10',
+    't2=BTC:100ETH:10',
+    't3=BTC:100ETH:10',
+    'b2=BTC:101.5',
+  ];
+
+  it('R10/one-snapshot-per-revision', async () => {
+    const r = await trioSnapshots(false);
+    expect(r).toEqual({
+      pins: [1, 1, 1, 2],
+      onePass: true,
+      // one fold for the three scopes at revision 1, another for B2
+      rev1: [0, 0, 0],
+      rev2: [1],
+      errors: 0,
+      firstTexts: TRIO_TEXTS,
+    });
+  });
+
+  it('R10/control-uncached', async () => {
+    const r = await trioSnapshots(true);
+    expect(r).toEqual({
+      pins: [1, 1, 1, 2],
+      onePass: true,
+      rev1: [0, 1, 2],
+      rev2: [3],
+      errors: 0,
+      firstTexts: TRIO_TEXTS,
+    });
+  });
+
+  it('R11/joined-snapshots-not-held', async () => {
+    const { capture } = await driftServer(() => ({}));
+    const revs = [pinOf(capture, 'b1').rev, pinOf(capture, 'b2').rev];
+    const r = await inBrowser(async b => {
+      const page = clientPage();
+      const ledger = page.ledger();
+      // without `end` the ledger keeps its pieces, and so its snapshots map
+      await deliverAll(b, capture, m => m.t !== 'end');
+      b.hydrate(page.element);
+      await until(() => b.text('b1') === 'BTC:101.5ETH:10', 'B1 joined');
+      await until(
+        () => scopeHolders(b.container).empty === 2,
+        'both holders emptied',
+      );
+      page.controller.current!.setResponse(
+        page.endpoints.getTicker,
+        { id: 'SOL' },
+        { id: 'SOL', price: 1 },
+      );
+      await settle(30);
+      await collect();
+      const cache = (ledger as any).snapshots as Map<number, WeakRef<object>>;
+      return {
+        ended: ledger.ended,
+        piecesHeld: ledger.stats().pieces > 0,
+        pins: ledger.stats().pins,
+        cached: [...cache.keys()].sort(),
+        alive: [...cache.values()].filter(ref => ref.deref() !== undefined)
+          .length,
+        errors: b.errors.length,
+      };
+    });
+    expect(r).toEqual({
+      ended: false,
+      piecesHeld: true,
+      pins: 0,
+      cached: revs,
+      alive: 0,
+      errors: 0,
+    });
   });
 });

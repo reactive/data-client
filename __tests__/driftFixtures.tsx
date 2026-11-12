@@ -92,6 +92,7 @@ type TickerEndpoints = ReturnType<typeof makeTickerEndpoints>;
  * - `shell-reader`: a reader of the list outside any boundary, and B2.
  * - `controller-reader`: B1 also holds a reader of `useController().getState()`
  *   that waits for `ctrlGate`, and B2.
+ * - `trio`: B1, T2 and T3 each read the list in their own boundary, and B2.
  */
 export type DriftLayout =
   | 'pair'
@@ -99,7 +100,8 @@ export type DriftLayout =
   | 'one-boundary'
   | 'two-fetches'
   | 'shell-reader'
-  | 'controller-reader';
+  | 'controller-reader'
+  | 'trio';
 
 export interface DriftOptions {
   layout?: DriftLayout;
@@ -196,6 +198,19 @@ function makeDriftIslands(
             <TickerList name="b1" />
             <CtrlReader />
           </AsyncBoundary>
+          <AsyncBoundary fallback={<span>loading b2</span>}>
+            <LazyB2 />
+          </AsyncBoundary>
+        </div>
+      );
+    if (layout === 'trio')
+      return (
+        <div data-testid="layout">
+          {['b1', 't2', 't3'].map(name => (
+            <AsyncBoundary key={name} fallback={<span>loading {name}</span>}>
+              <TickerList name={name} />
+            </AsyncBoundary>
+          ))}
           <AsyncBoundary fallback={<span>loading b2</span>}>
             <LazyB2 />
           </AsyncBoundary>

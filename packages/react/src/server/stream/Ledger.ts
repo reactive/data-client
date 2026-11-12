@@ -27,7 +27,10 @@ export interface Ledger {
   readonly placed: WeakSet<object>;
   /** Server state at `rev`, in tables no other state shares. Not cached. */
   fold(rev: number): State<unknown>;
-  /** `fold(rev)` with every entry reported unexpired */
+  /**
+   * `fold(rev)` with every entry reported unexpired. Callers at one revision share one
+   * object while any holds it; never mutate it.
+   */
   snapshot(rev: number): State<unknown>;
   /** Pieces with a revision above `rev`, in order */
   after(rev: number): readonly PieceMessage[];
@@ -98,6 +101,8 @@ class DocumentLedger implements Ledger {
   readonly placed = new WeakSet<object>();
   protected shift = 0;
   protected pieces: PieceMessage[] = [];
+  /** Held weakly: a scope that joined frees its snapshot */
+  protected snapshots = new Map<number, WeakRef<State<unknown>>>();
   protected pins = new Map<string, number>();
   protected committed = new Set<string>();
   /** Boundary id to the id of the boundary it is inside, from pins */
@@ -235,8 +240,10 @@ class DocumentLedger implements Ledger {
       this.pins.size === 0 &&
       this.handedOut >= this.rev &&
       this.pieces.length
-    )
+    ) {
       this.pieces = [];
+      this.snapshots.clear();
+    }
   }
 
   whenOpen(): Promise<void> {
@@ -248,7 +255,12 @@ class DocumentLedger implements Ledger {
   }
 
   snapshot(rev: number): State<unknown> {
-    return foldPieces(this.pieces, rev, true);
+    const held = this.snapshots.get(rev)?.deref();
+    if (held) return held;
+    const state = foldPieces(this.pieces, rev, true);
+    if (typeof WeakRef === 'function')
+      this.snapshots.set(rev, new WeakRef(state));
+    return state;
   }
 
   after(rev: number): readonly PieceMessage[] {
