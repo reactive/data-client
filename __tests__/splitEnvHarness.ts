@@ -9,9 +9,18 @@
 
 import vm from 'vm';
 
+import { STREAM_GLOBAL } from '../packages/react/src/server/stream/wire';
+
 // Each test loads React's server and browser module graphs and a jsdom. A test
 // that times out keeps running and tears down the next test's DOM.
 jest.setTimeout(30_000);
+
+export const isReact19 =
+  Number((require('react') as typeof import('react')).version.split('.')[0]) >=
+  19;
+/** The streaming adapter's browser half needs React 19 */
+export const describeReact19: jest.Describe =
+  isReact19 ? describe : describe.skip;
 
 /** Messages a ledger script's source pushes, read in a sandbox */
 export function messagesOf(source: string): any[] {
@@ -19,7 +28,7 @@ export function messagesOf(source: string): any[] {
   const sandbox: any = {};
   sandbox.self = sandbox;
   vm.runInNewContext(source, sandbox);
-  return JSON.parse(JSON.stringify(sandbox.__RDC_STREAM__));
+  return JSON.parse(JSON.stringify(sandbox[STREAM_GLOBAL]));
 }
 
 /** Runs a ledger script's source the way the HTML parser would, in this realm */
@@ -39,6 +48,9 @@ export async function until(
     await new Promise(resolve => setTimeout(resolve, 5));
   }
 }
+
+export { makeGate } from './gate';
+export type { GatePromise } from './gate';
 
 /** Lets timers, the scheduler and animation frames run for `ms` */
 export function settle(ms = 50): Promise<void> {
@@ -90,7 +102,7 @@ export function installDom(): () => Promise<void> {
   };
   define('window', window);
   define('document', window.document);
-  // the inline scripts write `self.__RDC_STREAM__`; the ledger reads globalThis
+  // the inline scripts write `self[STREAM_GLOBAL]`; the ledger reads globalThis
   define('self', globalThis);
   // Node has its own versions; jsdom accepts only its own
   for (const key of ['Event', 'EventTarget', 'CustomEvent', 'navigator'])
@@ -109,7 +121,7 @@ export function installDom(): () => Promise<void> {
   define('__REACT_DEVTOOLS_GLOBAL_HOOK__', { ...DEVTOOLS_HOOK });
   define('IS_REACT_ACT_ENVIRONMENT', false);
   // one document, one ledger
-  delete g.__RDC_STREAM__;
+  delete g[STREAM_GLOBAL];
   jest.resetModules();
   return async () => {
     // work React scheduled before an unmount still reads `window`
@@ -121,7 +133,7 @@ export function installDom(): () => Promise<void> {
       if (descriptor) Object.defineProperty(g, key, descriptor);
       else delete g[key];
     }
-    delete g.__RDC_STREAM__;
+    delete g[STREAM_GLOBAL];
     // React's inline runtime ($RC, $RV, $RB, $RT, ...) belongs to this document
     for (const key of Object.keys(g)) if (/^\$R[A-Z]$/.test(key)) delete g[key];
     window.close();

@@ -35,13 +35,9 @@ import {
   splitServerWrites,
   srvSteps,
 } from '__tests__/g1Cells';
-import { until } from '__tests__/splitEnvHarness';
+import { describeReact19, until } from '__tests__/splitEnvHarness';
 import { quiet } from '__tests__/streamBrowser';
 import type { ActivityHandle } from '__tests__/streamFixtures';
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 const isPiece = (action: any) => 'piece' in action;
 

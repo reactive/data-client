@@ -4,9 +4,10 @@
  */
 import type { ReactElement } from 'react';
 
-import { messagesOf, runLedgerScript, settle, until } from './splitEnvHarness';
+import { messagesOf, runLedgerScript, until } from './splitEnvHarness';
 import type * as Fixtures from './streamFixtures';
 import type { LedgerFlush } from './streamingHarness';
+import { STREAM_GLOBAL } from '../packages/react/src/server/stream/wire';
 
 export function loadBrowserHalf() {
   const fx = require('./streamFixtures') as typeof Fixtures;
@@ -26,7 +27,7 @@ export function loadBrowserHalf() {
 
   /** Messages as a script would push them; one call is one script */
   const push = (messages: readonly unknown[]) => {
-    const queue = ((globalThis as any).__RDC_STREAM__ ??= []);
+    const queue = ((globalThis as any)[STREAM_GLOBAL] ??= []);
     queue.push(...messages);
   };
   /**
@@ -37,21 +38,7 @@ export function loadBrowserHalf() {
     if (keep) push(messagesOf(flush.script).filter(keep));
     else runLedgerScript(flush.script);
   };
-  /**
-   * The flush's HTML and React's inline scripts. Returns the streamed element
-   * with `testId`, found before the scripts move it.
-   */
-  const html = (flush: LedgerFlush, testId?: string) => {
-    const { insertedElements, scripts } = harness.appendChunk(
-      container,
-      flush.html,
-    );
-    const streamed =
-      testId ? harness.findTestId(insertedElements, testId) : undefined;
-    harness.executeScripts(scripts);
-    return streamed;
-  };
-  /** Every flush's HTML, finding these streamed test ids before React's scripts move them */
+  /** The flush's HTML and React's inline scripts, finding these streamed test ids before the scripts move them */
   const htmlFind = (flush: LedgerFlush, testIds: string[]) => {
     const { insertedElements, scripts } = harness.appendChunk(
       container,
@@ -63,11 +50,13 @@ export function loadBrowserHalf() {
     harness.executeScripts(scripts);
     return found;
   };
+  /** `htmlFind` for at most one test id; returns its streamed element */
+  const html = (flush: LedgerFlush, testId?: string) =>
+    htmlFind(flush, testId ? [testId] : [])[testId ?? ''];
   /** The shell: its script, then its HTML */
   const shell = (flush: LedgerFlush, keep?: (message: any) => boolean) => {
     script(flush, keep);
-    container.innerHTML = flush.html;
-    harness.executeScripts(Array.from(container.querySelectorAll('script')));
+    harness.installShell(container, flush.html);
   };
   const hydrate = (element: ReactElement) => {
     root = hydrateRoot(container, element, {
@@ -99,11 +88,9 @@ export function loadBrowserHalf() {
       ((marker as Comment).data === '$?' || (marker as Comment).data === '$~')
     );
   };
-  const text = (testId: string) =>
-    container.querySelector(`[data-testid="${testId}"]`)?.textContent ??
-    undefined;
   const byTestId = (testId: string) =>
     container.querySelector(`[data-testid="${testId}"]`);
+  const text = (testId: string) => byTestId(testId)?.textContent ?? undefined;
   const teardown = () => {
     root?.unmount();
     finishDocument();
@@ -131,11 +118,9 @@ export function loadBrowserHalf() {
   return {
     fx,
     probe,
-    harness,
     React,
     container,
     errors,
-    finishDocument,
     script,
     html,
     shell,
@@ -150,8 +135,6 @@ export function loadBrowserHalf() {
     push,
     templateOf,
     start,
-    until,
-    settle,
   };
 }
 export type BrowserHalf = ReturnType<typeof loadBrowserHalf>;
@@ -187,6 +170,6 @@ export async function quiet(
 
 /** Every DOM test ends here: no piece met a client-written record of a class the page never showed */
 export function expectNoUnknownClass() {
-  const ledger = (globalThis as any).__RDC_STREAM__?.ledger;
+  const ledger = (globalThis as any)[STREAM_GLOBAL]?.ledger;
   expect(ledger?.stats().unknown ?? 0).toBe(0);
 }

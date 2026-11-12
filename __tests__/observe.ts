@@ -7,12 +7,12 @@
 import fs from 'fs';
 import { version } from 'react';
 
+import { isReact19 } from './splitEnvHarness';
+
 export const RECORDED_ON = '19.3.1';
 
 export const describeObserved: jest.Describe =
-  process.env.RDC_OBSERVE === '1' && Number(version.split('.')[0]) >= 19 ?
-    describe
-  : describe.skip;
+  process.env.RDC_OBSERVE === '1' && isReact19 ? describe : describe.skip;
 
 const cell = (value: unknown) =>
   JSON.stringify(value)?.replace(/\|/g, '\\|') ?? 'undefined';

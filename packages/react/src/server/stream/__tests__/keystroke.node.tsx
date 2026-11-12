@@ -1,4 +1,5 @@
 import { runKeys } from '__tests__/keystrokeCells';
+import { describeReact19 } from '__tests__/splitEnvHarness';
 
 jest.mock('react-dom', () => {
   const actual = jest.requireActual('react-dom');
@@ -13,10 +14,6 @@ jest.mock('react', () => {
   const wrapped = { ...actual, useSyncExternalStore };
   return { ...wrapped, default: wrapped };
 });
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 describeReact19('K: the lost keystroke on a not-yet-hydrated island', () => {
   it('K1/pieces-only', async () => {

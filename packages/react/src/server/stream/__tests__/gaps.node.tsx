@@ -8,7 +8,12 @@ import {
   socketWrite,
 } from '__tests__/g1Cells';
 import type { Page } from '__tests__/g1Cells';
-import { messagesOf, settle, until } from '__tests__/splitEnvHarness';
+import {
+  describeReact19,
+  messagesOf,
+  settle,
+  until,
+} from '__tests__/splitEnvHarness';
 import { quiet } from '__tests__/streamBrowser';
 import type { BrowserHalf } from '__tests__/streamBrowser';
 import type { WakeKind } from '__tests__/streamFixtures';
@@ -27,10 +32,6 @@ jest.mock('react', () => {
   const wrapped = { ...actual, useSyncExternalStore };
   return { ...wrapped, default: wrapped };
 });
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 const piecesIn = (flushes: LedgerFlush[]) =>
   flushes.flatMap(f => messagesOf(f.script)).filter(m => m.t === 'piece')

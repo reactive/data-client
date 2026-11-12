@@ -2,9 +2,15 @@
  * K's cell: keystrokes typed into island B while it cannot hydrate. Callers mock
  * `react-dom`'s `flushSync` and React's `useSyncExternalStore`, as for `g1Cells`.
  */
-import { inBrowser, serverHalf, splitServerWrites, srvSteps } from './g1Cells';
+import {
+  inBrowser,
+  serverHalf,
+  socketWrite,
+  splitServerWrites,
+  srvSteps,
+} from './g1Cells';
 import type { Page, Variant } from './g1Cells';
-import { settle, until } from './splitEnvHarness';
+import { makeGate, settle, until } from './splitEnvHarness';
 import { quiet } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 
@@ -30,14 +36,6 @@ function keystroke(b: BrowserHalf, input: HTMLInputElement, key: string) {
   );
   input.dispatchEvent(new win.KeyboardEvent('keyup', { key, bubbles: true }));
   return aAfterKeydown;
-}
-
-function socketWrite(page: Page, title: string) {
-  page.controller.current!.setResponse(
-    page.endpoints.getTodo,
-    { id: '1' },
-    { id: '1', title },
-  );
 }
 
 export interface KeysRecord {
@@ -106,10 +104,7 @@ export async function runKeys(
   );
   expect(writes).toHaveLength(3);
   return inBrowser(async (b, finish) => {
-    let resolveCode!: () => void;
-    const lazyB = new Promise<void>(resolve => {
-      resolveCode = resolve;
-    });
+    const lazyB = makeGate();
     const page = b.fx.createClientPage({ variant, lazyB });
     await b.start(page, server.shell);
     if (!holdScript) b.script(bFlush);
@@ -143,7 +138,7 @@ export async function runKeys(
     const batchedKeys: number[] = [];
     let typed = 0;
     if (canHydrate) {
-      resolveCode();
+      lazyB.release();
       // the lazy's `then` runs; React's retry is a later task
       for (let i = 0; i < 5; i++) await Promise.resolve();
     }
@@ -154,7 +149,7 @@ export async function runKeys(
         expected = `srv-${k + 1}`;
       } else {
         expected = `socket-${k + 1}`;
-        socketWrite(page, expected);
+        socketWrite(b, page, expected);
       }
       const aAfterKeydown = keystroke(b, input, KEYS[k]);
       typed++;
@@ -170,7 +165,7 @@ export async function runKeys(
       await settle(20);
       check();
     }
-    resolveCode();
+    lazyB.release();
     try {
       await until(() => page.log.commits.includes('b'), 'B committed', 1500);
     } catch {

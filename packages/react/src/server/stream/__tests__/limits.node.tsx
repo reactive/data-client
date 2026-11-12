@@ -1,4 +1,5 @@
 import { KINDS, parentRerender } from '__tests__/limitCells';
+import { describeReact19 } from '__tests__/splitEnvHarness';
 
 jest.mock('react-dom', () => {
   const actual = jest.requireActual('react-dom');
@@ -13,10 +14,6 @@ jest.mock('react', () => {
   const wrapped = { ...actual, useSyncExternalStore };
   return { ...wrapped, default: wrapped };
 });
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 // What React does to the woken boundary is recorded in observed/limits.node.tsx
 describeReact19('L: limits', () => {

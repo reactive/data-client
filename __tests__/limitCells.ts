@@ -4,7 +4,7 @@
  */
 import { inBrowser, liveList, serverHalf, watch } from './g1Cells';
 import type { Variant } from './g1Cells';
-import { until } from './splitEnvHarness';
+import { makeGate, until } from './splitEnvHarness';
 import { quiet } from './streamBrowser';
 import type { WakeKind } from './streamFixtures';
 
@@ -22,11 +22,8 @@ export async function parentRerender(variant: Variant, kind: WakeKind, at: At) {
     const wake: { current: ((kind?: WakeKind) => void) | undefined } = {
       current: undefined,
     };
-    let loadCode!: () => void;
-    const lazyB =
-      at === 'revealed' ?
-        new Promise<void>(resolve => (loadCode = resolve))
-      : undefined;
+    const code = makeGate();
+    const lazyB = at === 'revealed' ? code : undefined;
     const page = b.fx.createClientPage({ variant, wakeB: wake, lazyB });
     await b.start(page, server.shell);
     let streamed: Element | undefined;
@@ -48,7 +45,7 @@ export async function parentRerender(variant: Variant, kind: WakeKind, at: At) {
     if (at === '$?') {
       b.script(bFlush);
       streamed = b.html(bFlush, 'b');
-    } else loadCode();
+    } else code.release();
     try {
       await until(() => page.log.commits.includes('b'), 'B committed', 1500);
     } catch {

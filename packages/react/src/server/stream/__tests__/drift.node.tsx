@@ -6,16 +6,18 @@ import {
   inBrowser,
   lastPins,
   oneBoundary,
-  pinIdOf,
+  pinOf,
   pinsOf,
 } from '__tests__/driftCells';
-import { loadServerHalf, settle, until } from '__tests__/splitEnvHarness';
+import {
+  describeReact19,
+  loadServerHalf,
+  makeGate,
+  settle,
+  until,
+} from '__tests__/splitEnvHarness';
 import { quiet } from '__tests__/streamBrowser';
 import type * as Fixtures from '__tests__/streamFixtures';
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 describeReact19('D: no mis-hydration under drift', () => {
   it('D1/pinned', async () => {
@@ -73,7 +75,7 @@ describeReact19('D: no mis-hydration under drift', () => {
 
   it('D3/late-pin', async () => {
     const { capture } = await driftServer(() => ({}));
-    const b2 = pinIdOf(capture, 'b2');
+    const b2 = pinOf(capture, 'b2').id;
     const pin = pinsOf(capture)
       .filter(p => p.id === b2)
       .at(-1)!;
@@ -113,7 +115,7 @@ describeReact19('D: no mis-hydration under drift', () => {
 
   it('D4/no-pin-at-end', async () => {
     const { capture } = await driftServer(() => ({}));
-    const b2 = pinIdOf(capture, 'b2');
+    const b2 = pinOf(capture, 'b2').id;
     const r = await inBrowser(async b => {
       const page = clientPage();
       const streamed = await deliverAll(
@@ -202,8 +204,6 @@ describeReact19('D: no mis-hydration under drift', () => {
   it('D7/shell-reader', async () => {
     // B2 finds BTC in the shell's list, so a gate in B2 keeps the stream open
     // until BTC has moved to revision 2
-    const { makeGate } =
-      require('__tests__/streamingHarness') as typeof import('__tests__/streamingHarness');
     const hold = makeGate();
     const { capture } = await driftServer(drift => ({
       layout: 'shell-reader',

@@ -15,13 +15,9 @@ import {
   spyLedger,
 } from '__tests__/driftCells';
 import type * as Drift from '__tests__/driftFixtures';
-import { until } from '__tests__/splitEnvHarness';
+import { describeReact19, makeGate, until } from '__tests__/splitEnvHarness';
+import type { GatePromise } from '__tests__/splitEnvHarness';
 import { quiet } from '__tests__/streamBrowser';
-import type { GatePromise } from '__tests__/streamingHarness';
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 /** Every table object of a state: the slot maps and each entity and index table */
 function tablesOf(state: any): Set<object> {
@@ -65,10 +61,7 @@ describeReact19('R: snapshot release at the first commit', () => {
     const { capture } = await driftServer(() => ({}));
     const b2Pin = pinOf(capture, 'b2');
     const r = await inBrowser(async b => {
-      let resolveCode!: () => void;
-      const lazyB2 = new Promise<void>(resolve => {
-        resolveCode = resolve;
-      });
+      const lazyB2 = makeGate();
       const page = clientPage({ lazyB2 });
       const ledger = page.ledger();
       const spy = spyLedger(ledger);
@@ -84,7 +77,7 @@ describeReact19('R: snapshot release at the first commit', () => {
       );
       await quiet(b);
       const pinHeld = ledger.pin(b2Pin.id) === b2Pin.rev;
-      resolveCode();
+      lazyB2.release();
       await until(() => page.log.commits.includes('b2'), 'B2 hydrated');
       await quiet(b);
       return {
@@ -247,8 +240,6 @@ describeReact19('R: snapshot release at the first commit', () => {
   it('R6/discarded-render', async () => {
     const { capture } = await driftServer(() => ({}));
     const b2Pin = pinOf(capture, 'b2');
-    const { makeGate } =
-      require('__tests__/streamingHarness') as typeof import('__tests__/streamingHarness');
     const r = await inBrowser(async b => {
       const first = makeGate();
       const second = makeGate();

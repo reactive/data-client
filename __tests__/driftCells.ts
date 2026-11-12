@@ -44,16 +44,7 @@ export const lastPins = (capture: LedgerCapture) => {
   return out;
 };
 
-/** Id of the boundary whose HTML holds `testId`: the one pin in that flush */
-export function pinIdOf(capture: LedgerCapture, testId: string) {
-  const flush = capture.flushes.find(f =>
-    f.html.includes(`data-testid="${testId}"`),
-  )!;
-  const pins = messagesOf(flush.script).filter(m => m.t === 'pin');
-  expect(pins).toHaveLength(1);
-  return pins[0].id as string;
-}
-
+/** The one pin in the flush whose HTML holds `testId` */
 export function pinOf(capture: LedgerCapture, testId: string) {
   const flush = capture.flushes.find(f =>
     f.html.includes(`data-testid="${testId}"`),

@@ -26,12 +26,13 @@ import {
   deliverB,
 } from '__tests__/g1Cells';
 import type { PageOptions, Variant } from '__tests__/g1Cells';
-import { messagesOf, until } from '__tests__/splitEnvHarness';
+import {
+  describeReact19,
+  makeGate,
+  messagesOf,
+  until,
+} from '__tests__/splitEnvHarness';
 import { quiet } from '__tests__/streamBrowser';
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 describeReact19('G1: the shield inside the real AsyncBoundary', () => {
   it('G1/publish-transition', async () => {
@@ -70,10 +71,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     const { writes } = splitServerWrites(server.with('c'));
     expect(writes).toHaveLength(5);
     const r = await inBrowser(async (b, finish) => {
-      let resolveCode!: () => void;
-      const lazyB = new Promise<void>(resolve => {
-        resolveCode = resolve;
-      });
+      const lazyB = makeGate();
       const page = b.fx.createClientPage({ lazyB });
       await b.start(page, server.shell);
       b.probe.resetCommits();
@@ -102,7 +100,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
         socketWrite(b, page, `socket-${k + 1}`);
         await check();
       }
-      resolveCode();
+      lazyB.release();
       await until(() => page.log.commits.includes('b'), 'B hydrated');
       return {
         revealedUnhydrated,

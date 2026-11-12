@@ -2,15 +2,20 @@
  * G1's page cells, shared by the files that rerun them. Callers mock `react-dom`'s
  * `flushSync` and React's `useSyncExternalStore` with `jest.fn` wrappers.
  */
-import { collect, scopeHolders, spyLedger } from './driftCells';
 import {
-  installDom,
+  collect,
+  inBrowser as inPlainBrowser,
+  scopeHolders,
+  spyLedger,
+} from './driftCells';
+import {
   loadServerHalf,
+  makeGate,
   messagesOf,
   settle,
   until,
 } from './splitEnvHarness';
-import { expectNoUnknownClass, loadBrowserHalf, quiet } from './streamBrowser';
+import { quiet } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 import type * as Fixtures from './streamFixtures';
 import type { LedgerFlush } from './streamingHarness';
@@ -83,13 +88,11 @@ export interface Outcome {
 
 export type Page = ReturnType<typeof Fixtures.createClientPage>;
 
-export async function inBrowser<T>(
+/** `driftCells`' `inBrowser`; `finish` waits for quiet and reads the mocks and A's page */
+export function inBrowser<T>(
   run: (b: BrowserHalf, finish: (page: Page) => Promise<Base>) => Promise<T>,
 ): Promise<T> {
-  const teardownDom = installDom();
-  let b: BrowserHalf | undefined;
-  try {
-    b = loadBrowserHalf();
+  return inPlainBrowser(async b => {
     const flushSync = jest.mocked(
       (require('react-dom') as typeof import('react-dom')).flushSync,
     );
@@ -98,14 +101,13 @@ export async function inBrowser<T>(
     );
     flushSync.mockClear();
     uses.mockClear();
-    const half = b;
     const finish = async (page: Page): Promise<Base> => {
-      await quiet(half);
+      await quiet(b);
       return {
-        errors: half.errors.length,
+        errors: b.errors.length,
         fetches: page.fetches,
-        immediateCommits: half.probe.commits.filter(
-          c => c.priority === half.probe.ImmediatePriority,
+        immediateCommits: b.probe.commits.filter(
+          c => c.priority === b.probe.ImmediatePriority,
         ).length,
         flushSyncCalls: flushSync.mock.calls.length,
         detectorOnly: uses.mock.calls.every(
@@ -113,15 +115,13 @@ export async function inBrowser<T>(
         ),
       };
     };
-    const result = await run(b, finish);
-    expectNoUnknownClass();
-    return result;
-  } finally {
-    for (const timer of watchers) clearInterval(timer);
-    watchers.clear();
-    b?.teardown();
-    await teardownDom();
-  }
+    try {
+      return await run(b, finish);
+    } finally {
+      for (const timer of watchers) clearInterval(timer);
+      watchers.clear();
+    }
+  });
 }
 export type Base = Pick<
   Outcome,
@@ -318,12 +318,9 @@ export async function runLanes(mode: 'hold' | 'behind') {
   const { writes } = splitServerWrites(server.with('b'));
   expect(writes).toHaveLength(1);
   return inBrowser(async (b, finish) => {
-    let releaseA!: () => void;
+    const holdA = makeGate();
     const lanes: Fixtures.LanesHandle = {};
-    if (mode === 'hold')
-      lanes.holdA = new Promise<void>(resolve => {
-        releaseA = resolve;
-      });
+    if (mode === 'hold') lanes.holdA = holdA;
     const page = b.fx.createClientPage({ lanes });
     await b.start(page, server.shell);
     b.probe.resetCommits();
@@ -343,7 +340,7 @@ export async function runLanes(mode: 'hold' | 'behind') {
     await quiet(b);
     const socketShown = b.text('lanes');
     const aAfterSocket = b.text('a');
-    if (mode === 'hold') releaseA();
+    if (mode === 'hold') holdA.release();
     else lanes.release!();
     await quiet(b);
     return {

@@ -30,9 +30,11 @@ import type {
 } from '@data-client/react';
 
 import {
+  ControllerGrab,
   Toggle,
   countScopedReads,
   heldWrap,
+  keyOf,
   makeServerFetch,
 } from './streamFixtures';
 import type { ActivityHandle, FetchImpl, PageLog } from './streamFixtures';
@@ -267,11 +269,6 @@ function makeDriftIslands(
   return Layout;
 }
 
-function ControllerGrab({ into }: { into: { current?: Controller } }) {
-  into.current = useController();
-  return null;
-}
-
 export type DriftStep = Step<DriftServerPage>;
 export const resolveTickers: DriftStep = Object.assign(
   (page: DriftServerPage) => page.server.resolve('getTickers', {}, TICKERS),
@@ -322,7 +319,6 @@ export type DriftServerPage = ReturnType<typeof createDriftServerPage>;
 export async function runDriftServer(
   opts: DriftOptions & {
     steps?: DriftStep[];
-    gapMs?: number;
     before?: (page: DriftServerPage) => Promise<void>;
   } = {},
 ) {
@@ -331,7 +327,7 @@ export async function runDriftServer(
   const page = createDriftServerPage(opts);
   await opts.before?.(page);
   const steps = opts.steps ?? [resolveTickers, resolveBtc];
-  const run = stepper(page, steps, opts.gapMs ?? 20);
+  const run = stepper(page, steps, 20);
   const capture = await captureStream(page.element, {
     ledger: page.stream.ledger,
     onFlush: run.onFlush,
@@ -340,7 +336,6 @@ export async function runDriftServer(
   return { page, capture };
 }
 
-/** R1's control: keeps the snapshot in `useState` and never empties it */
 /**
  * `aliased`: R5's control. Seeds with the server state at the latest revision and
  * makes every snapshot share that seed's tables.
@@ -398,7 +393,7 @@ export function createDriftClientPage(
 ) {
   const fetches: string[] = [];
   const endpoints = makeTickerEndpoints((name, params) => {
-    fetches.push(`${name} ${JSON.stringify(params)}`);
+    fetches.push(keyOf(name, params));
     return new Promise(() => {});
   }, opts);
   const log: PageLog = { renders: [], commits: [], texts: [], states: {} };

@@ -1,10 +1,10 @@
-import { loadServerHalf, messagesOf } from '__tests__/splitEnvHarness';
+import {
+  describeReact19,
+  loadServerHalf,
+  messagesOf,
+} from '__tests__/splitEnvHarness';
 import type * as Fixtures from '__tests__/streamFixtures';
 import { chunkOf } from '__tests__/streamingHarness';
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 const fx = loadServerHalf(
   () => require('__tests__/streamFixtures') as typeof Fixtures,

@@ -1,5 +1,5 @@
 import { inBrowser, serverHalf } from '__tests__/g1Cells';
-import { until } from '__tests__/splitEnvHarness';
+import { describeReact19, until } from '__tests__/splitEnvHarness';
 import { quiet } from '__tests__/streamBrowser';
 
 jest.mock('react-dom', () => {
@@ -15,10 +15,6 @@ jest.mock('react', () => {
   const wrapped = { ...actual, useSyncExternalStore };
   return { ...wrapped, default: wrapped };
 });
-
-const { version } = require('react') as typeof import('react');
-const describeReact19 =
-  Number(version.split('.')[0]) >= 19 ? describe : describe.skip;
 
 describeReact19('V: endpoint values', () => {
   for (const value of [null, 0, false, ''])

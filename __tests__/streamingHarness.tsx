@@ -2,6 +2,7 @@ import React, { useLayoutEffect } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import { Writable } from 'stream';
 
+import type { GatePromise } from './gate';
 import { serialize } from '../packages/react/src/server/stream/serialize';
 import type { ServerLedger } from '../packages/react/src/server/stream/ServerLedger';
 
@@ -9,21 +10,8 @@ const MULTIPLE_RENDERERS =
   'Detected multiple renderers concurrently rendering the same context provider';
 const USE_LAYOUT_EFFECT_SSR = 'useLayoutEffect does nothing on the server';
 
-export type GatePromise = Promise<void> & { done: boolean; release(): void };
-
-export function makeGate(): GatePromise {
-  let settle!: () => void;
-  const promise = new Promise<void>(resolve => {
-    settle = resolve;
-  }) as GatePromise;
-  promise.done = false;
-  promise.release = () => {
-    if (promise.done) return;
-    promise.done = true;
-    settle();
-  };
-  return promise;
-}
+export { makeGate } from './gate';
+export type { GatePromise } from './gate';
 
 export function Gate({
   promise,

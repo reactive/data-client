@@ -40,7 +40,6 @@ import {
   Shield,
   StreamManager,
   StreamProvider,
-  clientWrap,
   createServerStream,
   getLedger,
   useBoundaryCell,
@@ -58,7 +57,6 @@ export class Todo extends Entity {
   static key = 'Todo';
 }
 
-export type TodoData = { id: string; title: string };
 export type FetchImpl = (name: string, params: any) => Promise<any>;
 
 export function makeEndpoints(fetchImpl: FetchImpl) {
@@ -348,7 +346,7 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
   return { Layout, IslandB };
 }
 
-function ControllerGrab({ into }: { into: { current?: Controller } }) {
+export function ControllerGrab({ into }: { into: { current?: Controller } }) {
   into.current = useController();
   return null;
 }
@@ -368,7 +366,7 @@ export function deferred<T>(): Deferred<T> {
   return { promise, resolve, reject };
 }
 
-const keyOf = (name: string, params: any) =>
+export const keyOf = (name: string, params: any) =>
   `${name} ${JSON.stringify(params)}`;
 
 /** Server fetches wait until the test resolves them */
@@ -675,13 +673,12 @@ export const serverWrite =
 
 /**
  * Server half of the page: A's data is in the store before the render, so A is
- * in the shell. After the shell each step runs `gapMs` after the previous one.
+ * in the shell. After the shell each step runs 20 ms after the previous one.
  * Default steps: B's data, then C's.
  */
 export async function runServerPage(
   opts: PageOptions & {
     steps?: ServerStep[];
-    gapMs?: number;
     onAbortable?: (abort: () => void) => void;
   } = {},
 ) {
@@ -691,7 +688,7 @@ export async function runServerPage(
   page.server.resolve('getTodo', { id: '1' }, DATA.a);
   await page.stream.controller.fetch(page.endpoints.getTodo, { id: '1' });
   const steps = opts.steps ?? [resolveGroup('b'), resolveGroup('c')];
-  const run = stepper(page, steps, opts.gapMs ?? 20);
+  const run = stepper(page, steps, 20);
   const capture = await captureStream(page.element, {
     ledger: page.stream.ledger,
     onAbortable: opts.onAbortable,
@@ -700,5 +697,3 @@ export async function runServerPage(
   });
   return { page, capture };
 }
-
-export { clientWrap };
