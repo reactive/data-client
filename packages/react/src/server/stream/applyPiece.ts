@@ -110,11 +110,19 @@ export function applyPiece(
             held,
             incoming,
           );
+          const nextMeta = cls.mergeMetaWithStore(
+            heldMeta,
+            incomingMeta,
+            held,
+            incoming,
+          );
+          // A merge can keep a placed object and take the piece's meta. A copy of
+          // that meta keeps the record the client's for the pieces that follow.
           w.set(
             key,
             pk,
             next,
-            cls.mergeMetaWithStore(heldMeta, incomingMeta, held, incoming),
+            placed.has(nextMeta) ? { ...nextMeta } : nextMeta,
           );
           merged.push([cls, pk, held, next]);
         } else {

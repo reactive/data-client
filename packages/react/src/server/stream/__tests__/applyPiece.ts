@@ -818,6 +818,49 @@ describe('applyPiece, a client write that keeps the server object', () => {
     expect(quote(next)).toEqual([1, 3000]);
   });
 
+  it('stays a client write after a merge that keeps the object and takes the piece meta', () => {
+    const placed = new WeakSet<object>();
+    const book = (
+      state: State<unknown>,
+      lastUpdateId: number,
+      fetchedAt: number,
+    ) =>
+      setResponse(
+        state,
+        getBook,
+        [{ id: 'b' }],
+        { id: 'b', lastUpdateId },
+        fetchedAt,
+      );
+    // the server holds 10, resets, and its new source starts again at 3
+    const reset = Date.now();
+    const server1 = book(initialState, 10, reset - 3000);
+    const server2 = reducer(server1, actions.createReset() as any);
+    const server3 = book(server2, 3, reset + 2000);
+    const server4 = book(server3, 4, reset + 3000);
+    const [p1, ...later] = wire(
+      [initialState, server1, server2, server3, server4],
+      placed,
+    );
+    expect(later).toHaveLength(3);
+    // Book turns the client's older response down: the object stays, the meta moves
+    const client = book(foldPieces([p1], 1), 8, reset + 1000);
+    const held = client.entities.Book!.b;
+    expect(placed.has(held as object)).toBe(true);
+
+    const next = later.reduce(
+      (state, piece) => applyPiece(state, piece, classes(Book), placed, OPENED),
+      client,
+    );
+    // as the reducer does with the same two responses: Book keeps 10 over 3 and over 4
+    const viaReducer = book(book(client, 3, reset + 2000), 4, reset + 3000);
+    expect(viaReducer.entities.Book!.b).toBe(held);
+    expect(next.entities.Book!.b).toBe(held);
+    expect(next.entitiesMeta.Book.b.fetchedAt).toBe(
+      viaReducer.entitiesMeta.Book.b.fetchedAt,
+    );
+  });
+
   it('still replaces the record when the client never wrote it', () => {
     const placed = new WeakSet<object>();
     const server1 = set(initialState, 1, 1000);
