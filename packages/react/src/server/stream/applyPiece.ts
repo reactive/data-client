@@ -27,7 +27,7 @@ export function applyPiece(
   state: State<unknown>,
   piece: PieceMessage,
   classes: ClassMap,
-  /** `ledger.placed` */
+  /** `ledger.placed`: the entity and entity meta objects that came from a piece */
   placed: WeakSet<object>,
   /** `ledger.openedAt`. A state reset at or after it ignores the piece. */
   openedAt: number,
@@ -36,10 +36,17 @@ export function applyPiece(
 ): State<unknown> {
   if (state.lastReset >= openedAt) return state;
   const w = new Writer(state);
-  /** Absent, or still the object a piece placed: no client write to keep */
-  const isServerOwned = (held: unknown) =>
+  /**
+   * Absent, or still the object and the meta a piece placed: no client write to
+   * keep. A client write that `shouldUpdate()` turned down keeps the object and
+   * moves the meta, so the object alone does not tell.
+   */
+  const isServerOwned = (held: unknown, heldMeta: object | undefined) =>
     held === undefined ||
-    (typeof held === 'object' && held !== null && placed.has(held));
+    (typeof held === 'object' &&
+      held !== null &&
+      placed.has(held) &&
+      (heldMeta === undefined || placed.has(heldMeta)));
   /** Whether the piece's value was written as sent, per entity key and pk, for the index rows */
   const taken = new Map<string, Map<string, boolean>>();
   const merged: [EntityClass, string, any, any][] = [];
@@ -56,7 +63,7 @@ export function applyPiece(
       const meta = incomingMetaTable[pk];
       const held = state.entities[key]?.[pk];
       const heldMeta = state.entitiesMeta[key]?.[pk];
-      const serverOwned = isServerOwned(held);
+      const serverOwned = isServerOwned(held, heldMeta);
       const newer = (strict: boolean) =>
         meta != null &&
         (heldMeta === undefined ||
@@ -120,7 +127,10 @@ export function applyPiece(
           target !== undefined &&
           !(
             keyTaken?.get(target) ??
-            isServerOwned(state.entities[key]?.[target])
+            isServerOwned(
+              state.entities[key]?.[target],
+              state.entitiesMeta[key]?.[target],
+            )
           )
         )
           continue;

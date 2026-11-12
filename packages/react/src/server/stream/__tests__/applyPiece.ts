@@ -86,10 +86,12 @@ function wire(states: State<unknown>[], placed: WeakSet<object>) {
     const piece: PieceMessage = JSON.parse(
       JSON.stringify({ t: 'piece', at: 0, rev: pieces.length + 1, ...slots }),
     );
-    for (const key in piece.entities) {
-      for (const pk in piece.entities[key]) {
-        const value = piece.entities[key][pk];
-        if (value && typeof value === 'object') placed.add(value);
+    for (const table of [piece.entities, piece.entitiesMeta]) {
+      for (const key in table) {
+        for (const pk in table[key]) {
+          const value = table[key][pk];
+          if (value && typeof value === 'object') placed.add(value);
+        }
       }
     }
     pieces.push(piece);
@@ -715,5 +717,54 @@ describe('applyPiece', () => {
     expect(action.piece).toBe(piece);
     expect(reduce(initialState, action).endpoints).toEqual({ k: 1 });
     expect((controller as any).reduce).toBeUndefined();
+  });
+});
+
+describe('applyPiece, a client write that keeps the server object', () => {
+  class Quote extends Entity {
+    id = '';
+    price = 0;
+    static key = 'Quote';
+    // skips the write when nothing changed, so the stored object stays
+    static shouldUpdate(_em: any, _im: any, existing: any, incoming: any) {
+      return existing.price !== incoming.price;
+    }
+  }
+  const getQuote = new Endpoint(
+    ({ id }: { id: string }) => Promise.resolve({ id } as any),
+    { schema: Quote, name: 'getQuote' },
+  );
+  const set = (state: State<unknown>, price: number, fetchedAt: number) =>
+    setResponse(state, getQuote, [{ id: 'q' }], { id: 'q', price }, fetchedAt);
+  const quote = (state: State<unknown>) => [
+    (state.entities.Quote as any).q.price,
+    (state.entitiesMeta.Quote as any).q.fetchedAt,
+  ];
+
+  it('merges an older piece under it through the class, as any other write would', () => {
+    const placed = new WeakSet<object>();
+    const server1 = set(initialState, 1, 1000);
+    const server2 = set(server1, 5, 2000);
+    const [p1, p2] = wire([initialState, server1, server2], placed);
+    const seed = foldPieces([p1], 1);
+    // the client fetches the same value after the server's second response
+    const client = set(seed, 1, 3000);
+    expect(client.entities.Quote!.q).toBe(seed.entities.Quote!.q);
+    expect(quote(client)).toEqual([1, 3000]);
+
+    const next = applyPiece(client, p2, classes(Quote), placed, OPENED);
+    expect(quote(next)).toEqual(quote(set(client, 5, 2000)));
+    expect(quote(next)).toEqual([1, 3000]);
+  });
+
+  it('still replaces the record when the client never wrote it', () => {
+    const placed = new WeakSet<object>();
+    const server1 = set(initialState, 1, 1000);
+    const server2 = set(server1, 5, 2000);
+    const [p1, p2] = wire([initialState, server1, server2], placed);
+    const seed = foldPieces([p1], 1);
+    const next = applyPiece(seed, p2, new Map(), placed, OPENED);
+    expect(next.entities.Quote!.q).toBe(p2.entities!.Quote.q);
+    expect(quote(next)).toEqual([5, 2000]);
   });
 });

@@ -23,7 +23,7 @@ export interface Ledger {
    * Once it has, `use()` reads it without suspending.
    */
   whenOpen(): Promise<void>;
-  /** Entity objects that came from a piece, and so from the server, not from a client write */
+  /** Entity and entity meta objects that came from a piece, and so from the server, not from a client write */
   readonly placed: WeakSet<object>;
   /** Server state at `rev`, in tables no other state shares. Not cached. */
   fold(rev: number): State<unknown>;
@@ -188,10 +188,12 @@ class DocumentLedger implements Ledger {
       });
     }
     if (message.entitiesMeta) {
-      piece.entitiesMeta = mapTables(
-        message.entitiesMeta,
-        meta => meta && this.shiftEntityMeta(meta),
-      );
+      piece.entitiesMeta = mapTables(message.entitiesMeta, meta => {
+        if (!meta) return meta;
+        const shifted = this.shiftEntityMeta(meta);
+        this.placed.add(shifted);
+        return shifted;
+      });
     }
     if (message.indexes) {
       piece.indexes = {};

@@ -113,6 +113,8 @@ describe('getLedger', () => {
     const seed = ledger.fold(1);
     expect(seed.entities.Ticker!.BTC).toBe(object);
     expect(ledger.placed.has(seed.entities.Ticker!.BTC as object)).toBe(true);
+    // a client write can keep the object and move the meta, so the meta is recorded too
+    expect(ledger.placed.has(seed.entitiesMeta.Ticker!.BTC)).toBe(true);
   });
 
   it('folds into fresh tables every call; snapshot reports entries unexpired', () => {
