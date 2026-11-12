@@ -59,6 +59,8 @@ export const TICKERS = [
   { id: 'ETH', price: 10 },
 ];
 export const BTC_2 = { id: 'BTC', price: 101.5 };
+/** A ticker the list does not hold */
+export const SOL = { id: 'SOL', price: 5 };
 
 export function makeTickerEndpoints(
   fetchImpl: FetchImpl,
@@ -86,12 +88,18 @@ type TickerEndpoints = ReturnType<typeof makeTickerEndpoints>;
  * - `pair`: B1 reads the list, B2 reads BTC.
  * - `nested`: B1 reads the list and holds boundary D, which reads BTC.
  * - `one-boundary`: one boundary holds a list reader and a BTC reader.
+ * - `two-fetches`: one boundary holds a list reader and a SOL reader.
  * - `shell-reader`: a reader of the list outside any boundary, and B2.
  * - `controller-reader`: B1 also holds a reader of `useController().getState()`
  *   that waits for `ctrlGate`, and B2.
  */
 export type DriftLayout =
-  'pair' | 'nested' | 'one-boundary' | 'shell-reader' | 'controller-reader';
+  | 'pair'
+  | 'nested'
+  | 'one-boundary'
+  | 'two-fetches'
+  | 'shell-reader'
+  | 'controller-reader';
 
 export interface DriftOptions {
   layout?: DriftLayout;
@@ -139,9 +147,9 @@ function makeDriftIslands(
       </ul>
     );
   }
-  function TickerOne({ name }: { name: string }) {
-    const btc = useSuspense(endpoints.getTicker, { id: 'BTC' });
-    const text = `${btc.id}:${btc.price}`;
+  function TickerOne({ name, id = 'BTC' }: { name: string; id?: string }) {
+    const ticker = useSuspense(endpoints.getTicker, { id });
+    const text = `${ticker.id}:${ticker.price}`;
     useRecord(name, text);
     return <p data-testid={name}>{text}</p>;
   }
@@ -193,12 +201,15 @@ function makeDriftIslands(
           </AsyncBoundary>
         </div>
       );
-    if (layout === 'one-boundary')
+    if (layout === 'one-boundary' || layout === 'two-fetches')
       return (
         <div data-testid="layout">
           <AsyncBoundary fallback={<span>loading b1</span>}>
             <TickerList name="b1" />
-            <TickerOne name="b2" />
+            <TickerOne
+              name="b2"
+              id={layout === 'two-fetches' ? 'SOL' : 'BTC'}
+            />
           </AsyncBoundary>
         </div>
       );
@@ -254,6 +265,11 @@ export const resolveTickers: DriftStep = Object.assign(
 export const resolveBtc: DriftStep = Object.assign(
   (page: DriftServerPage) =>
     page.server.resolve('getTicker', { id: 'BTC' }, BTC_2),
+  { completes: true },
+);
+export const resolveSol: DriftStep = Object.assign(
+  (page: DriftServerPage) =>
+    page.server.resolve('getTicker', { id: 'SOL' }, SOL),
   { completes: true },
 );
 /** BTC moves to revision 2 on the server without a fetch */
