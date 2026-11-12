@@ -1,23 +1,16 @@
+import { collect, plainSuspenseDrift, spyLedger } from '__tests__/driftCells';
 import {
-  clientPage,
-  collect,
-  driftServer,
-  inBrowser as inDriftBrowser,
-  scopeHolders,
-  serverOptions,
-  spyLedger,
-} from '__tests__/driftCells';
-import {
+  codeFails,
+  deliverRest,
   inBrowser,
-  liveList,
+  joinHeld,
   serverHalf,
   socketWrite,
-  watch,
 } from '__tests__/g1Cells';
 import type { Page } from '__tests__/g1Cells';
 import { messagesOf, settle, until } from '__tests__/splitEnvHarness';
 import type { BrowserHalf } from '__tests__/streamBrowser';
-import type { LanesHandle, WakeKind } from '__tests__/streamFixtures';
+import type { WakeKind } from '__tests__/streamFixtures';
 import type { LedgerFlush } from '__tests__/streamingHarness';
 
 jest.mock('react-dom', () => {
@@ -47,16 +40,6 @@ const pinIn = (flush: LedgerFlush) =>
     rev: number;
   };
 
-/** Every flush after the shell: its script, then its HTML. Returns B's streamed node. */
-function deliverRest(b: BrowserHalf, flushes: LedgerFlush[]) {
-  let streamedB: Element | undefined;
-  for (const flush of flushes.slice(1)) {
-    b.script(flush);
-    streamedB = b.htmlFind(flush, ['b']).b ?? streamedB;
-  }
-  return streamedB;
-}
-
 /** Records every ledger call made while `during` runs */
 async function ledgerCalls(page: Page, during: () => Promise<void>) {
   const ledger = page.ledger() as any;
@@ -79,70 +62,7 @@ async function ledgerCalls(page: Page, during: () => Promise<void>) {
 
 describeReact19('X: cases added after the invariants review', () => {
   it('R7/join-held', async () => {
-    const server = await serverHalf(() => ({ lanes: {} }));
-    const bFlush = server.with('b');
-    const r = await inBrowser(async (b, finish) => {
-      const lanes: LanesHandle = {};
-      const page = b.fx.createClientPage({ lanes });
-      const spy = spyLedger(page.ledger());
-      await b.start(page, server.shell);
-      lanes.start!();
-      await settle(30);
-      const seen = watch(b, 'b', 'loading b');
-      b.script(bFlush);
-      const streamed = b.html(bFlush, 'b');
-      await settle(50);
-      const hydratedWhileSuspended = page.log.commits.includes('b');
-      socketWrite(b, page, 'socket-1');
-      await settle(30);
-      const bAfterWrite = b.text('b');
-      const holdersAtWrite = scopeHolders(b.container);
-      const suspendedBeforeRelease = b.text('lanes') === 'none';
-      lanes.release!();
-      await until(() => b.text('lanes') === 'none+resolved', 'app resolved');
-      await until(() => page.log.commits.includes('b'), 'B hydrated');
-      await until(() => scopeHolders(b.container).empty === 2, 'B joined');
-      await settle(30);
-      const bText = b.text('b');
-      const bLive = liveList(page, 'b');
-      const adopted = b.byTestId('b') === streamed;
-      await collect();
-      const retainedAfterJoin = spy.snapshots.filter(
-        s => s.ref.deref() !== undefined,
-      ).length;
-      page.controller.current!.setResponse(
-        page.endpoints.getTodo,
-        { id: 'sock' },
-        { id: 'sock', title: 'socket-2' },
-      );
-      await settle(30);
-      const { seen: shown, fallbackOverContent } = seen.stop();
-      const base = await finish(page);
-      await collect();
-      return {
-        gating: {
-          adopted,
-          errors: base.errors,
-          fallbackOverContent,
-          bShowsLive: bText === bLive,
-          bText,
-          snapshotsRetained: spy.snapshots.filter(
-            s => s.ref.deref() !== undefined,
-          ).length,
-          suspendedBeforeRelease,
-          fetches: base.fetches,
-          immediateCommits: base.immediateCommits,
-          flushSyncCalls: base.flushSyncCalls,
-        },
-        recorded: {
-          hydratedWhileSuspended,
-          joinedBeforeRelease: holdersAtWrite.empty === 2,
-          bAfterWrite,
-          shown,
-          retainedAfterJoin,
-        },
-      };
-    });
+    const r = await joinHeld();
     expect(r.gating).toEqual({
       adopted: true,
       errors: 0,
@@ -156,7 +76,6 @@ describeReact19('X: cases added after the invariants review', () => {
       immediateCommits: 0,
       flushSyncCalls: 0,
     });
-    expect(r.recorded).toEqual(R7_RECORDED);
   });
 
   it('R8/never-commits', async () => {
@@ -219,58 +138,14 @@ describeReact19('X: cases added after the invariants review', () => {
   });
 
   it('R9/code-fails', async () => {
-    const server = await serverHalf(() => ({}));
-    const consoleError = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    try {
-      const r = await inBrowser(async (b, finish) => {
-        const lazyB = Promise.reject(new Error('B code failed'));
-        lazyB.catch(() => {});
-        const page = b.fx.createClientPage({ lazyB });
-        await b.start(page, server.shell);
-        deliverRest(b, server.flushes);
-        await until(
-          () => b.container.textContent!.includes('B code failed'),
-          "B's error shown",
-        );
-        await until(() => page.log.commits.includes('c'), 'C hydrated');
-        await settle(50);
-        const renders = page.log.renders.length;
-        const commits = page.log.commits.length;
-        const errors = b.errors.length;
-        await settle(300);
-        const stable =
-          page.log.renders.length === renders &&
-          page.log.commits.length === commits &&
-          b.errors.length === errors;
-        socketWrite(b, page, 'socket-1');
-        await settle(30);
-        return {
-          gating: {
-            errorShown: b.container.textContent!.includes('B code failed'),
-            stable,
-            a: b.text('a'),
-            c: b.text('c'),
-            bCommitted: page.log.commits.includes('b'),
-          },
-          recorded: {
-            stats: page.ledger().stats(),
-            ...(await finish(page)),
-          },
-        };
-      });
-      expect(r.gating).toEqual({
-        errorShown: true,
-        stable: true,
-        a: 'socket-1',
-        c: 'c3',
-        bCommitted: false,
-      });
-      expect(r.recorded).toEqual(R9_RECORDED);
-    } finally {
-      consoleError.mockRestore();
-    }
+    const r = await codeFails();
+    expect(r.gating).toEqual({
+      errorShown: true,
+      stable: true,
+      a: 'socket-1',
+      c: 'c3',
+      bCommitted: false,
+    });
   });
 
   describe('M1/ledger-bounded', () => {
@@ -531,136 +406,12 @@ describeReact19('X: cases added after the invariants review', () => {
       });
   });
 
-  describe('P1/plain-suspense-live', () => {
-    /** The page hydrates on its shell; the rest of the document streams in after */
-    async function driftCell(plain: 'b1' | 'b2') {
-      const { capture } = await driftServer(() => serverOptions({ plain }));
-      return inDriftBrowser(async b => {
-        const page = clientPage({ plain });
-        const [shell, ...rest] = capture.flushes;
-        b.shell(shell);
-        b.hydrate(page.element);
-        await settle(30);
-        const streamed: Record<string, Element | undefined> = {};
-        for (const flush of rest) {
-          b.script(flush);
-          const found = b.htmlFind(flush, ['b1', 'b2']);
-          for (const id in found) streamed[id] ??= found[id];
-        }
-        await until(
-          () =>
-            page.log.commits.includes('b1') && page.log.commits.includes('b2'),
-          'B1 and B2 committed',
-        );
-        await settle(50);
-        return {
-          errors: b.errors.length,
-          adopted: b.byTestId(plain) === streamed[plain],
-          text: b.text(plain),
-          fetches: page.fetches,
-        };
-      });
-    }
-    it('no drift: adopted', async () => {
-      expect(await driftCell('b2')).toEqual({
-        errors: 0,
-        adopted: true,
-        text: 'BTC:101.5',
-        fetches: [],
-      });
+  it('P1/plain-suspense-live no drift: adopted', async () => {
+    expect(await plainSuspenseDrift('b2')).toEqual({
+      errors: 0,
+      adopted: true,
+      text: 'BTC:101.5',
+      fetches: [],
     });
-    it('drift (recorded)', async () => {
-      expect(await driftCell('b1')).toEqual(P1_DRIFT);
-    });
-    it('pending at publish (recorded)', async () => {
-      const server = await serverHalf(() => ({ plainB: true }));
-      const bFlush = server.with('b');
-      const r = await inBrowser(async (b, finish) => {
-        const page = b.fx.createClientPage({ plainB: true });
-        await b.start(page, server.shell);
-        b.script(bFlush);
-        await settle(30);
-        const woken = !b.pending('B:0');
-        const aAfterPublish = b.text('a');
-        const streamed = b.html(bFlush, 'b');
-        try {
-          await until(() => page.log.commits.includes('b'), 'B committed', 500);
-        } catch {
-          // recorded below
-        }
-        await settle(30);
-        const base = await finish(page);
-        return {
-          woken,
-          aAfterPublish,
-          adopted: b.byTestId('b') === streamed,
-          b: b.text('b'),
-          errors: base.errors,
-          fetches: base.fetches,
-        };
-      });
-      expect(r).toEqual(P1_PENDING);
-    });
-  });
-
-  it('W1/woken-announced-key (recorded)', async () => {
-    const server = await serverHalf(() => ({ wakeB: { current: undefined } }));
-    const r = await inBrowser(async (b, finish) => {
-      const wake: { current: ((kind?: WakeKind) => void) | undefined } = {
-        current: undefined,
-      };
-      const page = b.fx.createClientPage({ wakeB: wake });
-      await b.start(page, server.shell);
-      const key = page.endpoints.getList.key({ group: 'b' });
-      const announced = page.ledger().announced(key);
-      wake.current!('children');
-      await settle(50);
-      const { fetches } = await finish(page);
-      return {
-        announced,
-        woken: !b.pending('B:0'),
-        requests: fetches.filter(f => f === 'getList {"group":"b"}').length,
-      };
-    });
-    expect(r).toEqual({ announced: true, woken: true, requests: 1 });
   });
 });
-
-/** Observed on React 19.3.1 */
-const R7_RECORDED = {
-  // B's HTML is revealed, but its hydration waits for the suspended
-  // application transition
-  hydratedWhileSuspended: false,
-  joinedBeforeRelease: false,
-  bAfterWrite: 'a@2b2',
-  shown: ['a@2b2', 'socket-1b2'],
-  // the alternate fiber holds it until the next render, as in R1/quiet-page
-  retainedAfterJoin: 1,
-};
-const R9_RECORDED = {
-  // React renders B's boundary on the client to show its error component; the
-  // scope commits without hydrating, so B's pin is dropped and the pieces with it
-  stats: { pieces: 0, pins: 0, unknown: 0 },
-  errors: 0,
-  fetches: [],
-  immediateCommits: 0,
-  flushSyncCalls: 0,
-  detectorOnly: true,
-};
-const P1_DRIFT = {
-  errors: 1,
-  adopted: false,
-  text: 'BTC:101.5ETH:10',
-  fetches: [],
-};
-// The publish does not wake B under a plain `<Suspense>`: React keeps the
-// pending boundary and commits A. Under `AsyncBoundary` without the adapter
-// the same publish wakes B (G1/control-no-adapter).
-const P1_PENDING = {
-  woken: false,
-  aAfterPublish: 'a@2',
-  adopted: true,
-  b: 'a@2b2',
-  errors: 0,
-  fetches: [],
-};

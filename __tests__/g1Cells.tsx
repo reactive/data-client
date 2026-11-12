@@ -2,6 +2,7 @@
  * G1's page cells, shared by the files that rerun them. Callers mock `react-dom`'s
  * `flushSync` and React's `useSyncExternalStore` with `jest.fn` wrappers.
  */
+import { collect, scopeHolders, spyLedger } from './driftCells';
 import {
   installDom,
   loadServerHalf,
@@ -297,4 +298,241 @@ export function watch(b: BrowserHalf, testId: string, fallbackText: string) {
       return { seen, fallbackOverContent };
     },
   };
+}
+
+/** Every flush after the shell: its script, then its HTML. Returns B's streamed node. */
+export function deliverRest(b: BrowserHalf, flushes: LedgerFlush[]) {
+  let streamedB: Element | undefined;
+  for (const flush of flushes.slice(1)) {
+    b.script(flush);
+    streamedB = b.htmlFind(flush, ['b']).b ?? streamedB;
+  }
+  return streamedB;
+}
+
+/**
+ * `behind`: an application transition whose reader suspends is pending when
+ * the piece arrives. `hold`: A's island suspends while it shows the piece, in
+ * a boundary that is already showing content.
+ */
+export async function runLanes(mode: 'hold' | 'behind') {
+  const server = await serverHalf(fx => ({
+    lanes: {},
+    steps: [fx.serverWrite(1), fx.resolveGroup('b'), fx.resolveGroup('c')],
+  }));
+  const { writes } = splitServerWrites(server.with('b'));
+  expect(writes).toHaveLength(1);
+  return inBrowser(async (b, finish) => {
+    let releaseA!: () => void;
+    const lanes: Fixtures.LanesHandle = {};
+    if (mode === 'hold')
+      lanes.holdA = new Promise<void>(resolve => {
+        releaseA = resolve;
+      });
+    const page = b.fx.createClientPage({ lanes });
+    await b.start(page, server.shell);
+    b.probe.resetCommits();
+    if (mode === 'behind') {
+      lanes.start!();
+      await settle(30);
+    }
+    b.push(writes);
+    await settle(30);
+    const aWhileHeld = b.text('a');
+    const fallbackA = b.container.textContent!.includes('loading a');
+    page.controller.current!.setResponse(
+      page.endpoints.getTodo,
+      { id: 'sock' },
+      { id: 'sock', title: 'socket-1' },
+    );
+    await settle(30);
+    const socketShown = b.text('lanes');
+    const aAfterSocket = b.text('a');
+    if (mode === 'hold') releaseA();
+    else lanes.release!();
+    await settle(50);
+    return {
+      aWhileHeld,
+      fallbackA,
+      socketShown,
+      aAfterSocket,
+      aAfterRelease: b.text('a'),
+      lanesAfterRelease: b.text('lanes'),
+      pending: { b: b.pending('B:0'), c: b.pending('B:1') },
+      ...(await finish(page)),
+    };
+  });
+}
+
+/** R7: B's HTML is revealed while an application transition is suspended */
+export async function joinHeld() {
+  const server = await serverHalf(() => ({ lanes: {} }));
+  const bFlush = server.with('b');
+  return inBrowser(async (b, finish) => {
+    const lanes: Fixtures.LanesHandle = {};
+    const page = b.fx.createClientPage({ lanes });
+    const spy = spyLedger(page.ledger());
+    await b.start(page, server.shell);
+    lanes.start!();
+    await settle(30);
+    const seen = watch(b, 'b', 'loading b');
+    b.script(bFlush);
+    const streamed = b.html(bFlush, 'b');
+    await settle(50);
+    const hydratedWhileSuspended = page.log.commits.includes('b');
+    socketWrite(b, page, 'socket-1');
+    await settle(30);
+    const bAfterWrite = b.text('b');
+    const holdersAtWrite = scopeHolders(b.container);
+    const suspendedBeforeRelease = b.text('lanes') === 'none';
+    lanes.release!();
+    await until(() => b.text('lanes') === 'none+resolved', 'app resolved');
+    await until(() => page.log.commits.includes('b'), 'B hydrated');
+    await until(() => scopeHolders(b.container).empty === 2, 'B joined');
+    await settle(30);
+    const bText = b.text('b');
+    const bLive = liveList(page, 'b');
+    const adopted = b.byTestId('b') === streamed;
+    await collect();
+    const retainedAfterJoin = spy.snapshots.filter(
+      s => s.ref.deref() !== undefined,
+    ).length;
+    page.controller.current!.setResponse(
+      page.endpoints.getTodo,
+      { id: 'sock' },
+      { id: 'sock', title: 'socket-2' },
+    );
+    await settle(30);
+    const { seen: shown, fallbackOverContent } = seen.stop();
+    const base = await finish(page);
+    await collect();
+    return {
+      gating: {
+        adopted,
+        errors: base.errors,
+        fallbackOverContent,
+        bShowsLive: bText === bLive,
+        bText,
+        snapshotsRetained: spy.snapshots.filter(
+          s => s.ref.deref() !== undefined,
+        ).length,
+        suspendedBeforeRelease,
+        fetches: base.fetches,
+        immediateCommits: base.immediateCommits,
+        flushSyncCalls: base.flushSyncCalls,
+      },
+      recorded: {
+        hydratedWhileSuspended,
+        joinedBeforeRelease: holdersAtWrite.empty === 2,
+        bAfterWrite,
+        shown,
+        retainedAfterJoin,
+      },
+    };
+  });
+}
+
+/** R9: B's code fails to load */
+export async function codeFails() {
+  const server = await serverHalf(() => ({}));
+  const consoleError = jest
+    .spyOn(console, 'error')
+    .mockImplementation(() => {});
+  try {
+    return await inBrowser(async (b, finish) => {
+      const lazyB = Promise.reject(new Error('B code failed'));
+      lazyB.catch(() => {});
+      const page = b.fx.createClientPage({ lazyB });
+      await b.start(page, server.shell);
+      deliverRest(b, server.flushes);
+      await until(
+        () => b.container.textContent!.includes('B code failed'),
+        "B's error shown",
+      );
+      await until(() => page.log.commits.includes('c'), 'C hydrated');
+      await settle(50);
+      const renders = page.log.renders.length;
+      const commits = page.log.commits.length;
+      const errors = b.errors.length;
+      await settle(300);
+      const stable =
+        page.log.renders.length === renders &&
+        page.log.commits.length === commits &&
+        b.errors.length === errors;
+      socketWrite(b, page, 'socket-1');
+      await settle(30);
+      return {
+        gating: {
+          errorShown: b.container.textContent!.includes('B code failed'),
+          stable,
+          a: b.text('a'),
+          c: b.text('c'),
+          bCommitted: page.log.commits.includes('b'),
+        },
+        recorded: {
+          stats: page.ledger().stats(),
+          ...(await finish(page)),
+        },
+      };
+    });
+  } finally {
+    consoleError.mockRestore();
+  }
+}
+
+/** S6: B's Activity hides while B is pending, a write lands, then B's HTML */
+export async function hiddenWhilePending() {
+  const server = await serverHalf(() => ({ activityB: {} }));
+  const bFlush = server.with('b');
+  return inBrowser(async (b, finish) => {
+    const activityB: Fixtures.ActivityHandle = {};
+    const page = b.fx.createClientPage({ activityB });
+    await b.start(page, server.shell);
+    await settle(30);
+    const pendingBefore = b.pending('B:0');
+    activityB.current!('hidden');
+    await settle(30);
+    const pendingWhenHidden = b.pending('B:0');
+    socketWrite(b, page, 'socket-1');
+    await settle(30);
+    const pendingAfterWrite = b.pending('B:0');
+    const bRenderedWhileHidden = page.log.renders.includes('b');
+    const a = b.text('a');
+    b.script(bFlush);
+    const streamed = b.html(bFlush, 'b');
+    await settle(30);
+    const pendingAfterHtml = b.pending('B:0');
+    const seen = watch(b, 'b', 'loading b');
+    activityB.current!('visible');
+    try {
+      await until(() => page.log.commits.includes('b'), 'B committed', 1500);
+    } catch {
+      // gated by the caller
+    }
+    await settle(50);
+    const { fallbackOverContent } = seen.stop();
+    const base = await finish(page);
+    return {
+      gating: {
+        bOnLive: b.text('b') === liveList(page, 'b'),
+        b: b.text('b'),
+        errors: base.errors,
+        fetchesAtMostOne: base.fetches.length <= 1,
+        fallbackOverContent,
+        a,
+        immediateCommits: base.immediateCommits,
+        flushSyncCalls: base.flushSyncCalls,
+        detectorOnly: base.detectorOnly,
+      },
+      recorded: {
+        pendingBefore,
+        pendingWhenHidden,
+        pendingAfterWrite,
+        bRenderedWhileHidden,
+        pendingAfterHtml,
+        adopted: b.byTestId('b') === streamed,
+        fetches: base.fetches,
+      },
+    };
+  });
 }

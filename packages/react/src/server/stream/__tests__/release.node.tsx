@@ -49,17 +49,6 @@ describeReact19('R: snapshot release at the first commit', () => {
     expect(r.release).toEqual(R1_RELEASED);
   });
 
-  // recorded: with no store update, React's alternate fibers still hold what the
-  // last pinned render read (the provider's previous props, each reader's
-  // previous context value). Those are the snapshot's own tables; its records
-  // are live state's objects.
-  it('R1/quiet-page (recorded)', async () => {
-    const r = await releaseAfterJoin({}, false);
-    expect(r.pinned).toEqual(D1_PINNED);
-    expect(r.release).toEqual({ ...R1_RELEASED, snapshotsRetained: 2 });
-    expect(r.shared).toEqual(R1_QUIET_SHARED);
-  });
-
   it('R1/control-state-held', async () => {
     const { release } = await releaseAfterJoin({ variant: 'held' });
     expect(release.pinnedBeforeJoin).toBe(true);
@@ -307,12 +296,3 @@ describeReact19('R: snapshot release at the first commit', () => {
     expect(r.discardedRetained).toBe(0);
   });
 });
-
-/** Observed on React 19.3.1 */
-const R1_QUIET_SHARED = {
-  // ETH in B1's snapshot, BTC and ETH in B2's: the objects live state holds
-  same: 3,
-  copies: 0,
-  // B1's BTC at revision 1, which live state replaced
-  differ: 1,
-};

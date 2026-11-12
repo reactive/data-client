@@ -309,3 +309,64 @@ export const R1_RELEASED = {
   mounted: true,
   snapshotsRetained: 0,
 };
+
+/** One boundary, two readers: the list renders at revision 1, the other at 2 */
+export async function oneBoundary(layout: 'two-fetches' | 'one-boundary') {
+  const { capture } = await driftServer(drift => ({
+    layout,
+    steps: [
+      drift.resolveTickers,
+      layout === 'two-fetches' ? drift.resolveSol : drift.resolveBtc,
+    ],
+  }));
+  const pins = pinsOf(capture);
+  return inBrowser(async b => {
+    const page = clientPage({ layout });
+    const streamed = await deliverAll(b, capture);
+    const serverText = { b1: b.text('b1'), b2: b.text('b2') };
+    b.hydrate(page.element);
+    await until(
+      () => page.log.commits.includes('b1') && page.log.commits.includes('b2'),
+      'boundary committed',
+    );
+    await settle(50);
+    return {
+      pinRev: pins[pins.length - 1].rev,
+      serverText,
+      errors: b.errors.length,
+      adopted: b.byTestId('b1') === streamed.b1,
+      b1: b.text('b1'),
+      b2: b.text('b2'),
+      fetches: page.fetches,
+    };
+  });
+}
+
+/** P1: one island under a plain `<Suspense>`; the page hydrates on its shell and the rest streams in after */
+export async function plainSuspenseDrift(plain: 'b1' | 'b2') {
+  const { capture } = await driftServer(() => serverOptions({ plain }));
+  return inBrowser(async b => {
+    const page = clientPage({ plain });
+    const [shell, ...rest] = capture.flushes;
+    b.shell(shell);
+    b.hydrate(page.element);
+    await settle(30);
+    const streamed: Record<string, Element | undefined> = {};
+    for (const flush of rest) {
+      b.script(flush);
+      const found = b.htmlFind(flush, ['b1', 'b2']);
+      for (const id in found) streamed[id] ??= found[id];
+    }
+    await until(
+      () => page.log.commits.includes('b1') && page.log.commits.includes('b2'),
+      'B1 and B2 committed',
+    );
+    await settle(50);
+    return {
+      errors: b.errors.length,
+      adopted: b.byTestId(plain) === streamed[plain],
+      text: b.text(plain),
+      fetches: page.fetches,
+    };
+  });
+}

@@ -46,7 +46,7 @@ import {
   createServerStream,
   getLedger,
 } from '../packages/react/src/server/stream';
-import type { Ledger, ServerLedger } from '../packages/react/src/server/stream';
+import type { Ledger } from '../packages/react/src/server/stream';
 
 export class Ticker extends Entity {
   id = '';

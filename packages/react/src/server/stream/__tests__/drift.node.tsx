@@ -5,22 +5,12 @@ import {
   firstText,
   inBrowser,
   lastPins,
+  oneBoundary,
   pinIdOf,
   pinsOf,
 } from '__tests__/driftCells';
-import type { DriftOptions } from '__tests__/driftCells';
-import type * as Drift from '__tests__/driftFixtures';
-import {
-  installDom,
-  loadServerHalf,
-  messagesOf,
-  settle,
-  until,
-} from '__tests__/splitEnvHarness';
-import { loadBrowserHalf } from '__tests__/streamBrowser';
-import type { BrowserHalf } from '__tests__/streamBrowser';
+import { loadServerHalf, settle, until } from '__tests__/splitEnvHarness';
 import type * as Fixtures from '__tests__/streamFixtures';
-import type { LedgerCapture, LedgerFlush } from '__tests__/streamingHarness';
 
 const { version } = require('react') as typeof import('react');
 const describeReact19 =
@@ -185,39 +175,6 @@ describeReact19('D: no mis-hydration under drift', () => {
     expect(r.listFetches).toBeLessThanOrEqual(1);
   });
 
-  /** One boundary, two readers: the list renders at revision 1, the other at 2 */
-  async function oneBoundary(layout: 'two-fetches' | 'one-boundary') {
-    const { capture } = await driftServer(drift => ({
-      layout,
-      steps: [
-        drift.resolveTickers,
-        layout === 'two-fetches' ? drift.resolveSol : drift.resolveBtc,
-      ],
-    }));
-    const pins = pinsOf(capture);
-    return inBrowser(async b => {
-      const page = clientPage({ layout });
-      const streamed = await deliverAll(b, capture);
-      const serverText = { b1: b.text('b1'), b2: b.text('b2') };
-      b.hydrate(page.element);
-      await until(
-        () =>
-          page.log.commits.includes('b1') && page.log.commits.includes('b2'),
-        'boundary committed',
-      );
-      await settle(50);
-      return {
-        pinRev: pins[pins.length - 1].rev,
-        serverText,
-        errors: b.errors.length,
-        adopted: b.byTestId('b1') === streamed.b1,
-        b1: b.text('b1'),
-        b2: b.text('b2'),
-        fetches: page.fetches,
-      };
-    });
-  }
-
   // Revision 2 changes nothing the list rendered, so the boundary hydrates on it
   it('D10/two-fetches-one-boundary', async () => {
     expect(await oneBoundary('two-fetches')).toEqual({
@@ -231,48 +188,14 @@ describeReact19('D: no mis-hydration under drift', () => {
     });
   });
 
-  // Revision 2 changes BTC, which the list rendered at revision 1
+  // Revision 2 changes BTC, which the list rendered at revision 1. D6 in
+  // observed/drift.node.tsx records the rest.
   it('D10/control-overlap', async () => {
     const r = await oneBoundary('one-boundary');
     expect(r.pinRev).toBe(2);
     expect(r.serverText.b1).toBe('BTC:100ETH:10');
     expect(r.errors).toBeGreaterThanOrEqual(1);
     expect(r.adopted).toBe(false);
-  });
-
-  it('D6/drift-inside-one-boundary (recorded)', async () => {
-    const { capture } = await driftServer(() => ({ layout: 'one-boundary' }));
-    const r = await inBrowser(async b => {
-      const page = clientPage({ layout: 'one-boundary' });
-      const streamed = await deliverAll(b, capture);
-      const serverText = {
-        b1: b.text('b1'),
-        b2: b.text('b2'),
-      };
-      b.hydrate(page.element);
-      await until(
-        () =>
-          page.log.commits.includes('b1') && page.log.commits.includes('b2'),
-        'boundary committed',
-      );
-      await settle(50);
-      return {
-        serverText,
-        errors: b.errors.length,
-        adopted: b.byTestId('b1') === streamed.b1,
-        b1: b.text('b1'),
-        b2: b.text('b2'),
-      };
-    });
-    // Recorded on React 19.3.1. The list rendered at revision 1 and the
-    // boundary's pin is revision 2, so the list mismatches once.
-    expect(r).toEqual({
-      serverText: { b1: 'BTC:100ETH:10', b2: 'BTC:101.5' },
-      errors: 1,
-      adopted: false,
-      b1: 'BTC:101.5ETH:10',
-      b2: 'BTC:101.5',
-    });
   });
 
   it('D7/shell-reader', async () => {
