@@ -17,8 +17,11 @@ import {
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
 
-/** Internal: an adapter's action that carries its own reducer. Not in `actionTypes`. */
-const APPLY = 'rdc/apply';
+/**
+ * Internal seam for adapters: an action that carries its own reducer. Not in
+ * `actionTypes`; public features use named, data-only actions.
+ */
+export const APPLY = 'rdc/apply';
 interface ApplyAction {
   type: typeof APPLY;
   apply(state: State<unknown>): State<unknown>;

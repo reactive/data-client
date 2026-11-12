@@ -5,7 +5,7 @@ import { keysOf } from './wire.js';
 import type { PieceMessage, WireEntityMeta } from './wire.js';
 
 /** Core's reducer applies an action of this type by calling its `apply` */
-export const APPLY = 'rdc/apply' as const;
+export const APPLY = __INTERNAL__.APPLY;
 /** One server piece, carried for devtools, with the reducer that merges it */
 export interface PieceAction {
   type: typeof APPLY;
