@@ -15,7 +15,8 @@ import {
   spyLedger,
 } from '__tests__/driftCells';
 import type * as Drift from '__tests__/driftFixtures';
-import { settle, until } from '__tests__/splitEnvHarness';
+import { until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 import type { GatePromise } from '__tests__/streamingHarness';
 
 const { version } = require('react') as typeof import('react');
@@ -74,18 +75,18 @@ describeReact19('R: snapshot release at the first commit', () => {
       const streamed = await deliverAll(b, capture);
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('b1'), 'B1 hydrated');
-      await settle(30);
+      await quiet(b);
       const endedBefore = ledger.ended;
       page.controller.current!.setResponse(
         page.endpoints.getTicker,
         { id: 'BTC' },
         { id: 'BTC', price: 999 },
       );
-      await settle(30);
+      await quiet(b);
       const pinHeld = ledger.pin(b2Pin.id) === b2Pin.rev;
       resolveCode();
       await until(() => page.log.commits.includes('b2'), 'B2 hydrated');
-      await settle(50);
+      await quiet(b);
       return {
         endedBefore,
         pinHeld,
@@ -126,10 +127,10 @@ describeReact19('R: snapshot release at the first commit', () => {
           page.log.commits.includes('b1') && page.log.commits.includes('b2'),
         'B1 and B2 hydrated',
       );
-      await settle(30);
+      await quiet(b);
       const built = spy.snapshots.length;
       b.push([{ t: 'pin', id: b1Pin.id, rev: 2 }]);
-      await settle(30);
+      await quiet(b);
       return {
         pin: ledger.pin(b1Pin.id),
         pins: ledger.stats().pins,
@@ -181,13 +182,13 @@ describeReact19('R: snapshot release at the first commit', () => {
       for (const flush of rest) b.script(flush);
       b.hydrate(page.element);
       await until(() => b.probe.commits.length > 0, 'shell hydrated');
-      await settle(50);
+      await quiet(b);
       const liveHadBtc =
         'BTC' in (page.controller.current!.getState().entities.Ticker ?? {});
       // a reader of BTC mounted and unmounted, so the real sweep collects it
       gcPolicy.createCountRef({ paths: [{ key: 'Ticker', pk: 'BTC' }] })()();
       (gcPolicy as any).runSweep();
-      await settle(20);
+      await quiet(b);
       const liveLacksBtc = !(
         'BTC' in (page.controller.current!.getState().entities.Ticker ?? {})
       );
@@ -203,7 +204,7 @@ describeReact19('R: snapshot release at the first commit', () => {
       } catch {
         b2Committed = false;
       }
-      await settle(30);
+      await quiet(b);
       const live = tablesOf(page.controller.current!.getState());
       return {
         liveHadBtc,
@@ -258,14 +259,14 @@ describeReact19('R: snapshot release at the first commit', () => {
       const streamed = await deliverAll(b, capture);
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('b1'), 'B1 hydrated');
-      await settle(30);
+      await quiet(b);
       // each hydration attempt renders B2's reader before `Hold` suspends
       const b2Renders = () => page.log.renders.filter(n => n === 'b2').length;
       const attempt = async (gate: GatePromise) => {
         const before = b2Renders();
         gate.release();
         await until(() => b2Renders() > before, 'B2 retried');
-        await settle(30);
+        await quiet(b);
       };
       opts.holdB2 = second;
       await attempt(first);
@@ -273,7 +274,7 @@ describeReact19('R: snapshot release at the first commit', () => {
       const committedWhileHeld = page.log.commits.includes('b2');
       await attempt(second);
       await until(() => page.log.commits.includes('b2'), 'B2 hydrated');
-      await settle(30);
+      await quiet(b);
       const b2Snapshots = spy.snapshots.filter(s => s.rev === b2Pin.rev);
       const result = {
         discarded,
@@ -400,7 +401,7 @@ describeReact19('R: snapshot release at the first commit', () => {
         { id: 'SOL' },
         { id: 'SOL', price: 1 },
       );
-      await settle(30);
+      await quiet(b);
       await collect();
       const cache = (ledger as any).snapshots as Map<number, WeakRef<object>>;
       return {

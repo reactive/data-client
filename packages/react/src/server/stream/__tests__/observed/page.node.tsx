@@ -21,7 +21,8 @@ import {
   serverHalf,
 } from '__tests__/g1Cells';
 import { describeObserved, observedTable } from '__tests__/observe';
-import { settle, until } from '__tests__/splitEnvHarness';
+import { until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 import type { WakeKind } from '__tests__/streamFixtures';
 
 describeObserved('The page: lanes, joins and wakes (observed)', () => {
@@ -61,7 +62,7 @@ describeObserved('The page: lanes, joins and wakes (observed)', () => {
       const key = page.endpoints.getList.key({ group: 'b' });
       const announced = page.ledger().announced(key);
       wake.current!('children');
-      await settle(50);
+      await quiet(b);
       const { fetches } = await finish(page);
       return {
         announced,
@@ -78,7 +79,7 @@ describeObserved('The page: lanes, joins and wakes (observed)', () => {
       const page = b.fx.createClientPage({ plainB: true });
       await b.start(page, server.shell);
       b.script(bFlush);
-      await settle(30);
+      await quiet(b);
       const woken = !b.pending('B:0');
       const aAfterPublish = b.text('a');
       const streamed = b.html(bFlush, 'b');
@@ -87,7 +88,7 @@ describeObserved('The page: lanes, joins and wakes (observed)', () => {
       } catch {
         // `adopted` says so
       }
-      await settle(30);
+      await quiet(b);
       const base = await finish(page);
       return {
         woken,

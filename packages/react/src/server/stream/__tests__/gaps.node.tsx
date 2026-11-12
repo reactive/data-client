@@ -9,6 +9,7 @@ import {
 } from '__tests__/g1Cells';
 import type { Page } from '__tests__/g1Cells';
 import { messagesOf, settle, until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 import type { BrowserHalf } from '__tests__/streamBrowser';
 import type { WakeKind } from '__tests__/streamFixtures';
 import type { LedgerFlush } from '__tests__/streamingHarness';
@@ -87,16 +88,23 @@ describeReact19('X: cases added after the invariants review', () => {
       await b.start(page, server.shell);
       const streamedB = deliverRest(b, server.flushes);
       await until(() => page.log.commits.includes('c'), 'C hydrated');
-      await settle(30);
+      await quiet(b);
       const ledger = page.ledger();
       const before = ledger.stats();
       let shown = 0;
       for (let i = 1; i <= 20; i++) {
         socketWrite(b, page, `socket-${i}`);
-        await settle(10);
-        if (b.text('a') === `socket-${i}`) shown++;
+        try {
+          await until(
+            () => b.text('a') === `socket-${i}`,
+            `A shows write ${i}`,
+          );
+          shown++;
+        } catch {
+          // `shown` says so
+        }
       }
-      await settle(30);
+      await quiet(b);
       return {
         ended: ledger.ended,
         received: piecesIn(server.flushes),
@@ -182,11 +190,11 @@ describeReact19('X: cases added after the invariants review', () => {
           b.shell(server.shell);
           b.mount(page.element);
           await until(() => page.log.commits.includes('a'), 'A rendered');
-          await settle(30);
+          await quiet(b);
         } else await b.start(page, server.shell);
         if (woken) {
           wake.current!('children');
-          await settle(30);
+          await quiet(b);
         }
         // React's own scripts would throw on the nodes the client root replaced
         if (kind === 'client-root')
@@ -197,7 +205,7 @@ describeReact19('X: cases added after the invariants review', () => {
           await until(() => page.log.commits.includes('b'), 'B committed');
         if (nested)
           await until(() => page.log.commits.includes('d'), 'D committed');
-        await settle(50);
+        await quiet(b);
         const ledger = page.ledger();
         const atEnd = ledger.stats();
         const retainedBytes = JSON.stringify((ledger as any).pieces).length;
@@ -205,9 +213,9 @@ describeReact19('X: cases added after the invariants review', () => {
           socketWrite(b, page, `socket-${i}`);
           if (i % 10 === 0) await settle(5);
         }
-        await settle(30);
+        await quiet(b);
         page.controller.current!.resetEntireStore();
-        await settle(30);
+        await quiet(b);
         const afterWrites = ledger.stats();
         const rev = ledger.rev;
         b.push([
@@ -218,7 +226,7 @@ describeReact19('X: cases added after the invariants review', () => {
             entities: { Todo: { 9: { id: '9', title: 'late' } } },
           },
         ]);
-        await settle(30);
+        await quiet(b);
         const base = await finish(page);
         return {
           ended: ledger.ended,
@@ -324,13 +332,13 @@ describeReact19('X: cases added after the invariants review', () => {
       const page = b.fx.createClientPage({ mountN: handle });
       await b.start(page, server.shell);
       b.script(bFlush);
-      await settle(30);
+      await quiet(b);
       const ledger = page.ledger();
       const mounted = await mountN(b, page, handle);
       const bPinAfterMount = ledger.pin(bPin.id);
       const streamed = b.html(bFlush, 'b');
       await until(() => page.log.commits.includes('b'), 'B hydrated');
-      await settle(30);
+      await quiet(b);
       return {
         streamOpen: !ledger.ended,
         n: mounted.n,
@@ -373,7 +381,7 @@ describeReact19('X: cases added after the invariants review', () => {
           await until(() => page.log.commits.includes('c'), 'C hydrated');
           if (when === 'every pin consumed')
             await until(() => page.log.commits.includes('b'), 'B hydrated');
-          await settle(50);
+          await quiet(b);
           const ledger = page.ledger();
           const before = ledger.stats();
           const mounted = await mountN(b, page, handle);

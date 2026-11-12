@@ -5,6 +5,7 @@
 import { inBrowser, serverHalf, splitServerWrites, srvSteps } from './g1Cells';
 import type { Page, Variant } from './g1Cells';
 import { settle, until } from './splitEnvHarness';
+import { quiet } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 
 const KEYS = ['x', 'y', 'z'];
@@ -125,7 +126,7 @@ export async function runKeys(
     } catch {
       // B's own pieces replaced its node before any keystroke; `typed` says so
     }
-    await settle(30);
+    await quiet(b);
     expect(page.log.commits.includes('b')).toBe(false);
     const input = b.byTestId('b-input') as HTMLInputElement | null;
     let nodeKept = input !== null;
@@ -175,7 +176,7 @@ export async function runKeys(
     } catch {
       // B neither hydrated nor rendered; `committed` says so
     }
-    await settle(30);
+    await quiet(b);
     check();
     const onScreen = b.byTestId('b-input') as HTMLInputElement | null;
     const base = await finish(page);

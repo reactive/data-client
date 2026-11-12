@@ -126,7 +126,7 @@ export function loadBrowserHalf() {
       () => page.log.commits.includes(firstCommit),
       `${firstCommit} hydrated`,
     );
-    await settle(30);
+    await quiet({ container });
   };
   return {
     fx,
@@ -155,6 +155,35 @@ export function loadBrowserHalf() {
   };
 }
 export type BrowserHalf = ReturnType<typeof loadBrowserHalf>;
+
+/**
+ * Resolves once React has no render scheduled or commit held back for the root and
+ * no reveal batched, for `ticks` macrotasks in a row. Await it before asserting
+ * something did not happen, or before reading the state the page settled on.
+ */
+export async function quiet(
+  b: Pick<BrowserHalf, 'container'>,
+  ticks = 5,
+  ms = 2000,
+): Promise<void> {
+  const key = Object.keys(b.container).find(k =>
+    k.startsWith('__reactContainer$'),
+  );
+  const root = key && (b.container as any)[key].stateNode;
+  // a commit React delays (`timeoutHandle`, -1 when none) leaves `callbackNode` null
+  const idle = () =>
+    (!root ||
+      (root.callbackNode === null &&
+        root.timeoutHandle === -1 &&
+        !root.cancelPendingCommit)) &&
+    !(globalThis as any).$RB?.length;
+  const start = Date.now();
+  for (let calm = 0; calm < ticks;) {
+    if (Date.now() - start > ms) throw new Error('timed out: quiet');
+    await new Promise(resolve => setTimeout(resolve, 5));
+    calm = idle() ? calm + 1 : 0;
+  }
+}
 
 /** Every DOM test ends here: no piece met a client-written record of a class the page never showed */
 export function expectNoUnknownClass() {

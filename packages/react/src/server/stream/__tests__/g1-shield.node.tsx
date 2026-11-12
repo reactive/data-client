@@ -26,7 +26,8 @@ import {
   deliverB,
 } from '__tests__/g1Cells';
 import type { PageOptions, Variant } from '__tests__/g1Cells';
-import { messagesOf, settle, until } from '__tests__/splitEnvHarness';
+import { messagesOf, until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 
 const { version } = require('react') as typeof import('react');
 const describeReact19 =
@@ -85,12 +86,12 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
           !b.container.querySelector('[id="S:0"]'),
         'B revealed',
       );
-      await settle(30);
+      await quiet(b);
       const revealedUnhydrated = !page.log.commits.includes('b');
       let nodeKept = true;
       let fallbackShown = false;
       const check = async () => {
-        await settle(10);
+        await quiet(b);
         if (!b.container.contains(streamed!)) nodeKept = false;
         if (b.container.textContent?.includes('loading b'))
           fallbackShown = true;
@@ -196,7 +197,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       );
       let writesWhileDPending = 0;
       const count = async () => {
-        await settle(10);
+        await quiet(b);
         if (b.pending(dTemplate!)) writesWhileDPending++;
       };
       for (let k = 0; k < 5; k++) {
@@ -207,7 +208,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       }
       const dRendered = page.log.renders.includes('d');
       b.push(rest);
-      await settle(20);
+      await quiet(b);
       const dPendingBeforeHtml = b.pending(dTemplate!);
       const streamed = b.html(dFlush, 'd');
       await until(() => page.log.commits.includes('d'), 'D hydrated').catch(
@@ -279,7 +280,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       const streamed = names.map(name => b.byTestId(name));
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('a'), 'A hydrated');
-      await settle(50);
+      await quiet(b);
       const ledger = page.ledger();
       const beforeEnd = {
         ended: ledger.ended,
@@ -293,7 +294,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
         () => names.every(name => page.log.commits.includes(name)),
         'S, O and I hydrated',
       );
-      await settle(30);
+      await quiet(b);
       return {
         beforeEnd,
         adopted: names.filter((name, i) => b.byTestId(name) === streamed[i]),
@@ -354,7 +355,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
         () => ['b', 'c', 'd', 'i'].every(n => page.log.commits.includes(n)),
         'every island hydrated',
       );
-      await settle(30);
+      await quiet(b);
       return { committed, stats: ledger.stats(), ...(await finish(page)) };
     });
     // A, B, C, D, S, O and I: every boundary the server pinned hydrated on
@@ -382,15 +383,16 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
         () => ['b', 'c'].every(name => page.log.commits.includes(name)),
         'B and C hydrated',
       );
-      await settle(50);
+      await quiet(b);
       let k = 0;
       const tenWrites = async () => {
         b.probe.resetRenders();
         for (let i = 0; i < 10; i++) {
           socketWrite(b, page, `quiet-${++k}`);
-          await settle(5);
+          // each write renders on its own
+          await until(() => b.text('a') === `quiet-${k}`, `write ${k} shown`);
         }
-        await settle(30);
+        await quiet(b);
         const count = (name: string) => b.probe.renders.get(name) ?? 0;
         return {
           Shield: count('Shield'),
@@ -401,7 +403,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       const joined = await tenWrites();
       handle.current!();
       await until(() => page.log.commits.includes('n'), 'N mounted');
-      await settle(30);
+      await quiet(b);
       const withN = await tenWrites();
       return { joined, withN, a: b.text('a'), ...(await finish(page)) };
     });
@@ -435,7 +437,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       const seeded: any =
         page.controller.current!.getState().entities.Todo!['1'];
       b.script(server.with('b'));
-      await settle(30);
+      await quiet(b);
       const state = page.controller.current!.getState();
       const record: any = state.entities.Todo!['1'];
       const now = Date.now();
@@ -465,11 +467,11 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       const page = b.fx.createClientPage({ wakeB: wake });
       await b.start(page, server.shell);
       b.script(server.with('b'));
-      await settle(30);
+      await quiet(b);
       const pendingBeforeWake = b.pending('B:0');
       wake.current!();
       await until(() => page.log.commits.includes('b'), 'B committed');
-      await settle(50);
+      await quiet(b);
       return {
         pendingBeforeWake,
         pendingAfterWake: b.pending('B:0'),

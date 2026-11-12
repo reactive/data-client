@@ -10,7 +10,7 @@ import {
   settle,
   until,
 } from './splitEnvHarness';
-import { expectNoUnknownClass, loadBrowserHalf } from './streamBrowser';
+import { expectNoUnknownClass, loadBrowserHalf, quiet } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 import type * as Fixtures from './streamFixtures';
 import type { LedgerFlush } from './streamingHarness';
@@ -100,7 +100,7 @@ export async function inBrowser<T>(
     uses.mockClear();
     const half = b;
     const finish = async (page: Page): Promise<Base> => {
-      await settle(30);
+      await quiet(half);
       return {
         errors: half.errors.length,
         fetches: page.fetches,
@@ -179,19 +179,14 @@ export async function runCell(
     b.probe.resetCommits();
     const rendersBefore = page.log.renders.length;
     let writesWhileBPending = 0;
-    // A wake renders after the write; a slow machine needs more than 10 ms
+    // a wake renders after the write
     const count = async () => {
-      await settle(10);
-      try {
-        await until(() => !b.pending('B:0'), 'B woken', 50);
-      } catch {
-        writesWhileBPending++;
-      }
+      await quiet(b);
+      if (b.pending('B:0')) writesWhileBPending++;
     };
 
     if (cell === 'publish-transition') {
       b.script(bFlush);
-      await settle(20);
       await count();
     } else if (cell === 'interleaved') {
       const { writes, rest } = splitServerWrites(bFlush);
@@ -203,7 +198,7 @@ export async function runCell(
         await count();
       }
       b.push(rest);
-      await settle(20);
+      await quiet(b);
     } else {
       for (let i = 1; i <= 10; i++) {
         socketWrite(b, page, `socket-${i}`, cell === 'socket-transition');
@@ -216,7 +211,7 @@ export async function runCell(
     )?.title;
     if (cell === 'socket-default' || cell === 'socket-transition') {
       b.script(bFlush);
-      await settle(20);
+      await quiet(b);
     }
     const pendingAfterWrites = { b: b.pending('B:0'), c: b.pending('B:1') };
     const rendersBeforeHtml = page.log.renders.slice(rendersBefore);
@@ -334,10 +329,10 @@ export async function runLanes(mode: 'hold' | 'behind') {
     b.probe.resetCommits();
     if (mode === 'behind') {
       lanes.start!();
-      await settle(30);
+      await quiet(b);
     }
     b.push(writes);
-    await settle(30);
+    await quiet(b);
     const aWhileHeld = b.text('a');
     const fallbackA = b.container.textContent!.includes('loading a');
     page.controller.current!.setResponse(
@@ -345,12 +340,12 @@ export async function runLanes(mode: 'hold' | 'behind') {
       { id: 'sock' },
       { id: 'sock', title: 'socket-1' },
     );
-    await settle(30);
+    await quiet(b);
     const socketShown = b.text('lanes');
     const aAfterSocket = b.text('a');
     if (mode === 'hold') releaseA();
     else lanes.release!();
-    await settle(50);
+    await quiet(b);
     return {
       aWhileHeld,
       fallbackA,
@@ -374,14 +369,14 @@ export async function joinHeld() {
     const spy = spyLedger(page.ledger());
     await b.start(page, server.shell);
     lanes.start!();
-    await settle(30);
+    await quiet(b);
     const seen = watch(b, 'b', 'loading b');
     b.script(bFlush);
     const streamed = b.html(bFlush, 'b');
-    await settle(50);
+    await quiet(b);
     const hydratedWhileSuspended = page.log.commits.includes('b');
     socketWrite(b, page, 'socket-1');
-    await settle(30);
+    await quiet(b);
     const bAfterWrite = b.text('b');
     const holdersAtWrite = scopeHolders(b.container);
     const suspendedBeforeRelease = b.text('lanes') === 'none';
@@ -389,7 +384,7 @@ export async function joinHeld() {
     await until(() => b.text('lanes') === 'none+resolved', 'app resolved');
     await until(() => page.log.commits.includes('b'), 'B hydrated');
     await until(() => scopeHolders(b.container).empty === 2, 'B joined');
-    await settle(30);
+    await quiet(b);
     const bText = b.text('b');
     const bLive = liveList(page, 'b');
     const adopted = b.byTestId('b') === streamed;
@@ -402,7 +397,7 @@ export async function joinHeld() {
       { id: 'sock' },
       { id: 'sock', title: 'socket-2' },
     );
-    await settle(30);
+    await quiet(b);
     const { seen: shown, fallbackOverContent } = seen.stop();
     const base = await finish(page);
     await collect();
@@ -450,7 +445,7 @@ export async function codeFails() {
         "B's error shown",
       );
       await until(() => page.log.commits.includes('c'), 'C hydrated');
-      await settle(50);
+      await quiet(b);
       const renders = page.log.renders.length;
       const commits = page.log.commits.length;
       const errors = b.errors.length;
@@ -460,7 +455,7 @@ export async function codeFails() {
         page.log.commits.length === commits &&
         b.errors.length === errors;
       socketWrite(b, page, 'socket-1');
-      await settle(30);
+      await quiet(b);
       return {
         gating: {
           errorShown: b.container.textContent!.includes('B code failed'),
@@ -488,19 +483,19 @@ export async function hiddenWhilePending() {
     const activityB: Fixtures.ActivityHandle = {};
     const page = b.fx.createClientPage({ activityB });
     await b.start(page, server.shell);
-    await settle(30);
+    await quiet(b);
     const pendingBefore = b.pending('B:0');
     activityB.current!('hidden');
-    await settle(30);
+    await quiet(b);
     const pendingWhenHidden = b.pending('B:0');
     socketWrite(b, page, 'socket-1');
-    await settle(30);
+    await quiet(b);
     const pendingAfterWrite = b.pending('B:0');
     const bRenderedWhileHidden = page.log.renders.includes('b');
     const a = b.text('a');
     b.script(bFlush);
     const streamed = b.html(bFlush, 'b');
-    await settle(30);
+    await quiet(b);
     const pendingAfterHtml = b.pending('B:0');
     const seen = watch(b, 'b', 'loading b');
     activityB.current!('visible');
@@ -509,7 +504,7 @@ export async function hiddenWhilePending() {
     } catch {
       // gated by the caller
     }
-    await settle(50);
+    await quiet(b);
     const { fallbackOverContent } = seen.stop();
     const base = await finish(page);
     return {

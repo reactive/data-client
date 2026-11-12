@@ -35,7 +35,8 @@ import {
   splitServerWrites,
   srvSteps,
 } from '__tests__/g1Cells';
-import { settle, until } from '__tests__/splitEnvHarness';
+import { until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 import type { ActivityHandle } from '__tests__/streamFixtures';
 
 const { version } = require('react') as typeof import('react');
@@ -97,12 +98,12 @@ describeReact19('S: StrictMode and Activity', () => {
         'B1 and B2 hydrated',
       );
       await until(() => page.log.renders.includes('h'), 'H rendered hidden');
-      await settle(30);
+      await quiet(b);
       const hiddenText = b.byTestId('h')?.textContent;
       const committedHidden = page.log.commits.includes('h');
       opts.activityH.current!('visible');
       await until(() => page.log.commits.includes('h'), 'H shown');
-      await settle(30);
+      await quiet(b);
       return {
         serverRenderedH,
         ended: ledger.ended,
@@ -154,7 +155,7 @@ describeReact19('S: StrictMode and Activity', () => {
         'B1 and B2 hydrated',
       );
       await until(() => b.text('b1') === 'BTC:101.5ETH:10', 'B1 joined');
-      await settle(50);
+      await quiet(b);
       const before = {
         pinReads: pinReads.length,
         snapshots: spy.snapshots.length,
@@ -162,10 +163,10 @@ describeReact19('S: StrictMode and Activity', () => {
         b1Commits: page.log.commits.filter(n => n === 'b1').length,
       };
       opts.activityB1.current!('hidden');
-      await settle(30);
+      await quiet(b);
       const hidden = b.byTestId('b1')?.closest('[style*="display: none"]');
       opts.activityB1.current!('visible');
-      await settle(50);
+      await quiet(b);
       return {
         hiddenApplied: hidden !== null && hidden !== undefined,
         newPinReads: pinReads.length - before.pinReads,
@@ -209,22 +210,22 @@ describeReact19('S: StrictMode and Activity', () => {
       const above: ActivityHandle = {};
       const page = b.fx.createClientPage({ activityAbove: above });
       await b.start(page, server.shell);
-      await settle(30);
+      await quiet(b);
       const actions = page.log.actions!;
       const piecesBefore = actions.filter(isPiece).length;
       above.current!('hidden');
-      await settle(30);
+      await quiet(b);
       const hideMark = actions.length;
       for (const write of writes) {
         b.push([write]);
-        await settle(20);
+        await quiet(b);
       }
       const whileHidden = actions.slice(hideMark).filter(isPiece).length;
       const aWhileHidden = (
         page.controller.current!.getState().entities.Todo?.['1'] as any
       )?.title;
       above.current!('visible');
-      await settle(50);
+      await quiet(b);
       const published = actions
         .slice(hideMark)
         .filter(isPiece)

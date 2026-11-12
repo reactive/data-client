@@ -4,7 +4,8 @@
  */
 import { inBrowser, liveList, serverHalf, watch } from './g1Cells';
 import type { Variant } from './g1Cells';
-import { settle, until } from './splitEnvHarness';
+import { until } from './splitEnvHarness';
+import { quiet } from './streamBrowser';
 import type { WakeKind } from './streamFixtures';
 
 export type At = '$?' | 'revealed';
@@ -33,13 +34,13 @@ export async function parentRerender(variant: Variant, kind: WakeKind, at: At) {
       b.script(bFlush);
       streamed = b.html(bFlush, 'b');
       await until(() => !b.pending('B:0'), 'B revealed');
-      await settle(30);
+      await quiet(b);
     }
     const pendingBefore =
       at === '$?' ? b.pending('B:0') : !page.log.commits.includes('b');
     const seen = watch(b, 'b', 'loading b');
     wake.current!(kind);
-    await settle(50);
+    await quiet(b);
     const woken =
       at === '$?' ?
         !b.pending('B:0')
@@ -53,7 +54,7 @@ export async function parentRerender(variant: Variant, kind: WakeKind, at: At) {
     } catch {
       // `woken` and `adopted` say so
     }
-    await settle(50);
+    await quiet(b);
     const { seen: shown, fallbackOverContent } = seen.stop();
     const base = await finish(page);
     const bLive = liveList(page, 'b');

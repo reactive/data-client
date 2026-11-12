@@ -22,7 +22,8 @@ import {
 import { KINDS, parentRerender } from '__tests__/limitCells';
 import type { At } from '__tests__/limitCells';
 import { describeObserved, observedTable } from '__tests__/observe';
-import { settle, until } from '__tests__/splitEnvHarness';
+import { until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 import type { WakeKind } from '__tests__/streamFixtures';
 import type { GatePromise } from '__tests__/streamingHarness';
 
@@ -69,7 +70,7 @@ describeObserved('L: limits (observed)', () => {
       } catch {
         // `b1Adopted` says so
       }
-      await settle(50);
+      await quiet(b);
       return {
         errors: b.errors.length,
         b1Adopted: b.byTestId('b1') === streamed.b1,

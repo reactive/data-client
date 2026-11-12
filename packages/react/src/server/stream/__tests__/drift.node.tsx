@@ -10,6 +10,7 @@ import {
   pinsOf,
 } from '__tests__/driftCells';
 import { loadServerHalf, settle, until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 import type * as Fixtures from '__tests__/streamFixtures';
 
 const { version } = require('react') as typeof import('react');
@@ -29,7 +30,7 @@ describeReact19('D: no mis-hydration under drift', () => {
           page.log.commits.includes('b1') && page.log.commits.includes('b2'),
         'B1 and B2 hydrated',
       );
-      await settle(50);
+      await quiet(b);
       return {
         errors: b.errors.length,
         b1Adopted: b.byTestId('b1') === streamed.b1,
@@ -60,7 +61,7 @@ describeReact19('D: no mis-hydration under drift', () => {
       const streamed = await deliverAll(b, capture);
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('b1'), 'B1 committed');
-      await settle(50);
+      await quiet(b);
       return {
         errors: b.errors.length,
         b1Adopted: b.byTestId('b1') === streamed.b1,
@@ -86,7 +87,7 @@ describeReact19('D: no mis-hydration under drift', () => {
       );
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('b1'), 'B1 hydrated');
-      await settle(100);
+      await quiet(b);
       const waited =
         !page.log.renders.includes('b2') &&
         b.byTestId('b2') === streamed.b2 &&
@@ -94,7 +95,7 @@ describeReact19('D: no mis-hydration under drift', () => {
       b.push([{ t: 'pin', id: b2, rev: pin.rev }]);
       await until(() => page.log.commits.includes('b2'), 'B2 hydrated');
       b.push([{ t: 'end' }]);
-      await settle(30);
+      await quiet(b);
       return {
         waited,
         errors: b.errors.length,
@@ -122,11 +123,11 @@ describeReact19('D: no mis-hydration under drift', () => {
       );
       b.hydrate(page.element);
       await until(() => page.log.commits.includes('b1'), 'B1 hydrated');
-      await settle(50);
+      await quiet(b);
       const waitedForPin = !page.log.renders.includes('b2');
       b.push([{ t: 'end' }]);
       await until(() => page.log.commits.includes('b2'), 'B2 hydrated');
-      await settle(30);
+      await quiet(b);
       return {
         waitedForPin,
         errors: b.errors.length,
@@ -276,7 +277,7 @@ describeReact19('D: no mis-hydration under drift', () => {
         () => page.log.commits.includes('b1') && page.log.commits.includes('d'),
         'B1 and D hydrated',
       );
-      await settle(30);
+      await quiet(b);
       return {
         errors: b.errors.length,
         b1Adopted: b.byTestId('b1') === streamed.b1,
@@ -311,18 +312,18 @@ describeReact19('D: no mis-hydration under drift', () => {
       const layout = b.byTestId('layout');
       const a = b.byTestId('a');
       b.hydrate(page.element);
-      await settle(50);
+      await quiet(b);
       const waited =
         page.log.renders.length === 0 && b.byTestId('layout') === layout;
       b.script(shell);
       await until(() => page.log.commits.includes('a'), 'A hydrated');
-      await settle(30);
+      await quiet(b);
       const adopted = b.byTestId('layout') === layout && b.byTestId('a') === a;
       // a second render after open does not suspend
       b.probe.resetCommits();
       const providerRenders = page.log.renders.length;
       b.rootRender(page.element);
-      await settle(30);
+      await quiet(b);
       return {
         waited,
         adopted,

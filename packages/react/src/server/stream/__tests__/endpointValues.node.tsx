@@ -1,5 +1,6 @@
 import { inBrowser, serverHalf } from '__tests__/g1Cells';
-import { settle, until } from '__tests__/splitEnvHarness';
+import { until } from '__tests__/splitEnvHarness';
+import { quiet } from '__tests__/streamBrowser';
 
 jest.mock('react-dom', () => {
   const actual = jest.requireActual('react-dom');
@@ -40,7 +41,7 @@ describeReact19('V: endpoint values', () => {
           streamed = b.htmlFind(flush, ['v']).v ?? streamed;
         }
         await until(() => page.log.commits.includes('v'), 'V hydrated');
-        await settle(30);
+        await quiet(b);
         const state = page.controller.current!.getState();
         const key = page.endpoints.getValue.key({ name: 'v' });
         return {

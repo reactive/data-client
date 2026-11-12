@@ -12,7 +12,7 @@ import {
   settle,
   until,
 } from './splitEnvHarness';
-import { expectNoUnknownClass, loadBrowserHalf } from './streamBrowser';
+import { expectNoUnknownClass, loadBrowserHalf, quiet } from './streamBrowser';
 import type { BrowserHalf } from './streamBrowser';
 import type { LedgerCapture, LedgerFlush } from './streamingHarness';
 import type { Ledger } from '../packages/react/src/server/stream';
@@ -248,7 +248,7 @@ export async function releaseAfterJoin(
       'B1 and B2 hydrated',
     );
     await until(() => b.text('b1') === 'BTC:101.5ETH:10', 'B1 joined');
-    await settle(50);
+    await quiet(b);
     // no local of this async function may hold a state across the collection
     const pinned = {
       errors: b.errors.length,
@@ -271,7 +271,7 @@ export async function releaseAfterJoin(
         { id: 'SOL' },
         { id: 'SOL', price: 1 },
       );
-      await settle(30);
+      await quiet(b);
     }
     await collect();
     return {
@@ -329,7 +329,7 @@ export async function oneBoundary(layout: 'two-fetches' | 'one-boundary') {
       () => page.log.commits.includes('b1') && page.log.commits.includes('b2'),
       'boundary committed',
     );
-    await settle(50);
+    await quiet(b);
     return {
       pinRev: pins[pins.length - 1].rev,
       serverText,
@@ -350,7 +350,7 @@ export async function plainSuspenseDrift(plain: 'b1' | 'b2') {
     const [shell, ...rest] = capture.flushes;
     b.shell(shell);
     b.hydrate(page.element);
-    await settle(30);
+    await until(() => b.probe.commits.length > 0, 'shell hydrated');
     const streamed: Record<string, Element | undefined> = {};
     for (const flush of rest) {
       b.script(flush);
@@ -361,7 +361,7 @@ export async function plainSuspenseDrift(plain: 'b1' | 'b2') {
       () => page.log.commits.includes('b1') && page.log.commits.includes('b2'),
       'B1 and B2 committed',
     );
-    await settle(50);
+    await quiet(b);
     return {
       errors: b.errors.length,
       adopted: b.byTestId(plain) === streamed[plain],
