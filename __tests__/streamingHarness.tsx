@@ -42,6 +42,11 @@ export interface LedgerFlush {
   html: string;
 }
 
+/** The chunk a flush writes: the script, as a tag, then the HTML */
+export function chunkOf(flush: LedgerFlush): string {
+  return (flush.script && `<script>${flush.script}</script>`) + flush.html;
+}
+
 export interface LedgerCapture {
   shell: string;
   rest: string[];
@@ -183,10 +188,7 @@ function captureLedgerStream(
 
   const emit = (messages: ReturnType<ServerLedger['take']>) => {
     const source = serialize(messages);
-    const flush = {
-      script: source && `<script>${source}</script>`,
-      html: buffered,
-    };
+    const flush = { script: source, html: buffered };
     buffered = '';
     if (!flush.script && !flush.html) return;
     flushes.push(flush);
@@ -220,7 +222,7 @@ function captureLedgerStream(
     // React calls `flush()` after each batch of writes, reveal scripts included
     writable.flush = () => emit(ledger.take());
     writable.on('finish', () => {
-      const chunks = flushes.map(f => f.script + f.html);
+      const chunks = flushes.map(chunkOf);
       finish(() =>
         resolve({ shell: chunks[0] ?? '', rest: chunks.slice(1), flushes }),
       );

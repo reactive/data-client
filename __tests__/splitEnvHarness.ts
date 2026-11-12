@@ -13,9 +13,8 @@ import vm from 'vm';
 // that times out keeps running and tears down the next test's DOM.
 jest.setTimeout(30_000);
 
-/** Messages an inline ledger script pushes, read in a sandbox */
-export function messagesOf(scriptTag: string): any[] {
-  const source = scriptTag.replace(/^<script>/, '').replace(/<\/script>$/, '');
+/** Messages a ledger script's source pushes, read in a sandbox */
+export function messagesOf(source: string): any[] {
   if (!source) return [];
   const sandbox: any = {};
   sandbox.self = sandbox;
@@ -23,9 +22,8 @@ export function messagesOf(scriptTag: string): any[] {
   return JSON.parse(JSON.stringify(sandbox.__RDC_STREAM__));
 }
 
-/** Runs an inline ledger script the way the HTML parser would, in this realm */
-export function runLedgerScript(scriptTag: string): void {
-  const source = scriptTag.replace(/^<script>/, '').replace(/<\/script>$/, '');
+/** Runs a ledger script's source the way the HTML parser would, in this realm */
+export function runLedgerScript(source: string): void {
   if (source) new Function(source)();
 }
 

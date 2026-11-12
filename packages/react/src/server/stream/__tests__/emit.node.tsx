@@ -1,5 +1,6 @@
 import { loadServerHalf, messagesOf } from '__tests__/splitEnvHarness';
 import type * as Fixtures from '__tests__/streamFixtures';
+import { chunkOf } from '__tests__/streamingHarness';
 
 const { version } = require('react') as typeof import('react');
 const describeReact19 =
@@ -23,7 +24,7 @@ describeReact19('E: emission order', () => {
 
     // In every chunk the script comes before the HTML, and so before any reveal
     for (const flush of flushes) {
-      const chunk = flush.script + flush.html;
+      const chunk = chunkOf(flush);
       if (flush.script) expect(chunk.indexOf('<script>')).toBe(0);
       const reveal = chunk.search(REVEAL);
       if (reveal >= 0 && flush.script)
