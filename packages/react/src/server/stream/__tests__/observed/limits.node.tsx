@@ -123,12 +123,13 @@ const L1: Record<
       error: rec(true, false, 0, true),
       same: rec(false, true, 0),
     },
-    // B's own piece already woke it, before the parent re-rendered
+    // B's own piece already woke it, before the parent re-rendered: once React
+    // is idle, B's server HTML is gone
     none: {
-      children: rec(false, false, 1),
-      fallback: rec(false, false, 1),
-      error: rec(false, false, 1),
-      same: rec(false, false, 1),
+      children: rec(true, false, 1),
+      fallback: rec(true, false, 1),
+      error: rec(true, false, 1),
+      same: rec(true, false, 1),
     },
   },
 };

@@ -137,14 +137,14 @@ const R9_RECORDED = {
   flushSyncCalls: 0,
   detectorOnly: true,
 };
-// While hidden, the write does not wake B; its HTML arrives and is adopted
-// when the Activity is shown
+// While hidden, the write does not wake B; React's runtime reveals its HTML
+// while hidden, and B adopts it when the Activity is shown
 const S6_RECORDED = {
   pendingBefore: true,
   pendingWhenHidden: true,
   pendingAfterWrite: true,
   bRenderedWhileHidden: false,
-  pendingAfterHtml: true,
+  pendingAfterHtml: false,
   adopted: true,
   fetches: [],
 };
