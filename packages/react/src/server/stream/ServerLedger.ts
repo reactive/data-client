@@ -1,5 +1,5 @@
 import { actionTypes, initialState } from '@data-client/core';
-import type { Manager, Middleware, State } from '@data-client/core';
+import type { GCAction, Manager, Middleware, State } from '@data-client/core';
 
 import { diffState } from './diffState.js';
 import { WIRE_VERSION } from './wire.js';
@@ -46,18 +46,28 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
   const scopes = new Map<string, ScopedStore>();
   const parents = new Map<string, string>();
 
-  const record = () => {
-    const next = root!.getState();
-    if (next === prevState) return;
-    const slots = diffState(prevState, next);
+  const diff = (prev: State<unknown>, next: State<unknown>) => {
+    const slots = diffState(prev, next);
     prevState = next;
     if (slots) pieces.push({ t: 'piece', rev: ++rev, at: now(), ...slots });
+  };
+  const record = () => {
+    const next = root!.getState();
+    if (next !== prevState) diff(prevState, next);
   };
 
   const middleware: Middleware = () => next => action => {
     if (action.type === actionTypes.FETCH && !announced.has(action.key)) {
       announced.add(action.key);
       announce.push(action.key);
+    }
+    // Core's reducer deletes a GC's entries in place and keeps the state object,
+    // so `record` sees no change; diff against copies of the tables it touches
+    if (action.type === actionTypes.GC && root) {
+      const copy = copyTables(prevState, action);
+      const result = next(action);
+      diff(copy, root.getState());
+      return result;
     }
     return next(action);
   };
@@ -122,5 +132,22 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
       }
       return out;
     },
+  };
+}
+
+function copyTables(state: State<unknown>, action: GCAction): State<unknown> {
+  const entities = { ...state.entities };
+  const entitiesMeta = { ...state.entitiesMeta };
+  for (const { key } of action.entities) {
+    if (state.entities[key]) entities[key] = { ...state.entities[key] };
+    if (state.entitiesMeta[key])
+      entitiesMeta[key] = { ...state.entitiesMeta[key] };
+  }
+  return {
+    ...state,
+    entities,
+    entitiesMeta,
+    endpoints: { ...state.endpoints },
+    meta: { ...state.meta },
   };
 }

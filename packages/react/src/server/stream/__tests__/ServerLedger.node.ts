@@ -1,16 +1,21 @@
 import {
   Controller,
   NetworkManager,
+  actionTypes,
   actions,
   applyManager,
   createReducer,
   initialState,
 } from '@data-client/core';
+import type { State } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 
 import { PromiseifyMiddleware } from '../../redux/index.js';
 import { applyMiddleware, createStore } from '../../redux/redux.js';
+import { foldPieces } from '../applyPiece';
+import createServerStream from '../createServerStream';
 import { createServerLedger } from '../ServerLedger';
+import type { StreamMessage } from '../wire';
 
 class Ticker extends Entity {
   id = '';
@@ -147,5 +152,82 @@ describe('createServerLedger', () => {
     expect(last.map(m => m.t)).toEqual(['piece', 'end']);
     expect(ledger.end()).toEqual([]);
     expect(ledger.take()).toEqual([]);
+  });
+
+  it('K6: through the server store, foldPieces of everything taken equals its state after fetch, invalidate, reset and GC', async () => {
+    const { controller, ledger } = createServerStream();
+    const getTickers = new Endpoint(
+      () =>
+        Promise.resolve([
+          { id: 'BTC', price: 2 },
+          { id: 'ETH', price: 3 },
+        ]),
+      { schema: [Ticker], name: 'getTickers' },
+    );
+    // a fold keeps a table whose records were all deleted; the store may not
+    const dropEmpty = (state: State<unknown>) => {
+      const nonEmpty = (tables: { [key: string]: object | undefined }) =>
+        Object.fromEntries(
+          Object.entries(tables).filter(
+            ([, table]) => Object.keys(table ?? {}).length,
+          ),
+        );
+      return {
+        ...state,
+        entities: nonEmpty(state.entities),
+        entitiesMeta: nonEmpty(state.entitiesMeta),
+        indexes: nonEmpty(state.indexes),
+      };
+    };
+    const taken: StreamMessage[] = [];
+    const takeAndFold = () => {
+      taken.push(...ledger.take());
+      const wire = JSON.parse(
+        JSON.stringify(taken.filter(m => m.t === 'piece')),
+      );
+      return dropEmpty(foldPieces(wire, Infinity));
+    };
+    const serverState = () =>
+      dropEmpty({
+        ...controller.getState(),
+        optimistic: [],
+        lastReset: 0,
+      });
+    const fetchBoth = () =>
+      Promise.all([
+        controller.fetch(getTicker, { id: 'BTC' }),
+        controller.fetch(getTickers),
+      ]);
+
+    await fetchBoth();
+    expect(controller.getState().entities.Ticker).toHaveProperty('ETH');
+    expect(takeAndFold()).toEqual(serverState());
+
+    await controller.invalidate(getTicker, { id: 'BTC' });
+    expect(controller.getState().endpoints).not.toHaveProperty(
+      getTicker.key({ id: 'BTC' }),
+    );
+    expect(takeAndFold()).toEqual(serverState());
+
+    await controller.resetEntireStore();
+    expect(controller.getState().entities).toEqual({});
+    expect(takeAndFold()).toEqual(serverState());
+
+    await fetchBoth();
+    expect(takeAndFold()).toEqual(serverState());
+
+    // core's reducer deletes a GC's entries in place and returns the same state object
+    const before = controller.getState();
+    await controller.dispatch({
+      type: actionTypes.GC,
+      entities: [{ key: 'Ticker', pk: 'ETH' }],
+      endpoints: [getTickers.key()],
+    });
+    expect(controller.getState()).toBe(before);
+    expect(controller.getState().entities.Ticker).not.toHaveProperty('ETH');
+    expect(controller.getState().endpoints).not.toHaveProperty(
+      getTickers.key(),
+    );
+    expect(takeAndFold()).toEqual(serverState());
   });
 });
