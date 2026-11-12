@@ -179,6 +179,13 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
       log.commits.push(name);
     }, [name]);
   }
+  /** Only for a reader, which reads `StateContext` already */
+  function useRecordState(name: string) {
+    const state = use(StateContext);
+    useLayoutEffect(() => {
+      if (log.states) (log.states[name] ??= []).push(new WeakRef(state));
+    }, [name, state]);
+  }
   function IslandA() {
     const todo = useSuspense(endpoints.getTodo, { id: '1' });
     useRecord('a');
@@ -194,6 +201,7 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
   function List({ group }: { group: string }) {
     const todos = useSuspense(endpoints.getList, { group });
     useRecord(group);
+    useRecordState(group);
     return (
       <ul data-testid={group}>
         {todos.map(todo => (

@@ -165,6 +165,7 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
     expect(writes).toHaveLength(5);
     const r = await inBrowser(async (b, finish) => {
       const page = b.fx.createClientPage({ nested: true, variant });
+      page.log.states = {};
       await b.start(page, server.shell);
       b.probe.resetCommits();
       b.script(bFlush);
@@ -185,6 +186,14 @@ describeReact19('G1: the shield inside the real AsyncBoundary', () => {
       const bAdopted = await deliverB(b, page, bFlush);
       dTemplate ??= b.templateOf('loading d');
       expect(dTemplate).toBeDefined();
+      // D's fate is set by the transitions after B's commit; React renders
+      // pending transitions together, so none commits after B's join
+      await until(
+        () =>
+          page.log.states!.b?.at(-1)?.deref() ===
+          page.controller.current!.getState(),
+        'B joined',
+      );
       let writesWhileDPending = 0;
       const count = async () => {
         await settle(10);
