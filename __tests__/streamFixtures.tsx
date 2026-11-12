@@ -67,6 +67,10 @@ export function makeEndpoints(fetchImpl: FetchImpl) {
       (params: { group: string }) => fetchImpl('getList', params),
       { schema: [Todo], name: 'getList' },
     ),
+    getValue: new Endpoint(
+      (params: { name: string }) => fetchImpl('getValue', params),
+      { name: 'getValue' },
+    ),
   };
 }
 export type Endpoints = ReturnType<typeof makeEndpoints>;
@@ -150,6 +154,8 @@ export interface PageOptions {
   plainB?: boolean;
   /** Browser: `current()` mounts island N, an `AsyncBoundary` around A's todo, in the shell */
   mountN?: { current?: () => void };
+  /** Island V reads `getValue({ name: 'v' })`, which has no schema; resolve it with `resolveValue` */
+  valueV?: boolean;
 }
 
 function Waiter({ promise }: { promise: Promise<void> }) {
@@ -225,6 +231,11 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
       </AsyncBoundary>
     );
   }
+  function IslandV() {
+    const value = useSuspense(endpoints.getValue, { name: 'v' });
+    useRecord('v');
+    return <p data-testid="v">{JSON.stringify(value)}</p>;
+  }
   function IslandN() {
     const todo = useSuspense(endpoints.getTodo, { id: '1' });
     useRecord('n');
@@ -286,6 +297,11 @@ function makeIslands(endpoints: Endpoints, log: PageLog, opts: PageOptions) {
         </AsyncBoundary>
         {opts.mountN ?
           <MountN handle={opts.mountN} />
+        : null}
+        {opts.valueV ?
+          <AsyncBoundary fallback={<span>loading v</span>}>
+            <IslandV />
+          </AsyncBoundary>
         : null}
       </div>
     );
@@ -538,6 +554,14 @@ export const resolveGroup = (group: 'b' | 'c' | 'd'): ServerStep =>
   Object.assign(
     (page: ServerPage) =>
       page.server.resolve('getList', { group }, DATA[group]),
+    { completes: true },
+  );
+
+/** Completes island V with this value */
+export const resolveValue = (value: unknown): ServerStep =>
+  Object.assign(
+    (page: ServerPage) =>
+      page.server.resolve('getValue', { name: 'v' }, value),
     { completes: true },
   );
 

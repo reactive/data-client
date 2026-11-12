@@ -153,7 +153,8 @@ export function applyPiece(
     }
   }
 
-  for (const key of keysOf(piece.endpoints, piece.meta)) {
+  const removed = new Set(piece.x);
+  for (const key of endpointKeysOf(piece)) {
     const meta = piece.meta?.[key];
     const clientMeta = state.meta[key];
     if (
@@ -162,13 +163,13 @@ export function applyPiece(
       clientMeta.fetchedAt > meta.fetchedAt
     )
       continue;
-    if (piece.endpoints && key in piece.endpoints) {
-      const value = piece.endpoints[key];
-      if (value === null) w.removeEndpoint(key);
-      else w.setEndpoint(key, value);
+    if (removed.has(key)) {
+      w.removeEndpoint(key);
+      w.removeEndpointMeta(key);
     }
-    if (meta === null) w.removeEndpointMeta(key);
-    else if (meta !== undefined)
+    if (piece.endpoints && key in piece.endpoints)
+      w.setEndpoint(key, piece.endpoints[key]);
+    if (meta !== undefined)
       w.setEndpointMeta(key, keptUnknown ? { ...meta, expiresAt: 0 } : meta);
   }
   return w.done();
@@ -229,16 +230,12 @@ export function foldPieces(
         }
       }
     }
-    for (const key in piece.endpoints) {
-      const value = piece.endpoints[key];
-      if (value === null) delete endpoints[key];
-      else endpoints[key] = value;
+    for (const key of piece.x ?? []) {
+      delete endpoints[key];
+      delete meta[key];
     }
-    for (const key in piece.meta) {
-      const value = piece.meta[key];
-      if (value === null) delete meta[key];
-      else meta[key] = value;
-    }
+    for (const key in piece.endpoints) endpoints[key] = piece.endpoints[key];
+    for (const key in piece.meta) meta[key] = piece.meta[key];
   }
   if (unexpired) {
     for (const key in entitiesMeta) {
@@ -257,6 +254,11 @@ export function foldPieces(
     optimistic: [],
     lastReset: 0,
   } as any;
+}
+
+function endpointKeysOf(piece: PieceMessage): Iterable<string> {
+  const keys = keysOf(piece.endpoints, piece.meta);
+  return piece.x ? new Set([...piece.x, ...keys]) : keys;
 }
 
 function keysOf(

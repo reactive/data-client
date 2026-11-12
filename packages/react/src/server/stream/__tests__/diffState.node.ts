@@ -85,7 +85,7 @@ describe('diffState', () => {
     expect(diffState(s2, s3)).toEqual({ endpoints: { extra: 5 } });
   });
 
-  it('sends removed slots as null and INVALID as 0', () => {
+  it('sends removed entity slots as null, removed endpoints in x, and INVALID as 0', () => {
     const s1 = set(set(initialState, 'BTC', 100), 'ETH', 10);
     const btcKey = getTicker.key({ id: 'BTC' });
     const without = <T extends object>(table: T, key: string): T => {
@@ -102,8 +102,17 @@ describe('diffState', () => {
     expect(diffState(s1, s2)).toEqual({
       entities: { Ticker: { BTC: null } },
       entitiesMeta: { Ticker: { BTC: null } },
-      endpoints: { [btcKey]: null },
-      meta: { [btcKey]: null },
+      x: [btcKey],
+    });
+    // an endpoint result of null is a value
+    const s2null = { ...s2, endpoints: { ...s2.endpoints, [btcKey]: null } };
+    expect(diffState(s2, s2null)).toEqual({ endpoints: { [btcKey]: null } });
+    // a result removed while its meta stays sends the meta again
+    const ethKey = getTicker.key({ id: 'ETH' });
+    const s2kept = { ...s2, endpoints: without(s2.endpoints, ethKey) };
+    expect(diffState(s2, s2kept)).toEqual({
+      meta: { [ethKey]: s2.meta[ethKey] },
+      x: [ethKey],
     });
     const s3 = { ...s2, entities: {} };
     expect(diffState(s2, s3)!.entities).toEqual({ Ticker: { ETH: null } });

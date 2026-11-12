@@ -51,17 +51,67 @@ export function diffState(
       changed = true;
     }
   }
-  const endpoints = diffTable(prev.endpoints, next.endpoints, identity);
-  if (endpoints) {
+  if (diffEndpoints(prev, next, slots)) changed = true;
+  return changed ? slots : undefined;
+}
+
+/**
+ * Writes the endpoint results and metas that changed to `slots`, and lists each key
+ * whose result or meta was removed in `x`, sending again whichever of the two is left.
+ */
+function diffEndpoints(
+  prev: State<unknown>,
+  next: State<unknown>,
+  slots: PieceSlots,
+): boolean {
+  if (prev.endpoints === next.endpoints && prev.meta === next.meta)
+    return false;
+  const endpoints = changedValues(prev.endpoints, next.endpoints, identity);
+  const meta = changedValues(prev.meta, next.meta, toWireEndpointMeta);
+  const removed = new Set([
+    ...removedKeys(prev.endpoints, next.endpoints),
+    ...removedKeys(prev.meta, next.meta),
+  ]);
+  for (const key of removed) {
+    if (next.endpoints[key] !== undefined) endpoints[key] = next.endpoints[key];
+    if (next.meta[key] !== undefined)
+      meta[key] = toWireEndpointMeta(next.meta[key]);
+  }
+  let changed = false;
+  if (Object.keys(endpoints).length) {
     slots.endpoints = endpoints;
     changed = true;
   }
-  const meta = diffTable(prev.meta, next.meta, toWireEndpointMeta);
-  if (meta) {
+  if (Object.keys(meta).length) {
     slots.meta = meta;
     changed = true;
   }
-  return changed ? slots : undefined;
+  if (removed.size) {
+    slots.x = [...removed];
+    changed = true;
+  }
+  return changed;
+}
+
+function changedValues<T>(
+  prev: Table,
+  next: Table,
+  convert: (value: any) => T,
+): { [key: string]: T } {
+  const out: { [key: string]: T } = {};
+  if (prev === next) return out;
+  for (const key in next) {
+    const value = next[key];
+    if (value !== prev[key] && value !== undefined) out[key] = convert(value);
+  }
+  return out;
+}
+
+function removedKeys(prev: Table, next: Table): string[] {
+  if (prev === next) return [];
+  return Object.keys(prev).filter(
+    key => prev[key] !== undefined && next[key] === undefined,
+  );
 }
 
 function keysOf(a: object, b: object): Set<string> {
@@ -88,17 +138,10 @@ function diffTable<T>(
   convert: (value: any) => T,
 ): { [key: string]: T | null } | undefined {
   if (prev === next) return undefined;
-  let out: { [key: string]: T | null } | undefined;
-  for (const key in next) {
-    const value = next[key];
-    if (value !== prev[key] && value !== undefined)
-      (out ??= {})[key] = convert(value);
-  }
-  for (const key in prev) {
-    if (prev[key] !== undefined && next[key] === undefined)
-      (out ??= {})[key] = null;
-  }
-  return out;
+  const out: { [key: string]: T | null } = changedValues(prev, next, convert);
+  for (const key of removedKeys(prev, next)) out[key] = null;
+  for (const _ in out) return out;
+  return undefined;
 }
 
 const identity = <T>(value: T) => value;

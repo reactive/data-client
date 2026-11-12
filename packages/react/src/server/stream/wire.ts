@@ -26,7 +26,9 @@ export interface WireEndpointMeta {
 
 /**
  * Normalized slots one committed server change wrote.
- * `null` means the slot was removed. `0` in `entities` (and as an index value) means INVALID.
+ * In `entities`, `entitiesMeta` and `indexes`, `null` means the slot was removed, and `0`
+ * in `entities` (and as an index value) means INVALID. Every value in `endpoints` and
+ * `meta` is a value; endpoint removals are listed in `x`.
  */
 export interface PieceSlots {
   entities?: { [entityKey: string]: { [pk: string]: object | 0 | null } };
@@ -39,8 +41,10 @@ export interface PieceSlots {
       [indexName: string]: { [value: string]: string | 0 | null };
     };
   };
-  endpoints?: { [key: string]: unknown | null };
-  meta?: { [key: string]: WireEndpointMeta | null };
+  endpoints?: { [key: string]: unknown };
+  meta?: { [key: string]: WireEndpointMeta };
+  /** Endpoint keys whose result or meta was removed. Applied before `endpoints` and `meta`. */
+  x?: string[];
 }
 
 /** First message of a document */

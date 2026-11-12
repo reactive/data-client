@@ -176,12 +176,9 @@ class DocumentLedger implements Ledger {
     }
     if (message.endpoints)
       piece.endpoints = mapTable(message.endpoints, v => v);
-    if (message.meta) {
-      piece.meta = mapTable(
-        message.meta,
-        meta => meta && this.shiftEndpointMeta(meta),
-      );
-    }
+    if (message.meta)
+      piece.meta = mapTable(message.meta, meta => this.shiftEndpointMeta(meta));
+    if (message.x) piece.x = message.x.filter(key => !isUnsafeKey(key));
     return piece;
   }
 

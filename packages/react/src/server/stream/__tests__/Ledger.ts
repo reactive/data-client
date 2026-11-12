@@ -253,7 +253,7 @@ describe('getLedger', () => {
   it('skips unsafe keys', () => {
     const ledger = getLedger()!;
     const piece = JSON.parse(
-      '{"t":"piece","rev":1,"entities":{"__proto__":{"x":{"a":1}},"Ticker":{"constructor":{"a":1},"BTC":{"id":"BTC"}}},"endpoints":{"prototype":1,"ok":2}}',
+      '{"t":"piece","rev":1,"entities":{"__proto__":{"x":{"a":1}},"Ticker":{"constructor":{"a":1},"BTC":{"id":"BTC"}}},"endpoints":{"prototype":1,"ok":2},"x":["__proto__","gone"]}',
     );
     push({ t: 'open', v: 1, rev: 1, at: 50_000 }, piece, {
       t: 'pin',
@@ -264,6 +264,7 @@ describe('getLedger', () => {
     expect(Object.keys(state.entities)).toEqual(['Ticker']);
     expect(Object.keys(state.entities.Ticker!)).toEqual(['BTC']);
     expect(state.endpoints).toEqual({ ok: 2 });
+    expect(ledger.after(0)[0].x).toEqual(['gone']);
     expect(({} as any).a).toBeUndefined();
     expect(ledger.stats().pins).toBe(0);
   });
