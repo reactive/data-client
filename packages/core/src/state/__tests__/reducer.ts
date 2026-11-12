@@ -677,7 +677,10 @@ describe('reducer', () => {
       ...state,
       endpoints: { ...state.endpoints, second: 2 },
     }));
-    const apply = (fn: typeof first): any => ({ type: 'rdc/apply', apply: fn });
+    const apply = (fn: (state: State<unknown>) => State<unknown>): any => ({
+      type: 'rdc/apply',
+      apply: fn,
+    });
 
     let state = reducer(iniState, apply(first));
     state = reducer(state, apply(second));
