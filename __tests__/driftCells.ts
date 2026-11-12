@@ -341,7 +341,9 @@ export async function plainSuspenseDrift(plain: 'b1' | 'b2') {
     const [shell, ...rest] = capture.flushes;
     b.shell(shell);
     b.hydrate(page.element);
-    await until(() => b.probe.commits.length > 0, 'shell hydrated');
+    // before the rest arrives: the manager's `init` publishes earlier pieces in
+    // one transition, which the island's hydration attempt can run ahead of
+    await quiet(b);
     const streamed: Record<string, Element | undefined> = {};
     for (const flush of rest) {
       b.script(flush);
