@@ -15,6 +15,7 @@ import type { ReactNode } from 'react';
 
 import type { Ledger } from './Ledger.js';
 import type { ScopedStore, ServerLedger } from './ServerLedger.js';
+import { BoundaryContext } from '../../components/BoundaryContext.js';
 import type { BoundaryWrap } from '../../components/BoundaryContext.js';
 import { StateContext, StoreContext } from '../../context.js';
 
@@ -187,9 +188,21 @@ export function ServerBoundary({
   const id = useId();
   const parent = (use(StoreContext) as Partial<ScopedStore>).boundaryId;
   const [cell] = useState(() => ({ id, parent, hydrated: false }));
+  // The browser never hydrates a fallback: the content replaces it, or React
+  // renders it on the client. A boundary inside one must not pin.
+  const fallback =
+    suspenseProps.fallback == null ?
+      suspenseProps
+    : {
+        fallback: (
+          <BoundaryContext.Provider value={null}>
+            {suspenseProps.fallback}
+          </BoundaryContext.Provider>
+        ),
+      };
   return (
     <Shield cell={cell}>
-      <Suspense {...suspenseProps}>
+      <Suspense {...fallback}>
         <ServerScope cell={cell}>{children}</ServerScope>
       </Suspense>
     </Shield>
