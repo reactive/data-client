@@ -1,5 +1,205 @@
 # @data-client/test
 
+## 0.19.0
+
+### Minor Changes
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+- [#4414](https://github.com/reactive/data-client/pull/4414) [`38acf12`](https://github.com/reactive/data-client/commit/38acf129ac4a3ed2a15167ab5818cdf53290f45b) - `@data-client/test` builds on `@data-client/react/mock`
+
+  `Fixture`, `Interceptor`, and the other fixture types from `@data-client/test` are now the same types that
+  `@data-client/react/mock` exports, so fixtures typed with either import work everywhere.
+
+- [#4601](https://github.com/reactive/data-client/pull/4601) [`433dcfb`](https://github.com/reactive/data-client/commit/433dcfbe620e4fc4b5257e3b11f520d68fd7e915) - BREAKING: `@data-client/test` requires `@data-client/react` 0.19
+
+  Support for `@data-client/react` 0.12 through 0.18 is dropped. Upgrade `@data-client/react` along with
+  `@data-client/test`.
+
+  ```diff title="package.json"
+  - "@data-client/react": "^0.18.0",
+  + "@data-client/react": "^0.19.0",
+  ```
+
+  [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook) now passes `managers` to its Provider as a
+  function, the form 0.19 recommends. A custom Provider must accept `managers: () => Manager[]`, as `DataProvider` does.
+
+- [#4595](https://github.com/reactive/data-client/pull/4595) [`60ce4b5`](https://github.com/reactive/data-client/commit/60ce4b5e2d42dc02c7c783a95e46ecbeb52efe64) - BREAKING: React Native Jest renders hooks with React Native Testing Library
+
+  On React 18 or later, install `@testing-library/react-native` in place of `@testing-library/react-hooks`.
+
+### Patch Changes
+
+- [#4593](https://github.com/reactive/data-client/pull/4593) [`6855822`](https://github.com/reactive/data-client/commit/6855822af2adcb024495a2394bcb7ce7bf7918ac) - Support React [`<Activity>`](https://react.dev/reference/react/Activity) above [DataProvider](https://dataclient.io/docs/api/DataProvider)
+
+  ```tsx
+  <Activity mode={tab === 'posts' ? 'visible' : 'hidden'}>
+    <DataProvider>
+      <Posts />
+    </DataProvider>
+  </Activity>
+  ```
+
+  Most apps should still put `DataProvider` at the root, above everything, including `<Activity>`. That still works as before.
+
+  Before, hiding a `DataProvider` dropped responses, so [useSuspense()](https://dataclient.io/docs/api/useSuspense) could stay suspended forever, optimistic updates never settled, `controller.fetch()` never resolved, and [useSubscription()](https://dataclient.io/docs/api/useSubscription) stopped polling for good. Now a hidden `DataProvider` keeps working, and promises resolve once it is shown.
+
+  A `DataProvider` remounted with the same `managers` also no longer waits on a fetch the unmounted one started, and responses for the unmounted one stay out of the new store.
+
+  A response to a fetch started before [`resetEntireStore()`](https://dataclient.io/docs/api/Controller#resetEntireStore) is now always dropped, even when it lands before the reset commits. A response also no longer settles an in-flight fetch of the same key that has a later `fetchedAt`; that fetch waits for its own response. Custom managers that call [`controller.resolve()`](https://dataclient.io/docs/api/Controller#resolve) should pass the `fetchedAt` of the fetch action they are resolving (`action.meta.fetchedAt`).
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4228](https://github.com/reactive/data-client/pull/4228) [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee) - Fix TypeScript error passing a `Controller` subclass to `DataProvider` or `DataClientPlugin`
+
+  A plain `class MyController extends Controller` failed to typecheck as the `Controller` option of [DataProvider](https://dataclient.io/docs/api/DataProvider#Controller), Vue's [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#Controller), and the `@data-client/react/redux` `DataProvider`, so the documented example needed a cast. `MockController()` from `@data-client/core/mock` had the same error when wrapping your subclass. These now typecheck, and you can drop the casts.
+
+  ```tsx
+  class MyController extends Controller {
+    doSomething = () => console.log('hi');
+  }
+
+  // Before: TypeScript error, so you had to cast
+  <DataProvider Controller={MyController as typeof Controller}>
+  app.use(DataClientPlugin, { Controller: MyController as typeof Controller });
+
+  // After
+  <DataProvider Controller={MyController}>
+  app.use(DataClientPlugin, { Controller: MyController });
+  ```
+
+- [#4420](https://github.com/reactive/data-client/pull/4420) [`c3b8c54`](https://github.com/reactive/data-client/commit/c3b8c54bc3062cf082e67c215310cb98b3a03078) - Fix fixture types needing `@data-client/endpoint` installed
+
+  `Fixture` and the other fixture types from `@data-client/react/mock`, `@data-client/core/mock` and `@data-client/test` no
+  longer resolve `@data-client/endpoint`, which those packages don't depend on. Projects that install only
+  `@data-client/react` and `@data-client/test` (for example with pnpm's strict layout) no longer get
+  `Cannot find module '@data-client/endpoint'` when type-checking fixtures.
+
+- [#4250](https://github.com/reactive/data-client/pull/4250) [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a) - Fixture `args` accept readonly tuples
+
+  Fixtures written with `args: [...] as const` now type-check when passed to [MockResolver](https://dataclient.io/docs/api/MockResolver), `renderDataHook()`, Vue's `renderDataCompose()` or `mockInitialState()`. Before, TypeScript rejected them with "The type 'readonly [...]' is 'readonly' and cannot be assigned to the mutable type", so you had to drop `as const` or cast.
+
+  ```ts
+  const fixtures = [
+    {
+      endpoint: TodoResource.getList,
+      args: [{ userId: 1 }] as const,
+      response: [{ id: 1, title: 'Write tests', userId: 1 }],
+    },
+  ];
+
+  // Before: type error on `fixtures`. After: works as written
+  <MockResolver fixtures={fixtures}>
+    <TodoList />
+  </MockResolver>;
+  ```
+
+- [#4625](https://github.com/reactive/data-client/pull/4625) [`52985a2`](https://github.com/reactive/data-client/commit/52985a22cbc0179d9d9124652a1f2a47727e84b5) - Fix fixtures for [Endpoint](https://dataclient.io/rest/api/Endpoint) never resolving `controller.fetch()`
+
+  With [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) `resolverFixtures` or [MockResolver](https://dataclient.io/docs/api/MockResolver), a fixture or interceptor for a plain `Endpoint` stored its response under another key. `controller.fetch()` never resolved, and hooks never saw the response. Fixtures for `RestEndpoint` were not affected.
+
+  ```ts
+  import { Endpoint } from '@data-client/endpoint';
+  import { useController } from '@data-client/react';
+  import { renderDataHook } from '@data-client/test';
+
+  const getValue = new Endpoint(
+    ({ id }: { id: number }) => Promise.resolve({ id }),
+    { name: 'getValue' },
+  );
+
+  const { controller } = renderDataHook(() => useController(), {
+    resolverFixtures: [
+      { endpoint: getValue, args: [{ id: 5 }], response: { id: 5 } },
+    ],
+  });
+  // before: never resolved
+  await controller.fetch(getValue, { id: 5 });
+  ```
+
+- [#4516](https://github.com/reactive/data-client/pull/4516) [`7b5e2bb`](https://github.com/reactive/data-client/commit/7b5e2bb5ef9e79df6c5c2c586ff5cee242c8481e) - [Fixtures](https://dataclient.io/docs/api/Fixtures) honor the fetch's AbortSignal, and `fetchResponse()` interceptors can be async
+
+  Aborting a mocked fetch (with [useCancelling()](https://dataclient.io/docs/api/useCancelling) or an endpoint's `signal`) rejects it with an `AbortError`, as `fetch()` would, instead of resolving later: at once if it was already aborted, as soon as it is aborted during its [delay](https://dataclient.io/docs/api/Fixtures#delay), or when an async `fetchResponse()` that ignored the abort finishes. So tests and mocked demos can show cancellation.
+
+  A [fetchResponse()](https://dataclient.io/docs/api/Fixtures#fetchResponse) interceptor may return a promise, and reads the signal from `init.signal`:
+
+  ```ts
+  const slowUpload = {
+    endpoint: UploadResource.create,
+    async fetchResponse(input, init) {
+      await waitForServer(init.signal);
+      return { id: 1, done: true };
+    },
+  };
+  ```
+
+- [#4232](https://github.com/reactive/data-client/pull/4232) [`31b1820`](https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9) - Fix `',' expected` errors on TypeScript 4.0 through 4.4
+
+  Importing `@data-client/react/redux`, `@data-client/react/nextjs` or `@data-client/test` failed to compile on TypeScript before 4.5, even with `skipLibCheck` on, because their declaration files used syntax those versions can't parse. They now compile on TypeScript 4.0 and later.
+
+  ```ts
+  import { DataProvider } from '@data-client/react/nextjs';
+  import { renderDataHook } from '@data-client/test';
+
+  // Before (TypeScript 4.0 to 4.4):
+  //   node_modules/@data-client/react/lib/server/nextjs/DataProvider/DataProvider.d.ts(1,15): error TS1005: ',' expected.
+  //   node_modules/@data-client/test/lib/makeRenderDataClient/index.d.ts(3,33): error TS1005: ',' expected.
+  // After: no errors
+  ```
+
+  `@data-client/vue/test` types now also resolve with `moduleResolution: "node"`.
+
+- [#4602](https://github.com/reactive/data-client/pull/4602) [`42657ea`](https://github.com/reactive/data-client/commit/42657ea029f532d4a3c1f6794c23e33950b330df) - Add `managers` option to [renderDataHook()](https://dataclient.io/docs/api/renderDataHook#optionsmanagers)
+
+  `renderDataHook()` used to ignore a `managers` option, so a test's Manager never ran. Now pass a function
+  that returns new Managers; it runs once per `renderDataHook()` call. They replace the default `NetworkManager` and
+  `SubscriptionManager`, and must include a `NetworkManager`.
+
+  ```ts
+  const { controller } = renderDataHook(() => useController(), {
+    managers: () => [new LoggingManager(), new NetworkManager()],
+  });
+  ```
+
+- [#4099](https://github.com/reactive/data-client/pull/4099) [`4ae6080`](https://github.com/reactive/data-client/commit/4ae608081ed33c6ce5ab3c0032276cc3069311f8) - Fix mount effects when `renderDataHook()` suspends on the first render
+
+  `renderDataHook()` and `makeRenderDataHook()` now run provider mount effects when the first render suspends, including `use(useFetch())`. The hook result stays unresolved until the data arrives.
+
+- [#4251](https://github.com/reactive/data-client/pull/4251) [`dc84c02`](https://github.com/reactive/data-client/commit/dc84c02853fd4adafd79c1c96636c259df04abf7) - Fix `act` and `renderHook` typed as `any` on TypeScript 4.0–4.4
+
+  `act()`, `renderHook()` and `RenderHookOptions` from `@data-client/test` were `any` on TypeScript 4.0–4.4, and
+  reported `Cannot find module './renderHook.cjs'` with `skipLibCheck` off. They now have their real types:
+
+  ```ts
+  import { act, renderHook } from '@data-client/test';
+
+  const { result } = renderHook(() => 5);
+  result.current; // number
+  await act(() => Promise.resolve(5)); // number
+  ```
+
+- [#4374](https://github.com/reactive/data-client/pull/4374) [`274fc07`](https://github.com/reactive/data-client/commit/274fc0795105bb3ece3ec6b9966dc03b14bbac36) Thanks [@renovate](https://github.com/apps/renovate)! - Support React Native Testing Library 14
+
+  [renderDataHook()](https://dataclient.io/docs/api/renderDataHook) keeps working on React Native after upgrading to `@testing-library/react-native` 14, and stays synchronous, so existing `renderDataHook()` calls need no `await`. Install `test-renderer`, which RNTL 14 needs anyway. Projects on RNTL 13 keep working unchanged.
+
+- [#4595](https://github.com/reactive/data-client/pull/4595) [`60ce4b5`](https://github.com/reactive/data-client/commit/60ce4b5e2d42dc02c7c783a95e46ecbeb52efe64) - Fix `result`, `rerender` and `unmount` missing after spreading a `renderDataHook()` result
+
+  `{ ...renderDataHook(...) }` now keeps every member.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
 ## 0.18.0
 
 ### Patch Changes
