@@ -45,10 +45,17 @@ export function applyPiece(
 ): State<unknown> {
   if (state.lastReset >= openedAt) return state;
   const w = new Writer(state);
-  const entities = mergeEntities(w, state, piece, classes, placed, onUnknown);
-  mergeIndexes(w, state, piece, entities.taken, placed);
-  reindexMerged(w, entities.merged);
-  mergeEndpoints(w, state, piece, entities.keptUnknown);
+  const { taken, merged, keptUnknown } = mergeEntities(
+    w,
+    state,
+    piece,
+    classes,
+    placed,
+    onUnknown,
+  );
+  mergeIndexes(w, state, piece, taken, placed);
+  reindexMerged(w, merged);
+  mergeEndpoints(w, state, piece, keptUnknown);
   return w.done();
 }
 
@@ -278,10 +285,11 @@ export function foldPieces(
   const meta: Table = {};
   for (const piece of pieces) {
     if (piece.rev > rev) break;
+    // a removed entity also drops its meta
     foldTables(entities, piece.entities, fromWire, (key, pk) => {
       delete (entitiesMeta[key] ??= {})[pk];
     });
-    foldTables(entitiesMeta, piece.entitiesMeta, identity);
+    foldTables(entitiesMeta, piece.entitiesMeta);
     for (const key in piece.indexes) {
       const sent = piece.indexes[key];
       if (sent === null) delete indexes[key];
@@ -313,16 +321,15 @@ export function foldPieces(
   } as any;
 }
 
-const identity = <T>(value: T) => value;
-
 /**
- * Writes each sent table's rows into `root`, creating the table. A `null` table
- * removes the table; a `null` row removes the row and calls `onRemoveRow`.
+ * Writes each sent table's rows into `root` (through `convert` when given),
+ * creating a table at its first row. A `null` table removes the table; a `null`
+ * row removes the row and calls `onRemoveRow`.
  */
 function foldTables(
   root: { [key: string]: Table },
   sent: { [key: string]: { [pk: string]: unknown } | null } | undefined,
-  convert: (value: unknown) => unknown,
+  convert?: (value: unknown) => unknown,
   onRemoveRow?: (key: string, pk: string) => void,
 ): void {
   for (const key in sent) {
@@ -331,13 +338,13 @@ function foldTables(
       delete root[key];
       continue;
     }
-    const table = (root[key] ??= {});
     for (const pk in rows) {
       const value = rows[pk];
+      const table = (root[key] ??= {});
       if (value === null) {
         delete table[pk];
         onRemoveRow?.(key, pk);
-      } else table[pk] = convert(value);
+      } else table[pk] = convert ? convert(value) : value;
     }
   }
 }
