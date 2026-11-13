@@ -30,8 +30,8 @@
   "devDependencies": {
     "@anansi/babel-preset": "7.0.1",
     "@anansi/browserslist-config": "1.7.7",
-    "@anansi/webpack-config": "22.0.3",
-    "@babel/core": "8.1.0",
+    "@anansi/webpack-config": "22.0.4",
+    "@babel/core": "8.1.2",
     "@linaria/core": "8.3.0",
     "@linaria/react": "8.3.0",
     "@types/react": "19.3.0",
