@@ -64,22 +64,19 @@ export interface Ledger {
 
 /** A promise `use()` reads without suspending once it settled */
 interface Tracked<T> extends Promise<T> {
-  status?: 'fulfilled';
+  status?: 'pending' | 'fulfilled';
   value?: T;
   settle(value: T): void;
 }
 
 function tracked<T>(): Tracked<T> {
   let resolve!: (value: T) => void;
-  let settled = false;
   const promise = new Promise<T>(r => {
     resolve = r;
   }) as Tracked<T>;
-  // `use()` sets `status: 'pending'` on a promise it has not seen settle,
-  // so `status` cannot tell whether this one has
+  // `use()` sets only `status: 'pending'` before a promise settles
   promise.settle = value => {
-    if (settled) return;
-    settled = true;
+    if (promise.status === 'fulfilled') return;
     promise.status = 'fulfilled';
     promise.value = value;
     resolve(value);

@@ -1,4 +1,4 @@
-import { __INTERNAL__ } from '@data-client/core';
+import { __INTERNAL__, initialState } from '@data-client/core';
 import type { Mergeable, State } from '@data-client/core';
 
 import { hasKeys, keysOf } from './wire.js';
@@ -93,6 +93,21 @@ interface EntitiesResult {
   keptUnknown: boolean;
 }
 
+/** The piece's meta is newer than the client's (`strict`), or not older */
+function newer(
+  meta: WireEntityMeta | null | undefined,
+  heldMeta: { fetchedAt: number } | undefined,
+  strict: boolean,
+): boolean {
+  return (
+    meta != null &&
+    (heldMeta === undefined ||
+      (strict ?
+        meta.fetchedAt > heldMeta.fetchedAt
+      : meta.fetchedAt >= heldMeta.fetchedAt))
+  );
+}
+
 /** Writes each entity and entity meta of the piece, keeping or merging what the client wrote */
 function mergeEntities(
   w: Writer,
@@ -122,12 +137,6 @@ function mergeEntities(
       const held = state.entities[key]?.[pk];
       const heldMeta = state.entitiesMeta[key]?.[pk];
       const serverOwned = isServerOwned(placed, held, heldMeta);
-      const newer = (strict: boolean) =>
-        meta != null &&
-        (heldMeta === undefined ||
-          (strict ?
-            meta.fetchedAt > heldMeta.fetchedAt
-          : meta.fetchedAt >= heldMeta.fetchedAt));
 
       let asSent = true;
       if (incoming === undefined) {
@@ -138,7 +147,7 @@ function mergeEntities(
         if (serverOwned) w.remove(key, pk);
         else asSent = false;
       } else if (incoming === 0) {
-        if (serverOwned || newer(true))
+        if (serverOwned || newer(meta, heldMeta, true))
           w.set(key, pk, INVALID, meta ?? heldMeta);
         // Already INVALID, with a time that is not older: that time stays, or
         // an object between the two times would pass the check below
@@ -146,7 +155,7 @@ function mergeEntities(
       } else if (serverOwned) {
         w.set(key, pk, incoming, meta ?? heldMeta);
       } else if (held === INVALID) {
-        if (newer(false)) w.set(key, pk, incoming, meta);
+        if (newer(meta, heldMeta, false)) w.set(key, pk, incoming, meta);
         else asSent = false;
       } else {
         asSent = false;
@@ -225,7 +234,7 @@ function mergeIndexes(
   }
 }
 
-/** Recomputes the index entries of records merged through their class, as normalize does */
+/** Recomputes the index entries of records merged through their class: a changed value's old entry becomes INVALID */
 function reindexMerged(w: Writer, merged: readonly MergedRecord[]): void {
   for (const { cls, pk, held, next } of merged) {
     if (!cls.indexes) continue;
@@ -313,13 +322,12 @@ export function foldPieces(
     for (const key in meta) meta[key] = { ...meta[key], expiresAt: Infinity };
   }
   return {
+    ...initialState,
     entities,
     entitiesMeta,
     indexes,
     endpoints,
     meta,
-    optimistic: [],
-    lastReset: 0,
   } as any;
 }
 

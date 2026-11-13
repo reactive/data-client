@@ -532,7 +532,7 @@ function HeldScope({
 function HeldBoundary({ suspenseProps, children }: WrapProps) {
   const cell = useBoundaryCell();
   return (
-    <Shield cell={cell}>
+    <Shield hydrated={cell.hydrated}>
       <Suspense {...suspenseProps}>
         <HeldScope cell={cell}>{children}</HeldScope>
       </Suspense>

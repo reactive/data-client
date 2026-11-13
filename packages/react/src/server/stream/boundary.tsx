@@ -71,7 +71,7 @@ export function Boundary({
   const cell = useBoundaryCell();
   // No fiber may sit between the Shield and the Suspense
   return (
-    <Shield cell={cell}>
+    <Shield hydrated={cell.hydrated}>
       <Suspense {...suspenseProps}>
         <Scope cell={cell}>{children}</Scope>
       </Suspense>
@@ -84,13 +84,13 @@ export function Boundary({
  * stops here. Returns `children` by reference.
  */
 export function Shield({
-  cell,
+  hydrated,
   children,
 }: {
-  cell: BoundaryCell;
+  hydrated: boolean;
   children: ReactNode;
 }): React.ReactElement {
-  if (cell.hydrated) use(StateContext);
+  if (hydrated) use(StateContext);
   return children as React.ReactElement;
 }
 
@@ -140,15 +140,14 @@ export function Scope({
   if (holder === null) return children as React.ReactElement;
   const live = use(StateContext);
   return (
-    <StateContext.Provider
-      value={joined ? live : (pinnedView(holder, live) ?? live)}
-    >
+    <StateContext.Provider value={joined ? live : pinnedView(holder, live)}>
       {children}
     </StateContext.Provider>
   );
 }
 
 interface PinHolder {
+  /** Null once the join committed; read only before it */
   state: State<unknown> | null;
   /** Outer state of the hydration render */
   live: State<unknown> | null;
@@ -164,14 +163,12 @@ interface PinHolder {
  * one this scope hides, starting from its children. That wakes a dehydrated
  * boundary below the Shield.
  */
-function pinnedView(
-  holder: PinHolder,
-  live: State<unknown>,
-): State<unknown> | null {
-  if (holder.state === null || live === holder.live) return holder.state;
+function pinnedView(holder: PinHolder, live: State<unknown>): State<unknown> {
+  const state = holder.state!;
+  if (live === holder.live) return state;
   let view = holder.views.get(live);
   if (!view) {
-    view = { ...holder.state };
+    view = { ...state };
     holder.views.set(live, view);
   }
   return view;
@@ -187,7 +184,6 @@ export function ServerBoundary({
 }): React.ReactElement {
   const id = useId();
   const parent = (use(StoreContext) as Partial<ScopedStore>).boundaryId;
-  const [cell] = useState(() => ({ id, parent, hydrated: false }));
   // The browser never hydrates a fallback: the content replaces it, or React
   // renders it on the client. A boundary inside one must not pin.
   const fallback =
@@ -201,9 +197,11 @@ export function ServerBoundary({
         ),
       };
   return (
-    <Shield cell={cell}>
+    <Shield hydrated={false}>
       <Suspense {...fallback}>
-        <ServerScope cell={cell}>{children}</ServerScope>
+        <ServerScope id={id} parent={parent}>
+          {children}
+        </ServerScope>
       </Suspense>
     </Shield>
   );
@@ -211,15 +209,17 @@ export function ServerBoundary({
 
 /** Server: provides the boundary's scoped store, which pins its revision */
 export function ServerScope({
-  cell,
+  id,
+  parent,
   children,
 }: {
-  cell: { id: string; parent?: string };
+  id: string;
+  parent?: string;
   children: ReactNode;
 }): React.ReactElement {
   const ledger = use(ServerLedgerContext)!;
   return (
-    <StoreContext.Provider value={ledger.scope(cell.id, cell.parent)}>
+    <StoreContext.Provider value={ledger.scope(id, parent)}>
       {children}
     </StoreContext.Provider>
   );

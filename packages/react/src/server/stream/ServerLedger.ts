@@ -84,12 +84,8 @@ export function createServerLedger(now: () => number = Date.now): ServerLedger {
     for (const [id, pinRev] of pins) {
       if (sentPins.get(id) === pinRev) continue;
       sentPins.set(id, pinRev);
-      const parent = parents.get(id);
-      out.push(
-        parent === undefined ?
-          { t: 'pin', id, rev: pinRev }
-        : { t: 'pin', id, rev: pinRev, p: parent },
-      );
+      // serialize drops an undefined `p`
+      out.push({ t: 'pin', id, rev: pinRev, p: parents.get(id) });
     }
     if (announce.length) {
       out.push({ t: 'ann', keys: announce });
