@@ -17,13 +17,25 @@ import {
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
 
+/**
+ * Internal seam for adapters: an action that carries its own reducer. Not in
+ * `actionTypes`; public features use named, data-only actions.
+ */
+export const APPLY = 'rdc/apply';
+interface ApplyAction {
+  type: typeof APPLY;
+  apply(state: State<unknown>): State<unknown>;
+}
+
 export default function createReducer(controller: Controller): ReducerType {
   return function reducer(
     state: State<unknown> | undefined,
-    action: ActionTypes,
+    action: ActionTypes | ApplyAction,
   ): State<unknown> {
     if (!state) state = initialState;
     switch (action.type) {
+      case APPLY:
+        return action.apply(state);
       case GC:
         // inline deletes are fine as these should have 0 refcounts
         action.entities.forEach(({ key, pk }) => {

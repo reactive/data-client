@@ -34,6 +34,32 @@ export const resetCommits = () => {
   commits.length = 0;
 };
 
+/** Function component renders by name, over every commit since `resetRenders()` */
+export const renders = new Map<string, number>();
+export const resetRenders = () => {
+  renders.clear();
+};
+// React's fiber flag for a component that ran in this render
+const PerformedWork = 1;
+/**
+ * As React DevTools counts them: a fiber the commit cloned (`alternate` is the
+ * one it replaces) rendered when React marked it; a subtree whose child list
+ * is the previous one was not visited.
+ */
+function countRenders(fiber: any) {
+  const prev = fiber.alternate;
+  if (
+    typeof fiber.type === 'function' &&
+    (prev === null || (fiber.flags & PerformedWork) !== 0)
+  ) {
+    const name = fiberName(fiber);
+    renders.set(name, (renders.get(name) ?? 0) + 1);
+  }
+  if (prev !== null && fiber.child === prev.child) return;
+  for (let child = fiber.child; child; child = child.sibling)
+    countRenders(child);
+}
+
 function fiberName(fiber: { type?: unknown }): string {
   const type = fiber?.type as
     | string
@@ -118,4 +144,5 @@ hook.onCommitFiberRoot = function onCommitFiberRoot(
     priority,
     updaters: [...(root.memoizedUpdaters ?? [])].map(fiberName),
   });
+  countRenders(root.current);
 };

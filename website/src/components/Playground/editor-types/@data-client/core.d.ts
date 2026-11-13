@@ -1115,18 +1115,24 @@ declare class Snapshot<T = unknown> implements SnapshotInterface {
     };
 }
 
+/**
+ * Internal seam for adapters: an action that carries its own reducer. Not in
+ * `actionTypes`; public features use named, data-only actions.
+ */
+declare const APPLY = "rdc/apply";
 declare function createReducer(controller: Controller): ReducerType;
 declare const initialState: State<unknown>;
 type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
 
 //# sourceMappingURL=internal.d.ts.map
 
+declare const internal_d_APPLY: typeof APPLY;
 declare const internal_d_INVALID: typeof INVALID;
 type internal_d_MemoCache = MemoCache;
 declare const internal_d_MemoCache: typeof MemoCache;
 declare const internal_d_initialState: typeof initialState;
 declare namespace internal_d {
-  export { internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_initialState as initialState };
+  export { internal_d_APPLY as APPLY, internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_initialState as initialState };
 }
 
 declare class ResetError extends Error {
