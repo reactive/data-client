@@ -93,20 +93,18 @@ interface EntitiesResult {
   keptUnknown: boolean;
 }
 
-/** The piece's meta is newer than the client's (`strict`), or not older */
-function newer(
-  meta: WireEntityMeta | null | undefined,
-  heldMeta: { fetchedAt: number } | undefined,
-  strict: boolean,
-): boolean {
-  return (
-    meta != null &&
-    (heldMeta === undefined ||
-      (strict ?
-        meta.fetchedAt > heldMeta.fetchedAt
-      : meta.fetchedAt >= heldMeta.fetchedAt))
-  );
-}
+type HeldMeta = { fetchedAt: number } | undefined;
+type SentMeta = WireEntityMeta | null | undefined;
+
+/** The piece's meta is newer than the client's */
+const isNewer = (meta: SentMeta, heldMeta: HeldMeta): boolean =>
+  meta != null &&
+  (heldMeta === undefined || meta.fetchedAt > heldMeta.fetchedAt);
+
+/** The piece's meta is not older than the client's */
+const isNotOlder = (meta: SentMeta, heldMeta: HeldMeta): boolean =>
+  meta != null &&
+  (heldMeta === undefined || meta.fetchedAt >= heldMeta.fetchedAt);
 
 /** Writes each entity and entity meta of the piece, keeping or merging what the client wrote */
 function mergeEntities(
@@ -147,7 +145,7 @@ function mergeEntities(
         if (serverOwned) w.remove(key, pk);
         else asSent = false;
       } else if (incoming === 0) {
-        if (serverOwned || newer(meta, heldMeta, true))
+        if (serverOwned || isNewer(meta, heldMeta))
           w.set(key, pk, INVALID, meta ?? heldMeta);
         // Already INVALID, with a time that is not older: that time stays, or
         // an object between the two times would pass the check below
@@ -155,7 +153,7 @@ function mergeEntities(
       } else if (serverOwned) {
         w.set(key, pk, incoming, meta ?? heldMeta);
       } else if (held === INVALID) {
-        if (newer(meta, heldMeta, false)) w.set(key, pk, incoming, meta);
+        if (isNotOlder(meta, heldMeta)) w.set(key, pk, incoming, meta);
         else asSent = false;
       } else {
         asSent = false;
