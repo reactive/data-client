@@ -104,13 +104,13 @@ hand it on:
 
 ## Testing against another app
 
-Integration projects test unreleased packages in a real app. Pack every package with `yarn workspaces
-foreach --all --no-private --parallel --topological pack --out /tmp/pkgs/%s.tgz` (as
-`scripts/check-package-exports.mjs` does; `--topological` builds bundled dependencies first, and
-packages with skills ship them on `prepack`). Then add `file:` dependencies and npm `overrides` in the
-app for each package it needs plus its data-client dependencies (e.g. normalizr, core,
-use-enhanced-reducer, endpoint, rest, react). Tell any agent working in that app not to reinstall
-them.
+Integration projects test unreleased packages in a real app. Run `yarn build:types` (packing builds
+only the JavaScript), then pack every package with `yarn workspaces foreach --all --no-private
+--parallel --topological pack --out /tmp/pkgs/%s.tgz` (as `scripts/check-package-exports.mjs` does;
+`--topological` builds bundled dependencies first, and packages with skills ship them on `prepack`).
+Then add `file:` dependencies and npm `overrides` in the app for each package it needs plus its
+data-client dependencies (e.g. normalizr, core, use-enhanced-reducer, endpoint, rest, react). Tell any
+agent working in that app not to reinstall them.
 
 ## Person's machine
 
