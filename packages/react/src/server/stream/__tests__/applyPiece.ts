@@ -545,6 +545,53 @@ describe('applyPiece', () => {
       ).toBe(4000);
     });
 
+    it('a server write replaces an INVALID the server placed, even with an older time', () => {
+      const owned = new WeakSet<object>();
+      const deleteTicker = new Endpoint(
+        ({ id }: { id: string }) => Promise.resolve({ id }),
+        { schema: new schema.Invalidate(Ticker), name: 'deleteTicker' },
+      );
+      const ticker = (
+        state: State<unknown>,
+        price: number,
+        fetchedAt: number,
+      ) =>
+        setResponse(
+          state,
+          getTicker,
+          [{ id: 'BTC' }],
+          { id: 'BTC', price },
+          fetchedAt,
+        );
+      // the server: a record, its deletion at 3000, then a response from 2500
+      const s1 = ticker(initialState, 1, 2000);
+      const s2 = setResponse(
+        s1,
+        deleteTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC' },
+        3000,
+      );
+      const pieces = wire([initialState, s1, s2, ticker(s2, 7, 2500)], owned);
+      expect(pieces).toHaveLength(3);
+      const seed = foldPieces(pieces, 2);
+      expect(seed.entities.Ticker!.BTC).toBe(INVALID);
+
+      const folded = foldPieces(pieces, 3);
+      const applied = applyPiece(
+        seed,
+        pieces[2],
+        classes(Ticker),
+        owned,
+        OPENED,
+      );
+      expect(folded.entities.Ticker!.BTC).toMatchObject({ price: 7 });
+      expect(applied.entities.Ticker!.BTC).toEqual(folded.entities.Ticker!.BTC);
+      expect(applied.entitiesMeta.Ticker.BTC).toEqual(
+        folded.entitiesMeta.Ticker.BTC,
+      );
+    });
+
     it('an object replaces a client INVALID only when its fetchedAt is not older', () => {
       const client = reducer(
         clientState(),
