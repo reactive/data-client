@@ -144,7 +144,7 @@
     "tar": ">=7.5.22",
     "serialize-javascript": ">=7.0.5",
     "dompurify": ">=3.4.13",
-    "editorconfig/minimatch": "11.0.5",
+    "editorconfig/minimatch": "11.0.8",
     "socks": ">=2.8.9",
     "uuid": ">=11.1.1",
     "sigstore": ">=4.1.1",
