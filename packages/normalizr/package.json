@@ -133,7 +133,7 @@
     "@data-client/endpoint": "workspace:*",
     "@types/jest": "30.0.0",
     "@types/node": "^26.0.0",
-    "immutable": "5.1.9",
+    "immutable": "5.1.10",
     "rollup-plugins": "workspace:*",
     "temporal-polyfill": "^1.0.0"
   }
