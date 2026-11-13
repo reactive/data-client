@@ -1,0 +1,122 @@
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import { teamIssueFixtures, getInitialInterceptorData } from '@site/src/fixtures/team-issues';
+
+<FrameworkPlayground
+  defaultOpen="n"
+  row
+  fixtures={teamIssueFixtures}
+  getInitialInterceptorData={getInitialInterceptorData}
+  defaultTab={props.defaultTab}
+>
+
+```ts title="Resources" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Issue extends Entity {
+  id = 0;
+  assigneeId = 0;
+  title = '';
+  body = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { assigneeId?: string | number } | undefined,
+  schema: Issue,
+  optimistic: true,
+});
+```
+
+:::react
+
+```tsx title="IssueDetail" route="/issues/:id" {5} collapsed
+import { useSuspense } from '@data-client/react';
+import { IssueResource } from './Resources';
+
+export default function IssueDetail({ id }: { id: string }) {
+  const issue = useSuspense(IssueResource.get, { id });
+  return (
+    <div>
+      <h2>{issue.title}</h2>
+      <p className="meta">{issue.state === 'open' ? 'Open' : 'Closed'}</p>
+      <p>{issue.body}</p>
+    </div>
+  );
+}
+```
+
+```tsx title="IssueList" route="/" {5}
+import { useSuspense } from '@data-client/react';
+import { IssueResource } from './Resources';
+
+export default function IssueList() {
+  const issues = useSuspense(IssueResource.getList);
+  return (
+    <div className="list">
+      {issues.map(issue => (
+        <Link
+          key={issue.pk()}
+          className="listItem"
+          to={`/issues/${issue.id}`}
+        >
+          {issue.title}
+          <span className="meta">
+            {issue.state === 'open' ? 'Open' : 'Closed'}
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="IssueDetail.vue" route="/issues/:id" {6} collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { IssueResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const issue = await useSuspense(IssueResource.get, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <h2>{{ issue.title }}</h2>
+    <p class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</p>
+    <p>{{ issue.body }}</p>
+  </div>
+</template>
+```
+
+```html title="IssueList.vue" route="/" {5}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { IssueResource } from './Resources';
+
+  const issues = await useSuspense(IssueResource.getList);
+</script>
+
+<template>
+  <div class="list">
+    <RouterLink
+      v-for="issue in issues"
+      :key="issue.pk()"
+      class="listItem"
+      :to="`/issues/${issue.id}`"
+    >
+      {{ issue.title }}
+      <span class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</span>
+    </RouterLink>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

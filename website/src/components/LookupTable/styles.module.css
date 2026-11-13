@@ -1,0 +1,354 @@
+/* the switch, and the diagram under it. parts.tsx draws with these */
+.frame {
+  --line: var(--ifm-color-emphasis-300);
+  --issue5: hsl(262, 52%, 48%);
+  --issue6: hsl(165, 70%, 26%);
+  --args: var(--ifm-color-primary-darker);
+  /* a fill behind --on-chip: darker in light mode, so the white reads */
+  --accent: var(--ifm-color-primary-darker);
+  --on-chip: #fff;
+  margin: 0 0 1.5rem;
+}
+[data-theme='dark'] .frame {
+  --issue5: hsl(262, 75%, 74%);
+  --issue6: hsl(165, 55%, 55%);
+  --args: var(--ifm-color-primary-light);
+  --accent: var(--ifm-color-primary);
+  --on-chip: hsl(220, 20%, 12%);
+}
+.stage {
+  max-width: 520px;
+  margin: 0 auto;
+}
+.diagram {
+  --seek: 0s;
+  display: block;
+  width: 100%;
+  font-family: var(--ifm-font-family-monospace);
+  /* --text, --small and --clear come from parts.tsx (VARS) */
+  font-size: var(--text);
+  text-anchor: middle;
+  user-select: none;
+}
+
+.issue5 {
+  --c: var(--issue5);
+}
+.issue6 {
+  --c: var(--issue6);
+}
+/* what the table keys by, in one color wherever it appears: in the call, as
+   the entry's key, and in the args of the read that finds it */
+.args {
+  --c: var(--args);
+}
+.key {
+  fill: var(--c);
+  font-weight: 600;
+}
+
+/* the segmented control */
+.controls {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  width: fit-content;
+  margin: 0 auto 4px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ifm-background-surface-color);
+}
+.controls button {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ifm-color-emphasis-700);
+  font: 600 0.8rem var(--ifm-font-family-monospace);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.controls button[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-chip);
+}
+.controls button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+/* taller for a finger */
+@media (pointer: coarse) {
+  .controls button {
+    padding: 8px 14px;
+  }
+}
+/* more options than three: narrower sides keep them on one line at phone width */
+.dense {
+  flex-wrap: wrap;
+}
+.dense button {
+  padding-inline: 8px;
+}
+@media (max-width: 359px) {
+  .dense button {
+    padding-inline: 4px;
+  }
+}
+
+.call {
+  fill: var(--ifm-font-color-base);
+}
+
+.store {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  rx: 12px;
+}
+.db {
+  color: var(--ifm-color-primary);
+}
+
+/* one entry of the table: its key, then its value */
+.entry rect {
+  fill: var(--ifm-background-color);
+  stroke: var(--line);
+  stroke-width: 1;
+  rx: 8px;
+}
+.entry text {
+  fill: var(--ifm-color-emphasis-800);
+  text-anchor: end;
+}
+
+/* an issue: its state and title */
+.issue > rect:first-child {
+  fill: color-mix(in srgb, var(--c) 14%, var(--ifm-background-surface-color));
+  rx: 7px;
+}
+.issue .state {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 1.2;
+}
+.issue .title {
+  fill: var(--c);
+  opacity: 0.5;
+  rx: 2px;
+}
+.closed .state {
+  fill: var(--c);
+}
+.closed path {
+  fill: none;
+  stroke: var(--on-chip);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.closed .title {
+  opacity: 0.25;
+}
+
+/* an issue's pk, as a list holds it */
+.pk rect {
+  fill: var(--c);
+  rx: 7px;
+}
+.pk text {
+  fill: var(--on-chip);
+  font-size: var(--small);
+  font-weight: 600;
+}
+
+/* what reads the table. Until its data is stored it has nothing to render */
+.miss > rect,
+.found > rect {
+  stroke-width: 1;
+  rx: 8px;
+}
+/* its label and request start where its rows do */
+.miss > text,
+.found > text {
+  text-anchor: start;
+}
+.miss > rect {
+  fill: var(--ifm-background-color);
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-dasharray: 3 3;
+}
+.miss text,
+.miss tspan {
+  fill: var(--ifm-color-emphasis-600);
+  font-weight: 400;
+}
+.miss .skeleton {
+  fill: var(--ifm-color-emphasis-200);
+  stroke: none;
+  rx: 4px;
+}
+.found > rect {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-emphasis-500);
+}
+.found > text {
+  fill: var(--ifm-font-color-base);
+}
+
+/* the request a cache keyed by request makes for a read: crossed out once the
+   table has the data, plain when the call above is that request */
+.frame .request {
+  fill: var(--ifm-color-emphasis-600);
+  font-size: var(--small);
+}
+.frame .sent {
+  fill: var(--ifm-font-color-base);
+}
+/* from the table to its reads */
+.binding {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-400);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+  stroke-linecap: round;
+}
+.found .binding {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2;
+  animation: flow 0.8s linear infinite;
+}
+/* off screen or in a hidden tab (useRuns) */
+.stage[data-paused] .binding {
+  animation-play-state: paused;
+}
+@keyframes flow {
+  from {
+    stroke-dashoffset: 6;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* found in the table */
+.badge circle {
+  fill: var(--accent);
+}
+.badge path {
+  fill: none;
+  stroke: var(--on-chip);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* One run. Each part starts at the --at its diagram gives it (AT), plays once
+   and holds its end, until the run starts over */
+.anim {
+  animation-fill-mode: both;
+  animation-delay: calc(var(--seek) + var(--at, 0ms));
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.2, 1);
+}
+
+/* the call going out, and a read re-rendering, like React DevTools' highlight */
+.flash {
+  fill: none;
+  stroke: var(--ifm-color-primary);
+  stroke-width: 6;
+  rx: 9px;
+  animation-name: flash;
+  animation-duration: 1100ms;
+  animation-timing-function: ease-out;
+}
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.5;
+  }
+}
+
+/* the response, taken apart: each piece travels to the entry it is stored under */
+.arrive {
+  animation-name: arrive;
+  animation-duration: 1100ms;
+}
+@keyframes arrive {
+  0% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+}
+/* a new entry and its key, as its value lands */
+.land {
+  animation-name: land;
+  animation-duration: 400ms;
+}
+@keyframes land {
+  from {
+    opacity: 0;
+  }
+}
+/* a read finding its data: out from under the table */
+.show {
+  animation-name: show;
+  animation-duration: 450ms;
+}
+@keyframes show {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+/* a request that isn't made, crossed out from its start */
+.skip {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-600);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation-name: skip;
+  animation-duration: 350ms;
+}
+@keyframes skip {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+/* what the run added fades, so the next starts from what was there */
+.clear {
+  animation-name: clear;
+  animation-duration: var(--clear);
+  animation-timing-function: ease-in;
+}
+@keyframes clear {
+  to {
+    opacity: 0;
+  }
+}
+
+/* nothing moves on its own: each run rests at its outcome */
+@media (prefers-reduced-motion: reduce) {
+  .diagram {
+    --seek: -60s;
+  }
+  .clear,
+  .found .binding {
+    animation: none;
+  }
+  .controls button {
+    transition: none;
+  }
+}

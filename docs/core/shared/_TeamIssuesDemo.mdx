@@ -1,0 +1,390 @@
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import { teamIssueFixtures, getInitialInterceptorData } from '@site/src/fixtures/team-issues';
+
+<FrameworkPlayground
+  defaultOpen="n"
+  row
+  inFlight
+  fixtures={teamIssueFixtures}
+  getInitialInterceptorData={getInitialInterceptorData}
+>
+
+```ts title="Resources" collapsed {32-34}
+import { Collection, Entity, resource } from '@data-client/rest';
+
+export class Issue extends Entity {
+  id = 0;
+  assigneeId = 0;
+  title = '';
+  body = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { assigneeId?: string | number } | undefined,
+  schema: Issue,
+  optimistic: true,
+});
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  issues: Issue[] = [];
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  static key = 'User';
+
+  static schema = {
+    // the list IssueResource.getList({ assigneeId }) reads
+    issues: new Collection([Issue], {
+      nestKey: parent => ({ assigneeId: parent.id }),
+    }),
+  };
+}
+export const UserResource = resource({
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+:::react
+
+```tsx title="Team" route="/" collapsed
+import { useSuspense } from '@data-client/react';
+import { UserResource } from './Resources';
+
+export default function Team() {
+  const users = useSuspense(UserResource.getList);
+  return (
+    <div>
+      {users.map(user => (
+        <section key={user.pk()}>
+          <h3>
+            <Avatar src={user.profileImage} />
+            <Link to={`/users/${user.id}`}>{user.name}</Link>
+          </h3>
+          <div className="list">
+            {user.issues
+              .filter(issue => issue.state === 'open')
+              .map(issue => (
+                <Link
+                  key={issue.pk()}
+                  className="listItem"
+                  to={`/issues/${issue.id}`}
+                >
+                  {issue.title}
+                </Link>
+              ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="UserPage" route="/users/:id" {7-8}
+import { useSuspense } from '@data-client/react';
+import IssueItem from './IssueItem';
+import NewIssue from './NewIssue';
+import { IssueResource, UserResource } from './Resources';
+
+export default function UserPage({ id }: { id: string }) {
+  const user = useSuspense(UserResource.get, { id });
+  const issues = useSuspense(IssueResource.getList, { assigneeId: id });
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <div className="list">
+        {issues.map(issue => (
+          <IssueItem key={issue.pk()} issue={issue} />
+        ))}
+        <NewIssue assigneeId={user.id} />
+      </div>
+    </div>
+  );
+}
+```
+
+```tsx title="IssueItem" {7-11,13} collapsed
+import { useController } from '@data-client/react';
+import { IssueResource, type Issue } from './Resources';
+
+export default function IssueItem({ issue }: { issue: Issue }) {
+  const ctrl = useController();
+  const handleChange = e =>
+    ctrl.fetch(
+      IssueResource.partialUpdate,
+      { id: issue.id },
+      { state: e.currentTarget.checked ? 'closed' : 'open' },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(IssueResource.delete, { id: issue.id });
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input
+          type="checkbox"
+          checked={issue.state === 'closed'}
+          onChange={handleChange}
+        />
+        <Link to={`/issues/${issue.id}`}>{issue.title}</Link>
+      </label>
+      <CancelButton onClick={handleDelete} />
+    </div>
+  );
+}
+```
+
+```tsx title="NewIssue" {8-11} collapsed
+import { useController } from '@data-client/react';
+import { IssueResource } from './Resources';
+
+export default function NewIssue({ assigneeId }: { assigneeId: number }) {
+  const ctrl = useController();
+  const handleKeyDown = e => {
+    if (e.key === 'Enter') {
+      ctrl.fetch(IssueResource.getList.push, {
+        assigneeId,
+        title: e.currentTarget.value,
+      });
+      e.currentTarget.value = '';
+    }
+  };
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input type="checkbox" name="new" checked={false} disabled />
+        <input
+          type="text"
+          aria-label="New issue"
+          placeholder="New issue"
+          onKeyDown={handleKeyDown}
+        />
+      </label>
+    </div>
+  );
+}
+```
+
+```tsx title="IssuePage" route="/issues/:id" {5,10-14} collapsed
+import { useController, useSuspense } from '@data-client/react';
+import { IssueResource, UserResource } from './Resources';
+
+export default function IssuePage({ id }: { id: string }) {
+  const issue = useSuspense(IssueResource.get, { id });
+  const users = useSuspense(UserResource.getList);
+  const ctrl = useController();
+  // move, not partialUpdate: the issue changes lists
+  const assign = (assigneeId: number) =>
+    ctrl.fetch(
+      IssueResource.getList.move,
+      { id: issue.id },
+      { assigneeId },
+    );
+  return (
+    <div>
+      <h2>{issue.title}</h2>
+      <p className="meta">{issue.state === 'open' ? 'Open' : 'Closed'}</p>
+      <section>
+        <h3>Assignee</h3>
+        <div className="list">
+          {users.map(user => (
+            <button
+              key={user.pk()}
+              className="listItem"
+              aria-current={user.id === issue.assigneeId}
+              onClick={() => assign(user.id)}
+            >
+              <Avatar src={user.profileImage} size={24} />
+              {user.name}
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="Team.vue" route="/" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { UserResource } from './Resources';
+
+  const users = await useSuspense(UserResource.getList);
+</script>
+
+<template>
+  <div>
+    <section v-for="user in users" :key="user.pk()">
+      <h3>
+        <Avatar :src="user.profileImage" />
+        <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
+      </h3>
+      <div class="list">
+        <RouterLink
+          v-for="issue in user.issues.filter(issue => issue.state === 'open')"
+          :key="issue.pk()"
+          class="listItem"
+          :to="`/issues/${issue.id}`"
+        >
+          {{ issue.title }}
+        </RouterLink>
+      </div>
+    </section>
+  </div>
+</template>
+```
+
+```html title="UserPage.vue" route="/users/:id" {12-13}
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import IssueItem from './IssueItem.vue';
+  import NewIssue from './NewIssue.vue';
+  import { IssueResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const userArgs = () => ({ id: props.id });
+  const issueArgs = () => ({ assigneeId: props.id });
+  // start the second read before awaiting the first
+  useFetch(IssueResource.getList, issueArgs);
+  const user = await useSuspense(UserResource.get, userArgs);
+  const issues = await useSuspense(IssueResource.getList, issueArgs);
+</script>
+
+<template>
+  <div>
+    <h2>{{ user.name }}</h2>
+    <div class="list">
+      <IssueItem v-for="issue in issues" :key="issue.pk()" :issue="issue" />
+      <NewIssue :assigneeId="user.id" />
+    </div>
+  </div>
+</template>
+```
+
+```html title="IssueItem.vue" {9-13,15} collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { IssueResource, type Issue } from './Resources';
+
+  const props = defineProps<{ issue: Issue }>();
+  const ctrl = useController();
+
+  const handleChange = (e: Event) =>
+    ctrl.fetch(
+      IssueResource.partialUpdate,
+      { id: props.issue.id },
+      { state: (e.target as HTMLInputElement).checked ? 'closed' : 'open' },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(IssueResource.delete, { id: props.issue.id });
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input
+        type="checkbox"
+        :checked="issue.state === 'closed'"
+        @change="handleChange"
+      />
+      <RouterLink :to="`/issues/${issue.id}`">{{ issue.title }}</RouterLink>
+    </label>
+    <CancelButton @click="handleDelete" />
+  </div>
+</template>
+```
+
+```html title="NewIssue.vue" {11-14} collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { IssueResource } from './Resources';
+
+  const props = defineProps<{ assigneeId: number }>();
+  const ctrl = useController();
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const input = e.target as HTMLInputElement;
+      ctrl.fetch(IssueResource.getList.push, {
+        assigneeId: props.assigneeId,
+        title: input.value,
+      });
+      input.value = '';
+    }
+  };
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input type="checkbox" name="new" :checked="false" disabled />
+      <input
+        type="text"
+        aria-label="New issue"
+        placeholder="New issue"
+        @keydown="handleKeyDown"
+      />
+    </label>
+  </div>
+</template>
+```
+
+```html title="IssuePage.vue" route="/issues/:id" {9,14-18} collapsed
+<script setup lang="ts">
+  import { useController, useFetch, useSuspense } from '@data-client/vue';
+  import { IssueResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  // start the second read before awaiting the first
+  useFetch(UserResource.getList);
+  const issue = await useSuspense(IssueResource.get, () => ({ id: props.id }));
+  const users = await useSuspense(UserResource.getList);
+
+  // move, not partialUpdate: the issue changes lists
+  const assign = (assigneeId: number) =>
+    ctrl.fetch(
+      IssueResource.getList.move,
+      { id: issue.value.id },
+      { assigneeId },
+    );
+</script>
+
+<template>
+  <div>
+    <h2>{{ issue.title }}</h2>
+    <p class="meta">{{ issue.state === 'open' ? 'Open' : 'Closed' }}</p>
+    <section>
+      <h3>Assignee</h3>
+      <div class="list">
+        <button
+          v-for="user in users"
+          :key="user.pk()"
+          class="listItem"
+          :aria-current="user.id === issue.assigneeId"
+          @click="assign(user.id)"
+        >
+          <Avatar :src="user.profileImage" :size="24" />
+          {{ user.name }}
+        </button>
+      </div>
+    </section>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

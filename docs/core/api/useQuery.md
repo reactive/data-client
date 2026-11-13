@@ -29,12 +29,16 @@ export const sortDemo = [
 
 Data rendering without the fetch.
 
-Access any [Queryable Schema](/rest/api/schema#queryable)'s store value; like [Entity](/rest/api/Entity), [Object](/rest/api/Object), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
+Access any [Queryable Schema](/docs/concepts/queryable)'s store value; like [Entity](/rest/api/Entity), [Object](/rest/api/Object), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
 [Union](/rest/api/Union), and [Scalar](/rest/api/Scalar). [Lazy](/rest/api/Lazy) fields also work via their [`.query`](/rest/api/Lazy#query) accessor.
 If the value does not exist, returns `undefined`.
 
 `useQuery()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary. Returns `undefined`
 when data is [Invalid](../concepts/expiry-policy#invalid), or when `null` is the second argument.
+
+It never fetches, and it ignores expiry: stale data is returned as stored. Where part of an object schema's result is
+missing, it returns the object with that member `undefined`. An endpoint with the same schema
+[fetches in both cases](../concepts/queryable.md#endpoints).
 
 :::tip
 
@@ -93,9 +97,14 @@ The result updates when the arguments change.
 
 ### Queryable
 
-[Queryable](/rest/api/schema#queryable) schemas require an `queryKey()` method that returns something. These include
+[Queryable](/docs/concepts/queryable) schemas require an `queryKey()` method that returns something. These include
 [Entity](/rest/api/Entity), [Object](/rest/api/Object), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
 [Union](/rest/api/Union), and [Scalar](/rest/api/Scalar). [Lazy](/rest/api/Lazy) fields produce a Queryable via their [`.query`](/rest/api/Lazy#query) accessor.
+
+Endpoints query the store the same way until they have a response of their own, so when `useQuery(Post, { id })`
+returns a post, `useSuspense(PostResource.get, { id })` renders it without waiting for a fetch, unless that endpoint was
+invalidated, or is invalidIfStale and stale
+([Queryable endpoints](/docs/concepts/queryable#endpoints)).
 
 ```ts
 interface Queryable {

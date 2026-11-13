@@ -726,7 +726,7 @@ function UserName() {
 
 ### set(queryable, ...args, value) {#set}
 
-Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview), or many entities at once with an [Array](/rest/api/Array) or [Values](/rest/api/Values) schema.
+Updates any [Queryable](/docs/concepts/queryable) [Schema](/rest/api/schema#schema-overview), or many entities at once with an [Array](/rest/api/Array) or [Values](/rest/api/Values) schema.
 
 ```ts
 ctrl.set(
@@ -971,7 +971,7 @@ Removes a subscription to the [Endpoint](/rest/api/Endpoint) and args. Each call
 
 ### get(schema, ...args, state) {#get}
 
-Looks up any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview) in `state`.
+Looks up any [Queryable](/docs/concepts/queryable) [Schema](/rest/api/schema#schema-overview) in `state`.
 
 #### Example
 

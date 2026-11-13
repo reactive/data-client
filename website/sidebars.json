@@ -46,6 +46,10 @@
         },
         {
           "type": "doc",
+          "id": "concepts/queryable"
+        },
+        {
+          "type": "doc",
           "id": "concepts/expiry-policy"
         },
         {
