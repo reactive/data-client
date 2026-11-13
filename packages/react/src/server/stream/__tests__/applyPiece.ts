@@ -501,6 +501,50 @@ describe('applyPiece', () => {
       ).toBe(INVALID);
     });
 
+    it('an older INVALID keeps the time of a later client deletion, so an older object stays deleted', () => {
+      const deleteTicker = new Endpoint(
+        ({ id }: { id: string }) => Promise.resolve({ id }),
+        { schema: new schema.Invalidate(Ticker), name: 'deleteTicker' },
+      );
+      const client = setResponse(
+        clientState(),
+        deleteTicker,
+        [{ id: 'BTC' }],
+        { id: 'BTC' },
+        3000,
+      );
+      expect(client.entities.Ticker!.BTC).toBe(INVALID);
+      expect(client.entitiesMeta.Ticker.BTC.fetchedAt).toBe(3000);
+
+      const deleted = applyPiece(
+        client,
+        invalid(1000),
+        classes(Ticker),
+        placed,
+        OPENED,
+      );
+      expect(deleted.entities.Ticker!.BTC).toBe(INVALID);
+      expect(deleted.entitiesMeta.Ticker.BTC.fetchedAt).toBe(3000);
+      const older: PieceMessage = {
+        t: 'piece',
+        at: 0,
+        rev: 3,
+        entities: { Ticker: { BTC: { id: 'BTC', price: 5 } } },
+        entitiesMeta: {
+          Ticker: { BTC: { fetchedAt: 2000, date: 2000, expiresAt: 2001 } },
+        },
+      };
+      expect(
+        applyPiece(deleted, older, classes(Ticker), placed, OPENED).entities
+          .Ticker!.BTC,
+      ).toBe(INVALID);
+      // a server deletion later than the client's still moves the time
+      expect(
+        applyPiece(client, invalid(4000), classes(Ticker), placed, OPENED)
+          .entitiesMeta.Ticker.BTC.fetchedAt,
+      ).toBe(4000);
+    });
+
     it('an object replaces a client INVALID only when its fetchedAt is not older', () => {
       const client = reducer(
         clientState(),

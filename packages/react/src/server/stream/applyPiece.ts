@@ -138,9 +138,11 @@ function mergeEntities(
         if (serverOwned) w.remove(key, pk);
         else asSent = false;
       } else if (incoming === 0) {
-        if (serverOwned || held === INVALID || newer(true))
+        if (serverOwned || newer(true))
           w.set(key, pk, INVALID, meta ?? heldMeta);
-        else asSent = false;
+        // Already INVALID, with a time that is not older: that time stays, or
+        // an object between the two times would pass the check below
+        else if (held !== INVALID) asSent = false;
       } else if (serverOwned) {
         w.set(key, pk, incoming, meta ?? heldMeta);
       } else if (held === INVALID) {
