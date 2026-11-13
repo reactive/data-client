@@ -612,6 +612,31 @@ describe('applyPiece', () => {
       expect(all(next)).toBeUndefined();
     });
 
+    it('removes a record the server invalidated, as the server does', () => {
+      const invalidPiece: PieceMessage = {
+        t: 'piece',
+        at: 0,
+        rev: 2,
+        entities: { Ticker: { BTC: 0 } },
+        entitiesMeta: {
+          Ticker: { BTC: { fetchedAt: 2000, date: 2000, expiresAt: 2000 } },
+        },
+      };
+      placed.add(invalidPiece.entitiesMeta!.Ticker!.BTC!);
+      const afterInvalid = applyPiece(
+        foldPieces([first], 1),
+        invalidPiece,
+        new Map(),
+        placed,
+        OPENED,
+      );
+      expect(afterInvalid.entities.Ticker!.BTC).toBe(INVALID);
+      const next = applyPiece(afterInvalid, reset, new Map(), placed, OPENED);
+      expect(next.entities).toEqual({});
+      expect(next.entitiesMeta).toEqual({});
+      expect(all(next)).toBeUndefined();
+    });
+
     it('keeps a record the client wrote, with its meta and its index entry', () => {
       const client = setResponse(
         foldPieces([first], 1),

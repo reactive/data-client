@@ -62,19 +62,21 @@ export function applyPiece(
 /**
  * Absent, or still the object and the meta a piece placed: no client write to
  * keep. A client write that `shouldUpdate()` turned down keeps the object and
- * moves the meta, so the object alone does not tell.
+ * moves the meta, so the object alone does not tell. An INVALID has no object,
+ * so its meta alone tells: a client deletion writes its own.
  */
 function isServerOwned(
   placed: WeakSet<object>,
   held: unknown,
   heldMeta: object | undefined,
 ): boolean {
+  if (held === undefined) return true;
+  if (held === INVALID) return heldMeta !== undefined && placed.has(heldMeta);
   return (
-    held === undefined ||
-    (typeof held === 'object' &&
-      held !== null &&
-      placed.has(held) &&
-      (heldMeta === undefined || placed.has(heldMeta)))
+    typeof held === 'object' &&
+    held !== null &&
+    placed.has(held) &&
+    (heldMeta === undefined || placed.has(heldMeta))
   );
 }
 
