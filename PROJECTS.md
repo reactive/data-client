@@ -104,8 +104,8 @@ hand it on:
 
 ## Testing against another app
 
-Integration projects test unreleased packages in a real app: `yarn pack -o` each package the app needs
-plus its data-client dependencies (e.g. normalizr, core, use-enhanced-reducer, endpoint, rest, react;
+Integration projects test unreleased packages in a real app: `yarn pack -o /tmp/pkgs/%s-%v.tgz` (Yarn 4
+needs the path) each package the app needs plus its data-client dependencies (e.g. normalizr, core, use-enhanced-reducer, endpoint, rest, react;
 packages with skills ship them on `prepack`), then `file:` dependencies and npm `overrides` in the
 app. Tell any agent working in that app not to reinstall them.
 
