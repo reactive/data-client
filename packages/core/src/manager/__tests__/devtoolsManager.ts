@@ -311,13 +311,38 @@ describe('DevToolsManager', () => {
       expect(actionLogs().get('App')).toHaveLength(4);
     });
 
-    it('forgets polling keys on cleanup', () => {
+    it('keeps capping a polling key after cleanup() and init()', () => {
       const { manager, dispatch } = pollingSetup();
       dispatch(subscribe('a'));
+      // SubscriptionManager.init() resumes the poll without a new SUBSCRIBE
       manager.cleanup();
       manager.init(initialState);
       for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(2);
+    });
+
+    it('forgets polling keys when bound to a new store', () => {
+      const { manager, dispatch } = pollingSetup();
+      dispatch(subscribe('a'));
+      manager.cleanup();
+      const { dispatch: newDispatch } = setup(manager);
+      manager.init(initialState);
+      for (let i = 1; i <= 3; i++) newDispatch(fetchAction('a', i));
       expect(typesAndKeys().filter(([type]) => type === FETCH)).toHaveLength(3);
+    });
+
+    it('ignores actions from a previous store', () => {
+      const { manager, dispatch: oldDispatch } = pollingSetup();
+      manager.cleanup();
+      const { dispatch } = setup(manager);
+      manager.init(initialState);
+      oldDispatch(subscribe('a'));
+      for (let i = 1; i <= 3; i++) dispatch(fetchAction('a', i));
+      expect(typesAndKeys()).toEqual([
+        [FETCH, 'a'],
+        [FETCH, 'a'],
+        [FETCH, 'a'],
+      ]);
     });
 
     it('does not cap subscriptions without pollFrequency', () => {

@@ -24,6 +24,8 @@ export default class PollingSubscription implements Subscription {
   declare protected lastIntervalId?: ReturnType<typeof setInterval>;
   declare protected startId?: ReturnType<typeof setTimeout>;
   declare private connectionListener: ConnectionListener;
+  /** Stopped by `cleanup()` until `init()` */
+  private stopped = false;
 
   constructor(
     action: Omit<SubscribeAction, 'type'>,
@@ -42,6 +44,17 @@ export default class PollingSubscription implements Subscription {
       connectionListener || new DefaultConnectionListener();
 
     // Kickstart running since this is initialized after the online notif is sent
+    this.start();
+  }
+
+  /** Resumes polling stopped by `cleanup()` */
+  init() {
+    if (!this.stopped) return;
+    this.stopped = false;
+    this.start();
+  }
+
+  protected start() {
     if (this.connectionListener.isOnline()) {
       this.onlineListener();
     } else {
@@ -101,8 +114,13 @@ export default class PollingSubscription implements Subscription {
     return false;
   }
 
-  /** Cleanup means clearing out background interval. */
+  /** Cleanup means clearing out background interval. `init()` resumes it. */
   cleanup() {
+    this.stopped = true;
+    this.clear();
+  }
+
+  protected clear() {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       delete this.intervalId;
@@ -141,7 +159,7 @@ export default class PollingSubscription implements Subscription {
   /** What happens when browser goes offline */
   protected offlineListener = () => {
     // this clears existing listeners, so no need to clear offline listener
-    this.cleanup();
+    this.clear();
     this.connectionListener.addOnlineListener(this.onlineListener);
   };
 
@@ -171,7 +189,7 @@ export default class PollingSubscription implements Subscription {
    * Will clean up old poll interval on next run
    */
   protected run() {
-    if (this.startId) return;
+    if (this.startId || this.stopped) return;
     if (this.intervalId) this.lastIntervalId = this.intervalId;
     this.intervalId = setInterval(() => {
       // since we don't know how long into the last poll it was before resetting

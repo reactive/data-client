@@ -36,6 +36,7 @@ interface Subscription {
   add(frequency?: number): void;
   remove(frequency?: number): boolean;
   cleanup(): void;
+  init?(): void;
 }
 
 /** The static class that constructs Subscription */
@@ -58,7 +59,14 @@ more subscriptions after. This is used to clean up unused `Subscription`s.
 
 ### cleanup(): void
 
-Provides any cleanup of dangling resources after Subscription is no longer in use.
+Stops background work, like timers or connections. `SubscriptionManager` calls it when the Subscription is no longer
+in use, and when the store pauses.
+
+### init?(): void
+
+Resumes background work that `cleanup()` stopped. `SubscriptionManager` calls it when the store resumes, for every
+Subscription it still tracks. It must do nothing while the Subscription is already running. Without `init()`, a
+Subscription that outlives a pause stays stopped.
 
 ### Included implementation
 
@@ -68,7 +76,7 @@ Provides any cleanup of dangling resources after Subscription is no longer in us
 
 Implementing your own `Subscription` to handle websockets can be done by
 [dispatching](./Controller.md#set) `rdc/set` actions with the data it gets to update.
-Be sure to handle connection opening in the constructor and close the connection
-in `cleanup()`
+Be sure to handle connection opening in the constructor, close the connection
+in `cleanup()`, and reopen it in `init()`
 
 :::

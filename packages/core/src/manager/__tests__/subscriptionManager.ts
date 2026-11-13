@@ -23,6 +23,7 @@ describe('SubscriptionManager', () => {
     add = jest.fn();
     remove = jest.fn(() => true);
     cleanup = jest.fn();
+    init = jest.fn();
   }
   const manager = new SubscriptionManager(TestSubscription);
   const getState = () => initialState;
@@ -42,6 +43,109 @@ describe('SubscriptionManager', () => {
       ] = sub;
       manager.cleanup();
       expect(sub.cleanup.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe('init()', () => {
+    it('resumes every tracked Subscription', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const sub = new TestSubscription();
+      (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ] = sub;
+      manager.cleanup();
+      manager.init();
+      expect(sub.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops a Subscription created while paused until init()', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const next = manager.middleware(new Controller())(() =>
+        Promise.resolve(),
+      );
+      manager.cleanup();
+      next({
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction);
+      const sub: TestSubscription = (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ];
+      expect(sub.cleanup).toHaveBeenCalledTimes(1);
+      manager.init();
+      expect(sub.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops subscriptions from a previous store when bound to a new one', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const action = {
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction;
+      manager.middleware(new Controller())(() => Promise.resolve())(action);
+      const old: TestSubscription = (manager as any).subscriptions[action.key];
+      manager.cleanup();
+
+      manager.middleware(new Controller())(() => Promise.resolve())(action);
+      manager.init();
+      const current: TestSubscription = (manager as any).subscriptions[
+        action.key
+      ];
+      expect(current).not.toBe(old);
+      expect(old.add).not.toHaveBeenCalled();
+      expect(old.init).not.toHaveBeenCalled();
+      expect(current.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores actions from a previous store', () => {
+      const manager = new SubscriptionManager(TestSubscription);
+      const action = {
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction;
+      const oldNext = manager.middleware(new Controller())(() =>
+        Promise.resolve(),
+      );
+      oldNext(action);
+      manager.middleware(new Controller())(() => Promise.resolve())(action);
+      const current: TestSubscription = (manager as any).subscriptions[
+        action.key
+      ];
+
+      oldNext({ ...action, type: UNSUBSCRIBE } as UnsubscribeAction);
+      expect(current.remove).not.toHaveBeenCalled();
+      expect((manager as any).subscriptions[action.key]).toBe(current);
+    });
+
+    it('keeps a Subscription without init() created while paused running', () => {
+      class NoInitSubscription implements Subscription {
+        add = jest.fn();
+        remove = jest.fn(() => true);
+        cleanup = jest.fn();
+      }
+      const manager = new SubscriptionManager(NoInitSubscription);
+      const next = manager.middleware(new Controller())(() =>
+        Promise.resolve(),
+      );
+      manager.cleanup();
+      next({
+        type: SUBSCRIBE,
+        endpoint: PollingArticleResource.get,
+        args: [{ id: 5 }],
+        key: PollingArticleResource.get.key({ id: 5 }),
+      } as SubscribeAction);
+      const sub: NoInitSubscription = (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ];
+      expect(sub.cleanup).not.toHaveBeenCalled();
+      manager.init();
+      expect(sub.cleanup).not.toHaveBeenCalled();
     });
   });
 

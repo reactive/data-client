@@ -229,8 +229,11 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production') {
       this.prototype.middleware = function (controller) {
-        // a reused manager starts a fresh log for a new store
-        if (controller !== this.controller) this.actionLog = [];
+        // a reused manager starts fresh for a new store; SubscriptionManager drops its polls too
+        if (controller !== this.controller) {
+          this.actionLog = [];
+          this.pollingSubscribers = new Map();
+        }
         this.controller = controller;
         const reducer = getExtension() && createReducer(controller as any);
         let state = controller.getState();
@@ -268,6 +271,8 @@ export default class DevToolsManager implements Manager {
           if (old >= 0) log[old] = summarize(log[old]);
         };
         return next => action => {
+          // an unmounted store sharing this manager must not touch the new store's log
+          if (controller !== this.controller) return next(action);
           const shouldSkip = this.skipLogging?.(action);
           trackPolling(action);
           if (!shouldSkip) logAction(action);
@@ -367,8 +372,6 @@ export default class DevToolsManager implements Manager {
     if (process.env.NODE_ENV !== 'production') {
       this.unsubscribeExtension?.();
       this.unsubscribeExtension = undefined;
-      // SubscriptionManager.cleanup() stops polling without dispatching unsubscribes
-      this.pollingSubscribers.clear();
       const key = this.registryKey;
       const registry: DebugStore['registry'] | undefined = (globalThis as any)
         .__DC__?.registry;
