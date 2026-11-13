@@ -45,22 +45,61 @@ export function applyPiece(
 ): State<unknown> {
   if (state.lastReset >= openedAt) return state;
   const w = new Writer(state);
-  /**
-   * Absent, or still the object and the meta a piece placed: no client write to
-   * keep. A client write that `shouldUpdate()` turned down keeps the object and
-   * moves the meta, so the object alone does not tell.
-   */
-  const isServerOwned = (held: unknown, heldMeta: object | undefined) =>
+  const entities = mergeEntities(w, state, piece, classes, placed, onUnknown);
+  mergeIndexes(w, state, piece, entities.taken, placed);
+  reindexMerged(w, entities.merged);
+  mergeEndpoints(w, state, piece, entities.keptUnknown);
+  return w.done();
+}
+
+/**
+ * Absent, or still the object and the meta a piece placed: no client write to
+ * keep. A client write that `shouldUpdate()` turned down keeps the object and
+ * moves the meta, so the object alone does not tell.
+ */
+function isServerOwned(
+  placed: WeakSet<object>,
+  held: unknown,
+  heldMeta: object | undefined,
+): boolean {
+  return (
     held === undefined ||
     (typeof held === 'object' &&
       held !== null &&
       placed.has(held) &&
-      (heldMeta === undefined || placed.has(heldMeta)));
-  /** Whether the piece's value was written as sent, per entity key and pk, for the index rows */
-  const taken = new Map<string, Map<string, boolean>>();
-  const merged: [EntityClass, string, any, any][] = [];
-  let keptUnknown = false;
+      (heldMeta === undefined || placed.has(heldMeta)))
+  );
+}
 
+interface MergedRecord {
+  cls: EntityClass;
+  pk: string;
+  held: any;
+  next: any;
+}
+interface EntitiesResult {
+  /** Whether the piece's value was written as sent, per entity key and pk, for the index rows */
+  taken: Map<string, Map<string, boolean>>;
+  /** Records merged through their class, whose index entries are recomputed */
+  merged: MergedRecord[];
+  /** A client-written record of a class not learned kept its copy */
+  keptUnknown: boolean;
+}
+
+/** Writes each entity and entity meta of the piece, keeping or merging what the client wrote */
+function mergeEntities(
+  w: Writer,
+  state: State<unknown>,
+  piece: PieceMessage,
+  classes: ClassMap,
+  placed: WeakSet<object>,
+  onUnknown: ((key: string, pk: string) => void) | undefined,
+): EntitiesResult {
+  const result: EntitiesResult = {
+    taken: new Map(),
+    merged: [],
+    keptUnknown: false,
+  };
   for (const key of keysOf(piece.entities, piece.entitiesMeta)) {
     const incomingTable = sentOrAll(piece.entities?.[key], state.entities[key]);
     const incomingMetaTable = sentOrAll(
@@ -69,13 +108,13 @@ export function applyPiece(
     );
     const cls = classes.get(key);
     const keyTaken = new Map<string, boolean>();
-    taken.set(key, keyTaken);
+    result.taken.set(key, keyTaken);
     for (const pk of keysOf(incomingTable, incomingMetaTable)) {
       const incoming = incomingTable[pk];
       const meta = incomingMetaTable[pk];
       const held = state.entities[key]?.[pk];
       const heldMeta = state.entitiesMeta[key]?.[pk];
-      const serverOwned = isServerOwned(held, heldMeta);
+      const serverOwned = isServerOwned(placed, held, heldMeta);
       const newer = (strict: boolean) =>
         meta != null &&
         (heldMeta === undefined ||
@@ -124,9 +163,9 @@ export function applyPiece(
             next,
             placed.has(nextMeta) ? { ...nextMeta } : nextMeta,
           );
-          merged.push([cls, pk, held, next]);
+          result.merged.push({ cls, pk, held, next });
         } else {
-          keptUnknown = true;
+          result.keptUnknown = true;
           onUnknown?.(key, pk);
         }
       }
@@ -135,7 +174,17 @@ export function applyPiece(
     if (piece.entities?.[key] === null) w.dropEmpty('entities', key);
     if (piece.entitiesMeta?.[key] === null) w.dropEmpty('entitiesMeta', key);
   }
+  return result;
+}
 
+/** Writes the piece's index entries whose record was written as sent, or is the server's */
+function mergeIndexes(
+  w: Writer,
+  state: State<unknown>,
+  piece: PieceMessage,
+  taken: EntitiesResult['taken'],
+  placed: WeakSet<object>,
+): void {
   const pieceIndexes = piece.indexes ?? {};
   for (const key in pieceIndexes) {
     const keyTaken = taken.get(key);
@@ -151,6 +200,7 @@ export function applyPiece(
           !(
             keyTaken?.get(target) ??
             isServerOwned(
+              placed,
               state.entities[key]?.[target],
               state.entitiesMeta[key]?.[target],
             )
@@ -164,8 +214,11 @@ export function applyPiece(
     }
     if (pieceIndexes[key] === null) w.dropEmpty('indexes', key);
   }
-  // as normalize does for a merged record
-  for (const [cls, pk, held, next] of merged) {
+}
+
+/** Recomputes the index entries of records merged through their class, as normalize does */
+function reindexMerged(w: Writer, merged: readonly MergedRecord[]): void {
+  for (const { cls, pk, held, next } of merged) {
     if (!cls.indexes) continue;
     for (const indexName of cls.indexes) {
       const before = held[indexName];
@@ -176,7 +229,18 @@ export function applyPiece(
         w.setIndex(cls.key, indexName, next[indexName], pk);
     }
   }
+}
 
+/**
+ * Writes the piece's endpoint results, metas and removals, except where the client
+ * fetched later. With `keptUnknown`, every meta written is stale, so one refetch converges.
+ */
+function mergeEndpoints(
+  w: Writer,
+  state: State<unknown>,
+  piece: PieceMessage,
+  keptUnknown: boolean,
+): void {
   const removed = new Set(piece.x);
   for (const key of new Set([
     ...removed,
@@ -199,7 +263,6 @@ export function applyPiece(
     if (meta !== undefined)
       w.top('meta')[key] = keptUnknown ? { ...meta, expiresAt: 0 } : meta;
   }
-  return w.done();
 }
 
 /** Server state at `rev`: pieces up to `rev` applied as is to empty tables */
@@ -213,56 +276,16 @@ export function foldPieces(
   const indexes: { [key: string]: { [name: string]: Table } } = {};
   const endpoints: Table = {};
   const meta: Table = {};
-  const table = (root: { [key: string]: Table }, key: string) =>
-    (root[key] ??= {});
   for (const piece of pieces) {
     if (piece.rev > rev) break;
-    for (const key in piece.entities) {
-      const incoming = piece.entities[key];
-      if (incoming === null) {
-        delete entities[key];
-        continue;
-      }
-      for (const pk in incoming) {
-        const value = incoming[pk];
-        if (value === null) {
-          delete table(entities, key)[pk];
-          delete table(entitiesMeta, key)[pk];
-        } else table(entities, key)[pk] = fromWire(value);
-      }
-    }
-    for (const key in piece.entitiesMeta) {
-      const incoming = piece.entitiesMeta[key];
-      if (incoming === null) {
-        delete entitiesMeta[key];
-        continue;
-      }
-      for (const pk in incoming) {
-        const value = incoming[pk];
-        if (value === null) delete table(entitiesMeta, key)[pk];
-        else table(entitiesMeta, key)[pk] = value;
-      }
-    }
+    foldTables(entities, piece.entities, fromWire, (key, pk) => {
+      delete (entitiesMeta[key] ??= {})[pk];
+    });
+    foldTables(entitiesMeta, piece.entitiesMeta, identity);
     for (const key in piece.indexes) {
       const sent = piece.indexes[key];
-      if (sent === null) {
-        delete indexes[key];
-        continue;
-      }
-      const byName = (indexes[key] ??= {});
-      for (const name in sent) {
-        const entries = sent[name];
-        if (entries === null) {
-          delete byName[name];
-          continue;
-        }
-        const index = (byName[name] ??= {});
-        for (const value in entries) {
-          const pk = entries[value];
-          if (pk === null) delete index[value];
-          else index[value] = fromWire(pk);
-        }
-      }
+      if (sent === null) delete indexes[key];
+      else foldTables((indexes[key] ??= {}), sent, fromWire);
     }
     for (const key of piece.x ?? []) {
       delete endpoints[key];
@@ -288,6 +311,35 @@ export function foldPieces(
     optimistic: [],
     lastReset: 0,
   } as any;
+}
+
+const identity = <T>(value: T) => value;
+
+/**
+ * Writes each sent table's rows into `root`, creating the table. A `null` table
+ * removes the table; a `null` row removes the row and calls `onRemoveRow`.
+ */
+function foldTables(
+  root: { [key: string]: Table },
+  sent: { [key: string]: { [pk: string]: unknown } | null } | undefined,
+  convert: (value: unknown) => unknown,
+  onRemoveRow?: (key: string, pk: string) => void,
+): void {
+  for (const key in sent) {
+    const rows = sent[key];
+    if (rows === null) {
+      delete root[key];
+      continue;
+    }
+    const table = (root[key] ??= {});
+    for (const pk in rows) {
+      const value = rows[pk];
+      if (value === null) {
+        delete table[pk];
+        onRemoveRow?.(key, pk);
+      } else table[pk] = convert(value);
+    }
+  }
 }
 
 /** Copy-on-write over the tables a piece touches; untouched tables and records keep identity */
