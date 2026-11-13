@@ -26,6 +26,11 @@ const valuesMerge = (existing: any, incoming: any) => {
   return { ...existing, ...incoming };
 };
 type NormalizedRef = { id: string; schema: string } | string;
+/** Whether the collection keyed by `collectionKey` gets `item`; remove passes no item */
+type CollectionFilter = (
+  collectionKey: Record<string, string>,
+  item?: any,
+) => boolean;
 
 const isShallowEqual = (a: NormalizedRef, b: NormalizedRef): boolean => {
   // TODO: make this extensible in the child's schema
@@ -95,9 +100,7 @@ export default class CollectionSchema<
 
   addWith<P extends any[] = Args>(
     merge: (existing: any, incoming: any) => any,
-    createCollectionFilter?: (
-      ...args: P
-    ) => (collectionKey: Record<string, string>) => boolean,
+    createCollectionFilter?: (...args: P) => CollectionFilter,
   ): CollectionSchema<S, P> {
     return CreateAdder(this, merge, createCollectionFilter);
   }
@@ -113,16 +116,19 @@ export default class CollectionSchema<
   // this adds to any list *in store* that has same members as the urlParams
   // so fetch(create, { userId: 'bob', completed: true }, data)
   // would possibly add to {}, {userId: 'bob'}, {completed: true}, {userId: 'bob', completed: true } - but only those already in the store
-  // it ignores keys that start with sort as those are presumed to not filter results
+  // a key neither arg has is matched against the created item's own field
+  // it ignores keys that start with order as those are presumed to not filter results
   protected createCollectionFilter(...args: Args) {
-    return (collectionKey: Record<string, string>) =>
-      Object.entries(collectionKey).every(
-        ([key, value]) =>
-          this.nonFilterArgumentKeys(key) ||
-          // strings are canonical form. See pk() above for value transformation
-          `${args[0]?.[key]}` === value ||
-          `${args[1]?.[key]}` === value,
-      );
+    return (collectionKey: Record<string, string>, item?: any) =>
+      Object.entries(collectionKey).every(([key, value]) => {
+        if (this.nonFilterArgumentKeys(key)) return true;
+        const fromArgs = args[0]?.[key];
+        const fromBody = args[1]?.[key];
+        // strings are canonical form. See pk() above for value transformation
+        if (fromArgs === undefined && fromBody === undefined)
+          return `${item?.[key]}` === value;
+        return `${fromArgs}` === value || `${fromBody}` === value;
+      });
   }
 
   protected nonFilterArgumentKeys(key: string) {
@@ -152,9 +158,7 @@ export default class CollectionSchema<
       // TODO(breaking): rename to filterCollections
       this.createCollectionFilter = (
         options as any as {
-          createCollectionFilter: (
-            ...args: Args
-          ) => (collectionKey: Record<string, string>) => boolean;
+          createCollectionFilter: (...args: Args) => CollectionFilter;
         }
       ).createCollectionFilter.bind(this) as any;
 
@@ -306,9 +310,7 @@ export type CollectionOptions<
        *
        * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
        */
-      createCollectionFilter?: (
-        ...args: Args
-      ) => (collectionKey: Record<string, string>) => boolean;
+      createCollectionFilter?: (...args: Args) => CollectionFilter;
     }
   | {
       /** Test to determine which arg keys should **not** be used for filtering results.
@@ -377,9 +379,7 @@ function CreateRemover(
 function CreateAdder<C extends CollectionSchema<any, any>, P extends any[]>(
   collection: C,
   merge: (existing: any, incoming: any) => any,
-  createCollectionFilter?: (
-    ...args: P
-  ) => (collectionKey: Record<string, string>) => boolean,
+  createCollectionFilter?: (...args: P) => CollectionFilter,
 ) {
   const properties = derivedProperties(collection, merge, normalizeCreate);
   if (createCollectionFilter) {
@@ -408,9 +408,10 @@ function normalizeCreate(
   }
   const isArray = this.schema instanceof ArraySchema;
   if (isArray && !Array.isArray(input)) input = [input];
+  const removing = this.mergeWithStore === removeWithStore;
   // before normalize, which revives the entity; remove drops the ref itself
   const deletedAt =
-    isArray && this.merge !== removeMerge ?
+    isArray && !removing ?
       deletedIndexes(this.schema, input, parent, key, delegate)
     : [];
   const normalizedValue = this.schema.normalize(input, parent, key, delegate);
@@ -421,13 +422,66 @@ function normalizeCreate(
   // add to any collections that match this
   const targetCollection =
     deletedRefs.length ? CreateDropper(this, deletedRefs) : this;
+  // an item's fields say where it belongs, not which lists it leaves
+  const itemFilter: CollectionFilter =
+    removing ? key => filterCollections(key) : filterCollections;
+  const accepted =
+    Array.isArray(normalizedValue) ? acceptedRefs : acceptedValues;
   const entities = delegate.getEntities(this.key);
   if (entities)
     for (const collectionKey of entities.keys()) {
-      if (!filterCollections(JSON.parse(collectionKey))) continue;
-      delegate.mergeEntity(targetCollection, collectionKey, normalizedValue);
+      const members = accepted(
+        normalizedValue,
+        input,
+        itemFilter,
+        JSON.parse(collectionKey),
+      );
+      if (members)
+        delegate.mergeEntity(targetCollection, collectionKey, members);
     }
   return normalizedValue as any;
+}
+
+/** The refs whose item the collection keyed by `collectionKey` accepts
+ *
+ * Returns `refs` itself when every item matches, so the common case copies nothing,
+ * and undefined when there is nothing to merge (no refs, or none match).
+ */
+function acceptedRefs(
+  refs: any[],
+  items: any[],
+  filterCollections: CollectionFilter,
+  collectionKey: Record<string, string>,
+) {
+  if (!refs.length) return;
+  let members: any[] | undefined;
+  for (let i = 0; i < refs.length; i++) {
+    if (!filterCollections(collectionKey, items[i]))
+      members ||= refs.slice(0, i);
+    else if (members) members.push(refs[i]);
+  }
+  if (!members) return refs;
+  return members.length ? members : undefined;
+}
+
+/** Like acceptedRefs(), for Values (which leaves out null members)
+ *
+ * Kept apart from acceptedRefs() so each loop sees a single shape.
+ */
+function acceptedValues(
+  refs: Record<string, any>,
+  items: Record<string, any>,
+  filterCollections: CollectionFilter,
+  collectionKey: Record<string, string>,
+) {
+  let members: Record<string, any> | undefined;
+  let all = true;
+  for (const k in refs) {
+    if (filterCollections(collectionKey, items[k]))
+      (members ||= {})[k] = refs[k];
+    else all = false;
+  }
+  return all && members ? refs : members;
 }
 
 /** Indexes of the incoming items whose entity was deleted.
@@ -593,8 +647,8 @@ function normalizeMove(
 
       for (const collectionKey of collections.keys()) {
         const parsed = JSON.parse(collectionKey);
-        const shouldRemove = removeFilter?.(parsed);
-        const shouldAdd = addFilter(parsed);
+        const shouldRemove = removeFilter?.(parsed, existingEntity);
+        const shouldAdd = addFilter(parsed, mergedValues);
 
         if (shouldRemove && !shouldAdd) {
           delegate.mergeEntity(removeSchema, collectionKey, value);

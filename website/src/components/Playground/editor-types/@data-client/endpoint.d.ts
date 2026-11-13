@@ -933,6 +933,8 @@ declare class Scalar implements Mergeable {
     queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): string[] | undefined;
 }
 
+/** Whether the collection keyed by `collectionKey` gets `item`; remove passes no item */
+type CollectionFilter = (collectionKey: Record<string, string>, item?: any) => boolean;
 type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
     /** Defines lookups for Collections nested in other schemas.
      *
@@ -949,7 +951,7 @@ type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
      *
      * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
      */
-    createCollectionFilter?: (...args: Args) => (collectionKey: Record<string, string>) => boolean;
+    createCollectionFilter?: (...args: Args) => CollectionFilter;
 } | {
     /** Test to determine which arg keys should **not** be used for filtering results.
      *
@@ -994,7 +996,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      *
      * @see https://dataclient.io/rest/api/Collection#addWith
      */
-    addWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>) => boolean): Collection<S, P>;
+    addWith<P extends any[] = Args>(merge: (existing: any, incoming: any) => any, createCollectionFilter?: (...args: P) => (collectionKey: Record<string, string>, item?: any) => boolean): Collection<S, P>;
     /** Constructs a custom move schema for this collection
      *
      * @see https://dataclient.io/rest/api/Collection#moveWith

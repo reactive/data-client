@@ -99,7 +99,7 @@ export interface CollectionInterface<
     merge: (existing: any, incoming: any) => any,
     createCollectionFilter?: (
       ...args: P
-    ) => (collectionKey: Record<string, string>) => boolean,
+    ) => (collectionKey: Record<string, string>, item?: any) => boolean,
   ): Collection<S, P>;
 
   /** Constructs a custom move schema for this collection
