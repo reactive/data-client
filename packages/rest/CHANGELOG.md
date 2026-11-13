@@ -1,5 +1,434 @@
 # @data-client/rest
 
+## 0.19.0
+
+### Patch Changes
+
+- [#4407](https://github.com/reactive/data-client/pull/4407) [`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb) - Ship agent skills inside the packages
+
+  Coding agents can now follow the skills for the version you have installed instead of guessing from older releases. Each package carries the skills it covers, and the new `data-client-skills` command (in `@data-client/react`, `vue`, `rest`, `graphql` and `endpoint`, so repos with only API definitions get it too) links them into `.agents/skills`, with `.claude/skills` linking to it, where Claude Code, Cursor and Codex load them as their own:
+
+  ```bash
+  npx --no data-client-skills
+  ```
+
+  Commit the links. They point into `node_modules`, so they follow upgrades; run it again after adding, removing or upgrading `@data-client` packages to pick up new skills. [TanStack Intent](https://tanstack.com/intent) also finds these skills.
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4566](https://github.com/reactive/data-client/pull/4566) [`6c0d662`](https://github.com/reactive/data-client/commit/6c0d662843b5eb1a6d4dd719e7038e2637b6ec83) - Fix Collection updates whose response arrives after a newer list response
+
+  A response counts as older when its request started first. This happens when two adds race, or when a list refetch (polling, revalidation) starts after an add and returns first. Before, an older [push](https://dataclient.io/rest/api/Collection#push) added its item at the start of the list and an older [unshift](https://dataclient.io/rest/api/Collection#unshift) at the end. When the newer list already had the item, it showed twice. An older [remove](https://dataclient.io/rest/api/Collection#remove) or [move](https://dataclient.io/rest/api/Collection#move) emptied the list instead of removing one item. An older [getPage](https://dataclient.io/rest/api/RestEndpoint#getpage) put its page at the start of the list.
+
+  Now these updates always apply to the stored list. An older push, unshift or getPage leaves out the items the newer list already has, and adds the rest at its end.
+
+  ```ts
+  // add A, then B; B's response arrives first
+  // before: [A, ...list, B]
+  // after:  [...list, B, A]
+  ```
+
+- [#4487](https://github.com/reactive/data-client/pull/4487) [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629) - Fix Collection push and unshift showing an item twice after it was deleted and added back
+
+  After an item was deleted, adding an item with the same id through [push](https://dataclient.io/rest/api/Collection#push) or [unshift](https://dataclient.io/rest/api/Collection#unshift) (for example `getList.push`) listed it twice, while [All](https://dataclient.io/rest/api/All) counted it once. This happens with lists keyed by another entity's id, like cart lines keyed by product or a list of followed users. Now, when an added item was deleted, its old id is dropped first, so it shows once: at the end (push) or start (unshift). Ids of items that weren't deleted are untouched, so pushing an id the list already shows still adds it again, as `Array.push()` would.
+
+  ```ts
+  await ctrl.fetch(CartResource.delete, { id: 'mug' });
+  await ctrl.fetch(CartResource.getList.push, { id: 'mug', quantity: 1 });
+  // getList shows the mug once, at the end
+  ```
+
+- [#4658](https://github.com/reactive/data-client/pull/4658) [`73195b3`](https://github.com/reactive/data-client/commit/73195b310f0fb4cc2970618713ada8d8d7ad9fbe) - Type `signal` on every `Endpoint`
+
+  A custom [Endpoint](https://dataclient.io/rest/api/Endpoint#signal) can read `this.signal` without declaring it, so `useCancelling()` and `extend({ signal })` cancel SDK calls too. Keep the signal out of the arguments: they are the cache key.
+
+  ```ts
+  const getPosts = new Endpoint(
+    function ({ page }: { page: number }) {
+      return client.getPosts({ page, signal: this.signal });
+    },
+    { name: 'getPosts', schema: [Post] },
+  );
+
+  useSuspense(useCancelling(getPosts, { page }), { page });
+  ```
+
+- [#4149](https://github.com/reactive/data-client/pull/4149) [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e) - Fix Entity classes not assignable to `EntityInterface`
+
+  [Entity.pk()](https://dataclient.io/rest/api/Entity#pk)'s static `args` parameter is now `readonly any[]`, matching `EntityInterface`. Entity classes can be passed where an `EntityInterface` is expected.
+
+  ```ts
+  import type { EntityInterface } from '@data-client/react';
+
+  // Before: TypeScript error (args is readonly in EntityInterface)
+  // After: typechecks
+  const schema: EntityInterface = User;
+  ```
+
+  Overrides of `static pk()` that type `args` as a mutable array still compile, but a future breaking release will require `readonly any[]`, so update them now:
+
+  ```ts
+  class User extends Entity {
+    static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+      return `${value.id}-${args?.[0]?.org}`;
+    }
+  }
+  ```
+
+- [#4183](https://github.com/reactive/data-client/pull/4183) [`a73b437`](https://github.com/reactive/data-client/commit/a73b437c8f60ef8c64266874ea82e5119dfe4874) - Type the `params` and `body` that `process()` receives in `RestEndpoint` options
+
+  A `process(value, params)` method passed to `new RestEndpoint()`, `RestEndpoint.extend()` or `resource().extend()` used to get `params` typed as `any`, so a typo or a wrong assumption about a path parameter went unnoticed until runtime. They are now typed from the endpoint's `path`, `searchParams` and `body`, including a `path` set in the same `.extend()` call.
+
+  ```ts
+  const getUser = new RestEndpoint({ path: '/users/:id' });
+
+  const getUserById = getUser.extend({
+    path: '/users/by-id/:userId',
+    process(value, params) {
+      params.userId; // string | number
+      params.id; // TypeScript error: 'id' is not a param of '/users/by-id/:userId'
+      return value;
+    },
+  });
+  ```
+
+  Endpoints whose params are optional pass `params` as possibly `undefined`, so read it with `params?.page`.
+
+  This can surface new TypeScript errors in existing `process()` methods that read a param the endpoint doesn't have, or that read optional `params` without a check. Each is a read that could be `undefined` or throw at runtime, so fix the param name or add the check.
+
+  On TypeScript 5.x and earlier, `process(value, params)` in an `.extend()` that also sets `path` no longer fails with "implicitly has an 'any' type" under `strict`.
+
+- [#4173](https://github.com/reactive/data-client/pull/4173) [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7) - Speed up TypeScript checking of `RestEndpoint`, `resource()` and `.extend()`
+
+  Editors and `tsc` check code that defines or calls endpoints faster and with less memory. In our stress tests, a file of 150 RestEndpoints with long paths, `.extend()` and `.paginated()` checked in about half the time (3.1s → 1.6s) and memory (345MB → 207MB). Files that use `resource()` with React or Vue hooks did 22-25% less type work. TypeScript reports the same errors as before.
+
+  On TypeScript 5.x and earlier, a `process(value, params)` method passed to `.extend()` no longer fails with "implicitly has an 'any' type" under `strict`, matching TypeScript 6+. TypeScript 4.0 also accepts a chained `.extend().extend()`.
+
+  ```ts
+  const getUser = new RestEndpoint({ path: '/users/:id', schema: User });
+
+  // Before (TypeScript 5.x and earlier): error TS7006: Parameter 'value' implicitly has an 'any' type.
+  // After: no error
+  const getUserName = getUser.extend({
+    process(value, params) {
+      return value.name;
+    },
+  });
+  ```
+
+- [#4487](https://github.com/reactive/data-client/pull/4487) [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629) - Shrink bundles when apps split chunks with webpack, rspack or Turbopack
+
+  Apps that split their bundle by page or vendor with webpack, rspack or Turbopack (Next.js) now get 672–860 B (brotli)
+  less Data Client code. Vite and single-bundle apps stay about the same size. Code you don't use, like
+  [Lazy](https://dataclient.io/rest/api/Lazy), is still left out.
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix more TypeScript 4.x errors when `skipLibCheck` is off
+
+  [Entity](https://dataclient.io/rest/api/Entity), [Endpoint](https://dataclient.io/rest/api/Endpoint), [Union](https://dataclient.io/rest/api/Union) and [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) declarations no longer report errors on TypeScript 4.0 through 4.5. On TypeScript 4.0 and 4.1, an `Entity` can be an `Endpoint` schema again.
+
+  ```ts
+  import { Endpoint, Entity, schema } from '@data-client/endpoint';
+
+  class User extends Entity {
+    id = '';
+    type = 'users';
+  }
+  const getUser = new Endpoint(
+    (id: string) => fetch(`/users/${id}`).then(res => res.json()),
+    { schema: User },
+  );
+  const feed = new schema.Union({ users: User }, 'type');
+
+  // Before (TypeScript 4.0, skipLibCheck: false):
+  //   error TS2456: Type alias 'RemoveArray' circularly references itself.
+  //   error TS2322: Type 'typeof User' is not assignable to type 'EntityInterface<any>'.
+  // Before (TypeScript 4.2):
+  //   error TS2344: Type 'TBase' does not satisfy the constraint 'new (...args: any) => any'.
+  // After: no errors
+  ```
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix types for TypeScript 4.x when `skipLibCheck` is off
+
+  TypeScript 4.0 through 4.7 no longer report `Cannot find name 'NoInfer'` from `@data-client/endpoint` or `@data-client/normalizr`, and TypeScript 4.0 through 4.9 no longer report `Only named exports may use 'export type'` from `@data-client/normalizr`.
+
+  ```ts
+  import { Entity } from '@data-client/endpoint';
+  import { normalize } from '@data-client/normalizr';
+
+  // Before (TypeScript 4.7, skipLibCheck: false):
+  //   error TS2304: Cannot find name 'NoInfer'.
+  //   error TS1383: Only named exports may use 'export type'.
+  // After: no errors
+  ```
+
+- [#4224](https://github.com/reactive/data-client/pull/4224) [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176) - Fix `Entity.maxEntityDepth` docs: the default is 64, not 128
+
+  Editor hover docs for `static maxEntityDepth` now show the real default. Runtime behavior is unchanged; set `maxEntityDepth` explicitly if you relied on 128.
+
+- [#4487](https://github.com/reactive/data-client/pull/4487) [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629) - Add `delegate.INVALID` to the [normalize delegate](https://dataclient.io/rest/api/SchemaSimple#inormalizedelegate)
+
+  Custom schemas can now tell whether a stored entity was deleted (with [Invalidate](https://dataclient.io/rest/api/Invalidate))
+  by comparing what `getEntity()` returns to `delegate.INVALID`, as `queryKey()` already could.
+
+  ```ts
+  normalize(input, parent, key, delegate) {
+    if (delegate.getEntity(this.key, pk) === delegate.INVALID) {
+      // this pk was deleted
+    }
+  }
+  ```
+
+- [#4198](https://github.com/reactive/data-client/pull/4198) [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336) - Fix `getOptimisticResponse()` accepting any return value
+
+  Unless an endpoint has a typed `process()`, its [getOptimisticResponse()](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse)
+  could return anything, so a wrong field type only showed up as bad data in the UI until the server responded. The return
+  value is now checked against the endpoint's schema, like a [Controller.set()](https://dataclient.io/docs/api/Controller#set)
+  value: an Entity takes any of its fields, and a [Collection](https://dataclient.io/rest/api/Collection) takes a list of them.
+  This applies to `new RestEndpoint()`, `.extend()` and `resource().extend()`.
+
+  ```ts
+  const toggleTodo = new RestEndpoint({
+    path: '/todos/:id',
+    method: 'PATCH',
+    schema: Todo,
+    getOptimisticResponse(snap, { id }) {
+      const todo = snap.get(Todo, { id });
+      if (!todo) throw snap.abort;
+      // Before: compiled, then the checkbox stayed checked because 'false' is truthy
+      // After: TypeScript error, completed is a boolean
+      return { id, completed: todo.completed ? 'false' : 'true' };
+    },
+  });
+  ```
+
+  Return the field's real type instead (`completed: !todo.completed`). Endpoints with a typed `process()` keep checking
+  the return against what `process()` returns.
+
+- [#4421](https://github.com/reactive/data-client/pull/4421) [`17458fb`](https://github.com/reactive/data-client/commit/17458fb27503c6c93b2b8cc9bff72abe372bfbfa) - Fix the result type of [Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) when pushing several items at once
+
+  Sending an array to [RestEndpoint.push](https://dataclient.io/rest/api/RestEndpoint#push) or `unshift` resolves the created items as an array, but its type was one item, so reading the array was a TypeScript error while `created.id` compiled and was `undefined` at runtime. It is now typed as an array. A single item, `FormData`, or a body typed `any` still resolves one item. On a polymorphic Collection, each item is typed as one of its entities (like `Todo | Group`), instead of the shape of the entity map.
+
+  ```ts
+  // Before: TypeScript error, since the result was typed as one Todo
+  // After: an array of the created Todos
+  const [milk, dog] = await ctrl.fetch(TodoResource.getList.push, [
+    { title: 'Buy milk' },
+    { title: 'Walk dog' },
+  ]);
+  ```
+
+  This applies to any endpoint whose schema adds to a Collection (like `Collection.push`) and whose body can be a list, including the deprecated `resource().create`.
+
+  [ctrl.set()](https://dataclient.io/docs/api/Controller#set) with [Collection.push](https://dataclient.io/rest/api/Collection#push) or `unshift` now takes the Collection's args, which pick the lists it adds to, and accepts a list of items as well as one. Before, it took the Entity's fields, so args that matched no list compiled and silently added nothing. An updater function (`previous => value`) is now a TypeScript error there, since adders have no previous value and it never ran. Called without args, the default filter now adds only to lists with no filter keys, instead of throwing and dropping the write when a filtered list exists.
+
+  ```ts
+  const TodoResource = resource({
+    path: '/groups/:group/todos/:id',
+    schema: Todo,
+  });
+
+  // Before: TypeScript error, though this adds the todo to group five's lists
+  // After: compiles
+  ctrl.set(TodoResource.getList.schema.push, { group: 'five' }, todo);
+  ```
+
+- [#4226](https://github.com/reactive/data-client/pull/4226) [`643d818`](https://github.com/reactive/data-client/commit/643d818ac757a0218e91d9523879e25024c5e61f) - Fix `RestEndpoint.push`, `unshift` and `remove` body types when a `Query` or `Lazy` wraps the endpoint's `Collection`
+
+  Sorting or filtering a list with a [Query](https://dataclient.io/rest/api/Query) around its [Collection](https://dataclient.io/rest/api/Collection) made `getPosts.push` reject every body except `FormData`, though it adds to the list at runtime. The body is now typed from the Collection's Entity, so a correct body compiles and a wrong field is a TypeScript error. The same applies to a Collection wrapped in [Lazy](https://dataclient.io/rest/api/Lazy).
+
+  ```ts
+  const getPosts = new RestEndpoint({
+    path: '/:group/posts',
+    searchParams: {} as { orderBy?: string },
+    schema: new Query(
+      new Collection([Post], { nonFilterArgumentKeys: /orderBy/ }),
+      (posts, { orderBy } = {}) => sortBy(posts, orderBy),
+    ),
+  });
+  ```
+
+  If you cast the body to get past this error, the cast can go:
+
+  ```ts
+  // Before
+  ctrl.fetch(getPosts.push, { group: 'react' }, { title, author } as any);
+  // After
+  ctrl.fetch(getPosts.push, { group: 'react' }, { title, author });
+  ```
+
+- [#4595](https://github.com/reactive/data-client/pull/4595) [`60ce4b5`](https://github.com/reactive/data-client/commit/60ce4b5e2d42dc02c7c783a95e46ecbeb52efe64) - Fix React Native apps loading the web builds
+
+  React Native (Metro and Jest) now gets the React Native code, such as focus refetching with React Navigation.
+  Apps without React Navigation, like Expo Router apps, keep working.
+
+- [#4647](https://github.com/reactive/data-client/pull/4647) [`b9a96cf`](https://github.com/reactive/data-client/commit/b9a96cf86ffdcc0a4232e822800e0ca9740a0ca6) - Warn in development when a mutation's [getRequestInit()](https://dataclient.io/rest/api/RestEndpoint#getRequestInit) returns no `method`
+
+  `getRequestInit()` is async. An override that spreads it without `await` drops `method`, `body` and
+  headers, so `fetch()` silently sends a GET. Now this logs an error in development.
+
+  ```ts
+  class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+    async getRequestInit(body) {
+      return {
+        // without await, every mutation is sent as a GET
+        ...(await super.getRequestInit(body)),
+        credentials: 'include',
+      };
+    }
+  }
+  ```
+
+- [#4235](https://github.com/reactive/data-client/pull/4235) [`588a558`](https://github.com/reactive/data-client/commit/588a558332d9d2bc6a313b2f4b6700bb3ff017f2) - Fix TypeScript error passing `FormData` to `resource().create`
+
+  `resource().create` sends a `FormData` body as-is, the same as `update`, `partialUpdate` and
+  `getList.push`, but its type only allowed an object, so submitting a form needed a cast. This now typechecks,
+  and you can drop the cast. `create` is deprecated, and its replacement `getList.push` takes `FormData` too.
+
+  ```tsx
+  <form
+    onSubmit={e => {
+      e.preventDefault();
+      // Before: TypeScript error, so you had to cast
+      ctrl.fetch(PostResource.create, new FormData(e.currentTarget) as any);
+      // After
+      ctrl.fetch(PostResource.create, new FormData(e.currentTarget));
+    }}
+  >
+  ```
+
+- [#4184](https://github.com/reactive/data-client/pull/4184) [`bf377f4`](https://github.com/reactive/data-client/commit/bf377f46a2c916d8e808472645f1da9704ffaf91) - Fix `resource().extend({ get: ... })` dropping endpoints added earlier from its type
+
+  Customizing a resource's standard endpoints with `.extend({ ... })` kept every endpoint at runtime, but TypeScript lost the ones added before it with `.extend('name', options)`, and the deprecated `create`. Using them was a type error even though they worked.
+
+  ```ts
+  const UserResource = resource({ path: '/users/:id', schema: User })
+    .extend('current', { path: '/user' })
+    .extend({ get: { dataExpiryLength: 60000 } });
+
+  // Before: Property 'current' does not exist
+  // After: no error
+  const me = await ctrl.fetch(UserResource.current);
+  ```
+
+- [#4262](https://github.com/reactive/data-client/pull/4262) [`ae7080d`](https://github.com/reactive/data-client/commit/ae7080de64ca8621833a71267ec84d2a9d5e19dd) - Fix pushing several items at once sending `"[object Object]"` instead of JSON
+
+  [RestEndpoint.push](https://dataclient.io/rest/api/RestEndpoint#push), `unshift` and `remove` accept an array of items,
+  but sent it to `fetch()` as-is, so the server received `"[object Object],[object Object]"` with no JSON `Content-Type`. Arrays are
+  now JSON-encoded like objects, with `Content-Type: application/json`. `FormData`, `Blob`, `URLSearchParams` and strings
+  still go to `fetch()` unchanged.
+
+  `resource().create` takes the same bodies as `getList.push`, including an array.
+
+  ```ts
+  // Before: the server received "[object Object],[object Object]"
+  // After: the server receives [{"title":"Buy milk"},{"title":"Walk dog"}]
+  await ctrl.fetch(TodoResource.getList.push, [
+    { title: 'Buy milk' },
+    { title: 'Walk dog' },
+  ]);
+  ```
+
+- [#4528](https://github.com/reactive/data-client/pull/4528) [`234c7aa`](https://github.com/reactive/data-client/commit/234c7aa2ba6cc14e3b6cf2fe7e5875bdbae5d770) - Send the body of a `DELETE` endpoint that declares `body`
+
+  A `DELETE` endpoint with a `body` dropped it: the request went out with no body, and the last argument was sent as url params instead (`DELETE /posts?0=5&1=13`). It now sends the body, as its types already said.
+
+  If a `DELETE` endpoint declares `body` but you call it without one, remove `body` or set `body: undefined`. `DELETE` endpoints without `body`, like `resource().delete`, send no body as before.
+
+- [#4612](https://github.com/reactive/data-client/pull/4612) [`d43fdcd`](https://github.com/reactive/data-client/commit/d43fdcda329494c524747055e58524ce1d3d1229) - Fix TypeScript error conditionally fetching a `RestEndpoint` that takes no params
+
+  Passing `null` to [skip a fetch](https://dataclient.io/docs/api/useSuspense#conditional) is the same for every hook, but an endpoint without path or search params had no argument to put in the other branch, so `cond ? {} : null` was a TypeScript error. A [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) without params now also accepts `{}`, which fetches the same URL and shares the same cache entry as calling it with no arguments.
+
+  ```ts
+  const getTeams = new RestEndpoint({ path: '/teams', schema: [Team] });
+
+  // Before: Argument of type '[{} | null]' is not assignable to parameter of type 'readonly [] | readonly [null]'
+  const teams = useSuspense(getTeams, showTeams ? {} : null);
+  ```
+
+  Params it doesn't take, like `getTeams({ page: 1 })`, are still a TypeScript error.
+
+- [#4591](https://github.com/reactive/data-client/pull/4591) [`3b75fc9`](https://github.com/reactive/data-client/commit/3b75fc9c47d26714afc58d8851a1d07aeab542a6) - Fix calling a [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) whose `body` type is a union
+
+  A `body` typed as a union, like a zod discriminated union or `A & (B | C)`, made the endpoint uncallable: no value of the whole union was accepted, and through `extend({ body })` the body was typed `never`. The endpoint now takes any member of the union. Bodies that may be `undefined` still make the body optional.
+
+  ```ts
+  type Register = { email: string } & (
+    { teamId: string; teamName: null } | { teamId: null; teamName: string }
+  );
+  const register = new RestEndpoint({
+    path: '/auth/register',
+    method: 'POST',
+    body: {} as Register,
+  });
+
+  declare const input: Register;
+  // Before: TypeScript error, Argument of type '[Register]' is not assignable
+  // After: compiles
+  register(input);
+  ```
+
+  [push](https://dataclient.io/rest/api/RestEndpoint#push) and [unshift](https://dataclient.io/rest/api/RestEndpoint#unshift) also accept a union `body`, and still resolve a list when sent a list.
+
+- [#4642](https://github.com/reactive/data-client/pull/4642) [`b35069e`](https://github.com/reactive/data-client/commit/b35069efbd32edc5eb07a52a6ab72bac8d29d189) - Fix `data-client-skills` links under pnpm breaking when Data Client upgrades
+
+  Links to the skills from `@data-client/core` and `@data-client/endpoint` now lead through the package you depend on, like `node_modules/@data-client/react/../core`, so they keep working after an upgrade. Run it again to update links an earlier version made.
+
+- [#4644](https://github.com/reactive/data-client/pull/4644) [`4114368`](https://github.com/reactive/data-client/commit/4114368be44b34cdf0fa717d2739f6f11b7e4509) - Link upgrade skills only with `data-client-skills --upgrade`
+
+  A new app no longer gets the v0.18 and path-to-regexp v8 migration skills, which only apply when upgrading from an older version. When you upgrade, link them too, and run it again without `--upgrade` once you're done to remove them:
+
+  ```bash
+  npx --no data-client-skills --upgrade
+  ```
+
+  The command now stops with a usage line on any other option, instead of ignoring it.
+
+- [#4645](https://github.com/reactive/data-client/pull/4645) [`366770c`](https://github.com/reactive/data-client/commit/366770cabd69bf4db293cd7c376e2073aa1044f6) - Fix `data-client-skills` linking skills inside a workspace package instead of the workspace root
+
+  Agents started at the root of a monorepo load the root's skills at startup, but a package's nested skills only once they work on its files. Running `npx --no data-client-skills` in `apps/web` of a workspace now links the skills in the root's `.agents/skills`, and in `apps/web` only the skills it installs at a different version than the root, under Yarn Plug'n'Play too. Workspace patterns with `{a,b}` groups now match, as npm reads them. For an app in a subfolder of a repo without workspaces, it says to start the agent in the app's folder.
+
+- [#4641](https://github.com/reactive/data-client/pull/4641) [`9efcd4f`](https://github.com/reactive/data-client/commit/9efcd4f13b7e3806c1bf99825972243da1bfaf49) - Fix `yarn data-client-skills` leaving broken skill links in Yarn Plug'n'Play apps
+
+  It now copies the skills into `.agents/skills`, so your agent can read them. Run it again to replace links an earlier version made.
+
+- [#4626](https://github.com/reactive/data-client/pull/4626) [`f83b756`](https://github.com/reactive/data-client/commit/f83b756f0331a1c89a2f5769463f8eff9108bf2d) - Hooks see the providers from `@data-client/react/redux`, `/ssr` and `/nextjs` in Node
+
+  This affects tests and servers that run data-client in Node without a bundler (Vitest, Jest, Node SSR) and import a
+  subpath as well as the main entry. Browser bundles don't change.
+
+  - `@data-client/react/redux`, `/ssr` and `/nextjs`: hooks inside their providers now use that provider's
+    store. Before, under Node `import` (as Vitest runs dependencies), those hooks acted as if no provider was rendered:
+    they logged "It appears you are trying to use Reactive Data Client without a provider", read empty state, and
+    their fetches went nowhere.
+  - `@data-client/core/mock` and `@data-client/react/mock`: `MockController` and fixtures now run on your app's
+    `Controller` instead of a second copy.
+  - Less code to load: the main entry plus a subpath loads 55-72% less data-client code under Node `import` (react
+    `/redux` 355 → 160 KB, core `/mock` 411 → 115 KB), and 20-25% less for `/mock` under `require()` (Jest), so test
+    files that use them start faster. core's and react's CommonJS
+    builds are about half the size (core 164 → 78 KB, react 120 → 68 KB).
+
+  You don't need to change any code. If you worked around this by inlining data-client in Vitest's
+  `server.deps.inline`, you can remove that.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- [#4661](https://github.com/reactive/data-client/pull/4661) [`719ab07`](https://github.com/reactive/data-client/commit/719ab07a164f224ae9bf73d926f808b7bdbd9430) - [useQuery()](https://dataclient.io/docs/api/useQuery) accepts `null` to skip the query, like the other hooks
+
+  It returns `undefined` until you pass real args. This already worked at runtime; now TypeScript accepts it.
+
+  ```ts
+  const todo = useQuery(Todo, id ? { id } : null);
+  ```
+
+  [Controller.get()](https://dataclient.io/docs/api/Controller#get), `Controller.getQueryMeta()` and their [Snapshot](https://dataclient.io/docs/api/Snapshot) versions accept `null` the same way.
+
+- Updated dependencies [[`b475613`](https://github.com/reactive/data-client/commit/b4756135b70e4fb79e9146114a1266b4f7b4a4cb), [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169), [`6c0d662`](https://github.com/reactive/data-client/commit/6c0d662843b5eb1a6d4dd719e7038e2637b6ec83), [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`73195b3`](https://github.com/reactive/data-client/commit/73195b310f0fb4cc2970618713ada8d8d7ad9fbe), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629), [`cb6d9f2`](https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336), [`17458fb`](https://github.com/reactive/data-client/commit/17458fb27503c6c93b2b8cc9bff72abe372bfbfa), [`60ce4b5`](https://github.com/reactive/data-client/commit/60ce4b5e2d42dc02c7c783a95e46ecbeb52efe64), [`b35069e`](https://github.com/reactive/data-client/commit/b35069efbd32edc5eb07a52a6ab72bac8d29d189), [`4114368`](https://github.com/reactive/data-client/commit/4114368be44b34cdf0fa717d2739f6f11b7e4509), [`366770c`](https://github.com/reactive/data-client/commit/366770cabd69bf4db293cd7c376e2073aa1044f6), [`9efcd4f`](https://github.com/reactive/data-client/commit/9efcd4f13b7e3806c1bf99825972243da1bfaf49), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e), [`719ab07`](https://github.com/reactive/data-client/commit/719ab07a164f224ae9bf73d926f808b7bdbd9430)]:
+  - @data-client/endpoint@0.19.0
+
 ## 0.18.1
 
 ### Patch Changes

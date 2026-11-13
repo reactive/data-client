@@ -1,5 +1,141 @@
 # Change Log
 
+## 0.19.0
+
+### Minor Changes
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+### Patch Changes
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4103](https://github.com/reactive/data-client/pull/4103) [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69) - Fix `controller.set()` types for Array schemas
+
+  `controller.set([Entity], rows)` and `controller.set(new schema.Array(Entity), rows)` now typecheck. This writes every row in one store update: each row merges with its stored entity, and entities not in `rows` stay. This works with `exactOptionalPropertyTypes` on too.
+
+  Rows are typed by the Entity's fields. The schema holds one Entity, [Union](https://dataclient.io/rest/api/Union) (for mixed types) or [Invalidate](https://dataclient.io/rest/api/Invalidate) (to delete), in an Array or [Values](https://dataclient.io/rest/api/Values) (which takes an object keyed by id).
+
+  Batch `set()` needs `@data-client/rest` (or `endpoint`/`graphql`) from this release, since older Entity classes don't type as `EntityInterface`.
+
+  ```ts
+  // Before: TypeScript error on [Ticker], so batches became one set() per row
+  for (const row of rows) {
+    ctrl.set(Ticker, { product_id: row.product_id }, row);
+  }
+
+  // After: one store update
+  ctrl.set([Ticker], rows);
+
+  // Mixed Entity types, batch deletes, and rows keyed by id
+  const Message = new schema.Union({ ticker: Ticker, trade: Trade }, 'type');
+  ctrl.set([Message], messages);
+  ctrl.set([new schema.Invalidate(Ticker)], [{ product_id: 'BTC-USD' }]);
+  ctrl.set(new schema.Values(Ticker), { 'BTC-USD': row });
+  ```
+
+- [#4671](https://github.com/reactive/data-client/pull/4671) [`c679e17`](https://github.com/reactive/data-client/commit/c679e1704ae9b0fcfeeb222d4f480de9d3c0a25f) - `ExpiryStatus` works with TypeScript's `isolatedModules`
+
+  Its typings declared a `const enum`, so `ExpiryStatus.Valid` failed to compile with `isolatedModules` (the default in Vite and Next.js apps): `TS2748: Cannot access ambient const enums`. It is now a regular `enum`, matching the object the packages already export at runtime.
+
+  ```ts
+  import { ExpiryStatus } from '@data-client/react';
+
+  const { expiryStatus } = ctrl.getResponse(
+    IssueResource.get,
+    args,
+    ctrl.getState(),
+  );
+  if (expiryStatus === ExpiryStatus.Valid) render(data);
+  ```
+
+- [#4487](https://github.com/reactive/data-client/pull/4487) [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629) - Shrink bundles when apps split chunks with webpack, rspack or Turbopack
+
+  Apps that split their bundle by page or vendor with webpack, rspack or Turbopack (Next.js) now get 672–860 B (brotli)
+  less Data Client code. Vite and single-bundle apps stay about the same size. Code you don't use, like
+  [Lazy](https://dataclient.io/rest/api/Lazy), is still left out.
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix types for TypeScript 4.x when `skipLibCheck` is off
+
+  TypeScript 4.0 through 4.7 no longer report `Cannot find name 'NoInfer'` from `@data-client/endpoint` or `@data-client/normalizr`, and TypeScript 4.0 through 4.9 no longer report `Only named exports may use 'export type'` from `@data-client/normalizr`.
+
+  ```ts
+  import { Entity } from '@data-client/endpoint';
+  import { normalize } from '@data-client/normalizr';
+
+  // Before (TypeScript 4.7, skipLibCheck: false):
+  //   error TS2304: Cannot find name 'NoInfer'.
+  //   error TS1383: Only named exports may use 'export type'.
+  // After: no errors
+  ```
+
+- [#4460](https://github.com/reactive/data-client/pull/4460) [`7365cd7`](https://github.com/reactive/data-client/commit/7365cd715de8d4e7aec8a478454be529b58b3dee) - Fix a cached parent showing a stale nested entity after it becomes valid
+
+  When a nested entity was `INVALID` (for example, it failed validation) or `null` in the store, the parent it belongs to kept returning the old result even after that entity was valid again. Parents now update as soon as the nested entity does.
+
+- [#4594](https://github.com/reactive/data-client/pull/4594) [`1e5fd6a`](https://github.com/reactive/data-client/commit/1e5fd6ac8a2e5bcab402b8aee7a9b24804cee05f) - React Native: shorter GC pauses with large cached results
+
+  On Hermes, an app that kept reading a large result while its entities updated could freeze for 0.5–3s at a time, and the freezes grew the longer it ran. An example is `useSuspense()` on a few thousand entities that join live prices. Each freeze was a garbage collection pause caused by memoization. React Native builds now use a memo that keeps these pauses short.
+
+  Trade-off: on React Native, the memo keeps the newest version of each result plus the ones committed renders last read. A read that is not committed and switches between store versions can get a new (equal) object for data it already returned. Web builds do not change.
+
+  React Native now loads its own build: `native/` for `import` (Metro) and `dist/normalizr.native.js` for `require` (`@data-client/core` and Jest).
+
+- [#4487](https://github.com/reactive/data-client/pull/4487) [`33d98f2`](https://github.com/reactive/data-client/commit/33d98f2637172ecda58364bd92ffcec76e656629) - Add `delegate.INVALID` to the [normalize delegate](https://dataclient.io/rest/api/SchemaSimple#inormalizedelegate)
+
+  Custom schemas can now tell whether a stored entity was deleted (with [Invalidate](https://dataclient.io/rest/api/Invalidate))
+  by comparing what `getEntity()` returns to `delegate.INVALID`, as `queryKey()` already could.
+
+  ```ts
+  normalize(input, parent, key, delegate) {
+    if (delegate.getEntity(this.key, pk) === delegate.INVALID) {
+      // this pk was deleted
+    }
+  }
+  ```
+
+- [#4421](https://github.com/reactive/data-client/pull/4421) [`17458fb`](https://github.com/reactive/data-client/commit/17458fb27503c6c93b2b8cc9bff72abe372bfbfa) - Fix the result type of [Controller.fetch()](https://dataclient.io/docs/api/Controller#fetch) when pushing several items at once
+
+  Sending an array to [RestEndpoint.push](https://dataclient.io/rest/api/RestEndpoint#push) or `unshift` resolves the created items as an array, but its type was one item, so reading the array was a TypeScript error while `created.id` compiled and was `undefined` at runtime. It is now typed as an array. A single item, `FormData`, or a body typed `any` still resolves one item. On a polymorphic Collection, each item is typed as one of its entities (like `Todo | Group`), instead of the shape of the entity map.
+
+  ```ts
+  // Before: TypeScript error, since the result was typed as one Todo
+  // After: an array of the created Todos
+  const [milk, dog] = await ctrl.fetch(TodoResource.getList.push, [
+    { title: 'Buy milk' },
+    { title: 'Walk dog' },
+  ]);
+  ```
+
+  This applies to any endpoint whose schema adds to a Collection (like `Collection.push`) and whose body can be a list, including the deprecated `resource().create`.
+
+  [ctrl.set()](https://dataclient.io/docs/api/Controller#set) with [Collection.push](https://dataclient.io/rest/api/Collection#push) or `unshift` now takes the Collection's args, which pick the lists it adds to, and accepts a list of items as well as one. Before, it took the Entity's fields, so args that matched no list compiled and silently added nothing. An updater function (`previous => value`) is now a TypeScript error there, since adders have no previous value and it never ran. Called without args, the default filter now adds only to lists with no filter keys, instead of throwing and dropping the write when a filtered list exists.
+
+  ```ts
+  const TodoResource = resource({
+    path: '/groups/:group/todos/:id',
+    schema: Todo,
+  });
+
+  // Before: TypeScript error, though this adds the todo to group five's lists
+  // After: compiles
+  ctrl.set(TodoResource.getList.schema.push, { group: 'five' }, todo);
+  ```
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
 ## 0.18.1
 
 ### Patch Changes
