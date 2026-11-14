@@ -23,16 +23,16 @@ or store changes, follow `../data-client-setup/references/data-client-rest-setup
 Data Client keeps three layers apart. Put each part of the work in its layer and load that layer's skill. One task can
 need several.
 
-- **Data definition**, which does not depend on a view framework. Schemas say what the data is (nouns). Endpoints are
-  the operations on that data (verbs).
-- **Runtime in the view framework**. Hooks (React) or composables (Vue) connect the data to components.
-- **Runtime outside the view framework**. Managers connect the data to the rest of the world, as `useEffect` connects
-  a component to what is outside React.
+- **API definition**, which does not depend on a view framework: one definition, many uses. Schemas declare the data
+  model (nouns). Endpoints are the methods on that data (verbs).
+- **Runtime in the view framework**. Hooks (React) or composables (Vue) bind the data to the component that renders it.
+- **Runtime outside the view framework**. Managers orchestrate global side effects: they bridge the store to the rest
+  of the world, as `useEffect` bridges a component to what is outside React.
 
 | Layer | Work | Skill | Package |
 |-------|------|-------|---------|
-| Data definition: schemas | Entities, `Collection`, `Union`, `Query`, normalization. Every shape of data, also one no response has: joined across endpoints, derived, or accumulated from responses | `data-client-schema` | `endpoint` |
-| Data definition: endpoints | REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` | `rest` |
+| API definition: schemas | Entities, `Collection`, `Union`, `Query`, normalization. Every shape of data, also one no response has: joined across endpoints, derived, or accumulated from responses | `data-client-schema` | `endpoint` |
+| API definition: endpoints | REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` | `rest` |
 | Runtime in the view framework: React | Hooks: `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` | `react` |
 | Runtime in the view framework: Vue | Composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` | `vue` |
 | Runtime outside the view framework | Managers: WebSockets, SSE, polling, global side effects. A Manager moves data into and out of the store; the schema defines the data's shape | `data-client-manager` | `core` |
