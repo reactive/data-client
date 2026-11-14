@@ -19,6 +19,7 @@
     "_ScalarDemo.md": "docs/rest/shared/_ScalarDemo.mdx",
     "computed-properties.md": "docs/rest/guides/computed-properties.md",
     "partial-entities.md": "docs/rest/guides/partial-entities.md",
+    "queryable.md": "docs/core/concepts/queryable.md",
     "relational-data.md": "docs/rest/guides/relational-data.md",
     "schema.md": "docs/rest/api/schema.md",
     "side-effects.md": "docs/rest/guides/side-effects.md",

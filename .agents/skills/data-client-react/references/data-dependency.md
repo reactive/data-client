@@ -140,6 +140,32 @@ and free to change independently of the view.
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
 bound components immediately upon [data change](./mutations.md). This is known as _reactive programming_.
 
+## Lists to details {#list-detail}
+
+Open a post from `PostList` above, and `PostDetail` renders it without a fetch. The list response stored each `Post`,
+and `PostResource.get`'s schema is `Post`, an [Entity](https://dataclient.io/rest/api/Entity). Entities are
+[Queryable](https://dataclient.io/docs/concepts/queryable): until an endpoint has a response of its own, it queries the store with its
+args, the way [`useQuery(Post, { id })`](./useQuery.md) does. By default, args like `{ id }` that match the fields
+`pk()` reads find the Entity ([other arg shapes](https://dataclient.io/rest/api/Entity#pk-args)).
+
+The post found this way keeps the expiry the list gave it. While it is fresh there is no request. Once
+[stale](https://dataclient.io/docs/concepts/expiry-policy), it still renders, and refetches in the background. `useSuspense()` suspends when the
+post is missing, or when the endpoint is [invalidated](./Controller.md#invalidate) or
+[invalidIfStale](https://dataclient.io/docs/concepts/expiry-policy#endpointinvalidifstale) and stale.
+
+The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
+[Collection](https://dataclient.io/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint
+([how endpoints query the store](https://dataclient.io/docs/concepts/queryable#endpoints)).
+
+In the [React benchmarks](https://dataclient.io/docs/concepts/performance), with a simulated 40 ms network delay, switching between a list
+and its items is 21× faster than TanStack Query, which keys the detail query separately and fetches it.
+
+Finding the Entity doesn't check which fields it has. When list items lack fields the detail page shows, the detail
+renders those fields' defaults and doesn't fetch while the list data is fresh. To make it fetch, give the list a
+summary Entity with the same `key` and fewer fields, and make the detail Entity require the rest with
+[Entity.validate()](https://dataclient.io/rest/api/Entity#validate) ([Partial entities](https://dataclient.io/rest/guides/partial-entities)): opened from the
+list, the detail page then suspends and fetches the full item once.
+
 ## Loading and Error {#async-fallbacks}
 
 You might have noticed the return type shows the value is always there. [useSuspense()](./useSuspense.md) operates very much

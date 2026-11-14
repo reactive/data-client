@@ -8,7 +8,7 @@ license: Apache 2.0
 ## Rendering
 
 ```ts
-// GET https://jsonplaceholder.typicode.com/todos/5
+// GET https://jsonplaceholder.typicode.com/todos/5 (no request while a fresh Todo 5 is in the store, e.g. from a list)
 const todo = useSuspense(TodoResource.get, { id: 5 });
 // GET https://jsonplaceholder.typicode.com/todos
 const todoList = useSuspense(TodoResource.getList);

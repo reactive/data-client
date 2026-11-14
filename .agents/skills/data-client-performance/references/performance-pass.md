@@ -25,15 +25,16 @@ Without a browser, count the requests each flow makes from the code and its test
 
 ### Details from lists {#list-detail}
 
-A detail endpoint whose schema holds the list's [Entity](https://dataclient.io/rest/api/Entity) renders an item the list already loaded,
-with no fetch, while that data is fresh. The lookup uses the endpoint's args, so they must use the field name the
-Entity's `pk()` reads (`{ id }`, not `{ issueId }`), or a field in its [indexes](https://dataclient.io/rest/api/Entity#indexes).
+A detail endpoint with a [Queryable](https://dataclient.io/docs/concepts/queryable#endpoints) schema renders an item the list already
+loaded, with no fetch, while that data is fresh ([Lists to details](https://dataclient.io/docs/getting-started/data-dependency#list-detail)).
+Its args must find the Entity: by default, args with the fields `pk()` reads, like `{ id }`.
 
-- **Find:** detail endpoints without a schema, or with a schema that leaves out the Entity; detail args that name
-  neither the primary key nor an index (`{ slug }` without `static indexes = ['slug']`); list data copied into the
-  detail by hand.
-- **Change:** set the detail schema to the Entity, or an object that holds it like `{ data: Issue }`. For other lookup
-  fields, add an index rather than renaming the args. Delete the copying. When the list returns fewer fields than the
+- **Find:** detail endpoints without a schema, or with a schema whose result can't be complete (the Entity is left out, or an
+  Array sits beside it); detail args that don't find the Entity (`{ issueId }` with the default `pk()`); list data copied
+  into the detail by hand.
+- **Change:** set the detail schema to the Entity, or an object with no Array members, like `{ data: Issue }`.
+  For args that don't find the Entity, [change how it is found](https://dataclient.io/rest/api/Entity#pk-args) or rename the args. Delete the
+  copying. When the list returns fewer fields than the
   detail, give the list a summary Entity, and have the detail's Entity extend it with the same `key` and a
   `validate()`, so the detail still fetches the full item ([partial entities](https://dataclient.io/rest/guides/partial-entities)).
 - **Users see:** the detail page shows at once when opened from the list. It makes no request while the list is fresh

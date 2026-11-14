@@ -149,6 +149,29 @@ and free to change independently of the view.
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
 bound components immediately upon [data change](./mutations.vue.md). This is known as _reactive programming_.
 
+## Lists to details {#list-detail}
+
+Open a post from `PostList` above, and `PostDetail` renders it without a fetch. The list response stored each `Post`,
+and `PostResource.get`'s schema is `Post`, an [Entity](https://dataclient.io/rest/api/Entity). Entities are
+[Queryable](./queryable.vue.md): until an endpoint has a response of its own, it queries the store with its
+args, the way [`useQuery(Post, { id })`](https://dataclient.io/vue/api/useQuery) does. By default, args like `{ id }` that match the fields
+`pk()` reads find the Entity ([other arg shapes](https://dataclient.io/rest/api/Entity#pk-args)).
+
+The post found this way keeps the expiry the list gave it. While it is fresh there is no request. Once
+[stale](./expiry-policy.vue.md), it still renders, and refetches in the background. `useSuspense()` suspends when the
+post is missing, or when the endpoint is [invalidated](https://dataclient.io/vue/api/Controller#invalidate) or
+[invalidIfStale](./expiry-policy.vue.md#endpointinvalidifstale) and stale.
+
+The same holds for any Queryable schema, such as an envelope like `{ data: Post }` or a
+[Collection](https://dataclient.io/rest/api/Collection) another endpoint loaded, and for every way of reading an endpoint
+([how endpoints query the store](./queryable.vue.md#endpoints)).
+
+Finding the Entity doesn't check which fields it has. When list items lack fields the detail page shows, the detail
+renders those fields' defaults and doesn't fetch while the list data is fresh. To make it fetch, give the list a
+summary Entity with the same `key` and fewer fields, and make the detail Entity require the rest with
+[Entity.validate()](https://dataclient.io/rest/api/Entity#validate) ([Partial entities](https://dataclient.io/rest/guides/partial-entities)): opened from the
+list, the detail page then suspends and fetches the full item once.
+
 ## Loading and Error {#async-fallbacks}
 
 You might have noticed the return type shows the value is always there. [useSuspense()](https://dataclient.io/vue/api/useSuspense) operates very much

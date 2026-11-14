@@ -1,0 +1,79 @@
+/* What this diagram adds to the lookup table's parts
+   (../LookupTable/styles.module.css) */
+
+/* the second assignee: its own color, as each key has */
+.frame {
+  --assignee2: hsl(28, 85%, 36%);
+}
+[data-theme='dark'] .frame {
+  --assignee2: hsl(32, 90%, 64%);
+}
+.assignee2 {
+  --c: var(--assignee2);
+}
+
+/* what the write did for a read: it renders with no fetch, or it fetches */
+.status {
+  fill: var(--args);
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--small);
+  font-weight: 600;
+  text-anchor: end;
+}
+.fetches {
+  fill: var(--ifm-font-color-base);
+}
+
+/* What a call takes away goes at --at, then comes back as the run clears
+   (--back), so the next run starts from what was there */
+.leave {
+  animation-name: leave, back;
+  animation-duration: 300ms, var(--clear);
+  animation-delay:
+    calc(var(--seek) + var(--at)), calc(var(--seek) + var(--back));
+  animation-fill-mode: both, forwards;
+  animation-timing-function: ease-in;
+}
+@keyframes leave {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes back {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* the chosen mutation's row of the page's table. Every row takes the same
+   place, so the tallest sets the height and choosing one shifts nothing */
+.captions {
+  display: grid;
+  max-width: 520px;
+  margin: 8px auto 0;
+}
+.caption {
+  grid-area: 1 / 1;
+  margin: 0;
+  color: var(--ifm-color-emphasis-800);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  text-align: center;
+}
+.caption strong {
+  display: block;
+  color: var(--ifm-font-color-base);
+}
+.off {
+  visibility: hidden;
+}
+
+/* nothing moves on its own: each run rests at its outcome */
+@media (prefers-reduced-motion: reduce) {
+  .leave {
+    animation-name: leave;
+  }
+}

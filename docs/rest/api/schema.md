@@ -228,11 +228,27 @@ const data = memo.query(
 
 ## Queryable
 
-`Queryable` Schemas allow store access without an endpoint. They achieve this using the
-[queryKey](./Entity.md#queryKey) method that produces the results normally stored in the endpoint cache.
+A `Queryable` schema can produce its data from the store using only args, without a response. Its
+[queryKey](./Entity.md#queryKey) method returns what a response would have normalized to, and returns it only for data
+the store holds. Endpoints use it to render data another request loaded before their own response arrives
+([Queryable](/docs/concepts/queryable)).
 
-This enables their use in these additional cases:
+| Schema | `queryKey(args)` returns |
+| --- | --- |
+| [Entity](./Entity.md) | Its `pk`, when the store holds that Entity. By default, args with the fields `pk()` reads, like `{ id }`, find it ([how, and how to customize](./Entity.md#pk-args)) |
+| [Collection](./Collection.md) | Its `pk` for those args, when the store holds that Collection |
+| [Object](./Object.md) | Each member's `queryKey` with the same args |
+| [Union](./Union.md) | The member the args' discriminator names; without one, the first member Entity the args find |
+| [All](./All.md) | Every stored Entity of its type |
+| [Query](./Query.md) | Its inner schema's result |
 
+[Scalar](./Scalar.md) is Queryable too, and [Lazy](./Lazy.md) fields produce a Queryable via their
+[`.query`](./Lazy.md#query) accessor. [Array](./Array.md), [Values](./Values.md) and [Invalidate](./Invalidate.md) are
+not: their `queryKey` returns `undefined`. Use a [Collection](./Collection.md) or [All](./All.md) for a list that should be Queryable.
+
+### Uses
+
+- [Endpoints](/docs/concepts/queryable#endpoints) - [useSuspense()](/docs/api/useSuspense), [useDLE()](/docs/api/useDLE), [useCache()](/docs/api/useCache) and [Controller.fetchIfStale()](/docs/api/Controller#fetchIfStale) render stored data until the endpoint has a response of its own
 - [useQuery()](/docs/api/useQuery) - Rendering in :react[React]:vue[Vue]
 - [schema.Query()](./Query.md) - As input to produce a computed memoization.
 - [ctrl.get](/docs/api/Controller#get)/[snap.get](/docs/api/Snapshot#get)
@@ -241,10 +257,6 @@ This enables their use in these additional cases:
   - [RestEndpoint.getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse)
   - :react[[Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataHook()](/docs/api/renderDataHook)]:vue[[Unit testing composables](/docs/guides/unit-testing-composables) with `renderDataCompose()`]
 - [memo.query()](#memoquery)
-- Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
-
-`Querables` include [Entity](./Entity.md), [Object](./Object.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
-[Union](./Union.md), and [Scalar](./Scalar.md). [Lazy](./Lazy.md) fields produce a Queryable via their [`.query`](./Lazy.md#query) accessor.
 
 ```ts
 interface Queryable {

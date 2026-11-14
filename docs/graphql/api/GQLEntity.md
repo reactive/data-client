@@ -277,17 +277,14 @@ static mergeMetaWithStore(
 
 ### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](/rest/api/schema#queryable) - allowing store access without an endpoint.
+This method makes `Entities` [Queryable](/docs/concepts/queryable): it finds a stored Entity from args alone, so
+[useQuery()](/docs/api/useQuery) and endpoints can render it without a response.
 
-Overriding can allow customization or disabling of this behavior altogether.
+Return the `pk` of a stored Entity to use it, or `undefined` when there is none. Always returning `undefined` disables
+lookups. A result found this way expires with the entity's own meta data.
 
-Returning `undefined` will disallow this behavior.
-
-Returning `pk` string will attempt to lookup this entity and use in the response.
-
-When used, expiry policy is computed based on the entity's own meta data.
-
-By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
+By **default** the first argument is looked up by [pk()](#pk), then [indexes](#indexes)
+([Queryable by args](/rest/api/Entity#pk-args)).
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
 

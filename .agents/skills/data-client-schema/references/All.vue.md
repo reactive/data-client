@@ -14,6 +14,12 @@ Retrieves all entities in cache as an Array.
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `All` constructor. This method tends to be useful for creating circular references in schema.
 
+## Queryable {#queryable}
+
+`All` is [Queryable](./queryable.vue.md#endpoints): it returns every stored Entity of its type. So until an endpoint
+whose schema is `All` has a response of its own, it renders whatever Entities of that type the store already holds,
+even one stored by a detail page or a create, without fetching. It fetches once the earliest of them goes stale.
+
 ## Usage
 
 To describe a simple array of a singular entity type:

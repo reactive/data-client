@@ -24,7 +24,7 @@ the same high performance and referential equality guarantees expected of Reacti
 ### schema
 
 [Schema](./schema.md) used to retrieve/denormalize data from the Reactive Data Client cache.
-This accepts any [Queryable](/rest/api/schema#queryable) schema: [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
+This accepts any [Queryable](/docs/concepts/queryable) schema: [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
 [Union](./Union.md), [Scalar](./Scalar.md), and [Object](./Object.md) schemas for joining multiple entities.
 [Lazy](./Lazy.md) fields produce a Queryable via their [`.query`](./Lazy.md#query) accessor.
 

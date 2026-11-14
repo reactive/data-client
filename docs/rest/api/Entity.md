@@ -120,6 +120,44 @@ This is useful when initializing a creation form using [Entity.fromJS()](#fromJS
 directly. If `pk()` returns `undefined` it is considered not persisted to the server,
 and thus will not be kept in the cache.
 
+#### Queryable by args {#pk-args}
+
+`pk()` also makes an Entity [Queryable](/docs/concepts/queryable): given args, [queryKey](#queryKey) returns the primary
+key when the store holds that Entity. An endpoint whose schema is the Entity then renders it without waiting for a
+fetch, and makes none while it is fresh, which is how a detail page shows an item a list already loaded
+([Lists to details](/docs/getting-started/data-dependency#list-detail)).
+
+By default `queryKey` reads the first argument:
+
+1. A string or number is the primary key.
+2. Otherwise `pk()` runs on it. `pk()` reads fields from whatever object it gets, so args with the same fields as the
+   data, like `{ id: 1 }`, produce the key the Entity was stored under.
+3. If `pk()` returns `undefined` or `''`, a field of the args listed in [indexes](#indexes) finds the primary key. A
+   `pk()` that builds a string (`` `${this.id}` ``) never returns `undefined`, so it skips this step.
+
+When args are shaped differently than the data, change one side: make `pk()` read fields the args also have, add the
+arg to [indexes](#indexes) when it is a field of the Entity (`{ slug }`), or override `queryKey`:
+
+```ts
+import { Entity, type IQueryDelegate } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+
+  // detail endpoints are called with { postId }
+  static queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate) {
+    const pk = args[0]?.postId;
+    if (pk !== undefined && delegate.getEntity(this.key, `${pk}`)) return `${pk}`;
+    // keep the default: { id }, a bare pk, and indexes
+    return super.queryKey(args, unvisit, delegate);
+  }
+}
+```
+
+[useQuery(Post, ...)](/docs/api/useQuery) is typed with the Entity's own fields, so pass `{ id }` there; `{ postId }`
+is for endpoint args.
+
 #### Other uses
 
 Since `pk()` is unique, it provides a consistent way of defining :react[[JSX list keys](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key)]:vue[[`v-for` keys](https://vuejs.org/guide/essentials/list.html#maintaining-state-with-key)]

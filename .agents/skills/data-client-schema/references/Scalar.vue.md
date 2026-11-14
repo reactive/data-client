@@ -338,7 +338,7 @@ data.
 
 ### queryKey {#queryKey}
 
-`Scalar` is a [Queryable](./schema.vue.md#queryable) schema. When used as a
+`Scalar` is a [Queryable](./queryable.vue.md) schema. When used as a
 top-level endpoint schema — or passed to [useQuery](https://dataclient.io/vue/api/useQuery),
 [Controller.get](https://dataclient.io/vue/api/Controller#get), [schema.Query](./Query.vue.md), or any
 other Queryable consumer — it reports the cpks of all cells whose lens matches
@@ -378,4 +378,4 @@ entities['Scalar(portfolio)']['Company|1|portfolioB'] = {
 - [Entity](./Entity.vue.md) — defines the base entity that scalar fields attach to
 - [Values](./Values.vue.md) — used for column-only endpoints (dictionary keyed by entity pk)
 - [Union](./Union.vue.md) — similar wrapper pattern for polymorphic entities
-- [Queryable](./schema.vue.md#queryable) — Scalar participates in [useQuery](https://dataclient.io/vue/api/useQuery), [Controller.get](https://dataclient.io/vue/api/Controller#get), and [schema.Query](./Query.vue.md)
+- [Queryable](./queryable.vue.md) — Scalar participates in [useQuery](https://dataclient.io/vue/api/useQuery), [Controller.get](https://dataclient.io/vue/api/Controller#get), and [schema.Query](./Query.vue.md)

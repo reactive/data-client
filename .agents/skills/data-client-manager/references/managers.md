@@ -392,7 +392,7 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.set()](./Controller.md#set) allows directly updating [Querable Schemas](https://dataclient.io/rest/api/schema#queryable)
+[Controller.set()](./Controller.md#set) allows directly updating [Queryable Schemas](https://dataclient.io/docs/concepts/queryable)
 directly with `event.data`.
 
 Here a `StreamManager` runs in the preview. A simulated server pushes a price every second or so;

@@ -95,6 +95,44 @@ This is useful when initializing a creation form using [Entity.fromJS()](#fromJS
 directly. If `pk()` returns `undefined` it is considered not persisted to the server,
 and thus will not be kept in the cache.
 
+#### Queryable by args {#pk-args}
+
+`pk()` also makes an Entity [Queryable](./queryable.vue.md): given args, [queryKey](#queryKey) returns the primary
+key when the store holds that Entity. An endpoint whose schema is the Entity then renders it without waiting for a
+fetch, and makes none while it is fresh, which is how a detail page shows an item a list already loaded
+([Lists to details](https://dataclient.io/vue/getting-started/data-dependency#list-detail)).
+
+By default `queryKey` reads the first argument:
+
+1. A string or number is the primary key.
+2. Otherwise `pk()` runs on it. `pk()` reads fields from whatever object it gets, so args with the same fields as the
+   data, like `{ id: 1 }`, produce the key the Entity was stored under.
+3. If `pk()` returns `undefined` or `''`, a field of the args listed in [indexes](#indexes) finds the primary key. A
+   `pk()` that builds a string (`` `${this.id}` ``) never returns `undefined`, so it skips this step.
+
+When args are shaped differently than the data, change one side: make `pk()` read fields the args also have, add the
+arg to [indexes](#indexes) when it is a field of the Entity (`{ slug }`), or override `queryKey`:
+
+```ts
+import { Entity, type IQueryDelegate } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  title = '';
+
+  // detail endpoints are called with { postId }
+  static queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate) {
+    const pk = args[0]?.postId;
+    if (pk !== undefined && delegate.getEntity(this.key, `${pk}`)) return `${pk}`;
+    // keep the default: { id }, a bare pk, and indexes
+    return super.queryKey(args, unvisit, delegate);
+  }
+}
+```
+
+[useQuery(Post, ...)](https://dataclient.io/vue/api/useQuery) is typed with the Entity's own fields, so pass `{ id }` there; `{ postId }`
+is for endpoint args.
+
 #### Other uses
 
 Since `pk()` is unique, it provides a consistent way of defining [`v-for` keys](https://vuejs.org/guide/essentials/list.html#maintaining-state-with-key)
@@ -764,17 +802,14 @@ static mergeMetaWithStore(
 
 ### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](./schema.vue.md#queryable) - allowing store access without an endpoint.
+This method makes `Entities` [Queryable](./queryable.vue.md): it finds a stored Entity from args alone, so
+[useQuery()](https://dataclient.io/vue/api/useQuery) and endpoints can render it without a response.
 
-Overriding can allow customization or disabling of this behavior altogether.
+Return the `pk` of a stored Entity to use it, or `undefined` when there is none. Always returning `undefined` disables
+lookups. A result found this way expires with the entity's own meta data.
 
-Returning `undefined` will disallow this behavior.
-
-Returning `pk` string will attempt to lookup this entity and use in the response.
-
-When used, expiry policy is computed based on the entity's own meta data.
-
-By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](./Entity.vue.md#indexes)
+By **default** the first argument is looked up by [pk()](#pk), then [indexes](./Entity.vue.md#indexes)
+([Queryable by args](./Entity.vue.md#pk-args)).
 
 `delegate` reads the store. Its members are listed in [IQueryDelegate](https://dataclient.io/rest/api/SchemaSimple#iquerydelegate).
 

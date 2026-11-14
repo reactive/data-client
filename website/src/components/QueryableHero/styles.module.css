@@ -1,0 +1,961 @@
+/* Two copies of one app on a stage, each with the requests it sends under
+   it. beats.ts has what happens when; index.tsx draws it */
+.frame {
+  /* The Playground's palette (../Playground/styles.module.css), so these
+     apps read as the live demos under them do: a sheet on a stage, a well a
+     step off the sheet */
+  --stage: var(--pg-stage, #e8eef6);
+  --sheet: var(--pg-panel, #fff);
+  --ink: var(--pg-text, #0b1220);
+  --muted: var(--pg-muted, #4c5a6e);
+  --well: #eef2f7;
+  /* a control's edge: 3:1 on the sheet and the well */
+  --edge: #78889d;
+  --lift: 0 1px 2px rgb(15 30 60 / 0.1), 0 10px 24px -18px rgb(15 30 60 / 0.3);
+  /* a fill behind --on-accent, and text in the accent on a tint of it */
+  --accent: var(--ifm-color-primary-darker);
+  --accent-ink: var(--ifm-color-primary-darkest);
+  --on-accent: #fff;
+  --elapsed: rgb(0 0 0 / 0.18);
+  --open: #0d8257;
+  --closed: hsl(262, 52%, 48%);
+  /* an issue's mark, by its place in the list */
+  --mark-0: hsl(42, 92%, 37%);
+  --mark-1: hsl(188, 78%, 34%);
+  --mark-2: hsl(20, 90%, 48%);
+  --mark-3: hsl(335, 72%, 50%);
+  /* the disc of the assignee's avatar */
+  --who: color-mix(in srgb, var(--ink) 70%, var(--sheet));
+  /* what is waiting: a skeleton's bar, an unanswered request's edge */
+  --wait: color-mix(in srgb, var(--ink) 14%, transparent);
+  --ease: cubic-bezier(0.3, 0.6, 0.2, 1);
+  container: queryable-hero / inline-size;
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--stage);
+  color: var(--ink);
+  line-height: 1.25;
+  user-select: none;
+}
+[data-theme='dark'] .frame {
+  --stage: var(--pg-stage, #0a0f18);
+  --sheet: var(--pg-panel, #151c28);
+  --ink: var(--pg-text, #e9eef6);
+  --muted: var(--pg-muted, #95a2b6);
+  --well: #1d2635;
+  --edge: #607189;
+  --lift: none;
+  --accent: var(--ifm-color-primary);
+  --accent-ink: var(--ifm-color-primary-lighter);
+  --on-accent: hsl(220, 20%, 12%);
+  --elapsed: rgb(255 255 255 / 0.25);
+  --open: #3ddc97;
+  --closed: hsl(262, 75%, 74%);
+  --mark-0: hsl(45, 90%, 58%);
+  --mark-1: hsl(188, 65%, 55%);
+  --mark-2: hsl(22, 95%, 62%);
+  --mark-3: hsl(335, 85%, 70%);
+}
+@media (min-width: 600px) {
+  .frame {
+    padding: 12px;
+  }
+}
+
+/* over the apps: the beats in the middle, the pace's switch at the end */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 8px;
+}
+/* the beats: the one playing fills as it plays; each starts a run there */
+.beats {
+  grid-column: 2;
+  display: flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.beats button {
+  position: relative;
+  overflow: hidden;
+  /* 25px tall: a pointer's target */
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 600 0.8rem var(--ifm-font-family-base);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    color var(--motion-snappy);
+}
+.beats button > span {
+  position: relative;
+}
+.beats button[data-done] {
+  color: var(--ink);
+}
+.beats button[aria-current] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+@media (hover: hover) {
+  .beats button:not([aria-current]):hover {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink);
+  }
+}
+.beats button:focus-visible,
+.sync:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* taller for a finger */
+@media (pointer: coarse) {
+  .beats button {
+    padding: 8px 14px;
+  }
+  .sync {
+    padding-block: 10px;
+  }
+}
+/* Whether both apps click together: quieter than the beats, a word and a
+   small switch whose knob crosses over when on */
+.sync {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px 6px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 600 0.75rem var(--ifm-font-family-base);
+  cursor: pointer;
+  transition: color var(--motion-snappy);
+}
+.sync i {
+  position: relative;
+  width: 22px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--edge);
+  transition: background-color var(--motion-snappy);
+}
+.sync i::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sheet);
+  transition: transform var(--motion-snappy);
+}
+.sync[aria-checked='true'] {
+  color: var(--ink);
+}
+.sync[aria-checked='true'] i {
+  background: var(--accent);
+}
+.sync[aria-checked='true'] i::after {
+  transform: translateX(10px);
+}
+@media (hover: hover) {
+  .sync:hover {
+    color: var(--ink);
+  }
+}
+/* how much of the beat has played */
+.progress {
+  position: absolute;
+  inset: 0;
+  background: var(--elapsed);
+  transform-origin: left;
+  animation: fill var(--span) linear both;
+}
+.progress[data-ended] {
+  animation: none;
+}
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* The two apps, side by side at any width: name, app, requests. A row of
+   the grid is as tall as its taller side, so the apps stay level */
+.stage {
+  /* an app's measures, which place its pointer too */
+  --pad: 8px;
+  --bleed: 4px;
+  --head: 22px;
+  --row: 24px;
+  --gap: 6px;
+  --detail: 52px;
+  --inset: 7px;
+  --button: 20px;
+  --text: 11px;
+  --small: 10px;
+  --lane: 14px;
+  --bar: 7px;
+  /* what stands for words: an issue's mark, its state, my avatar, an icon */
+  --mark: 11px;
+  --state: 12px;
+  --avatar: 13px;
+  --icon: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 8px;
+}
+@container queryable-hero (min-width: 520px) {
+  .stage {
+    --pad: 12px;
+    --bleed: 8px;
+    --head: 26px;
+    --row: 28px;
+    --gap: 8px;
+    --detail: 66px;
+    --inset: 10px;
+    --button: 24px;
+    --text: 13px;
+    --small: 12px;
+    --lane: 16px;
+    --bar: 8px;
+    --mark: 13px;
+    --state: 14px;
+    --avatar: 15px;
+    --icon: 14px;
+    column-gap: 12px;
+  }
+}
+.keyed {
+  grid-column: 1;
+}
+.client {
+  grid-column: 2;
+}
+
+/* an app's name, and how long it has been at it */
+.label {
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* a stopwatch's height, with or without one */
+  min-height: calc(var(--small) * 1.25 + 4px);
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: calc(var(--small) + 1px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.label.client {
+  color: var(--accent-ink);
+}
+.side {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Counting while its app works, in the label's color; once the app is
+   done, a filled badge with a check: Data Client's in the accent */
+.stopwatch {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: var(--small);
+  font-variant-numeric: tabular-nums;
+}
+.stopwatch[data-done] {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  color: var(--ink);
+  animation: pop 300ms var(--ease) backwards;
+}
+.client .stopwatch[data-done] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.stopwatch path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+.long {
+  display: none;
+}
+@container queryable-hero (min-width: 520px) {
+  .long {
+    display: inline;
+  }
+  .short {
+    display: none;
+  }
+}
+
+.sheet {
+  grid-row: 2;
+  /* the pointer's layer reaches past the app: cut off, it can't widen the page */
+  overflow: clip;
+  border-radius: 12px;
+  background: var(--sheet);
+  box-shadow: var(--lift);
+}
+/* what one run draws: it fades in, and out again before the next */
+.run {
+  animation: enter var(--clear) ease-out backwards;
+  transition: opacity var(--clear) ease-in;
+}
+.run[data-clearing] {
+  opacity: 0;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The app. Every part has a fixed height, so nothing under it moves and the
+   pointer finds each by arithmetic */
+.app {
+  position: relative;
+  display: grid;
+  grid-template:
+    var(--head) calc(var(--row) * var(--rows)) var(--detail)
+    / minmax(0, 1fr);
+  row-gap: var(--gap);
+  padding: var(--pad);
+  font-size: var(--text);
+}
+
+/* An issue's mark: a shape and a color of its own, wherever the issue
+   shows */
+.mark {
+  flex: none;
+  width: var(--mark);
+  height: var(--mark);
+  fill: var(--c);
+  stroke: var(--c);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.mark[data-mark='0'] {
+  --c: var(--mark-0);
+}
+.mark[data-mark='1'] {
+  --c: var(--mark-1);
+}
+.mark[data-mark='2'] {
+  --c: var(--mark-2);
+}
+.mark[data-mark='3'] {
+  --c: var(--mark-3);
+}
+/* the assignee, who is me: a figure on a disc */
+.avatar {
+  flex: none;
+  width: var(--avatar);
+  height: var(--avatar);
+  fill: var(--sheet);
+}
+.avatar circle:first-child {
+  fill: var(--who);
+}
+/* a line icon */
+.icon {
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+/* how many issues are open: mine, by my avatar, and everyone's, by a list */
+.counts {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.count b {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  animation: tick 250ms var(--ease) backwards;
+}
+/* a count that changed rolls in from under its line */
+@keyframes tick {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+/* a list being refetched: the count from it keeps its old value meanwhile */
+.spin {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--wait);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.spin[data-on] {
+  opacity: 1;
+  animation: spin 800ms linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* the button that creates an issue: a plus */
+.button {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--button);
+  height: var(--button);
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  transition: opacity 150ms;
+}
+/* waiting on its mutation's response: in both apps alike */
+.button[data-busy],
+.toggle[data-busy] {
+  opacity: 0.5;
+}
+
+/* my issues: the open issue's row is highlighted */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--row);
+  margin: 0 calc(-1 * var(--bleed));
+  padding: 0 var(--bleed);
+  border-radius: 6px;
+  transition: background-color 200ms;
+}
+.row[data-selected] {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+/* a new issue's row comes down into its place */
+.row[data-arrived] {
+  animation: arrive 300ms var(--ease) backwards;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* an issue's state: a ring while open, a check once closed */
+.state {
+  position: relative;
+  flex: none;
+  display: flex;
+  color: var(--open);
+  animation: enter 200ms ease-out backwards;
+}
+.state[data-closed] {
+  color: var(--closed);
+}
+.state svg {
+  width: var(--state);
+  height: var(--state);
+}
+.state circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.state[data-closed] circle {
+  fill: currentColor;
+  stroke: none;
+}
+.state path {
+  fill: none;
+  stroke: var(--on-accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* its list is being refetched: an arc circles the state it still shows */
+.state::after {
+  content: '';
+  position: absolute;
+  inset: -3.5px;
+  border: 1.5px solid var(--wait);
+  border-top-color: var(--muted);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.state[data-stale]::after {
+  opacity: 1;
+  animation: spin 800ms linear infinite;
+}
+
+/* the open issue, in a well: its mark and title, then its assignee and the
+   control that closes it */
+.detail {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: 0 var(--inset);
+  border-radius: 8px;
+  background: var(--well);
+}
+.issue,
+.skeleton {
+  display: grid;
+  grid-template-rows: 1.25em var(--button);
+  align-items: center;
+  row-gap: 4px;
+  min-width: 0;
+}
+.issue {
+  animation: show 250ms var(--ease) backwards;
+}
+@keyframes show {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-weight: 600;
+}
+.meta {
+  --avatar: calc(var(--button) - 2px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+/* the assignee's response brings their avatar */
+.meta .avatar {
+  animation: pop 300ms var(--ease) backwards;
+}
+/* Both states an issue can be in, side by side: the one it is in is lit in
+   its color, and the pointer clicks the other */
+.toggle {
+  flex: none;
+  display: inline-flex;
+  gap: 1px;
+  height: var(--button);
+  padding: 1px;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  transition: opacity 150ms;
+}
+.option {
+  display: grid;
+  place-items: center;
+  width: calc(var(--button) + 2px);
+  border-radius: 4px;
+  transition: background-color 200ms;
+}
+.option .state {
+  animation: none;
+  transition: color 200ms;
+}
+.option:not([data-on]) .state {
+  color: var(--edge);
+}
+.option[data-on] {
+  background: color-mix(in srgb, var(--open) 20%, transparent);
+}
+.option[data-on][data-closed] {
+  background: color-mix(in srgb, var(--closed) 20%, transparent);
+}
+/* No data yet: a bar where the title and the control will land, a disc
+   where the avatar will */
+.line,
+.ghost {
+  background: var(--wait);
+  animation: pulse 600ms ease-in-out infinite alternate;
+}
+.line {
+  width: 62%;
+  height: 8px;
+  border-radius: 4px;
+}
+.meta .line {
+  width: calc(var(--button) * 2 + 9px);
+}
+.ghost {
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: 50%;
+}
+@keyframes pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+
+/* a view re-rendering, like React DevTools' highlight (the lookup table
+   diagrams' flash, ../LookupTable/styles.module.css) */
+.flash {
+  position: absolute;
+  inset: -1px;
+  border: 2px solid var(--ifm-color-primary);
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  animation: flash 1100ms ease-out;
+}
+.counts .flash {
+  inset: -4px -3px -4px -6px;
+}
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.6;
+  }
+}
+
+/* The pointer: a layer the app's size, with the arrow's tip at its top left
+   corner, so a percentage places it across the app */
+.pointer {
+  --rows-top: calc(var(--pad) + var(--head) + var(--gap));
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  translate: var(--x) var(--y);
+  transition: translate var(--travel) var(--ease);
+}
+/* in the room the list keeps for a fourth issue */
+.pointer[data-at='rest'] {
+  --x: 64%;
+  --y: calc(var(--rows-top) + var(--row) * 3.5);
+}
+/* the third row: issue 5, past its title */
+.pointer[data-at='row'] {
+  --x: 56%;
+  --y: calc(var(--rows-top) + var(--row) * 2.5 + 2px);
+}
+/* the detail's control, at its lower right: just off the middle of its
+   last option, so the check shows past the arrow */
+.pointer[data-at='close'] {
+  --x: calc(100% - var(--pad) - var(--inset) - var(--button) / 2 + 1px);
+  --y: calc(
+    var(--rows-top) + var(--row) * var(--rows) + var(--gap) + var(--detail) /
+      2 + 0.625em + 5px
+  );
+}
+/* the header's button, at its right */
+.pointer[data-at='new'] {
+  --x: calc(100% - var(--pad) - var(--button) / 2 + 2px);
+  --y: calc(var(--pad) + var(--head) / 2 + 3px);
+}
+.pointer svg {
+  display: block;
+  overflow: visible;
+  fill: #fff;
+  stroke: #1c1e21;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+/* the click: a ring spreading from the tip */
+.ring {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  opacity: 0;
+  animation: press 300ms ease-out;
+}
+@keyframes press {
+  from {
+    opacity: 0.5;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* the requests an app has sent, under it */
+.strip {
+  grid-row: 3;
+  min-width: 0;
+  padding: 0 2px 2px;
+}
+.tally {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  width: fit-content;
+  /* room for the count to grow into */
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: calc(var(--small) - 1px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 18px;
+  text-transform: uppercase;
+  transform-origin: left center;
+  transition:
+    transform 300ms var(--ease),
+    color 300ms;
+}
+.tally b {
+  color: var(--ink);
+  font-size: calc(var(--small) + 4px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  transform-origin: left 85%;
+  transition:
+    transform 300ms var(--ease),
+    color 300ms;
+}
+/* an app's last word, once it is done: its count, larger, and the number
+   most */
+.tally[data-on] {
+  color: var(--ink);
+  transform: scale(1.3);
+}
+.tally[data-on] b {
+  transform: scale(1.3);
+}
+.client .tally[data-on] b {
+  color: var(--accent-ink);
+}
+/* An app's requests as a browser's network panel draws them: a row each,
+   in the order sent, its bar starting when the request leaves and as long
+   as it takes. Both apps' rows are the same widths, so a width is the same
+   time in both; each keeps a row for every request of the one that sends
+   most */
+.waterfall {
+  /* what a row's name is drawn with, at a lane's size */
+  --icon: calc(var(--lane) - 4px);
+  --mark: calc(var(--lane) - 3px);
+  --avatar: calc(var(--lane) - 3px);
+  --button: calc(var(--lane) - 3px);
+  /* a row's name: an arrow, and the widest of what requests are for, a
+     list's icon and my avatar */
+  --name: calc(var(--icon) * 2 + var(--avatar) + 6px);
+  --name-gap: 6px;
+  position: relative;
+  display: grid;
+  grid-auto-rows: var(--lane);
+  height: calc(var(--lanes) * var(--lane));
+  margin-top: 6px;
+}
+.request {
+  display: grid;
+  grid-template-columns: var(--name) minmax(0, 1fr);
+  column-gap: var(--name-gap);
+  align-items: center;
+  transition: opacity 200ms;
+}
+.request[data-state='queued'] {
+  opacity: 0;
+}
+/* A request without words: which way its data goes, down for a read in
+   ink or up for a write in the accent, then what it is for, drawn as the
+   app draws it */
+.what {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted);
+}
+.way {
+  margin-right: 2px;
+  stroke-width: 2;
+}
+.request[data-mutation] .way {
+  color: var(--accent-ink);
+}
+.what .button {
+  --icon: calc(var(--button) - 2px);
+  border-radius: 3px;
+}
+.what .button .icon {
+  stroke-width: 2;
+}
+.lane {
+  position: relative;
+  height: var(--bar);
+}
+/* A request that waited for another's response hangs from the end of that
+   one's bar: the line runs down from it to this row */
+.request[data-waited] .lane::before {
+  content: '';
+  position: absolute;
+  bottom: 50%;
+  left: calc(var(--at) * 100% - 1px);
+  width: 1px;
+  height: calc(var(--up) * var(--lane) - var(--bar) / 2);
+  background: var(--edge);
+}
+/* A request's time on the axis: marked out as it leaves, filling as its
+   response comes, and solid once it has: a read in ink, a write in the
+   accent */
+.bar {
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--at) * 100%);
+  width: calc(var(--lasts) * 100%);
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--wait);
+}
+.bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--muted);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.request[data-mutation] .bar::before {
+  background: var(--accent);
+}
+.request[data-state='sent'] .bar::before {
+  animation: fill var(--latency) linear both;
+  transform: none;
+}
+.request[data-state='landed'] .bar::before {
+  transform: none;
+}
+/* the axis: a line each second, behind the rows */
+.ticks {
+  position: absolute;
+  inset: 0 0 0 calc(var(--name) + var(--name-gap));
+}
+.ticks i {
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--at) * 100%);
+  width: 1px;
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+}
+
+/* off screen or in a hidden tab (useRuns), what repeats waits too */
+.frame[data-paused] :is(.spin, .state::after, .line, .ghost, .progress) {
+  animation-play-state: paused;
+}
+
+/* Nothing travels and nothing repeats: a beat's changes swap in place, and
+   the pointer, which only shows travel, is gone */
+@media (prefers-reduced-motion: reduce) {
+  .pointer {
+    display: none;
+  }
+  .run,
+  .stopwatch[data-done],
+  .count b,
+  .row[data-arrived],
+  .issue,
+  .meta .avatar,
+  .state,
+  .spin[data-on],
+  .state[data-stale]::after,
+  .line,
+  .ghost,
+  .progress,
+  .request[data-state='sent'] .bar::before {
+    animation: none;
+  }
+  .tally,
+  .tally b {
+    transition-property: color;
+  }
+  /* out, half full */
+  .request[data-state='sent'] .bar::before {
+    transform: scaleX(0.5);
+  }
+  .beats button,
+  .sync,
+  .sync i,
+  .sync i::after {
+    transition: none;
+  }
+  /* no clock runs: an app's time shows once it is done */
+  .stopwatch:not([data-done]) {
+    visibility: hidden;
+  }
+}
+
+/* Text beside the demo: on its left while both fit, else above it */
+.beside {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  align-items: flex-start;
+  margin-bottom: var(--ifm-leading);
+}
+.text {
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+.beside > .frame {
+  flex: 1 1 24rem;
+  max-width: 30rem;
+}
