@@ -6,10 +6,10 @@ license: Apache 2.0
 
 # Managers: the store's bridge to the world outside the view framework
 
-Data Client keeps three layers apart. The API definition is the declarative data model (schemas) and the methods on it
-(endpoints). Hooks or composables are the runtime in the view framework. [Managers](references/managers.md) are the
-runtime outside it: they bridge the store to sockets, timers, browser events, other tabs, logging and reporting
-services, as `useEffect` bridges a component to what is outside React.
+Data Client keeps three layers apart. The data definition is the data model (schemas) and the API definition
+(endpoints): the operations on that data model. Hooks are the runtime in the view framework.
+[Managers](references/managers.md) are the runtime outside it: they bridge the store to sockets, timers, browser events,
+other tabs, logging and reporting services, as `useEffect` bridges a component to what is outside React.
 
 The store is [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): unidirectional data flow through a
 pure reducer. Managers orchestrate its global side effects, in two directions:

@@ -6,14 +6,14 @@ description: Interface design principles for package APIs — where configuratio
 
 [Resources](/rest/api/resource) are a collection of **methods** for a given **data model**. [Entities](/rest/api/Entity) and [Schemas](/rest/api/schema) declaratively define the data model. [Endpoints](/rest/api/Endpoint) are the methods on that data. Both should be as **declarative as possible** — describing *what*, not *how*.
 
-The root `ARCHITECTURE.md` names the layers: API definition (schemas and endpoints), runtime in the view framework (hooks, composables), and runtime outside it (Managers). Each part changes for different reasons, is used in different contexts, and composes independently. Place new configuration or behavior in the part whose **reason to change** matches.
+The root `ARCHITECTURE.md` names the layers: the data definition (schemas for the data model, endpoints for the API definition), and in the client, the runtime in the view framework (hooks) and the runtime outside it (Managers). Each part changes for different reasons, is used in different contexts, and composes independently. Place new configuration or behavior in the part whose **reason to change** matches.
 
 ## Where an interface goes
 
 | Layer | Part | Declares… | Changes when… | Examples |
 |-------|------|-----------|---------------|----------|
-| API definition | **Schema** (Entity, Collection, Query) | Data model and relationships | Data shape or identity changes | `pk()`, `schema`, `merge()`, `process()`, `indexes` |
-| API definition | **Endpoint** (Endpoint, RestEndpoint, resource) | Methods on that data | API contract or cache policy changes | `path`, `method`, `schema`, `pollFrequency`, `getOptimisticResponse()` |
+| Data definition | **Schema** (Entity, Collection, Query) | Data model and relationships | Data shape or identity changes | `pk()`, `schema`, `merge()`, `process()`, `indexes` |
+| Data definition | **Endpoint** (Endpoint, RestEndpoint, resource) | API definition: operations on that data model | API contract or cache policy changes | `path`, `method`, `schema`, `pollFrequency`, `getOptimisticResponse()` |
 | Runtime in the view framework | **Hook / Composable** (useSuspense, useDLE, useQuery) | Data dependencies at point of use | UI interaction pattern changes | Suspense, `{ data, loading, error }`, subscription lifecycle |
 | Runtime outside the view framework | **Manager** (NetworkManager, SubscriptionManager) | Global side effects, and events from outside the app | An integration outside the store changes | `middleware`, `init()`, `cleanup()` |
 

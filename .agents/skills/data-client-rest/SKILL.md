@@ -205,7 +205,7 @@ Each guide holds working code. Read the matching section before writing code.
 | Use case | Read | Technique |
 |---|---|---|
 | Requests need credentials | [auth](references/auth.md) | `getRequestInit()` for cookies, `getHeaders()` for a token, on a shared base endpoint |
-| The token is in React context or Vue provide/inject | "Auth Headers from" in [auth](references/auth.md) | [`hookifyResource()`](references/hookifyResource.md) |
+| The token is in React context | "Auth Headers from" in [auth](references/auth.md) | [`hookifyResource()`](references/hookifyResource.md) |
 | A `401` logs the user out | skill "data-client-manager" | `LogoutManager` |
 | A list loads in pages | [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) | `paginationField` and `getList.getPage`, which adds each page to the list |
 | The next-page token is in a response header | "Tokens in HTTP Headers" in [pagination](references/pagination.md) | `parseResponse()` adds the header to the body |
