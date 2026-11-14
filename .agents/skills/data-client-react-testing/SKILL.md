@@ -227,6 +227,10 @@ packages/react/src/components/__tests__/DataProvider.test.tsx
 - Don't mock @data-client internals directly
 - Don't use raw fetch in tests when fixtures are available
 - Don't call `cleanup()` in `afterEach` -- cleanup is automatic
+- Don't `jest.mock()` a whole `@data-client/*` module: missing exports fail far from the cause
+  (`TypeError: Class extends value undefined is not a function or null`). Use fixtures, or a partial mock
+- `fetch is not defined` under Jest's `jsdom` (it has no global `fetch`): add the `whatwg-fetch` polyfill in
+  `setupFiles` ([setup](references/unit-testing-hooks.md))
 
 ## References
 
@@ -237,5 +241,5 @@ For detailed API documentation, see the [references](references/) directory:
 - [Fixtures](references/Fixtures.md) - Fixture format reference
 - [MockResolver](references/MockResolver.md) - Component testing wrapper
 - [mockInitialState](references/mockInitialState.md) - Create initial state
-- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook testing guide
-- [unit-testing-components](references/unit-testing-components.md) - Component testing guide
+- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook testing guide: Jest setup (fetch polyfill) and a full `renderDataHook()` test file with nock
+- [unit-testing-components](references/unit-testing-components.md) - Component testing guide: a full test file that renders a component with `mockInitialState()` fixtures, for when a component (not a hook) is under test

@@ -1,6 +1,6 @@
 ---
 name: data-client-schema
-description: Model the app's data with @data-client schemas, which normalize responses into one shared cache so an update shows everywhere. Use it whenever an endpoint returning data is added or its response changes (resource, RestEndpoint, GraphQL, Endpoint), when the data's shape changes, when deriving views from loaded data, or when one item looks different in two places. Covers Entity, GQLEntity, Collection, Union and Query.
+description: Model the app's data with @data-client schemas, which normalize responses into one shared cache so an update shows everywhere. Use it whenever an endpoint returning data is added or its response changes (resource, RestEndpoint, GraphQL, Endpoint), when the data's shape changes, when data from different endpoints must be joined or related, when deriving views from loaded data, or when one item looks different in two places. Covers Entity, GQLEntity, Collection, Union and Query.
 license: Apache 2.0
 ---
 
@@ -57,9 +57,10 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to adapt input before normalizing, e.g. add fields from
   args/url, or turn an API's stand-in for a missing nested entity (like `{}`) into `undefined`
-  ([example](references/Entity.md#optional-members))
+  ([example](references/Entity.md#optional-members)). `parent` and `key` say where the entity was nested
 - `static schema` (optional) for nested schemas or deserialization functions; it also joins related entities
-  client-side, so never merge or 'enrich' data by hand ([relational-data](references/relational-data.md))
+  client-side, so never merge or 'enrich' data by hand: no lookup `Map`, `find()` per row or stitching in a
+  component ([Relationships](#relationships) has the recipe for each API shape)
   - When designing APIs, prefer nesting entities
 
 ## 3. Entity lifecycle methods
@@ -148,7 +149,8 @@ When an endpoint returns partial or differently-shaped data for an entity alread
 (e.g., a metadata endpoint, a stats endpoint, a lazy-load expansion endpoint),
 use the **same Entity** as the schema — don't create a wrapper entity.
 
-See [partial-entities](references/partial-entities.md) for patterns and examples.
+See [partial-entities](references/partial-entities.md) for patterns and examples, including a list endpoint that
+returns fewer fields than the detail endpoint.
 
 ## 7. Gotchas
 
@@ -161,6 +163,27 @@ See [partial-entities](references/partial-entities.md) for patterns and examples
 
 Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
-- [computed-properties](references/computed-properties.md) - getters and values derived on an Entity
-- [side-effects](references/side-effects.md) - a mutation response that changes other entities
-- [sorting-client-side](references/sorting-client-side.md) - sorting a list from the cache
+Each guide holds a complete working example: the API response, the schema and the component. Find the row
+that matches the task and read that section before writing code.
+
+## Relationships
+
+All in [relational-data](references/relational-data.md):
+
+| Situation | Section | Technique |
+|---|---|---|
+| A response embeds related objects (a post with its `author` and `comments`) | "Nesting" | name each nested Entity in `static schema` |
+| A response has only the id of a related object that another endpoint returns (`userId`, `author_id`) | "Client side joins" | `process()` copies the id to a field that `static schema` maps to the other Entity |
+| No response has the other side of a relationship: a user's posts when only posts embed their author, a comment's post, any parent's children or child's parent | "Reverse lookups" | the nested entity's `process(value, parent, key)` stores the parent's id; `merge()` joins the id lists |
+| Two Entity classes refer to each other: circular import, class used before it is defined | "Circular dependencies" | set `A.schema` after both classes exist; `import type` in one direction |
+
+## Other use cases
+
+| Use case | Read | Technique |
+|---|---|---|
+| A value computed from one entity's own fields (full name, line total) | "Singular computations" in [computed-properties](references/computed-properties.md) | a getter on the Entity |
+| A value computed across many entities (cart total, unread count, grouping) | "Global computations" in [computed-properties](references/computed-properties.md) | a `Query`, read with `useQuery()` |
+| List items have fewer fields than the detail endpoint; a detail page opened from the list shows blanks or never fetches | [partial-entities](references/partial-entities.md) | summary and full classes share `static key`; `validateRequired()` on the full one |
+| A mutation changes more than its own entity (a trade also changes the account balance) | [side-effects](references/side-effects.md) | the response returns every changed entity and the endpoint's `schema` names each; not `expireAll()` |
+| A server-sorted list must stay sorted after a create, or the client sorts by a column | [sorting-client-side](references/sorting-client-side.md) | the endpoint's `schema` is a `Query` that sorts its `Collection` |
+| A wrong or incomplete response must fail instead of rendering defaults | [validation](references/validation.md) | `static validate()` |

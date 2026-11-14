@@ -26,7 +26,7 @@ ship into the project's skill folder, then read `.claude/skills/<skill>/SKILL.md
 
 | Work | Skill | Package |
 |------|-------|---------|
-| Entities, `Collection`, `Union`, `Query`, normalization | `data-client-schema` | `endpoint` |
+| Entities, `Collection`, `Union`, `Query`, normalization, joining data from different endpoints | `data-client-schema` | `endpoint` |
 | REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` | `rest` |
 | React hooks: `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` | `react` |
 | Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` | `vue` |

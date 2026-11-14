@@ -37,6 +37,20 @@
         "`PostView` keeps the default `pk()` (or returns `this.id`); it does not read `this.post.id` in `pk()`.",
         "When the input has no `post` (a delete or partial update sends just `{ id }`), `process()` keeps the incoming `id` instead of throwing, e.g. `processed.post?.id ?? processed.id`."
       ]
+    },
+    {
+      "id": 4,
+      "name": "reverse-lookup",
+      "prompt": "Add a profile page at /users/:id. It shows the user's name, the posts they wrote, and the comments they wrote, each comment with the title of the post it is on.\n\nThe feed (src/pages/Feed.tsx) already loads `PostResource.getList` from `GET /api/posts`, which returns:\n\n```json\n[\n  {\n    \"id\": \"1\",\n    \"title\": \"My first post!\",\n    \"author\": { \"id\": \"123\", \"name\": \"Paul\" },\n    \"comments\": [\n      { \"id\": \"249\", \"content\": \"Nice post!\", \"commenter\": { \"id\": \"245\", \"name\": \"Jane\" } },\n      { \"id\": \"250\", \"content\": \"Thanks!\", \"commenter\": { \"id\": \"123\", \"name\": \"Paul\" } }\n    ]\n  }\n]\n```\n\n`GET /api/users/:id` returns only `{ \"id\", \"name\" }`. The API has no endpoint for a user's posts or comments, and we can't change the API. Opening a profile from the feed must not refetch the feed or make a request per post or comment. Resources are in src/resources/Post.ts.",
+      "expected_output": "User gets posts and comments, and Comment its post, in the schema: process() reads parent and key to store the id it was nested under, merge() joins the id lists without repeats, and the schemas are set after the classes. The profile reads UserResource.get.",
+      "files": [],
+      "assertions": [
+        "Reads the \"Reverse lookups\" section of references/relational-data.md before editing.",
+        "The reverse relationships live in the schema layer: `process()` with `parent`/`key` plus `merge()`, or a `Query` over `All`. The component does not filter the feed's list or build a lookup map.",
+        "With `merge()`, a second fetch of `/api/posts` does not list a post or comment twice.",
+        "A comment fetched or nested outside a post keeps its post.",
+        "No new endpoint, no refetch of the feed, and no request per post or comment."
+      ]
     }
   ]
 }
