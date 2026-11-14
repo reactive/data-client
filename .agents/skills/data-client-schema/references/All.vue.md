@@ -10,6 +10,13 @@ Retrieves all entities in cache as an Array.
   \_ `value`: The input value of the entity.
   \_ `parent`: The parent object of the input array. \* `key`: The key at which the input array appears on the parent object.
 
+`All` has no list of its own: it is every entity of one kind in the store, from any response. Use it in a
+[Query](./Query.vue.md) for a result that no response has, computed from each entity's current fields: the todos that
+are not done, the total of every cart item, an author's posts when a post can change its author. The Query runs
+when it is read, and again each time any entity of that kind changes. When a response has the list, use a
+[Collection](./Collection.vue.md). When an entity must nest a list that no response has, use a
+[reverse lookup](./relational-data.vue.md#reverse-lookups).
+
 ## Instance Methods
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `All` constructor. This method tends to be useful for creating circular references in schema.

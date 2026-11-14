@@ -210,4 +210,4 @@ Apply skill "data-client-react" or "data-client-vue" for usage.
 
 - [GQLEndpoint](https://dataclient.io/graphql/api/GQLEndpoint) - Full GQLEndpoint API
 - [GraphQL Guide](https://dataclient.io/graphql) - GraphQL usage guide
-- [Authentication Guide](references/auth.md) - Read before sending cookies or an access token with GraphQL requests
+- [Authentication Guide](references/auth.md) - Cookies and tokens on GraphQL requests

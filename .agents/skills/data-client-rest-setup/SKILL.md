@@ -102,9 +102,5 @@ If the codebase validates responses with Zod or Yup, keep that by parsing in `pr
 2. Apply skill "data-client-rest" for resource and endpoint patterns.
 3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue".
 
-Read before writing the base endpoint's auth:
-
-- [Authentication](references/auth.md) when requests send cookies, a bearer token or JWT, or a token held in React
-  context or Vue provide/inject.
-- [Django REST Framework](references/django.md) when the backend is Django: cookie auth needs the CSRF token header on
-  every mutation.
+Auth on the base endpoint: [Authentication](references/auth.md); with a Django backend,
+[Django REST Framework](references/django.md) (CSRF header).

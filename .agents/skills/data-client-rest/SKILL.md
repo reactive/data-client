@@ -191,26 +191,25 @@ For detailed API documentation, see the [references](references/) directory:
 - [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.md](references/_EndpointLifecycle.md);[RestEndpoint.js](references/RestEndpoint.js) - Single REST endpoint
 - Entity, Collection and other schemas: skill "data-client-schema"
 - [Fixtures](references/Fixtures.md) - Mock data for testing
-- [data-dependency](references/data-dependency.md);[_useLive.md](references/_useLive.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Rendering guide: how components read an endpoint, and where loading and error boundaries go
-- [mutations](references/mutations.md);[_useLoading.md](references/_useLoading.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide: how components call create, update and delete endpoints
+- [data-dependency](references/data-dependency.md);[_useLive.md](references/_useLive.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Where data dependencies and their loading and error fallbacks go in the component tree
+- [mutations](references/mutations.md);[_useLoading.md](references/_useLoading.md);[_VoteDemo.md](references/_VoteDemo.md) - Create, update and delete from a component, with optimistic updates and pending state
 
 ## Guides by use case
 
-Each guide holds complete working examples. Find the row that matches the task and read that section before writing
-code.
+Each guide holds working code. Read the matching section before writing code.
 
 | Use case | Read | Technique |
 |---|---|---|
-| Requests need credentials: cookies, a bearer token or JWT, a login or logout call | "Cookie Auth" and "Access Tokens or JWT" in [auth](references/auth.md) | `getRequestInit()` for `credentials`, `getHeaders()` for a token, on a shared base endpoint |
-| The token lives in React context or Vue provide/inject (Auth0, Okta), which an endpoint class cannot read | "Auth Headers from" in [auth](references/auth.md) | [`hookifyResource()`](references/hookifyResource.md) |
-| A `401` must log the user out | skill "data-client-manager" (`LogoutManager`) | |
-| A list loads in pages: "load more", infinite scroll, cursor, offset or page number | "Expanding Lists" and "Infinite Scrolling" in [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) | `paginationField` and `getList.getPage`, which append to the list in place |
-| The next-page token arrives in a response header (`Link`), or one endpoint without a resource is paginated | "Tokens in HTTP Headers" and "Using RestEndpoint Directly" in [pagination](references/pagination.md) | `parseResponse()` adds the header to the body; `RestEndpoint` `paginationField` |
-| The UI must change before the server answers: toggles, votes, likes, drag and drop | "Resources" and "Optimistic Transforms" in [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) | `optimistic: true`; `getOptimisticResponse()` for other endpoints |
-| Fast repeated mutations end on the wrong value, or an older response replaces a newer one | "Compensating for Server timing variations" in [optimistic-updates](references/optimistic-updates.md) | send `updatedAt`, compare it in `Entity.shouldReorder()` |
-| The API's shape differs from the app's: `snake_case` keys, dates or decimals as strings, a primary key missing from the response or nested, data in response headers | the matching section of [network-transform](references/network-transform.md) | `process()` / `getRequestInit()` / `parseResponse()` on the endpoint; `Entity.schema` for field types |
-| Downloading a file or another non-JSON response | "File download" in [network-transform](references/network-transform.md#file-download) | `content: 'blob'` |
-| Data refetches too often or not often enough; a button must refresh it; a view must show loading again instead of old data | [expiry-policy](references/expiry-policy.md) | `dataExpiryLength`, `invalidIfStale`; `ctrl.fetch()` / `ctrl.expireAll()`; `ctrl.invalidate()` |
-| A failed refetch should keep showing the last data, or must replace it with the error | [error-policy](references/error-policy.md) | `errorPolicy()` returns `'soft'` or `'hard'` |
+| Requests need credentials | [auth](references/auth.md) | `getRequestInit()` for cookies, `getHeaders()` for a token, on a shared base endpoint |
+| The token is in React context or Vue provide/inject | "Auth Headers from" in [auth](references/auth.md) | [`hookifyResource()`](references/hookifyResource.md) |
+| A `401` logs the user out | skill "data-client-manager" | `LogoutManager` |
+| A list loads in pages | [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) | `paginationField` and `getList.getPage`, which adds each page to the list |
+| The next-page token is in a response header | "Tokens in HTTP Headers" in [pagination](references/pagination.md) | `parseResponse()` adds the header to the body |
+| The UI changes before the server answers | [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) | `optimistic: true` on a resource; `getOptimisticResponse()` on other endpoints |
+| Responses can arrive out of order | "Compensating for Server timing variations" in [optimistic-updates](references/optimistic-updates.md) | compare `updatedAt` in `Entity.shouldReorder()` |
+| The API's shape differs from the app's (key case, field types, primary key, headers) | [network-transform](references/network-transform.md) | `process()` / `getRequestInit()` / `parseResponse()` on the endpoint; `Entity.schema` for field types |
+| A response is not JSON | "File download" in [network-transform](references/network-transform.md#file-download) | `content: 'blob'` |
+| How long data stays fresh, and refreshing it on demand | [expiry-policy](references/expiry-policy.md) | `dataExpiryLength`, `invalidIfStale`; `ctrl.fetch()` / `ctrl.expireAll()`; `ctrl.invalidate()` |
+| What shows when a refetch fails | [error-policy](references/error-policy.md) | `errorPolicy()`: `'soft'` keeps the last data, `'hard'` replaces it with the error |
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**
