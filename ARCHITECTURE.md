@@ -32,14 +32,15 @@ flowchart LR
    through Controller: `ctrl.fetch()`, `ctrl.set()`, `ctrl.invalidate()`.
 2. Actions pass through the Managers' `middleware` in order, as in
    [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware). A Manager can consume an
-   action: `NetworkManager` consumes a fetch, and dispatches the response as a new action.
+   action: [NetworkManager](https://dataclient.io/docs/api/NetworkManager) consumes a fetch, and dispatches the
+   response as a new action.
 3. The reducer computes the next state. It writes data through the action's schema: each Entity's `pk()`, `process()`
    and `merge()` decide what the store keeps.
 4. Hooks and composables read the state through the schema, and their components render again.
 
-The reducer is pure, and so are the schema methods and `getOptimisticResponse()` that it calls. So Managers orchestrate
-the store's side effects. Fetching is one: `NetworkManager` calls the endpoint and dispatches the response. A Manager
-for a websocket does the same with each message.
+The reducer has no side effects, and the schema methods and `getOptimisticResponse()` that it calls must have none
+either. So Managers orchestrate the store's side effects. Fetching is one: `NetworkManager` calls the endpoint and
+dispatches the response. A Manager for a websocket does the same with each message.
 [Managers and Middleware](https://dataclient.io/docs/concepts/managers) has the full flow.
 
 ## Where a concern goes
