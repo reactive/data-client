@@ -177,34 +177,41 @@ small {
 }
 
 /* Wide screens: the doc column grows past the prose, which keeps a readable
-   measure, so side-by-side embeds (`wide-embed`: row Playgrounds, DiffEditor,
-   StackBlitz, Grid) get room for both sides. Infima's xl container (1320px)
-   gives the column 958px beside the TOC: the prose measure. Below it the
-   column is never wider, so narrower screens are unchanged */
+   measure in the column's middle, so side-by-side embeds (`wide-embed`: row
+   Playgrounds, DiffEditor, StackBlitz, Grid) reach out evenly on both sides
+   of it. Infima's xl container (1320px) gives the column 958px beside the
+   TOC: the prose measure. Below it the column is never wider, so narrower
+   screens are unchanged. The column is the `doc` container that components'
+   container queries measure */
 .docs-wrapper main > .container {
   --ifm-container-width-xl: 1680px;
 }
-.theme-doc-markdown {
+.docs-wrapper main > .container > .row > .col:first-child {
   --doc-prose-width: 958px;
+  /* the most an embed takes, on a page without a TOC */
+  --doc-wide-width: 1280px;
+  container: doc / inline-size;
 }
-/* :where() so a component's own max-width wins; an ancestor of an embed
-   (Tabs, say) widens with it */
-:where(.theme-doc-markdown > :not(.wide-embed, :has(.wide-embed))) {
+.docs-wrapper main > .container > .row > .col:first-child > * {
   max-width: var(--doc-prose-width);
+  margin-inline: auto;
+}
+/* an embed, or the block holding one (Tabs, say) */
+.theme-doc-markdown > :is(.wide-embed, :has(.wide-embed)) {
+  margin-inline: min(
+    0px,
+    (var(--doc-prose-width) - min(100cqw, var(--doc-wide-width))) / 2
+  );
 }
 
 /* a diagram beside the doc text after it, or under it when the doc column is
    too narrow for both */
-.theme-doc-markdown {
-  container: doc / inline-size;
-}
 .theme-doc-markdown .doc-float {
   display: block;
   float: right;
   width: 440px;
   max-width: 100%;
-  /* at the prose's right edge, where the column is wider than the prose */
-  margin: 0 max(0px, 100cqw - var(--doc-prose-width)) 1rem 1.25rem;
+  margin: 0 0 1rem 1.25rem;
 }
 @container doc (max-width: 700px) {
   .theme-doc-markdown .doc-float {
