@@ -62,7 +62,7 @@ export default function DiffEditor({ children, caption }: Props) {
   // Caption and callouts render outside the editor so they are always in the
   // server-rendered HTML, whether or not Monaco loads.
   return (
-    <figure className={clsx(styles.figure, 'wide-embed')} ref={ref}>
+    <figure className={styles.figure} ref={ref}>
       {caption && (
         <figcaption className={styles.caption}>
           {typeof caption === 'string' ? inlineCode(caption) : caption}

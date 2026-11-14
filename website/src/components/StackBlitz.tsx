@@ -52,7 +52,7 @@ export default function StackBlitz({
   // A media query (not useWindowSize) keeps the SSR markup right on first paint;
   // the hidden iframe never intersects, so it never loads on phones.
   return (
-    <div className="wide-embed">
+    <>
       <div className={styles.card}>
         <p className={styles.cardTitle}>
           {app ?
@@ -106,6 +106,6 @@ export default function StackBlitz({
           <Translate id="stackblitz.moreDemos">More Demos</Translate>
         </Link>
       </p>
-    </div>
+    </>
   );
 }

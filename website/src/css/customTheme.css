@@ -176,45 +176,34 @@ small {
   }
 }
 
-/* Docs: the prose keeps a readable measure (958px, the doc column's width
-   beside the TOC in Infima's 1320px container), in the middle of the doc
-   column. On wide screens a 1680px container makes the column wider than
-   that (the TOC, a quarter of the row, widens a little too), and
-   side-by-side embeds (`wide-embed`: row Playgrounds, DiffEditor,
-   StackBlitz, Grid) reach out evenly on both sides of the prose into it.
-   Pages with a TOC only grow a column past 958px on such screens; pages
-   without one cap their prose at 958px too. The column is the `doc`
+/* Docs: everything in the doc column keeps the prose's measure (958px, the
+   column's width beside the TOC in Infima's 1320px container), at its left.
+   On wide screens a 1680px container makes the column wider than that (the
+   TOC, a quarter of the row, widens a little too), and a row Playground
+   (`wide-embed`) reaches into the room on the right, which its preview
+   takes. Pages with a TOC only get a column past 958px on such screens;
+   pages without one cap their prose at 958px too. The column is the `doc`
    container that components' container queries measure */
 .docs-wrapper main > .container {
   --ifm-container-width-xl: 1680px;
 }
 .docs-wrapper main > .container > .row > .col:first-child {
   --doc-prose-width: 958px;
-  /* the most an embed takes, on a page without a TOC */
-  --doc-wide-width: 1280px;
+  /* the most a wide embed takes: a row Playground's preview gains little
+     past about 36rem */
+  --doc-wide-width: 1200px;
   container: doc / inline-size;
 }
 .docs-wrapper main > .container > .row > .col:first-child > * {
   max-width: var(--doc-prose-width);
-  margin-inline: auto;
 }
-/* half of what the column (100cqw, up to --doc-wide-width) has past the
-   prose, out on each side; none while the column is no wider. An embed in
-   Tabs reaches out the same: the block holding it is prose-wide too. No
-   :has() here: Monaco changes the DOM on every keystroke (Playground
-   README) */
+/* what the column (100cqw, up to --doc-wide-width) has past the prose, out
+   on the right; none while the column is no wider */
 .theme-doc-markdown .wide-embed {
-  margin-inline: calc(
-    -1 *
-      max(
-        0px,
-        (min(100cqw, var(--doc-wide-width)) - var(--doc-prose-width)) / 2
-      )
+  margin-right: min(
+    0px,
+    var(--doc-prose-width) - min(100cqw, var(--doc-wide-width))
   );
-}
-/* one inside another (DiffEditor's Grid) fills it */
-.theme-doc-markdown .wide-embed .wide-embed {
-  margin-inline: 0;
 }
 
 /* a diagram beside the doc text after it, or under it when the doc column is
