@@ -11,13 +11,17 @@ it (endpoints). Hooks or composables are the runtime in the view framework. [Man
 runtime outside it: they connect the store to sockets, timers, browser events, other tabs, logging and reporting
 services. A Manager is to the store what `useEffect` is to a component.
 
-A Manager works in two directions:
+The store follows [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): data flows one way. Every
+change is an [action](references/Actions.md). An action passes through each Manager's `middleware` to the reducer,
+the reducer computes the next state, and components render from that state. The middleware works like
+[redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware), except that `next()` returns
+a `Promise`. As in redux, the reducer is pure, so side effects go in middleware. A Manager meets the world outside at
+two points of this flow, and changes the store only by dispatching:
 
-- **In**: an outside event changes the store through [Controller](references/Controller.md): a socket message, a
-  timer, a window focus.
-- **Out**: a store [action](references/Actions.md) causes an effect outside the store, from the Manager's
-  [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware): a log line, a toast, a
-  report.
+- **An outside event becomes an action**: the Manager dispatches it through [Controller](references/Controller.md).
+  A socket message, a timer, a window focus.
+- **An action causes an outside effect**: the middleware sees each action on its way to the reducer. A request, a log
+  line, a toast, a report.
 
 A Manager does not define data. What the data is stays in the schema, also when a Manager delivers it: the Manager
 calls `controller.set()`, and the Entity's `process()` and `merge()` decide what the store keeps. Data joined, derived,
