@@ -33,6 +33,11 @@ This accepts any [Queryable](/rest/api/schema#queryable) schema: [Entity](./Enti
 Takes the (denormalized) response as entries and arguments and returns the new
 response for use with [useQuery](/docs/api/useQuery)
 
+The arguments go to `schema` as well, which uses them to find its data. A [Collection](./Collection.md)
+is the list that was fetched with those same arguments, so `useQuery(query, { userId })` finds nothing
+unless `getList({ userId })` was fetched. To filter by an argument the list was not fetched with, use
+[All](./All.md) as the schema ([Aggregates](#aggregates) does).
+
 ## Usage
 
 ### Maintaining sort after creates {#sorting}

@@ -44,6 +44,16 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
   );
   ```
 
+  `useQuery(query, ...args)` passes `args` to the schema too. `getList.schema` is the list fetched with those
+  same args, so `useQuery(query, { userId })` finds nothing unless `getList({ userId })` was fetched. To filter
+  by an arg the list was not fetched with, query every stored entity:
+  ```ts
+  const queryTodosByUser = new Query(
+    new All(Todo),
+    (todos, { userId }: { userId: string }) => todos.filter(todo => todo.userId === userId),
+  );
+  ```
+
   Define `Query` transformations with the data model (e.g. `src/resources/`) — not inside custom hooks
   wrapping useSuspense/useQuery, which hides data dependencies and couples data logic to view code.
 
