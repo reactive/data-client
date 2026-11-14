@@ -99,7 +99,7 @@
       "assertions": [
         "A Manager connects the socket in `init()` and closes it in `cleanup()`; it is not opened in a component or a `useEffect()`.",
         "Each socket message is written to the store with `controller.set()` so that the sensor's `latest` changes.",
-        "The history is defined in the schema (the Entity's `process()` and `merge()`, or a `Query`), not built by the Manager.",
+        "The history is defined in the schema, not built by the Manager: `Sensor` nests the readings, with `process()` and a `merge()` that joins the ids.",
         "The Manager does not copy `SET_RESPONSE` payloads or socket messages into a second entity or a field of its own.",
         "`DataProvider` gets `managers` as a module-level function that lists the new Manager before `...getDefaultManagers()`."
       ]
