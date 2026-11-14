@@ -20,19 +20,25 @@ or store changes, follow `../data-client-setup/references/data-client-rest-setup
 
 ## Set up
 
-Load the skill for the work. If it isn't available by name but its package is installed, run
-`npx --no data-client-skills` (`pnpm exec`, `yarn`) from the project root, which links the skills the installed packages
-ship into the project's skill folder, then read `.claude/skills/<skill>/SKILL.md`.
+Data Client separates defining data from running it. The definition does not depend on a view framework: schemas say
+what the data is (nouns), and endpoints are the operations on that data (verbs). At runtime, hooks or composables
+connect the data to the view framework, and Managers connect it to the world outside the framework, as `useEffect`
+connects a component to what is outside React.
 
-| Work | Skill | Package |
-|------|-------|---------|
-| Entities, `Collection`, `Union`, `Query`, normalization, joining data from different endpoints | `data-client-schema` | `endpoint` |
-| REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` | `rest` |
-| React hooks: `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` | `react` |
-| Vue composables: `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` | `vue` |
-| Tests | `data-client-react-testing` or `data-client-vue-testing` | `react` or `vue` |
-| Make data loading, navigation or mutations faster; the performance pass after a migration | `data-client-performance` | `react` |
-| WebSockets, SSE, polling, global side effects | `data-client-manager` | `core` |
+Put each part of the work in its layer and load that layer's skill. One task can need several. If a skill isn't
+available by name but its package is installed, run `npx --no data-client-skills` (`pnpm exec`, `yarn`) from the
+project root, which links the skills the installed packages ship into the project's skill folder, then read
+`.claude/skills/<skill>/SKILL.md`.
+
+| Layer | Work | Skill | Package |
+|-------|------|-------|---------|
+| Schema: what the data is | Entities, `Collection`, `Union`, `Query`, normalization. Every shape of data, also one no response has: joined across endpoints, derived, or kept from earlier responses | `data-client-schema` | `endpoint` |
+| Endpoint: operations on the data | REST endpoints: `resource()`, `RestEndpoint` | `data-client-rest` | `rest` |
+| Hooks: runtime in React | `useSuspense`, `useController`, `useLive`, `DataProvider` | `data-client-react` | `react` |
+| Composables: runtime in Vue | `useSuspense`, `useController`, `DataClientPlugin` | `data-client-vue` | `vue` |
+| Manager: runtime outside the framework | WebSockets, SSE, polling, global side effects. A Manager moves data into and out of the store; the schema defines the data's shape | `data-client-manager` | `core` |
+| | Tests | `data-client-react-testing` or `data-client-vue-testing` | `react` or `vue` |
+| | Make data loading, navigation or mutations faster; the performance pass after a migration | `data-client-performance` | `react` |
 
 To add a protocol the app doesn't depend on yet, move axios or fetch calls to REST endpoints, write GraphQL queries or
 wrap async functions, follow its guide in `data-client-setup` (`../data-client-setup/references/`):

@@ -1,13 +1,27 @@
 ---
 name: data-client-manager
-description: "Write @data-client Managers for app-wide side effects and real-time data such as websockets, SSE and polling: code that reacts to every request or to events from outside the app and updates the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync."
+description: "Write @data-client Managers, the runtime layer that connects the store to the world outside the view framework: app-wide side effects and real-time data such as websockets, SSE and polling. A Manager reacts to every request or to events from outside the app, and moves data into or out of the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync. Not for the shape of data: data built from responses (joined, derived, or kept from earlier responses) is defined in a schema, so use data-client-schema."
 license: Apache 2.0
 ---
 
-# Guide: Using `@data-client` Managers for global side effects
+# Managers: the store's interface with the world outside the framework
 
-[Managers](references/managers.md) handle global side-effects. Kind of like useEffect() for the central data store.
-They interface with the store using [Controller](references/Controller.md), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](references/Actions.md).
+Data Client separates concerns into layers. Schemas define what the data is, and endpoints define the operations on
+it. Hooks or composables connect the store to the view framework. [Managers](references/managers.md) connect the store
+to everything else: sockets, timers, browser events, other tabs, logging and reporting services. A Manager is to the
+store what `useEffect` is to a component.
+
+A Manager works in two directions:
+
+- **In**: an outside event changes the store through [Controller](references/Controller.md): a socket message, a
+  timer, a window focus.
+- **Out**: a store [action](references/Actions.md) causes an effect outside the store, from the Manager's
+  [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware): a log line, a toast, a
+  report.
+
+A Manager does not define data. What the data is stays in the schema, also when a Manager delivers it: the Manager
+calls `controller.set()`, and the Entity's `process()` and `merge()` decide what the store keeps. Data joined, derived,
+or kept from earlier responses needs no Manager of its own: write it in the schema (skill "data-client-schema").
 
 ## Single Responsibility
 
