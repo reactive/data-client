@@ -54,8 +54,9 @@ the endpoint, and dispatches the response. A Manager for a websocket does the sa
   a Manager moves data and never defines it.
 - **State changes only by an action.** Managers and components dispatch through Controller. Nothing else writes to the
   store.
-- **Hooks and composables hold no cache logic.** They read the store and dispatch through Controller, so React and Vue
-  share one runtime.
+- **Hooks and composables keep no cache of their own.** Controller reads the data and its expiry status from the
+  store. A hook uses them to decide when to fetch and what its component gets meanwhile. So the React and Vue packages
+  are thin adapters over the same store and Controller.
 - **A component names its data and does not build it.** It passes an endpoint or a `Query` to a hook. It does not
   build a request or join data.
 
