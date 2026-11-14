@@ -238,11 +238,11 @@ app.mount('#app');
 
 Data Client keeps three layers apart. When setup or a migration moves app code, put each part in its layer:
 
-- **Data definition**, which imports no view framework. Schemas say what the data is (nouns). Endpoints are the
-  operations on that data (verbs).
-- **Runtime in the view framework**: hooks or composables, in the component that renders the data.
-- **Runtime outside the view framework**: Managers, for side effects and events from outside the app, such as error
-  reporting, sockets and logging.
+- **API definition**, which imports no view framework. Schemas declare the data model (nouns). Endpoints are the
+  methods on that data (verbs).
+- **Runtime in the view framework**: hooks or composables bind the data in the component that renders it.
+- **Runtime outside the view framework**: Managers, the bridge to the world outside the app: global side effects and
+  outside events, such as error reporting, sockets and logging.
 
 So a component names its data and does not build a request or join data, and a Manager does not define data.
 

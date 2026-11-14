@@ -1,29 +1,26 @@
 ---
 name: data-client-manager
-description: "Write @data-client Managers, the runtime layer that connects the store to the world outside the view framework: app-wide side effects and real-time data such as websockets, SSE and polling. A Manager reacts to every request or to events from outside the app, and moves data into or out of the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync. Not for the shape of data: data built from responses (joined, derived, or accumulated) is defined in a schema, so use data-client-schema."
+description: "Write @data-client Managers, the runtime layer that bridges the store to the world outside the view framework: global side effects and real-time data such as websockets, SSE and polling. A Manager reacts to every request or to events from outside the app, and moves data into or out of the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync. Not for the shape of data: data built from responses (joined, derived, or accumulated) is defined in a schema, so use data-client-schema."
 license: Apache 2.0
 ---
 
-# Managers: the store's interface with the world outside the view framework
+# Managers: the store's bridge to the world outside the view framework
 
-Data Client keeps three layers apart. The data definition says what the data is (schemas) and gives the operations on
-it (endpoints). Hooks or composables are the runtime in the view framework. [Managers](references/managers.md) are the
-runtime outside it: they connect the store to sockets, timers, browser events, other tabs, logging and reporting
-services. A Manager is to the store what `useEffect` is to a component.
+Data Client keeps three layers apart. The API definition is the declarative data model (schemas) and the methods on it
+(endpoints). Hooks or composables are the runtime in the view framework. [Managers](references/managers.md) are the
+runtime outside it: they bridge the store to sockets, timers, browser events, other tabs, logging and reporting
+services, as `useEffect` bridges a component to what is outside React.
 
-The store follows [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): data flows one way. Every
-change is an [action](references/Actions.md). An action passes through each Manager's `middleware` to the reducer,
-the reducer computes the next state, and components render from that state. The middleware works like
-[redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware), except that `next()` returns
-a `Promise`. As in redux, the reducer is pure, so side effects go in middleware. A Manager meets the world outside at
-two points of this flow, and changes the store only by dispatching:
+The store is [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): unidirectional data flow through a
+pure reducer. Managers orchestrate its global side effects, in two directions:
 
-- **An outside event becomes an action**: the Manager dispatches it through [Controller](references/Controller.md).
-  A socket message, a timer, a window focus.
-- **An action causes an outside effect**: the middleware sees each action on its way to the reducer. A request, a log
-  line, a toast, a report.
+- **In**: an outside event becomes an [action](references/Actions.md), dispatched through
+  [Controller](references/Controller.md): a socket message, a timer, a window focus.
+- **Out**: an action causes an effect outside the store, from the Manager's
+  [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware): a log line, a toast, a
+  report.
 
-A Manager does not define data. What the data is stays in the schema, also when a Manager delivers it: the Manager
+A Manager does not define data. The data model stays in the schema, also when a Manager delivers the data: the Manager
 calls `controller.set()`, and the Entity's `process()` and `merge()` decide what the store keeps. Data joined, derived,
 or accumulated from responses needs no Manager of its own: write it in the schema (skill "data-client-schema").
 
