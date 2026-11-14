@@ -156,7 +156,7 @@ step that owns the change, never `fetch` itself (that replaces the whole lifecyc
 
 ## 4. **Extending Resources**
 
-Use `.extend()` to add or override endpoints.
+Use `.extend()` to add or override endpoints. To add endpoints, return them from the function form:
 
 ```typescript
 export const IssueResource = resource({
@@ -166,8 +166,12 @@ export const IssueResource = resource({
     path: '/search/issues',
     // ...custom schema or params...
   }),
+  lock: new RestEndpoint({ path: '/issues/:id/lock', method: 'PUT', schema: Issue }),
 }));
 ```
+
+The object form, `.extend({ getList: { path } })`, only changes the options of endpoints the resource already
+has. A new name there throws.
 
 ---
 
