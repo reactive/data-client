@@ -23,11 +23,6 @@ item, an author's posts when a post can change its author. The Query runs when i
 any entity of that kind changes. When a response has the list, use a [Collection](./Collection.md). When an
 entity must nest a list that no response has, use a [reverse lookup](../guides/relational-data.md#reverse-lookups).
 
-`All` has only the entities in the store.
-:react[[Garbage collection](/docs/api/DataProvider#gcPolicy)]:vue[[Garbage collection](/docs/api/DataClientPlugin#gcPolicy)]
-removes an entity after components stop using it, once it has gone stale. An entity stays in the store while a
-component uses it, or uses an entity that nests it.
-
 ## Instance Methods
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `All` constructor. This method tends to be useful for creating circular references in schema.
