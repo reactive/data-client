@@ -337,40 +337,13 @@ Example app: [coin-app](https://github.com/reactive/data-client/tree/master/exam
 
 Nesting data when your endpoint doesn't (part 2).
 
-A response can nest in one direction only. Here `/posts` nests each post's `author` and each comment's
-`commenter`. No response lists a user's posts or comments, and a comment does not name its post.
-
-Decide first if the entity must nest the relationship. Nesting puts it in the data, not only on the screen: a
-[Query](./Query.md) can sort users by their posts, and every component that has a user reads `user.posts`. A
-list that one component reads for itself is not there for a sort or for another schema.
-
-Then check whether a response has the list:
-
-| `user.posts`                                                                                       | Use                                                                     |
-| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| A response has it: the user response nests it, or an endpoint returns it (`GET /posts?author=123`) | A [Collection](./Collection.md) with [nestKey](./Collection.md#nestKey) |
-| No response has it                                                                                 | A reverse lookup (this section)                                         |
-
-A `Collection` is the server's list. Each fetch replaces it, and [push](./Collection.md#push),
-[remove](./Collection.md#remove) and [move](./Collection.md#move) keep it current after a mutation, so it
-needs no custom `merge()`. A reverse lookup is a list that no response has: the store collects it one member at a
-time. It cannot fill a `Collection`, because each post would replace the list, and only the last of a user's posts
-would stay.
-
-To add the reverse relationship, override [Entity.process](./Entity.md#process). Its `parent` and `key`
-arguments tell where the entity was nested: a `User` under a post's `author` key adds that post's id to its own
-`posts`. The same user can be nested many times, each time with another post or comment. So also override
-[Entity.merge](./Entity.md#merge) to join those lists; the default merge keeps only the last one.
-
-`key` is enough here. Only a post nests an `author`, and only a post nests comment objects under `comments`: a
-user's `comments` holds the ids that `process()` added, and `process()` does not run for an id. When two kinds of
-parent nest objects under the same key, also check a field that only one of them has.
-
-Then one fetch gives every view of the relationship, with no fetch per view.
+A response nests in one direction only. Here `/posts` nests each post's `author`, but no response lists a user's
+posts. A reverse lookup builds that list on the client, so one fetch of `/posts` also gives each user's `posts`
+and `comments`. Click a name to see them.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
-```typescript title="resources/Post"
+```typescript title="resources/Post" {9-20,22-30}
 import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
@@ -524,28 +497,44 @@ export default function PostPage() {
 }
 ```
 
-The reverse fields change with the store:
+[Entity.process()](./Entity.md#process) runs for each nested entity, with the `parent` and `key` that nest
+it. [Entity.merge()](./Entity.md#merge) then joins the copies of one entity:
+
+```ts
+// post 1 nests Paul as its `author`, so process() adds that post's id
+User.process({ id: '123', name: 'Paul' }, post1, 'author');
+// => { id: '123', name: 'Paul', posts: ['1'] }
+
+// post 2 nests Paul too, so merge() joins both copies
+User.merge(
+  { id: '123', name: 'Paul', posts: ['1'] },
+  { id: '123', name: 'Paul', posts: ['2'] },
+);
+// => { id: '123', name: 'Paul', posts: ['1', '2'] }
+```
+
+The default `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in the same way.
+
+### When to use
+
+Nest a list in an entity when the data must have it, not only the screen. For example, a
+[Query](./Query.md) that sorts users by `user.posts` reads it before any component renders. Then choose by
+where the list is:
+
+- **A response has the list** (the user response nests it, or `GET /posts?author=123` returns it): use a
+  [Collection](./Collection.md) with [nestKey](./Collection.md#nestKey). Each fetch replaces the list, and
+  [push](./Collection.md#push), [remove](./Collection.md#remove) and [move](./Collection.md#move)
+  keep it current. It needs no custom `merge()`.
+- **No response has the list**: use a reverse lookup.
+
+### After a mutation
 
 - **Create.** A new post or comment runs the same `process()`, so it joins the list. This is true for
   [push](https://dataclient.io/rest/api/RestEndpoint#push) and for each new page.
 - **Delete.** A deleted post or comment leaves the list. A list skips entities that are not in the store.
-- **Move.** A post with a new `author` joins the new author's `posts`. It also stays in the old author's `posts`,
-  because `merge()` only adds ids.
-
-A reverse lookup cannot follow a move. If a relationship can move, do not store the list on the entity. Derive it
-where it is read, with a [Query](./Query.md) over [All](./All.md). The Query reads the current `author`
-of each post. It runs when it is read, and again each time any post changes:
-
-```ts
-import { All, Query } from '@data-client/rest';
-import { Post } from './resources/Post';
-
-export const queryPostsByAuthor = new Query(
-  new All(Post),
-  (posts, { userId }: { userId: string }) =>
-    posts.filter(post => post.author.id === userId),
-);
-```
+- **Move.** A post with a new `author` joins the new author's `posts`, and stays in the old author's: `merge()`
+  only adds ids. When a relationship can move, compute the list where it is read, with a
+  [Query](./Query.md) over [All](./All.md).
 
 ### Circular dependencies
 

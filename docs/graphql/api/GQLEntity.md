@@ -114,6 +114,10 @@ Run at the start of normalization for this entity. Return value is saved in stor
 
 **Defaults** to simply copying the response (`{...input}`)
 
+`parent` is the object that nests this entity, and `key` is the field it is under. An entity in a nested list gets
+the parent and key of the list. At the top level of a response, `key` is `undefined`. When two kinds of parent
+nest this entity under the same `key`, also check a field that only one of them has.
+
 How to override to [build reverse-lookups for relational data](/rest/guides/relational-data#reverse-lookups)
 
 ### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
