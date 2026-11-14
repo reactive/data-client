@@ -1463,6 +1463,304 @@ describe(`${schema.Collection.name} normalization`, () => {
     });
   });
 
+  describe('creation schemas match keys missing from args by the created item', () => {
+    const todos = new Collection([Todo]);
+    // each stored list starts with one todo, keyed by the args it was fetched with
+    function seed(sch: schema.Collection<any>, lists: { [k: string]: any }[]) {
+      let state: any = initialState;
+      lists.forEach((args, i) => {
+        state = apply(
+          sch,
+          [{ id: `seed${i}`, title: 'seed', userId: 1 }],
+          [args],
+          state,
+        );
+      });
+      return state;
+    }
+    // the store after normalizing input with args
+    function apply(sch: any, input: any, args: any[], state: any) {
+      return { ...state, ...normalize(sch, input, args, state) };
+    }
+    function list(sch: schema.Collection<any>, state: any, args: object): any {
+      return denormalize(
+        sch,
+        sch.pk(undefined, undefined, '', [args]),
+        state.entities,
+      );
+    }
+    function titles(sch: schema.Collection<any>, state: any, args: object) {
+      return (list(sch, state, args) as any[]).map(todo => todo.title);
+    }
+    const lists = [
+      {},
+      { userId: '1' },
+      { userId: '2' },
+      { userId: '1', completed: 'false' },
+      { userId: '1', completed: 'true' },
+      { completed: 'false' },
+    ];
+
+    it.each([
+      ['push', (s: any) => s.push, ['seed', 'new']],
+      ['unshift', (s: any) => s.unshift, ['new', 'seed']],
+    ])(
+      '%s adds to lists matching a field the server set',
+      (_, getSchema, order) => {
+        const state = seed(todos, lists);
+        // POST body { title } to { userId: '1' }; the server sets completed: false
+        const next = apply(
+          getSchema(todos),
+          { id: 'n', title: 'new', userId: 1, completed: false },
+          [{ userId: '1' }, { title: 'new' }],
+          state,
+        );
+        expect(titles(todos, next, {})).toEqual(order);
+        expect(titles(todos, next, { userId: '1' })).toEqual(order);
+        expect(
+          titles(todos, next, { userId: '1', completed: 'false' }),
+        ).toEqual(order);
+        expect(titles(todos, next, { completed: 'false' })).toEqual(order);
+        expect(titles(todos, next, { userId: '1', completed: 'true' })).toEqual(
+          ['seed'],
+        );
+        expect(titles(todos, next, { userId: '2' })).toEqual(['seed']);
+      },
+    );
+
+    it('uses args over the item when both have the key', () => {
+      const state = seed(todos, lists);
+      // the item says userId 2, but the request was for userId 1
+      const next = apply(
+        todos.push,
+        { id: 'n', title: 'new', userId: 2, completed: false },
+        [{ userId: '1' }],
+        state,
+      );
+      expect(titles(todos, next, { userId: '1' })).toEqual(['seed', 'new']);
+      expect(titles(todos, next, { userId: '2' })).toEqual(['seed']);
+    });
+
+    it('keeps a parent id path param from matching the item id', () => {
+      // GET /users/:id/followers stores lists keyed by the followed user's id
+      const followers = new Collection([User]);
+      let state: any = initialState;
+      for (const id of ['5', '7']) {
+        state = apply(followers, [{ id: `f${id}` }], [{ id }], state);
+      }
+      // POST /users/5/followers creates follower 7
+      const next = apply(followers.push, { id: '7' }, [{ id: '5' }], state);
+      const ids = (id: string) =>
+        (list(followers, next, { id }) as any[]).map(user => user.id);
+      expect(ids('5')).toEqual(['f5', '7']);
+      expect(ids('7')).toEqual(['f7']);
+    });
+
+    it('filters each pushed item on its own', () => {
+      const state = seed(todos, lists);
+      const next = apply(
+        todos.push,
+        [
+          { id: 'a', title: 'open', userId: 1, completed: false },
+          { id: 'b', title: 'done', userId: 1, completed: true },
+        ],
+        [{ userId: '1' }],
+        state,
+      );
+      expect(titles(todos, next, { userId: '1' })).toEqual([
+        'seed',
+        'open',
+        'done',
+      ]);
+      expect(titles(todos, next, { userId: '1', completed: 'false' })).toEqual([
+        'seed',
+        'open',
+      ]);
+      expect(titles(todos, next, { userId: '1', completed: 'true' })).toEqual([
+        'seed',
+        'done',
+      ]);
+    });
+
+    it('fills keys from the item when the body is not a plain object', () => {
+      const state = seed(todos, lists);
+      const body = new FormData();
+      body.append('title', 'new');
+      const next = apply(
+        todos.push,
+        { id: 'n', title: 'new', userId: 1, completed: false },
+        [{ userId: '1' }, body],
+        state,
+      );
+      expect(titles(todos, next, { userId: '1', completed: 'false' })).toEqual([
+        'seed',
+        'new',
+      ]);
+    });
+
+    it('still skips nonFilterArgumentKeys', () => {
+      const sorted = new Collection([Todo], {
+        nonFilterArgumentKeys: ['sort'],
+      });
+      const state = seed(sorted, [{ userId: '1', sort: 'title' }]);
+      const next = apply(
+        sorted.push,
+        { id: 'n', title: 'new', userId: 1, sort: 'other' },
+        [{}],
+        state,
+      );
+      expect(titles(sorted, next, { userId: '1', sort: 'title' })).toEqual([
+        'seed',
+        'new',
+      ]);
+    });
+
+    it('adds to a nested Collection by the item field', () => {
+      const userTodos = User.schema.todos;
+      let state = apply(
+        User,
+        { id: '5', todos: [{ id: 'seed', title: 'seed', userId: 5 }] },
+        [],
+        initialState,
+      );
+      state = apply(
+        userTodos.push,
+        { id: 'n', title: 'new', userId: 5 },
+        [{}],
+        state,
+      );
+      const user: any = denormalize(User, '5', state.entities);
+      expect(user.todos.map((todo: Todo) => todo.title)).toEqual([
+        'seed',
+        'new',
+      ]);
+    });
+
+    it('assign adds each Values member to the lists it matches', () => {
+      class Stat extends IDEntity {
+        exchange = '';
+        static key = 'Stat';
+      }
+      const stats = new Collection(new schema.Values(Stat));
+      let state: any = initialState;
+      for (const exchange of ['a', 'b']) {
+        state = apply(
+          stats,
+          { [`seed-${exchange}`]: { id: `seed-${exchange}`, exchange } },
+          [{ exchange }],
+          state,
+        );
+      }
+      const next = apply(
+        stats.assign,
+        {
+          x: { id: 'x', exchange: 'a' },
+          gone: null,
+          y: { id: 'y', exchange: 'b' },
+        },
+        [{}],
+        state,
+      );
+      const keys = (exchange: string) =>
+        Object.keys(list(stats, next, { exchange }));
+      expect(keys('a')).toEqual(['seed-a', 'x']);
+      expect(keys('b')).toEqual(['seed-b', 'y']);
+    });
+
+    it('matches a Union member by its type field', () => {
+      class Cat extends IDEntity {
+        type = 'cat';
+      }
+      class Dog extends IDEntity {
+        type = 'dog';
+      }
+      const pets = new Collection([new Union({ cat: Cat, dog: Dog }, 'type')]);
+      let state: any = initialState;
+      for (const type of ['cat', 'dog']) {
+        state = apply(pets, [{ id: `seed-${type}`, type }], [{ type }], state);
+      }
+      const next = apply(pets.push, { id: 'n', type: 'dog' }, [{}], state);
+      const ids = (type: string) =>
+        (list(pets, next, { type }) as any[]).map(pet => pet.id);
+      expect(ids('cat')).toEqual(['seed-cat']);
+      expect(ids('dog')).toEqual(['seed-dog', 'n']);
+    });
+
+    it('remove ignores the item fields', () => {
+      const state = seed(todos, lists);
+      // removing from userId 1's lists must not touch { completed: 'false' }
+      const next = apply(
+        todos.remove,
+        { id: 'seed5', completed: false },
+        [{ userId: '1' }],
+        state,
+      );
+      expect(titles(todos, next, { completed: 'false' })).toEqual(['seed']);
+    });
+
+    it('passes each item to a custom createCollectionFilter', () => {
+      const seen: any[] = [];
+      const custom = new Collection([Todo], {
+        createCollectionFilter:
+          () => (collectionKey: { [k: string]: string }, item?: any) => {
+            seen.push(item?.id);
+            return `${item?.userId}` === collectionKey.userId;
+          },
+      });
+      const state = seed(custom, [{ userId: '1' }]);
+      const next = apply(
+        custom.push,
+        [
+          { id: 'a', title: 'mine', userId: 1 },
+          { id: 'b', title: 'theirs', userId: 2 },
+        ],
+        [{}],
+        state,
+      );
+      expect(seen).toEqual(['a', 'b']);
+      expect(titles(custom, next, { userId: '1' })).toEqual(['seed', 'mine']);
+    });
+
+    it('leaves stored lists untouched when creating or removing nothing', () => {
+      const state = seed(todos, lists);
+      const before = state.entities[todos.key];
+      for (const sch of [todos.push, todos.remove]) {
+        const next = normalize(sch, [], [{ userId: '1' }], state);
+        expect(next.entities[todos.key]).toBe(before);
+      }
+
+      const stats = new Collection(new schema.Values(Todo));
+      const valuesState = seed(stats, [{}]);
+      const valuesBefore = valuesState.entities[stats.key];
+      for (const sch of [stats.assign, stats.remove])
+        expect(normalize(sch, {}, [{}], valuesState).entities[stats.key]).toBe(
+          valuesBefore,
+        );
+    });
+
+    it('passes the stored and merged values to a custom filter on move', () => {
+      const seen: any[] = [];
+      const custom = new Collection([Todo], {
+        createCollectionFilter:
+          () => (collectionKey: { [k: string]: string }, item?: any) => {
+            seen.push(item?.userId);
+            return `${item?.userId}` === collectionKey.userId;
+          },
+      });
+      const state = seed(custom, [{ userId: '1' }, { userId: '2' }]);
+      const next = apply(
+        custom.move,
+        { id: 'seed0', userId: 2 },
+        [{ id: 'seed0' }, { userId: 2 }],
+        state,
+      );
+      // stored values (userId 1) pick the lists it leaves; merged (userId 2) the lists it joins
+      expect(seen).toEqual([1, 2, 1, 2]);
+      expect(titles(custom, next, { userId: '1' })).toEqual([]);
+      expect(titles(custom, next, { userId: '2' })).toEqual(['seed', 'seed']);
+    });
+  });
+
   describe('remove should remove only from collections matching filterArgumentKeys', () => {
     const initializingSchema = new Collection([Todo]);
     let state = {

@@ -117,7 +117,7 @@ const userTodos = new Collection([Todo], {
 
 ### nonFilterArgumentKeys
 
-Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`: pushing with `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`, and a list arg left out of `nonFilterArgumentKeys` (such as a sort) keeps new items out of that list.
+Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`: pushing with `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`, and a list arg left out of `nonFilterArgumentKeys` (such as a sort) keeps new items out of that list. For `push`/`unshift`/`assign`, a list key the request args and body leave out matches the created item's own field in the response, so a new todo the server returns with `completed: false` also joins the stored `{ userId: 1, completed: false }` list.
 
 Override as function, RegExp, or `string[]`:
 ```ts
