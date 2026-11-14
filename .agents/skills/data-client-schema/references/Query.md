@@ -21,10 +21,11 @@ This accepts any [Queryable](./schema.md#queryable) schema: [Entity](./Entity.md
 Takes the (denormalized) response as entries and arguments and returns the new
 response for use with [useQuery](https://dataclient.io/docs/api/useQuery)
 
-The arguments go to `schema` as well, which uses them to find its data. A [Collection](./Collection.md#argsKey)
-is the list that was fetched with those same arguments, so `useQuery(query, { userId })` finds nothing
-unless `getList({ userId })` was fetched. To filter by an argument the list was not fetched with, use
-[All](./All.md) as the schema ([Aggregates](#aggregates) does).
+A Query's `schema` and its `process` both receive every argument of `useQuery(query, ...args)`, `process`
+after the entries, so check the arguments against both: they must hold what each one reads. The schema finds
+its data with them exactly as `useQuery(schema, ...args)` would; when it finds nothing, `useQuery()` returns
+`undefined` and `process` does not run. An argument meant only for `process` must be one the schema's lookup
+ignores: [All](./All.md) ignores every argument and returns every stored entity.
 
 ## Usage
 
