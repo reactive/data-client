@@ -1610,13 +1610,14 @@ div.fixtureJson + div.fixtureJson {
     /* where the Store runs on below the preview: its corner and the
        preview's foot curving into it, no deeper than that run */
     --pg-foot-curve: min(var(--pg-card-radius), var(--pg-preview-gap, 0px));
-    /* about a third, and every pixel past the code's width in the docs'
-       prose column (958px): a wider playground gives its room to the app */
-    --pg-code-col-max: 38.5rem;
+    /* about a third; in the docs, the code keeps the width it has at the
+       prose measure (css/customTheme.css), so a playground reaching past
+       the prose gives all that room to the app */
     --pg-preview-col: max(
       16rem,
       (100cqw - var(--pg-gap)) * 0.35,
-      100cqw - var(--pg-gap) - var(--pg-code-col-max)
+      100cqw - var(--pg-gap) -
+        (var(--doc-prose-width, 100cqw) - var(--pg-gap)) * 0.65
     );
     /* the preview's edge, where the drawer parks */
     --pg-fold: calc(100cqw - var(--pg-preview-col));
