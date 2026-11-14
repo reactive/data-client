@@ -88,6 +88,21 @@
         "The WebSocket is opened in `init()` and closed in `cleanup()`.",
         "PresenceManager is listed before `...getDefaultManagers()`."
       ]
+    },
+    {
+      "id": 5,
+      "name": "delivers-not-shapes",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14). With master's skills, 5 of 5 runs made the Manager build the history: its middleware copied each `SET_RESPONSE` and each socket message into a second `SensorHistory` entity. With the layers stated in this skill, 5 of 5 runs wrote a Manager that only calls `controller.set()` per message, and kept the history in `Sensor.process()` and `Sensor.merge()`.",
+      "prompt": "Two changes.\n\n1. New readings now arrive on a websocket. While the app is open, connect to `wss://feed.example.com/readings`. It sends one JSON message for each new reading:\n\n```json\n{ \"sensorId\": \"s1\", \"reading\": { \"id\": \"r9\", \"value\": 72.25, \"takenAt\": \"10:05\" } }\n```\n\nEach message must update that sensor's latest value on the overview (src/pages/Overview.tsx) without another request. Close the socket when the app goes away.\n\n2. Add a page, with its route in src/App.tsx. `src/pages/SensorPage.tsx`, default export `SensorPage({ id }: { id: string })`, at `/sensors/:id`: the sensor's name in an `<h1>`, then one `<li>` for every reading this app has received for that sensor since it opened, oldest first. Each reads `71.5 at 10:00` (the value, then `takenAt`).\n\nThe overview already loads `SensorResource.getList` from `GET /api/sensors`, which returns:\n\n```json\n[\n  { \"id\": \"s1\", \"name\": \"Boiler\", \"latest\": { \"id\": \"r1\", \"value\": 71.5, \"takenAt\": \"10:00\" } },\n  { \"id\": \"s2\", \"name\": \"Freezer\", \"latest\": { \"id\": \"r2\", \"value\": -18, \"takenAt\": \"10:00\" } }\n]\n```\n\n`GET /api/sensors/:id` returns one sensor in the same shape. The API keeps no history: a response has only a sensor's latest reading, no endpoint returns earlier ones, and we can't change the API.\n\nPeople reach a sensor's page from the overview. The page must list the readings that arrived before it was opened, from the overview's response and from the socket, and add each new one as it arrives. A reading shows once, however many times it arrived. Resources are in src/resources/Sensor.ts; keep `SensorResource` exported from there.",
+      "expected_output": "A Manager opens the socket in `init()`, closes it in `cleanup()`, and writes each message with one `controller.set(Sensor, { id: sensorId }, { id: sensorId, latest: reading })`. The history is data, so the schema defines it: `Sensor` nests `readings: [Reading]`, `process()` starts the list from `latest`, and `merge()` joins the ids. Responses and socket messages then reach the history the same way.",
+      "files": [],
+      "assertions": [
+        "A Manager connects the socket in `init()` and closes it in `cleanup()`; it is not opened in a component or a `useEffect()`.",
+        "Each socket message is written with `controller.set()` on the sensor (or its reading); the Manager does not read the store first to rebuild a list.",
+        "The history is defined in the schema: `Sensor` nests the readings, with `process()` and a `merge()` that joins the ids.",
+        "The Manager's middleware does not copy `SET_RESPONSE` payloads into a second entity or a field of its own.",
+        "`DataProvider` gets `managers` as a module-level function that lists the new Manager before `...getDefaultManagers()`."
+      ]
     }
   ]
 }

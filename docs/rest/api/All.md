@@ -23,6 +23,10 @@ item, an author's posts when a post can change its author. The Query runs when i
 any entity of that kind changes. When a response has the list, use a [Collection](./Collection.md). When an
 entity must nest a list that no response has, use a [reverse lookup](../guides/relational-data.md#reverse-lookups).
 
+`All` has only the entities still in the store. [Garbage collection](/docs/api/DataProvider#gcPolicy) removes an
+expired entity that no mounted component reads. To keep entities after responses stop having them, nest them in an
+entity that is read: a `merge()` that joins the ids, as in a reverse lookup.
+
 ## Instance Methods
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `All` constructor. This method tends to be useful for creating circular references in schema.
