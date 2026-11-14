@@ -544,8 +544,8 @@ export default function UserPage({ id }: { id: string }) {
 }
 ```
 
-[Entity.process()](./Entity.md#process) runs for each nested entity, with the `parent` and `key` that nest
-it. [Entity.merge()](./Entity.md#merge) then joins the copies of one entity:
+`User` overrides two methods. [process()](./Entity.md#process) runs for each nested user, with the `parent`
+and `key` that nest it. [merge()](./Entity.md#merge) joins the copies of one user:
 
 ```ts
 // post 101 nests Ada as its `author`, so process() adds that post's id
@@ -560,7 +560,8 @@ User.merge(
 // => { id: '1', name: 'Ada', posts: ['101', '102'] }
 ```
 
-The default `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in the same way.
+Without the override, `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in
+the same way.
 
 ### When to use
 

@@ -1064,8 +1064,8 @@ export default function Forum({ children }: { children: React.ReactNode }) {
 
 </FrameworkPlayground>
 
-[Entity.process()](../api/Entity.md#process) runs for each nested entity, with the `parent` and `key` that nest
-it. [Entity.merge()](../api/Entity.md#merge) then joins the copies of one entity:
+`User` overrides two methods. [process()](../api/Entity.md#process) runs for each nested user, with the `parent`
+and `key` that nest it. [merge()](../api/Entity.md#merge) joins the copies of one user:
 
 ```ts
 // post 101 nests Ada as its `author`, so process() adds that post's id
@@ -1080,7 +1080,8 @@ User.merge(
 // => { id: '1', name: 'Ada', posts: ['101', '102'] }
 ```
 
-The default `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in the same way.
+Without the override, `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in
+the same way.
 
 ### When to use
 
