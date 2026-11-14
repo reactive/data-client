@@ -562,6 +562,19 @@ Nesting data when your endpoint doesn't (part 2).
 A response can nest in one direction only. Here `/posts` nests each post's `author` and each comment's
 `commenter`. No response lists a user's posts or comments, and a comment does not name its post.
 
+First check whether a response has the list. That decides the tool:
+
+| A user's posts | Use |
+| --- | --- |
+| An endpoint returns them (`GET /posts?author=123`), or the user response nests them | A [Collection](../api/Collection.md), with [nestKey](../api/Collection.md#nestKey) when nested |
+| No response has them, and a post keeps its author | A reverse lookup (this section) |
+| No response has them, and a post can change its author | A [Query](../api/Query.md) over [All](../api/All.md), shown after the example |
+
+A `Collection` is the server's list. Each fetch replaces it, and [push](../api/Collection.md#push),
+[remove](../api/Collection.md#remove) and [move](../api/Collection.md#move) keep it current after a mutation, so it
+needs no custom `merge()`. For the same reason a reverse lookup cannot fill one: of a user's two posts, it would keep
+only the last. A custom `merge()` is for a list that no response has, which the store collects one member at a time.
+
 To add the reverse relationship, override [Entity.process](../api/Entity.md#process). Its `parent` and `key`
 arguments tell where the entity was nested: a `User` under a post's `author` key adds that post's id to its own
 `posts`. The same user can be nested many times, each time with another post or comment. So also override

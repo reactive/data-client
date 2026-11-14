@@ -17,10 +17,6 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 #### Usage
 
-```json title="GET /users"
-{ "users": [{ "id": "123", "name": "Beth" }] }
-```
-
 ```tsx title="UsersPage.tsx"
 import { Entity, RestEndpoint, schema } from '@data-client/rest';
 import { useSuspense } from '@data-client/react';

@@ -24,45 +24,6 @@ erDiagram
 
 </details>
 
-```json title="GET /posts"
-[
-  {
-    "id": "1",
-    "title": "My first post!",
-    "author": { "id": "123", "name": "Paul" },
-    "comments": [
-      {
-        "id": "249",
-        "content": "Nice post!",
-        "commenter": { "id": "245", "name": "Jane" }
-      },
-      {
-        "id": "250",
-        "content": "Thanks!",
-        "commenter": { "id": "123", "name": "Paul" }
-      }
-    ]
-  },
-  {
-    "id": "2",
-    "title": "This other post",
-    "author": { "id": "123", "name": "Paul" },
-    "comments": [
-      {
-        "id": "251",
-        "content": "Your other post was nicer",
-        "commenter": { "id": "245", "name": "Jane" }
-      },
-      {
-        "id": "252",
-        "content": "I am a spammer!",
-        "commenter": { "id": "246", "name": "Spambot5000" }
-      }
-    ]
-  }
-]
-```
-
 ```typescript title="resources/Post"
 import { Collection, Entity, resource } from '@data-client/rest';
 
@@ -379,6 +340,19 @@ Nesting data when your endpoint doesn't (part 2).
 A response can nest in one direction only. Here `/posts` nests each post's `author` and each comment's
 `commenter`. No response lists a user's posts or comments, and a comment does not name its post.
 
+First check whether a response has the list. That decides the tool:
+
+| A user's posts                                                                      | Use                                                                                  |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| An endpoint returns them (`GET /posts?author=123`), or the user response nests them | A [Collection](./Collection.md), with [nestKey](./Collection.md#nestKey) when nested |
+| No response has them, and a post keeps its author                                   | A reverse lookup (this section)                                                      |
+| No response has them, and a post can change its author                              | A [Query](./Query.md) over [All](./All.md), shown after the example                  |
+
+A `Collection` is the server's list. Each fetch replaces it, and [push](./Collection.md#push),
+[remove](./Collection.md#remove) and [move](./Collection.md#move) keep it current after a mutation, so it
+needs no custom `merge()`. For the same reason a reverse lookup cannot fill one: of a user's two posts, it would keep
+only the last. A custom `merge()` is for a list that no response has, which the store collects one member at a time.
+
 To add the reverse relationship, override [Entity.process](./Entity.md#process). Its `parent` and `key`
 arguments tell where the entity was nested: a `User` under a post's `author` key adds that post's id to its own
 `posts`. The same user can be nested many times, each time with another post or comment. So also override
@@ -391,8 +365,6 @@ parent nest objects under the same key, also check a field that only one of them
 Then one fetch gives every view of the relationship, with no fetch per view.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
-
-Responses as above: `GET /posts`.
 
 ```typescript title="resources/Post"
 import { Entity, resource, type Schema } from '@data-client/rest';

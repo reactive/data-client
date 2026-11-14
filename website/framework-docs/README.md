@@ -172,10 +172,7 @@ other than Playwright's.
 `.agents/skills/<skill>/references.json` into plain markdown with `docsToMarkdown.mjs`: framework
 content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` helpers from
 `index.js`), Docusaurus' own MDX preprocessing, partials inlined, and playgrounds, tabs and embeds
-reduced to their code. A playground's inline `fixtures` that have a fixed `response` lead its code as
-` ```json title="GET /posts" ` blocks, since the response is what its schemas are written for; a
-response repeated on a page is named, not printed again. Function responses and imported fixtures
-are left out. The
+reduced to their code. The
 first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
 the page differs. Output is committed because skills install straight from the repo; the `regenerate`
 check reruns `yarn build:skills` and fails on drift; the generator also fails when a `SKILL.md` links to a

@@ -174,7 +174,8 @@ All in [relational-data](references/relational-data.md):
 |---|---|---|
 | A response embeds related objects (a post with its `author` and `comments`) | "Nesting" | name each nested Entity in `static schema` |
 | A response has only the id of a related object that another endpoint returns (`userId`, `author_id`) | "Client side joins" | `process()` copies the id to a field that `static schema` maps to the other Entity |
-| No response has the other side of a relationship: a user's posts when only posts embed their author, a comment's post, any parent's children or child's parent | "Reverse lookups" | the nested entity's `process(value, parent, key)` stores the parent's id; `merge()` joins the id lists |
+| A response has a parent's list: an endpoint returns it (`GET /posts?userId=1`) or the parent nests it (`user.posts`), and creates, deletes or moves must keep it current | [Collections](#5-collections-mutable-lists--maps) above, not "Reverse lookups" | `new Collection([Post], { argsKey, nestKey })` with `push`/`remove`/`move`; no custom `merge()`, since each fetch replaces the list |
+| No response has the other side of a relationship: a user's posts when only posts embed their author, a comment's post, any parent's children or child's parent | "Reverse lookups" | the nested entity's `process(value, parent, key)` stores the parent's id; `merge()` joins the id lists. If the link can change (a post gets a new author), a `Query` over `All` instead |
 | Two Entity classes refer to each other: circular import, class used before it is defined | "Circular dependencies" | set `A.schema` after both classes exist; `import type` in one direction |
 
 ## Other use cases

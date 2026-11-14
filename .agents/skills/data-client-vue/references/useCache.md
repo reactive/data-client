@@ -13,10 +13,6 @@ the current user a login flow fetches.
 
 ## Usage
 
-```json title="GET /user"
-{ "id": "777", "name": "Albatras", "isAdmin": true }
-```
-
 ```ts title="UserResource"
 import { Entity, resource } from '@data-client/rest';
 

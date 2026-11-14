@@ -388,21 +388,6 @@ Example app: [todo-app](https://github.com/reactive/data-client/tree/master/exam
 [Lazy](https://dataclient.io/rest/api/Lazy) fields keep raw IDs during parent denormalization. Use [`.query`](https://dataclient.io/rest/api/Lazy#query) with `useQuery` to resolve them on demand,
 isolating re-renders to only the components that need the related data.
 
-```json title="GET /departments"
-[
-  {
-    "id": "1",
-    "name": "Engineering",
-    "buildings": [{ "id": "b1", "name": "HQ" }, { "id": "b2", "name": "Annex" }]
-  },
-  {
-    "id": "2",
-    "name": "Design",
-    "buildings": [{ "id": "b1", "name": "HQ" }, { "id": "b3", "name": "Studio" }]
-  }
-]
-```
-
 ```ts title="Resources"
 import { Entity, Lazy, resource } from '@data-client/rest';
 

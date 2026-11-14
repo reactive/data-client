@@ -146,69 +146,6 @@ function attrValue(attribute, props, file) {
   return evaluate(attribute.value.value, props, file);
 }
 
-/** Whether an expression is plain data, which reads the same on every build */
-function isData(node) {
-  switch (node?.type) {
-    case 'Literal':
-      // a regex or BigInt literal has no JSON form
-      return !node.regex && typeof node.value !== 'bigint';
-    case 'TemplateLiteral':
-      return !node.expressions.length;
-    case 'UnaryExpression':
-      return '+-'.includes(node.operator) && isData(node.argument);
-    case 'ArrayExpression':
-      return node.elements.every(isData);
-    case 'ObjectExpression':
-      return node.properties.every(
-        p => p.type === 'Property' && !p.computed && isData(p.value),
-      );
-  }
-  return false;
-}
-
-/** JSON that keeps an object or list on one line while it fits, like the docs' own samples */
-function compactJson(value, indent = '') {
-  if (value === null || typeof value !== 'object') return JSON.stringify(value);
-  const isArray = Array.isArray(value);
-  const [open, close, pad] = isArray ? ['[', ']', ''] : ['{', '}', ' '];
-  const items = at =>
-    isArray ?
-      value.map(v => compactJson(v, at))
-    : Object.entries(value).map(
-        ([key, v]) => `${JSON.stringify(key)}: ${compactJson(v, at)}`,
-      );
-  const flat = items(indent);
-  if (!flat.length) return open + close;
-  const line = `${open}${pad}${flat.join(', ')}${pad}${close}`;
-  if (!line.includes('\n') && indent.length + line.length <= 80) return line;
-  const inner = `${indent}  `;
-  return `${open}\n${items(inner)
-    .map(item => inner + item)
-    .join(',\n')}\n${indent}${close}`;
-}
-
-/** An object literal's value nodes by key; nothing if a spread or computed key hides one */
-const properties = object =>
-  object?.properties?.every(p => p.type === 'Property' && !p.computed) ?
-    Object.fromEntries(
-      object.properties.map(p => [p.key.name ?? p.key.value, p.value]),
-    )
-  : {};
-
-/** `GET /article/1`: the request a fixture answers */
-function fixtureRequest(
-  { path, method = 'GET', urlPrefix = '' },
-  [params = {}] = [],
-) {
-  const search = new URLSearchParams(method === 'GET' ? params : {});
-  const url = `${urlPrefix}${path}`.replace(/:(\w+)/g, (param, name) => {
-    search.delete(name);
-    return params[name] ?? param;
-  });
-  // what a GET's path doesn't take is its search
-  return `${method} ${url}${search.size ? `?${search}` : ''}`;
-}
-
 /** JSX attributes, evaluated when read (others may use the page's imports) */
 function attributesOf(node, props, file) {
   const attrs = {};
@@ -318,7 +255,7 @@ const HTML = ['details', 'sup', 'sub', 'kbd'];
 const DROP = ['ThemedImage', 'head', 'SiteOnly'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
-function render(file, framework, props = {}, shownResponses = new Map()) {
+function render(file, framework, props = {}) {
   const content = contentFor(file, framework);
   if (!pageFrameworks(content).includes(framework)) return;
   const source = sourceFor(file, framework);
@@ -327,8 +264,6 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
   remarkFramework({ framework, keepAgentOnly: true })(tree);
   const partials = {};
   const tabLabels = [];
-  /** The value of an expression in this page's source */
-  const run = n => evaluate(parsed.input.slice(n.start, n.end), props, source);
 
   function convert(node) {
     switch (node.type) {
@@ -400,6 +335,8 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
 
   /** `{cond ? <CodeBlock>..</CodeBlock> : ...}` in partials, picked by props */
   function convertEstree(node) {
+    const run = n =>
+      evaluate(parsed.input.slice(n.start, n.end), props, source);
     switch (node.type) {
       case 'ConditionalExpression':
         return convertEstree(run(node.test) ? node.consequent : node.alternate);
@@ -453,9 +390,7 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
     const attrs = attributesOf(node, props, source);
     if (partials[name]) {
       attrs.children = node.children;
-      return (
-        render(partials[name], framework, attrs, shownResponses)?.children ?? []
-      );
+      return render(partials[name], framework, attrs)?.children ?? [];
     }
     switch (name) {
       case 'CodeBlock':
@@ -585,64 +520,7 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
       code.data.playground = node;
       routed ||= /\broute=/.test(code.meta ?? '');
     });
-    return [
-      ...(routed ? [routesNote(framework)] : []),
-      ...fixtureResponses(node),
-      ...children,
-    ];
-  }
-
-  /**
-   * What the API sends in a playground, which the site shows in its fixtures
-   * list. Only inline fixtures with a fixed response: a function's answer
-   * depends on the request, and imported fixtures serve a whole demo.
-   */
-  function fixtureResponses(node) {
-    const list = node.attributes?.find(a => a.name === 'fixtures')?.value?.data
-      ?.estree?.body[0]?.expression;
-    if (list?.type !== 'ArrayExpression') return [];
-    const repeated = [];
-    const blocks = list.elements.flatMap(fixture => {
-      const { endpoint, args, response } = properties(fixture);
-      const { path, method, urlPrefix } =
-        (
-          endpoint?.type === 'NewExpression' &&
-          endpoint.callee.name === 'RestEndpoint'
-        ) ?
-          properties(endpoint.arguments[0])
-        : {};
-      const nodes = { path, method, urlPrefix, args, response };
-      // a value the page computes is not known here, and would name the wrong request
-      if (
-        !path ||
-        !response ||
-        !Object.values(nodes).every(n => !n || isData(n))
-      )
-        return [];
-      // plain data names nothing on the page, so it evaluates by itself
-      const value = Object.fromEntries(
-        Object.entries(nodes).map(([name, n]) => [name, n && run(n)]),
-      );
-      const request = fixtureRequest(value, value.args);
-      const json = compactJson(value.response);
-      if (shownResponses.get(request) === json) {
-        repeated.push(request);
-        return [];
-      }
-      shownResponses.set(request, json);
-      return [codeBlock({ lang: 'json', value: json, title: request })];
-    });
-    if (repeated.length)
-      blocks.push(
-        paragraph([
-          ...repeated.flatMap((request, i) => [
-            text(i ? ', ' : 'Responses as above: '),
-            code(request),
-          ]),
-          text('.'),
-        ]),
-      );
-    return blocks;
+    return routed ? [routesNote(framework), ...children] : children;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */

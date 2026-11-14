@@ -26,28 +26,6 @@ we have the full and complete response when needed (detail views), while keeping
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
-```json title="GET /article"
-[{ "id": "1", "title": "first" }, { "id": "2", "title": "second" }]
-```
-
-```json title="GET /article/1"
-{
-  "id": "1",
-  "title": "first",
-  "content": "long",
-  "createdAt": "2011-10-05T14:48:00.000Z"
-}
-```
-
-```json title="GET /article/2"
-{
-  "id": "2",
-  "title": "second",
-  "content": "short",
-  "createdAt": "2011-10-05T14:48:00.000Z"
-}
-```
-
 ```typescript title="resources/Article" {13,25}
 import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';
