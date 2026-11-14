@@ -44,11 +44,10 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
   );
   ```
 
-  A Query's `schema` and its function (`process`) both receive every argument of `useQuery(query, ...args)`, the function
-  after the entries, so check the arguments against both: they must hold what each one reads. The schema finds
-  its data with them exactly as `useQuery(schema, ...args)` would; when it finds nothing, `useQuery()` returns
-  `undefined` and the function does not run. An argument meant only for the function must be one the schema's
-  lookup ignores: [All](references/All.md) ignores every argument and returns every stored entity.
+  `useQuery(query, ...args)` passes every arg to the Query's `schema` and to its function, `(entries, ...args)`, so
+  check each arg against both. The schema looks up its data with the args, as `useQuery(schema, ...args)` would; when
+  that finds nothing, `useQuery()` returns `undefined`. Give the function an arg of its own only if the schema
+  ignores it: [All](references/All.md) ignores every arg.
 
   Define `Query` transformations with the data model (e.g. `src/resources/`) — not inside custom hooks
   wrapping useSuspense/useQuery, which hides data dependencies and couples data logic to view code.

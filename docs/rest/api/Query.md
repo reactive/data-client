@@ -33,11 +33,10 @@ This accepts any [Queryable](/rest/api/schema#queryable) schema: [Entity](./Enti
 Takes the (denormalized) response as entries and arguments and returns the new
 response for use with [useQuery](/docs/api/useQuery)
 
-A Query's `schema` and its `process` both receive every argument of `useQuery(query, ...args)`, `process`
-after the entries, so check the arguments against both: they must hold what each one reads. The schema finds
-its data with them exactly as `useQuery(schema, ...args)` would; when it finds nothing, `useQuery()` returns
-`undefined` and `process` does not run. An argument meant only for `process` must be one the schema's lookup
-ignores: [All](./All.md) ignores every argument and returns every stored entity.
+`useQuery(query, ...args)` passes every argument to the Query's `schema` and to `process`, after the entries, so
+check each argument against both. The schema finds its data with the arguments, as `useQuery(schema, ...args)`
+would; when it finds nothing, `useQuery()` returns `undefined`. Give `process` an argument of its own only if the
+schema ignores it: [All](./All.md) ignores every argument.
 
 ## Usage
 
