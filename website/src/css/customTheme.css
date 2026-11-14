@@ -177,32 +177,42 @@ small {
 }
 
 /* Docs: everything in the doc column keeps the prose's measure (958px, the
-   column's width beside the TOC in Infima's 1320px container), at its left.
-   On wide screens a 1680px container makes the column wider than that (the
-   TOC, a quarter of the row, widens a little too), and a row Playground
-   (`wide-embed`) reaches into the room on the right, which its preview
-   takes. Pages with a TOC only get a column past 958px on such screens;
-   pages without one cap their prose at 958px too. The column is the `doc`
-   container that components' container queries measure */
+   column's width beside the TOC in Infima's 1320px container), centered in
+   the column. On wide screens the container fills the page instead of
+   stopping at 1320px: the TOC keeps its 330px at the right edge, and the
+   prose stays where it was, centered between the sidebar and the TOC. A row
+   Playground (`wide-embed`) reaches into the room right of the prose, which
+   its preview takes. The column is the `doc` container that components'
+   container queries measure */
 .docs-wrapper main > .container {
-  --ifm-container-width-xl: 1680px;
+  --ifm-container-width-xl: none;
+}
+.docs-wrapper main > .container > .row > .col--3 {
+  flex-basis: min(25%, 330px);
+  max-width: min(25%, 330px);
 }
 .docs-wrapper main > .container > .row > .col:first-child {
   --doc-prose-width: 958px;
   /* the most a wide embed takes: a row Playground's preview gains little
      past about 36rem */
   --doc-wide-width: 1200px;
+  max-width: none !important;
   container: doc / inline-size;
 }
 .docs-wrapper main > .container > .row > .col:first-child > * {
   max-width: var(--doc-prose-width);
+  margin-inline: auto;
 }
-/* what the column (100cqw, up to --doc-wide-width) has past the prose, out
-   on the right; none while the column is no wider */
+/* the room the column (100cqw) has right of the centered prose, up to
+   --doc-wide-width in all */
 .theme-doc-markdown .wide-embed {
-  margin-right: min(
-    0px,
-    var(--doc-prose-width) - min(100cqw, var(--doc-wide-width))
+  margin-right: calc(
+    -1 *
+      clamp(
+        0px,
+        (100cqw - var(--doc-prose-width)) / 2,
+        var(--doc-wide-width) - var(--doc-prose-width)
+      )
   );
 }
 
