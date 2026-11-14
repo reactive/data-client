@@ -50,7 +50,7 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
   ```ts
   const queryTodosByUser = new Query(
     new All(Todo),
-    (todos, { userId }: { userId: string }) => todos.filter(todo => todo.userId === userId),
+    (todos, { userId }: { userId: number }) => todos.filter(todo => todo.userId === userId),
   );
   ```
 

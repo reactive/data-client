@@ -217,6 +217,7 @@ const queryRemainingTodos = new Query(
   entries => entries.filter(todo => !todo.completed).length,
 );
 
+// args pick the stored list: the one getList() fetched, the one getList({ userId: 1 }) fetched
 const allRemainingTodos = useQuery(queryRemainingTodos);
 const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
