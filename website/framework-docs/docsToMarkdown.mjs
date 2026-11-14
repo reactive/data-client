@@ -146,22 +146,14 @@ function attrValue(attribute, props, file) {
   return evaluate(attribute.value.value, props, file);
 }
 
-/** Stands in for an inline fixture's `new RestEndpoint()`, which only names the request */
-class FixtureEndpoint {
-  constructor(options) {
-    Object.assign(this, options);
-  }
-}
-
 /** Whether an expression is plain data, which reads the same on every build */
 function isData(node) {
   switch (node?.type) {
     case 'Literal':
-      return true;
-    case 'TemplateLiteral':
-      return !node.expressions.length;
+      // a regex or BigInt literal has no JSON form
+      return !node.regex && typeof node.value !== 'bigint';
     case 'UnaryExpression':
-      return isData(node.argument);
+      return node.operator === '-' && isData(node.argument);
     case 'ArrayExpression':
       return node.elements.every(isData);
     case 'ObjectExpression':
@@ -175,29 +167,42 @@ function isData(node) {
 /** JSON that keeps an object or list on one line while it fits, like the docs' own samples */
 function compactJson(value, indent = '') {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
-  const entries =
-    Array.isArray(value) ?
-      value.map(v => [undefined, v])
-    : Object.entries(value);
-  const [open, close] = Array.isArray(value) ? '[]' : '{}';
-  if (!entries.length) return open + close;
-  const item = ([key, v], inner) =>
-    (key === undefined ? '' : `${JSON.stringify(key)}: `) +
-    compactJson(v, inner);
-  const pad = Array.isArray(value) ? '' : ' ';
-  const line = `${open}${pad}${entries.map(e => item(e, indent)).join(', ')}${pad}${close}`;
+  const isArray = Array.isArray(value);
+  const [open, close, pad] = isArray ? ['[', ']', ''] : ['{', '}', ' '];
+  const items = at =>
+    isArray ?
+      value.map(v => compactJson(v, at))
+    : Object.entries(value).map(
+        ([key, v]) => `${JSON.stringify(key)}: ${compactJson(v, at)}`,
+      );
+  const flat = items(indent);
+  if (!flat.length) return open + close;
+  const line = `${open}${pad}${flat.join(', ')}${pad}${close}`;
   if (!line.includes('\n') && indent.length + line.length <= 80) return line;
   const inner = `${indent}  `;
-  return `${open}\n${entries.map(e => inner + item(e, inner)).join(',\n')}\n${indent}${close}`;
+  return `${open}\n${items(inner)
+    .map(item => inner + item)
+    .join(',\n')}\n${indent}${close}`;
 }
 
-/** `GET /article/1`: the request a fixture answers, as the playground lists it */
-function fixtureRequest({ endpoint, args: [params = {}] = [] }) {
-  const url = `${endpoint.urlPrefix ?? ''}${endpoint.path}`.replace(
-    /:(\w+)/g,
-    (param, name) => params[name] ?? param,
-  );
-  return `${endpoint.method ?? 'GET'} ${url}`;
+/** A property's value node in an object literal */
+const property = (object, name) =>
+  object?.properties?.find(
+    p => !p.computed && (p.key?.name ?? p.key?.value) === name,
+  )?.value;
+
+/** `GET /article/1`: the request a fixture answers */
+function fixtureRequest(
+  { path, method = 'GET', urlPrefix = '' },
+  [params = {}] = [],
+) {
+  const search = new URLSearchParams(method === 'GET' ? params : {});
+  const url = `${urlPrefix}${path}`.replace(/:(\w+)/g, (param, name) => {
+    search.delete(name);
+    return params[name] ?? param;
+  });
+  // what a GET's path doesn't take is its search
+  return `${method} ${url}${search.size ? `?${search}` : ''}`;
 }
 
 /** JSX attributes, evaluated when read (others may use the page's imports) */
@@ -318,6 +323,8 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
   remarkFramework({ framework, keepAgentOnly: true })(tree);
   const partials = {};
   const tabLabels = [];
+  /** The value of an expression in this page's source */
+  const run = n => evaluate(parsed.input.slice(n.start, n.end), props, source);
 
   function convert(node) {
     switch (node.type) {
@@ -389,8 +396,6 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
 
   /** `{cond ? <CodeBlock>..</CodeBlock> : ...}` in partials, picked by props */
   function convertEstree(node) {
-    const run = n =>
-      evaluate(parsed.input.slice(n.start, n.end), props, source);
     switch (node.type) {
       case 'ConditionalExpression':
         return convertEstree(run(node.test) ? node.consequent : node.alternate);
@@ -589,26 +594,30 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
    * depends on the request, and imported fixtures serve a whole demo.
    */
   function fixtureResponses(node) {
-    const value = node.attributes?.find(a => a.name === 'fixtures')?.value;
-    const list = value?.data?.estree?.body[0]?.expression;
+    const list = node.attributes?.find(a => a.name === 'fixtures')?.value?.data
+      ?.estree?.body[0]?.expression;
     if (list?.type !== 'ArrayExpression') return [];
-    let fixtures;
-    try {
-      fixtures = new Function('RestEndpoint', `return (${value.value});`)(
-        FixtureEndpoint,
-      );
-    } catch {
-      // names an endpoint the page imports
-      return [];
-    }
+    // plain data names nothing on the page, so it evaluates by itself
+    const data = (object, name) => {
+      const value = property(object, name);
+      return isData(value) ? run(value) : undefined;
+    };
     const repeated = [];
-    const blocks = list.elements.flatMap((element, i) => {
-      const response = element.properties?.find(
-        p => p.key?.name === 'response',
-      );
-      if (!isData(response?.value) || !fixtures[i].endpoint?.path) return [];
-      const request = fixtureRequest(fixtures[i]);
-      const json = compactJson(fixtures[i].response);
+    const blocks = list.elements.flatMap(fixture => {
+      const endpoint = property(fixture, 'endpoint');
+      const optionsNode =
+        endpoint?.type === 'NewExpression' &&
+        endpoint.callee.name === 'RestEndpoint' &&
+        endpoint.arguments[0];
+      const options = {
+        path: data(optionsNode, 'path'),
+        method: data(optionsNode, 'method'),
+        urlPrefix: data(optionsNode, 'urlPrefix'),
+      };
+      const response = data(fixture, 'response');
+      if (!options.path || response === undefined) return [];
+      const request = fixtureRequest(options, data(fixture, 'args'));
+      const json = compactJson(response);
       if (shownResponses.get(request) === json) {
         repeated.push(request);
         return [];
@@ -616,19 +625,17 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
       shownResponses.set(request, json);
       return [codeBlock({ lang: 'json', value: json, title: request })];
     });
-    return repeated.length ?
-        [
-          paragraph([
-            text('Responses as above: '),
-            ...repeated.flatMap((r, i) => [
-              ...(i ? [text(', ')] : []),
-              code(r),
-            ]),
-            text('.'),
+    if (repeated.length)
+      blocks.push(
+        paragraph([
+          ...repeated.flatMap((request, i) => [
+            text(i ? ', ' : 'Responses as above: '),
+            code(request),
           ]),
-          ...blocks,
-        ]
-      : blocks;
+          text('.'),
+        ]),
+      );
+    return blocks;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */
