@@ -85,10 +85,11 @@
       "name": "nested-list-create",
       "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): with master's skills 2 of 5 runs appended the new track by hand with `ctrl.set()`, and one later run wrote an Entity subclass with a custom `merge()` that joins track ids.",
       "prompt": "On the playlist page (src/pages/PlaylistPage.tsx), add a form under the track list: a text input labelled `Title` and a button `Add track`.\n\nSubmitting sends `POST /api/playlists/:id/tracks` with the JSON body `{ \"title\": \"...\" }`. The response is only the new track:\n\n```json\n{ \"id\": \"t9\", \"title\": \"Night Drive\", \"seconds\": 0 }\n```\n\nThe new track must show at the end of the list as soon as the response arrives, without requesting the playlist again.\n\nThe page loads `PlaylistResource.get` from `GET /api/playlists/:id`, which returns:\n\n```json\n{\n  \"id\": \"p1\",\n  \"name\": \"Road trip\",\n  \"tracks\": [\n    { \"id\": \"t1\", \"title\": \"First Light\", \"seconds\": 201 },\n    { \"id\": \"t2\", \"title\": \"Second Wind\", \"seconds\": 187 }\n  ]\n}\n```\n\nOther people edit the same playlist, and it is refetched now and then while the page is open. After a refetch the list must be exactly what the server returned.",
-      "expected_output": "`Playlist.schema.tracks` is a `Collection([Track], { nestKey })`, and the POST endpoint's schema is that Collection's `push`. A refetch of the playlist replaces the list.",
+      "expected_output": "`Playlist.schema.tracks` is a `Collection([Track], { nestKey })`, and the POST endpoint's schema is that Collection's `push`. `push` adds to the lists whose key the POST's params or body match, so the key `nestKey` returns uses the POST's names: `nestKey: parent => ({ id: parent.id })` for `POST /api/playlists/:id/tracks`. A refetch of the playlist replaces the list.",
       "files": [],
       "assertions": [
         "`tracks` on `Playlist` is a `Collection` with `nestKey`, and the POST endpoint's `schema` is its `push`.",
+        "Every field of the key `nestKey` returns is in the POST's params or body with the same value, so `push` reaches the playlist's list.",
         "No custom `merge()` joins track ids, and no `ctrl.set()` rebuilds `tracks` by hand.",
         "The POST is the only request when a track is added.",
         "After the playlist is fetched again, the list is exactly the response's tracks."

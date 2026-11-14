@@ -688,7 +688,8 @@ export class User extends Entity {
   }
 }
 
-/** Adds the ids not listed yet, so a refetch does not add the same ones again */
+/** Adds the ids not listed yet, so a refetch does not add the same ones again.
+ * `incoming` never repeats an id: process() gives one, and union() joined the rest. */
 function union(existing: string[] = [], incoming: string[] = []) {
   const added = incoming.filter(id => !existing.includes(id));
   return added.length ? [...existing, ...added] : existing;
