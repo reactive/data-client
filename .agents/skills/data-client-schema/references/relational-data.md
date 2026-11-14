@@ -366,12 +366,19 @@ arguments tell where the entity was nested: a `User` under a post's `author` key
 user's `comments` holds the ids that `process()` added, and `process()` does not run for an id. When two kinds of
 parent nest objects under the same key, also check a field that only one of them has.
 
-Then one fetch gives every view of the relationship, with no fetch per view.
+Then one fetch gives every view of the relationship, with no fetch per view. `queryUsers` sorts the People table
+by `user.posts` or `user.comments`. A person's page lists both, and names the post of each comment.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
 ```typescript title="resources/Post"
-import { Entity, resource, type Schema } from '@data-client/rest';
+import {
+  All,
+  Entity,
+  Query,
+  resource,
+  type Schema,
+} from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -458,68 +465,109 @@ export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
+
+export type SortBy = 'posts' | 'comments';
+
+// `posts` and `comments` are in each user, so a Query can sort by them
+export const queryUsers = new Query(
+  new All(User),
+  (users, { sortBy }: { sortBy: SortBy }) =>
+    [...users].sort((a, b) => b[sortBy].length - a[sortBy].length),
+);
+```
+
+```tsx title="PeoplePage" route="/users" start="/users"
+import React from 'react';
+import { useQuery, useSuspense } from '@data-client/react';
+import { PostResource, queryUsers, type SortBy } from './resources/Post';
+
+export default function PeoplePage() {
+  useSuspense(PostResource.getList);
+  const [sortBy, setSortBy] = React.useState<SortBy>('posts');
+  const users = useQuery(queryUsers, { sortBy }) ?? [];
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <SortHeader column="posts" sortBy={sortBy} onSort={setSortBy}>
+            Posts
+          </SortHeader>
+          <SortHeader column="comments" sortBy={sortBy} onSort={setSortBy}>
+            Comments
+          </SortHeader>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map(user => (
+          <tr key={user.pk()}>
+            <td>
+              <Link to={`/users/${user.id}`}>{user.name}</Link>
+            </td>
+            <td className="value">{user.posts.length}</td>
+            <td className="value">{user.comments.length}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function SortHeader({ column, sortBy, onSort, children }: HeaderProps) {
+  return (
+    <th
+      className="value"
+      aria-sort={sortBy === column ? 'descending' : undefined}
+    >
+      <button className="sort" onClick={() => onSort(column)}>
+        {children}
+      </button>
+    </th>
+  );
+}
+interface HeaderProps {
+  column: SortBy;
+  sortBy: SortBy;
+  onSort: (sortBy: SortBy) => void;
+  children: React.ReactNode;
+}
 ```
 
 ```tsx title="UserPage" route="/users/:id"
 import { useSuspense } from '@data-client/react';
 import { UserResource } from './resources/Post';
 
-export default function UserPage({ id }) {
+export default function UserPage({ id }: { id: string }) {
   const user = useSuspense(UserResource.get, { id });
   return (
-    <div>
-      <h4>{user.name}</h4>
-      {user.posts.length ? (
-        <>
-          <h5>Posts</h5>
-          <ul>
+    <>
+      <h2>{user.name}</h2>
+      {user.posts.length > 0 && (
+        <section>
+          <h3>Posts</h3>
+          <div className="list">
             {user.posts.map(post => (
-              <li key={post.pk()}>{post.title}</li>
+              <div className="listItem" key={post.pk()}>
+                {post.title}
+              </div>
             ))}
-          </ul>
-        </>
-      ) : null}
-      <h5>Comments</h5>
-      <ul>
-        {user.comments.map(comment => (
-          <li key={comment.pk()}>{comment.content}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-```tsx title="PostPage" route="/"
-import { useSuspense } from '@data-client/react';
-import { PostResource } from './resources/Post';
-
-export default function PostPage() {
-  const posts = useSuspense(PostResource.getList);
-  return (
-    <div>
-      {posts.map(post => (
-        <div key={post.pk()}>
-          <h4>
-            {post.title} -{' '}
-            <Link to={`/users/${post.author.id}`}>{post.author.name}</Link>
-          </h4>
-          <ul>
-            {post.comments.map(comment => (
-              <li key={comment.pk()}>
-                {comment.content}{' '}
-                <small>
-                  <Link to={`/users/${comment.commenter.id}`}>
-                    {comment.commenter.name}
-                    {comment.commenter === post.author ? ' [OP]' : ''}
-                  </Link>
-                </small>
-              </li>
+          </div>
+        </section>
+      )}
+      {user.comments.length > 0 && (
+        <section>
+          <h3>Comments</h3>
+          <div className="list">
+            {user.comments.map(comment => (
+              <div className="listItem" key={comment.pk()}>
+                {comment.content}
+                <span className="meta">{comment.post.title}</span>
+              </div>
             ))}
-          </ul>
-        </div>
-      ))}
-    </div>
+          </div>
+        </section>
+      )}
+    </>
   );
 }
 ```

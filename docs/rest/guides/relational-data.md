@@ -588,60 +588,87 @@ arguments tell where the entity was nested: a `User` under a post's `author` key
 user's `comments` holds the ids that `process()` added, and `process()` does not run for an id. When two kinds of
 parent nest objects under the same key, also check a field that only one of them has.
 
-Then one fetch gives every view of the relationship, with no fetch per view.
+Then one fetch gives every view of the relationship, with no fetch per view. `queryUsers` sorts the People table
+by `user.posts` or `user.comments`. A person's page lists both, and names the post of each comment.
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/posts' }),
 response: [
 {
-"id": "1",
-"title": "My first post!",
+"id": "101",
+"title": "Search is live",
 "author": {
-"id": "123",
-"name": "Paul"
+"id": "1",
+"name": "Ada"
 },
 "comments": [
 {
-"id": "249",
-"content": "Nice post!",
+"id": "201",
+"content": "Does it find archived posts?",
 "commenter": {
-"id": "245",
-"name": "Jane"
+"id": "2",
+"name": "Grace"
 }
 },
 {
-"id": "250",
-"content": "Thanks!",
+"id": "202",
+"content": "Yes, all of them",
 "commenter": {
-"id": "123",
-"name": "Paul"
+"id": "1",
+"name": "Ada"
+}
+},
+{
+"id": "203",
+"content": "Works on my phone",
+"commenter": {
+"id": "3",
+"name": "Linus"
 }
 }
 ]
 },
 {
-"id": "2",
-"title": "This other post",
+"id": "102",
+"title": "Dark mode next?",
 "author": {
-"id": "123",
-"name": "Paul"
+"id": "1",
+"name": "Ada"
 },
 "comments": [
 {
-"id": "251",
-"content": "Your other post was nicer",
+"id": "204",
+"content": "Yes please",
 "commenter": {
-"id": "245",
-"name": "Jane"
+"id": "2",
+"name": "Grace"
 }
 },
 {
-"id": "252",
-"content": "I am a spammer!",
+"id": "205",
+"content": "Only if it follows the system setting",
 "commenter": {
-"id": "246",
-"name": "Spambot5000"
+"id": "3",
+"name": "Linus"
+}
+}
+]
+},
+{
+"id": "103",
+"title": "Office hours move to Thursday",
+"author": {
+"id": "2",
+"name": "Grace"
+},
+"comments": [
+{
+"id": "206",
+"content": "Starting next week",
+"commenter": {
+"id": "2",
+"name": "Grace"
 }
 }
 ]
@@ -652,14 +679,20 @@ delay: 150,
 {
 endpoint: new RestEndpoint({ path: '/users/:id' }),
 response({ id }) {
-return { id, name: { 123: 'Paul', 245: 'Jane', 246: 'Spambot5000' }[id] };
+return { id, name: { 1: 'Ada', 2: 'Grace', 3: 'Linus' }[id] };
 },
 delay: 150,
 },
 ]}>
 
 ```typescript title="resources/Post"
-import { Entity, resource, type Schema } from '@data-client/rest';
+import {
+  All,
+  Entity,
+  Query,
+  resource,
+  type Schema,
+} from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -746,70 +779,165 @@ export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
+
+export type SortBy = 'posts' | 'comments';
+
+// `posts` and `comments` are in each user, so a Query can sort by them
+export const queryUsers = new Query(
+  new All(User),
+  (users, { sortBy }: { sortBy: SortBy }) =>
+    [...users].sort((a, b) => b[sortBy].length - a[sortBy].length),
+);
 ```
 
 :::react
+
+```tsx title="PeoplePage" route="/users" start="/users" collapsed
+import React from 'react';
+import { useQuery, useSuspense } from '@data-client/react';
+import { PostResource, queryUsers, type SortBy } from './resources/Post';
+
+export default function PeoplePage() {
+  useSuspense(PostResource.getList);
+  const [sortBy, setSortBy] = React.useState<SortBy>('posts');
+  const users = useQuery(queryUsers, { sortBy }) ?? [];
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <SortHeader column="posts" sortBy={sortBy} onSort={setSortBy}>
+            Posts
+          </SortHeader>
+          <SortHeader column="comments" sortBy={sortBy} onSort={setSortBy}>
+            Comments
+          </SortHeader>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map(user => (
+          <tr key={user.pk()}>
+            <td>
+              <Link to={`/users/${user.id}`}>{user.name}</Link>
+            </td>
+            <td className="value">{user.posts.length}</td>
+            <td className="value">{user.comments.length}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function SortHeader({ column, sortBy, onSort, children }: HeaderProps) {
+  return (
+    <th
+      className="value"
+      aria-sort={sortBy === column ? 'descending' : undefined}
+    >
+      <button className="sort" onClick={() => onSort(column)}>
+        {children}
+      </button>
+    </th>
+  );
+}
+interface HeaderProps {
+  column: SortBy;
+  sortBy: SortBy;
+  onSort: (sortBy: SortBy) => void;
+  children: React.ReactNode;
+}
+```
 
 ```tsx title="UserPage" route="/users/:id" collapsed
 import { useSuspense } from '@data-client/react';
 import { UserResource } from './resources/Post';
 
-export default function UserPage({ id }) {
+export default function UserPage({ id }: { id: string }) {
   const user = useSuspense(UserResource.get, { id });
   return (
-    <div>
-      <h4>{user.name}</h4>
-      {user.posts.length ? (
-        <>
-          <h5>Posts</h5>
-          <ul>
+    <>
+      <h2>{user.name}</h2>
+      {user.posts.length > 0 && (
+        <section>
+          <h3>Posts</h3>
+          <div className="list">
             {user.posts.map(post => (
-              <li key={post.pk()}>{post.title}</li>
+              <div className="listItem" key={post.pk()}>
+                {post.title}
+              </div>
             ))}
-          </ul>
-        </>
-      ) : null}
-      <h5>Comments</h5>
-      <ul>
-        {user.comments.map(comment => (
-          <li key={comment.pk()}>{comment.content}</li>
-        ))}
-      </ul>
-    </div>
+          </div>
+        </section>
+      )}
+      {user.comments.length > 0 && (
+        <section>
+          <h3>Comments</h3>
+          <div className="list">
+            {user.comments.map(comment => (
+              <div className="listItem" key={comment.pk()}>
+                {comment.content}
+                <span className="meta">{comment.post.title}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
   );
 }
 ```
 
-```tsx title="PostPage" route="/" collapsed
+```tsx title="PostPage" route="/" collapsed docs-only
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 export default function PostPage() {
   const posts = useSuspense(PostResource.getList);
   return (
-    <div>
+    <>
       {posts.map(post => (
-        <div key={post.pk()}>
-          <h4>
-            {post.title} -{' '}
+        <section key={post.pk()}>
+          <h3>
+            {post.title} by{' '}
             <Link to={`/users/${post.author.id}`}>{post.author.name}</Link>
-          </h4>
-          <ul>
+          </h3>
+          <div className="list">
             {post.comments.map(comment => (
-              <li key={comment.pk()}>
-                {comment.content}{' '}
-                <small>
-                  <Link to={`/users/${comment.commenter.id}`}>
-                    {comment.commenter.name}
-                    {comment.commenter === post.author ? ' [OP]' : ''}
-                  </Link>
-                </small>
-              </li>
+              <div className="listItem" key={comment.pk()}>
+                {comment.content}
+                <Link className="meta" to={`/users/${comment.commenter.id}`}>
+                  {comment.commenter.name}
+                </Link>
+              </div>
             ))}
-          </ul>
-        </div>
+          </div>
+        </section>
       ))}
-    </div>
+    </>
+  );
+}
+```
+
+```tsx title="Forum" layout collapsed docs-only
+import React from 'react';
+import { useFetch } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
+export default function Forum({ children }: { children: React.ReactNode }) {
+  // every page reads what the posts nest, so the posts load with the app
+  useFetch(PostResource.getList);
+  return (
+    <>
+      <header className="appHeader">
+        <h1 className="appTitle">Forum</h1>
+        <nav>
+          <Link to="/">Posts</Link>
+          <Link to="/users">People</Link>
+        </nav>
+      </header>
+      {children}
+    </>
   );
 }
 ```
@@ -817,6 +945,49 @@ export default function PostPage() {
 :::
 
 :::vue
+
+```html title="PeoplePage.vue" route="/users" start="/users" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useQuery, useSuspense } from '@data-client/vue';
+  import { PostResource, queryUsers, type SortBy } from './resources/Post';
+
+  await useSuspense(PostResource.getList);
+  const sortBy = ref<SortBy>('posts');
+  const users = useQuery(queryUsers, () => ({ sortBy: sortBy.value }));
+  const columns: Record<SortBy, string> = {
+    posts: 'Posts',
+    comments: 'Comments',
+  };
+</script>
+
+<template>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th
+          v-for="(label, column) in columns"
+          :key="column"
+          class="value"
+          :aria-sort="sortBy === column ? 'descending' : undefined"
+        >
+          <button class="sort" @click="sortBy = column">{{ label }}</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="user in users" :key="user.pk()">
+        <td>
+          <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
+        </td>
+        <td class="value">{{ user.posts.length }}</td>
+        <td class="value">{{ user.comments.length }}</td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+```
 
 ```html title="UserPage.vue" route="/users/:id" collapsed
 <script setup lang="ts">
@@ -830,27 +1001,32 @@ export default function PostPage() {
 </script>
 
 <template>
-  <div>
-    <h4>{{ user.name }}</h4>
-    <template v-if="user.posts.length">
-      <h5>Posts</h5>
-      <ul>
-        <li v-for="post in user.posts" :key="post.pk()">
-          {{ post.title }}
-        </li>
-      </ul>
-    </template>
-    <h5>Comments</h5>
-    <ul>
-      <li v-for="comment in user.comments" :key="comment.pk()">
+  <h2>{{ user.name }}</h2>
+  <section v-if="user.posts.length">
+    <h3>Posts</h3>
+    <div class="list">
+      <div v-for="post in user.posts" :key="post.pk()" class="listItem">
+        {{ post.title }}
+      </div>
+    </div>
+  </section>
+  <section v-if="user.comments.length">
+    <h3>Comments</h3>
+    <div class="list">
+      <div
+        v-for="comment in user.comments"
+        :key="comment.pk()"
+        class="listItem"
+      >
         {{ comment.content }}
-      </li>
-    </ul>
-  </div>
+        <span class="meta">{{ comment.post.title }}</span>
+      </div>
+    </div>
+  </section>
 </template>
 ```
 
-```html title="PostPage.vue" route="/" collapsed
+```html title="PostPage.vue" route="/" collapsed docs-only
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './resources/Post';
@@ -859,27 +1035,56 @@ export default function PostPage() {
 </script>
 
 <template>
-  <div>
-    <div v-for="post in posts" :key="post.pk()">
-      <h4>
-        {{ post.title }} -
-        <RouterLink :to="`/users/${post.author.id}`">
-          {{ post.author.name }}
+  <section v-for="post in posts" :key="post.pk()">
+    <h3>
+      {{ post.title }} by
+      <RouterLink :to="`/users/${post.author.id}`">
+        {{ post.author.name }}
+      </RouterLink>
+    </h3>
+    <div class="list">
+      <div
+        v-for="comment in post.comments"
+        :key="comment.pk()"
+        class="listItem"
+      >
+        {{ comment.content }}
+        <RouterLink class="meta" :to="`/users/${comment.commenter.id}`">
+          {{ comment.commenter.name }}
         </RouterLink>
-      </h4>
-      <ul>
-        <li v-for="comment in post.comments" :key="comment.pk()">
-          {{ comment.content }}
-          <small>
-            <RouterLink :to="`/users/${comment.commenter.id}`">
-              {{ comment.commenter.name }}{{ comment.commenter ===
-              post.author ? ' [OP]' : '' }}
-            </RouterLink>
-          </small>
-        </li>
-      </ul>
+      </div>
     </div>
-  </div>
+  </section>
+</template>
+```
+
+```html title="Forum.vue" layout collapsed docs-only
+<script setup lang="ts">
+  import { useFetch } from '@data-client/vue';
+  import { PostResource } from './resources/Post';
+
+  // every page reads what the posts nest, so the posts load with the app
+  useFetch(PostResource.getList);
+</script>
+
+<template>
+  <header class="appHeader">
+    <h1 class="appTitle">Forum</h1>
+    <nav>
+      <RouterLink to="/">Posts</RouterLink>
+      <RouterLink to="/users">People</RouterLink>
+    </nav>
+  </header>
+  <RouterView v-slot="{ Component, route }">
+    <Suspense timeout="0">
+      <component
+        :is="Component"
+        :key="route.fullPath"
+        :id="route.params.id"
+      />
+      <template #fallback><Loading /></template>
+    </Suspense>
+  </RouterView>
 </template>
 ```
 
