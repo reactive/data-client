@@ -49,7 +49,7 @@
         "`member.loans` is on the entity: `useQuery(Member, { id })` and a loan's `member` both have it. It comes from `Member.process()` with `parent`/`key` plus a `merge()` that joins the ids, not from a `Collection` (no response has the list) and not from a map built in a page.",
         "After `/api/loans` is fetched a second time, each loan counts once.",
         "A new loan (`LoanResource.getList.push`) joins its member's `loans`, and the table's row order follows, with no request.",
-        "When the members page is opened first, a returned book (`LoanResource.delete`) leaves its member's `loans`. Opened after the desk, 8 of 10 correct runs still showed the book: the denormalize cache kept a member first read through a loan (a library bug in circular schemas), so do not fail a run for that order.",
+        "A returned book (`LoanResource.delete`) leaves its member's `loans`. Known library bug (remove this note when it is fixed): in a circular schema the denormalize cache can keep a member with the returned book, depending on the order the lists were read. 8 of the 10 runs in `source` hit it with correct code, and all 10 passed with a fix applied. Until then, do not fail a run for that alone.",
         "A member with nothing on loan shows `0` and an empty titles cell.",
         "The members page requests only `/api/members` and `/api/loans`; nothing is requested per member or per loan."
       ]
