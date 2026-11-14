@@ -24,6 +24,14 @@ new Invalidate(entityMap, schemaAttribute)
 
 ## Usage
 
+```json title="GET /users"
+[
+  { "id": "123", "name": "Jim" },
+  { "id": "456", "name": "Jane" },
+  { "id": "555", "name": "Phone" }
+]
+```
+
 ```typescript title="api/User"
 import { Entity, RestEndpoint, Collection, Invalidate } from '@data-client/rest';
 

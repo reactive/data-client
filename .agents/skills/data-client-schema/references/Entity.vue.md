@@ -263,6 +263,15 @@ class User extends Entity {
 Defines [related entity](./relational-data.vue.md) members, or
 [field deserialization](https://dataclient.io/rest/guides/network-transform#deserializing-fields) like Date and BigNumber.
 
+```json title="GET /posts/123"
+{
+  "id": "5",
+  "author": { "id": "123", "name": "Jim" },
+  "content": "Happy day",
+  "createdAt": "2019-01-23T06:07:48.311Z"
+}
+```
+
 ```ts title="User"
 import { Entity } from '@data-client/rest';
 

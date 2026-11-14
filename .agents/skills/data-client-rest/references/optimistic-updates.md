@@ -145,6 +145,10 @@ To make only some endpoints optimistic, or to match an unusual API, set
 Some updates depend on the previous value, such as toggling a boolean or incrementing a counter. This example uses a
 counter.
 
+```json title="GET /api/count"
+{ "count": 0 }
+```
+
 ```ts title="count"
 import { Entity, RestEndpoint } from '@data-client/rest';
 

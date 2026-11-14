@@ -12,6 +12,18 @@ thus operates on POJOs rather than an instance of the class.
 
 Here we can make sure the title field is included, and of the expected type.
 
+```json title="GET /article/1"
+{ "id": "1", "title": "first" }
+```
+
+```json title="GET /article/2"
+{ "id": "2" }
+```
+
+```json title="GET /article/3"
+{ "id": "3", "title": { "complex": "second", "object": 5 } }
+```
+
 ```typescript title="api/Article"
 import { Entity, RestEndpoint } from '@data-client/rest';
 
@@ -46,6 +58,8 @@ render(<ArticlePage id="2" />);
 ### All fields check
 
 [validateRequired()](https://dataclient.io/rest/api/validateRequired) can be used to check if all defined fields are present.
+
+Responses as above: `GET /article/1`, `GET /article/2`, `GET /article/3`.
 
 ```tsx title="api/Article"
 import { Entity, RestEndpoint, validateRequired } from '@data-client/rest';
@@ -85,6 +99,28 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 Consider using [validateRequired](https://dataclient.io/rest/api/validateRequired) to reduce code.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
+```json title="GET /article"
+[{ "id": "1", "title": "first" }, { "id": "2", "title": "second" }]
+```
+
+```json title="GET /article/1"
+{
+  "id": "1",
+  "title": "first",
+  "content": "long",
+  "createdAt": "2011-10-05T14:48:00.000Z"
+}
+```
+
+```json title="GET /article/2"
+{
+  "id": "2",
+  "title": "second",
+  "content": "short",
+  "createdAt": "2011-10-05T14:48:00.000Z"
+}
+```
 
 ```typescript title="api/Article"
 import { Entity, RestEndpoint } from '@data-client/rest';

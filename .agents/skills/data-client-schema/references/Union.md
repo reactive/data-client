@@ -25,6 +25,18 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 >
 > If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created.
 
+```json title="GET /feed"
+[
+  {
+    "id": 1,
+    "type": "link",
+    "url": "https://ntucker.true.io",
+    "title": "Nate site"
+  },
+  { "id": 10, "type": "post", "content": "good day!" }
+]
+```
+
 ```typescript title="api/Feed"
 import { Entity, RestEndpoint, Union } from '@data-client/rest';
 
@@ -85,6 +97,8 @@ render(<FeedList />);
 ### Function schemaAttribute
 
 When the discriminator value doesn't directly match schema keys, use a function to compute which schema to use.
+
+Responses as above: `GET /feed`.
 
 ```typescript title="api/Feed"
 import { Entity, RestEndpoint, Union } from '@data-client/rest';

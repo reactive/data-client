@@ -54,6 +54,14 @@ To compute with them, such as adding time to a date or multiplying two numbers, 
 Use [Entity.schema](https://dataclient.io/rest/api/Entity#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and
 [BigNumber](https://github.com/MikeMcl/bignumber.js):
 
+```json title="GET /price/btc-usd"
+{
+  "exchangePair": "btc-usd",
+  "price": "32982389239823983298329832.238923982389328932893298",
+  "updatedAt": "2026-01-01T12:00:00.000Z"
+}
+```
+
 ```tsx title="api/Price"
 import { Entity, RestEndpoint } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';

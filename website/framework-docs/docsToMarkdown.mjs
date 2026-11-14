@@ -146,6 +146,60 @@ function attrValue(attribute, props, file) {
   return evaluate(attribute.value.value, props, file);
 }
 
+/** Stands in for an inline fixture's `new RestEndpoint()`, which only names the request */
+class FixtureEndpoint {
+  constructor(options) {
+    Object.assign(this, options);
+  }
+}
+
+/** Whether an expression is plain data, which reads the same on every build */
+function isData(node) {
+  switch (node?.type) {
+    case 'Literal':
+      return true;
+    case 'TemplateLiteral':
+      return !node.expressions.length;
+    case 'UnaryExpression':
+      return isData(node.argument);
+    case 'ArrayExpression':
+      return node.elements.every(isData);
+    case 'ObjectExpression':
+      return node.properties.every(
+        p => p.type === 'Property' && !p.computed && isData(p.value),
+      );
+  }
+  return false;
+}
+
+/** JSON that keeps an object or list on one line while it fits, like the docs' own samples */
+function compactJson(value, indent = '') {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  const entries =
+    Array.isArray(value) ?
+      value.map(v => [undefined, v])
+    : Object.entries(value);
+  const [open, close] = Array.isArray(value) ? '[]' : '{}';
+  if (!entries.length) return open + close;
+  const item = ([key, v], inner) =>
+    (key === undefined ? '' : `${JSON.stringify(key)}: `) +
+    compactJson(v, inner);
+  const pad = Array.isArray(value) ? '' : ' ';
+  const line = `${open}${pad}${entries.map(e => item(e, indent)).join(', ')}${pad}${close}`;
+  if (!line.includes('\n') && indent.length + line.length <= 80) return line;
+  const inner = `${indent}  `;
+  return `${open}\n${entries.map(e => inner + item(e, inner)).join(',\n')}\n${indent}${close}`;
+}
+
+/** `GET /article/1`: the request a fixture answers, as the playground lists it */
+function fixtureRequest({ endpoint, args: [params = {}] = [] }) {
+  const url = `${endpoint.urlPrefix ?? ''}${endpoint.path}`.replace(
+    /:(\w+)/g,
+    (param, name) => params[name] ?? param,
+  );
+  return `${endpoint.method ?? 'GET'} ${url}`;
+}
+
 /** JSX attributes, evaluated when read (others may use the page's imports) */
 function attributesOf(node, props, file) {
   const attrs = {};
@@ -255,7 +309,7 @@ const HTML = ['details', 'sup', 'sub', 'kbd'];
 const DROP = ['ThemedImage', 'head', 'SiteOnly'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
-function render(file, framework, props = {}) {
+function render(file, framework, props = {}, shownResponses = new Map()) {
   const content = contentFor(file, framework);
   if (!pageFrameworks(content).includes(framework)) return;
   const source = sourceFor(file, framework);
@@ -390,7 +444,9 @@ function render(file, framework, props = {}) {
     const attrs = attributesOf(node, props, source);
     if (partials[name]) {
       attrs.children = node.children;
-      return render(partials[name], framework, attrs)?.children ?? [];
+      return (
+        render(partials[name], framework, attrs, shownResponses)?.children ?? []
+      );
     }
     switch (name) {
       case 'CodeBlock':
@@ -520,7 +576,59 @@ function render(file, framework, props = {}) {
       code.data.playground = node;
       routed ||= /\broute=/.test(code.meta ?? '');
     });
-    return routed ? [routesNote(framework), ...children] : children;
+    return [
+      ...(routed ? [routesNote(framework)] : []),
+      ...fixtureResponses(node),
+      ...children,
+    ];
+  }
+
+  /**
+   * What the API sends in a playground, which the site shows in its fixtures
+   * list. Only inline fixtures with a fixed response: a function's answer
+   * depends on the request, and imported fixtures serve a whole demo.
+   */
+  function fixtureResponses(node) {
+    const value = node.attributes?.find(a => a.name === 'fixtures')?.value;
+    const list = value?.data?.estree?.body[0]?.expression;
+    if (list?.type !== 'ArrayExpression') return [];
+    let fixtures;
+    try {
+      fixtures = new Function('RestEndpoint', `return (${value.value});`)(
+        FixtureEndpoint,
+      );
+    } catch {
+      // names an endpoint the page imports
+      return [];
+    }
+    const repeated = [];
+    const blocks = list.elements.flatMap((element, i) => {
+      const response = element.properties?.find(
+        p => p.key?.name === 'response',
+      );
+      if (!isData(response?.value) || !fixtures[i].endpoint?.path) return [];
+      const request = fixtureRequest(fixtures[i]);
+      const json = compactJson(fixtures[i].response);
+      if (shownResponses.get(request) === json) {
+        repeated.push(request);
+        return [];
+      }
+      shownResponses.set(request, json);
+      return [codeBlock({ lang: 'json', value: json, title: request })];
+    });
+    return repeated.length ?
+        [
+          paragraph([
+            text('Responses as above: '),
+            ...repeated.flatMap((r, i) => [
+              ...(i ? [text(', ')] : []),
+              code(r),
+            ]),
+            text('.'),
+          ]),
+          ...blocks,
+        ]
+      : blocks;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */

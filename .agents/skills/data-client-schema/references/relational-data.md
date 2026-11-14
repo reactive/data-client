@@ -24,6 +24,45 @@ erDiagram
 
 </details>
 
+```json title="GET /posts"
+[
+  {
+    "id": "1",
+    "title": "My first post!",
+    "author": { "id": "123", "name": "Paul" },
+    "comments": [
+      {
+        "id": "249",
+        "content": "Nice post!",
+        "commenter": { "id": "245", "name": "Jane" }
+      },
+      {
+        "id": "250",
+        "content": "Thanks!",
+        "commenter": { "id": "123", "name": "Paul" }
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "This other post",
+    "author": { "id": "123", "name": "Paul" },
+    "comments": [
+      {
+        "id": "251",
+        "content": "Your other post was nicer",
+        "commenter": { "id": "245", "name": "Jane" }
+      },
+      {
+        "id": "252",
+        "content": "I am a spammer!",
+        "commenter": { "id": "246", "name": "Spambot5000" }
+      }
+    ]
+  }
+]
+```
+
 ```typescript title="resources/Post"
 import { Collection, Entity, resource } from '@data-client/rest';
 
@@ -348,6 +387,8 @@ arguments tell where the entity was nested: a `User` under a post's `author` key
 Then one fetch gives every view of the relationship, with no fetch per view.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
+Responses as above: `GET /posts`.
 
 ```typescript title="resources/Post"
 import { Entity, resource, type Schema } from '@data-client/rest';

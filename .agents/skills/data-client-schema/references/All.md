@@ -18,6 +18,14 @@ Retrieves all entities in cache as an Array.
 
 To describe a simple array of a singular entity type:
 
+```json title="GET /users"
+[{ "id": "123", "name": "Jim" }, { "id": "456", "name": "Jane" }]
+```
+
+```json title="POST /users"
+{ "id": "777", "name": "ABC" }
+```
+
 ```tsx title="api/User"
 import { Entity, RestEndpoint } from '@data-client/rest';
 
@@ -88,6 +96,18 @@ If your input data is an array of more than one type of entity, it is necessary 
 
 #### string schemaAttribute
 
+```json title="GET /feed"
+[
+  {
+    "id": 1,
+    "type": "link",
+    "url": "https://ntucker.true.io",
+    "title": "Nate site"
+  },
+  { "id": 10, "type": "post", "content": "good day!" }
+]
+```
+
 ```typescript title="api/Feed"
 import { Entity, RestEndpoint, All } from '@data-client/rest';
 
@@ -147,6 +167,8 @@ render(<FeedList />);
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
+
+Responses as above: `GET /feed`.
 
 ```typescript title="api/Feed"
 import { Entity, RestEndpoint, All } from '@data-client/rest';

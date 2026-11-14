@@ -131,6 +131,14 @@ export const getPosts = new RestEndpoint({
 
 ### Aggregates
 
+```json title="GET /users"
+[
+  { "id": "123", "name": "Jim" },
+  { "id": "456", "name": "Jane" },
+  { "id": "777", "name": "Albatras", "isAdmin": true }
+]
+```
+
 ```ts title="resources/User"
 import { Entity, resource } from '@data-client/rest';
 
@@ -286,6 +294,14 @@ export const TodoResource = resource({
 ### Object Schema Joins {#object-schema-joins}
 
 `Query` can take [Object Schemas](./Object.vue.md), enabling joins across multiple entity types. This allows you to combine data from different entities in a single query.
+
+```json title="GET /tickers/BTC-USD"
+{ "product_id": "BTC-USD", "price": 45000 }
+```
+
+```json title="GET /stats/BTC-USD"
+{ "product_id": "BTC-USD", "last": 44950 }
+```
 
 ```ts title="resources/Ticker"
 import { Entity, resource } from '@data-client/rest';

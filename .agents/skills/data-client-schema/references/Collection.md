@@ -13,6 +13,29 @@ and [.getPage](https://dataclient.io/rest/api/RestEndpoint#getpage)/ [.paginated
 
 ## Usage
 
+```json title="GET /users"
+[
+  {
+    "id": "1",
+    "username": "bob",
+    "name": "Bob",
+    "todos": [
+      { "id": "123", "title": "Build Collections", "userId": "1" },
+      { "id": "456", "title": "Add atomic creation", "userId": "1" }
+    ]
+  },
+  {
+    "id": "2",
+    "username": "alice",
+    "name": "Alice",
+    "todos": [
+      { "id": "34", "title": "Use Collections", "userId": "2" },
+      { "id": "453", "title": "Make a fast web app", "userId": "2" }
+    ]
+  }
+]
+```
+
 ```ts title="api/Todo" {12-14,19}
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 

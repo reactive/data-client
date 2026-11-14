@@ -29,6 +29,10 @@ Describes a map whose values follow the given schema.
 
 ## Usage
 
+```json title="GET /items"
+{ "firstThing": { "id": 1 }, "secondThing": { "id": 2 } }
+```
+
 ```ts title="api/Item"
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
 
@@ -75,6 +79,18 @@ If your input data is an object that has values of more than one type of entity,
 > If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created.
 
 #### string schemaAttribute
+
+```json title="GET /feed"
+[
+  {
+    "id": 1,
+    "type": "link",
+    "url": "https://ntucker.true.io",
+    "title": "Nate site"
+  },
+  { "id": 10, "type": "post", "content": "good day!" }
+]
+```
 
 ```typescript title="api/Feed"
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
@@ -153,6 +169,8 @@ export const getFeed = new RestEndpoint({
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
+
+Responses as above: `GET /feed`.
 
 ```typescript title="api/Feed"
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
