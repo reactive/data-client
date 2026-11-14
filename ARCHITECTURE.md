@@ -5,14 +5,14 @@ and replaced without the others.
 
 | Layer | Made of | Says | Packages |
 |---|---|---|---|
-| **API definition** | [Schemas](https://dataclient.io/rest/api/schema) | The declarative data model (nouns): identity, shape, relationships | `endpoint` |
-| | [Endpoints](https://dataclient.io/rest/api/Endpoint), grouped in [resources](https://dataclient.io/rest/api/resource) | The methods on that data (verbs): how to get it and change it | `endpoint`, `rest`, `graphql` |
+| **Data definition** | [Schemas](https://dataclient.io/rest/api/schema) | The data model (nouns): identity, shape, relationships | `endpoint` |
+| | [Endpoints](https://dataclient.io/rest/api/Endpoint), grouped in [resources](https://dataclient.io/rest/api/resource) | The API definition (verbs): the operations on that data model, to get it and change it | `endpoint`, `rest`, `graphql` |
 | **Runtime in the view framework** | Hooks (React), composables (Vue) | Data binding: which data a component needs, in the component that renders it | `react`, `vue` |
 | **Runtime outside the view framework** | [Managers](https://dataclient.io/docs/api/Manager) | Global side effects: the bridge from the store to the rest of the world (network, sockets, timers, other tabs, logging) | `core` |
 
 Both runtime layers work on one central store. `core` holds its reducer, its actions and
 [Controller](https://dataclient.io/docs/api/Controller), the type-safe, imperative access to it. `core` reads and
-writes data with `normalizr`, which knows a schema only by its interface. So the runtime imports no API definition
+writes data with `normalizr`, which knows a schema only by its interface. So the runtime imports no data definition
 package.
 
 ## Data flow
@@ -55,7 +55,7 @@ dispatches the response. A Manager for a websocket does the same with each messa
 
 ## Rules that keep the layers apart
 
-- **One definition, many uses.** API definitions depend on no runtime: `endpoint`, `rest` and `graphql` import neither
+- **One definition, many uses.** Data definitions depend on no runtime: `endpoint`, `rest` and `graphql` import neither
   `core` nor a view framework. The runtime depends only on their interfaces. One definition serves React, Vue, a
   server, a test and `ctrl.fetch()`.
 - **Data enters the store through its schema.** The reducer normalizes a response, `ctrl.setResponse()` and
