@@ -1100,9 +1100,9 @@ The reverse fields change with the store:
 - **Move.** A post with a new `author` joins the new author's `posts`. It also stays in the old author's `posts`,
   because `merge()` only adds ids.
 
-If a relationship can move, do not store the list. Derive it with a [Query](../api/Query.md) over
-[All](../api/All.md). The Query reads the current `author` of each post. It runs when it is read, and again each
-time any post changes:
+A reverse lookup cannot follow a move. If a relationship can move, do not store the list on the entity. Derive it
+where it is read, with a [Query](../api/Query.md) over [All](../api/All.md). The Query reads the current `author`
+of each post. It runs when it is read, and again each time any post changes:
 
 ```ts
 import { All, Query } from '@data-client/rest';
