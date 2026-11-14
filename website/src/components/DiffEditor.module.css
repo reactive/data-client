@@ -2,16 +2,11 @@
   margin: 0;
 }
 
-/* the figure reaches past the prose (wide-embed); its text stays in line
-   with the prose */
-.caption,
-.callouts {
-  max-width: var(--doc-prose-width);
-  margin-inline: auto;
-}
-
+/* The figure reaches past the prose (wide-embed, css/customTheme.css, which
+   sets --doc-prose-width); its text stays in line with the prose */
 .caption {
-  margin-bottom: 0.5rem;
+  max-width: var(--doc-prose-width);
+  margin: 0 auto 0.5rem;
   font-size: 0.9rem;
   color: var(--ifm-color-emphasis-800);
 }
@@ -83,7 +78,8 @@
 .callouts {
   list-style: none;
   /* The editor and fallback carry their own bottom margin; tuck under it */
-  margin-block: calc(0.5rem - var(--ifm-leading)) var(--ifm-leading);
+  max-width: var(--doc-prose-width);
+  margin: calc(0.5rem - var(--ifm-leading)) auto var(--ifm-leading);
   padding: 0;
   font-size: 0.9rem;
 }

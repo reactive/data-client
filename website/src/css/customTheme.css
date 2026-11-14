@@ -176,13 +176,15 @@ small {
   }
 }
 
-/* Wide screens: the doc column grows past the prose, which keeps a readable
-   measure in the column's middle, so side-by-side embeds (`wide-embed`: row
-   Playgrounds, DiffEditor, StackBlitz, Grid) reach out evenly on both sides
-   of it. Infima's xl container (1320px) gives the column 958px beside the
-   TOC: the prose measure. Below it the column is never wider, so narrower
-   screens are unchanged. The column is the `doc` container that components'
-   container queries measure */
+/* Docs: the prose keeps a readable measure (958px, the doc column's width
+   beside the TOC in Infima's 1320px container), in the middle of the doc
+   column. On wide screens a 1680px container makes the column wider than
+   that (the TOC, a quarter of the row, widens a little too), and
+   side-by-side embeds (`wide-embed`: row Playgrounds, DiffEditor,
+   StackBlitz, Grid) reach out evenly on both sides of the prose into it.
+   Pages with a TOC only grow a column past 958px on such screens; pages
+   without one cap their prose at 958px too. The column is the `doc`
+   container that components' container queries measure */
 .docs-wrapper main > .container {
   --ifm-container-width-xl: 1680px;
 }
@@ -196,12 +198,23 @@ small {
   max-width: var(--doc-prose-width);
   margin-inline: auto;
 }
-/* an embed, or the block holding one (Tabs, say) */
-.theme-doc-markdown > :is(.wide-embed, :has(.wide-embed)) {
-  margin-inline: min(
-    0px,
-    (var(--doc-prose-width) - min(100cqw, var(--doc-wide-width))) / 2
+/* half of what the column (100cqw, up to --doc-wide-width) has past the
+   prose, out on each side; none while the column is no wider. An embed in
+   Tabs reaches out the same: the block holding it is prose-wide too. No
+   :has() here: Monaco changes the DOM on every keystroke (Playground
+   README) */
+.theme-doc-markdown .wide-embed {
+  margin-inline: calc(
+    -1 *
+      max(
+        0px,
+        (min(100cqw, var(--doc-wide-width)) - var(--doc-prose-width)) / 2
+      )
   );
+}
+/* one inside another (DiffEditor's Grid) fills it */
+.theme-doc-markdown .wide-embed .wide-embed {
+  margin-inline: 0;
 }
 
 /* a diagram beside the doc text after it, or under it when the doc column is
