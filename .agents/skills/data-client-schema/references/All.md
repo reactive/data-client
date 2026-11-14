@@ -18,8 +18,8 @@ entity must nest a list that no response has, use a [reverse lookup](./relationa
 
 `All` has only the entities in the store.
 [Garbage collection](https://dataclient.io/docs/api/DataProvider#gcPolicy)
-removes an entity after components stop using it. An entity stays in the store while a component uses it, or uses
-an entity that nests it.
+removes an entity after components stop using it, once it has gone stale. An entity stays in the store while a
+component uses it, or uses an entity that nests it.
 
 ## Instance Methods
 

@@ -108,7 +108,7 @@
         "`Sensor` nests the readings it has received: its `schema` maps a list field to `[Reading]`, `process()` fills it from `latest`, and `merge()` joins the stored and incoming ids.",
         "A reading that several responses carried is in the list once.",
         "The history is not collected by a Manager, a `useEffect()`, component state or a module variable.",
-        "The history is not only a `Query` over `All(Reading)`: garbage collection removes a reading after the overview stops using it, so the readings that arrived before the page opened are lost.",
+        "The history is not only a `Query` over `All(Reading)`: garbage collection can remove a reading after the overview stops using it, so readings that arrived before the page opened can be lost.",
         "The page requests nothing but the sensor."
       ]
     }
