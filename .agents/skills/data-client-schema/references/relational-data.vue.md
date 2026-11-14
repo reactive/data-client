@@ -347,19 +347,12 @@ arguments tell where the entity was nested: a `User` under a post's `author` key
 user's `comments` holds the ids that `process()` added, and `process()` does not run for an id. When two kinds of
 parent nest objects under the same key, also check a field that only one of them has.
 
-Then one fetch gives every view of the relationship, with no fetch per view. `queryUsers` sorts the People table
-by `user.posts` or `user.comments`. A person's page lists both, and names the post of each comment.
+Then one fetch gives every view of the relationship, with no fetch per view.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
 ```typescript title="resources/Post"
-import {
-  All,
-  Entity,
-  Query,
-  resource,
-  type Schema,
-} from '@data-client/rest';
+import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -446,58 +439,6 @@ export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
-
-export type SortBy = 'posts' | 'comments';
-
-// `posts` and `comments` are in each user, so a Query can sort by them
-export const queryUsers = new Query(
-  new All(User),
-  (users, { sortBy }: { sortBy: SortBy }) =>
-    [...users].sort((a, b) => b[sortBy].length - a[sortBy].length),
-);
-```
-
-```html title="PeoplePage.vue" route="/users" start="/users"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import { useQuery, useSuspense } from '@data-client/vue';
-  import { PostResource, queryUsers, type SortBy } from './resources/Post';
-
-  await useSuspense(PostResource.getList);
-  const sortBy = ref<SortBy>('posts');
-  const users = useQuery(queryUsers, () => ({ sortBy: sortBy.value }));
-  const columns: Record<SortBy, string> = {
-    posts: 'Posts',
-    comments: 'Comments',
-  };
-</script>
-
-<template>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th
-          v-for="(label, column) in columns"
-          :key="column"
-          class="value"
-          :aria-sort="sortBy === column ? 'descending' : undefined"
-        >
-          <button class="sort" @click="sortBy = column">{{ label }}</button>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="user in users" :key="user.pk()">
-        <td>
-          <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
-        </td>
-        <td class="value">{{ user.posts.length }}</td>
-        <td class="value">{{ user.comments.length }}</td>
-      </tr>
-    </tbody>
-  </table>
-</template>
 ```
 
 ```html title="UserPage.vue" route="/users/:id"
@@ -512,28 +453,56 @@ export const queryUsers = new Query(
 </script>
 
 <template>
-  <h2>{{ user.name }}</h2>
-  <section v-if="user.posts.length">
-    <h3>Posts</h3>
-    <div class="list">
-      <div v-for="post in user.posts" :key="post.pk()" class="listItem">
-        {{ post.title }}
-      </div>
-    </div>
-  </section>
-  <section v-if="user.comments.length">
-    <h3>Comments</h3>
-    <div class="list">
-      <div
-        v-for="comment in user.comments"
-        :key="comment.pk()"
-        class="listItem"
-      >
+  <div>
+    <h4>{{ user.name }}</h4>
+    <template v-if="user.posts.length">
+      <h5>Posts</h5>
+      <ul>
+        <li v-for="post in user.posts" :key="post.pk()">
+          {{ post.title }}
+        </li>
+      </ul>
+    </template>
+    <h5>Comments</h5>
+    <ul>
+      <li v-for="comment in user.comments" :key="comment.pk()">
         {{ comment.content }}
-        <span class="meta">{{ comment.post.title }}</span>
-      </div>
+      </li>
+    </ul>
+  </div>
+</template>
+```
+
+```html title="PostPage.vue" route="/"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './resources/Post';
+
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <div v-for="post in posts" :key="post.pk()">
+      <h4>
+        {{ post.title }} -
+        <RouterLink :to="`/users/${post.author.id}`">
+          {{ post.author.name }}
+        </RouterLink>
+      </h4>
+      <ul>
+        <li v-for="comment in post.comments" :key="comment.pk()">
+          {{ comment.content }}
+          <small>
+            <RouterLink :to="`/users/${comment.commenter.id}`">
+              {{ comment.commenter.name }}{{ comment.commenter ===
+              post.author ? ' [OP]' : '' }}
+            </RouterLink>
+          </small>
+        </li>
+      </ul>
     </div>
-  </section>
+  </div>
 </template>
 ```
 
