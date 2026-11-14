@@ -352,6 +352,8 @@ export default function Playground<T>({
       data-playground
       className={clsx(styles.playgroundQueryContainer, {
         [styles.hidden]: hidden,
+        // side by side, it takes the doc column's full width
+        'wide-embed': layout === 'row',
       })}
     >
       <div

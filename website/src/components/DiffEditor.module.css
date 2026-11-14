@@ -2,6 +2,13 @@
   margin: 0;
 }
 
+/* the figure takes the wide doc column (wide-embed); its text keeps the
+   prose measure */
+.caption,
+.callouts {
+  max-width: var(--doc-prose-width);
+}
+
 .caption {
   margin-bottom: 0.5rem;
   font-size: 0.9rem;

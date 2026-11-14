@@ -11,7 +11,7 @@ export default function Grid({
   wrap?: boolean;
 }) {
   return (
-    <div className={clsx(styles.grid, { [styles.wrap]: wrap })}>
+    <div className={clsx(styles.grid, 'wide-embed', { [styles.wrap]: wrap })}>
       {typeof children === 'string' ?
         children
       : Array.isArray(children) ?

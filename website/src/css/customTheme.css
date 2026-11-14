@@ -176,6 +176,23 @@ small {
   }
 }
 
+/* Wide screens: the doc column grows past the prose, which keeps a readable
+   measure, so side-by-side embeds (`wide-embed`: row Playgrounds, DiffEditor,
+   StackBlitz, Grid) get room for both sides. Infima's xl container (1320px)
+   gives the column 958px beside the TOC: the prose measure. Below it the
+   column is never wider, so narrower screens are unchanged */
+.docs-wrapper main > .container {
+  --ifm-container-width-xl: 1680px;
+}
+.theme-doc-markdown {
+  --doc-prose-width: 958px;
+}
+/* :where() so a component's own max-width wins; an ancestor of an embed
+   (Tabs, say) widens with it */
+:where(.theme-doc-markdown > :not(.wide-embed, :has(.wide-embed))) {
+  max-width: var(--doc-prose-width);
+}
+
 /* a diagram beside the doc text after it, or under it when the doc column is
    too narrow for both */
 .theme-doc-markdown {
@@ -186,7 +203,8 @@ small {
   float: right;
   width: 440px;
   max-width: 100%;
-  margin: 0 0 1rem 1.25rem;
+  /* at the prose's right edge, where the column is wider than the prose */
+  margin: 0 max(0px, 100cqw - var(--doc-prose-width)) 1rem 1.25rem;
 }
 @container doc (max-width: 700px) {
   .theme-doc-markdown .doc-float {
