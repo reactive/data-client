@@ -45,11 +45,53 @@
       "expected_output": "User gets posts and comments, and Comment its post, in the schema: process() reads parent and key to store the id it was nested under, merge() joins the id lists without repeats, and the schemas are set after the classes. The profile reads UserResource.get.",
       "files": [],
       "assertions": [
-        "Reads the \"Reverse lookups\" section of references/relational-data.md before editing.",
+        "Before writing a reverse lookup (`process()` with `parent`/`key` plus `merge()`), reads the \"Reverse lookups\" section of references/relational-data.md.",
         "The reverse relationships live in the schema layer: `process()` with `parent`/`key` plus `merge()`, or a `Query` over `All`. The component does not filter the feed's list or build a lookup map.",
         "With `merge()`, a second fetch of `/api/posts` does not list a post or comment twice.",
         "A comment fetched or nested outside a post keeps its post.",
         "No new endpoint, no refetch of the feed, and no request per post or comment."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "children-no-response-lists",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): 2 of 10 runs wrote `new Query(MatchResource.getList.schema, (matches, { id }) => ...)` and read it with `useQuery(query, { id })`. The arguments also go to the schema, no list was fetched with `{ id }`, and the pages were empty.",
+      "prompt": "Add two pages. `/teams/:id` shows the team's name, then every match the team plays, home or away, as `Lions vs Tigers`. `/players/:id` shows the player's name, then one line per goal they scored, as `Lions vs Tigers, 12'`.\n\nThe schedule (src/pages/Schedule.tsx) already loads `MatchResource.getList` from `GET /api/matches`, which returns:\n\n```json\n[\n  {\n    \"id\": \"m1\",\n    \"kickoff\": \"2026-03-01T15:00:00Z\",\n    \"home\": { \"id\": \"t1\", \"name\": \"Lions\" },\n    \"away\": { \"id\": \"t2\", \"name\": \"Tigers\" },\n    \"goals\": [\n      { \"id\": \"g1\", \"minute\": 12, \"scorer\": { \"id\": \"p1\", \"name\": \"Ada\" } },\n      { \"id\": \"g2\", \"minute\": 40, \"scorer\": { \"id\": \"p2\", \"name\": \"Bo\" } }\n    ]\n  }\n]\n```\n\n`GET /api/teams/:id` and `GET /api/players/:id` return only `{ \"id\", \"name\" }`. The API has no endpoint for a team's matches or a player's goals, and we can't change the API. People reach these pages from the schedule, so the schedule is loaded first. Opening a page must not fetch the schedule again or make a request per match or goal. The schedule is refetched now and then while the app is open, and the pages must stay right when it is.",
+      "expected_output": "The pages read the matches and goals already in the store: a `Query` over `All(Match)` that filters by the team or player id, or reverse lookups with `process()` and a `merge()` that joins ids once. No new endpoint and no schedule request.",
+      "files": [],
+      "assertions": [
+        "A team's matches and a player's goals come from the store: no new endpoint, no request for the schedule and none per match or goal.",
+        "A `Query` that takes the team or player id as an argument has `All` as its schema. It is not `MatchResource.getList.schema` read with `{ id }`, which finds no list.",
+        "After `/api/matches` is fetched a second time, each match and each goal shows once.",
+        "A match that a later schedule response adds shows on its teams' pages."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "children-link-moves",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): 1 of 10 runs read a `Query` over `TicketResource.getList.schema` with `{ agentId }` and rendered no tickets. A reverse lookup would also fail here: its `merge()` keeps a reassigned ticket in the old agent's list.",
+      "prompt": "Add an agent page at `/agents/:id`. It shows the agent's name, then the subject of every ticket assigned to that agent.\n\nThe inbox (src/pages/Inbox.tsx) already loads `TicketResource.getList` from `GET /api/tickets`, which returns:\n\n```json\n[\n  { \"id\": \"k1\", \"subject\": \"Printer offline\", \"assignee\": { \"id\": \"a1\", \"name\": \"Rosa\" } },\n  { \"id\": \"k2\", \"subject\": \"Reset my password\", \"assignee\": { \"id\": \"a2\", \"name\": \"Sam\" } }\n]\n```\n\n`GET /api/agents/:id` returns only `{ \"id\", \"name\" }`. The API has no endpoint for an agent's tickets, and we can't change the API. People reach an agent's page from the inbox, so the inbox is loaded first. Opening the page must not fetch the inbox again or make a request per ticket.\n\nTickets get reassigned. Other screens call `TicketResource.partialUpdate({ id }, { assigneeId })`; `PATCH /api/tickets/:id` answers with the whole ticket, its new `assignee` nested as above. After that, the old and the new agent's pages must both be right without another request.",
+      "expected_output": "A `Query` over `All(Ticket)` filters by each ticket's current assignee, read with `useQuery()`. The PATCH response updates the ticket, so both agents' pages follow with no request.",
+      "files": [],
+      "assertions": [
+        "The agent's tickets come from a `Query` over `All(Ticket)` (or an equal read of every stored ticket) that filters on the ticket's current assignee.",
+        "It is not a reverse lookup whose `merge()` only adds ticket ids to the agent: after a reassign the ticket must leave the old agent's page.",
+        "A `Query` that takes the agent id as an argument does not use `TicketResource.getList.schema` as its schema.",
+        "Opening the page and reassigning a ticket make no request other than the agent's own `GET` and the `PATCH`."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "nested-list-create",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): with master's skills 2 of 5 runs appended the new track by hand with `ctrl.set()`, and one later run wrote an Entity subclass with a custom `merge()` that joins track ids.",
+      "prompt": "On the playlist page (src/pages/PlaylistPage.tsx), add a form under the track list: a text input labelled `Title` and a button `Add track`.\n\nSubmitting sends `POST /api/playlists/:id/tracks` with the JSON body `{ \"title\": \"...\" }`. The response is only the new track:\n\n```json\n{ \"id\": \"t9\", \"title\": \"Night Drive\", \"seconds\": 0 }\n```\n\nThe new track must show at the end of the list as soon as the response arrives, without requesting the playlist again.\n\nThe page loads `PlaylistResource.get` from `GET /api/playlists/:id`, which returns:\n\n```json\n{\n  \"id\": \"p1\",\n  \"name\": \"Road trip\",\n  \"tracks\": [\n    { \"id\": \"t1\", \"title\": \"First Light\", \"seconds\": 201 },\n    { \"id\": \"t2\", \"title\": \"Second Wind\", \"seconds\": 187 }\n  ]\n}\n```\n\nOther people edit the same playlist, and it is refetched now and then while the page is open. After a refetch the list must be exactly what the server returned.",
+      "expected_output": "`Playlist.schema.tracks` is a `Collection([Track], { nestKey })`, and the POST endpoint's schema is that Collection's `push`. A refetch of the playlist replaces the list.",
+      "files": [],
+      "assertions": [
+        "`tracks` on `Playlist` is a `Collection` with `nestKey`, and the POST endpoint's `schema` is its `push`.",
+        "No custom `merge()` joins track ids, and no `ctrl.set()` rebuilds `tracks` by hand.",
+        "The POST is the only request when a track is added.",
+        "After the playlist is fetched again, the list is exactly the response's tracks."
       ]
     }
   ]

@@ -400,9 +400,10 @@ export class User extends Entity {
   }
 }
 
-/** Every id once, so a refetch does not add the same ones again */
+/** Adds the ids not listed yet, so a refetch does not add the same ones again */
 function union(existing: string[] = [], incoming: string[] = []) {
-  return [...new Set([...existing, ...incoming])];
+  const added = incoming.filter(id => !existing.includes(id));
+  return added.length ? [...existing, ...added] : existing;
 }
 
 export class Comment extends Entity {

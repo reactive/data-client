@@ -44,7 +44,7 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
   );
   ```
 
-  A Query's `schema` and its function both receive every argument of `useQuery(query, ...args)`, the function
+  A Query's `schema` and its function (`process`) both receive every argument of `useQuery(query, ...args)`, the function
   after the entries, so check the arguments against both: they must hold what each one reads. The schema finds
   its data with them exactly as `useQuery(schema, ...args)` would; when it finds nothing, `useQuery()` returns
   `undefined` and the function does not run. An argument meant only for the function must be one the schema's
@@ -169,12 +169,12 @@ returns fewer fields than the detail endpoint.
 
 Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
-Each guide holds a complete working example: the API response, the schema and the component. Find the row
-that matches the task and read that section before writing code.
+Each guide holds working code for its case. Find the row that matches the task and read that section before
+writing code.
 
 ## Relationships
 
-All in [relational-data](references/relational-data.md):
+In [relational-data](references/relational-data.md), unless the row names another place:
 
 | Situation | Section | Technique |
 |---|---|---|

@@ -253,7 +253,7 @@ This is useful for websockets, SSE, logging, etc. Pass a module-level function t
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller :react[React]:vue[Vue] components that do one thing
 - **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and store entry
-- **Don't join data in components**: when data from two endpoints belongs together (a row's related record by id, a parent's children, a child's parent), declare the relationship on the Entity (skill "data-client-schema", "Relationships"). Don't build a lookup `Map` or call `find()` per row in a component
+- **Don't join data in components**: when data from two endpoints belongs together (a row's related record by id, a parent's children, a child's parent), declare the relationship in the schema (skill "data-client-schema", "Relationships"). Don't build a lookup `Map` or call `find()` per row in a component
 - **Don't hide data bindings inside custom :react[hooks]:vue[composables]**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 :::vue
 - Don't copy results into `ref()`/`reactive()` state; render the returned refs directly so updates flow through
