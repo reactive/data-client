@@ -25,7 +25,7 @@ need several.
 
 - **Data definition**, which does not depend on a view framework: one definition, many uses. Schemas declare the data
   model (nouns). Endpoints are the API definition: the operations on that data model (verbs).
-- **Runtime in the view framework**. Hooks (React) or composables (Vue) bind the data to the component that renders it.
+- **Runtime in the view framework**. Hooks bind the data to the component that renders it.
 - **Runtime outside the view framework**. Managers orchestrate global side effects: they bridge the store to the rest
   of the world, as `useEffect` bridges a component to what is outside React.
 

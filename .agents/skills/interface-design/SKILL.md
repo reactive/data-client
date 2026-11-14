@@ -6,7 +6,7 @@ description: Interface design principles for package APIs — where configuratio
 
 [Resources](/rest/api/resource) are a collection of **methods** for a given **data model**. [Entities](/rest/api/Entity) and [Schemas](/rest/api/schema) declaratively define the data model. [Endpoints](/rest/api/Endpoint) are the methods on that data. Both should be as **declarative as possible** — describing *what*, not *how*.
 
-The root `ARCHITECTURE.md` names the layers: data definition (schemas for the data model, endpoints for the API definition), runtime in the view framework (hooks, composables), and runtime outside it (Managers). Each part changes for different reasons, is used in different contexts, and composes independently. Place new configuration or behavior in the part whose **reason to change** matches.
+The root `ARCHITECTURE.md` names the layers: the data definition (schemas for the data model, endpoints for the API definition), and in the client, the runtime in the view framework (hooks) and the runtime outside it (Managers). Each part changes for different reasons, is used in different contexts, and composes independently. Place new configuration or behavior in the part whose **reason to change** matches.
 
 ## Where an interface goes
 
