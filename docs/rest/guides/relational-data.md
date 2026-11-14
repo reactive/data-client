@@ -572,8 +572,9 @@ First check whether a response has the list. That decides the tool:
 
 A `Collection` is the server's list. Each fetch replaces it, and [push](../api/Collection.md#push),
 [remove](../api/Collection.md#remove) and [move](../api/Collection.md#move) keep it current after a mutation, so it
-needs no custom `merge()`. For the same reason a reverse lookup cannot fill one: of a user's two posts, it would keep
-only the last. A custom `merge()` is for a list that no response has, which the store collects one member at a time.
+needs no custom `merge()`. A reverse lookup adds one post at a time, so it cannot fill a `Collection`: each post would
+replace the list, and of a user's two posts only the last would stay. A custom `merge()` is for a list that no
+response has, which the store collects one member at a time.
 
 To add the reverse relationship, override [Entity.process](../api/Entity.md#process). Its `parent` and `key`
 arguments tell where the entity was nested: a `User` under a post's `author` key adds that post's id to its own
