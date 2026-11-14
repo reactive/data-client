@@ -85,6 +85,24 @@ describe('playground fixture responses', () => {
     );
   });
 
+  it('leave out a fixture whose request the page computes', () => {
+    const fixtures = [
+      `{ endpoint: new RestEndpoint({ path: '/a/:id' }), args: [{ id }], response: { id: 1 } }`,
+      `{ endpoint: new RestEndpoint({ path: '/a', method: METHOD }), response: { id: 1 } }`,
+      `{ endpoint: new RestEndpoint({ path: '/a', urlPrefix: API }), response: { id: 1 } }`,
+      `{ endpoint: new RestEndpoint({ path: '/a', ...options }), response: { id: 1 } }`,
+      `{ endpoint: new RestEndpoint({ path: '/a' }), response: { id: 1 }, ...more }`,
+    ];
+    assert.deepEqual(jsonBlocks(render(`[${fixtures.join(', ')}]`)), []);
+  });
+
+  it('read template and signed number literals as data', () => {
+    const markdown = render(
+      '[{ endpoint: new RestEndpoint({ path: `/a` }), response: { n: -1, m: +1 } }]',
+    );
+    assert.deepEqual(jsonBlocks(markdown), [['GET /a', '{ "n": -1, "m": 1 }']]);
+  });
+
   it('name a response the page already showed', () => {
     const fixtures = `[{ endpoint: new RestEndpoint({ path: '/a' }), response: { id: 1 } }]`;
     const markdown = render(fixtures, fixtures);

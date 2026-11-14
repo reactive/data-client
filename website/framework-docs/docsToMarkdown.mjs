@@ -152,8 +152,10 @@ function isData(node) {
     case 'Literal':
       // a regex or BigInt literal has no JSON form
       return !node.regex && typeof node.value !== 'bigint';
+    case 'TemplateLiteral':
+      return !node.expressions.length;
     case 'UnaryExpression':
-      return node.operator === '-' && isData(node.argument);
+      return '+-'.includes(node.operator) && isData(node.argument);
     case 'ArrayExpression':
       return node.elements.every(isData);
     case 'ObjectExpression':
@@ -185,11 +187,13 @@ function compactJson(value, indent = '') {
     .join(',\n')}\n${indent}${close}`;
 }
 
-/** A property's value node in an object literal */
-const property = (object, name) =>
-  object?.properties?.find(
-    p => !p.computed && (p.key?.name ?? p.key?.value) === name,
-  )?.value;
+/** An object literal's value nodes by key; nothing if a spread or computed key hides one */
+const properties = object =>
+  object?.properties?.every(p => p.type === 'Property' && !p.computed) ?
+    Object.fromEntries(
+      object.properties.map(p => [p.key.name ?? p.key.value, p.value]),
+    )
+  : {};
 
 /** `GET /article/1`: the request a fixture answers */
 function fixtureRequest(
@@ -597,27 +601,30 @@ function render(file, framework, props = {}, shownResponses = new Map()) {
     const list = node.attributes?.find(a => a.name === 'fixtures')?.value?.data
       ?.estree?.body[0]?.expression;
     if (list?.type !== 'ArrayExpression') return [];
-    // plain data names nothing on the page, so it evaluates by itself
-    const data = (object, name) => {
-      const value = property(object, name);
-      return isData(value) ? run(value) : undefined;
-    };
     const repeated = [];
     const blocks = list.elements.flatMap(fixture => {
-      const endpoint = property(fixture, 'endpoint');
-      const optionsNode =
-        endpoint?.type === 'NewExpression' &&
-        endpoint.callee.name === 'RestEndpoint' &&
-        endpoint.arguments[0];
-      const options = {
-        path: data(optionsNode, 'path'),
-        method: data(optionsNode, 'method'),
-        urlPrefix: data(optionsNode, 'urlPrefix'),
-      };
-      const response = data(fixture, 'response');
-      if (!options.path || response === undefined) return [];
-      const request = fixtureRequest(options, data(fixture, 'args'));
-      const json = compactJson(response);
+      const { endpoint, args, response } = properties(fixture);
+      const { path, method, urlPrefix } =
+        (
+          endpoint?.type === 'NewExpression' &&
+          endpoint.callee.name === 'RestEndpoint'
+        ) ?
+          properties(endpoint.arguments[0])
+        : {};
+      const nodes = { path, method, urlPrefix, args, response };
+      // a value the page computes is not known here, and would name the wrong request
+      if (
+        !path ||
+        !response ||
+        !Object.values(nodes).every(n => !n || isData(n))
+      )
+        return [];
+      // plain data names nothing on the page, so it evaluates by itself
+      const value = Object.fromEntries(
+        Object.entries(nodes).map(([name, n]) => [name, n && run(n)]),
+      );
+      const request = fixtureRequest(value, value.args);
+      const json = compactJson(value.response);
       if (shownResponses.get(request) === json) {
         repeated.push(request);
         return [];

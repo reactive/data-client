@@ -365,8 +365,9 @@ arguments tell where the entity was nested: a `User` under a post's `author` key
 `posts`. The same user can be nested many times, each time with another post or comment. So also override
 [Entity.merge](./Entity.vue.md#merge) to join those lists; the default merge keeps only the last one.
 
-`key` is enough here, because only a post nests an `author` or `comments`. When two kinds of parent use the same
-key, also check a field that only one of them has.
+`key` is enough here. Only a post nests an `author`, and only a post nests comment objects under `comments`: a
+user's `comments` holds the ids that `process()` added, and `process()` does not run for an id. When two kinds of
+parent nest objects under the same key, also check a field that only one of them has.
 
 Then one fetch gives every view of the relationship, with no fetch per view.
 
