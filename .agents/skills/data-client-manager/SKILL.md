@@ -1,13 +1,28 @@
 ---
 name: data-client-manager
-description: "Write @data-client Managers for app-wide side effects and real-time data such as websockets, SSE and polling: code that reacts to every request or to events from outside the app and updates the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync."
+description: "Write @data-client Managers, the runtime layer that bridges the store to the world outside the view framework: global side effects and real-time data such as websockets, SSE and polling. A Manager reacts to every request or to events from outside the app, and moves data into or out of the store. Use one instead of useEffect for behavior that belongs to the whole app, such as error toasts and reporting, logging and analytics, auth failures, refetching on focus or reconnect, and cross-tab sync. Not for the shape of data: data built from responses (joined, derived, or accumulated) is defined in a schema, so use data-client-schema."
 license: Apache 2.0
 ---
 
-# Guide: Using `@data-client` Managers for global side effects
+# Managers: the store's bridge to the world outside the view framework
 
-[Managers](references/managers.md) handle global side-effects. Kind of like useEffect() for the central data store.
-They interface with the store using [Controller](references/Controller.md), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](references/Actions.md).
+Data Client keeps three layers apart. The data definition is the data model (schemas) and the API definition
+(endpoints): the operations on that data model. Hooks are the runtime in the view framework.
+[Managers](references/managers.md) are the runtime outside it: they bridge the store to sockets, timers, browser events,
+other tabs, logging and reporting services, as `useEffect` bridges a component to what is outside React.
+
+The store is [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): unidirectional data flow through a
+pure reducer. Managers orchestrate its global side effects, in two directions:
+
+- **In**: an outside event becomes an [action](references/Actions.md), dispatched through
+  [Controller](references/Controller.md): a socket message, a timer, a window focus.
+- **Out**: an action causes an effect outside the store, from the Manager's
+  [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware): a log line, a toast, a
+  report.
+
+A Manager does not define data. The data model stays in the schema, also when a Manager delivers the data: the Manager
+calls `controller.set()`, and the Entity's `process()` and `merge()` decide what the store keeps. Data joined, derived,
+or accumulated from responses needs no Manager of its own: write it in the schema (skill "data-client-schema").
 
 ## Single Responsibility
 

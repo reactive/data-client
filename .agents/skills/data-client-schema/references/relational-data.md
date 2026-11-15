@@ -337,15 +337,13 @@ Example app: [coin-app](https://github.com/reactive/data-client/tree/master/exam
 
 Nesting data when your endpoint doesn't (part 2).
 
-A response can nest in one direction only. To add the reverse relationship, override
-[Entity.process](./Entity.md#process). You might also need to override [Entity.merge](./Entity.md#merge) to
-deep merge those fields.
-
-Then one fetch gives every view of the relationship, with no fetch per view.
+A response nests in one direction only. Here `/posts` nests each post's `author`, but no response lists a user's
+posts. A reverse lookup builds that list on the client, so one fetch of `/posts` also gives each user's `posts`
+and `comments`. Click a name to see them.
 
 Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
 
-```typescript title="resources/Post"
+```typescript title="resources/Post" {9-20,22-30}
 import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
@@ -354,28 +352,35 @@ export class User extends Entity {
   posts: Post[] = [];
   comments: Comment[] = [];
 
-  static merge(existing, incoming) {
-    return {
-      ...existing,
-      ...incoming,
-      posts: [...(existing.posts || []), ...(incoming.posts || [])],
-      comments: [
-        ...(existing.comments || []),
-        ...(incoming.comments || []),
-      ],
-    };
-  }
-
   static process(value, parent, key) {
     switch (key) {
+      // nested as a post's author: that post is one of this user's
       case 'author':
         return { ...value, posts: [parent.id] };
+      // nested as a comment's commenter
       case 'commenter':
         return { ...value, comments: [parent.id] };
       default:
         return { ...value };
     }
   }
+
+  // one user is nested many times, each with one post or comment
+  static merge(existing, incoming) {
+    return {
+      ...existing,
+      ...incoming,
+      posts: union(existing.posts, incoming.posts),
+      comments: union(existing.comments, incoming.comments),
+    };
+  }
+}
+
+/** Adds the ids not listed yet, so a refetch does not add the same ones again.
+ * Does not remove repeats within `incoming`: here each copy of a user brings one id. */
+function union(existing: string[] = [], incoming: string[] = []) {
+  const added = incoming.filter(id => !existing.includes(id));
+  return added.length ? [...existing, ...added] : existing;
 }
 
 export class Comment extends Entity {
@@ -387,8 +392,12 @@ export class Comment extends Entity {
   static schema: Record<string, Schema> = {
     commenter: User,
   };
+
   static process(value, parent, key) {
-    return { ...value, post: parent.id };
+    // only a post's `comments` tells which post this comment is on
+    return key === 'comments' ?
+        { ...value, post: parent.id }
+      : { ...value };
   }
 }
 
@@ -404,7 +413,7 @@ export class Post extends Entity {
   };
 }
 
-// with cirucular dependencies we must set schema after they are all defined
+// the classes refer to each other, so set these after all are defined
 User.schema = {
   posts: [Post],
   comments: [Comment],
@@ -417,7 +426,6 @@ Comment.schema = {
 export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
-  dataExpiryLength: Infinity,
 });
 export const UserResource = resource({
   path: '/users/:id',
@@ -439,7 +447,7 @@ export default function UserPage({ id }) {
           <h5>Posts</h5>
           <ul>
             {user.posts.map(post => (
-              <li>{post.title}</li>
+              <li key={post.pk()}>{post.title}</li>
             ))}
           </ul>
         </>
@@ -447,7 +455,7 @@ export default function UserPage({ id }) {
       <h5>Comments</h5>
       <ul>
         {user.comments.map(comment => (
-          <li>{comment.content}</li>
+          <li key={comment.pk()}>{comment.content}</li>
         ))}
       </ul>
     </div>
@@ -489,13 +497,53 @@ export default function PostPage() {
 }
 ```
 
+`User` overrides two methods. [process()](./Entity.md#process) runs for each nested user, with the `parent`
+and `key` that nest it. [merge()](./Entity.md#merge) joins the copies of one user:
+
+```ts
+// post 1 nests Paul as its `author`, so process() adds that post's id
+User.process({ id: '123', name: 'Paul' }, post1, 'author');
+// => { id: '123', name: 'Paul', posts: ['1'] }
+
+// post 2 nests Paul too, so merge() joins both copies
+User.merge(
+  { id: '123', name: 'Paul', posts: ['1'] },
+  { id: '123', name: 'Paul', posts: ['2'] },
+);
+// => { id: '123', name: 'Paul', posts: ['1', '2'] }
+```
+
+Without the override, `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in
+the same way.
+
+### When to use
+
+Nest a list in an entity when the data must have it, not only the screen. For example, a
+[Query](./Query.md) that sorts users by `user.posts` reads it before any component renders. Then choose by
+where the list is:
+
+- **A response has the list** (the user response nests it, or `GET /posts?author=123` returns it): use a
+  [Collection](./Collection.md) with [nestKey](./Collection.md#nestKey). Each fetch replaces the list, and
+  [push](./Collection.md#push), [remove](./Collection.md#remove) and [move](./Collection.md#move)
+  keep it current. It needs no custom `merge()`.
+- **No response has the list**: use a reverse lookup.
+
+### After a mutation
+
+- **Create.** A new post or comment runs the same `process()`, so it joins the list. This is true for
+  [push](https://dataclient.io/rest/api/RestEndpoint#push) and for each new page.
+- **Delete.** A deleted post or comment leaves the list. A list skips entities that are not in the store.
+- **Move.** A post with a new `author` joins the new author's `posts`, and stays in the old author's: `merge()`
+  only adds ids. When a relationship can move, compute the list where it is read, with a
+  [Query](./Query.md) over [All](./All.md).
+
 ### Circular dependencies
 
 JavaScript does not allow circular imports or circular class definitions. So for [Entities][1] that reference each
 other, define the [schema][3] after the class definitions.
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -517,10 +565,11 @@ User.schema = {
 ```
 
 ```typescript title="resources/User"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, type Schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+// import only the type: importing the class would be a circular import,
+// so resources/Post sets User.schema above
 import type { Post } from './Post';
-// we can only import the type else we break javascript imports
-// thus we change the schema of UserResource above
 
 export class User extends Entity {
   id = '';
@@ -528,7 +577,7 @@ export class User extends Entity {
   posts: Post[] = [];
   createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
-  static schema: Record<string, Schema | Date> = {
+  static schema: Record<string, Schema> = {
     createdAt: Temporal.Instant.from,
   };
 }

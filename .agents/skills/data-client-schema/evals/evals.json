@@ -37,6 +37,79 @@
         "`PostView` keeps the default `pk()` (or returns `this.id`); it does not read `this.post.id` in `pk()`.",
         "When the input has no `post` (a delete or partial update sends just `{ id }`), `process()` keeps the incoming `id` instead of throwing, e.g. `processed.post?.id ?? processed.id`."
       ]
+    },
+    {
+      "id": 4,
+      "name": "reverse-lookup",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14). The prompt fixes that the entity must nest the list; without that, 8 of 8 runs computed the counts in a `Query` or in the component, and none nested them. With it, 10 of 10 runs read \"Reverse lookups\" and wrote `process()` plus a joining `merge()`. 8 of those 10 loaded the loans before or together with the members, and all 8 still showed a returned book: the denormalize cache keeps a member that was first read through a loan (a library bug in circular schemas, found by these runs). The 2 that loaded the members first passed every check. All 10 passed every check with a candidate fix applied.",
+      "prompt": "Every `Member` the app reads must carry its loans as `member.loans` (a `Loan[]`), from whatever reads the member: `useSuspense(MemberResource.getList)`, `useQuery(Member, { id })`, or a loan's `member`. Other screens will sort and total by it. Add it to the data model, then use it in two places:\n\n1. The members page (src/pages/Members.tsx) becomes a `<table>` with one `<tr>` per member in its `<tbody>`: the name, the number of books the member has on loan, and their titles joined with `, `, each in its own `<td>`. Sort the rows by the number on loan, most first, and by name when equal. A member with nothing on loan shows `0` and an empty titles cell.\n\n2. The desk (src/pages/Desk.tsx) shows `loan.member.loans.length` beside each loan's member: `Dune: Ada (2 on loan)`.\n\n`GET /api/loans` (the desk loads it as `LoanResource.getList`) returns:\n\n```json\n[\n  {\n    \"id\": \"l1\",\n    \"dueOn\": \"2026-03-01\",\n    \"book\": { \"id\": \"b1\", \"title\": \"Dune\" },\n    \"member\": { \"id\": \"m1\", \"name\": \"Ada\" }\n  }\n]\n```\n\n`GET /api/members` (the members page loads it as `MemberResource.getList`) returns only `[{ \"id\": \"m1\", \"name\": \"Ada\" }]`. The API has no endpoint for a member's loans, and we can't change the API. The members page must also load `LoanResource.getList`, so it is right when opened first; it must not request anything else, and nothing is requested per member or per loan.\n\nOther screens change the loans, and both pages must follow without another request: `LoanResource.delete({ id })` when a book comes back, and `LoanResource.getList.push(...)` for a new loan, whose response is the whole loan nested as above. The loans are also fetched again now and then. Resources are in src/resources/Loan.ts; keep `LoanResource`, `MemberResource` and `Member` exported from there.",
+      "expected_output": "`Member` nests its loans in the schema, because no response has the list: `Member.process()` reads `parent` and `key` and stores the loan's id when the member is nested as a loan's `member`, `merge()` joins the id lists without repeats, and `Member.schema = { loans: [Loan] }` is set after both classes. The table's sort and the desk read `member.loans` from the member.",
+      "files": [],
+      "assertions": [
+        "`member.loans` is on the entity: `useQuery(Member, { id })` and a loan's `member` both have it. It comes from `Member.process()` with `parent`/`key` plus a `merge()` that joins the ids, not from a `Collection` (no response has the list) and not from a map built in a page.",
+        "After `/api/loans` is fetched a second time, each loan counts once.",
+        "A new loan (`LoanResource.getList.push`) joins its member's `loans`, and the table's row order follows, with no request.",
+        "A returned book (`LoanResource.delete`) leaves its member's `loans`. A page that loads the members before the loans must pass this. A library bug keeps a member that was first read through a loan in the denormalize cache, so until it is fixed, do not fail a page that loads the loans before or together with the members (`useSuspense(LoanResource.getList)` first, or `useFetch` for both) for this alone; then remove this exception.",
+        "A member with nothing on loan shows `0` and an empty titles cell.",
+        "The members page requests only `/api/members` and `/api/loans`; nothing is requested per member or per loan."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "children-no-response-lists",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): 2 of 10 runs wrote `new Query(MatchResource.getList.schema, (matches, { id }) => ...)` and read it with `useQuery(query, { id })`. The arguments also go to the schema, no list was fetched with `{ id }`, and the pages were empty.",
+      "prompt": "Add two pages. `/teams/:id` shows the team's name, then every match the team plays, home or away, as `Lions vs Tigers`. `/players/:id` shows the player's name, then one line per goal they scored, as `Lions vs Tigers, 12'`.\n\nThe schedule (src/pages/Schedule.tsx) already loads `MatchResource.getList` from `GET /api/matches`, which returns:\n\n```json\n[\n  {\n    \"id\": \"m1\",\n    \"kickoff\": \"2026-03-01T15:00:00Z\",\n    \"home\": { \"id\": \"t1\", \"name\": \"Lions\" },\n    \"away\": { \"id\": \"t2\", \"name\": \"Tigers\" },\n    \"goals\": [\n      { \"id\": \"g1\", \"minute\": 12, \"scorer\": { \"id\": \"p1\", \"name\": \"Ada\" } },\n      { \"id\": \"g2\", \"minute\": 40, \"scorer\": { \"id\": \"p2\", \"name\": \"Bo\" } }\n    ]\n  }\n]\n```\n\n`GET /api/teams/:id` and `GET /api/players/:id` return only `{ \"id\", \"name\" }`. The API has no endpoint for a team's matches or a player's goals, and we can't change the API. People reach these pages from the schedule, so the schedule is loaded first. Opening a page must not fetch the schedule again or make a request per match or goal. The schedule is refetched now and then while the app is open, and the pages must stay right when it is.",
+      "expected_output": "The pages read the matches and goals already in the store: a `Query` over `All(Match)` that filters by the team or player id, or reverse lookups with `process()` and a `merge()` that joins ids once. No new endpoint and no schedule request.",
+      "files": [],
+      "assertions": [
+        "A team's matches and a player's goals come from the store: no new endpoint, no request for the schedule and none per match or goal.",
+        "A `Query` that takes the team or player id as an argument has `All` as its schema. It is not `MatchResource.getList.schema` read with `{ id }`, which finds no list.",
+        "After `/api/matches` is fetched a second time, each match and each goal shows once.",
+        "A match that a later schedule response adds shows on its teams' pages."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "children-link-moves",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): 1 of 10 runs read a `Query` over `TicketResource.getList.schema` with `{ agentId }` and rendered no tickets. A reverse lookup would also fail here: its `merge()` keeps a reassigned ticket in the old agent's list.",
+      "prompt": "Add an agent page at `/agents/:id`. It shows the agent's name, then the subject of every ticket assigned to that agent.\n\nThe inbox (src/pages/Inbox.tsx) already loads `TicketResource.getList` from `GET /api/tickets`, which returns:\n\n```json\n[\n  { \"id\": \"k1\", \"subject\": \"Printer offline\", \"assignee\": { \"id\": \"a1\", \"name\": \"Rosa\" } },\n  { \"id\": \"k2\", \"subject\": \"Reset my password\", \"assignee\": { \"id\": \"a2\", \"name\": \"Sam\" } }\n]\n```\n\n`GET /api/agents/:id` returns only `{ \"id\", \"name\" }`. The API has no endpoint for an agent's tickets, and we can't change the API. People reach an agent's page from the inbox, so the inbox is loaded first. Opening the page must not fetch the inbox again or make a request per ticket.\n\nTickets get reassigned. Other screens call `TicketResource.partialUpdate({ id }, { assigneeId })`; `PATCH /api/tickets/:id` answers with the whole ticket, its new `assignee` nested as above. After that, the old and the new agent's pages must both be right without another request.",
+      "expected_output": "A `Query` over `All(Ticket)` filters by each ticket's current assignee, read with `useQuery()`. The PATCH response updates the ticket, so both agents' pages follow with no request.",
+      "files": [],
+      "assertions": [
+        "The agent's tickets come from a `Query` over `All(Ticket)` (or an equal read of every stored ticket) that filters on the ticket's current assignee.",
+        "It is not a reverse lookup whose `merge()` only adds ticket ids to the agent: after a reassign the ticket must leave the old agent's page.",
+        "A `Query` that takes the agent id as an argument does not use `TicketResource.getList.schema` as its schema.",
+        "Opening the page and reassigning a ticket make no request other than the agent's own `GET` and the `PATCH`."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "nested-list-create",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14): with master's skills 2 of 5 runs appended the new track by hand with `ctrl.set()`, and one later run wrote an Entity subclass with a custom `merge()` that joins track ids.",
+      "prompt": "On the playlist page (src/pages/PlaylistPage.tsx), add a form under the track list: a text input labelled `Title` and a button `Add track`.\n\nSubmitting sends `POST /api/playlists/:id/tracks` with the JSON body `{ \"title\": \"...\" }`. The response is only the new track:\n\n```json\n{ \"id\": \"t9\", \"title\": \"Night Drive\", \"seconds\": 0 }\n```\n\nThe new track must show at the end of the list as soon as the response arrives, without requesting the playlist again.\n\nThe page loads `PlaylistResource.get` from `GET /api/playlists/:id`, which returns:\n\n```json\n{\n  \"id\": \"p1\",\n  \"name\": \"Road trip\",\n  \"tracks\": [\n    { \"id\": \"t1\", \"title\": \"First Light\", \"seconds\": 201 },\n    { \"id\": \"t2\", \"title\": \"Second Wind\", \"seconds\": 187 }\n  ]\n}\n```\n\nOther people edit the same playlist, and it is refetched now and then while the page is open. After a refetch the list must be exactly what the server returned.",
+      "expected_output": "`Playlist.schema.tracks` is a `Collection([Track], { nestKey })`, and the POST endpoint's schema is that Collection's `push`. `push` adds to the lists whose key the POST's params or body match, so the key `nestKey` returns uses the POST's names: `nestKey: parent => ({ id: parent.id })` for `POST /api/playlists/:id/tracks`. A refetch of the playlist replaces the list.",
+      "files": [],
+      "assertions": [
+        "`tracks` on `Playlist` is a `Collection` with `nestKey`, and the POST endpoint's `schema` is its `push`.",
+        "Every field of the key `nestKey` returns is in the POST's params or body with the same value, so `push` reaches the playlist's list.",
+        "No custom `merge()` joins track ids, and no `ctrl.set()` rebuilds `tracks` by hand.",
+        "The POST is the only request when a track is added.",
+        "After the playlist is fetched again, the list is exactly the response's tracks."
+      ]
+    },
+    {
+      "id": 8,
+      "name": "accumulated-from-responses",
+      "source": "A domain the docs never use, from the #4687 skill runs (2026-11-14). With master's skills, 4 of 5 runs collected the readings in a Manager that reads each `SET_RESPONSE`.",
+      "prompt": "Add a page, with its route in src/App.tsx.\n\n`src/pages/SensorPage.tsx`, default export `SensorPage({ id }: { id: string })`, at `/sensors/:id`: the sensor's name in an `<h1>`, then one `<li>` for every reading this app has received for that sensor since it opened, oldest first. Each reads `71.5 at 10:00` (the value, then `takenAt`).\n\nThe overview (src/pages/Overview.tsx) already loads `SensorResource.getList` from `GET /api/sensors`, which returns:\n\n```json\n[\n  { \"id\": \"s1\", \"name\": \"Boiler\", \"latest\": { \"id\": \"r1\", \"value\": 71.5, \"takenAt\": \"10:00\" } },\n  { \"id\": \"s2\", \"name\": \"Freezer\", \"latest\": { \"id\": \"r2\", \"value\": -18, \"takenAt\": \"10:00\" } }\n]\n```\n\n`GET /api/sensors/:id` returns one sensor in the same shape. The API keeps no history: each response has only a sensor's latest reading, no endpoint returns earlier ones, and we can't change the API. The overview is fetched again every few seconds while the app is open, and a sensor's `latest` is a new reading whenever it has measured again.\n\nPeople reach a sensor's page from the overview. The page must list the readings that arrived before it was opened, and add each new one that a later fetch of the overview brings. A reading shows once, however many responses carried it. Resources are in src/resources/Sensor.ts; keep `SensorResource` exported from there.",
+      "expected_output": "The history is data, so the schema defines it. `Sensor` nests it: `Sensor.process()` starts `readings` from the response's `latest`, `Sensor.merge()` joins the id lists without repeats, and `Sensor.schema` has `readings: [Reading]`. Or `Reading.process()` stores the sensor's id and a `Query` over `All(Reading)` filters by it. No Manager, effect or component state collects the readings.",
+      "files": [],
+      "assertions": [
+        "The history is defined in the schema: `Sensor` nests the readings with `process()` and a `merge()` that joins the ids, or a `Query` over `All(Reading)` filters by a sensor id that `Reading.process()` stored.",
+        "A reading that several responses carried is in the list once.",
+        "The history is not collected by a Manager, a `useEffect()`, component state or a module variable.",
+        "The page requests nothing but the sensor."
+      ]
     }
   ]
 }

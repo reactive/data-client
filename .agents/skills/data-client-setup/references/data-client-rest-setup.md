@@ -98,4 +98,5 @@ If the codebase validates responses with Zod or Yup, keep that by parsing in `pr
 2. Apply skill "data-client-rest" for resource and endpoint patterns.
 3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue".
 
-More: [Authentication](./data-client-rest-setup/references/auth.md), [Django REST Framework](./data-client-rest-setup/references/django.md).
+Auth on the base endpoint: [Authentication](./data-client-rest-setup/references/auth.md); with a Django backend,
+[Django REST Framework](./data-client-rest-setup/references/django.md) (CSRF header).

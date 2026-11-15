@@ -1,6 +1,6 @@
 ---
 name: data-client-schema
-description: Model the app's data with @data-client schemas, which normalize responses into one shared cache so an update shows everywhere. Use it whenever an endpoint returning data is added or its response changes (resource, RestEndpoint, GraphQL, Endpoint), when the data's shape changes, when deriving views from loaded data, or when one item looks different in two places. Covers Entity, GQLEntity, Collection, Union and Query.
+description: Model the app's data with @data-client schemas, which normalize responses into one shared cache so an update shows everywhere. Use it whenever an endpoint returning data is added or its response changes (resource, RestEndpoint, GraphQL, Endpoint), when the data's shape changes, when data from different endpoints must be joined or related, when deriving views from loaded data, or when one item looks different in two places. Covers Entity, GQLEntity, Collection, Union and Query.
 license: Apache 2.0
 ---
 
@@ -44,6 +44,11 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
   );
   ```
 
+  `useQuery(query, ...args)` passes every arg to the Query's `schema` and to its function, `(entries, ...args)`, so
+  check each arg against both. The schema looks up its data with the args, as `useQuery(schema, ...args)` would; when
+  that finds nothing, `useQuery()` returns `undefined`. Give the function an arg of its own only if the schema
+  ignores it: [All](references/All.md) ignores every arg.
+
   Define `Query` transformations with the data model (e.g. `src/resources/`) — not inside custom hooks
   wrapping useSuspense/useQuery, which hides data dependencies and couples data logic to view code.
 
@@ -57,9 +62,9 @@ endpoint). For GraphQL, extend `GQLEntity` instead of `Entity`; it declares the 
 - `pk()` return type is `number | string | undefined`
 - Override `Entity.process(value, parent, key, args)` to adapt input before normalizing, e.g. add fields from
   args/url, or turn an API's stand-in for a missing nested entity (like `{}`) into `undefined`
-  ([example](references/Entity.md#optional-members))
+  ([example](references/Entity.md#optional-members)). `parent` and `key` say where the entity was nested
 - `static schema` (optional) for nested schemas or deserialization functions; it also joins related entities
-  client-side, so never merge or 'enrich' data by hand ([relational-data](references/relational-data.md))
+  client-side, so never join data by hand ([Relationships](#relationships))
   - When designing APIs, prefer nesting entities
 
 ## 3. Entity lifecycle methods
@@ -115,6 +120,10 @@ const userTodos = new Collection([Todo], {
 });
 ```
 
+`push`, `unshift`, `assign` and `move` add to every stored list whose key fields each equal the field of the same
+name in the mutation's params or body. `argsKey` does not run for them, so name the key's fields as the mutation
+sends them: the list above takes a `push` from `POST /users/:userId/todos`, or from a body that has `userId`.
+
 ### nonFilterArgumentKeys
 
 Default `createCollectionFilter` uses `nonFilterArgumentKeys` (default: keys starting with `'order'`) to exclude non-filter args when matching collections. This affects which existing collections receive new items from `push`/`unshift`/`assign`/`move`: pushing with `{ userId: 1 }` reaches the `{}` and `{ userId: 1 }` lists, not `{ userId: 2 }`, and a list arg left out of `nonFilterArgumentKeys` (such as a sort) keeps new items out of that list.
@@ -161,6 +170,28 @@ See [partial-entities](references/partial-entities.md) for patterns and examples
 
 Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
-- [computed-properties](references/computed-properties.md) - getters and values derived on an Entity
-- [side-effects](references/side-effects.md) - a mutation response that changes other entities
-- [sorting-client-side](references/sorting-client-side.md) - sorting a list from the cache
+Each guide holds working code. Read the matching section before writing code.
+
+## Relationships
+
+Sections are in [relational-data](references/relational-data.md) unless the row names another place.
+
+| Situation | Read | Technique |
+|---|---|---|
+| A response nests related objects | "Nesting" | name each nested Entity in `static schema` |
+| A response has only the id of a related object | "Client side joins" | `process()` copies the id to a field that `static schema` maps to the other Entity |
+| A response has the list: an endpoint returns it, or the parent nests it | [Collections](#5-collections-mutable-lists--maps) | `new Collection([Post], { argsKey, nestKey })` with `push`/`remove`/`move`; no custom `merge()` |
+| An entity must nest a list that no response has (`user.posts` when only posts nest their `author`), so a sort, another schema or any component reads it from the entity | "Reverse lookups" | the nested entity's `process(value, parent, key)` stores the parent's id; `merge()` joins the id lists, which only grow |
+| A result that no response has, computed where it is read from each entity's current fields (links that move, a filter, a total) | [All](references/All.md) | `new Query(new All(Post), (posts, { userId }) => posts.filter(post => post.author.id === userId))`; it runs again when any entity of that kind changes |
+| Two Entity classes refer to each other | "Circular dependencies" | set `A.schema` after both classes exist; `import type` in one direction |
+
+## Other use cases
+
+| Use case | Read | Technique |
+|---|---|---|
+| A value from one entity's own fields | "Singular computations" in [computed-properties](references/computed-properties.md) | a getter on the Entity |
+| A value across many entities | "Global computations" in [computed-properties](references/computed-properties.md) | a `Query`, read with `useQuery()` |
+| List items have fewer fields than the detail response | [partial-entities](references/partial-entities.md) | summary and full classes share `static key`; `validateRequired()` on the full one |
+| A mutation changes more than its own entity | [side-effects](references/side-effects.md) | the response returns every changed entity and the endpoint's `schema` names each; not `expireAll()` |
+| A list must stay sorted on the client | [sorting-client-side](references/sorting-client-side.md) | the endpoint's `schema` is a `Query` that sorts its `Collection` |
+| A wrong or incomplete response must fail | [validation](references/validation.md) | `static validate()` |
