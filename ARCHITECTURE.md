@@ -35,8 +35,9 @@ flowchart LR
    [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware). A Manager passes an action
    on by default. It consumes an action to say "I handled it", so no later Manager handles it again.
 3. The reducer computes the next state. It writes data through the action's schema: each Entity's `pk()`, `process()`
-   and `merge()` decide what the store keeps. A Manager that awaits `next(action)` then reads the new state.
-4. Hooks read the state through the schema, and their components render again.
+   and `merge()` decide what the store keeps.
+4. The new state reaches its readers. Hooks read it through the schema, and their components render again. A Manager
+   that awaits `next(action)` reads it with `ctrl.getState()`.
 
 The reducer has no side effects, and the schema methods and `getOptimisticResponse()` that it calls must have none
 either. So Managers orchestrate the store's side effects. Fetching is one:
