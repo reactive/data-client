@@ -4,8 +4,6 @@ Monorepo for `@data-client` high performance npm packages.
 
 ## Architecture
 
-Layers, data flow and where each concern goes: [ARCHITECTURE.md](./ARCHITECTURE.md).
-
 - `packages/endpoint`: Base endpoints and declarative schemas
 - `packages/rest`: REST modeling (`resource()`, `RestEndpoint`)
 - `packages/core`: Framework-agnostic normalized store, Controller, Managers

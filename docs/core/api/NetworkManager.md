@@ -47,9 +47,7 @@ the old store.
 
 - [fetch](./Controller.md#fetch)
 
-Will initiate network request and then dispatch upon completion. A mutation with
-[getOptimisticResponse](/rest/api/RestEndpoint#getoptimisticresponse) is passed on, so the reducer applies the
-optimistic update.
+Will initiate network request and then dispatch upon completion.
 
 #### Processed Actions
 
