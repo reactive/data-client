@@ -1,21 +1,20 @@
 ---
 name: interface-design
-description: Interface design principles for package APIs — where configuration, behavior, and state belong across schemas, endpoints, hooks and Managers. Use when adding or changing options, behavior, or state in packages/*.
+description: Interface design principles for package APIs — where configuration, behavior, and state belong across schema, endpoint, and hook layers. Use when adding or changing options, behavior, or state in packages/*.
 ---
 # Interface Design
 
 [Resources](/rest/api/resource) are a collection of **methods** for a given **data model**. [Entities](/rest/api/Entity) and [Schemas](/rest/api/schema) declaratively define the data model. [Endpoints](/rest/api/Endpoint) are the methods on that data. Both should be as **declarative as possible** — describing *what*, not *how*.
 
-The root `ARCHITECTURE.md` names the layers: the data definition (schemas for the data model, endpoints for the API definition), and in the client, the runtime in the view framework (hooks) and the runtime outside it (Managers). Each part changes for different reasons, is used in different contexts, and composes independently. Place new configuration or behavior in the part whose **reason to change** matches.
+These concerns separate into three layers. Each changes for different reasons, is used in different contexts, and composes independently. Place new configuration or behavior in the layer whose **reason to change** matches.
 
-## Where an interface goes
+## The Three Layers
 
-| Layer | Part | Declares… | Changes when… | Examples |
-|-------|------|-----------|---------------|----------|
-| Data definition | **Schema** (Entity, Collection, Query) | Data model and relationships | Data shape or identity changes | `pk()`, `schema`, `merge()`, `process()`, `indexes` |
-| Data definition | **Endpoint** (Endpoint, RestEndpoint, resource) | API definition: operations on that data model | API contract or cache policy changes | `path`, `method`, `schema`, `pollFrequency`, `getOptimisticResponse()` |
-| Runtime in the view framework | **Hook / Composable** (useSuspense, useDLE, useQuery) | Data dependencies at point of use | UI interaction pattern changes | Suspense, `{ data, loading, error }`, subscription lifecycle |
-| Runtime outside the view framework | **Manager** (NetworkManager, SubscriptionManager) | Global side effects, and events from outside the app | An integration outside the store changes | `middleware`, `init()`, `cleanup()` |
+| Layer | Declares… | Changes when… | Examples |
+|-------|-----------|---------------|----------|
+| **Schema** (Entity, Collection, Query) | Data model and relationships | Data shape or identity changes | `pk()`, `schema`, `merge()`, `process()`, `indexes` |
+| **Endpoint** (Endpoint, RestEndpoint, resource) | Methods on that data | API contract or cache policy changes | `path`, `method`, `schema`, `pollFrequency`, `getOptimisticResponse()` |
+| **Hook / Composable** (useSuspense, useDLE, useQuery) | Data dependencies at point of use | UI interaction pattern changes | Suspense, `{ data, loading, error }`, subscription lifecycle |
 
 ## Placement Principles
 
@@ -26,8 +25,6 @@ The root `ARCHITECTURE.md` names the layers: the data definition (schemas for th
 **If it describes how the user experiences data** → Hook. Loading states, error delivery, suspense, subscriptions, and reactivity adapters are UI concerns. Hooks co-locate data dependencies where data is rendered — not at the top of a tree. They are thin adapters over `Controller`, not duplicate cache logic.
 
 **If it's shared policy** (expiry, staleness, optimistic updates) → `EndpointExtraOptions`. These live on endpoints as per-request policy, but are implemented by `Controller`/managers, not hooks.
-
-**If it is a side effect, or reacts to something outside the app** → Manager. The reducer is pure, so network, timers, sockets and logging run in Manager `middleware`, and reach the store only by dispatching through `Controller`.
 
 ## Declarative Over Imperative
 
