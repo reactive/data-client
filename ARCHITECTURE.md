@@ -33,8 +33,9 @@ flowchart LR
    `ctrl.set()`, `ctrl.invalidate()`.
 2. Each action passes through every Manager's `middleware` in order, as in
    [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware). A Manager passes an action
-   on by default. Consuming one is the exception: [NetworkManager](https://dataclient.io/docs/api/NetworkManager)
-   consumes a fetch, and dispatches the response as a new action.
+   on by default. It consumes an action to say "I handled it", so no later Manager handles it again.
+   [NetworkManager](https://dataclient.io/docs/api/NetworkManager) consumes a fetch, because a second Manager that
+   sent it would repeat the request, and not every mutation is idempotent. It dispatches the response as a new action.
 3. The reducer computes the next state. It writes data through the action's schema: each Entity's `pk()`, `process()`
    and `merge()` decide what the store keeps.
 4. Hooks read the state through the schema, and their components render again.

@@ -156,6 +156,9 @@ Always use `actionTypes` members to check action.type.
 
 ## Consuming actions
 
+A Manager passes each action on with `next(action)`. To consume one, return without calling `next`. This says "I handled
+it": Managers listed after this one, and the reducer, never see the action, so none handles it again.
+
 ```ts
 import type { Manager, Middleware, EntityInterface } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
@@ -196,7 +199,7 @@ export default class CustomSubsManager implements Manager {
 
 Pass a function that returns the managers, defined at module level; it runs once per store. Create each Manager inside the function: an instance made outside it is shared by every store.
 
-List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order, and NetworkManager (one of the defaults) resolves each FETCH itself instead of passing it on (only optimistic mutations continue), so a manager listed after it misses most fetches:
+List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order. NetworkManager (one of the defaults) consumes each FETCH, so that no other manager sends the request again (only optimistic mutations continue). So a manager listed after it misses most fetches:
 
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';

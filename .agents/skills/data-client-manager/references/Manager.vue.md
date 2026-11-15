@@ -78,7 +78,7 @@ app.mount('#app');
 Define the function at module level: it holds only config.
 
 Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
-resolves most FETCH actions itself instead of passing them on.
+consumes most FETCH actions, so that no other manager sends the request again.
 
 ## Control flow
 
@@ -169,7 +169,8 @@ export default class LoggingManager implements Manager {
 Inside each `case`, TypeScript [narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
 the action's type, so you can access its members safely.
 
-To consume an [action](./Actions.vue.md), don't call `next()`.
+To consume an [action](./Actions.vue.md), don't call `next()`. This says "I handled it": managers listed after this one,
+and the reducer, never see the action, so none handles it again.
 
 ```ts title="isEntity"
 import type { Schema, EntityInterface } from '@data-client/vue';
@@ -221,8 +222,8 @@ export default class CustomSubsManager implements Manager {
 }
 ```
 
-`return Promise.resolve();` instead of `next(action)` stops managers listed after this one from seeing the
-[action](./Actions.vue.md).
+Here `return Promise.resolve();` takes the place of `next(action)`. [NetworkManager](https://dataclient.io/vue/api/NetworkManager) consumes a
+fetch in the same way: a second manager that sent it would repeat the request, and not every mutation is idempotent.
 
 Types: [`FETCH`](./Actions.vue.md#fetch), [`SET`](./Actions.vue.md#set), [`SET_RESPONSE`](./Actions.vue.md#set_response),
 [`RESET`](./Actions.vue.md#reset), [`SUBSCRIBE`](./Actions.vue.md#subscribe), [`UNSUBSCRIBE`](./Actions.vue.md#unsubscribe),
