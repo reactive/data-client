@@ -76,6 +76,9 @@ coordinator, who asks the person to install user-kit.
   only, so Claude Code's Skill tool refuses it.
 - Link Linear tickets by full URL; a bare "Fixes REACT-N" links nowhere on GitHub.
 - Benchmark and typeperf results go in a master / PR / change table naming the unit, never prose.
+- A description states what landing the PR does. Its numbers (evals, benchmarks, pass rates) come
+  from one measurement of the PR's final head against its base, with the same number of runs on each
+  side. Never report or pool runs made while iterating. Say plainly when a case shows no difference.
 - If the PR changes `website/` or `docs/`, give the preview
   `https://docs-site-pr-<N>-data-client.vercel.app` right after the PR link, plus direct links to the
   changed pages. Previews serve at the root with no `next` segment anywhere in the path:
