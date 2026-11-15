@@ -114,6 +114,10 @@ class User extends GQLEntity {
 
 **默认**只是简单地复制响应（`{...input}`）
 
+`parent` 是嵌套该 Entity 的对象，`key` 是它所在的字段。嵌套列表中的 Entity 得到的是
+该列表的 parent 和 key。在响应的顶层，`key` 为 `undefined`。当两种 parent
+在同一个 `key` 下嵌套该 Entity 时，还要检查只有其中一种 parent 才有的字段。
+
 如何通过覆盖它来[为关系型数据构建反向查找](/rest/guides/relational-data#reverse-lookups)
 
 ### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
@@ -275,7 +279,7 @@ static mergeMetaWithStore(
 
 在规范化过程中，如果 store 中已存在处理后的 Entity，就会调用 `mergeMetaWithStore()`。
 
-### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
 这个方法让 `Entities` 成为 [Queryable](/rest/api/schema#queryable)——无需 endpoint 即可访问 store。
 
@@ -325,7 +329,7 @@ static createIfValid(props): AbstractInstanceType<this> | undefined {
 ### static fromJS(props): Entity {#fromJS}
 
 把 props 复制到新实例的工厂方法。请用它代替 `new MyEntity()`，
-以确保默认的 props 被覆盖。
+以确保默认的 props 被覆盖。它不会调用 [process()](#process)。
 
 ## 字段 {#fields}
 

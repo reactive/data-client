@@ -334,6 +334,12 @@ render(<AssetPrice productId="BTC-USD" />);
 
 </FrameworkPlayground>
 
+### 嵌套对象中的键 {#key-in-a-nested-object}
+
+有些 API 会把主键放在嵌套对象中，例如 `{ post: { id }, creator, saved }`。请在 [Entity.process()](../api/Entity.md#process) 中把它复制
+到顶层的 `id`，这样查找时就可以使用 `{ id }`。示例请参阅
+[嵌套对象中的主键](../api/Entity.md#primary-key-in-a-nested-object)。
+
 ## 使用 HTTP 头 {#using-http-headers}
 
 要读取 HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers)，请覆盖

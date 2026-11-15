@@ -83,8 +83,9 @@ npx --no data-client-skills
 
 <AgentOnly>
 
-然后在项目根目录链接已安装的包附带的 skill（与其版本相匹配），并提交这些
-链接：
+然后在应用所在的文件夹中链接已安装的包附带的 skill（与其版本相匹配）（在 workspace
+monorepo 中，请在每个应用中运行：它会把 skill 链接到 workspace 根目录，并且只在应用中链接它以其他
+版本安装的 skill），并提交这些链接：
 
 ```bash
 npx --no data-client-skills

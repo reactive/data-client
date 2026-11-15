@@ -33,7 +33,9 @@ Reactive Data Client 的一项核心设计是将实际的数据获取与数据�
 大多数情况下，预取数据的最佳时机是在路由层。这样做
 可以相当轻松地整合上述所有能力。
 
-在路由事件处理函数中（在 startTransition 之前）使用 [Controller.fetchIfStale](../api/Controller#fetchIfStale)
+在路由事件处理函数中（在 startTransition 之前）使用 [Controller.fetchIfStale](../api/Controller#fetchIfStale)，
+且不要 await 它。服务端渲染会等待路由的 Promise，因此请在 `Promise.allSettled()` 中 await 首屏视图的数据
+（[路由 loader](../api/Controller.md#fetchIfStale-loaders)）。
 
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
@@ -57,7 +59,8 @@ export const routes: Route<Controller>[] = [
         });
         // don't block on posts but start fetching
         controller.fetchIfStale(PostResource.getList, { userId: match.id });
-        await Promise.all([
+        // server rendering waits for these; allSettled so a failure never rejects unhandled
+        await Promise.allSettled([
           controller.fetchIfStale(UserResource.get, match),
           controller.fetchIfStale(getImage, {
             src: fakeUser.profileImage,

@@ -68,6 +68,11 @@ npx skills add reactive/data-client --skill data-client-setup -y
 9. **清理。** 删除查询键工厂、`queryOptions()` 辅助函数以及类似 `lib/react-query.ts` 的配置。当没有文件再导入
    `@tanstack/react-query` 和 `@tanstack/react-query-devtools` 时，卸载它们。
 
+这些步骤会保留应用的行为，除非 Data Client 能用更少的代码修复它：变更后仍显示过时数据的列表、
+变更后的重新获取，以及为列表已加载的条目发出的请求。需要额外代码或
+改变用户所见内容的改动（比如添加应用原本没有的乐观更新）属于单独的、可选的
+[性能优化检查](./performance-pass.md)。请先完成并检查迁移，这样你就能衡量每个阶段。
+
 ## API 对照表 {#api-map}
 
 | TanStack Query | Data Client |
@@ -95,11 +100,13 @@ npx skills add reactive/data-client --skill data-client-setup -y
 | `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
 | `setQueryData()` | `ctrl.setResponse(endpoint, args, response)`；对于 Entity，使用 `ctrl.set(Entity, args, value)` |
 | `getQueryData()` | 在组件中使用 [useCache()](../api/useCache.md)。在其他地方使用 `ctrl.get(schema, args, ctrl.getState())` |
-| `prefetchQuery()`、`ensureQueryData()`、`getQueryData() ?? fetchQuery()` | `ctrl.fetchIfStale(endpoint, args)` |
-| `fetchQuery()` | `ctrl.fetch(endpoint, args)` |
-| `onMutate` 乐观更新与回滚 | endpoint 上的 [getOptimisticResponse()](/rest/guides/optimistic-updates)：Data Client 会在出错时回滚 |
-| `useInfiniteQuery()` | 一个 [Collection](/rest/api/Collection) 和 `ctrl.fetch(endpoint.getPage, args)`（[无限查询](#infinite)） |
-| 登出时的 `queryClient.clear()`、`removeQueries()` | `ctrl.resetEntireStore()` |
+ `prefetchQuery()` | `ctrl.fetchIfStale(endpoint, args)`，不 await：失败永远不会产生未处理的 rejection |
+ `ensureQueryData()`、`getQueryData() ?? fetchQuery()` | 能渲染时使用 `ctrl.getResponse()` 中的缓存数据，否则使用 `ctrl.fetchIfStale(endpoint, args)`（[Loader](#loaders)） |
+ `fetchQuery()` | 有 `staleTime` 时使用 `await ctrl.fetchIfStale(endpoint, args)`；没有时使用 `ctrl.fetch(endpoint, args)` |
+ `onMutate` 乐观更新与回滚 | endpoint 上的 [getOptimisticResponse()](/rest/guides/optimistic-updates)：Data Client 会在出错时回滚 |
+ `useInfiniteQuery()` | 一个 [Collection](/rest/api/Collection) 和 `ctrl.fetch(endpoint.getPage, args)`（[无限查询](#infinite)） |
+ `QueryCache` 或 `MutationCache` 上的 `onError`（全局错误上报） | 一个[错误上报 Manager](../concepts/managers.md#error-reporting)：它能看到每一次失败的 fetch |
+ 登出时的 `queryClient.clear()`、`removeQueries()` | `ctrl.resetEntireStore()` |
 | `QueryClientProvider`、`new QueryClient()` | `DataProvider` |
 | `useQueryClient()` | `useController()` |
 | `ReactQueryDevtools` | 删除它：`DataProvider` 会在开发环境中添加 [DevTools](../getting-started/debugging.md) |
@@ -331,18 +338,33 @@ export const issueLoader =
 ```
 
 ```ts title="After"
-import type { Controller } from '@data-client/react';
+import { ExpiryStatus, type Controller } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
 export const issueLoader =
   (ctrl: Controller) =>
-  ({ params }: { params: { issueId?: string } }) =>
-    ctrl.fetchIfStale(IssueResource.get, { id: Number(params.issueId) });
+  ({ params }: { params: { issueId?: string } }) => {
+    const args = { id: Number(params.issueId) };
+    const { data, expiryStatus } = ctrl.getResponse(
+      IssueResource.get,
+      args,
+      ctrl.getState(),
+    );
+    // fetches only when missing or stale
+    const fetched = ctrl.fetchIfStale(IssueResource.get, args);
+    // like ensureQueryData(): cached data, even stale, navigates now; a miss waits for the fetch
+    return expiryStatus === ExpiryStatus.Valid ? data : fetched;
+  };
 ```
 
-`fetchIfStale()` 只会在数据缺失或过时时获取。悬停或聚焦预取也可以使用它：
-`onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`。要加载多个 endpoint，可以对多个
-`fetchIfStale()` 调用使用 `Promise.all()`。
+`fetchIfStale()` 只会在数据缺失或过时时获取，并且总是返回一个 Promise。不 await 它时，它的作用
+类似 `prefetchQuery()`：失败永远不会产生未处理的 rejection，而是被存储起来供组件显示。悬停或
+聚焦预取也可以使用它：`onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`。await 它时，它的作用类似
+带 `staleTime` 的 `fetchQuery()`：它会 resolve 出数据（缓存数据过时时会等待重新获取），或者以该错误
+reject。在 loader 原先使用 `fetchQuery()` 的地方使用 await 形式；在原先使用
+`ensureQueryData()` 或 `getQueryData() ?? fetchQuery()` 的地方使用上面的模式。[路由 loader](../api/Controller.md#fetchIfStale-loaders)
+展示了不会让导航等待的 loader。按照 loader 之前的方式加载多个 endpoint；
+让页面在次要数据到达之前就显示出来，属于[性能优化检查](./performance-pass.md#loaders)的范畴。
 
 ## 无限查询 {#infinite}
 
@@ -543,5 +565,6 @@ export const getSession = new RestEndpoint({
 - linter 通过（包括其导入边界规则），并且没有任何功能模块文件夹定义 Entity。
 - 每个捕获 `useSuspense()` 的 `<Suspense>` 或 `AsyncBoundary` 都位于 `DataProvider` 内部。
 - 类型检查、单元测试和端到端测试都通过。
+- 当列表返回完整的条目时，从刚加载的列表中打开某个条目不会为该条目发出请求。
 - 变更之后，每个展示该 Entity 的页面无需刷新就能显示这一改动。一个在详情页编辑条目、然后
   返回列表的测试就能证明这一点。

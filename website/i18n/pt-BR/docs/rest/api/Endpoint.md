@@ -158,6 +158,65 @@ const getTodoNormalized = getTodo.extend({ schema: Todo });
 const getTodoUpdatingEveryFiveSeconds = getTodo.extend({ pollFrequency: 5000 });
 ```
 
+### Cancelamento e outros valores que não são chaves {#members-not-args}
+
+Os argumentos são a [key](#key): eles dizem quais dados o store guarda. Mantenha fora deles os valores que não
+escolhem os dados, como um [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+ou um cliente de SDK. Como argumentos, toda chamada de hook precisaria de um, e chamadas com e
+sem ele recebem keys diferentes, então não compartilham dados. Faça de tal valor um membro e
+leia-o de `this` na função de fetch. O [signal](#signal) já está tipado; declare qualquer outro
+membro nas opções.
+
+```ts title="getPosts"
+import { Endpoint } from '@data-client/endpoint';
+import { client } from './client';
+import { Post } from './Post';
+
+export const getPosts = new Endpoint(
+  // a `function` (not an arrow function) gets the endpoint as `this`
+  function ({ page }: { page: number }) {
+    return client.getPosts({ page, signal: this.signal });
+  },
+  { name: 'getPosts', schema: [Post] },
+);
+```
+
+Defina o membro para uma chamada com [extend()](#extend), para que as outras chamadas mantenham o seu.
+
+```ts
+// ctrl is the Controller, from useController() or a router loader
+const abort = new AbortController();
+ctrl.fetch(getPosts.extend({ signal: abort.signal }), { page: 2 });
+```
+
+:::react
+
+O [useCancelling()](/docs/api/useCancelling) faz isso por você e aborta quando os params mudam:
+
+```tsx title="PostList"
+import { useCancelling, useSuspense } from '@data-client/react';
+import { getPosts } from './getPosts';
+import PostItems from './PostItems';
+
+export default function PostList({ page }: { page: number }) {
+  const posts = useSuspense(useCancelling(getPosts, { page }), { page });
+  return <PostItems posts={posts} />;
+}
+```
+
+:::
+
+Limites:
+
+- A requisição só para se a função de fetch repassar o signal e o SDK o entregar ao
+  `fetch()`.
+- Leituras (sem `sideEffect`) com os mesmos params compartilham uma única requisição. Um signal só cancela uma requisição
+  que a sua própria chamada iniciou, e isso a cancela para todas as chamadas que a compartilham.
+- O Data Client ignora uma rejeição chamada `AbortError`, que é o que o `fetch()` lança. Se o seu SDK
+  envolve o abort em outro erro, relance um chamado `AbortError`; caso contrário, ele é armazenado como um
+  fetch com falha, e renderizações com esses params o lançam até que ele [expire](#errorexpirylength).
+- Abortar uma mutação desfaz sua atualização otimista, mas o servidor pode já tê-la aplicado.
+
 ## Ciclo de vida {#lifecycle}
 
 ### Sucesso {#success}
@@ -187,6 +246,9 @@ Padrão:
 `${this.name} ${JSON.stringify(params)}`;
 ```
 
+Passe valores que não escolhem os dados, como um `AbortSignal`, como [membros](#members-not-args) em vez de
+params.
+
 :::warning[Sobrescritas]
 
 Ao sobrescrever `key`, não se esqueça de incluir também um [testKey](#testKey) atualizado se
@@ -214,6 +276,13 @@ Isso costuma ser conhecido como [function name mangling](https://terser.org/docs
 Nesses casos, você pode sobrescrever `name` ou desativar o mangling de funções.
 
 :::
+
+### signal?: AbortSignal {#signal}
+
+Cancela o fetch. Leia-o como `this.signal` na função de fetch e repasse-o, como
+`fetch(url, { signal: this.signal })`. Defina-o para uma chamada com [extend()](#extend):react[, ou
+aborte a cada mudança de params com [useCancelling()](/docs/api/useCancelling)]. Veja
+[cancelamento](#members-not-args).
 
 ### sideEffect: boolean {#sideeffect}
 

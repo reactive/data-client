@@ -254,26 +254,11 @@ render(<TodoList />);
 
 Todas sus mutaciones usan entonces estas respuestas optimistas por defecto:
 
-### update/getList.push/getList.unshift {#updategetlistpushgetlistunshift}
-
-```ts
-function optimisticUpdate(
-  snap: SnapshotInterface,
-  params: any,
-  body: any,
-) {
-  return {
-    ...params,
-    ...ensureBodyPojo(body),
-  };
-}
-
-function ensureBodyPojo(body: any) {
-  return body instanceof FormData
-    ? Object.fromEntries((body as any).entries())
-    : body;
-}
-```
+| Endpoint                                                                                        | Respuesta optimista                                                          |
+| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `update`, `getList.push`, `getList.unshift`, `getList.assign`, `getList.remove`, `getList.move` | Los parámetros de la URL combinados con el cuerpo (`FormData` se convierte en un objeto) |
+| `partialUpdate`                                                                                 | La entidad en caché con el cuerpo combinado                                  |
+| `delete`                                                                                        | Los parámetros, que eliminan la entidad                                      |
 
 El cuerpo de una creación (push/unshift) normalmente no tiene un `id` con el que calcular una pk. Por eso
 <abbr title="Reactive Data Client">Data Client</abbr> crea una `pk` aleatoria.
@@ -281,36 +266,11 @@ El cuerpo de una creación (push/unshift) normalmente no tiene un `id` con el qu
 Las mutaciones sobre el nuevo objeto suelen fallar hasta que el servidor lo crea. Por eso deshabilita las demás mutaciones sobre él hasta que el
 `POST` se complete. Por ejemplo, comprueba que la entidad tenga un `id` real.
 
-### partialUpdate {#partialupdate}
-
-```ts
-function optimisticPartial(schema: Queryable) {
-  return function (snap: SnapshotInterface, params: any, body: any) {
-    const data = snap.get(schema, params);
-    if (!data) throw snap.abort;
-    return {
-      ...params,
-      ...data,
-      // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
-      ...ensurePojo(body),
-    };
-  };
-}
-```
-
 Las actualizaciones parciales no envían el cuerpo completo. Los campos que la respuesta esperada omite conservan sus
 valores en caché, así que una Entity solo necesita su [clave primaria](../api/Entity.md#pk) y los campos modificados.
 Si la entidad aún no está en el store, la actualización [se aborta](/docs/api/Snapshot#abort) en lugar de mostrar una Entity
 formada solo por los campos modificados. Los [Snapshots](/docs/api/Snapshot) leen de forma segura el valor actual del store, sin condiciones
 de carrera.
-
-### delete {#delete}
-
-```ts
-function optimisticDelete(snap: SnapshotInterface, params: any) {
-  return params;
-}
-```
 
 Para hacer optimistas solo algunos endpoints, o para ajustarte a una API poco habitual, define
 [getOptimisticResponse()](../api/RestEndpoint.md#getoptimisticresponse) con
@@ -354,20 +314,21 @@ Tres tiempos pueden variar en una mutación asíncrona:
 1. Tiempo del servidor
 1. Tiempo de la respuesta
 
-Reactive Data Client maneja por ti los tiempos de la petición y de la respuesta. Normalmente esto es suficiente, porque los servidores
-suelen procesar las peticiones en el orden en que llegan. Si el servidor las guarda en un orden distinto, sigue existiendo una condición
+Reactive Data Client maneja por ti el tiempo de la respuesta. Normalmente esto es suficiente, porque los servidores
+suelen procesar las peticiones en el orden en que llegan. Si las peticiones llegan o se guardan en un orden distinto, sigue existiendo una condición
 de carrera.
 
 Para resolverlo, mantén un [orden total](https://en.wikipedia.org/wiki/Total_order) con un único reloj. Los relojes del servidor y del cliente
 pueden diferir, y las actualizaciones optimistas ocurren en el cliente, así que usa el reloj del cliente:
 
-1. Envía el tiempo de la petición en un header `updatedAt` con [getRequestInit()](../api/RestEndpoint.md#getRequestInit).
+1. Envía el tiempo de la petición como `updatedAt` en el cuerpo con [getRequestInit()](../api/RestEndpoint.md#getRequestInit).
 1. El servidor procesa las peticiones en el orden de `updatedAt`, almacena `updatedAt` en la entidad y lo devuelve en cada
    respuesta.
 1. Sobrescribe [shouldReorder](../api/Entity.md#shouldreorder) para reordenar por `updatedAt` las respuestas que llegan desordenadas.
 
 [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) usa [snap.fetchedAt](/docs/api/Snapshot#fetchedat).
-Es el momento en que empieza el fetch, el mismo instante en que se calcula el header `updatedAt`.
+Es el momento en que empieza el fetch, en el mismo reloj que `updatedAt` (una fracción de milisegundo después cuando varios
+fetches empiezan en el mismo milisegundo).
 
 <FrameworkPlayground fixtures={[
 {
@@ -531,3 +492,56 @@ render(<CounterPage />);
 :::
 
 </FrameworkPlayground>
+
+:::react
+
+## Mantén los clics fluidos en pantallas pesadas {#transition}
+
+Igual que [useOptimistic()](https://react.dev/reference/react/useOptimistic) de React, una actualización optimista se renderiza
+antes de que el navegador pinte el clic. Si muchos componentes muestran los datos modificados, ese renderizado puede hacer que el clic se sienta
+lento.
+
+### Cuándo usar una transición {#when-to-use-a-transition}
+
+Primero haz que ese renderizado sea más barato, con [React Compiler](https://react.dev/learn/react-compiler) o `memo()` en los componentes
+costosos. Un renderizado más barato mantiene la actualización instantánea, mientras que una transición solo la mueve a después de pintar. Si el clic
+sigue siendo lento, llama a `ctrl.fetch()`, que aplica la actualización optimista, dentro de
+[startTransition()](https://react.dev/reference/react/startTransition) (React 18+).
+
+Omite la transición cuando:
+
+- La actualización vuelve a renderizar solo unos pocos componentes. La transición retrasa entonces la actualización sin que haya un renderizado lento que ocultar.
+- El control es un input controlado, como el checkbox de `TodoItem`. React restablece el input a su último valor renderizado, así que
+  el checkbox vuelve a su estado anterior hasta que la transición se renderiza (consulta las
+  [advertencias de startTransition()](https://react.dev/reference/react/startTransition#caveats)).
+
+Por ejemplo, renombrar a un usuario vuelve a renderizar todos los comentarios que muestran su nombre:
+
+```tsx
+import { startTransition, type FormEvent } from 'react';
+import { useController } from '@data-client/react';
+import { UserResource, type User } from './UserResource';
+
+export function RenameUser({ user }: { user: User }) {
+  const ctrl = useController();
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const name = new FormData(e.currentTarget).get('name') as string;
+    startTransition(() => {
+      ctrl.fetch(UserResource.partialUpdate, { id: user.id }, { name });
+    });
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" defaultValue={user.name} />
+      <button type="submit">Rename</button>
+    </form>
+  );
+}
+```
+
+React renderiza la actualización optimista con prioridad de transición, así que el navegador pinta y atiende la entrada primero. Envuelve la
+llamada entre llaves, como arriba, para que el callback no devuelva nada. En React 19, un callback que devuelve la promesa de `fetch()` es
+una Action asíncrona, y React mantiene la actualización optimista hasta que el servidor responde.
+
+:::

@@ -85,8 +85,13 @@ export default class LoggingManager implements Manager {
 
 ### Relatório de erros {#error-reporting}
 
-Reporte fetches com falha a serviços de monitoramento como o [Sentry](https://sentry.io) inspecionando
-as actions [SET_RESPONSE](../api/Actions.md#set_response) com `error` definido.
+| Fetch sem await que falha                                                                 | Chega aos handlers globais (Sentry, console)? |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Leitura: hooks, [fetch()](../api/Controller.md#fetch) sem `sideEffect`, `fetchIfStale()`  | Não: é armazenado, e os componentes que o leem o exibem |
+| Mutação: `fetch()` com `sideEffect: true`                                                 | Sim                                           |
+
+Para reportar todo fetch com falha, com await ou não, envie as actions [SET_RESPONSE](../api/Actions.md#set_response) com `error`
+definido a um serviço como o [Sentry](https://sentry.io):
 
 :::react
 
@@ -137,6 +142,9 @@ export default class ErrorReportManager implements Manager {
 ```
 
 :::
+
+Depois [adicione-o](../api/Manager.md#adding) antes dos padrões:
+`managers = () => [new ErrorReportManager(), ...getDefaultManagers()]`.
 
 ### Métricas {#metrics}
 

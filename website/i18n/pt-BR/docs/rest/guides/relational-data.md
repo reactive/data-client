@@ -559,11 +559,9 @@ entries.sort((a, b) => {
 
 Aninhando dados quando o seu endpoint não aninha (parte 2).
 
-Uma resposta pode aninhar em apenas uma direção. Para adicionar o relacionamento reverso, sobrescreva
-[Entity.process](../api/Entity.md#process). Talvez você também precise sobrescrever [Entity.merge](../api/Entity.md#merge) para
-fazer o merge profundo desses campos.
-
-Assim, um único fetch dá todas as visões do relacionamento, sem um fetch por visão.
+Uma resposta aninha em apenas uma direção. Aqui `/posts` aninha o `author` de cada post, mas nenhuma resposta lista os
+posts de um usuário. Uma busca reversa monta essa lista no cliente, então um único fetch de `/posts` também dá os `posts`
+e `comments` de cada usuário. Clique em um nome para vê-los.
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -624,9 +622,16 @@ response: [
 ],
 delay: 150,
 },
+{
+endpoint: new RestEndpoint({ path: '/users/:id' }),
+response({ id }) {
+return { id, name: { 123: 'Paul', 245: 'Jane', 246: 'Spambot5000' }[id] };
+},
+delay: 150,
+},
 ]}>
 
-```typescript title="resources/Post"
+```typescript title="resources/Post" {9-20,22-30}
 import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
@@ -635,28 +640,35 @@ export class User extends Entity {
   posts: Post[] = [];
   comments: Comment[] = [];
 
-  static merge(existing, incoming) {
-    return {
-      ...existing,
-      ...incoming,
-      posts: [...(existing.posts || []), ...(incoming.posts || [])],
-      comments: [
-        ...(existing.comments || []),
-        ...(incoming.comments || []),
-      ],
-    };
-  }
-
   static process(value, parent, key) {
     switch (key) {
+      // nested as a post's author: that post is one of this user's
       case 'author':
         return { ...value, posts: [parent.id] };
+      // nested as a comment's commenter
       case 'commenter':
         return { ...value, comments: [parent.id] };
       default:
         return { ...value };
     }
   }
+
+  // one user is nested many times, each with one post or comment
+  static merge(existing, incoming) {
+    return {
+      ...existing,
+      ...incoming,
+      posts: union(existing.posts, incoming.posts),
+      comments: union(existing.comments, incoming.comments),
+    };
+  }
+}
+
+/** Adds the ids not listed yet, so a refetch does not add the same ones again.
+ * Does not remove repeats within `incoming`: here each copy of a user brings one id. */
+function union(existing: string[] = [], incoming: string[] = []) {
+  const added = incoming.filter(id => !existing.includes(id));
+  return added.length ? [...existing, ...added] : existing;
 }
 
 export class Comment extends Entity {
@@ -668,8 +680,12 @@ export class Comment extends Entity {
   static schema: Record<string, Schema> = {
     commenter: User,
   };
+
   static process(value, parent, key) {
-    return { ...value, post: parent.id };
+    // only a post's `comments` tells which post this comment is on
+    return key === 'comments' ?
+        { ...value, post: parent.id }
+      : { ...value };
   }
 }
 
@@ -685,7 +701,7 @@ export class Post extends Entity {
   };
 }
 
-// with cirucular dependencies we must set schema after they are all defined
+// the classes refer to each other, so set these after all are defined
 User.schema = {
   posts: [Post],
   comments: [Comment],
@@ -698,7 +714,6 @@ Comment.schema = {
 export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
-  dataExpiryLength: Infinity,
 });
 export const UserResource = resource({
   path: '/users/:id',
@@ -722,7 +737,7 @@ export default function UserPage({ id }) {
           <h5>Posts</h5>
           <ul>
             {user.posts.map(post => (
-              <li>{post.title}</li>
+              <li key={post.pk()}>{post.title}</li>
             ))}
           </ul>
         </>
@@ -730,7 +745,7 @@ export default function UserPage({ id }) {
       <h5>Comments</h5>
       <ul>
         {user.comments.map(comment => (
-          <li>{comment.content}</li>
+          <li key={comment.pk()}>{comment.content}</li>
         ))}
       </ul>
     </div>
@@ -845,13 +860,53 @@ export default function PostPage() {
 
 </FrameworkPlayground>
 
+`User` sobrescreve dois métodos. [process()](../api/Entity.md#process) é executado para cada usuário aninhado, com o `parent`
+e a `key` que o aninham. [merge()](../api/Entity.md#merge) une as cópias de um mesmo usuário:
+
+```ts
+// post 1 nests Paul as its `author`, so process() adds that post's id
+User.process({ id: '123', name: 'Paul' }, post1, 'author');
+// => { id: '123', name: 'Paul', posts: ['1'] }
+
+// post 2 nests Paul too, so merge() joins both copies
+User.merge(
+  { id: '123', name: 'Paul', posts: ['1'] },
+  { id: '123', name: 'Paul', posts: ['2'] },
+);
+// => { id: '123', name: 'Paul', posts: ['1', '2'] }
+```
+
+Sem a sobrescrita, `merge()` mantém apenas os `posts` da última cópia. `Comment.process()` define `comment.post` da
+mesma forma.
+
+### Quando usar {#when-to-use}
+
+Aninhe uma lista em uma entity quando os dados precisam dela, não apenas a tela. Por exemplo, uma
+[Query](../api/Query.md) que ordena usuários por `user.posts` lê isso antes de qualquer componente renderizar. Então escolha conforme
+onde está a lista:
+
+- **Uma resposta tem a lista** (a resposta do usuário a aninha, ou `GET /posts?author=123` a retorna): use uma
+  [Collection](../api/Collection.md) com [nestKey](../api/Collection.md#nestKey). Cada fetch substitui a lista, e
+  [push](../api/Collection.md#push), [remove](../api/Collection.md#remove) e [move](../api/Collection.md#move)
+  a mantêm atualizada. Ela não precisa de um `merge()` personalizado.
+- **Nenhuma resposta tem a lista**: use uma busca reversa.
+
+### Depois de uma mutação {#after-a-mutation}
+
+- **Criar.** Um novo post ou comentário executa o mesmo `process()`, então entra na lista. Isso vale para
+  [push](../api/RestEndpoint.md#push) e para cada nova página.
+- **Excluir.** Um post ou comentário excluído sai da lista. Uma lista ignora entities que não estão no store.
+- **Mover.** Um post com um novo `author` entra nos `posts` do novo autor e permanece nos do autor antigo: `merge()`
+  apenas adiciona ids. Quando um relacionamento pode mudar, calcule a lista onde ela é lida, com uma
+  [Query](../api/Query.md) sobre [All](../api/All.md).
+
 ### Dependências circulares {#circular-dependencies}
 
 O JavaScript não permite imports circulares nem definições circulares de classes. Por isso, para [Entities][1] que referenciam
 umas às outras, defina o [schema][3] depois das definições das classes.
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -875,10 +930,11 @@ User.schema = {
 ```
 
 ```typescript title="resources/User"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, type Schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+// import only the type: importing the class would be a circular import,
+// so resources/Post sets User.schema above
 import type { Post } from './Post';
-// we can only import the type else we break javascript imports
-// thus we change the schema of UserResource above
 
 export class User extends Entity {
   id = '';
@@ -886,7 +942,7 @@ export class User extends Entity {
   posts: Post[] = [];
   createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
-  static schema: Record<string, Schema | Date> = {
+  static schema: Record<string, Schema> = {
     createdAt: Temporal.Instant.from,
   };
 }

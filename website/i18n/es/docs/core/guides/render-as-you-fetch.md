@@ -34,7 +34,9 @@ y la optimización del fetch _débilmente acoplada_.
 En la mayoría de los casos, el mejor momento para precargar datos es en la capa de enrutamiento. Hacerlo
 hace muy fácil incorporar todas las capacidades anteriores.
 
-Usa [Controller.fetchIfStale](../api/Controller#fetchIfStale) en el manejador de eventos de la ruta (antes de startTransition)
+Usa [Controller.fetchIfStale](../api/Controller#fetchIfStale) en el manejador de eventos de la ruta (antes de startTransition),
+sin hacerle await. El renderizado en el servidor espera la Promise de la ruta, así que haz await de los datos de la primera vista dentro de
+`Promise.allSettled()` ([loaders de rutas](../api/Controller.md#fetchIfStale-loaders)).
 
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
@@ -58,7 +60,8 @@ export const routes: Route<Controller>[] = [
         });
         // don't block on posts but start fetching
         controller.fetchIfStale(PostResource.getList, { userId: match.id });
-        await Promise.all([
+        // server rendering waits for these; allSettled so a failure never rejects unhandled
+        await Promise.allSettled([
           controller.fetchIfStale(UserResource.get, match),
           controller.fetchIfStale(getImage, {
             src: fakeUser.profileImage,

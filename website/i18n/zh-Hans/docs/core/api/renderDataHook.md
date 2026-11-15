@@ -4,13 +4,17 @@ framework_equivalent: guides/unit-testing-composables
 title: renderDataHook()
 ---
 
-`renderDataHook()` 用于测试依赖 `Reactive Data Client` 的 hook。它与 [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library) 的 [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options) 相仿，但会额外提供一个 `<Suspense/>` 边界，
-并运行在 `<Provider />` 上下文中。
+`renderDataHook()` 会为测试渲染一个使用 Reactive Data Client 的 hook。它会在
+`DataProvider` 和 `<Suspense/>` 边界内渲染该 hook。在 React 18 或更高版本中，它在 DOM
+环境下封装 [@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook) 的 `renderHook()`，
+在 React Native 上则封装 [@testing-library/react-native](https://github.com/callstack/react-native-testing-library) 的版本。其他情况下它使用
+[@testing-library/react-hooks](https://react-hooks-testing-library.com/reference/api#renderhook-options)。它们都会
+给出下文所述的结果。
 
 :::note
 
-`renderDataHook()` 会使用新的 manager 实例创建一个 Provider 上下文。这意味着每次调用
-`renderDataHook()` 都会得到全新的缓存状态和 manager 状态。
+每次调用 `renderDataHook()` 都会创建新的 store 和新的 manager 实例，因此缓存和 manager 状态不会在
+多次调用之间延续。
 
 :::
 

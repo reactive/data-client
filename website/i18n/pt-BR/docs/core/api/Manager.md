@@ -14,16 +14,15 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-`Managers` lidam com efeitos colaterais globais. Uma espécie de :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] para o store
+`Managers` lidam com efeitos colaterais globais. Eles são como :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)], mas para o store
 de dados central.
 
-Os managers padrão orquestram o comportamento assíncrono complexo que o <abbr title="Reactive Data Client">Data Client</abbr>
-fornece de fábrica. Eles podem ser facilmente configurados com [getDefaultManagers()](./getDefaultManagers.md) e
-estendidos com seus próprios `Managers` personalizados.
+Os managers padrão executam o comportamento assíncrono que o <abbr title="Reactive Data Client">Data Client</abbr> fornece,
+como fetching e subscriptions. Configure-os com [getDefaultManagers()](./getDefaultManagers.md) e adicione seus
+próprios `Managers`.
 
-Managers devem implementar [middleware](#middleware), que os conecta ao
-[fluxo de controle](#control-flow) do store central. Além disso, [cleanup()](#cleanup) e [init()](#init) se conectam ao
-ciclo de vida do store para comportamentos de configuração/encerramento.
+Cada Manager implementa [middleware](#middleware), que o conecta ao [fluxo de controle](#control-flow) do store.
+[init()](#init) e [cleanup()](#cleanup) o conectam ao ciclo de vida do store, para configuração e encerramento.
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
@@ -54,31 +53,34 @@ constructor não deve abrir nada.]
 
 ### middleware {#middleware}
 
-`middleware` é muito parecido com um [middleware do redux](https://redux.js.org/advanced/middleware).
-A única diferença é que a função `next()` retorna uma `Promise`.
+`middleware` funciona como um [middleware do redux](https://redux.js.org/advanced/middleware), exceto que `next()` retorna uma
+`Promise`.
 
 :::react
 
-Essa promise resolve quando a atualização do reducer é
-[confirmada (commit)](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-ao usar o &lt;DataProvider /\>. Isso é necessário porque a fase de commit é agendada de forma assíncrona. Isso permite criar
-managers que executam trabalho depois que o DOM é atualizado e também com o estado recém-computado.
+Com o &lt;DataProvider /\>, essa promise resolve quando o React
+[confirma (commit)](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
+a atualização. O React agenda commits de forma assíncrona, então um Manager pode aguardar `next()` para trabalhar com o novo estado depois que o
+DOM é atualizado.
 
 :::
 
 :::vue
 
-Essa promise resolve quando a atualização do reducer é confirmada no store do
-[DataClientPlugin](./DataClientPlugin.md). Isso permite criar managers que executam trabalho com o
-estado recém-computado.
+Essa promise resolve quando o store do [DataClientPlugin](./DataClientPlugin.md) confirma a atualização, então um Manager pode
+aguardar `next()` para trabalhar com o novo estado.
 
 :::
 
-Como o redux é totalmente síncrono, é preciso colocar um adaptador na frente dos middlewares no estilo do Reactive Data Client para
-garantir que eles possam consumir uma promise. Inversamente, os middlewares do redux precisam ser alterados para repassar promises.
+:::react
 
-Middlewares [interceptam actions](#reading-and-consuming-actions) que são despachadas e, em seguida, podem também [despachar suas próprias actions](#dispatching-actions).
-Para saber mais sobre middlewares, veja a [documentação do redux](https://redux.js.org/advanced/middleware).
+O redux despacha de forma síncrona, então um store do redux precisa de um adaptador depois dos Managers que retorne uma `Promise` a partir de
+`next()`. O [prepareStore](../guides/redux.md) adiciona um e coloca os middlewares do redux depois dele.
+
+:::
+
+Um middleware pode [ler actions](#reading-and-consuming-actions) à medida que são despachadas e
+[despachar as suas próprias](#dispatching-actions).
 
 ### init(state) {#init}
 
@@ -139,8 +141,8 @@ resolve a maioria das actions FETCH por conta própria, em vez de repassá-las.
 
 ## Fluxo de controle {#control-flow}
 
-Managers se integram ao store do :react[DataProvider]:vue[DataClientPlugin] por meio de seus ciclos de vida e middleware. Eles orquestram fluxos
-de controle complexos interceptando e despachando [actions](./Actions.md), além de lerem o estado interno.
+Managers se conectam ao store do :react[DataProvider]:vue[DataClientPlugin] por meio de seus métodos de ciclo de vida e
+middleware. Eles leem e despacham [actions](./Actions.md) e leem o estado do store.
 
 <ThemedImage
 alt="Fluxo flux do Manager"
@@ -239,10 +241,10 @@ export default class LoggingManager implements Manager {
 
 </TypeScriptEditor>
 
-Em blocos condicionais, o [tipo da action é restringido (narrowing)](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
-incentivando o acesso seguro aos seus membros.
+Dentro de cada `case`, o TypeScript [restringe (narrowing)](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
+o tipo da action, então você pode acessar seus membros com segurança.
 
-Caso queiramos 'tratar' uma determinada [action](./Actions.md), podemos 'consumi-la' não chamando next.
+Para consumir uma [action](./Actions.md), não chame `next()`.
 
 <TypeScriptEditor>
 
@@ -298,8 +300,8 @@ export default class CustomSubsManager implements Manager {
 
 </TypeScriptEditor>
 
-Ao usar `return Promise.resolve();` em vez de chamar `next(action)`, impedimos que os managers listados
-depois deste vejam essa [action](./Actions.md).
+`return Promise.resolve();` em vez de `next(action)` impede que os managers listados depois deste vejam a
+[action](./Actions.md).
 
 Tipos: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
 [`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),

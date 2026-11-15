@@ -34,7 +34,9 @@ ao componente, e a otimização do fetch _fracamente acoplada_.
 Na maioria dos casos, o melhor momento para fazer o prefetch dos dados é na camada de roteamento. Fazer isso
 torna bastante fácil incorporar todas as capacidades acima.
 
-Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) no handler de eventos da rota (antes de startTransition)
+Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) no handler de eventos da rota (antes de startTransition),
+sem aguardá-lo. A renderização no servidor espera a Promise da rota, então aguarde os dados da primeira view dentro de
+`Promise.allSettled()` ([loaders de rota](../api/Controller.md#fetchIfStale-loaders)).
 
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
@@ -58,7 +60,8 @@ export const routes: Route<Controller>[] = [
         });
         // don't block on posts but start fetching
         controller.fetchIfStale(PostResource.getList, { userId: match.id });
-        await Promise.all([
+        // server rendering waits for these; allSettled so a failure never rejects unhandled
+        await Promise.allSettled([
           controller.fetchIfStale(UserResource.get, match),
           controller.fetchIfStale(getImage, {
             src: fakeUser.profileImage,

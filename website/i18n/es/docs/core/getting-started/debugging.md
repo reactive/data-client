@@ -149,9 +149,9 @@ Aquí alternamos el estado 'completed' de una tarea pendiente mediante una [actu
 
 ### Rastreo de acciones {#action-tracing}
 
-El rastreo no está habilitado de forma predeterminada, ya que es muy costoso computacionalmente. Sin embargo, puede ser muy útil
-para encontrar desde dónde se despachan las [acciones](../api/Actions.md). Personaliza [DevToolsManager](../api/DevToolsManager.md)
-estableciendo la opción trace en `true` con [getDefaultManagers](../api/getDefaultManagers.md):
+El rastreo muestra desde dónde se despachó cada [acción](../api/Actions.md). Está desactivado de forma predeterminada porque registra un stack trace por cada acción. Para
+activarlo, define la opción `trace` de [DevToolsManager](../api/DevToolsManager.md) con
+[getDefaultManagers](../api/getDefaultManagers.md):
 
 :::react
 

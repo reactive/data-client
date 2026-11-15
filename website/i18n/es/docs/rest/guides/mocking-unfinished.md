@@ -4,10 +4,8 @@ title: Simular endpoints sin terminar
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-Has acordado un esquema de API con un ingeniero de backend que lo implementará;
-pero empieza a programar al mismo tiempo que tú. Sería ideal poder simular
-el endpoint fácilmente y usarlo de tal forma que, cuando el endpoint esté listo,
-no tengas que hacer cambios importantes en tu código.
+Para desarrollar contra un endpoint que el backend aún no ha terminado, simúlalo en la definición del endpoint. Cuando el endpoint esté
+listo, tus componentes no cambian.
 
 <HooksPlayground row>
 
@@ -72,12 +70,9 @@ render(<Demo />);
 
 </HooksPlayground>
 
-Al simular el
-[RestEndpoint](../api/RestEndpoint.md) podemos falsear fácilmente los datos que devolverá el servidor. Esto
-permite usar con total libertad el RatingResource, con tipado fuerte, de forma normal en todo el código.
+La sobrescritura de `fetch` en el [RestEndpoint](../api/RestEndpoint.md) devuelve datos falsos. El resto del código usa el
+`RatingResource` tipado como de costumbre.
 
-Una vez implementada la API, puedes simplemente eliminar el fetch personalizado (y toda la sobrescritura
-de list() si eso es lo único que hace).
+Cuando la API esté lista, elimina toda la sobrescritura de `getList`. Tanto `fetch` como `dataExpiryLength` existen solo para el mock.
 
-En este ejemplo también establecemos dataExpiryLength a un tiempo mayor para que los valores aleatorios generados
-persistan más. Esto hace que la demostración sea más realista.
+`dataExpiryLength: Infinity` evita que los datos [caduquen](/docs/concepts/expiry-policy), de modo que Data Client no los vuelve a obtener por su cuenta ni reemplaza los valores aleatorios.

@@ -4,7 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 ### static fromJS(props): Entity {#fromJS}
 
 Método de fábrica que copia props para uma nova instância. Use-o em vez de `new MyEntity()`,
-para garantir que as props padrão sejam sobrescritas.
+para garantir que as props padrão sejam sobrescritas. Ele não chama [process()](#process).
 
 ### static process(input, parent, key, args): processedEntity {#process}
 
@@ -12,6 +12,10 @@ Executado no início da normalização desta entity. O valor de retorno é salvo
 e enviado para [pk()](#pk).
 
 **O padrão** é simplesmente copiar a resposta (`{...input}`)
+
+`parent` é o objeto que aninha esta entity, e `key` é o campo sob o qual ela está. Uma entity em uma lista aninhada recebe
+o parent e a key da lista. No nível superior de uma resposta, `key` é `undefined`. Quando dois tipos de parent
+aninham esta entity sob a mesma `key`, verifique também um campo que apenas um deles tenha.
 
 Como sobrescrever para [construir buscas reversas para dados relacionais](../guides/relational-data.md#reverse-lookups)
 
@@ -316,7 +320,7 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` é chamado durante a normalização quando uma entity processada já é encontrada no store.
 
-### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
 Este método permite que `Entities` sejam [Queryable](/rest/api/schema#queryable) - permitindo acesso ao store sem um endpoint.
 
@@ -330,29 +334,15 @@ Quando usada, a política de expiração é calculada com base nos metadados da 
 
 Por **padrão**, usa o primeiro argumento para buscar em [pk()](#pk) e [indexes](/rest/api/Entity#indexes)
 
-#### getEntity(key, pk?) {#getentitykey-pk}
+`delegate` lê o store. Seus membros estão listados em [IQueryDelegate](/rest/api/SchemaSimple#iquerydelegate).
 
-Obtém todas as entities de um tipo com um argumento, ou uma única entity com dois
-
-```ts title="One argument"
-const entitiesEntry = getEntity(this.schema.key);
-if (entitiesEntry === undefined) return INVALID;
-return Object.values(entitiesEntry).map(
-  entity => entity && this.schema.pk(entity),
-);
+```ts title="Look up by pk"
+if (delegate.getEntity(this.key, id)) return id;
 ```
 
-```ts title="Two arguments"
-if (getEntity(this.key, id)) return id;
-```
-
-#### getIndex(key, indexName, value) {#getindexkey-indexname-value}
-
-Retorna a entrada do índice (mapa valor->pk)
-
-```ts
-const value = args[0][indexName];
-return getIndex(schema.key, indexName, value)[value];
+```ts title="Look up by index"
+const pk = delegate.getIndex(this.key, indexName, args[0][indexName]);
+if (pk && delegate.getEntity(this.key, pk)) return pk;
 ```
 
 ### static createIfValid(processedEntity): Entity | undefined {#createIfValid}

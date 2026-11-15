@@ -150,9 +150,9 @@ Aqui alternamos o status 'completed' de um todo usando uma [atualização otimis
 
 ### Rastreamento de actions {#action-tracing}
 
-O rastreamento não vem habilitado por padrão, pois é computacionalmente muito custoso. No entanto, pode ser muito útil
-para descobrir de onde as [actions](../api/Actions.md) são despachadas. Personalize o [DevToolsManager](../api/DevToolsManager.md)
-definindo a opção trace como `true` com [getDefaultManagers](../api/getDefaultManagers.md):
+O rastreamento mostra de onde cada [action](../api/Actions.md) foi despachada. Ele vem desativado por padrão porque registra um stack trace para cada action. Para
+ativá-lo, defina a opção `trace` do [DevToolsManager](../api/DevToolsManager.md) com
+[getDefaultManagers](../api/getDefaultManagers.md):
 
 :::react
 

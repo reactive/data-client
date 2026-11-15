@@ -33,6 +33,11 @@ Reactive Data Client 应有的高性能和引用相等性保证。
 接收（反规范化后的）响应作为 entries 以及参数，并返回新的
 响应，供 [useQuery](/docs/api/useQuery) 使用
 
+`useQuery(query, ...args)` 会把每个参数都传给 Query 的 `schema`，并在 entries 之后传给 `process`，因此
+请对照两者检查每个参数。schema 会用这些参数查找数据，就像 `useQuery(schema, ...args)`
+那样；找不到时，`useQuery()` 返回 `undefined`。只有当 schema 忽略某个参数时，才给 `process` 单独的
+参数：[All](./All.md) 会忽略所有参数。
+
 ## 用法 {#usage}
 
 ### 新建后保持排序 {#sorting}

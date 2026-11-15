@@ -334,6 +334,12 @@ render(<AssetPrice productId="BTC-USD" />);
 
 </FrameworkPlayground>
 
+### Clave en un objeto anidado {#key-in-a-nested-object}
+
+Algunas APIs colocan la clave primaria dentro de un objeto anidado, como `{ post: { id }, creator, saved }`. Cópiala
+a un `id` de nivel superior en [Entity.process()](../api/Entity.md#process), de modo que las búsquedas reciban `{ id }`. Consulta
+[Clave primaria en un objeto anidado](../api/Entity.md#primary-key-in-a-nested-object) para ver el ejemplo.
+
 ## Uso de cabeceras HTTP {#using-http-headers}
 
 Para leer las [cabeceras](https://developer.mozilla.org/en-US/docs/Web/API/Headers) HTTP, sobrescribe

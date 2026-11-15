@@ -84,8 +84,8 @@ mais detalhes.
 
 <AgentOnly>
 
-Em seguida, a partir da raiz do projeto, vincule as skills que os pacotes instalados incluem, correspondentes às suas versões, e faça commit dos
-links:
+Em seguida, a partir da pasta do app (em um monorepo de workspaces, execute-o em cada app: ele as vincula na raiz do workspace e, no app,
+apenas as que instala em outra versão), vincule as skills que os pacotes instalados incluem, correspondentes às suas versões, e faça commit dos links:
 
 ```bash
 npx --no data-client-skills

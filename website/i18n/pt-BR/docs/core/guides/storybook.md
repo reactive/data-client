@@ -13,12 +13,12 @@ import TabItem from '@theme/TabItem';
 
 # Simulando dados para o Storybook
 
-O [Storybook](https://storybook.js.org/) é uma ótima ferramenta para desenvolvimento e
-testes isolados, podendo acelerar bastante o tempo de desenvolvimento.
+O [Storybook](https://storybook.js.org/) renderiza componentes isoladamente para desenvolvimento e testes.
 
-O [&lt;MockResolver /\>](../api/MockResolver.md) permite carregar com facilidade [fixtures ou interceptors](../api/Fixtures.md) para ver como
-diferentes respostas de rede podem se parecer. Ele pode ser aninhado, composto e até usado
-para [fetches imperativos](../api/Controller.md#fetch), geralmente usados com endpoints que têm efeitos colaterais, como [getList.push](/rest/api/resource#push) e [update](/rest/api/resource#update).
+O [&lt;MockResolver /\>](../api/MockResolver.md) carrega [fixtures ou interceptors](../api/Fixtures.md), para que as stories mostrem
+diferentes respostas de rede. Aninhe um `<MockResolver>` para substituir os fixtures de parte da árvore. Dentro dele,
+só valem os fixtures internos: uma requisição que eles não correspondem vai para a rede, não para os fixtures do externo. Ele também resolve [fetches imperativos](../api/Controller.md#fetch) de
+endpoints com efeitos colaterais, como [getList.push](/rest/api/resource#push) e [update](/rest/api/resource#update).
 
 ## Configuração {#setup}
 
@@ -31,6 +31,9 @@ values={[
 <TabItem value="ArticleResource.ts">
 
 ```typescript title="ArticleResource.ts"
+import { Entity, resource } from '@data-client/rest';
+import type { Fixture } from '@data-client/test';
+
 export class Article extends Entity {
   id: number | undefined = undefined;
   content = '';
@@ -78,8 +81,8 @@ export default function ArticleList({
 
 ## Fixtures {#fixtures}
 
-Vamos testar três casos com nossos [fixtures e interceptors](../api/Fixtures.md): alguns resultados interessantes na lista, uma lista vazia e dados
-inexistentes, de modo que o fallback de carregamento seja exibido.
+Estes [fixtures e interceptors](../api/Fixtures.md) cobrem quatro casos: uma lista cheia, uma lista vazia, um erro e nenhum
+fixture, o que mantém o fallback de carregamento sendo exibido.
 
 ```typescript title="ArticleResource.ts"
 // leave out in production so we don't bloat the bundle
@@ -138,12 +141,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 ## Decorators {#decorators}
 
-Você precisará adicionar os [decorators globais](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators) apropriados para estabelecer o contexto correto.
-
-Isso deve se parecer com o que você adicionou na [configuração inicial](../getting-started/installation#add-provider-at-top-level-component)
+Adicione [decorators globais](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators) que renderizem
+os mesmos providers da [configuração inicial](../getting-started/installation#add-provider-at-top-level-component) do seu app:
 
 ```tsx title=".storybook/preview.tsx"
-import { Suspense } from 'react';
 import { DataProvider, AsyncBoundary } from '@data-client/react';
 
 export const decorators = [
@@ -159,10 +160,8 @@ export const decorators = [
 
 ## Story {#story}
 
-Envolver nosso componente com o [&lt;MockResolver /\>](../api/MockResolver.md) nos permite controlar
-de forma declarativa como os fetches do Reactive Data Client são resolvidos.
-
-Aqui selecionamos quais fixtures devem ser usados pelos [controles do storybook](https://storybook.js.org/docs/react/essentials/controls).
+Envolva o componente com o [&lt;MockResolver /\>](../api/MockResolver.md) para escolher como seus fetches são resolvidos. Aqui,
+os [controles do Storybook](https://storybook.js.org/docs/react/essentials/controls) escolhem os fixtures.
 
 ```tsx title="ArticleList.stories.tsx"
 import { type StoryObj } from '@storybook/react';

@@ -14,15 +14,15 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-`Managers` 负责处理全局副作用。有点像中心数据 store 的 :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)]。
+`Managers` 负责处理全局副作用。它们就像 :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)]，只不过作用于中心数据
+store。
 
-默认的 manager 负责编排 <abbr title="Reactive Data Client">Data Client</abbr>
-开箱即用提供的复杂异步行为。你可以通过 [getDefaultManagers()](./getDefaultManagers.md) 轻松配置它们，
-也可以用自定义的 `Managers` 进行扩展。
+默认的 manager 负责运行 <abbr title="Reactive Data Client">Data Client</abbr> 提供的异步行为，
+例如获取数据和订阅。你可以通过 [getDefaultManagers()](./getDefaultManagers.md) 配置它们，并添加你
+自己的 `Managers`。
 
-Manager 必须实现 [middleware](#middleware)，它把 Manager 接入中心 store 的
-[控制流](#control-flow)。此外，[cleanup()](#cleanup) 和 [init()](#init) 会接入
-store 的生命周期，用于初始化和清理行为。
+每个 Manager 都实现 [middleware](#middleware)，它把 Manager 接入 store 的[控制流](#control-flow)。
+[init()](#init) 和 [cleanup()](#cleanup) 把它接入 store 的生命周期，用于初始化和清理。
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
@@ -53,31 +53,34 @@ interface Manager {
 
 ### middleware {#middleware}
 
-`middleware` 与 [redux middleware](https://redux.js.org/advanced/middleware) 非常相似。
-唯一的区别在于 `next()` 函数会返回一个 `Promise`。
+`middleware` 的工作方式与 [redux middleware](https://redux.js.org/advanced/middleware) 相同，只是 `next()` 会返回一个
+`Promise`。
 
 :::react
 
-在使用 &lt;DataProvider /\> 时，这个 promise 会在 reducer 的更新被
+在使用 &lt;DataProvider /\> 时，这个 promise 会在 React
 [提交](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-后 resolve。这是必要的，因为提交阶段是异步调度的。这样就可以构建
-在 DOM 更新之后、并基于新计算出的状态执行工作的 manager。
+更新后 resolve。React 会异步调度提交，因此 Manager 可以 await `next()`，在 DOM 更新之后基于新状态
+执行工作。
 
 :::
 
 :::vue
 
-这个 promise 会在 reducer 的更新提交到
-[DataClientPlugin](./DataClientPlugin.md) store 后 resolve。这样就可以构建基于
-新计算出的状态执行工作的 manager。
+这个 promise 会在 [DataClientPlugin](./DataClientPlugin.md) store 提交更新后 resolve，因此 Manager 可以
+await `next()` 来基于新状态执行工作。
 
 :::
 
-由于 redux 是完全同步的，必须在 Reactive Data Client 风格的中间件前面放一个适配器，
-以确保它们能够消费 promise。反过来，redux 中间件也必须修改为透传 promise。
+:::react
 
-中间件会[拦截被派发的 action](#reading-and-consuming-actions)，并且还可能[派发自己的 action](#dispatching-actions)。
-要进一步了解中间件，请参阅 [redux 文档](https://redux.js.org/advanced/middleware)。
+Redux 是同步派发的，因此 redux store 需要在 Manager 之后放一个适配器，让 `next()` 返回 `Promise`。
+[prepareStore](../guides/redux.md) 会添加这个适配器，并把 redux 中间件放在它之后。
+
+:::
+
+中间件可以在 action 被派发时[读取它们](#reading-and-consuming-actions)，也可以
+[派发自己的 action](#dispatching-actions)。
 
 ### init(state) {#init}
 
@@ -138,8 +141,8 @@ action 会按数组顺序依次经过各个 manager。请把自定义 manager �
 
 ## 控制流 {#control-flow}
 
-Manager 通过其生命周期和中间件与 :react[DataProvider]:vue[DataClientPlugin] store 集成。它们通过拦截和派发 [action](./Actions.md)
-以及读取内部状态来进行交互，从而编排复杂的控制流。
+Manager 通过其生命周期方法和中间件接入 :react[DataProvider]:vue[DataClientPlugin] store。
+它们读取和派发 [action](./Actions.md)，并读取 store 的状态。
 
 <ThemedImage
 alt="Manager 的 flux 流程"
@@ -238,10 +241,10 @@ export default class LoggingManager implements Manager {
 
 </TypeScriptEditor>
 
-在条件块中，action 的[类型会被收窄](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)，
-从而鼓励安全地访问其成员。
+在每个 `case` 中，TypeScript 会[收窄](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
+action 的类型，因此你可以安全地访问其成员。
 
-如果我们想“处理”某个 [action](./Actions.md)，可以通过不调用 next 来“消费”它。
+要消费某个 [action](./Actions.md)，不要调用 `next()`。
 
 <TypeScriptEditor>
 
@@ -297,8 +300,8 @@ export default class CustomSubsManager implements Manager {
 
 </TypeScriptEditor>
 
-通过 `return Promise.resolve();` 而不是调用 `next(action)`，我们可以阻止排在
-这个 manager 之后的 manager 看到该 [action](./Actions.md)。
+用 `return Promise.resolve();` 代替 `next(action)`，可以阻止排在这个 manager 之后的 manager 看到该
+[action](./Actions.md)。
 
 类型：[`FETCH`](./Actions.md#fetch)、[`SET`](./Actions.md#set)、[`SET_RESPONSE`](./Actions.md#set_response)、
 [`RESET`](./Actions.md#reset)、[`SUBSCRIBE`](./Actions.md#subscribe)、[`UNSUBSCRIBE`](./Actions.md#unsubscribe)、
