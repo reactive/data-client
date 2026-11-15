@@ -136,8 +136,9 @@ const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 Define the function at module level: it holds only config.
 
-Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](./NetworkManager.md)
-resolves most FETCH actions itself instead of passing them on.
+Actions pass through managers in array order. List custom managers before the defaults:
+[NetworkManager](./NetworkManager.md#consumed-actions) consumes most FETCH actions, so that no other manager sends
+the request again.
 
 ## Control flow
 
@@ -244,7 +245,8 @@ export default class LoggingManager implements Manager {
 Inside each `case`, TypeScript [narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
 the action's type, so you can access its members safely.
 
-To consume an [action](./Actions.md), don't call `next()`.
+To consume an [action](./Actions.md), don't call `next()`. This says "I handled it": managers listed after this one,
+and the reducer, never see the action, so none handles it again.
 
 <TypeScriptEditor>
 
@@ -300,8 +302,7 @@ export default class CustomSubsManager implements Manager {
 
 </TypeScriptEditor>
 
-`return Promise.resolve();` instead of `next(action)` stops managers listed after this one from seeing the
-[action](./Actions.md).
+Here `return Promise.resolve();` takes the place of `next(action)`.
 
 Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
 [`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),
