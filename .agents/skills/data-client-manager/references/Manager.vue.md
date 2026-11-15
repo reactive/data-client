@@ -222,8 +222,8 @@ export default class CustomSubsManager implements Manager {
 }
 ```
 
-Here `return Promise.resolve();` takes the place of `next(action)`. [NetworkManager](https://dataclient.io/vue/api/NetworkManager) consumes a
-fetch in the same way: a second manager that sent it would repeat the request, and not every mutation is idempotent.
+Here `return Promise.resolve();` takes the place of `next(action)`. [NetworkManager](https://dataclient.io/vue/api/NetworkManager#consumed-actions)
+consumes a fetch for this reason: a second manager that sent it would repeat the request, and not every mutation is idempotent.
 
 Types: [`FETCH`](./Actions.vue.md#fetch), [`SET`](./Actions.vue.md#set), [`SET_RESPONSE`](./Actions.vue.md#set_response),
 [`RESET`](./Actions.vue.md#reset), [`SUBSCRIBE`](./Actions.vue.md#subscribe), [`UNSUBSCRIBE`](./Actions.vue.md#unsubscribe),
