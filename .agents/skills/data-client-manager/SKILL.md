@@ -199,7 +199,7 @@ export default class CustomSubsManager implements Manager {
 
 Pass a function that returns the managers, defined at module level; it runs once per store. Create each Manager inside the function: an instance made outside it is shared by every store.
 
-List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order. NetworkManager (one of the defaults) consumes a FETCH, so that no other manager sends the request again. Only optimistic mutations continue. So a manager listed after it misses most fetches:
+List custom managers before `...getDefaultManagers()`. Actions pass through managers in array order. NetworkManager (one of the defaults) consumes most FETCH actions, so that no other manager sends the request again (only optimistic mutations continue). So a manager listed after it misses most fetches:
 
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';

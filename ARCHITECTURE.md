@@ -1,14 +1,14 @@
 # Architecture
 
-Reactive Data Client has two parts: the **data definition**, and the **client** that runs it. The client is a central
-store with two runtimes, one in the view framework and one outside it. App code is written in three layers: the data
-definition and the two runtimes. Each layer changes for its own reason, so each one can be used, tested and replaced
-without the others.
+Reactive Data Client has two parts: the **data definition**, and the **client** that runs it. The data definition is the
+data model and the API definition. The client is a central store with two runtimes, one in the view framework and one
+outside it. App code is written in three layers: the data definition and the two runtimes. Each layer changes for its
+own reason, so each one can be used, tested and replaced without the others.
 
-| | Layer | Made of | Says | Packages |
+| | Part | Made of | Says | Packages |
 |---|---|---|---|---|
-| **Definition** | Data definition | [Schemas](https://dataclient.io/rest/api/schema) | The data model (nouns): identity, shape, relationships | `endpoint` |
-| | | [Endpoints](https://dataclient.io/rest/api/Endpoint), grouped in [resources](https://dataclient.io/rest/api/resource) | The API definition (verbs): the operations on that data model, to get it and change it | `endpoint`, `rest`, `graphql` |
+| **Data definition** | Data model | [Schemas](https://dataclient.io/rest/api/schema) | Nouns: identity, shape, relationships | `endpoint` |
+| | API definition | [Endpoints](https://dataclient.io/rest/api/Endpoint), grouped in [resources](https://dataclient.io/rest/api/resource) | Verbs: the operations on that data model, to get it and change it | `endpoint`, `rest`, `graphql` |
 | **Client** | Store | Reducer, [actions](https://dataclient.io/docs/api/Actions), [Controller](https://dataclient.io/docs/api/Controller) | The single source of truth. Controller is the type-safe, imperative access to it | `core` |
 | | Runtime in the view framework | Hooks (React), composables (Vue) | Data binding: which data a component needs, in the component that renders it | `react`, `vue` |
 | | Runtime outside the view framework | [Managers](https://dataclient.io/docs/api/Manager) | Global side effects: the bridge from the store to the rest of the world (network, sockets, timers, other tabs, logging) | `core` |
