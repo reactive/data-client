@@ -136,8 +136,9 @@ const managers = () => [new MyManager(), ...getDefaultManagers()];
 
 Define the function at module level: it holds only config.
 
-Actions pass through managers in array order. List custom managers before the defaults: [NetworkManager](./NetworkManager.md)
-consumes most FETCH actions, so that no other manager sends the request again.
+Actions pass through managers in array order. List custom managers before the defaults:
+[NetworkManager](./NetworkManager.md#consumed-actions) consumes most FETCH actions, so that no other manager sends
+the request again.
 
 ## Control flow
 
@@ -301,8 +302,7 @@ export default class CustomSubsManager implements Manager {
 
 </TypeScriptEditor>
 
-Here `return Promise.resolve();` takes the place of `next(action)`. [NetworkManager](./NetworkManager.md#consumed-actions)
-consumes a fetch for this reason: a second manager that sent it would repeat the request, and not every mutation is idempotent.
+Here `return Promise.resolve();` takes the place of `next(action)`.
 
 Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
 [`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),
