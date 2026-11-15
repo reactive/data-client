@@ -20,14 +20,10 @@ data definition package.
 
 The store is [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): unidirectional data flow.
 
-```mermaid
-flowchart LR
-  C[Components<br/>hooks] -- action --> M[Managers<br/>middleware]
-  M -- action --> S[Store<br/>reducer]
-  S -- state --> C
-  S -- state --> M
-  M <--> W((Outside world<br/>HTTP, sockets, timers))
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/reactive/data-client/raw/master/website/static/img/flux-full-dark.png">
+  <img alt="Components dispatch actions to the Managers. Managers pass each action to the store, and connect it to HTTP, SSE, websockets and IndexedDB. The store sends the action and the new state back to the Managers, and the state to the components." src="https://github.com/reactive/data-client/raw/master/website/static/img/flux-full.png">
+</picture>
 
 1. Every change is an action. Components and Managers dispatch actions through Controller: `ctrl.fetch()`,
    `ctrl.set()`, `ctrl.invalidate()`.
