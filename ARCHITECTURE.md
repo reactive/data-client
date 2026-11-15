@@ -20,10 +20,14 @@ data definition package.
 
 The store is [flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/): unidirectional data flow.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/reactive/data-client/raw/master/website/static/img/flux-full-dark.png">
-  <img alt="Components dispatch actions to the Managers. Managers pass each action to the store, and connect it to HTTP, SSE, websockets and IndexedDB. The store sends the action and the new state back to the Managers, and the state to the components." src="https://github.com/reactive/data-client/raw/master/website/static/img/flux-full.png">
-</picture>
+```mermaid
+flowchart LR
+  C[Components<br/>hooks] -- action --> M[Managers<br/>middleware]
+  M -- action --> S[Store<br/>reducer]
+  S -- action, state --> M
+  S -- state --> C
+  M <--> W((Outside world<br/>HTTP, SSE, websockets, IndexedDB))
+```
 
 1. Every change is an action. Components and Managers dispatch actions through Controller: `ctrl.fetch()`,
    `ctrl.set()`, `ctrl.invalidate()`.
@@ -31,7 +35,7 @@ The store is [flux](https://facebookarchive.github.io/flux/docs/in-depth-overvie
    [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware). A Manager passes an action
    on by default. It consumes an action to say "I handled it", so no later Manager handles it again.
 3. The reducer computes the next state. It writes data through the action's schema: each Entity's `pk()`, `process()`
-   and `merge()` decide what the store keeps.
+   and `merge()` decide what the store keeps. A Manager that awaits `next(action)` then reads the new state.
 4. Hooks read the state through the schema, and their components render again.
 
 The reducer has no side effects, and the schema methods and `getOptimisticResponse()` that it calls must have none
