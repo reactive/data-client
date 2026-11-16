@@ -1006,32 +1006,47 @@ const isDateNow = node =>
 const isActionName = node =>
   node?.type === 'Identifier' && /(^a|A)ction$/.test(node.name);
 
-/** Whether `path` runs only for fetch actions: under `if (action.type === actionTypes.FETCH)` or
- * `case actionTypes.FETCH:`, the actions that carry `meta.fetchedAt` */
-function inFetchBranch(path) {
+/** Whether `path` runs only when `action` (an identifier path) is a fetch action: under
+ * `if (action.type === actionTypes.FETCH)` or `case actionTypes.FETCH:` of `switch (action.type)`, the
+ * actions that carry `meta.fetchedAt` */
+function inFetchBranch(path, action) {
+  const { name } = action.node;
+  const binding = bindingOf(action);
   const isFetch = node =>
     nameOf(node) === 'FETCH' ||
     ((node.type === 'StringLiteral' || node.type === 'Literal') &&
       node.value === 'rdc/fetch');
-  // true only when the test holds just for fetch actions: `a.type === FETCH`, alone or in an `&&`
-  const onlyFetch = test =>
+  // `action.type` of the same variable, so a callback's own `action` isn't taken as the fetch
+  const isActionType = (node, at) =>
+    memberName(node) === 'type' &&
+    isId(node.object, name) &&
+    bindingAt(at, name) === binding;
+  // true only when the test holds just for fetch actions: `action.type === FETCH`, alone or in an `&&`
+  const onlyFetch = (test, at) =>
     (test.type === 'LogicalExpression' &&
       test.operator === '&&' &&
-      (onlyFetch(test.left) || onlyFetch(test.right))) ||
+      (onlyFetch(test.left, at) || onlyFetch(test.right, at))) ||
     (test.type === 'BinaryExpression' &&
       (test.operator === '===' || test.operator === '==') &&
-      (isFetch(test.left) || isFetch(test.right)));
+      ((isFetch(test.left) && isActionType(test.right, at)) ||
+        (isFetch(test.right) && isActionType(test.left, at))));
   for (; path.parent; path = path.parent) {
     const { node } = path.parent;
     if (
       node.type === 'IfStatement' &&
       path.name === 'consequent' &&
-      onlyFetch(node.test)
+      onlyFetch(node.test, path.parent)
     )
       return true;
-    if (node.type === 'SwitchCase' && node.test && isFetch(node.test)) {
+    const switchPath = path.parent.parent;
+    if (
+      node.type === 'SwitchCase' &&
+      node.test &&
+      isFetch(node.test) &&
+      isActionType(switchPath.node.discriminant, switchPath)
+    ) {
       // another case may fall through into this one
-      const cases = path.parent.parent.node.cases;
+      const { cases } = switchPath.node;
       const before = cases[cases.indexOf(node) - 1];
       if (!before || endsAbruptly(before.consequent)) return true;
     }
@@ -1042,29 +1057,31 @@ function inFetchBranch(path) {
 /** The fetch action's `meta` for the endpoint at `path` in a fetch branch: `action.meta` for
  * `action.endpoint`, or for `endpoint` destructured from `action` (its `meta` when destructured too) */
 function fetchMetaOf(j, path) {
-  if (!inFetchBranch(path)) return;
   const { node } = path;
   const metaOf = action =>
     j.memberExpression(j.identifier(action.name), j.identifier('meta'));
   if (memberName(node) === 'endpoint' && isActionName(node.object))
-    return metaOf(node.object);
+    return inFetchBranch(path, path.get('object')) ?
+        metaOf(node.object)
+      : undefined;
   // `const { endpoint } = action`
   const property = destructuredBy(path);
   if (!property || keyName(property.node) !== 'endpoint') return;
-  const declarator = property.parent.parent.node;
+  const declarator = property.parent.parent;
   if (
-    declarator.type !== 'VariableDeclarator' ||
-    !isActionName(declarator.init)
+    declarator.node.type !== 'VariableDeclarator' ||
+    !isActionName(declarator.node.init) ||
+    !inFetchBranch(path, declarator.get('init'))
   )
     return;
   const meta = property.parent.node.properties.find(
     p =>
       isProperty(p) && keyName(p) === 'meta' && p.value.type === 'Identifier',
   );
-  const { name } = meta ? meta.value : declarator.init;
+  const { name } = meta ? meta.value : declarator.node.init;
   // the name must mean the same variable at the resolve() call as where `endpoint` was destructured
   if (bindingAt(path, name) !== bindingAt(property, name)) return;
-  return meta ? j.identifier(name) : metaOf(declarator.init);
+  return meta ? j.identifier(name) : metaOf(declarator.node.init);
 }
 
 /** `controller.resolve(action.endpoint, { ..., fetchedAt: Date.now() })` passes `action.meta.fetchedAt` */

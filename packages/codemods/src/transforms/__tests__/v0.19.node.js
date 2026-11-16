@@ -1621,6 +1621,11 @@ export default class LiveManager implements Manager {
     if (action.type === actionTypes.FETCH) {
       const { endpoint } = action;
       batch.forEach(action => controller.resolve(endpoint, { args: [], response: action, fetchedAt: Date.now() }));
+      batch.forEach(action => controller.resolve(action.endpoint, { args: [], response: {}, fetchedAt: Date.now() }));
+    }
+    switch (kind) {
+      case actionTypes.FETCH:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
     if (action.type === actionTypes.FETCH || action.type === actionTypes.SUBSCRIBE) {
       controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
@@ -1669,6 +1674,11 @@ export default class LiveManager implements Manager {
     if (action.type === actionTypes.FETCH) {
       const { endpoint } = action;
       batch.forEach(action => controller.resolve(endpoint, { args: [], response: action, fetchedAt: Date.now() }));
+      batch.forEach(action => controller.resolve(action.endpoint, { args: [], response: {}, fetchedAt: Date.now() }));
+    }
+    switch (kind) {
+      case actionTypes.FETCH:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
     if (action.type === actionTypes.FETCH || action.type === actionTypes.SUBSCRIBE) {
       controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
