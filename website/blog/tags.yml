@@ -73,12 +73,7 @@ agents:
   description: 'Skills, llms.txt and tools for AI coding agents'
   permalink: /agents
 
-typescript:
-  label: 'TypeScript'
-  description: 'Type safety and type-checking speed'
-  permalink: /typescript
-
-testing:
-  label: 'Testing'
-  description: 'Fixtures, renderDataHook() and other test utilities'
-  permalink: /testing
+validation:
+  label: 'Validation'
+  description: 'Type safety, testing utilities and development warnings'
+  permalink: /validation
