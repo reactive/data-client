@@ -78,7 +78,7 @@ Request bodies need no override: a plain object or array is sent as JSON, and an
 
 ## Defining endpoints
 
-**`resource()`** for standard CRUD on one path (`get`, `getList`, `create`, `update`, `partialUpdate`, `delete`):
+**`resource()`** for standard CRUD on one path (`get`, `getList`, `getList.push`, `update`, `partialUpdate`, `delete`):
 
 ```ts
 export const TodoResource = resource({
@@ -88,7 +88,7 @@ export const TodoResource = resource({
 });
 ```
 
-**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. A `POST`, `PUT` or `PATCH` that sends none needs that `body: undefined`, or its only argument is taken as the body and the path params go missing.
+**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. A `POST`, `PUT` or `PATCH` that sends none needs that `body: undefined`, or its only argument is taken as the body and the path params go missing. A `DELETE` sends a body only when it declares one, such as `body: {} as { ids: string[] }`.
 
 If the codebase validates responses with Zod or Yup, keep that by parsing in `process()` and still add an Entity `schema`; see "Coexisting with Zod or Yup" in the [Axios migration](./data-client-rest-setup/references/axios-migration.md).
 
