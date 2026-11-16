@@ -1590,18 +1590,33 @@ function selectStore(j, call, dcNode, shared) {
     name,
   );
   const statement = statementOf(j, call);
-  // a name with no side effects, declared before the statement and not set in it, in a statement that always reads it
-  // (not `flag && ...`) and reads no other store, of the same function (`page.evaluate(() => ...)` runs
-  // its function elsewhere)
-  const canHoist =
+  // a name with no side effects, in a statement that always reads it (not `flag && ...`) and reads no other
+  // store, of the same function (`page.evaluate(() => ...)` runs its function elsewhere); the variables in
+  // the name and the receiver (`frame.__DC_CONTROLLERS__`) must be declared before the statement and not
+  // set in it
+  const inputs = [
+    call.get('arguments', 0),
+    ...(isMember(dcNode) ? [call.get('callee', 'object', 'object')] : []),
+  ];
+  const settled =
     statement &&
+    inputs.every(input =>
+      [
+        // find() skips the node it starts from
+        ...(input.node.type === 'Identifier' ? [input] : []),
+        ...j(input).find(j.Identifier).paths(),
+      ]
+        .filter(p => !isOtherName(p))
+        .every(
+          p =>
+            !isWithin(bindingOf(p), statement.node) &&
+            !assignsIn(j, statement, p.node.name),
+        ),
+    );
+  const canHoist =
+    settled &&
     !shared.has(statement.node) &&
     Array.isArray(statement.parentPath.value) &&
-    !(
-      name.type === 'Identifier' &&
-      (isWithin(bindingOf(call.get('arguments', 0)), statement.node) ||
-        assignsIn(j, statement, name.name))
-    ) &&
     (name.type === 'Identifier' ||
       name.type === 'StringLiteral' ||
       (name.type === 'Literal' && typeof name.value === 'string') ||

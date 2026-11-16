@@ -1911,6 +1911,17 @@ const c = __DC_CONTROLLERS__.get(...storeArgs);
       `,
       'marks a lookup with a spread argument',
     );
+    defineInlineTest(
+      transform,
+      { path: 'debug.js' },
+      `
+const frame = window.frames[0], controller = frame.__DC_CONTROLLERS__.get('app');
+      `,
+      `
+const frame = window.frames[0], controller = (frame.__DC__.store = 'app', frame.__DC__.controller);
+      `,
+      'keeps the selection inline when the statement declares its receiver',
+    );
   });
 
   describe('deprecated APIs', () => {
