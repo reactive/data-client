@@ -176,21 +176,26 @@ function findManagerSlots(j, root) {
   return slots;
 }
 
-/** The binding path (`id` of its declaration) for an identifier, if declared in this file */
-function bindingOf(path) {
-  const { name } = path.node;
+/** The binding path (`id` of its declaration) that `name` refers to at `path`, if declared in this file */
+function bindingAt(path, name) {
   const bindings = path.scope?.lookup(name)?.getBindings()[name];
   if (!bindings || bindings.length < 2) return bindings?.[0];
   // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
   // block that holds `path`
-  let best;
-  let bestDepth = -1;
-  for (const binding of bindings) {
-    const block = declaringBlock(binding);
-    const depth = block ? depthIn(path, block) : -1;
-    if (depth > bestDepth) [best, bestDepth] = [binding, depth];
+  const blocks = bindings.map(declaringBlock);
+  for (let p = path; p; p = p.parent) {
+    const i = blocks.indexOf(p.node);
+    if (i !== -1) return bindings[i];
   }
-  return best;
+}
+
+/** The binding path (`id` of its declaration) for an identifier, if declared in this file */
+const bindingOf = path => bindingAt(path, path.node.name);
+
+/** Whether `node` is `path`'s node or one of its ancestors */
+function isWithin(path, node) {
+  for (let p = path; p; p = p.parent) if (p.node === node) return true;
+  return false;
 }
 
 const BLOCKS = new Set([
@@ -230,14 +235,6 @@ function declaringBlock(binding) {
     if (/Function/.test(t) || t === 'Program' || (blockScoped && BLOCKS.has(t)))
       return path.node;
   }
-}
-
-/** How many levels `block` sits above `path`, or -1 when it does not hold `path` */
-function depthIn(path, block) {
-  let depth = 0;
-  for (let p = path; p; p = p.parent, depth++)
-    if (p.node === block) return Number.MAX_SAFE_INTEGER - depth;
-  return -1;
 }
 
 /** Whether `p` names something else, like an object key, a non-computed member or the other module's
@@ -526,11 +523,24 @@ function awaits(j, branch, decl, uses) {
   });
 }
 
-/** Whether a branch ends in `return` or `throw`, so code after its `if` was the other branch too */
-function endsEarly(branch) {
-  const last = branch.type === 'BlockStatement' ? branch.body.at(-1) : branch;
-  return last?.type === 'ReturnStatement' || last?.type === 'ThrowStatement';
+const JUMPS = new Set([
+  'ReturnStatement',
+  'ThrowStatement',
+  'BreakStatement',
+  'ContinueStatement',
+]);
+
+/** Whether control never runs past the end of `statements`: the last one returns, throws, breaks or
+ * continues, directly or as the last statement of a nested block */
+function endsAbruptly(statements) {
+  const last = statements.at(-1);
+  return last?.type === 'BlockStatement' ?
+      endsAbruptly(last.body)
+    : JUMPS.has(last?.type);
 }
+
+/** Whether a branch ends abruptly, so code after its `if` was the other branch too */
+const endsEarly = branch => endsAbruptly([branch]);
 
 /** Whether `statements` can move into the block around `path` without their declarations clashing with
  * names already visible there */
@@ -647,18 +657,22 @@ function markMissingChecks(j, root) {
   root
     .find(j.AwaitExpression)
     .filter(({ node }) => isFetchIfStaleCall(unwrap(node.argument)))
-    .forEach(awaited => {
-      if (checksMissing(awaited)) marked.push(awaited);
-      const path = outerPath(awaited);
-      const decl = path.parent;
-      if (
-        decl.node.type === 'VariableDeclarator' &&
-        decl.node.init === path.node &&
-        decl.node.id.type === 'Identifier'
-      )
-        marked.push(...refsTo(j, decl).filter(checksMissing));
-    });
+    .forEach(awaited => marked.push(...missingChecks(j, awaited)));
   return addTodos(j, marked, FALLBACK_TODO);
+}
+
+/** The places that check the value at `path`, or the `const` holding it, for a missing result */
+function missingChecks(j, path) {
+  const found = checksMissing(path) ? [path] : [];
+  const outer = outerPath(path);
+  const decl = outer.parent;
+  if (
+    decl.node.type === 'VariableDeclarator' &&
+    decl.node.init === outer.node &&
+    decl.node.id.type === 'Identifier'
+  )
+    found.push(...refsTo(j, decl).filter(checksMissing));
+  return found;
 }
 
 /** Comments `text` above each statement holding one of `paths`; returns whether it added any */
@@ -961,6 +975,7 @@ function dropNoopCatches(j, root, file) {
           !callee.computed &&
           path.node.arguments.length === 1 &&
           isNoopHandler(path.node.arguments[0]) &&
+          isUnused(path) &&
           isPrehandledRead(
             j,
             root,
@@ -969,7 +984,6 @@ function dropNoopCatches(j, root, file) {
           )
         );
       })
-      .filter(isUnused)
       .forEach(call => {
         const read = call.node.callee.object;
         prependComments(read, call.node.comments);
@@ -994,12 +1008,9 @@ const isActionName = node =>
 
 /** Whether `path` runs only for fetch actions: under `if (action.type === actionTypes.FETCH)` or
  * `case actionTypes.FETCH:`, the actions that carry `meta.fetchedAt` */
-function inFetchBranch(j, path) {
+function inFetchBranch(path) {
   const isFetch = node =>
-    (node.type === 'Identifier' && node.name === 'FETCH') ||
-    (node.type === 'MemberExpression' &&
-      !node.computed &&
-      node.property.name === 'FETCH') ||
+    nameOf(node) === 'FETCH' ||
     ((node.type === 'StringLiteral' || node.type === 'Literal') &&
       node.value === 'rdc/fetch');
   // true only when the test holds just for fetch actions: `a.type === FETCH`, alone or in an `&&`
@@ -1022,15 +1033,7 @@ function inFetchBranch(j, path) {
       // another case may fall through into this one
       const cases = path.parent.parent.node.cases;
       const before = cases[cases.indexOf(node) - 1];
-      const last = before && before.consequent[before.consequent.length - 1];
-      if (
-        !before ||
-        (last &&
-          ['BreakStatement', 'ReturnStatement', 'ThrowStatement'].includes(
-            last.type,
-          ))
-      )
-        return true;
+      if (!before || endsAbruptly(before.consequent)) return true;
     }
   }
   return false;
@@ -1039,7 +1042,7 @@ function inFetchBranch(j, path) {
 /** The fetch action's `meta` for the endpoint at `path` in a fetch branch: `action.meta` for
  * `action.endpoint`, or for `endpoint` destructured from `action` (its `meta` when destructured too) */
 function fetchMetaOf(j, path) {
-  if (!inFetchBranch(j, path)) return;
+  if (!inFetchBranch(path)) return;
   const { node } = path;
   const metaOf = action =>
     j.memberExpression(j.identifier(action.name), j.identifier('meta'));
@@ -1058,7 +1061,10 @@ function fetchMetaOf(j, path) {
     p =>
       isProperty(p) && keyName(p) === 'meta' && p.value.type === 'Identifier',
   );
-  return meta ? j.identifier(meta.value.name) : metaOf(declarator.init);
+  const { name } = meta ? meta.value : declarator.init;
+  // the name must mean the same variable at the resolve() call as where `endpoint` was destructured
+  if (bindingAt(path, name) !== bindingAt(property, name)) return;
+  return meta ? j.identifier(name) : metaOf(declarator.init);
 }
 
 /** `controller.resolve(action.endpoint, { ..., fetchedAt: Date.now() })` passes `action.meta.fetchedAt` */
@@ -1545,17 +1551,13 @@ function selectStore(j, call, dcNode, shared) {
   // a name with no side effects, declared before the statement and not set in it, in a statement that always reads it
   // (not `flag && ...`) and reads no other store, of the same function (`page.evaluate(() => ...)` runs
   // its function elsewhere)
-  const declaredIn = (binding, node) => {
-    for (let p = binding; p; p = p.parent) if (p.node === node) return true;
-    return false;
-  };
   const canHoist =
     statement &&
     !shared.has(statement.node) &&
     Array.isArray(statement.parentPath.value) &&
     !(
       name.type === 'Identifier' &&
-      (declaredIn(bindingOf(call.get('arguments', 0)), statement.node) ||
+      (isWithin(bindingOf(call.get('arguments', 0)), statement.node) ||
         assignsIn(j, statement, name.name))
     ) &&
     (name.type === 'Identifier' ||
@@ -1578,25 +1580,11 @@ function selectStore(j, call, dcNode, shared) {
   call.replace(dcMember(j, dcNode, 'controller'));
 }
 
-/** Whether `statement` assigns or updates the variable `name` */
-function assignsIn(j, statement, name) {
-  const target = { type: 'Identifier', name };
-  return (
-    j(statement).find(j.AssignmentExpression, { left: target }).size() > 0 ||
-    j(statement).find(j.UpdateExpression, { argument: target }).size() > 0
-  );
-}
-
-/** Whether code checks the value at `path`, or the `const` holding it, for a missing result */
-function missingChecked(j, path) {
-  if (checksMissing(path)) return true;
-  const declarator = outerPath(path).parent;
-  return (
-    declarator.node.type === 'VariableDeclarator' &&
-    declarator.node.id.type === 'Identifier' &&
-    refsTo(j, declarator).some(checksMissing)
-  );
-}
+/** Whether `statement` writes a variable named `name`, by assignment, destructuring, `++` or a loop head */
+const assignsIn = (j, statement, name) =>
+  j(statement)
+    .find(j.Identifier, { name })
+    .some(p => !isOtherName(p) && isWriteTarget(p));
 
 /** `__DC_CONTROLLERS__.get(name)` reads `__DC__.controller` after picking the store, unless the code
  * handles a missing store; the keys read `__DC__.stores`. Debugging scripts often don't import
@@ -1637,12 +1625,12 @@ function migrateDcGlobal(j, root) {
     const { node } = path;
     const call = getCallOf(path);
     // `.get()` returned undefined for a missing store, but `__DC__.controller` throws
-    if (call && !missingChecked(j, call)) {
+    if (call && !missingChecks(j, call).length) {
       selectStore(j, call, node, shared);
       dirty = true;
       continue;
     }
-    const keys = !call && storeKeysOf(path);
+    const keys = storeKeysOf(path);
     if (keys) {
       keys.replace(dcMember(j, node, 'stores'));
       dirty = true;
@@ -2067,12 +2055,11 @@ function destructuredBy(path) {
     : undefined;
 }
 
-/** Renames every reference to the variable `binding` declares, unless `name` at some reference resolves to
- * another scope than `scope` (none when undefined); returns whether it renamed */
-function renameRefs(j, root, binding, name, scope) {
+/** Renames every reference to the variable `binding` declares, unless `name` at some reference means another
+ * variable than `target` (none when undefined); returns whether it renamed */
+function renameRefs(j, root, binding, name, target) {
   const refs = usesOf(j, root, binding);
-  if (!refs.every(ref => (ref.scope.lookup(name) ?? undefined) === scope))
-    return false;
+  if (!refs.every(ref => bindingAt(ref, name) === target)) return false;
   refs.forEach(ref => {
     ref.node.name = name;
   });
@@ -2091,8 +2078,12 @@ function destructureAllSettled(j, root, property) {
       p.value.type === 'Identifier',
   );
   if (existing) {
-    const { name } = existing.value;
-    if (!renameRefs(j, root, binding, name, property.scope.lookup(name)))
+    const target = property.parent.get(
+      'properties',
+      pattern.properties.indexOf(existing),
+      'value',
+    );
+    if (!renameRefs(j, root, binding, existing.value.name, target))
       return false;
     pattern.properties = pattern.properties.filter(p => p !== property.node);
     return true;
@@ -2103,7 +2094,7 @@ function destructureAllSettled(j, root, property) {
   }
   // a visible `allSettled` would be shadowed, here or where a nested scope declares one
   if (
-    property.scope.lookup('allSettled') ||
+    bindingAt(property, 'allSettled') ||
     !renameRefs(j, root, binding, 'allSettled')
   )
     return false;
@@ -2304,12 +2295,11 @@ function readonlyPkArgs(j, root) {
       const annotation = param.node?.typeAnnotation;
       if (!annotation) return;
       const type = readonlyType(j, annotation.typeAnnotation);
-      // a named type (`args?: Args`) may need its own readonly
-      if (!type && !acceptsReadonly(annotation.typeAnnotation)) {
-        marked.push(method);
+      if (!type) {
+        // a named type (`args?: Args`) may need its own readonly
+        if (!acceptsReadonly(annotation.typeAnnotation)) marked.push(method);
         return;
       }
-      if (!type) return;
       if (!onlyReadsArray(j, method, param)) {
         marked.push(method);
         return;

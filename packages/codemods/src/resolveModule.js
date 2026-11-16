@@ -13,13 +13,9 @@ function findFile(base) {
     ...exts.map(e => stem + e),
     ...exts.map(e => nodePath.join(base, 'index' + e)),
   ];
-  return candidates.find(f => {
-    try {
-      return fs.statSync(f).isFile();
-    } catch {
-      return false;
-    }
-  });
+  return candidates.find(f =>
+    fs.statSync(f, { throwIfNoEntry: false })?.isFile(),
+  );
 }
 
 // tsconfig/jsconfig `paths` and `baseUrl` of the nearest config, so aliased
@@ -81,10 +77,13 @@ function aliasConfig(fromFile) {
   return config || {};
 }
 
-// each folder's imports resolve the same way, so files there share lookups
+// a relative import is keyed by the path it names, and any other by its folder, whose imports resolve the
+// same way, so files share lookups
 const resolveCache = new Map();
 function resolveModule(fromFile, spec) {
-  const key = nodePath.dirname(nodePath.resolve(fromFile)) + '\0' + spec;
+  const dir = nodePath.dirname(nodePath.resolve(fromFile));
+  const key =
+    spec.startsWith('.') ? nodePath.resolve(dir, spec) : dir + '\0' + spec;
   if (!resolveCache.has(key)) resolveCache.set(key, findModule(fromFile, spec));
   return resolveCache.get(key);
 }

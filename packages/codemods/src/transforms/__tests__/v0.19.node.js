@@ -1337,6 +1337,16 @@ export async function shadowed(ctrl: Controller, id: string, kind: string) {
     }
   }
 }
+export async function looped(ctrl: Controller, ids: string[]) {
+  for (const id of ids) {
+    const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+    if (issue instanceof Promise) {
+      await issue;
+      continue;
+    }
+    recordCacheHit(issue.id);
+  }
+}
 export async function title(ctrl: Controller, id: string) {
   const data = await ctrl.fetchIfStale(IssueResource.get, { id });
   return data?.title;
@@ -1379,6 +1389,18 @@ export async function shadowed(ctrl: Controller, id: string, kind: string) {
     } else {
       render(data.title);
     }
+  }
+}
+export async function looped(ctrl: Controller, ids: string[]) {
+  for (const id of ids) {
+    const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+    if (issue instanceof Promise) {
+      await issue;
+      continue;
+    }
+    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+    recordCacheHit(issue.id);
   }
 }
 export async function title(ctrl: Controller, id: string) {
@@ -1589,6 +1611,17 @@ export default class LiveManager implements Manager {
       case actionTypes.FETCH:
         controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
+    switch (action.type) {
+      case actionTypes.SET: {
+        break;
+      }
+      case actionTypes.FETCH:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+    }
+    if (action.type === actionTypes.FETCH) {
+      const { endpoint } = action;
+      batch.forEach(action => controller.resolve(endpoint, { args: [], response: action, fetchedAt: Date.now() }));
+    }
     if (action.type === actionTypes.FETCH || action.type === actionTypes.SUBSCRIBE) {
       controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
@@ -1625,6 +1658,17 @@ export default class LiveManager implements Manager {
         controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
       case actionTypes.FETCH:
         controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+    }
+    switch (action.type) {
+      case actionTypes.SET: {
+        break;
+      }
+      case actionTypes.FETCH:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: action.meta.fetchedAt });
+    }
+    if (action.type === actionTypes.FETCH) {
+      const { endpoint } = action;
+      batch.forEach(action => controller.resolve(endpoint, { args: [], response: action, fetchedAt: Date.now() }));
     }
     if (action.type === actionTypes.FETCH || action.type === actionTypes.SUBSCRIBE) {
       controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
@@ -1667,6 +1711,7 @@ const ok = ready && __DC_CONTROLLERS__.get('b').getState();
 diff(__DC_CONTROLLERS__.get('Admin').getState(), __DC_CONTROLLERS__.get('Shop').getState());
 const store = pick(), picked = __DC_CONTROLLERS__.get(store);
 const pair = [name = next(), __DC_CONTROLLERS__.get(name)];
+f([name] = next(), __DC_CONTROLLERS__.get(name));
 const ctrl = __DC_CONTROLLERS__.get(name);
 if (!ctrl) return null;
 const maybeState = __DC_CONTROLLERS__.get('c')?.getState();
@@ -1688,6 +1733,7 @@ const ok = ready && (__DC__.store = 'b', __DC__.controller).getState();
 diff((__DC__.store = 'Admin', __DC__.controller).getState(), (__DC__.store = 'Shop', __DC__.controller).getState());
 const store = pick(), picked = (__DC__.store = store, __DC__.controller);
 const pair = [name = next(), (__DC__.store = name, __DC__.controller)];
+f([name] = next(), (__DC__.store = name, __DC__.controller));
 // TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
 const ctrl = __DC_CONTROLLERS__.get(name);
 if (!ctrl) return null;
@@ -1900,6 +1946,15 @@ it('keeps allSettled', async () => {
   };
   await step(flushPromises);
 });
+
+it('waits in a block', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await result;
+  {
+    const allSettled = 1;
+    await waitForNextUpdate();
+  }
+});
       `,
       `
 import { renderDataCompose } from '@data-client/vue/test';
@@ -1924,6 +1979,16 @@ it('keeps allSettled', async () => {
     await waitForNextUpdate();
   };
   await step(flushPromises);
+});
+
+it('waits in a block', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await result;
+  {
+    const allSettled = 1;
+    // TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+    await waitForNextUpdate();
+  }
 });
       `,
       'marks Vue waitForNextUpdate() when a nested scope declares the new name',

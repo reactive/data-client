@@ -1160,7 +1160,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     if (config.type !== 'ObjectExpression') return null;
     for (const prop of config.properties) {
       const key = propKey(prop);
-      if (key === 'data' && methodName === 'delete' && !prop.computed) {
+      if (key === 'data' && methodName === 'delete') {
         // a DELETE endpoint sends a body when it declares `body`
         data = prop.value;
       } else if (key === 'params') {
