@@ -21,7 +21,11 @@ function findFile(base) {
 // tsconfig/jsconfig `paths` and `baseUrl` of the nearest config, so aliased
 // imports like `@/lib/api-client` resolve too
 const pathsCache = new Map();
-function readConfig(file) {
+function readConfig(file, seen = new Set()) {
+  // a referenced project may extend the solution config that references it; `seen` holds the configs
+  // that led here
+  if (seen.has(file)) return {};
+  seen.add(file);
   const text = fs
     .readFileSync(file, 'utf8')
     .replace(/\/\*[\s\S]*?\*\/|("(?:\\.|[^"\\])*")|\/\/[^\n]*/g, (m, str) =>
@@ -38,7 +42,7 @@ function readConfig(file) {
   };
   const inherited =
     typeof config.extends === 'string' && config.extends.startsWith('.') ?
-      tryConfig(nodePath.resolve(dir, config.extends))
+      tryConfig(nodePath.resolve(dir, config.extends), seen)
     : undefined;
   const merged =
     inherited ?
@@ -54,21 +58,21 @@ function readConfig(file) {
   // referenced config such as tsconfig.app.json
   for (const ref of config.references) {
     if (typeof ref?.path !== 'string') continue;
-    const found = tryConfig(nodePath.resolve(dir, ref.path));
+    const found = tryConfig(nodePath.resolve(dir, ref.path), seen);
     if (found?.paths || found?.baseUrl) return found;
   }
   return merged;
 }
 
 // `extends` and `references` may name a folder or leave off `.json`
-function tryConfig(target) {
+function tryConfig(target, seen) {
   const file =
     target.endsWith('.json') ? target
     : fs.statSync(target, { throwIfNoEntry: false })?.isDirectory() ?
       nodePath.join(target, 'tsconfig.json')
     : target + '.json';
   try {
-    return readConfig(file);
+    return readConfig(file, new Set(seen));
   } catch {
     return undefined;
   }

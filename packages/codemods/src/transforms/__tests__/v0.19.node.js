@@ -2575,10 +2575,14 @@ export const TagResource = resource({ path: '/tags/:id', schema: Tag });
           'vite/tsconfig.json',
           `{ "files": [], "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.app.json" }] }\n`,
         );
-        write('vite/tsconfig.node.json', `{ "include": ["vite.config.ts"] }\n`);
+        write(
+          'vite/tsconfig.node.json',
+          `{ "extends": "./tsconfig.json", "include": ["vite.config.ts"] }\n`,
+        );
         write(
           'vite/tsconfig.app.json',
-          `{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } }, "include": ["src"] }\n`,
+          // extending the solution config that references it must not loop
+          `{ "extends": "./tsconfig.json", "compilerOptions": { "paths": { "@/*": ["./src/*"] } }, "include": ["src"] }\n`,
         );
         write(
           'vite/src/api/Post.ts',
@@ -2590,6 +2594,24 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
         );
       });
       afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('stops at a referenced config that extends the solution config', () => {
+        const read = jest.spyOn(fs, 'readFileSync');
+        try {
+          jest.isolateModules(() => {
+            const resolveModule = require('../../resolveModule');
+            expect(
+              resolveModule(path.join(dir, 'vite/src/x.ts'), '@/api/Post'),
+            ).toBe(path.join(dir, 'vite/src/api/Post.ts'));
+          });
+          const configReads = read.mock.calls.filter(([file]) =>
+            /tsconfig/.test(String(file)),
+          );
+          expect(configReads.length).toBeLessThan(10);
+        } finally {
+          read.mockRestore();
+        }
+      });
 
       it('follows tsconfig references to the config with path aliases', () => {
         const source = `
