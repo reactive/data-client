@@ -639,8 +639,8 @@ getReactSite({ slug: 'cool', isReact: true });
 `body` types the request body, the last argument of a mutation endpoint. Its value is never sent; it only sets the
 [typing](#typing), except that `body: undefined` means the endpoint sends no body.
 
-`POST`, `PUT` and `PATCH` send a body unless they set `body: undefined`. `DELETE` sends one only when it declares
-`body`. `GET` never sends one.
+`GET` never sends a body. `DELETE` sends one only when it has `body`, set directly or inherited through
+[extend()](#extend). Every other method, including `HEAD` and `OPTIONS`, sends one unless it sets `body: undefined`.
 
 <EndpointPlayground>
 

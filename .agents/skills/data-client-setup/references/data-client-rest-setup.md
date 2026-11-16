@@ -68,7 +68,7 @@ Override only what the app does today:
 | Auth, CSRF or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
 | Auth token from React context (Okta, Auth0) | [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md); a base class can't read context |
 | Cookies (axios `withCredentials`), other `RequestInit` | `async getRequestInit(body)` returning `{ ...(await super.getRequestInit(body)), credentials: 'include' }`. Without `await`, the spread drops `method`, `body` and headers, so every mutation is sent as a GET |
-| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed |
+| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `async parseResponse(response)`, e.g. `return (await super.parseResponse(response))?.data` (it is null for a 204). Not `process()`: `resource().delete` sets its own `process()`, which replaces the class's. Not axios's `response.data`: that is axios's wrapper, which the codemod already removed |
 | Date fields | Not `process()`: the Entity's `static schema`, e.g. `createdAt: Temporal.Instant.from` (skill "data-client-schema") |
 | Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow ([Server error messages](./data-client-rest-setup/references/axios-migration.md#server-error-messages) shows it) |
 | Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |
@@ -88,7 +88,7 @@ export const TodoResource = resource({
 });
 ```
 
-**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. A `POST`, `PUT` or `PATCH` that sends none needs that `body: undefined`, or its only argument is taken as the body and the path params go missing. A `DELETE` sends a body only when it declares one, such as `body: {} as { ids: string[] }`.
+**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. Every method but `GET` and `DELETE` (including `HEAD` and `OPTIONS`) sends a body unless it sets that `body: undefined`, so one that sends none needs it, or its only argument is taken as the body and the path params go missing. A `DELETE` sends a body only when it has `body`, such as `body: {} as { ids: string[] }`, including one inherited through `extend()`: set `body: undefined` on a `DELETE` extended from an endpoint with a body.
 
 If the codebase validates responses with Zod or Yup, keep that by parsing in `process()` and still add an Entity `schema`; see "Coexisting with Zod or Yup" in the [Axios migration](./data-client-rest-setup/references/axios-migration.md).
 

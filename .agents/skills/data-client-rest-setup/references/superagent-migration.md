@@ -23,11 +23,12 @@ const res = await request
   .query({ page: 1 });
 const users = res.body;
 
-// After: RestEndpoint
+// After: RestEndpoint (auth moves to a base class)
 import { RestEndpoint } from '@data-client/rest';
 import { User } from './User';
 
 export const getUsers = new RestEndpoint({
+  urlPrefix: 'https://api.example.com',
   path: '/users',
   searchParams: {} as { page?: number },
   schema: [User],
@@ -45,8 +46,8 @@ export const getUsers = new RestEndpoint({
 | Chained `.get()/.post()` etc. | `method` option |
 | `.type('json')` / `.accept('json')` | Automatic — JSON is default |
 | `.withCredentials()` | `getRequestInit()` with `credentials: 'include'` |
-| `.timeout({ response, deadline })` | `signal: AbortSignal.timeout(ms)` |
-| `.retry(count)` | Use error-policy for retry behavior |
+| `.timeout({ response, deadline })` | `AbortSignal.timeout(ms)` in a `getRequestInit()` override, so each request gets its own timer ([Timeout](axios-migration.md#timeout)); a `signal` option would start one timer when the endpoint is created |
+| `.retry(count)` | Delete it: Data Client has no retry loop, and a failed request is fetched again when a component next needs it after `errorExpiryLength` (default 1 second). Tell the user that automatic retries are dropped |
 | `res.body` | Automatic — RestEndpoint returns parsed JSON |
 | `res.status` | Available on `NetworkError.status` for error cases |
 

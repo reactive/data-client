@@ -152,11 +152,9 @@ import { DataProvider } from '@data-client/react/nextjs';
 export default function RootLayout({ children }) {
   return (
     <html>
-      <DataProvider>
-        <body>
-          {children}
-        </body>
-      </DataProvider>
+      <body>
+        <DataProvider>{children}</DataProvider>
+      </body>
     </html>
   );
 }
