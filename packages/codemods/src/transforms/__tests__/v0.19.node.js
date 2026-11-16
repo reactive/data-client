@@ -2919,6 +2919,11 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
   const updaters: Array<(prev: Plain) => Plain> = [];
   updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
+  const typedUpdaters: Updater[] = [];
+  typedUpdaters.forEach(y => ctrl.set(Plain, { id: 1 }, y));
+  rows.forEach(({ id, apply }) => ctrl.set(Plain, { id }, apply));
+  const literal = [{ id: 1, apply: prev => prev }];
+  literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
   rows.forEach(w => ctrl.set(Versioned, w));
   rows.forEach(x => ctrl.set(Assigned, x));
 }
@@ -2979,6 +2984,11 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
   const updaters: Array<(prev: Plain) => Plain> = [];
   updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
+  const typedUpdaters: Updater[] = [];
+  typedUpdaters.forEach(y => ctrl.set(Plain, { id: 1 }, y));
+  rows.forEach(({ id, apply }) => ctrl.set(Plain, { id }, apply));
+  const literal = [{ id: 1, apply: prev => prev }];
+  literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
   rows.forEach(w => ctrl.set(Versioned, w));
   rows.forEach(x => ctrl.set(Assigned, x));
 }

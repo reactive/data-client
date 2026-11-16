@@ -2781,17 +2781,19 @@ const isRowOnlyInvalidate = (j, path, file) =>
 const isRowOnlySchema = (j, path, file) =>
   isRowOnlyEntity(j, path, file) || isRowOnlyInvalidate(j, path, file);
 
-/** Whether the type annotation `type` is an array or tuple type */
-function isArrayType(type) {
+/** Whether the type annotation `type` is an array or tuple type, and the type of its elements when an array
+ * type names one: `{ element }` */
+function arrayType(type) {
   while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
   if (type?.type === 'TSTypeOperator' && type.operator === 'readonly')
     type = type.typeAnnotation;
-  return (
-    type?.type === 'TSArrayType' ||
-    type?.type === 'TSTupleType' ||
-    (type?.type === 'TSTypeReference' &&
-      ['Array', 'ReadonlyArray'].includes(type.typeName.name))
-  );
+  if (type?.type === 'TSArrayType') return { element: type.elementType };
+  if (type?.type === 'TSTupleType') return {};
+  if (
+    type?.type === 'TSTypeReference' &&
+    ['Array', 'ReadonlyArray'].includes(type.typeName.name)
+  )
+    return { element: type.typeParameters?.params[0] };
 }
 
 // global calls that return an array
@@ -2813,17 +2815,21 @@ const ARRAY_METHODS = new Set([
   'toReversed',
 ]);
 
-/** Whether the expression at `path` is an array: a batch set() reads only arrays and plain objects, so
- * a Set or Map loops differently */
-function isArrayValue(path, depth = 0) {
+// array methods that return some of an array's own elements
+const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
+
+/** Whether the expression at `path` is an array, since a batch set() reads only arrays and plain objects, so
+ * a Set or Map loops differently. Returns what is known about its elements: `{ json: true }` for parsed
+ * JSON, which holds no functions, or `{ element }`, its declared element type. */
+function arrayOf(path, depth = 0) {
   const { node } = path;
-  if (depth > 5 || !node) return false;
+  if (depth > 5 || !node) return;
   if (PASS_THROUGH.has(node.type))
     return (
-      isArrayType(node.typeAnnotation) ||
-      isArrayValue(path.get('expression'), depth + 1)
+      arrayType(node.typeAnnotation) ??
+      arrayOf(path.get('expression'), depth + 1)
     );
-  if (node.type === 'ArrayExpression') return true;
+  if (node.type === 'ArrayExpression') return {};
   if (node.type === 'CallExpression' && isMember(node.callee)) {
     const method = memberName(node.callee);
     const object = path.get('callee', 'object');
@@ -2832,22 +2838,24 @@ function isArrayValue(path, depth = 0) {
       ARRAY_FACTORIES.get(object.node.name)?.has(method) &&
       !bindingOf(object)
     )
-      return true;
-    return ARRAY_METHODS.has(method) && isArrayValue(object, depth + 1);
+      return object.node.name === 'JSON' ? { json: true } : {};
+    const array = ARRAY_METHODS.has(method) && arrayOf(object, depth + 1);
+    return array && (ELEMENT_METHODS.has(method) ? array : {});
   }
-  if (node.type !== 'Identifier') return false;
+  if (node.type !== 'Identifier') return;
   const binding = bindingOf(path);
-  if (!binding) return false;
+  if (!binding) return;
   // a parameter or variable typed as an array
-  if (isArrayType(binding.node.typeAnnotation?.typeAnnotation)) return true;
+  const typed = arrayType(binding.node.typeAnnotation?.typeAnnotation);
+  if (typed) return typed;
   const declarator = binding.parent;
-  return (
+  if (
     declarator.node.type === 'VariableDeclarator' &&
     declarator.node.id === binding.node &&
     declarator.parent.node.kind === 'const' &&
-    !!declarator.node.init &&
-    isArrayValue(declarator.get('init'), depth + 1)
-  );
+    declarator.node.init
+  )
+    return arrayOf(declarator.get('init'), depth + 1);
 }
 
 const LITERALS = new Set([
@@ -2937,115 +2945,23 @@ function isController(path) {
   );
 }
 
-/** Whether `type` is a function type, or could hold one */
-function isFunctionLikeType(type) {
-  while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
-  if (!type) return true;
-  switch (type.type) {
-    case 'TSFunctionType':
-    case 'TSConstructorType':
-    case 'TSAnyKeyword':
-    case 'TSUnknownKeyword':
-      return true;
-    case 'TSUnionType':
-    case 'TSIntersectionType':
-      return type.types.some(isFunctionLikeType);
-    case 'TSTypeReference':
-      return isId(type.typeName, 'Function');
-    default:
-      return false;
-  }
-}
-
-/** The element types of an array or tuple type */
-function elementTypes(type) {
-  while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
-  if (type?.type === 'TSTypeOperator') return elementTypes(type.typeAnnotation);
-  if (type?.type === 'TSArrayType') return [type.elementType];
-  if (type?.type === 'TSTupleType') return type.elementTypes;
-  if (
-    type?.type === 'TSTypeReference' &&
-    ['Array', 'ReadonlyArray'].includes(type.typeName.name)
-  )
-    return type.typeParameters?.params ?? [];
-  return [];
-}
-
-// array methods that return some of an array's own elements
-const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
-
-/** Where the elements of the array at `path` come from: 'json' for parsed JSON or literal data, which holds
- * no functions; 'typed' for an array typed with elements that can't be functions */
-function elementSource(path, depth = 0) {
-  const { node } = path;
-  if (depth > 5 || !node) return;
-  if (PASS_THROUGH.has(node.type)) {
-    const types = node.typeAnnotation && elementTypes(node.typeAnnotation);
-    if (types?.length)
-      return types.some(isFunctionLikeType) ? undefined : 'typed';
-    return elementSource(path.get('expression'), depth + 1);
-  }
-  if (node.type === 'ArrayExpression')
-    return (
-        node.elements.every(
-          e =>
-            e?.type === 'ObjectExpression' ||
-            e?.type === 'ArrayExpression' ||
-            LITERALS.has(e?.type),
-        )
-      ) ?
-        'json'
-      : undefined;
-  if (node.type === 'CallExpression' && isMember(node.callee)) {
-    const method = memberName(node.callee);
-    const object = path.get('callee', 'object');
-    if (
-      object.node.type === 'Identifier' &&
-      !bindingOf(object) &&
-      ((object.node.name === 'JSON' && method === 'parse') ||
-        (object.node.name === 'Object' && method === 'values'))
-    )
-      return method === 'parse' ? 'json' : (
-          elementSource(path.get('arguments', 0), depth + 1)
-        );
-    return ELEMENT_METHODS.has(method) ?
-        elementSource(object, depth + 1)
-      : undefined;
-  }
-  if (node.type !== 'Identifier') return;
-  const binding = bindingOf(path);
-  if (!binding) return;
-  const annotation = binding.node.typeAnnotation?.typeAnnotation;
-  if (annotation) {
-    const types = elementTypes(annotation);
-    return types.length && !types.some(isFunctionLikeType) ?
-        'typed'
-      : undefined;
-  }
-  const declarator = binding.parent;
-  if (
-    declarator.node.type === 'VariableDeclarator' &&
-    declarator.node.id === binding.node &&
-    declarator.parent.node.kind === 'const' &&
-    declarator.node.init
-  )
-    return elementSource(declarator.get('init'), depth + 1);
-}
-
-/** Whether `value` is row data and never an updater function, which set() calls with the stored value
- * where a batch would normalize it: an object or array literal, the row itself from data that holds no
- * functions, or a property of a row of parsed JSON */
-function isRowData(value, rows, names) {
+/** Whether `value` is row data and never an updater function, which set() would call with the stored value
+ * where a batch normalizes it: an object or array literal, a row of parsed JSON or a property of one, or a row
+ * of an array typed as instances of the `schema` class */
+function isRowData(value, array, param, names, schema) {
   value = unwrap(value);
   if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression')
     return true;
-  const source = elementSource(rows);
-  if (value.type === 'Identifier' && names.has(value.name)) return !!source;
+  if (array.json)
+    return (
+      (value.type === 'Identifier' ||
+        (isMember(value) && isReference(value))) &&
+      names.has(rootOf(value).name)
+    );
   return (
-    source === 'json' &&
-    isMember(value) &&
-    isReference(value) &&
-    names.has(rootOf(value).name)
+    isId(value, param.type === 'Identifier' && param.name) &&
+    array.element?.type === 'TSTypeReference' &&
+    isId(array.element.typeName, schema.type === 'Identifier' && schema.name)
   );
 }
 
@@ -3119,7 +3035,8 @@ function batchSetOf(j, file, { rows, param, call }) {
   )
     return;
 
-  if (!isArrayValue(rows) || !isRowData(value, rows, names)) return;
+  const array = arrayOf(rows);
+  if (!array || !isRowData(value, array, param, names, args[0])) return;
   const batch = batchSchemaOf(j, file, call);
   if (!batch) return;
   value = batch.value ?? value;
