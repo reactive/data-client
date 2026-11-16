@@ -2399,6 +2399,21 @@ it('renames an alias', async () => {
   const { waitForNextUpdate: next } = await renderDataCompose(() => useOther());
   await next();
 });
+
+it('drops a wait before expect(await result)', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await waitForNextUpdate();
+  expect(await result).toBeDefined();
+});
+
+it('awaits result where the next statement reads first', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await waitForNextUpdate();
+  const snapshot = ready, value = await result;
+  const rendered = await renderDataCompose(() => useThing());
+  await rendered.waitForNextUpdate();
+  expect(ready).toBe(await rendered.result);
+});
       `,
       `
 import { reactive } from 'vue';
@@ -2439,6 +2454,24 @@ it('renames an alias', async () => {
   await rendered.result;
   const { waitForNextUpdate: next } = await renderDataCompose(() => useOther());
   await next();
+});
+
+it('drops a wait before expect(await result)', async () => {
+  const {
+    result
+  } = await renderDataCompose(() => useThing());
+  expect(await result).toBeDefined();
+});
+
+it('awaits result where the next statement reads first', async () => {
+  const {
+    result
+  } = await renderDataCompose(() => useThing());
+  await result;
+  const snapshot = ready, value = await result;
+  const rendered = await renderDataCompose(() => useThing());
+  await rendered.result;
+  expect(ready).toBe(await rendered.result);
 });
       `,
       'turns Vue waitForNextUpdate() into allSettled(), dropping a first wait before await result',

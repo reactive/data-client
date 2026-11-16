@@ -51,8 +51,9 @@ const resolveModule = require('../resolveModule');
  *      - `Resource.create` becomes `Resource.getList.push` where it runs, for an unchanged `const`
  *        `resource()` declared in the file or imported from a relative or tsconfig-aliased module;
  *        DevTools `actionsBlacklist`/`actionsWhitelist` options become `actionsDenylist`/`actionsAllowlist`;
- *        `renderDataCompose()`'s `waitForNextUpdate()` becomes `allSettled()`, and is dropped right
- *        before `await result`; `static pk()` overrides type `args` as `readonly any[]`.
+ *        `renderDataCompose()`'s `waitForNextUpdate()` becomes `allSettled()`; right after the render,
+ *        it is dropped before a statement that first awaits `result`, or becomes `await result` before one
+ *        that awaits it later; `static pk()` overrides type `args` as `readonly any[]`.
  *      - Other `*Resource.create`, React `waitForNextUpdate()`, `renderDataHook.cleanup()`/
  *        `.allSettled()` and Vue `createDataClient()` get a `// TODO(data-client):` comment.
  *
@@ -1591,6 +1592,44 @@ function alwaysEvaluated(path, statement) {
   return true;
 }
 
+/** Whether `statement` evaluates the expression at `path` before anything else, but the name of a function it
+ * calls: in `const data = await result` or `expect(await result)`, not `const ready = flag, data = await result` */
+function evaluatedFirst(path, statement) {
+  for (; path !== statement; path = path.parent) {
+    const { node } = path.parent;
+    // an array element's key is its array's, as `arguments`
+    const inArray = typeof path.name === 'number';
+    const key = inArray ? path.parentPath.name : path.name;
+    if (inArray && path.name !== 0) return false;
+    if (node.optional) return false;
+    switch (node.type) {
+      case 'CallExpression':
+      case 'NewExpression':
+        if (key !== 'callee' && node.callee.type !== 'Identifier') return false;
+        break;
+      case 'MemberExpression':
+        if (key !== 'object') return false;
+        break;
+      case 'AssignmentExpression':
+        if (node.operator !== '=' || node.left.type !== 'Identifier')
+          return false;
+        break;
+      case 'Property':
+      case 'ObjectProperty':
+        if (node.computed) return false;
+        break;
+      case 'TemplateLiteral':
+      case 'ArrayExpression':
+      case 'ObjectExpression':
+      case 'VariableDeclaration':
+        break;
+      default:
+        if (!alwaysEvaluated(path, path.parent)) return false;
+    }
+  }
+  return true;
+}
+
 /** `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller`, after `__DC__.store = name;` on its own line
  * when it can move there, or else `(__DC__.store = name, __DC__.controller)` */
 function selectStore(j, call, dcNode, shared) {
@@ -2195,9 +2234,10 @@ function destructureAllSettled(j, root, property) {
   return true;
 }
 
-/** For an awaited wait right after the render, `{ statement, drop }`: `drop` says the next statement always
- * awaits the render's `result`, so the first load needs only that. `declarator` holds the render result:
- * `{ result, allSettled }` or `rendered`. */
+/** For an awaited wait right after the render, `{ statement, drop }`. `drop` is set when the next statement
+ * always awaits the render's `result`, so the first load needs only that: `'delete'` when it awaits it before
+ * reading anything, else `'await'` (the wait becomes `await result`, so reads before it still come after the
+ * first load). `declarator` holds the render result: `{ result, allSettled }` or `rendered`. */
 function firstLoadWait(j, call, declarator) {
   const statement = call.parent.parent;
   if (
@@ -2220,27 +2260,38 @@ function firstLoadWait(j, call, declarator) {
     destructured ?
       id.properties.find(p => isProperty(p) && keyName(p) === 'result')?.value
     : id;
+  const awaits =
+    after.node && result?.type === 'Identifier' ?
+      j(after)
+        .find(j.AwaitExpression)
+        .filter(path => {
+          const value = unwrap(path.node.argument);
+          return (
+            alwaysEvaluated(path, after) &&
+            (destructured ?
+              isId(value, result.name)
+            : memberName(value) === 'result' && isId(value.object, result.name))
+          );
+        })
+        .paths()
+    : [];
   const drop =
-    !!after.node &&
-    result?.type === 'Identifier' &&
-    j(after)
-      .find(j.AwaitExpression)
-      .some(path => {
-        const value = unwrap(path.node.argument);
-        return (
-          alwaysEvaluated(path, after) &&
-          (destructured ?
-            isId(value, result.name)
-          : memberName(value) === 'result' && isId(value.object, result.name))
-        );
-      });
-  return { statement, drop };
+    awaits.some(path => evaluatedFirst(path, after)) ? 'delete'
+    : awaits.length ? 'await'
+    : undefined;
+  if (!drop) return { statement };
+  const awaited =
+    destructured ?
+      j.identifier(result.name)
+    : j.memberExpression(j.identifier(result.name), j.identifier('result'));
+  return { statement, drop, awaited };
 }
 
-/** Deletes the first-load wait at `statement`, and `allSettled` from the render's pattern when nothing
- * else calls it */
-function dropFirstLoadWait(j, statement, declarator) {
-  statement.prune();
+/** Deletes the first-load wait (`drop` `'delete'`) or makes it `await result` (`'await'`), and deletes
+ * `allSettled` from the render's pattern when nothing else calls it */
+function dropFirstLoadWait(j, { statement, drop, awaited }, declarator) {
+  if (drop === 'delete') statement.prune();
+  else statement.node.expression = j.awaitExpression(awaited);
   const { id } = declarator.node;
   if (id.type !== 'ObjectPattern') return;
   const allSettled = id.properties.find(
@@ -2299,7 +2350,7 @@ function waitForAllSettled(j, root, calls) {
       call.node.callee.property = j.identifier('allSettled');
       call.node.callee.computed = false;
     }
-    if (first?.drop) dropFirstLoadWait(j, first.statement, declarator);
+    if (first?.drop) dropFirstLoadWait(j, first, declarator);
   }
   return unconverted;
 }
