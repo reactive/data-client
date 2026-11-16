@@ -1400,6 +1400,32 @@ export async function loader(ctrl) {
       `,
       'drops no-op catches on reads whose result is unused',
     );
+
+    defineInlineTest(
+      transform,
+      { path: 'reports.ts' },
+      `
+import { useController } from '@data-client/react';
+
+export function useRefresh(ctrl) {
+  return () => {
+    ctrl.fetch(TodoResource.getList).catch(() => void report());
+    ctrl.fetch(TodoResource.getList).catch(() => void 0);
+  };
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+
+export function useRefresh(ctrl) {
+  return () => {
+    ctrl.fetch(TodoResource.getList).catch(() => void report());
+    ctrl.fetch(TodoResource.getList);
+  };
+}
+      `,
+      'keeps catches whose handler does something',
+    );
   });
 
   describe('controller.resolve()', () => {

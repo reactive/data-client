@@ -98,6 +98,15 @@ const isUndefined = node =>
   isId(node, 'undefined') ||
   (node.type === 'UnaryExpression' && node.operator === 'void');
 
+/** `undefined`, `void 0` or `null` */
+const isNullish = node =>
+  isId(node, 'undefined') ||
+  node.type === 'NullLiteral' ||
+  (node.type === 'Literal' && node.value === null) ||
+  (node.type === 'UnaryExpression' &&
+    node.operator === 'void' &&
+    /Literal$/.test(node.argument.type));
+
 const isGetDefaultManagersCall = node =>
   node.type === 'CallExpression' && isId(node.callee, 'getDefaultManagers');
 
@@ -173,12 +182,16 @@ function bindingOf(path) {
   return scope?.getBindings()[path.node.name]?.[0];
 }
 
-/** Whether `p` names something else, like an object key or a non-computed member */
+/** Whether `p` names something else, like an object key, a non-computed member or the other module's
+ * name in `import { name as local }` */
 function isOtherName(p) {
   const parent = p.parent.node;
   return (
     (isMember(parent) && parent.property === p.node && !parent.computed) ||
-    (isProperty(parent) && parent.key === p.node && parent.value !== p.node)
+    (isProperty(parent) && parent.key === p.node && parent.value !== p.node) ||
+    (parent.type === 'ImportSpecifier' &&
+      parent.imported === p.node &&
+      parent.local !== p.node)
   );
 }
 
@@ -320,6 +333,17 @@ const PASS_THROUGH = new Set([
   'ParenthesizedExpression',
 ]);
 
+/** The outermost wrapper around the value at `path` that passes it through unchanged */
+function outerPath(path) {
+  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  return path;
+}
+
+/** Puts `comments` above the ones `node` already has */
+const prependComments = (node, comments) => {
+  node.comments = [...(comments ?? []), ...(node.comments ?? [])];
+};
+
 const isFetchIfStaleCall = node =>
   node?.type === 'CallExpression' && calleeName(node) === 'fetchIfStale';
 
@@ -340,7 +364,7 @@ function isPromiseMethodCall(path) {
 
 /** Whether the value at `path` is used as if it were the data, not a Promise */
 function readsSynchronously(path) {
-  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  path = outerPath(path);
   const { node } = path;
   const parent = path.parent.node;
   switch (parent.type) {
@@ -383,20 +407,9 @@ const findFetchIfStaleConsts = (j, root) =>
     )
     .paths();
 
-/** Whether the identifier at `ref` reads the variable `decl` declares */
-const refersTo = (ref, decl) =>
-  // JSX names are JSXIdentifiers
-  ref.node.type === 'Identifier' &&
-  ref.node !== decl.node.id &&
-  !isOtherName(ref) &&
-  bindingOf(ref)?.parent.node === decl.node;
-
-/** The identifiers in `path` that read the variable `decl` declares */
-const refsTo = (j, path, decl) =>
-  j(path)
-    .find(j.Identifier, { name: decl.node.id.name })
-    .filter(ref => refersTo(ref, decl))
-    .paths();
+/** The identifiers in `path` (default: the declaration's scope) that read the variable `decl` declares */
+const refsTo = (j, decl, path = decl.scope.path) =>
+  usesOf(j, j(path), decl.get('id')).paths();
 
 /** Paths that use a `fetchIfStale()` result as the data: the call itself, or a `const` holding it */
 function findSyncReads(j, root) {
@@ -405,7 +418,7 @@ function findSyncReads(j, root) {
     .filter(call => isFetchIfStaleCall(call.node) && readsSynchronously(call))
     .paths();
   for (const decl of findFetchIfStaleConsts(j, root))
-    reads.push(...refsTo(j, root.get(), decl).filter(readsSynchronously));
+    reads.push(...refsTo(j, decl).filter(readsSynchronously));
   return reads;
 }
 
@@ -436,7 +449,7 @@ function promiseCheckOf(test) {
 
 /** Whether `branch` waits for the Promise `decl` holds: `await x` or `x.then()` */
 function awaits(j, branch, decl) {
-  return refsTo(j, branch, decl).some(ref => {
+  return refsTo(j, decl, branch).some(ref => {
     const parent = ref.parent.node;
     return (
       (parent.type === 'AwaitExpression' && parent.argument === ref.node) ||
@@ -480,22 +493,19 @@ function keepBranch(path, branchPath) {
     return;
   }
   const statements = branch.type === 'BlockStatement' ? branch.body : [branch];
-  const comments = path.node.comments ?? [];
-  const inList = Array.isArray(path.parentPath.value);
-  if (inList && canInline(path, statements)) {
-    if (statements[0])
-      statements[0].comments = [...comments, ...(statements[0].comments ?? [])];
-    path.replace(...statements);
-  } else {
-    branch.comments = [...comments, ...(branch.comments ?? [])];
-    path.replace(branch);
-  }
+  const replacement =
+    Array.isArray(path.parentPath.value) && canInline(path, statements) ?
+      statements
+    : [branch];
+  if (replacement[0]) prependComments(replacement[0], path.node.comments);
+  path.replace(...replacement);
 }
 
 /** A check like `if (x instanceof Promise)` on a `fetchIfStale()` result now always takes the Promise
  * branch, so where that branch waits for the result, it replaces the whole check */
 function keepPromiseBranches(j, root) {
   const consts = new Set(findFetchIfStaleConsts(j, root).map(d => d.node));
+  if (!consts.size) return false;
   let dirty = false;
   const checks = [
     ...root.find(j.IfStatement).paths(),
@@ -523,7 +533,7 @@ const FALLBACK_TODO =
 
 /** Whether the value at `path` is checked for a missing result: `x ?? fallback`, `x && x.id`, `!x`, `x == null` */
 function checksMissing(path) {
-  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  path = outerPath(path);
   const { node } = path;
   const parent = path.parent.node;
   switch (parent.type) {
@@ -534,10 +544,7 @@ function checksMissing(path) {
     case 'BinaryExpression': {
       const other = parent.left === node ? parent.right : parent.left;
       return (
-        ['==', '===', '!=', '!=='].includes(parent.operator) &&
-        (other.type === 'NullLiteral' ||
-          (other.type === 'Literal' && other.value === null) ||
-          isUndefined(other))
+        ['==', '===', '!=', '!=='].includes(parent.operator) && isNullish(other)
       );
     }
     case 'IfStatement':
@@ -556,15 +563,14 @@ function markMissingChecks(j, root) {
     .filter(({ node }) => isFetchIfStaleCall(unwrap(node.argument)))
     .forEach(awaited => {
       if (checksMissing(awaited)) marked.push(awaited);
-      let path = awaited;
-      while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+      const path = outerPath(awaited);
       const decl = path.parent;
       if (
         decl.node.type === 'VariableDeclarator' &&
         decl.node.init === path.node &&
         decl.node.id.type === 'Identifier'
       )
-        marked.push(...refsTo(j, root.get(), decl).filter(checksMissing));
+        marked.push(...refsTo(j, decl).filter(checksMissing));
     });
   return addTodos(j, marked, FALLBACK_TODO);
 }
@@ -790,12 +796,9 @@ function transformFetchIfStale(j, root, source) {
 function isNoopHandler(node) {
   if (!isFunction(node) || node.async || node.generator) return false;
   const { body } = node;
-  if (body.type === 'BlockStatement') return body.body.length === 0;
-  return (
-    isUndefined(body) ||
-    body.type === 'NullLiteral' ||
-    (body.type === 'Literal' && body.value === null)
-  );
+  return body.type === 'BlockStatement' ?
+      body.body.length === 0
+    : isNullish(body);
 }
 
 // resource() members that read: they have no sideEffect
@@ -858,10 +861,7 @@ function dropNoopCatches(j, root) {
       .filter(isUnused)
       .forEach(call => {
         const read = call.node.callee.object;
-        read.comments = [
-          ...(call.node.comments ?? []),
-          ...(read.comments ?? []),
-        ];
+        prependComments(read, call.node.comments);
         call.replace(read);
       })
       .size() > 0
@@ -885,28 +885,21 @@ const isActionName = node =>
  * `meta` destructured with `endpoint` */
 function fetchMetaOf(j, path) {
   const { node } = path;
+  const metaOf = action =>
+    j.memberExpression(j.identifier(action.name), j.identifier('meta'));
   if (memberName(node) === 'endpoint' && isActionName(node.object))
-    return j.memberExpression(
-      j.identifier(node.object.name),
-      j.identifier('meta'),
-    );
-  if (node.type !== 'Identifier') return;
+    return metaOf(node.object);
   // `const { endpoint } = action` or `({ endpoint, meta }) => ...`
-  const property = bindingOf(path)?.parent;
-  if (!isProperty(property?.node) || keyName(property.node) !== 'endpoint')
-    return;
-  const pattern = property.parent.node;
-  const meta = pattern.properties.find(
+  const property = destructuredBy(path);
+  if (!property || keyName(property.node) !== 'endpoint') return;
+  const meta = property.parent.node.properties.find(
     p =>
       isProperty(p) && keyName(p) === 'meta' && p.value.type === 'Identifier',
   );
   if (meta) return j.identifier(meta.value.name);
   const declarator = property.parent.parent.node;
   if (declarator.type === 'VariableDeclarator' && isActionName(declarator.init))
-    return j.memberExpression(
-      j.identifier(declarator.init.name),
-      j.identifier('meta'),
-    );
+    return metaOf(declarator.init);
 }
 
 /** `controller.resolve(action.endpoint, { ..., fetchedAt: Date.now() })` passes `action.meta.fetchedAt` */
@@ -1416,7 +1409,7 @@ function selectStore(j, call, dcNode) {
     dcMember(j, dcNode, 'store'),
     name,
   );
-  const statement = j(call).closest(j.Statement).paths()[0];
+  const statement = statementOf(j, call);
   // a name with no side effects, in a statement that always reads it (not `flag && ...`), of the same
   // function (`page.evaluate(() => ...)` runs its function elsewhere)
   const canHoist =
@@ -1632,13 +1625,8 @@ const isReadOnlyResource = (j, root, binding) =>
 function readsOnly(j, root, binding) {
   return usesOf(j, root, binding).every(p => {
     const parent = p.parent.node;
-    // `typeof X` in a type, `import { X }` or `export { X }`
-    if (
-      ['TSTypeQuery', 'ImportSpecifier', 'ExportSpecifier'].includes(
-        parent.type,
-      )
-    )
-      return true;
+    // `typeof X` in a type or `export { X }`
+    if (['TSTypeQuery', 'ExportSpecifier'].includes(parent.type)) return true;
     return (
       isMember(parent) &&
       parent.object === p.node &&
@@ -1670,11 +1658,8 @@ function parseModule(j, file) {
 function exportsPlainResource(j, file, name, depth = 0) {
   const root = file && depth < 5 && parseModule(j, file);
   if (!root) return false;
-  for (const node of root.get().node.program.body) {
-    if (node.type === 'ExportAllDeclaration' && !node.exported) {
-      const next = resolveModule(file, node.source.value);
-      if (exportsPlainResource(j, next, name, depth + 1)) return true;
-    }
+  const { body } = root.get().node.program;
+  for (const node of body) {
     if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
       continue;
     const declared = node.declaration?.declarations?.some(d =>
@@ -1682,7 +1667,7 @@ function exportsPlainResource(j, file, name, depth = 0) {
     );
     if (declared) return isLocalPlainResource(j, root, name);
     const specifier = node.specifiers?.find(
-      s => (s.exported.name ?? s.exported.value) === name,
+      s => staticName(s.exported) === name,
     );
     if (!specifier) continue;
     const local = specifier.local?.name ?? name;
@@ -1695,7 +1680,18 @@ function exportsPlainResource(j, file, name, depth = 0) {
         )
       : isLocalPlainResource(j, root, local);
   }
-  return false;
+  // a module's own exports win over `export *`
+  return body.some(
+    node =>
+      node.type === 'ExportAllDeclaration' &&
+      !node.exported &&
+      exportsPlainResource(
+        j,
+        resolveModule(file, node.source.value),
+        name,
+        depth + 1,
+      ),
+  );
 }
 
 /** Whether a module's top-level `const name` is a plain `resource()` that the module only reads */
@@ -1726,7 +1722,7 @@ function isImportedPlainResource(j, root, binding, file) {
     exportsPlainResource(
       j,
       file && resolveModule(file, declaration.source.value),
-      imported.name ?? imported.value,
+      staticName(imported),
     )
   );
 }
@@ -1997,12 +1993,9 @@ function waitForAllSettled(j, root, calls) {
     }
     // keyed by path: removing the property clears its node
     if (!converted.has(property))
-      converted.set(property, {
-        declarator: property.parent.parent,
-        done: destructureAllSettled(j, root, property),
-      });
-    const plan = converted.get(property);
-    if (plan.done) dropFirstLoadWait(j, call, plan.declarator);
+      converted.set(property, destructureAllSettled(j, root, property));
+    if (converted.get(property))
+      dropFirstLoadWait(j, call, property.parent.parent);
     else unconverted.push(call);
   }
   return unconverted;
@@ -2045,23 +2038,20 @@ function readonlyType(j, type) {
  * or passed to `super.pk()` */
 function onlyReadsArray(j, method, param) {
   if (!method.node.body) return true;
-  return j(method.get('body'))
-    .find(j.Identifier, { name: param.node.name })
-    .filter(p => !isOtherName(p) && bindingOf(p) === param)
-    .every(p => {
-      const parent = p.parent.node;
-      if (isMember(parent) && parent.object === p.node)
-        return (
-          !MUTATING_ARRAY_METHODS.has(memberName(parent)) &&
-          !isWriteTarget(p.parent)
-        );
+  return usesOf(j, j(method.get('body')), param).every(p => {
+    const parent = p.parent.node;
+    if (isMember(parent) && parent.object === p.node)
       return (
-        parent.type === 'SpreadElement' ||
-        (parent.type === 'CallExpression' &&
-          parent.callee.object?.type === 'Super' &&
-          memberName(parent.callee) === 'pk')
+        !MUTATING_ARRAY_METHODS.has(memberName(parent)) &&
+        !isWriteTarget(p.parent)
       );
-    });
+    return (
+      parent.type === 'SpreadElement' ||
+      (parent.type === 'CallExpression' &&
+        parent.callee.object?.type === 'Super' &&
+        memberName(parent.callee) === 'pk')
+    );
+  });
 }
 
 /** `static pk(value, parent, key, args?: any[])` overrides type `args` readonly, as Entity.pk() will
