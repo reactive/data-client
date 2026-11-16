@@ -1407,13 +1407,17 @@ const getTodos = new RestEndpoint({
 
 const todos = useSuspense(getTodos);
 const ctrl = useController();
+// no component reads getPage, so show its loading and error state here
+const [fetchNextPage, isPending, error] = useLoading((nextPage: number) =>
+  // fetches url `/todos?page=${nextPage}`
+  ctrl.fetch(getTodos.getPage, { page: nextPage }),
+);
 return (
   <PaginatedList
     items={todos}
-    fetchNextPage={() =>
-      // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(getTodos.getPage, { page: nextPage })
-    }
+    fetchNextPage={fetchNextPage}
+    loading={isPending}
+    error={error}
   />
 );
 ```
@@ -1435,18 +1439,25 @@ return (
 </script>
 
 <script setup lang="ts">
-  import { useController, useSuspense } from '@data-client/vue';
+  import { useController, useLoading, useSuspense } from '@data-client/vue';
   import PaginatedList from './PaginatedList.vue';
 
   const todos = await useSuspense(getTodos);
   const ctrl = useController();
-  // fetches url `/todos?page=${nextPage}`
-  const fetchNextPage = (nextPage: number) =>
-    ctrl.fetch(getTodos.getPage, { page: nextPage });
+  // no component reads getPage, so show its loading and error state here
+  const [fetchNextPage, isPending, error] = useLoading((nextPage: number) =>
+    // fetches url `/todos?page=${nextPage}`
+    ctrl.fetch(getTodos.getPage, { page: nextPage }),
+  );
 </script>
 
 <template>
-  <PaginatedList :items="todos" :fetchNextPage="fetchNextPage" />
+  <PaginatedList
+    :items="todos"
+    :fetchNextPage="fetchNextPage"
+    :loading="isPending"
+    :error="error"
+  />
 </template>
 ```
 

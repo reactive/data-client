@@ -14,16 +14,15 @@ import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # Manager
 
-Los `Managers` manejan efectos secundarios globales. Algo parecido a :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] para el store de datos
+Los `Managers` manejan efectos secundarios globales. Son como :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)], pero para el store de datos
 central.
 
-Los managers predeterminados orquestan el complejo comportamiento asíncrono que <abbr title="Reactive Data Client">Data Client</abbr>
-ofrece de serie. Se pueden configurar fácilmente con [getDefaultManagers()](./getDefaultManagers.md) y
-ampliar con tus propios `Managers` personalizados.
+Los managers predeterminados ejecutan el comportamiento asíncrono que ofrece <abbr title="Reactive Data Client">Data Client</abbr>,
+como la obtención de datos y las suscripciones. Configúralos con [getDefaultManagers()](./getDefaultManagers.md) y añade
+tus propios `Managers`.
 
-Los managers deben implementar [middleware](#middleware), que los engancha al
-[flujo de control](#control-flow) del store central. Además, [cleanup()](#cleanup) e [init()](#init) se enganchan al
-ciclo de vida del store para los comportamientos de preparación y desmontaje.
+Cada Manager implementa [middleware](#middleware), que lo conecta al [flujo de control](#control-flow) del store.
+[init()](#init) y [cleanup()](#cleanup) lo conectan al ciclo de vida del store, para la preparación y el desmontaje.
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
@@ -54,31 +53,34 @@ constructor no debe abrir nada.]
 
 ### middleware {#middleware}
 
-`middleware` es muy parecido a un [middleware de redux](https://redux.js.org/advanced/middleware).
-La única diferencia es que la función `next()` devuelve una `Promise`.
+`middleware` funciona como un [middleware de redux](https://redux.js.org/advanced/middleware), salvo que `next()` devuelve una
+`Promise`.
 
 :::react
 
-Esta promesa se resuelve cuando la actualización del reducer se
+Con &lt;DataProvider /\>, esta promesa se resuelve cuando React
 [confirma (commit)](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-al usar &lt;DataProvider /\>. Esto es necesario porque la fase de commit se programa de forma asíncrona. Permite construir
-managers que realizan trabajo una vez actualizado el DOM y con el estado recién calculado.
+la actualización. React programa los commits de forma asíncrona, así que un Manager puede esperar `next()` para trabajar con el nuevo estado una vez
+actualizado el DOM.
 
 :::
 
 :::vue
 
-Esta promesa se resuelve cuando la actualización del reducer se confirma en el store de
-[DataClientPlugin](./DataClientPlugin.md). Permite construir managers que realizan trabajo con el
-estado recién calculado.
+Esta promesa se resuelve cuando el store de [DataClientPlugin](./DataClientPlugin.md) confirma la actualización, así que un Manager puede
+esperar `next()` para trabajar con el nuevo estado.
 
 :::
 
-Como redux es totalmente síncrono, hay que colocar un adaptador delante de los middlewares al estilo de Reactive Data Client para
-que puedan consumir una promesa. A la inversa, los middlewares de redux deben modificarse para que dejen pasar las promesas.
+:::react
 
-Los middlewares [interceptan las acciones](#reading-and-consuming-actions) que se despachan y, además, pueden [despachar sus propias acciones](#dispatching-actions).
-Para saber más sobre los middlewares, consulta la [documentación de redux](https://redux.js.org/advanced/middleware).
+Redux despacha de forma síncrona, así que un store de redux necesita un adaptador después de los Managers que devuelva una `Promise` desde
+`next()`. [prepareStore](../guides/redux.md) añade uno y coloca el middleware de redux después de él.
+
+:::
+
+El middleware puede [leer las acciones](#reading-and-consuming-actions) a medida que se despachan y
+[despachar las suyas propias](#dispatching-actions).
 
 ### init(state) {#init}
 
@@ -139,8 +141,8 @@ resuelve él mismo la mayoría de las acciones FETCH en lugar de pasarlas al sig
 
 ## Flujo de control {#control-flow}
 
-Los managers se integran con el store de :react[DataProvider]:vue[DataClientPlugin] mediante sus ciclos de vida y su middleware. Orquestan flujos de control
-complejos interceptando y despachando [acciones](./Actions.md), además de leer el estado interno.
+Los managers se conectan al store de :react[DataProvider]:vue[DataClientPlugin] mediante sus métodos de ciclo de vida y su
+middleware. Leen y despachan [acciones](./Actions.md), y leen el estado del store.
 
 <ThemedImage
 alt="Flujo flux del Manager"
@@ -239,10 +241,10 @@ export default class LoggingManager implements Manager {
 
 </TypeScriptEditor>
 
-En los bloques condicionales, el [tipo de la acción se acota](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
-lo que favorece un acceso seguro a sus miembros.
+Dentro de cada `case`, TypeScript [acota](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types)
+el tipo de la acción, así que puedes acceder a sus miembros de forma segura.
 
-Si queremos 'manejar' una [acción](./Actions.md) concreta, podemos 'consumirla' sin llamar a next.
+Para consumir una [acción](./Actions.md), no llames a `next()`.
 
 <TypeScriptEditor>
 
@@ -298,8 +300,8 @@ export default class CustomSubsManager implements Manager {
 
 </TypeScriptEditor>
 
-Al hacer `return Promise.resolve();` en lugar de llamar a `next(action)`, evitamos que los managers listados
-después de este vean esa [acción](./Actions.md).
+Hacer `return Promise.resolve();` en lugar de `next(action)` evita que los managers listados después de este vean la
+[acción](./Actions.md).
 
 Tipos: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
 [`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),

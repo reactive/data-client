@@ -86,8 +86,13 @@ export default class LoggingManager implements Manager {
 
 ### 错误上报 {#error-reporting}
 
-通过检查设置了 `error` 的 [SET_RESPONSE](../api/Actions.md#set_response) action，
-将失败的 fetch 上报给 [Sentry](https://sentry.io) 等监控服务。
+ 未被 await 的 fetch 失败                                                                   | 会到达全局处理器（Sentry、控制台）吗？       |
+ ----------------------------------------------------------------------------------------- | -------------------------------------------- |
+ 读取：hook、不带 `sideEffect` 的 [fetch()](../api/Controller.md#fetch)、`fetchIfStale()` | 否：会被存储，读取它的组件会显示该错误       |
+ 变更：带 `sideEffect: true` 的 `fetch()`                                                  | 是                                           |
+
+要上报每一次失败的 fetch（无论是否被 await），请把设置了 `error` 的 [SET_RESPONSE](../api/Actions.md#set_response) action
+发送到 [Sentry](https://sentry.io) 等服务：
 
 :::react
 
@@ -138,6 +143,9 @@ export default class ErrorReportManager implements Manager {
 ```
 
 :::
+
+然后把它[添加](../api/Manager.md#adding)到默认 manager 之前：
+`managers = () => [new ErrorReportManager(), ...getDefaultManagers()]`。
 
 ### 指标 {#metrics}
 

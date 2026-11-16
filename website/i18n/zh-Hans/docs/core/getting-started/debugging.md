@@ -150,9 +150,9 @@ Debugging this app through globalThis.__DC__ didn't work with you and your brows
 
 ### Action 追踪 {#action-tracing}
 
-由于计算开销很大，追踪功能默认不启用。不过，在查找 [action](../api/Actions.md) 是从哪里 dispatch 的时候，
-它会非常有用。通过 [getDefaultManagers](../api/getDefaultManagers.md) 将 trace 选项设为 `true`，
-即可自定义 [DevToolsManager](../api/DevToolsManager.md)：
+追踪功能会显示每个 [action](../api/Actions.md) 是从哪里 dispatch 的。它默认关闭，因为它会为每个 action 记录一份堆栈跟踪。要
+开启它，请通过 [getDefaultManagers](../api/getDefaultManagers.md) 设置
+[DevToolsManager](../api/DevToolsManager.md) 的 `trace` 选项：
 
 :::react
 

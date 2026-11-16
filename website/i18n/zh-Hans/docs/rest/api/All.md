@@ -17,6 +17,12 @@ import { RestEndpoint } from '@data-client/rest';
   _ `value`：该 Entity 的输入值。
   _ `parent`：输入数组的父对象。\* `key`：输入数组在父对象上所处的键。
 
+`All` 是某一类 Entity 在 store 中存储的全部实例，无论来自哪个响应。在 [Query](./Query.md) 中使用它，可以得到
+任何响应都没有的结果，它根据每个 Entity 当前的字段计算得出：未完成的 todo、所有购物车
+条目的总价、帖子可以更换作者时某个作者的帖子。Query 会在被读取时运行，并在该类
+任何 Entity 发生变化时再次运行。当响应中已有该列表时，请使用 [Collection](./Collection.md)。当
+Entity 必须嵌套一个任何响应都没有的列表时，请使用[反向查找](../guides/relational-data.md#reverse-lookups)。
+
 ## 实例方法 {#instance-methods}
 
 - `define(definition)`：调用时，传入的 `definition` 会与传给 `All` 构造函数的原始 definition 合并。此方法通常用于在 schema 中创建循环引用。

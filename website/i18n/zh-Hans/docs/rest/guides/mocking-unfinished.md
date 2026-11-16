@@ -4,10 +4,8 @@ title: 模拟尚未完成的 endpoint
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-你已经和一位后端工程师商定了 API schema，由他来实现；
-但他和你同时开始写代码。如果能轻松地
-模拟这个 endpoint，并以这样一种方式使用它，使得 endpoint 完成后
-你无需对代码做大的改动，那就再好不过了。
+要基于后端尚未完成的 endpoint 进行开发，请在 endpoint 定义中模拟它。当 endpoint
+就绪时，你的组件无需改动。
 
 <HooksPlayground row>
 
@@ -72,12 +70,9 @@ render(<Demo />);
 
 </HooksPlayground>
 
-通过模拟
-[RestEndpoint](../api/RestEndpoint.md)，我们可以轻松伪造服务器将返回的数据。这样
-就可以在整个代码库中照常自由使用强类型的 RatingResource。
+[RestEndpoint](../api/RestEndpoint.md) 上的 `fetch` 覆盖会返回假数据。其余代码照常使用
+带类型的 `RatingResource`。
 
-API 实现之后，你只需删除自定义的 fetch 即可（如果整个 list()
-覆盖只做了这件事，也可以把它整个删掉）。
+API 就绪后，删除整个 `getList` 覆盖即可。`fetch` 和 `dataExpiryLength` 都只是为了模拟而存在。
 
-在这个示例中，我们还把 dataExpiryLength 设置得更长，让生成的随机值
-保留得更久。这让演示更加贴近真实。
+`dataExpiryLength: Infinity` 会阻止数据[过期](/docs/concepts/expiry-policy)，因此 Data Client 不会自行重新获取数据并替换掉这些随机值。

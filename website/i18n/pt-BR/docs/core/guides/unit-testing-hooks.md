@@ -9,37 +9,29 @@ import TabItem from '@theme/TabItem';
 
 :::warning
 
-Tenha cuidado ao usar [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) em módulos como o Reactive Data Client. Eliminar exports esperados
-pode levar a erros difíceis de rastrear,
-como `TypeError: Class extends value undefined is not a function or null`.
+Tenha cuidado com o [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) em módulos do Reactive Data
+Client. Um mock que remove exports causa erros difíceis de rastrear, como
+`TypeError: Class extends value undefined is not a function or null`.
 
-Em vez disso, faça um [mock parcial](https://jestjs.io/docs/mock-functions#mocking-partials)
-ou, melhor ainda, use [mockResolvedValue](https://jestjs.io/docs/mock-functions#mocking-modules) nos seus
-endpoints.
-
-:::
-
-Hooks permitem extrair comportamentos complexos dos seus componentes para funções concisas e
-componíveis. Isso pode facilitar muito o teste do comportamento dos componentes. Mas como isso funciona se você quiser usar hooks do `Reactive Data Client`?
-
-Fornecemos alguns utilitários simples para reduzir o código boilerplate dos testes unitários,
-que são wrappers em torno do [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options) do [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library).
-
-Queremos uma função [renderDataHook()](../api/renderDataHook.md) que renderize no contexto tanto de
-um `Provider` quanto de um limite de `Suspense`.
-
-Isso geralmente é feito durante a configuração dos testes. A limpeza é executada automaticamente após cada teste.
-
-:::note
-
-`renderDataHook()` cria um contexto de Provider com novas instâncias de manager. Isso significa que cada chamada
-de `renderDataHook()` resultará em um estado de cache totalmente novo, assim como um estado de manager novo.
+Use um [mock parcial](https://jestjs.io/docs/mock-functions#mocking-partials) em vez disso ou, melhor ainda,
+[mockResolvedValue](https://jestjs.io/docs/mock-functions#mocking-modules) nos seus endpoints.
 
 :::
 
-### Polyfill de fetch no node &lt; 18 {#polyfill-fetch-in-node-lt-18}
+O [renderDataHook()](../api/renderDataHook.md) renderiza um hook dentro de um `DataProvider` e de um boundary `Suspense`. Com React
+18 ou posterior, ele envolve o `renderHook()` do [@testing-library/react](https://testing-library.com/docs/react-testing-library/api#renderhook)
+em um ambiente DOM, ou o do [@testing-library/react-native](https://github.com/callstack/react-native-testing-library) no React Native. Caso contrário, usa
+[@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library).
 
-O Node não vem com fetch por padrão, então precisamos garantir que ele receba um polyfill.
+`result.current` é `undefined` até o hook retornar pela primeira vez. Se ele suspender de novo mais tarde, `result.current` mantém o último
+valor. `result.error` guarda qualquer erro lançado pelo hook.
+
+Cada chamada a `renderDataHook()` cria um novo store e novas instâncias de manager, então nenhum estado é mantido entre os testes.
+Use `initialFixtures` para preparar o cache. A limpeza é executada automaticamente após cada teste.
+
+### Polyfill de fetch {#polyfill-fetch}
+
+O ambiente `jsdom` do Jest não tem um `fetch` global, mesmo no Node 18 e posterior. Adicione um polyfill:
 
 <PkgTabs pkgs="whatwg-fetch" dev />
 
@@ -58,7 +50,7 @@ module.exports = {
 require('whatwg-fetch');
 ```
 
-### Exemplo: {#example}
+### Exemplo {#example}
 
 <Tabs
 defaultValue="DataProvider"

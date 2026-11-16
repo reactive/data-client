@@ -558,11 +558,9 @@ entries.sort((a, b) => {
 
 在 endpoint 不嵌套数据时实现嵌套（第二部分）。
 
-响应可能只在一个方向上嵌套。要添加反向关系，请覆盖
-[Entity.process](../api/Entity.md#process)。你可能还需要覆盖 [Entity.merge](../api/Entity.md#merge) 来
-深度合并这些字段。
-
-这样一次获取就能提供该关联关系的所有视图，无需为每个视图单独获取。
+响应只能在一个方向上嵌套。这里 `/posts` 嵌套了每个 post 的 `author`，但没有任何响应列出某个 user 的
+posts。反向查找会在客户端构建这个列表，因此一次获取 `/posts` 也能得到每个 user 的 `posts`
+和 `comments`。点击名字即可查看。
 
 <FrameworkPlayground groupId="schema" defaultOpen="store" fixtures={[
 {
@@ -623,9 +621,16 @@ response: [
 ],
 delay: 150,
 },
+{
+endpoint: new RestEndpoint({ path: '/users/:id' }),
+response({ id }) {
+return { id, name: { 123: 'Paul', 245: 'Jane', 246: 'Spambot5000' }[id] };
+},
+delay: 150,
+},
 ]}>
 
-```typescript title="resources/Post"
+```typescript title="resources/Post" {9-20,22-30}
 import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
@@ -634,28 +639,35 @@ export class User extends Entity {
   posts: Post[] = [];
   comments: Comment[] = [];
 
-  static merge(existing, incoming) {
-    return {
-      ...existing,
-      ...incoming,
-      posts: [...(existing.posts || []), ...(incoming.posts || [])],
-      comments: [
-        ...(existing.comments || []),
-        ...(incoming.comments || []),
-      ],
-    };
-  }
-
   static process(value, parent, key) {
     switch (key) {
+      // nested as a post's author: that post is one of this user's
       case 'author':
         return { ...value, posts: [parent.id] };
+      // nested as a comment's commenter
       case 'commenter':
         return { ...value, comments: [parent.id] };
       default:
         return { ...value };
     }
   }
+
+  // one user is nested many times, each with one post or comment
+  static merge(existing, incoming) {
+    return {
+      ...existing,
+      ...incoming,
+      posts: union(existing.posts, incoming.posts),
+      comments: union(existing.comments, incoming.comments),
+    };
+  }
+}
+
+/** Adds the ids not listed yet, so a refetch does not add the same ones again.
+ * Does not remove repeats within `incoming`: here each copy of a user brings one id. */
+function union(existing: string[] = [], incoming: string[] = []) {
+  const added = incoming.filter(id => !existing.includes(id));
+  return added.length ? [...existing, ...added] : existing;
 }
 
 export class Comment extends Entity {
@@ -667,8 +679,12 @@ export class Comment extends Entity {
   static schema: Record<string, Schema> = {
     commenter: User,
   };
+
   static process(value, parent, key) {
-    return { ...value, post: parent.id };
+    // only a post's `comments` tells which post this comment is on
+    return key === 'comments' ?
+        { ...value, post: parent.id }
+      : { ...value };
   }
 }
 
@@ -684,7 +700,7 @@ export class Post extends Entity {
   };
 }
 
-// with cirucular dependencies we must set schema after they are all defined
+// the classes refer to each other, so set these after all are defined
 User.schema = {
   posts: [Post],
   comments: [Comment],
@@ -697,7 +713,6 @@ Comment.schema = {
 export const PostResource = resource({
   path: '/posts/:id',
   schema: Post,
-  dataExpiryLength: Infinity,
 });
 export const UserResource = resource({
   path: '/users/:id',
@@ -721,7 +736,7 @@ export default function UserPage({ id }) {
           <h5>Posts</h5>
           <ul>
             {user.posts.map(post => (
-              <li>{post.title}</li>
+              <li key={post.pk()}>{post.title}</li>
             ))}
           </ul>
         </>
@@ -729,7 +744,7 @@ export default function UserPage({ id }) {
       <h5>Comments</h5>
       <ul>
         {user.comments.map(comment => (
-          <li>{comment.content}</li>
+          <li key={comment.pk()}>{comment.content}</li>
         ))}
       </ul>
     </div>
@@ -844,13 +859,53 @@ export default function PostPage() {
 
 </FrameworkPlayground>
 
+`User` 覆盖了两个方法。[process()](../api/Entity.md#process) 会针对每个嵌套的 user 运行，并接收嵌套它的 `parent`
+和 `key`。[merge()](../api/Entity.md#merge) 会合并同一个 user 的多个副本：
+
+```ts
+// post 1 nests Paul as its `author`, so process() adds that post's id
+User.process({ id: '123', name: 'Paul' }, post1, 'author');
+// => { id: '123', name: 'Paul', posts: ['1'] }
+
+// post 2 nests Paul too, so merge() joins both copies
+User.merge(
+  { id: '123', name: 'Paul', posts: ['1'] },
+  { id: '123', name: 'Paul', posts: ['2'] },
+);
+// => { id: '123', name: 'Paul', posts: ['1', '2'] }
+```
+
+如果不覆盖，`merge()` 只会保留最后一个副本的 `posts`。`Comment.process()` 也以
+同样的方式设置 `comment.post`。
+
+### 何时使用 {#when-to-use}
+
+当数据本身（而不只是界面）必须拥有某个列表时，才在 Entity 中嵌套它。例如，一个
+按 `user.posts` 对用户排序的 [Query](../api/Query.md) 会在任何组件渲染之前读取它。然后根据
+列表所在的位置来选择：
+
+- **某个响应包含该列表**（user 响应嵌套了它，或者 `GET /posts?author=123` 返回了它）：使用带
+  [nestKey](../api/Collection.md#nestKey) 的 [Collection](../api/Collection.md)。每次获取都会替换该列表，而
+  [push](../api/Collection.md#push)、[remove](../api/Collection.md#remove) 和 [move](../api/Collection.md#move)
+  会让它保持最新。它不需要自定义 `merge()`。
+- **没有任何响应包含该列表**：使用反向查找。
+
+### 变更之后 {#after-a-mutation}
+
+- **创建。** 新的 post 或 comment 会运行同样的 `process()`，因此会加入该列表。这对
+  [push](../api/RestEndpoint.md#push) 和每个新页面都成立。
+- **删除。** 被删除的 post 或 comment 会离开该列表。列表会跳过不在 store 中的 Entity。
+- **移动。** 拥有新 `author` 的 post 会加入新作者的 `posts`，同时仍留在旧作者的列表中：`merge()`
+  只会添加 id。当关联关系可能移动时，请在读取列表的地方，用基于 [All](../api/All.md) 的
+  [Query](../api/Query.md) 来计算它。
+
 ### 循环依赖 {#circular-dependencies}
 
 JavaScript 不允许循环导入或循环的类定义。因此对于相互引用的 [Entity][1]，
 请在类定义之后再定义 [schema][3]。
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity } from '@data-client/rest';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -874,10 +929,11 @@ User.schema = {
 ```
 
 ```typescript title="resources/User"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, type Schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+// import only the type: importing the class would be a circular import,
+// so resources/Post sets User.schema above
 import type { Post } from './Post';
-// we can only import the type else we break javascript imports
-// thus we change the schema of UserResource above
 
 export class User extends Entity {
   id = '';
@@ -885,7 +941,7 @@ export class User extends Entity {
   posts: Post[] = [];
   createdAt = Temporal.Instant.fromEpochMilliseconds(0);
 
-  static schema: Record<string, Schema | Date> = {
+  static schema: Record<string, Schema> = {
     createdAt: Temporal.Instant.from,
   };
 }

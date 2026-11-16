@@ -84,7 +84,8 @@ más detalles.
 
 <AgentOnly>
 
-Luego enlaza, desde la raíz del proyecto, las skills que incluyen los paquetes instalados, ajustadas a sus versiones, y haz commit de los
+Luego enlaza, desde la carpeta de la aplicación (en un monorepo de workspaces, ejecútalo en cada aplicación: las enlaza en la raíz del
+workspace, y en la aplicación solo las que instala en otra versión), las skills que incluyen los paquetes instalados, ajustadas a sus versiones, y haz commit de los
 enlaces:
 
 ```bash

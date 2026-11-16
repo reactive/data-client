@@ -99,7 +99,8 @@ Vue 组件只会在挂载时挂起；已挂载的组件在重新获取数据期�
 
 ### fetchedAt {#fetchedat}
 
-产生此 snapshot 的那次 fetch 被调用的时间。
+产生此 snapshot 的那次 fetch 被调用的时间，以毫秒为单位，与 `Date.now()` 相同。在同一毫秒内开始的 fetch
+会得到相差不到一毫秒的时间，因此它们会保持先后顺序。
 
 ### abort {#abort}
 

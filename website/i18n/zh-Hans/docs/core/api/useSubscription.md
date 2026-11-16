@@ -14,14 +14,15 @@ import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
 
-非常适合让频繁变化的资源保持最新。
+让经常变化的数据保持最新。
 
-使用默认的[轮询订阅](./PollingSubscription)时，必须在 [Endpoint](/rest/api/Endpoint) 中设置频率，
-否则不会生效。
+默认的[轮询订阅](./PollingSubscription.md)需要在 [Endpoint](/rest/api/Endpoint) 上设置
+[pollFrequency](/rest/api/RestEndpoint#pollfrequency)。如果没有设置，订阅时会
+记录一个错误，并且什么也不做。
 
 :::tip
 
-[useLive()](./useLive.md) 是与 [useSuspense()](./useSuspense.md) 组合使用的更简洁写法，
+[useLive()](./useLive.md) 在一次调用中组合了 `useSubscription()` 和 [useSuspense()](./useSuspense.md)。
 
 :::
 
@@ -329,8 +330,8 @@ render(
 
 </FrameworkPlayground>
 
-当第二个参数传入 `null` 时，订阅会被停用。当然，
-如果还有其他组件在订阅，数据更新仍会继续。
+第二个参数传入 `null` 会关闭该组件的订阅。只要还有其他
+组件订阅同一数据，更新就会继续。
 
 :::react
 
@@ -341,8 +342,8 @@ render(
 
 :::vue
 
-VueUse 的 [useElementVisibility()](https://vueuse.org/core/useElementVisibility/) 使用了性能非常好的 [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)。[模板引用](https://vuejs.org/guide/essentials/template-refs.html)让
-我们可以访问 [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model)。
+VueUse 的 [useElementVisibility()](https://vueuse.org/core/useElementVisibility/) 使用了性能非常好的 [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)。[模板引用](https://vuejs.org/guide/essentials/template-refs.html)让你可以访问
+[DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model) 元素。
 
 :::
 
@@ -440,8 +441,8 @@ render(<PricePanel productId="BTC-USD" />);
 
 ### 加密货币价格（websocket） {#crypto-prices-websockets}
 
-我们实现了自己的 `StreamManager` 来处理自定义的 websocket 协议。这里我们监听 `useSubscription` 发出的
-[订阅/取消订阅 action](./Actions.md#subscribe)，以确保只监听已渲染组件所需的更新。
+自定义的 `StreamManager` 负责处理 websocket 协议。它监听 `useSubscription()` 发出的
+[订阅和取消订阅 action](./Actions.md#subscribe)，因此只接收已渲染组件的更新。
 
 <StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />
 

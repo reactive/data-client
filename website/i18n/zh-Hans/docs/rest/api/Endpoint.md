@@ -158,6 +158,65 @@ const getTodoNormalized = getTodo.extend({ schema: Todo });
 const getTodoUpdatingEveryFiveSeconds = getTodo.extend({ pollFrequency: 5000 });
 ```
 
+### 取消及其他非键值 {#members-not-args}
+
+参数就是 [key](#key)：它们决定 store 保存哪份数据。不要把不选择
+数据的值（例如 [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+或 SDK 客户端）放进参数。如果作为参数，每次 hook 调用都需要传一个，而且带与不带
+它的调用会得到不同的 key，因而无法共享数据。请把这类值改为成员，并在
+fetch 函数中从 `this` 读取它。[signal](#signal) 已经有类型；其他
+成员请在选项中声明。
+
+```ts title="getPosts"
+import { Endpoint } from '@data-client/endpoint';
+import { client } from './client';
+import { Post } from './Post';
+
+export const getPosts = new Endpoint(
+  // a `function` (not an arrow function) gets the endpoint as `this`
+  function ({ page }: { page: number }) {
+    return client.getPosts({ page, signal: this.signal });
+  },
+  { name: 'getPosts', schema: [Post] },
+);
+```
+
+用 [extend()](#extend) 为单次调用设置该成员，这样其他调用仍保留各自的值。
+
+```ts
+// ctrl is the Controller, from useController() or a router loader
+const abort = new AbortController();
+ctrl.fetch(getPosts.extend({ signal: abort.signal }), { page: 2 });
+```
+
+:::react
+
+[useCancelling()](/docs/api/useCancelling) 会替你完成这件事，并在参数变化时中止：
+
+```tsx title="PostList"
+import { useCancelling, useSuspense } from '@data-client/react';
+import { getPosts } from './getPosts';
+import PostItems from './PostItems';
+
+export default function PostList({ page }: { page: number }) {
+  const posts = useSuspense(useCancelling(getPosts, { page }), { page });
+  return <PostItems posts={posts} />;
+}
+```
+
+:::
+
+限制：
+
+- 只有当 fetch 函数把 signal 继续传递下去，并且 SDK 把它交给
+  `fetch()` 时，请求才会停止。
+- 参数相同的读取（没有 `sideEffect`）会共享同一个请求。signal 只能取消由它自己的调用发起的
+  请求，而且这会为所有共享该请求的调用取消它。
+- Data Client 会忽略名为 `AbortError` 的 rejection，这正是 `fetch()` 抛出的错误。如果你的 SDK
+  把中止包装成了其他错误，请重新抛出一个名为 `AbortError` 的错误；否则它会被存储为
+  失败的 fetch，使用这些参数的渲染会一直抛出它，直到它[过期](#errorexpirylength)。
+- 中止一个变更会撤销它的乐观更新，但服务器可能已经应用了该变更。
+
 ## 生命周期 {#lifecycle}
 
 ### 成功 {#success}
@@ -187,6 +246,9 @@ import ErrorLifecycle from '../diagrams/\_endpoint_error_lifecycle.mdx';
 `${this.name} ${JSON.stringify(params)}`;
 ```
 
+不选择数据的值（例如 `AbortSignal`）请作为[成员](#members-not-args)传入，而不是作为
+参数。
+
 :::warning[覆盖]
 
 覆盖 `key` 时，如果你打算使用 [testKey](#testKey) 方法，
@@ -214,6 +276,13 @@ import ErrorLifecycle from '../diagrams/\_endpoint_error_lifecycle.mdx';
 这种情况下，你可以覆盖 `name`，或禁用函数名混淆。
 
 :::
+
+### signal?: AbortSignal {#signal}
+
+取消该 fetch。在 fetch 函数中以 `this.signal` 读取它并继续传递，例如
+`fetch(url, { signal: this.signal })`。用 [extend()](#extend) 为单次调用设置它:react[，或者
+用 [useCancelling()](/docs/api/useCancelling) 在每次参数变化时中止]。参见
+[取消](#members-not-args)。
 
 ### sideEffect: boolean {#sideeffect}
 

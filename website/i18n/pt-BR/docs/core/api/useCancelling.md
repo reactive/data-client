@@ -27,6 +27,11 @@ o que significa que você pode acabar cancelando um fetch com o qual outro compo
 
 :::
 
+Ele não consegue abortar o primeiro fetch de um componente que ainda não renderizou: o React não mantém estado para um
+componente que suspende antes de montar. Depois que o componente exibiu dados, cada mudança de params
+aborta o fetch anterior que ele iniciou. Um [Endpoint](/rest/api/Endpoint#members-not-args) personalizado deve repassar
+`this.signal` para sua requisição.
+
 ## Cancelar vs Debounce {#cancel-vs-debounce}
 
 Use `useCancelling()` quando o usuário para em cada valor, como uma lista que ele percorre com as setas. Ele faz o fetch

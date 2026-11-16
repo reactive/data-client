@@ -46,6 +46,11 @@ npx --no data-client-skills
 `--upgrade` 运行一次以移除它们。Claude Code、Cursor 和 Codex 插件用于设置尚未使用 Data
 Client 的应用。如果你使用 [TanStack Intent](https://tanstack.com/intent)，它会加载相同的包 skill。
 
+在 workspace monorepo 中，即使在某个 workspace 包里运行，它也会把 skill 链接到 workspace 根目录，并且只在该
+包中链接它以其他版本安装的 skill，智能体处理该包的文件时会加载这些 skill。当
+该根目录（或没有 workspace 的应用）位于仓库的子文件夹中时，它会把 skill 链接到那里，并提示你在那里启动
+智能体，因为在仓库根目录启动的 Claude Code 和 Cursor 只有在处理该子文件夹中的文件时才会加载它们。
+
 ### 可用的 skill {#available-skills}
 
 - [**`/data-client`**](https://skills.sh/reactive/data-client/data-client) — 当你让智能体添加或使用 Data Client 时从这里开始，并将其引导到设置或该任务对应的 skill。
@@ -69,6 +74,8 @@ Client 的应用。如果你使用 [TanStack Intent](https://tanstack.com/intent
   及变更相关 hook，并通过浏览器工具（例如 Cursor 的浏览器、Chrome DevTools MCP 或 Playwright MCP）[调试运行中的应用](./debugging.md#debugging-with-agents)。
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — 使用 `renderDataHook`、
   fixture、interceptor 和 `nock` 编写 React 测试。
+- [**`/data-client-performance`**](https://skills.sh/reactive/data-client/data-client-performance) — 执行
+  [性能优化检查](../guides/performance-pass.md)：找出应用缺少的提速手段并加以实现，你选择不做的除外。
 
 :::
 

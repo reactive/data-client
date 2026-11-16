@@ -113,6 +113,10 @@ Se ejecuta al inicio de la normalización de esta entidad. El valor de retorno s
 
 **Por defecto** simplemente copia la respuesta (`{...input}`)
 
+`parent` es el objeto que anida esta entity, y `key` es el campo bajo el que está. Una entity en una lista anidada recibe
+el parent y la key de la lista. En el nivel superior de una respuesta, `key` es `undefined`. Cuando dos tipos de parent
+anidan esta entity bajo la misma `key`, comprueba también un campo que solo tenga uno de ellos.
+
 Cómo sobrescribirlo para [construir búsquedas inversas para datos relacionales](/rest/guides/relational-data#reverse-lookups)
 
 ### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
@@ -274,7 +278,7 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` se llama durante la normalización cuando una entidad procesada ya existe en el store.
 
-### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+### static queryKey(args, unvisit, delegate): pk? {#queryKey}
 
 Este método permite que las `Entities` sean [Queryable](/rest/api/schema#queryable), es decir, que se pueda acceder al store sin un endpoint.
 
@@ -324,7 +328,7 @@ deshabilitarlo o personalizarlo.
 ### static fromJS(props): Entity {#fromJS}
 
 Método de fábrica que copia las props a una nueva instancia. Úsalo en lugar de `new MyEntity()`,
-para asegurar que se sobrescriban las props por defecto.
+para asegurar que se sobrescriban las props por defecto. No llama a [process()](#process).
 
 ## Campos {#fields}
 

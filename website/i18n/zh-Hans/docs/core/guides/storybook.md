@@ -13,12 +13,12 @@ import TabItem from '@theme/TabItem';
 
 # 为 Storybook 模拟数据
 
-[Storybook](https://storybook.js.org/) 是一个用于隔离开发和测试的优秀工具，
-有望大幅缩短开发时间。
+[Storybook](https://storybook.js.org/) 可以隔离地渲染组件，用于开发和测试。
 
-[&lt;MockResolver /\>](../api/MockResolver.md) 可以轻松加载 [fixture 或 interceptor](../api/Fixtures.md)，以查看
-不同的网络响应会呈现什么样子。它可以分层、组合，甚至可以用于
-[命令式获取](../api/Controller.md#fetch)，这通常用于带副作用的 endpoint，例如 [getList.push](/rest/api/resource#push) 和 [update](/rest/api/resource#update)。
+[&lt;MockResolver /\>](../api/MockResolver.md) 会加载 [fixture 或 interceptor](../api/Fixtures.md)，让 story 展示
+不同的网络响应。嵌套一个 `<MockResolver>` 可以覆盖树中某一部分的 fixture。在它内部，
+只有内层的 fixture 生效：它们没有匹配的请求会发往网络，而不是交给外层的 fixture。它还会解析带副作用的
+endpoint 的[命令式获取](../api/Controller.md#fetch)，例如 [getList.push](/rest/api/resource#push) 和 [update](/rest/api/resource#update)。
 
 ## 设置 {#setup}
 
@@ -31,6 +31,9 @@ values={[
 <TabItem value="ArticleResource.ts">
 
 ```typescript title="ArticleResource.ts"
+import { Entity, resource } from '@data-client/rest';
+import type { Fixture } from '@data-client/test';
+
 export class Article extends Entity {
   id: number | undefined = undefined;
   content = '';
@@ -78,8 +81,8 @@ export default function ArticleList({
 
 ## Fixtures {#fixtures}
 
-我们将用 [fixture 和 interceptor](../api/Fixtures.md) 测试三种情况：列表中有一些有意义的结果、列表为空，以及数据
-不存在从而显示加载 fallback。
+这些 [fixture 和 interceptor](../api/Fixtures.md) 涵盖四种情况：完整的列表、空列表、错误，以及没有
+fixture（此时会一直显示加载 fallback）。
 
 ```typescript title="ArticleResource.ts"
 // leave out in production so we don't bloat the bundle
@@ -138,12 +141,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 ## 装饰器 {#decorators}
 
-你需要添加合适的[全局装饰器](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators)来建立正确的 context。
-
-这应当与你在[初始设置](../getting-started/installation#add-provider-at-top-level-component)中添加的内容类似
+添加[全局装饰器](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators)，让它们渲染
+与你应用的[初始设置](../getting-started/installation#add-provider-at-top-level-component)相同的 provider：
 
 ```tsx title=".storybook/preview.tsx"
-import { Suspense } from 'react';
 import { DataProvider, AsyncBoundary } from '@data-client/react';
 
 export const decorators = [
@@ -159,10 +160,8 @@ export const decorators = [
 
 ## Story {#story}
 
-用 [&lt;MockResolver /\>](../api/MockResolver.md) 包裹组件，我们就可以声明式地
-控制 Reactive Data Client 的请求如何被解析。
-
-这里我们通过 [storybook controls](https://storybook.js.org/docs/react/essentials/controls) 选择要使用的 fixture。
+用 [&lt;MockResolver /\>](../api/MockResolver.md) 包裹组件，以选择它的请求如何解析。这里由
+[Storybook controls](https://storybook.js.org/docs/react/essentials/controls) 选择 fixture。
 
 ```tsx title="ArticleList.stories.tsx"
 import { type StoryObj } from '@storybook/react';
