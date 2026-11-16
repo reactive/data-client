@@ -37,26 +37,26 @@ Layers guide grouping; they don't define the top-level groups (see Blog Structur
 
 ## Blog Structure
 
-Group changes by the concept a reader cares about, not by "new" versus "fixed". Example top-level groups:
-Performance, Client (Controller, hooks, Managers on every platform), Platforms (React Native, build tools), Vue,
-Collections, Validation (type safety, testing, development warnings). Every changeset in the release gets a line;
-agent-skill changes may go in their own post instead. Split a concept into `###` subsections when it holds many changes.
+Group changes by the concept a reader cares about. Every changeset in the release gets a line.
 
 **Summary (before `{/* truncate */}`):** short, never a full list.
 1. One or two sentences on the release
-2. One or two headline features or strong enhancements, each with a sentence and a demo, chart or graphic
-   (`<HooksPlayground>`, `<PerfChart>`, a shared demo). No `<StackBlitz>`. The body section keeps the details.
-3. "More in v0.19": one bullet per group, naming its top few changes as hash links
-4. Breaking Changes, grouped by audience (as in the migration guide), with anchor links
+2. One or two headline features (platforms, major features), each with a sentence and a demo, chart or graphic
+   (`<HooksPlayground>`, `<PerfChart>`). No `<StackBlitz>`. The details section keeps the full treatment.
+3. "More in vX.Y": one bullet per group, naming its top few changes as hash links
+4. Breaking Changes, grouped by audience as in the migration guide, with anchor links
 5. Get ready for future releases (deprecations)
 
-**Details (after truncate):** one `##` per group, in summary order, then the migration guide.
-- Open each group and subsection with one sentence on why it matters to the reader.
-- Give a change its own heading when it needs a demo or code: explanation → code example → PR/commit links.
-- List smaller changes as a final bullet list in their group, each with its PR link, under `Other changes` when
-  the group also has headings.
-- Order new features and enhancements before fixes. Keep fixes in their group, but label each one: start the bullet
-  with `**Fix:**` and the heading with `Fix:`. A list that holds only fixes can say so in its heading instead.
+**Details (after truncate):** one `##` per group, in summary order, then the migration guide. Open each group and
+subsection with one sentence on why it matters to the reader. Order groups by their most important change, and
+changes within a group:
+1. Major features (with `<StackBlitz>`, `<HooksPlayground>` demos)
+2. New/changed APIs (with `<TypeScriptEditor>` examples)
+3. Performance (with `<PerfChart>` if benchmarked)
+4. Other improvements (bulleted list, under `Other changes` when the group also has headings)
+5. Fixes, labeled in place: start the bullet with `**Fix:**` and the heading with `Fix:`
+
+Within each change: explanation → code example → PR/commit links
 
 ## Migration Guide
 
