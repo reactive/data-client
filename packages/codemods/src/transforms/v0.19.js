@@ -1542,7 +1542,7 @@ function selectStore(j, call, dcNode, shared) {
     name,
   );
   const statement = statementOf(j, call);
-  // a name with no side effects, declared before the statement, in a statement that always reads it
+  // a name with no side effects, declared before the statement and not set in it, in a statement that always reads it
   // (not `flag && ...`) and reads no other store, of the same function (`page.evaluate(() => ...)` runs
   // its function elsewhere)
   const declaredIn = (binding, node) => {
@@ -1555,7 +1555,8 @@ function selectStore(j, call, dcNode, shared) {
     Array.isArray(statement.parentPath.value) &&
     !(
       name.type === 'Identifier' &&
-      declaredIn(bindingOf(call.get('arguments', 0)), statement.node)
+      (declaredIn(bindingOf(call.get('arguments', 0)), statement.node) ||
+        assignsIn(j, statement, name.name))
     ) &&
     (name.type === 'Identifier' ||
       name.type === 'StringLiteral' ||
@@ -1575,6 +1576,15 @@ function selectStore(j, call, dcNode, shared) {
   statement.node.comments = comments.filter(c => !c.leading);
   statement.insertBefore(line);
   call.replace(dcMember(j, dcNode, 'controller'));
+}
+
+/** Whether `statement` assigns or updates the variable `name` */
+function assignsIn(j, statement, name) {
+  const target = { type: 'Identifier', name };
+  return (
+    j(statement).find(j.AssignmentExpression, { left: target }).size() > 0 ||
+    j(statement).find(j.UpdateExpression, { argument: target }).size() > 0
+  );
 }
 
 /** Whether code checks the value at `path`, or the `const` holding it, for a missing result */
