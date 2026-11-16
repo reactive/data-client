@@ -31,28 +31,47 @@ function readConfig(file) {
   const config = JSON.parse(text);
   const options = config.compilerOptions || {};
   const dir = nodePath.dirname(file);
-  if (typeof config.extends === 'string' && config.extends.startsWith('.')) {
-    let parent = nodePath.resolve(dir, config.extends);
-    if (!parent.endsWith('.json')) parent += '.json';
-    try {
-      const inherited = readConfig(parent);
-      return {
-        baseUrl:
-          options.baseUrl ?
-            nodePath.resolve(dir, options.baseUrl)
-          : inherited.baseUrl,
-        paths: options.paths || inherited.paths,
-        pathsDir: options.paths ? dir : inherited.pathsDir,
-      };
-    } catch {
-      // fall through to this config alone
-    }
-  }
-  return {
+  const own = {
     baseUrl: options.baseUrl && nodePath.resolve(dir, options.baseUrl),
     paths: options.paths,
     pathsDir: dir,
   };
+  const inherited =
+    typeof config.extends === 'string' && config.extends.startsWith('.') ?
+      tryConfig(nodePath.resolve(dir, config.extends))
+    : undefined;
+  const merged =
+    inherited ?
+      {
+        baseUrl: own.baseUrl || inherited.baseUrl,
+        paths: own.paths || inherited.paths,
+        pathsDir: own.paths ? dir : inherited.pathsDir,
+      }
+    : own;
+  if (merged.paths || merged.baseUrl || !Array.isArray(config.references))
+    return merged;
+  // a solution-style config (create-vite: `"files": []` plus `references`) keeps its aliases in a
+  // referenced config such as tsconfig.app.json
+  for (const ref of config.references) {
+    if (typeof ref?.path !== 'string') continue;
+    const found = tryConfig(nodePath.resolve(dir, ref.path));
+    if (found?.paths || found?.baseUrl) return found;
+  }
+  return merged;
+}
+
+// `extends` and `references` may name a folder or leave off `.json`
+function tryConfig(target) {
+  const file =
+    target.endsWith('.json') ? target
+    : fs.statSync(target, { throwIfNoEntry: false })?.isDirectory() ?
+      nodePath.join(target, 'tsconfig.json')
+    : target + '.json';
+  try {
+    return readConfig(file);
+  } catch {
+    return undefined;
+  }
 }
 
 function aliasConfig(fromFile) {

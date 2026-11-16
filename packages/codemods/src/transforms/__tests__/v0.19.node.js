@@ -1448,6 +1448,41 @@ export async function settingsLoader(ctrl: Controller) {
       `,
       'marks code that handled an awaited result being missing',
     );
+    defineInlineTest(
+      transform,
+      { path: 'loader.tsx' },
+      `
+import { useController } from '@data-client/react';
+const cached = loadMaybePromise();
+export async function f(ctrl) {
+  if (cached instanceof Promise) {
+    set((await cached).x);
+  } else {
+    set(cached.x);
+  }
+  for (const id of ids) {
+    const cached = ctrl.fetchIfStale(A.get, { id });
+    await cached;
+  }
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+const cached = loadMaybePromise();
+export async function f(ctrl) {
+  if (cached instanceof Promise) {
+    set((await cached).x);
+  } else {
+    set(cached.x);
+  }
+  for (const id of ids) {
+    const cached = ctrl.fetchIfStale(A.get, { id });
+    await cached;
+  }
+}
+      `,
+      'leaves a check on an outer variable that a later block reuses the name of',
+    );
   });
 
   describe('unawaited reads', () => {
@@ -1757,6 +1792,19 @@ for (const controller of __DC_CONTROLLERS__.values())
   log(controller);
       `,
       'reads __DC__ instead, in files without a data-client import',
+    );
+    defineInlineTest(
+      transform,
+      { path: 'registry.ts' },
+      `
+const __DC_CONTROLLERS__ = new Map();
+const n = __DC_CONTROLLERS__.get('a');
+      `,
+      `
+const __DC_CONTROLLERS__ = new Map();
+const n = __DC_CONTROLLERS__.get('a');
+      `,
+      "leaves a local variable with the global's name",
     );
   });
 
@@ -2365,6 +2413,41 @@ class Plain {
       `,
       'types static pk() args readonly',
     );
+    defineInlineTest(
+      transform,
+      { path: 'seed.tsx', deprecations: 'only' },
+      `
+import { useController } from '@data-client/react';
+import { resource } from '@data-client/rest';
+import { UserResource } from '@acme/api';
+import * as api from './api';
+export async function seed(ctrl, users) {
+  await ctrl.fetch(UserResource.create, users[0]);
+  await ctrl.fetch(api.PostResource.create, {});
+  if (users.length > 1) {
+    const UserResource = resource({ path: '/other/:id', schema: User });
+    await ctrl.fetch(UserResource.get, { id: 1 });
+  }
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+import { resource } from '@data-client/rest';
+import { UserResource } from '@acme/api';
+import * as api from './api';
+export async function seed(ctrl, users) {
+  // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+  await ctrl.fetch(UserResource.create, users[0]);
+  // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+  await ctrl.fetch(api.PostResource.create, {});
+  if (users.length > 1) {
+    const UserResource = resource({ path: '/other/:id', schema: User });
+    await ctrl.fetch(UserResource.get, { id: 1 });
+  }
+}
+      `,
+      'marks create on a package resource, despite a local resource of that name in a later block, and on a namespace import',
+    );
     describe('resource().create imported from another module', () => {
       const fs = require('node:fs');
       const os = require('node:os');
@@ -2411,8 +2494,47 @@ import { resource } from './base';
 export const TagResource = resource({ path: '/tags/:id', schema: Tag });
 `,
         );
+        // create-vite: a solution-style tsconfig.json whose aliases are in a referenced config
+        write(
+          'vite/tsconfig.json',
+          `{ "files": [], "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.app.json" }] }\n`,
+        );
+        write('vite/tsconfig.node.json', `{ "include": ["vite.config.ts"] }\n`);
+        write(
+          'vite/tsconfig.app.json',
+          `{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } }, "include": ["src"] }\n`,
+        );
+        write(
+          'vite/src/api/Post.ts',
+          `
+import { resource } from '@data-client/rest';
+
+export const PostResource = resource({ path: '/posts/:id', schema: Post });
+`,
+        );
       });
       afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('follows tsconfig references to the config with path aliases', () => {
+        const source = `
+import { useController } from '@data-client/react';
+import { PostResource as P2 } from '@/api/Post';
+export const createPost = (ctrl, body) => ctrl.fetch(P2.create, body);
+`;
+        expect(
+          applyTransform(
+            transform,
+            { deprecations: 'only' },
+            { source, path: path.join(dir, 'vite/src/hooks/usePost.ts') },
+          ),
+        ).toBe(
+          `
+import { useController } from '@data-client/react';
+import { PostResource as P2 } from '@/api/Post';
+export const createPost = (ctrl, body) => ctrl.fetch(P2.getList.push, body);
+`.trim(),
+        );
+      });
 
       it('renames create on a plain resource() the module exports, through re-exports and path aliases', () => {
         const source = `

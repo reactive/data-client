@@ -177,20 +177,31 @@ function findManagerSlots(j, root) {
 }
 
 /** The binding path (`id` of its declaration) that `name` refers to at `path`, if declared in this file */
-function bindingAt(path, name) {
-  const bindings = path.scope?.lookup(name)?.getBindings()[name];
-  if (!bindings || bindings.length < 2) return bindings?.[0];
+function bindingAt(path, name, scope = path.scope?.lookup(name)) {
+  const bindings = scope?.getBindings()[name];
+  if (!bindings) return undefined;
   // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
-  // block that holds `path`
+  // block that holds `path`, or look further out when none does
   const blocks = bindings.map(declaringBlock);
   for (let p = path; p; p = p.parent) {
     const i = blocks.indexOf(p.node);
     if (i !== -1) return bindings[i];
   }
+  return bindingAt(path, name, scope.parent?.lookup(name));
 }
 
 /** The binding path (`id` of its declaration) for an identifier, if declared in this file */
 const bindingOf = path => bindingAt(path, path.node.name);
+
+/** Whether the identifier at `path` names a variable this file declares, other than an ambient
+ * `declare var` or `declare global` one, which describes a global */
+function isLocalName(path) {
+  const binding = bindingOf(path);
+  if (!binding) return false;
+  for (let p = binding; p; p = p.parent)
+    if (p.node.declare || p.node.type === 'TSModuleDeclaration') return false;
+  return true;
+}
 
 /** Whether `node` is `path`'s node or one of its ancestors */
 function isWithin(path, node) {
@@ -1623,7 +1634,7 @@ function migrateDcGlobal(j, root) {
   const uses = [
     ...root
       .find(j.Identifier, { name: DC_GLOBAL })
-      .filter(p => !isOtherName(p))
+      .filter(p => !isOtherName(p) && !isLocalName(p))
       .paths(),
     ...root
       .find(j.MemberExpression)
@@ -1972,9 +1983,15 @@ function migrateResourceCreate(j, root, file) {
   const marked = [];
   const readOnly = new Map();
   root
-    .find(j.MemberExpression, { object: { type: 'Identifier' } })
+    .find(j.MemberExpression)
     .filter(({ node }) => !node.computed && memberName(node) === 'create')
     .forEach(path => {
+      const { object } = path.node;
+      // `api.PostResource.create` from `import * as api`
+      if (object.type !== 'Identifier') {
+        if (/Resource$/.test(memberName(object) ?? '')) marked.push(path);
+        return;
+      }
       const binding = bindingOf(path.get('object'));
       const declaration = binding?.parent.node;
       // a class or function declared here is not a resource
