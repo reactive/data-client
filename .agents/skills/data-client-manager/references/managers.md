@@ -549,58 +549,96 @@ export const newPrices = () =>
   }));
 ```
 
-```tsx title="PriceStream"
+```tsx title="Timing"
 import React from 'react';
-import { useController, useQuery } from '@data-client/react';
 import NumberFlow from '@number-flow/react';
+
+// Times write(), leaving makeInput() out of the measurement
+export function useTimed<T>(
+  makeInput: () => T,
+  write: (input: T) => Promise<unknown>,
+) {
+  const [ms, setMs] = React.useState<number>();
+  const run = async () => {
+    const input = makeInput();
+    const start = performance.now();
+    await write(input);
+    setMs(performance.now() - start);
+  };
+  return [ms, run] as const;
+}
+
+export function Timing({
+  label,
+  ms,
+}: {
+  label: string;
+  ms: number | undefined;
+}) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>
+        {ms !== undefined && (
+          <NumberFlow
+            value={ms}
+            format={{ maximumFractionDigits: 1 }}
+            suffix=" ms"
+          />
+        )}
+      </dd>
+    </div>
+  );
+}
+```
+
+```tsx title="PriceHeader"
+import { useQuery } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
+import { Ticker } from './Ticker';
+
+export default function PriceHeader() {
+  const first = useQuery(Ticker, { product_id: 'COIN-0' });
+  return (
+    <header className="appHeader">
+      <h1 className="appTitle">Prices</h1>
+      {first && (
+        <span className="meta">
+          COIN-0{' '}
+          <NumberFlow
+            value={first.price}
+            format={{ style: 'currency', currency: 'USD' }}
+          />
+        </span>
+      )}
+    </header>
+  );
+}
+```
+
+```tsx title="PriceStream" {10,14}
+import { useController } from '@data-client/react';
 import { Ticker, newPrices } from './Ticker';
+import { useTimed, Timing } from './Timing';
+import PriceHeader from './PriceHeader';
 
 function PriceStream() {
   const ctrl = useController();
-  const [perRowMs, setPerRowMs] = React.useState<number>();
-  const [batchMs, setBatchMs] = React.useState<number>();
-  const first = useQuery(Ticker, { product_id: 'COIN-0' });
-
-  const time = async (
-    setMs: (ms: number) => void,
-    write: (rows: ReturnType<typeof newPrices>) => Promise<unknown>,
-  ) => {
-    const rows = newPrices();
-    const start = performance.now();
-    await write(rows);
-    setMs(performance.now() - start);
-  };
-  const perRow = () =>
-    time(setPerRowMs, rows =>
-      Promise.all(
-        rows.map(row => ctrl.set(Ticker, { product_id: row.product_id }, row)),
-      ),
-    );
-  const batch = () => time(setBatchMs, rows => ctrl.set([Ticker], rows));
+  const [perRowMs, perRow] = useTimed(newPrices, rows =>
+    Promise.all(
+      rows.map(row => ctrl.set(Ticker, { product_id: row.product_id }, row)),
+    ),
+  );
+  const [batchMs, batch] = useTimed(newPrices, rows =>
+    ctrl.set([Ticker], rows),
+  );
 
   return (
     <>
-      <header className="appHeader">
-        <h1 className="appTitle">Prices</h1>
-        {first && (
-          <span className="meta">
-            COIN-0{' '}
-            <NumberFlow
-              value={first.price}
-              format={{ style: 'currency', currency: 'USD' }}
-            />
-          </span>
-        )}
-      </header>
+      <PriceHeader />
       <dl className="stats">
-        <div>
-          <dt>500 set() calls</dt>
-          <dd>{perRowMs !== undefined && <Timing ms={perRowMs} />}</dd>
-        </div>
-        <div>
-          <dt>1 batch set()</dt>
-          <dd>{batchMs !== undefined && <Timing ms={batchMs} />}</dd>
-        </div>
+        <Timing label="500 set() calls" ms={perRowMs} />
+        <Timing label="1 batch set()" ms={batchMs} />
       </dl>
       <div className="buttonGroup">
         <button onClick={perRow}>set() per row</button>
@@ -609,9 +647,6 @@ function PriceStream() {
     </>
   );
 }
-const Timing = ({ ms }: { ms: number }) => (
-  <NumberFlow value={ms} format={{ maximumFractionDigits: 1 }} suffix=" ms" />
-);
 render(<PriceStream />);
 ```
 

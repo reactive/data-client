@@ -18,7 +18,8 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 
 ## Package Layers
 
-Organize content by package layer. Both feature sections and migration guides follow this order:
+Many readers use only some packages: React with custom endpoints and no REST, or REST with another state library.
+Help them skip what they don't use.
 
 | Layer | Packages | Content |
 |-------|----------|---------|
@@ -27,36 +28,46 @@ Organize content by package layer. Both feature sections and migration guides fo
 | **API Definition** | rest, endpoint, graphql | Resource, RestEndpoint, Entity, Collection, schemas |
 | **Internal** | normalizr, core | State structure, normalization, typing |
 
+Layers guide grouping; they don't define the top-level groups (see Blog Structure).
+- Put top-level groups about the same layer next to each other (Collections beside other endpoint/schema groups).
+- Inside a cross-cutting group (Performance, Validation), order items by layer.
+- Name the public packages each change affects: a line of package tags (`` `react` `vue` ``, without the
+  `@data-client/` prefix; `` `all` `` when every package changes) under each heading, and the same tags at the start
+  of each bullet.
+- Internal-only changes (core, normalizr) go last, since most readers don't use those packages directly.
+
 ## Blog Structure
 
-**Summary (before `{/* truncate */}`):**
-1. Platforms/major features (highest visibility)
-2. Package consolidations (import path changes)
-3. New APIs (hooks, controller methods, schemas)
-4. Other Improvements (bulleted list)
-5. Breaking Changes (with anchor links to migration sections)
+Group changes by the concept a reader cares about. Every changeset in the release gets a line.
 
-**Details (after truncate):**
+**Summary (before `{/* truncate */}`):** short, never a full list.
+1. One or two sentences on the release
+2. One or two headline features (platforms, major features), each with a sentence and a demo, chart or graphic
+   (`<HooksPlayground>`, `<PerfChart>`). No `<StackBlitz>`. The details section keeps the full treatment.
+3. "More in vX.Y": one bullet per group, naming its top few changes as hash links
+4. Breaking Changes, grouped by audience as in the migration guide, with anchor links
+5. Get ready for future releases (deprecations)
+
+**Details (after truncate):** one `##` per group, in summary order, then the migration guide. Open each group and
+subsection with one sentence on why it matters to the reader. Order groups by their most important change, and
+changes within a group:
 1. Major features (with `<StackBlitz>`, `<HooksPlayground>` demos)
 2. New/changed APIs (with `<TypeScriptEditor>` examples)
 3. Performance (with `<PerfChart>` if benchmarked)
-4. Other improvements
-5. Migration guide
+4. Other improvements (bulleted list, under `Other changes` when the group also has headings)
+5. Fixes, labeled in place: start the bullet with `**Fix:**` and the heading with `Fix:`
 
-Within each section: explanation → code example → PR/commit links
+Within each change: explanation → code example → PR/commit links
 
 ## Migration Guide
 
 Start with `<PkgTabs pkgs="..." upgrade />`, end with Upgrade support blurb.
 
-**By Package** - Group changes by package when multiple packages have breaking changes:
-- `### @data-client/react X.Y` - Client/Platform changes
-- `### @data-client/rest X.Y` - API Definition changes
-
-**By Audience** - Within packages (or standalone), group by who's affected:
-- `### For all users` / `#### For all users`
+Group changes by who's affected, each change as a `####` under its audience:
+- `### For all users`
 - `### For custom Manager authors {#custom-managers}` - Action/middleware changes
 - `### For custom Schema authors {#custom-schemas}` - normalize/denormalize changes
+- `### For test authors` - @data-client/test and fixture changes
 
 Add skip guidance for specialized sections: "Skip this section if you don't have custom [Managers](/docs/concepts/managers)."
 
