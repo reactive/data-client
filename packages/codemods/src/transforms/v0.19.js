@@ -1603,6 +1603,17 @@ const assignsIn = (j, statement, name) =>
     .find(j.Identifier, { name })
     .some(p => !isOtherName(p) && isWriteTarget(p));
 
+/** Whether `node` is a name or a chain of named members (`window`, `(window as any).top`), so evaluating it
+ * twice reads the same object without side effects */
+function isPlainRef(node) {
+  node = unwrap(node);
+  return (
+    node.type === 'Identifier' ||
+    node.type === 'ThisExpression' ||
+    (isMember(node) && !node.computed && isPlainRef(node.object))
+  );
+}
+
 /** `__DC_CONTROLLERS__.get(name)` reads `__DC__.controller` after picking the store, unless the code
  * handles a missing store; the keys read `__DC__.stores`. Debugging scripts often don't import
  * data-client, so this runs on any file that names the global. */
@@ -1642,7 +1653,11 @@ function migrateDcGlobal(j, root) {
     const { node } = path;
     const call = getCallOf(path);
     // `.get()` returned undefined for a missing store, but `__DC__.controller` throws
-    if (call && !missingChecks(j, call).length) {
+    if (
+      call &&
+      !missingChecks(j, call).length &&
+      (node.type === 'Identifier' || isPlainRef(node.object))
+    ) {
       selectStore(j, call, node, shared);
       dirty = true;
       continue;

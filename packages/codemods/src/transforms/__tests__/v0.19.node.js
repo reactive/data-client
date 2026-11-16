@@ -1722,6 +1722,7 @@ diff(__DC_CONTROLLERS__.get('Admin').getState(), __DC_CONTROLLERS__.get('Shop').
 const store = pick(), picked = __DC_CONTROLLERS__.get(store);
 const pair = [name = next(), __DC_CONTROLLERS__.get(name)];
 f([name] = next(), __DC_CONTROLLERS__.get(name));
+const framed = getWindow().__DC_CONTROLLERS__.get('app').getState();
 const ctrl = __DC_CONTROLLERS__.get(name);
 if (!ctrl) return null;
 const maybeState = __DC_CONTROLLERS__.get('c')?.getState();
@@ -1744,6 +1745,8 @@ diff((__DC__.store = 'Admin', __DC__.controller).getState(), (__DC__.store = 'Sh
 const store = pick(), picked = (__DC__.store = store, __DC__.controller);
 const pair = [name = next(), (__DC__.store = name, __DC__.controller)];
 f([name] = next(), (__DC__.store = name, __DC__.controller));
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+const framed = getWindow().__DC_CONTROLLERS__.get('app').getState();
 // TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
 const ctrl = __DC_CONTROLLERS__.get(name);
 if (!ctrl) return null;
