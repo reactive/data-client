@@ -3,7 +3,7 @@
  * from the post's frontmatter and summary bullets.
  *
  * Usage (from repo root):
- *   yarn workspace rdc-website social-card blog/2026-10-03-v0.19-batch-set.md
+ *   yarn workspace rdc-website social-card blog/2026-11-17-v0.19-batch-set.md
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
  *   yarn workspace rdc-website social-card coding-agents  # non-release post, by slug
  *

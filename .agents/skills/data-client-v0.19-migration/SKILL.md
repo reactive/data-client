@@ -6,7 +6,7 @@ description: Upgrade apps that already use @data-client to v0.19. Runs the v0.19
 # @data-client v0.19 Migration
 
 Every breaking change, with Before/After code:
-[v0.19 migration guide](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#migration-guide).
+[v0.19 migration guide](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#migration-guide).
 
 ## Step 1: bump and run the codemod
 
@@ -35,7 +35,7 @@ skipped, including `.vue` and other single-file components.
 
 It used to return the data synchronously when fresh. Now it always returns a Promise, and a call you don't await never
 rejects unhandled: the error is stored for components, like any fetch error.
-[Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise).
+[Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise).
 
 Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
 
@@ -88,7 +88,7 @@ Skip this step unless the app uses `@data-client/ssr` (`DataClientDocument`, `Ap
 `pages/_app`). It stops at `@data-client/react` 0.14, and 0.19 supports only the App Router: render `DataProvider` from
 `@data-client/react/nextjs` in `app/layout.tsx`, then uninstall `@data-client/ssr` (and `@data-client/redux` if nothing
 else uses it). Moving pages to the App Router is a routing migration, so confirm with the owner before starting it.
-[Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#nextjs-pages-router).
+[Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#nextjs-pages-router).
 
 ## Step 5: custom Managers
 
@@ -118,9 +118,9 @@ where it only returned a function, and gave Managers without middleware a pass-t
   the endpoint was `action.endpoint` under an `actionTypes.FETCH` check; fix each other `fetchedAt: Date.now()` that
   resolves a fetch action.
 
-Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware),
-[cleanup](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup),
-[managers function](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function).
+Details: [middleware](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware),
+[cleanup](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup),
+[managers function](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function).
 
 ## Step 6: test helpers
 
@@ -129,7 +129,7 @@ Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#mana
   (the codemod adds both to lists of `new` calls), and the test's Managers now act on its actions.
 - **A custom Provider passed to [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook)** must accept
   `managers: () => Manager[]`, like `DataProvider`.
-  [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#test-react-0.19).
+  [Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#test-react-0.19).
 
 ## Step 7: Vue
 
@@ -147,7 +147,7 @@ processed. Skip this step if `rg -n '__DC_CONTROLLERS__' .` finds nothing. What'
 code that handled a missing store. Read `__DC__.controller`, after setting `__DC__.store = name` when the page has
 several stores. It throws when the store isn't mounted, where `.get(name)` returned `undefined`, so check
 `__DC__.stores.includes(name)` first where the store may be missing.
-[Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global).
+[Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global).
 
 ## Step 9: verify
 
@@ -200,7 +200,7 @@ comment naming the replacement on the rest. Fix each, then delete the comment, a
   string, such as Managers that log or time requests by name: `rg -n "\.create['\"\`]" <source-root>`.
 
 Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`. The blog's
-[future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases) lists changes that will break
+[future releases](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#future-releases) lists changes that will break
 later.
 
 Last, whether or not you did this step: if you ran `data-client-skills --upgrade` in Step 1, run

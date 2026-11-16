@@ -13,6 +13,7 @@
  */
 const { execFileSync } = require('child_process');
 const fs = require('fs');
+const yaml = require('js-yaml');
 const path = require('path');
 
 const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
@@ -236,6 +237,22 @@ const ENGLISH_PAGE = `<head>
 </head>`;
 
 /**
+ * A translated data file plus the English entries it lacks, so an entry added
+ * since the last translation pass (like a new blog tag) still resolves
+ */
+function withEnglishEntries(content, file) {
+  const translated = yaml.load(content.toString()) ?? {};
+  const english = yaml.load(fs.readFileSync(path.join(ROOT, file), 'utf8'));
+  const missing = Object.entries(english ?? {}).filter(
+    ([key]) => !(key in translated),
+  );
+  if (!missing.length) return content;
+  return Buffer.from(
+    `${content.toString().trimEnd()}\n\n${yaml.dump(Object.fromEntries(missing))}`,
+  );
+}
+
+/**
  * Generates a locale's docs folders. A translated page whose English changed
  * since it was finalized says so until the next translation pass; an
  * untranslated page is marked as English. Returns `sourceOf`, mapping a generated
@@ -270,7 +287,13 @@ function generate(locale) {
       const from = translated ? translationOf(file, locale) : file;
       const content = fs.readFileSync(path.join(ROOT, from));
       if (!MD.test(file)) {
-        write(file, content, from);
+        write(
+          file,
+          translated && file in DATA_FIELDS ?
+            withEnglishEntries(content, file)
+          : content,
+          from,
+        );
         continue;
       }
       let text = retarget(content.toString(), file, locale, !translated);
