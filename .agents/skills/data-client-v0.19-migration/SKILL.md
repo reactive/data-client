@@ -20,7 +20,8 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
   linked skills match 0.19 (Step 10 ends by unlinking the migration skills).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
-`node_modules`):
+`node_modules`). Also pass any folder of debugging or end-to-end scripts that reads `__DC_CONTROLLERS__`
+(`rg -l '__DC_CONTROLLERS__' .`); the codemod migrates those files even without an `@data-client/*` import:
 
 ```bash
 npx @data-client/codemods v0.19 <source-root> --deprecations=false
@@ -38,18 +39,21 @@ rejects unhandled: the error is stored for components, like any fetch error.
 
 Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
 
-- **Fix each `TODO(data-client): fetchIfStale()` comment** the codemod left. The code below it reads the result as data
-  (`instanceof Promise`, a field, destructuring, an `if`). `await` the call where the data is needed, delete the branch
-  that handled synchronous data, then delete the comment.
-- **Check every other `fetchIfStale(` call for reads the codemod can't follow**: results passed to a function (such as
-  an `isPromise(x)` helper), stored on an object or class field, or in files and components it skipped. A sync-data
-  branch behind such a check now never runs, and nothing fails to type-check. To check freshness without fetching, use
+Where an `instanceof Promise` or `isPromise()` check had a branch that awaited the result, the codemod already kept
+that branch and deleted the other. What's left:
+
+- **Fix each `TODO(data-client): fetchIfStale() always returns a Promise` comment.** The code below it reads the result
+  as data (a check whose Promise branch did nothing, a field, destructuring, an `if`). `await` the call where the data
+  is needed, delete the branch that handled synchronous data, then delete the comment.
+- **Fix each `TODO(data-client): an awaited fetchIfStale() rejects` comment.** Awaited calls now reject when the latest
+  fetch failed within errorExpiryLength; they used to resolve `undefined`. Move the fallback below the comment
+  (`?? fallback`, `if (!data)`) into a `.catch()` or `try`/`catch` around the call when it was meant for failures. Other
+  awaited calls are fine as they are: a router shows its error UI.
+- **Check every other `fetchIfStale(` call for reads the codemod can't follow**: results passed to a function, stored
+  on an object or class field, or in files and components it skipped. A sync-data branch behind such a check now never
+  runs, and nothing fails to type-check. To check freshness without fetching, use
   `ctrl.getResponse(endpoint, ...args, ctrl.getState())`.
-- **Don't add `.catch()` to calls you don't await.** A `.then()` chain makes a new Promise, so it still ends in
-  `.catch()`.
-- **Awaited calls now reject** when the latest fetch failed within errorExpiryLength; they used to resolve `undefined`.
-  Code after an `await` that handled a missing result (`?? fallback`, `if (!data)`) gets a rejection instead, so move
-  that handling into a `.catch()` or `try`/`catch`. Leave other awaited calls alone: a router shows its error UI.
+- **Unawaited calls need no `.catch()`.** A `.then()` chain makes a new Promise, so it still ends in `.catch()`.
 - **Controller subclasses** that override `fetchIfStale()` must return a Promise.
 
 ```ts
@@ -72,9 +76,8 @@ render(issue);
   unhandled-rejection handlers (Sentry and similar). If the app uses an error tracker, say so in your summary and
   suggest the [error reporting Manager](https://dataclient.io/docs/concepts/managers#error-reporting). Don't add it
   unasked: it reports every failed fetch, not only these.
-- **Delete a no-op `.catch(() => {})` directly on `fetch()` of a read you don't await**, now dead code. A read is an
-  endpoint without `sideEffect: true`; `RestEndpoint` sets it for every method but GET. Keep catches on mutations,
-  catches that do something, and catches after a `.then()`: `.then()` returns a new Promise that still rejects.
+- **No-op catches**: the codemod deleted `.catch(() => {})` on unawaited `fetchIfStale()` and on unawaited `fetch()` of
+  a resource's `get`, `getList` or `getList.getPage`. Other no-op catches are harmless, so leave them.
 - **A read no component renders** (a "load more" `getPage`, a refresh of an off-screen list) now fails silently:
   wrap it in `useLoading()` so its error shows.
 
@@ -109,8 +112,9 @@ where it only returned a function, and gave Managers without middleware a pass-t
   clears (`this.socket?.send()`), since actions can still arrive after it.
 - **Arrays in files without an `@data-client/*` import** aren't converted, and throw a `managers is not a function`
   TypeError on mount.
-- **Managers that call `controller.resolve()`** pass the `action.meta.fetchedAt` of the fetch they resolve, not
-  `Date.now()`: 0.19 matches responses to fetches by it, after `resetEntireStore()` and against newer fetches.
+- **Managers that call `controller.resolve()`** pass the `meta.fetchedAt` of the fetch action they resolve: 0.19
+  matches responses to fetches by it, after `resetEntireStore()` and against newer fetches. The codemod did this where
+  the endpoint was `action.endpoint`; fix the `fetchedAt: Date.now()` it couldn't trace to an action.
 
 Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware),
 [cleanup](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup),
@@ -135,9 +139,10 @@ Skip this step unless the app uses `@data-client/vue`.
 
 ## Step 8: `__DC_CONTROLLERS__` is now `__DC__`
 
-Debug scripts often live outside the source roots, so search the repo: skip this step if
-`rg -n '__DC_CONTROLLERS__' .` finds nothing. Replace `__DC_CONTROLLERS__.get(name)` with `__DC__.controller`; with
-several stores, set `__DC__.store = name` first.
+The codemod rewrote `__DC_CONTROLLERS__.get(name)` to `__DC__.store = name` and `__DC__.controller` in the files it
+processed. Skip this step if `rg -n '__DC_CONTROLLERS__' .` finds nothing. What's left is in strings (such as
+`page.evaluate('...')`), HTML, or files the codemod didn't process: read `__DC__.controller`, after setting
+`__DC__.store = name` when the page has several stores.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global).
 
 ## Step 9: verify
@@ -153,8 +158,8 @@ several stores, set `__DC__.store = name` first.
    - `ctrl.set()` values, including `ctrl.set(getList.schema.push, args, rows)`
    - `process(value, params)` params, which can be `undefined`: read `params?.page`
    - `getOptimisticResponse()` return values
-3. Run the tests. The codemod turns `spyOn(ctrl, 'fetchIfStale').mockReturnValue()` into `.mockResolvedValue()`; make
-   other `fetchIfStale` mocks, such as `{ fetchIfStale: jest.fn(() => data) }`, resolve their value the same way. Some
+3. Run the tests. The codemod made `spyOn(ctrl, 'fetchIfStale')` and `fetchIfStale: jest.fn()` mocks resolve their
+   value; make any other `fetchIfStale` mock, such as a hand-written fake Controller, return a Promise too. Some
    assertions now fail by design; update them:
    - `useLoading()` no longer keeps an old error.
    - A fixture whose request is aborted now rejects with an `AbortError`.
@@ -174,15 +179,18 @@ the user makes the commits, list the files this step changed instead.
 npx @data-client/codemods v0.19 <source-root> --deprecations=only
 ```
 
-It renames what has a drop-in replacement and leaves a `TODO(data-client)` comment naming the replacement on the rest.
-Fix each, then delete the comment, and repeat Step 9. Gotchas:
+It renames what has a drop-in replacement: `resource().create` to `getList.push` where it runs, for resources declared
+in the file or imported from a relative path; Vue `waitForNextUpdate()` to `allSettled()`; and `static pk()` `args` to
+`readonly any[]`. It leaves a `TODO(data-client)` comment naming the replacement on the rest. Fix each, then delete the
+comment, and repeat Step 9. Gotchas:
 
-- `*Resource.create` not renamed: each read of `getList.push` makes a new endpoint, so compare endpoints by `name`,
-  never `===`. If the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path and
-  options. Resources from another file not named `*Resource` get no TODO, so also check
-  `rg -n '\.create\b' <source-root>`.
-- `waitForNextUpdate()` in `renderDataCompose()` tests: `await result` for the first load, `await allSettled()` after
-  changing props or calling the controller.
+- `*Resource.create` it didn't rename (imported through a path alias or package, or built with something other than
+  `resource()` from `@data-client/rest`): if the resource's `extend()` replaces `create` or `getList`, check that the
+  call keeps its path and options.
+- Code that compares endpoints, like `action.endpoint === XResource.create`, compares `name`s instead:
+  `action.endpoint.name === XResource.getList.push.name`. Each read of `getList.push` makes a new endpoint, so `===`
+  never matches it. Files the codemod processed carry a TODO there; also check `rg -n '\.create\b' <source-root>` for
+  `.vue` and other files it skipped, and for resources not named `*Resource`.
 
 Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`. The blog's
 [future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases) lists changes that will break

@@ -7,12 +7,14 @@ Move off deprecated APIs in the `v0.19` codemod
 The codemod renames:
 
 - `Resource.create` to [`Resource.getList.push`](https://dataclient.io/rest/api/resource#push) where the endpoint runs,
-  for a `resource()` declared in the same file. Each read of `getList.push` makes a new endpoint, so other uses, such as
-  `===` comparisons, get a `TODO(data-client)` comment instead.
+  for a `resource()` declared in the same file or imported from a relative path. Each read of `getList.push` makes a
+  new endpoint, so other uses, such as `===` comparisons, get a `TODO(data-client)` comment instead.
 - DevTools `actionsBlacklist` / `actionsWhitelist` to `actionsDenylist` / `actionsAllowlist`.
+- Vue `renderDataCompose()`'s `waitForNextUpdate()` to `allSettled()`, deleting the call right before `await result`.
+- The `args` of `static pk()` overrides to `readonly any[]`, unless the override changes `args`.
 
 It adds a `TODO(data-client)` comment on the rest, whose replacement depends on the code: `*Resource.create` that it
-can't rename, `waitForNextUpdate()`, `renderDataHook.cleanup()` / `.allSettled()`, and Vue `createDataClient()` /
+can't rename, React `waitForNextUpdate()`, `renderDataHook.cleanup()` / `.allSettled()`, and Vue `createDataClient()` /
 `ProvidedDataClient`.
 
 Pass `--deprecations=false` to skip these, or `--deprecations=only` to run just these, for example as a separate
