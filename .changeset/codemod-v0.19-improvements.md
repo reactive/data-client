@@ -12,7 +12,8 @@ the same:
   one [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. It does this
   when the rows are an array, and the Entity is a class declared in the file or imported from a relative path or
   tsconfig alias whose `pk()` and `process()` read only the row. A `resource()`'s `getList.schema.push` batches too.
-  Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`.
+  Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`, and a malformed row
+  whose `pk()` or `process()` throws drops the whole batch instead of only itself.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default; imports `GCPolicy` from `@data-client/vue`
   instead of `@data-client/core`; and replaces `computed(() => args)` passed to a composable with the getter itself.

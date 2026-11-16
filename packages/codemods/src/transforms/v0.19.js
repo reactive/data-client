@@ -58,7 +58,7 @@ const resolveModule = require('../resolveModule');
  *        `.allSettled()` and Vue `createDataClient()` get a `// TODO(data-client):` comment.
  *
  *   9. Optional improvements that adopt 0.19 features (only with `--improvements`):
- *      - A `for...of`, `forEach()` or unused `Promise.all(rows.map())` that calls `ctrl.set()` once per
+ *      - A `for...of`, `forEach()`, or unused `rows.map()` or `Promise.all(rows.map())` that calls `ctrl.set()` once per
  *        row becomes one batch `set()`: `ctrl.set(Ticker, args, row)` becomes `ctrl.set([Ticker], rows)`,
  *        and `ctrl.set(R.getList.schema.push, args, row)` becomes `ctrl.set(R.getList.schema.push, args, rows)`.
  *        Only where it writes the same rows: `rows` is an array, the Entity (and its nested Entities) is
@@ -977,10 +977,7 @@ function isResourceRead(j, root, path, file) {
   const binding = bindingOf(path.get('object'));
   if (!binding) return true;
   const replaced = new Set([memberName(node)]);
-  return (
-    isReadOnlyResource(j, root, binding, replaced) ||
-    isImportedPlainResource(j, root, binding, file, replaced)
-  );
+  return isPlainResourceBinding(j, root, binding, file, replaced);
 }
 
 /** Whether the call at `path` starts a read that can't reject unhandled: any `fetchIfStale()`, or `fetch()`
@@ -1311,6 +1308,28 @@ const importsOf = root =>
   root
     .get()
     .node.program.body.filter(node => node.type === 'ImportDeclaration');
+
+/** The import specifier the identifier at `path` is bound to, unless it imports only a type */
+function valueImportOf(path) {
+  const specifier = bindingOf(path)?.parent;
+  if (
+    specifier?.node.type !== 'ImportSpecifier' ||
+    specifier.node.importKind === 'type' ||
+    specifier.parent.node.importKind === 'type'
+  )
+    return;
+  return specifier;
+}
+
+/** Whether `path` is an identifier imported as one of `names` from `sources` */
+function importsNameFrom(path, names, sources) {
+  const specifier = path.node.type === 'Identifier' && valueImportOf(path);
+  return (
+    !!specifier &&
+    names.has(staticName(specifier.node.imported)) &&
+    sources.has(specifier.parent.node.source.value)
+  );
+}
 
 /** Imports `name` next to the import of `sibling` or from an existing import of `source`, else adds an import */
 function ensureImport(j, root, name, { sibling, source, type = false }) {
@@ -1839,16 +1858,9 @@ function unwrapPath(path) {
   return path;
 }
 
-/** Whether `path` is an identifier bound to an import of `name` from `source` */
-function isImportOf(path, name, source) {
-  const specifier = bindingOf(path)?.parent;
-  return (
-    specifier?.node.type === 'ImportSpecifier' &&
-    (specifier.node.imported?.name ?? specifier.node.imported?.value) ===
-      name &&
-    specifier.parent.node.source.value === source
-  );
-}
+/** Whether `path` is an identifier bound to a value import of `name` from `source` */
+const isImportOf = (path, name, source) =>
+  importsNameFrom(path, new Set([name]), new Set([source]));
 
 // a custom Endpoint class, or a key() that may read this.name (create is `Post.create`, getList.push is
 // `Post.getList.create`), makes create differ from getList.push
@@ -1961,6 +1973,48 @@ function parseModule(j, file) {
   return modules.get(file);
 }
 
+/** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
+ * `export * from` */
+function exportOrigin(j, file, name, depth = 0) {
+  const root = file && depth < 5 && parseModule(j, file);
+  if (!root) return;
+  const { body } = root.get().node.program;
+  for (const node of body) {
+    if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
+      continue;
+    const { declaration } = node;
+    if (
+      isId(declaration?.id, name) ||
+      declaration?.declarations?.some(d => isId(d.id, name))
+    )
+      return { root, file, name };
+    const specifier = node.specifiers?.find(
+      s => staticName(s.exported) === name,
+    );
+    if (!specifier) continue;
+    const local = specifier.local?.name ?? name;
+    return node.source ?
+        exportOrigin(
+          j,
+          resolveModule(file, node.source.value),
+          local,
+          depth + 1,
+        )
+      : { root, file, name: local };
+  }
+  // a module's own exports win over `export *`
+  for (const node of body) {
+    if (node.type !== 'ExportAllDeclaration' || node.exported) continue;
+    const origin = exportOrigin(
+      j,
+      resolveModule(file, node.source.value),
+      name,
+      depth + 1,
+    );
+    if (origin) return origin;
+  }
+}
+
 /** Whether the module `file` exports `name` as a plain `resource()` that it only reads, following
  * `export { name } from` and `export * from` */
 function exportsPlainResource(j, file, name, depth, replaced) {
@@ -1983,17 +2037,17 @@ function isLocalPlainResource(j, root, name, replaced) {
   );
 }
 
+/** Whether `binding` is a plain `resource()` that this file only reads, declared here or imported */
+const isPlainResourceBinding = (j, root, binding, file, replaced) =>
+  isReadOnlyResource(j, root, binding, replaced) ||
+  isImportedPlainResource(j, root, binding, file, replaced);
+
 /** Whether `binding` imports a plain `resource()` from a relative or tsconfig-aliased module, and this file
  * only reads it */
 function isImportedPlainResource(j, root, binding, file, replaced) {
-  const specifier = binding.parent;
-  const declaration = specifier.parent?.node;
-  if (
-    specifier.node.type !== 'ImportSpecifier' ||
-    specifier.node.importKind === 'type' ||
-    declaration.importKind === 'type'
-  )
-    return false;
+  const specifier = valueImportOf(binding);
+  if (!specifier) return false;
+  const declaration = specifier.parent.node;
   const imported = specifier.node.imported;
   return (
     readsOnly(j, root, binding) &&
@@ -2068,11 +2122,7 @@ function migrateResourceCreate(j, root, file) {
       )
         return;
       if (binding && !readOnly.has(binding))
-        readOnly.set(
-          binding,
-          isReadOnlyResource(j, root, binding) ||
-            isImportedPlainResource(j, root, binding, file),
-        );
+        readOnly.set(binding, isPlainResourceBinding(j, root, binding, file));
       if (readOnly.get(binding) && isRun(path)) {
         path.node.object = j.memberExpression(
           path.node.object,
@@ -2492,28 +2542,6 @@ const SCHEMA_PACKAGES = new Set([
 ]);
 const ENTITY_BASES = new Set(['Entity', 'GQLEntity']);
 
-/** The import specifier the identifier at `path` is bound to, unless it imports only a type */
-function valueImportOf(path) {
-  const specifier = bindingOf(path)?.parent;
-  if (
-    specifier?.node.type !== 'ImportSpecifier' ||
-    specifier.node.importKind === 'type' ||
-    specifier.parent.node.importKind === 'type'
-  )
-    return;
-  return specifier;
-}
-
-/** Whether `path` is an identifier imported as one of `names` from `sources` */
-function importsNameFrom(path, names, sources) {
-  const specifier = path.node.type === 'Identifier' && valueImportOf(path);
-  return (
-    !!specifier &&
-    names.has(staticName(specifier.node.imported)) &&
-    sources.has(specifier.parent.node.source.value)
-  );
-}
-
 /** Whether `path` names one of `names` from a schema package: `Entity` imported from `@data-client/rest`,
  * or `schema.Entity` */
 const isSchemaExport = (path, names) =>
@@ -2521,48 +2549,6 @@ const isSchemaExport = (path, names) =>
   (isMember(path.node) &&
     names.has(memberName(path.node)) &&
     importsNameFrom(path.get('object'), new Set(['schema']), SCHEMA_PACKAGES));
-
-/** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
- * `export * from` */
-function exportOrigin(j, file, name, depth = 0) {
-  const root = file && depth < 5 && parseModule(j, file);
-  if (!root) return;
-  const { body } = root.get().node.program;
-  for (const node of body) {
-    if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
-      continue;
-    const { declaration } = node;
-    if (
-      isId(declaration?.id, name) ||
-      declaration?.declarations?.some(d => isId(d.id, name))
-    )
-      return { root, file, name };
-    const specifier = node.specifiers?.find(
-      s => staticName(s.exported) === name,
-    );
-    if (!specifier) continue;
-    const local = specifier.local?.name ?? name;
-    return node.source ?
-        exportOrigin(
-          j,
-          resolveModule(file, node.source.value),
-          local,
-          depth + 1,
-        )
-      : { root, file, name: local };
-  }
-  // a module's own exports win over `export *`
-  for (const node of body) {
-    if (node.type !== 'ExportAllDeclaration' || node.exported) continue;
-    const origin = exportOrigin(
-      j,
-      resolveModule(file, node.source.value),
-      name,
-      depth + 1,
-    );
-    if (origin) return origin;
-  }
-}
 
 /** The class a module declares at its top level as `name`: `class name` or `const name = class` */
 function topLevelClass(j, root, name) {
@@ -2671,6 +2657,9 @@ function memberAllows(j, member, file, limits, seen) {
   }
 }
 
+/** The paths of a list's items: a list's path has map() but no every() */
+const childPaths = listPath => listPath.map(p => p);
+
 /** Whether `cls` extends a data-client Entity, directly or through classes like it, without members that
  * read more of normalize than `limits` allow. `seen` holds the classes being checked, by the limits they
  * are checked with, so circular schemas end. */
@@ -2686,10 +2675,9 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
     const base = classOf(j, superClass, cls.file);
     if (!base || !isPlainEntity(j, base, limits, seen)) return false;
   }
-  return cls.path
-    .get('body', 'body')
-    .map(member => member)
-    .every(member => memberAllows(j, member, cls.file, limits, seen));
+  return childPaths(cls.path.get('body', 'body')).every(member =>
+    memberAllows(j, member, cls.file, limits, seen),
+  );
 }
 
 // constructors a schema can name that normalize leaves the value to
@@ -2708,18 +2696,13 @@ function isArgsFreeSchema(j, path, file, seen) {
   const { node } = path;
   switch (node?.type) {
     case 'ObjectExpression':
-      return path
-        .get('properties')
-        .map(p => p)
-        .every(
-          p =>
-            isProperty(p.node) &&
-            isArgsFreeSchema(j, p.get('value'), file, seen),
-        );
+      return childPaths(path.get('properties')).every(
+        p =>
+          isProperty(p.node) && isArgsFreeSchema(j, p.get('value'), file, seen),
+      );
     case 'ArrayExpression':
       return (
-        node.elements.length === 1 &&
-        node.elements[0]?.type !== 'SpreadElement' &&
+        !!oneElement(node) &&
         isArgsFreeSchema(j, path.get('elements', 0), file, seen)
       );
     case 'ArrowFunctionExpression':
@@ -2741,12 +2724,18 @@ const isRowOnlyEntity = (j, path, file) => {
   return !!cls && isPlainEntity(j, cls, ROW_ONLY);
 };
 
+const INVALIDATE = new Set(['Invalidate']);
+
 /** Whether `path` is `new Invalidate(Entity)` for an Entity whose rows normalize the same in a batch */
 const isRowOnlyInvalidate = (j, path, file) =>
   path.node.type === 'NewExpression' &&
   path.node.arguments.length === 1 &&
-  isSchemaExport(path.get('callee'), new Set(['Invalidate'])) &&
+  isSchemaExport(path.get('callee'), INVALIDATE) &&
   isRowOnlyEntity(j, path.get('arguments', 0), file);
+
+/** Whether `path` is an Entity or `new Invalidate(Entity)` whose rows normalize the same in a batch */
+const isRowOnlySchema = (j, path, file) =>
+  isRowOnlyEntity(j, path, file) || isRowOnlyInvalidate(j, path, file);
 
 /** Whether the type annotation `type` is an array or tuple type */
 function isArrayType(type) {
@@ -2765,7 +2754,7 @@ function isArrayType(type) {
 const ARRAY_FACTORIES = new Map([
   ['Object', new Set(['values', 'keys', 'entries'])],
   ['Array', new Set(['from', 'of'])],
-  // a loop over its result only runs when it is an array
+  // a loop over a parsed object throws, and a set() per character or digit writes no rows
   ['JSON', new Set(['parse'])],
 ]);
 // array methods that return an array
@@ -2881,6 +2870,46 @@ function patternNames(pattern, names = new Set()) {
 /** The root variable of a reference like `this.controller` or `ctrl` */
 const rootOf = node => (isMember(node) ? rootOf(node.object) : node);
 
+/** The schema of a batch that writes the rows of `call`'s schema, the value of each row when it differs from
+ * `call`'s value, and whether to keep `call`'s args. `extraPerRow` says the args change with the row. */
+function batchSchemaOf(j, root, file, call, extraPerRow) {
+  const [first, ...rest] = call.node.arguments;
+  const value = rest[rest.length - 1];
+  const extra = rest.length === 2;
+  const schemaPath = call.get('arguments', 0);
+  // the Entity's pk() and process() read only the row, so the args can go
+  if (isRowOnlyEntity(j, schemaPath, file))
+    return { schema: j.arrayExpression([first]) };
+  if (extra) {
+    // push adds a list's rows in order, like one push per row
+    return !extraPerRow && isPushOfPlainResource(j, root, schemaPath, file) ?
+        { schema: first, keepArgs: true }
+      : undefined;
+  }
+  if (isRowOnlyInvalidate(j, schemaPath, file))
+    return { schema: j.arrayExpression([first]) };
+  if (isPushOfPlainResource(j, root, schemaPath, file))
+    return { schema: first };
+  // a one-row batch per element
+  const row = oneElement(value);
+  if (
+    row &&
+    oneElement(first) &&
+    isRowOnlySchema(j, schemaPath.get('elements', 0), file)
+  )
+    return { schema: first, value: row };
+}
+
+/** The only element of an array literal like `[x]` */
+const oneElement = node =>
+  (
+    node.type === 'ArrayExpression' &&
+    node.elements.length === 1 &&
+    node.elements[0]?.type !== 'SpreadElement'
+  ) ?
+    node.elements[0]
+  : undefined;
+
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity, `new Invalidate(Entity)` or `getList.schema.push` of a plain resource() */
 function batchSetOf(j, root, file, { rows, param, call }) {
@@ -2918,38 +2947,11 @@ function batchSetOf(j, root, file, { rows, param, call }) {
   )
     return;
 
-  const schemaPath = call.get('arguments', 0);
-  let schema;
-  let keepArgs = false;
-  if (isRowOnlyEntity(j, schemaPath, file)) {
-    // the Entity's pk() and process() read only the row, so the args can go
-    schema = j.arrayExpression([args[0]]);
-  } else if (!extra && isRowOnlyInvalidate(j, schemaPath, file)) {
-    schema = j.arrayExpression([args[0]]);
-  } else if (
-    !extra &&
-    args[0].type === 'ArrayExpression' &&
-    args[0].elements.length === 1 &&
-    value.type === 'ArrayExpression' &&
-    value.elements.length === 1 &&
-    value.elements[0] &&
-    value.elements[0].type !== 'SpreadElement' &&
-    (isRowOnlyEntity(j, schemaPath.get('elements', 0), file) ||
-      isRowOnlyInvalidate(j, schemaPath.get('elements', 0), file))
-  ) {
-    // a one-row batch per element
-    schema = args[0];
-    value = value.elements[0];
-  } else if (
-    !(extra && mentions(extra)) &&
-    isPushOfPlainResource(j, root, schemaPath, file)
-  ) {
-    // push adds a list's rows in order, like one push per row
-    schema = args[0];
-    keepArgs = true;
-  } else return;
-
   if (!isArrayValue(rows)) return;
+  const batch = batchSchemaOf(j, root, file, call, extra && mentions(extra));
+  if (!batch) return;
+  const { schema, keepArgs } = batch;
+  value = batch.value ?? value;
   const list =
     param.type === 'Identifier' && isId(value, param.name) ?
       rows.node
@@ -2985,9 +2987,7 @@ function isPushOfPlainResource(j, root, path, file) {
     return false;
   const binding = bindingOf(path.get('object', 'object', 'object'));
   return (
-    !!binding &&
-    (isReadOnlyResource(j, root, binding, PUSH_REPLACED) ||
-      isImportedPlainResource(j, root, binding, file, PUSH_REPLACED))
+    !!binding && isPlainResourceBinding(j, root, binding, file, PUSH_REPLACED)
   );
 }
 
@@ -3039,8 +3039,9 @@ function replaceLoop(j, path, call, awaited, inner) {
   path.replace(statement);
 }
 
-/** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and
- * `Promise.all(rows.map())` whose result is unused */
+/** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and `rows.map()` or
+ * `Promise.all(rows.map())` whose result is unused. A row whose pk() or process() throws (a malformed row)
+ * then drops the whole batch, where the loop dropped only that row. */
 function batchSets(j, root, file) {
   let dirty = false;
   root.find(j.ForOfStatement).forEach(path => {
@@ -3116,16 +3117,12 @@ function unwrapOneRowInvalidate(j, root, file) {
       !isMember(node.callee) ||
       memberName(node.callee) !== 'set' ||
       node.arguments.length !== 2 ||
-      schema.type !== 'ArrayExpression' ||
-      schema.elements.length !== 1 ||
-      value.type !== 'ArrayExpression' ||
-      value.elements.length !== 1 ||
-      !value.elements[0] ||
-      value.elements[0].type === 'SpreadElement' ||
+      !oneElement(schema) ||
+      !oneElement(value) ||
       !isRowOnlyInvalidate(j, path.get('arguments', 0, 'elements', 0), file)
     )
       return;
-    node.arguments = [schema.elements[0], value.elements[0]];
+    node.arguments = [oneElement(schema), oneElement(value)];
     dirty = true;
   });
   return dirty;
@@ -3141,28 +3138,32 @@ function dropUnusedImport(j, root, name) {
     .paths()[0];
   const local = specifier.get(specifier.node.local ? 'local' : 'imported');
   if (usesOf(j, root, local).size()) return;
-  const { declaration } = imported;
+  removeSpecifiers(root, imported.declaration, [imported.specifier]);
+}
+
+/** Removes `specifiers` from an import, and the import when none are left */
+function removeSpecifiers(root, declaration, specifiers) {
   declaration.specifiers = declaration.specifiers.filter(
-    s => s !== imported.specifier,
+    s => !specifiers.includes(s),
   );
-  if (!declaration.specifiers.length) {
-    const { body } = root.get().node.program;
-    body.splice(body.indexOf(declaration), 1);
-  }
+  if (declaration.specifiers.length) return;
+  const { body } = root.get().node.program;
+  body.splice(body.indexOf(declaration), 1);
 }
 
 const VUE = new Set(['@data-client/vue']);
 const GC_POLICY_SOURCES = new Set(['@data-client/vue', '@data-client/core']);
+const DATA_CLIENT_PLUGIN = new Set(['DataClientPlugin']);
+const GC_POLICY = new Set(['GCPolicy']);
 
 /** `app.use(DataClientPlugin, { gcPolicy: new GCPolicy() })` drops the option, the default since 0.19 */
 function dropDefaultGCPolicy(j, root) {
   const options = [];
-  const plugin = new Set(['DataClientPlugin']);
   root.find(j.CallExpression).forEach(call => {
     if (
       memberName(call.node.callee) === 'use' &&
       call.node.arguments.length === 2 &&
-      importsNameFrom(call.get('arguments', 0), plugin, VUE)
+      importsNameFrom(call.get('arguments', 0), DATA_CLIENT_PLUGIN, VUE)
     )
       options.push(call.get('arguments', 1));
   });
@@ -3171,7 +3172,7 @@ function dropDefaultGCPolicy(j, root) {
     if (
       array.node.elements.length === 2 &&
       array.node.elements[0] &&
-      importsNameFrom(array.get('elements', 0), plugin, VUE)
+      importsNameFrom(array.get('elements', 0), DATA_CLIENT_PLUGIN, VUE)
     )
       options.push(array.get('elements', 1));
   });
@@ -3190,7 +3191,7 @@ function dropDefaultGCPolicy(j, root) {
       i === -1 ||
       !importsNameFrom(
         path.get('properties', i, 'value', 'callee'),
-        new Set(['GCPolicy']),
+        GC_POLICY,
         GC_POLICY_SOURCES,
       )
     )
@@ -3224,12 +3225,8 @@ function importGCPolicyFromVue(j, root) {
         staticName(s.imported) === 'GCPolicy',
     );
     if (!moved.length) continue;
-    core.specifiers = core.specifiers.filter(s => !moved.includes(s));
+    removeSpecifiers(root, core, moved);
     vue.specifiers.push(...moved);
-    if (!core.specifiers.length) {
-      const { body } = root.get().node.program;
-      body.splice(body.indexOf(core), 1);
-    }
     dirty = true;
   }
   return dirty;
@@ -3246,11 +3243,13 @@ const GETTER_COMPOSABLES = new Set([
   'useSubscription',
 ]);
 
+const COMPUTED = new Set(['computed']);
+const VUE_PACKAGE = new Set(['vue']);
+
 /** `useSuspense(E, computed(() => args))` becomes `useSuspense(E, () => args)`: composables read getters
  * like refs since 0.19 */
 function unwrapComputedArgs(j, root) {
   let dirty = false;
-  const computed = new Set(['computed']);
   root.find(j.CallExpression).forEach(call => {
     if (!importsNameFrom(call.get('callee'), GETTER_COMPOSABLES, VUE)) return;
     call.get('arguments').each((arg, i) => {
@@ -3262,7 +3261,7 @@ function unwrapComputedArgs(j, root) {
         node.arguments.length !== 1 ||
         !isFunction(node.arguments[0]) ||
         node.arguments[0].params.length ||
-        !importsNameFrom(arg.get('callee'), computed, new Set(['vue']))
+        !importsNameFrom(arg.get('callee'), COMPUTED, VUE_PACKAGE)
       )
         return;
       arg.replace(node.arguments[0]);
@@ -3299,6 +3298,29 @@ function isCachedData(path) {
   );
 }
 
+const TESTS = new Set([
+  'IfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'ForStatement',
+  'ConditionalExpression',
+]);
+
+/** Whether only the truthiness of the expression at `path` matters: it is a condition, through `&&`, `||`
+ * and `!`. Elsewhere `x || false` is `false`, not `x`, when `x` is falsy. */
+function isCondition(path) {
+  while (
+    path.parent.node.type === 'LogicalExpression' ||
+    path.parent.node.type === 'ParenthesizedExpression'
+  )
+    path = path.parent;
+  const parent = path.parent.node;
+  return (
+    (TESTS.has(parent.type) && parent.test === path.node) ||
+    (parent.type === 'UnaryExpression' && parent.operator === '!')
+  );
+}
+
 /** `!todo || typeof todo === 'symbol'` becomes `!todo` for React useCache() and useDLE() data */
 function dropSymbolChecks(j, root) {
   let dirty = false;
@@ -3326,6 +3348,7 @@ function dropSymbolChecks(j, root) {
     if (
       logical.node.type !== 'LogicalExpression' ||
       logical.node.operator !== operator ||
+      !isCondition(logical) ||
       !isCachedData(path.get(typeofSide === 0 ? 'left' : 'right', 'argument'))
     )
       return;
@@ -3346,11 +3369,10 @@ function adoptImprovements(j, root, { source, path: file }) {
     if (source.includes('Invalidate'))
       dirty = unwrapOneRowInvalidate(j, root, file) || dirty;
   }
-  if (source.includes('GCPolicy'))
-    dirty = [dropDefaultGCPolicy, importGCPolicyFromVue].reduce(
-      (changed, pass) => pass(j, root) || changed,
-      dirty,
-    );
+  if (source.includes('GCPolicy')) {
+    dirty = dropDefaultGCPolicy(j, root) || dirty;
+    dirty = importGCPolicyFromVue(j, root) || dirty;
+  }
   if (source.includes('computed('))
     dirty = unwrapComputedArgs(j, root) || dirty;
   if (/['"]symbol['"]/.test(source)) dirty = dropSymbolChecks(j, root) || dirty;

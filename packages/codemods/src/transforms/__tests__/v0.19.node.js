@@ -3037,6 +3037,7 @@ function TodoDetail({ id }: { id: number }) {
   if (!todo || typeof todo === 'symbol') return <TodoPlaceholder />;
   if (user && typeof user !== 'symbol') return <UserCard user={user} />;
   if (typeof other === 'symbol' || !other) return null;
+  const shown = todo || typeof todo === 'symbol';
   return <h3>{todo.title.trim()}</h3>;
 }
       `,
@@ -3050,10 +3051,65 @@ function TodoDetail({ id }: { id: number }) {
   if (!todo) return <TodoPlaceholder />;
   if (user) return <UserCard user={user} />;
   if (typeof other === 'symbol' || !other) return null;
+  const shown = todo || typeof todo === 'symbol';
   return <h3>{todo.title.trim()}</h3>;
 }
       `,
-      'drops Symbol checks on useCache() and useDLE() data',
+      'drops Symbol checks on useCache() and useDLE() data in conditions',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export async function write(ctrl, rows: Ticker[]) {
+  rows.map(row => ctrl.set(Ticker, row));
+  await rows.forEach(row => ctrl.set(Ticker, row));
+  const results = rows.map(row => ctrl.set(Ticker, row));
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export async function write(ctrl, rows: Ticker[]) {
+  ctrl.set([Ticker], rows);
+  await rows.forEach(row => ctrl.set(Ticker, row));
+  const results = rows.map(row => ctrl.set(Ticker, row));
+}
+      `,
+      'batches an unused rows.map(), but not an awaited forEach() or a used map()',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: true },
+      `
+import { Entity } from '@data-client/rest';
+import { DataProvider } from '@data-client/react';
+
+class Ticker extends Entity { id = ''; }
+const managers = [new StreamManager()];
+export const App = () => <DataProvider managers={managers} />;
+export function write(ctrl, rows: Ticker[]) {
+  rows.forEach(row => ctrl.set(Ticker, row));
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+import { DataProvider } from '@data-client/react';
+
+class Ticker extends Entity { id = ''; }
+const managers = () => [new StreamManager()];
+export const App = () => <DataProvider managers={managers} />;
+export function write(ctrl, rows: Ticker[]) {
+  ctrl.set([Ticker], rows);
+}
+      `,
+      'adds improvements to the upgrade with --improvements',
     );
 
     defineInlineTest(
@@ -3063,13 +3119,17 @@ function TodoDetail({ id }: { id: number }) {
 import { Entity } from '@data-client/rest';
 
 class Ticker extends Entity { id = ''; }
-export const write = (ctrl, rows: Ticker[]) => rows.forEach(row => ctrl.set(Ticker, row));
+export function write(ctrl, rows: Ticker[]) {
+  rows.forEach(row => ctrl.set(Ticker, row));
+}
       `,
       `
 import { Entity } from '@data-client/rest';
 
 class Ticker extends Entity { id = ''; }
-export const write = (ctrl, rows: Ticker[]) => rows.forEach(row => ctrl.set(Ticker, row));
+export function write(ctrl, rows: Ticker[]) {
+  rows.forEach(row => ctrl.set(Ticker, row));
+}
       `,
       'makes no improvements without --improvements',
     );

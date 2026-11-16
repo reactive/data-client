@@ -17,7 +17,7 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
   with React Navigation, stale data refetches on screen focus.
 - `@data-client/ssr` has no 0.19 release; if it's installed, read Step 4 first.
 - If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  linked skills match 0.19 (Step 11 ends by unlinking the migration skills).
+  linked skills match 0.19 (Step 12 unlinks the migration skills).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`). Also pass any folder of debugging or end-to-end scripts that reads `__DC_CONTROLLERS__`
@@ -205,9 +205,10 @@ later.
 
 ## Step 11: adopt 0.19 features (optional, own commit)
 
-Nothing here is needed to upgrade: it simplifies code and speeds up store writes with features new in 0.19. Ask first
-when the user can answer mid-task. Otherwise run the codemod part, and list the judgment calls below in your summary
-instead of making them. Commit Steps 1-10 first and make this its own commit.
+Nothing here is needed to upgrade: it simplifies code and speeds up store writes with features new in 0.19. Skip it
+when the user asked for only what the upgrade needs. Ask first when the user can answer mid-task. Otherwise run the
+codemod part, and list the judgment calls below in your summary instead of making them. Commit Steps 1-10 first and
+make this its own commit; if the user makes the commits, list the files this step changed instead.
 
 ```bash
 npx @data-client/codemods v0.19 <source-root> --improvements=only
@@ -244,7 +245,9 @@ Then, by judgment:
 - **Cancellation**: a custom `Endpoint` that wraps an SDK call can pass `this.signal` on to it, without declaring
   `this`.
 
-Last, whether or not you did Steps 10 and 11: if you ran `data-client-skills --upgrade` in Step 1, run
+## Step 12: unlink the migration skills
+
+Whether or not you did Steps 10 and 11: if you ran `data-client-skills --upgrade` in Step 1, run
 `npx --no data-client-skills` to unlink the migration skills. Not before: it removes this skill.
 
 ## Reference
