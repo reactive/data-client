@@ -1059,11 +1059,11 @@ export function loader(ctrl: Controller, id: number) {
 import type { Controller } from '@data-client/react';
 
 export function loader(ctrl: Controller, id: number) {
-  ctrl.fetchIfStale(CommentResource.getList, { id }).catch(() => {});
+  ctrl.fetchIfStale(CommentResource.getList, { id });
   return Promise.resolve(other());
 }
       `,
-      'unwraps Promise.resolve() around it',
+      'unwraps Promise.resolve() around it, and drops the catch it no longer needs',
     );
 
     defineInlineTest(
@@ -1193,6 +1193,295 @@ vi.spyOn(ctrl, 'fetchIfStale').mockResolvedValueOnce(a).mockResolvedValueOnce(b)
 jest.spyOn(ctrl, 'fetch').mockReturnValue(other);
       `,
       'makes fetchIfStale() mocks resolve their value',
+    );
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export async function issueLoader(ctrl: Controller, id: number) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // set the tab title
+  if (issue instanceof Promise) {
+    const loaded = await issue;
+    setTitle(loaded.title);
+  } else {
+    setTitle(issue.title);
+  }
+  const user = ctrl.fetchIfStale(UserResource.get, { id });
+  if (!(user instanceof Promise)) render(user);
+  else user.then(render);
+  const team = ctrl.fetchIfStale(TeamResource.get, { id });
+  const loadedTeam = team instanceof Promise ? await team : team;
+  const org = ctrl.fetchIfStale(OrgResource.get, { id });
+  if (isPromise(org)) await org;
+  const repo = ctrl.fetchIfStale(RepoResource.get, { id });
+  if (repo instanceof Promise) return;
+  render(repo);
+}
+
+export async function shadowed(ctrl: Controller, id: number, loaded: Issue) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (issue instanceof Promise) {
+    const loaded = await issue;
+    setTitle(loaded.title);
+  } else setTitle(issue.title);
+  return loaded;
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export async function issueLoader(ctrl: Controller, id: number) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // set the tab title
+  const loaded = await issue;
+  setTitle(loaded.title);
+  const user = ctrl.fetchIfStale(UserResource.get, { id });
+  user.then(render);
+  const team = ctrl.fetchIfStale(TeamResource.get, { id });
+  const loadedTeam = await team;
+  const org = ctrl.fetchIfStale(OrgResource.get, { id });
+  await org;
+  const repo = ctrl.fetchIfStale(RepoResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (repo instanceof Promise)
+    return;
+  render(repo);
+}
+
+export async function shadowed(ctrl: Controller, id: number, loaded: Issue) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  {
+    const loaded = await issue;
+    setTitle(loaded.title);
+  }
+  return loaded;
+}
+      `,
+      'keeps the Promise branch of a check on its result when that branch awaits it',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.test.ts' },
+      `
+import { Controller } from '@data-client/react';
+
+const ctrl = { fetchIfStale: jest.fn(() => issue), fetch: jest.fn(() => other) };
+const typed = { fetchIfStale: vi.fn().mockReturnValueOnce(a).mockImplementation(() => b) };
+real.fetchIfStale = jest.fn(id => {
+  if (id) return issue;
+  return Promise.resolve(other);
+});
+jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
+jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
+      `,
+      `
+import { Controller } from '@data-client/react';
+
+const ctrl = { fetchIfStale: jest.fn(() => Promise.resolve(issue)), fetch: jest.fn(() => other) };
+const typed = { fetchIfStale: vi.fn().mockResolvedValueOnce(a).mockImplementation(() => Promise.resolve(b)) };
+real.fetchIfStale = jest.fn(id => {
+  if (id) return Promise.resolve(issue);
+  return Promise.resolve(other);
+});
+jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
+jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
+      `,
+      'makes jest.fn() mocks of fetchIfStale resolve their value',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'loader.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export async function settingsLoader(ctrl: Controller) {
+  const settings = await ctrl.fetchIfStale(SettingsResource.get, { id: 'me' });
+  if (!settings) log('no settings');
+  const theme = (await ctrl.fetchIfStale(ThemeResource.get)) ?? DEFAULT_THEME;
+  const user = await ctrl.fetchIfStale(UserResource.get, { id });
+  if (user == null) return;
+  const issue = await ctrl.fetchIfStale(IssueResource.get, { id });
+  return { settings, theme: theme.name, title: issue.title };
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export async function settingsLoader(ctrl: Controller) {
+  const settings = await ctrl.fetchIfStale(SettingsResource.get, { id: 'me' });
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (!settings)
+    log('no settings');
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  const theme = (await ctrl.fetchIfStale(ThemeResource.get)) ?? DEFAULT_THEME;
+  const user = await ctrl.fetchIfStale(UserResource.get, { id });
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (user == null)
+    return;
+  const issue = await ctrl.fetchIfStale(IssueResource.get, { id });
+  return { settings, theme: theme.name, title: issue.title };
+}
+      `,
+      'marks code that handled an awaited result being missing',
+    );
+  });
+
+  describe('unawaited reads', () => {
+    defineInlineTest(
+      transform,
+      { path: 'Refresh.tsx' },
+      `
+import { useController } from '@data-client/react';
+
+export function Refresh({ id }: { id: number }) {
+  const ctrl = useController();
+  const { fetch } = ctrl;
+  useEffect(() => {
+    ctrl.fetchIfStale(IssueResource.get, { id }).catch(() => {});
+    ctrl.fetch(TodoResource.getList).catch(() => {});
+    fetch(TodoResource.getList.getPage, { cursor }).catch(() => null);
+    void ctrl.fetch(TodoResource.get, { id }).catch(() => undefined);
+    ctrl.fetch(TodoResource.update, { id }, body).catch(() => {});
+    ctrl.fetch(TodoResource.getList).catch(log);
+    ctrl.fetch(TodoResource.getList).then(render).catch(() => {});
+    window.fetch('/api').catch(() => {});
+    ctrl.fetch(TodoResource.getList).catch(e => { log(e); });
+  }, [id]);
+  const refresh = () => ctrl.fetch(TodoResource.getList).catch(() => {});
+  return (
+    <>
+      <button onClick={() => ctrl.fetch(TodoResource.getList).catch(() => {})}>Refresh</button>
+      <Item render={() => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+    </>
+  );
+}
+
+export async function loader(ctrl) {
+  await ctrl.fetch(TodoResource.getList).catch(() => {});
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+
+export function Refresh({ id }: { id: number }) {
+  const ctrl = useController();
+  const { fetch } = ctrl;
+  useEffect(() => {
+    ctrl.fetchIfStale(IssueResource.get, { id });
+    ctrl.fetch(TodoResource.getList);
+    fetch(TodoResource.getList.getPage, { cursor });
+    void ctrl.fetch(TodoResource.get, { id });
+    ctrl.fetch(TodoResource.update, { id }, body).catch(() => {});
+    ctrl.fetch(TodoResource.getList).catch(log);
+    ctrl.fetch(TodoResource.getList).then(render).catch(() => {});
+    window.fetch('/api').catch(() => {});
+    ctrl.fetch(TodoResource.getList).catch(e => { log(e); });
+  }, [id]);
+  const refresh = () => ctrl.fetch(TodoResource.getList).catch(() => {});
+  return (
+    <>
+      <button onClick={() => ctrl.fetch(TodoResource.getList)}>Refresh</button>
+      <Item render={() => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+    </>
+  );
+}
+
+export async function loader(ctrl) {
+  await ctrl.fetch(TodoResource.getList).catch(() => {});
+}
+      `,
+      'drops no-op catches on reads whose result is unused',
+    );
+  });
+
+  describe('controller.resolve()', () => {
+    defineInlineTest(
+      transform,
+      { path: 'LiveManager.ts' },
+      `
+import { actionTypes, type Manager, type Middleware } from '@data-client/react';
+
+export default class LiveManager implements Manager {
+  middleware: Middleware = controller => next => async action => {
+    if (action.type === actionTypes.FETCH) {
+      const response = await this.load(action.args);
+      controller.resolve(action.endpoint, { args: action.args, response, fetchedAt: Date.now() });
+      const { endpoint, args } = action;
+      controller.resolve(endpoint, { args, response, fetchedAt: Date.now() });
+    }
+    return next(action);
+  };
+
+  receive = ({ endpoint, args, meta }, response) =>
+    this.controller.resolve(endpoint, { args, response, fetchedAt: Date.now() });
+
+  push(response) {
+    this.controller.resolve(getMessages, { args: [], response, fetchedAt: Date.now() });
+  }
+}
+      `,
+      `
+import { actionTypes, type Manager, type Middleware } from '@data-client/react';
+
+export default class LiveManager implements Manager {
+  middleware: Middleware = controller => next => async action => {
+    if (action.type === actionTypes.FETCH) {
+      const response = await this.load(action.args);
+      controller.resolve(action.endpoint, { args: action.args, response, fetchedAt: action.meta.fetchedAt });
+      const { endpoint, args } = action;
+      controller.resolve(endpoint, { args, response, fetchedAt: action.meta.fetchedAt });
+    }
+    return next(action);
+  };
+
+  receive = ({ endpoint, args, meta }, response) =>
+    this.controller.resolve(endpoint, { args, response, fetchedAt: meta.fetchedAt });
+
+  push(response) {
+    this.controller.resolve(getMessages, { args: [], response, fetchedAt: Date.now() });
+  }
+}
+      `,
+      "passes the fetch action's fetchedAt instead of Date.now()",
+    );
+  });
+
+  describe('__DC_CONTROLLERS__', () => {
+    defineInlineTest(
+      transform,
+      { path: 'scripts/dump-store.js' },
+      `
+/* global copy */
+// Paste into the browser console to copy the store
+copy(JSON.stringify(globalThis.__DC_CONTROLLERS__.get('Data Client: Chat').getState()));
+const first = [...window.__DC_CONTROLLERS__.values()][0];
+const second = Array.from(__DC_CONTROLLERS__.values())[0];
+const third = window.__DC_CONTROLLERS__.values().next().value;
+const names = [...window.__DC_CONTROLLERS__.keys()];
+const state = await page.evaluate(() => (window as any).__DC_CONTROLLERS__.get(name).getState());
+for (const controller of __DC_CONTROLLERS__.values()) log(controller);
+      `,
+      `
+/* global copy */
+// Paste into the browser console to copy the store
+globalThis.__DC__.store = 'Data Client: Chat';
+
+copy(JSON.stringify(globalThis.__DC__.controller.getState()));
+const first = window.__DC__.controller;
+const second = __DC__.controller;
+const third = window.__DC__.controller;
+const names = window.__DC__.stores;
+const state = await page.evaluate(() => ((window as any).__DC__.store = name, (window as any).__DC__.controller).getState());
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+for (const controller of __DC_CONTROLLERS__.values())
+  log(controller);
+      `,
+      'reads __DC__ instead, in files without a data-client import',
     );
   });
 
@@ -1351,17 +1640,23 @@ renderDataHook.cleanup();
       `
 import { renderDataCompose } from '@data-client/vue/test';
 
-const { waitForNextUpdate } = await renderDataCompose(() => useThing());
-await waitForNextUpdate();
+const allSettled = () => flushPromises();
+it('loads', async () => {
+  const { waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await waitForNextUpdate();
+});
       `,
       `
 import { renderDataCompose } from '@data-client/vue/test';
 
-const { waitForNextUpdate } = await renderDataCompose(() => useThing());
-// TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
-await waitForNextUpdate();
+const allSettled = () => flushPromises();
+it('loads', async () => {
+  const { waitForNextUpdate } = await renderDataCompose(() => useThing());
+  // TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+  await waitForNextUpdate();
+});
       `,
-      'marks Vue waitForNextUpdate() with the renderDataCompose replacement',
+      'marks Vue waitForNextUpdate() when allSettled would shadow another name',
     );
 
     defineInlineTest(
@@ -1485,8 +1780,7 @@ ctrl.fetch(TagResource.create, body);
 ctrl.fetch(ListResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 ctrl.fetch(PathResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
-ctrl.fetch(ExpResource.create, body);
+ctrl.fetch(ExpResource.getList.push, body);
 LocalResource.create();
 function local(resource) {
   const ShadowResource = resource({});
@@ -1552,5 +1846,230 @@ it('loads', async () => {
       `,
       'skips waitForNextUpdate() whose render helper it cannot trace',
     );
+    defineInlineTest(
+      transform,
+      { path: 'useArticle.test.ts', deprecations: 'only' },
+      `
+import { reactive } from 'vue';
+import { renderDataCompose } from '@data-client/vue/test';
+
+it('loads', async () => {
+  const props = reactive({ id: 5 });
+  const { result, waitForNextUpdate } = await renderDataCompose(
+    (props: { id: number }) => useSuspense(ArticleResource.get, () => ({ id: props.id })),
+    { props, resolverFixtures },
+  );
+  await waitForNextUpdate();
+  const article = await result;
+
+  props.id = 6;
+  await waitForNextUpdate();
+});
+
+it('keeps allSettled', async () => {
+  const { result, allSettled: settle, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await waitForNextUpdate();
+  expect(result.value).toBeDefined();
+  await settle();
+});
+
+it('renames an alias', async () => {
+  const rendered = await renderDataCompose(() => useThing());
+  await rendered.waitForNextUpdate();
+  await rendered.result;
+  const { waitForNextUpdate: next } = await renderDataCompose(() => useOther());
+  await next();
+});
+      `,
+      `
+import { reactive } from 'vue';
+import { renderDataCompose } from '@data-client/vue/test';
+
+it('loads', async () => {
+  const props = reactive({ id: 5 });
+  const { result, allSettled } = await renderDataCompose(
+    (props: { id: number }) => useSuspense(ArticleResource.get, () => ({ id: props.id })),
+    { props, resolverFixtures },
+  );
+  const article = await result;
+
+  props.id = 6;
+  await allSettled();
+});
+
+it('keeps allSettled', async () => {
+  const {
+    result,
+    allSettled: settle
+  } = await renderDataCompose(() => useThing());
+  await settle();
+  expect(result.value).toBeDefined();
+  await settle();
+});
+
+it('renames an alias', async () => {
+  const rendered = await renderDataCompose(() => useThing());
+  await rendered.result;
+  const { waitForNextUpdate: next } = await renderDataCompose(() => useOther());
+  await next();
+});
+      `,
+      'turns Vue waitForNextUpdate() into allSettled(), dropping it before await result',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'entities.ts', deprecations: 'only' },
+      `
+import { Entity } from '@data-client/rest';
+
+class User extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: any[]) {
+    return \`\${value.id}-\${args?.[0]?.org}\`;
+  }
+}
+class Member extends User {
+  static pk(value: any, parent: any, key: string, args: Array<any> | undefined = []): string {
+    return super.pk(value, parent, key, [...args].slice(1));
+  }
+}
+class Sorted extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: any[]) {
+    return args?.sort().join(',');
+  }
+}
+class Done extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+    return value.id;
+  }
+}
+class Plain {
+  static pk(value: any, parent?: any, key?: string, args?: any[]) {
+    return value.id;
+  }
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class User extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+    return \`\${value.id}-\${args?.[0]?.org}\`;
+  }
+}
+class Member extends User {
+  static pk(value: any, parent: any, key: string, args: ReadonlyArray<any> | undefined = []): string {
+    return super.pk(value, parent, key, [...args].slice(1));
+  }
+}
+class Sorted extends Entity {
+  // TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-pk-args
+  static pk(value: any, parent?: any, key?: string, args?: any[]) {
+    return args?.sort().join(',');
+  }
+}
+class Done extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+    return value.id;
+  }
+}
+class Plain {
+  static pk(value: any, parent?: any, key?: string, args?: any[]) {
+    return value.id;
+  }
+}
+      `,
+      'types static pk() args readonly',
+    );
+    describe('resource().create imported from another module', () => {
+      const fs = require('node:fs');
+      const os = require('node:os');
+      const path = require('node:path');
+      let dir;
+      beforeAll(() => {
+        dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codemods-v0.19-'));
+        const write = (file, source) => {
+          fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+          fs.writeFileSync(path.join(dir, file), source);
+        };
+        write(
+          'resources/post.ts',
+          `
+import { resource } from '@data-client/rest';
+
+export const PostResource = resource({ path: '/posts/:id', schema: Post });
+const Notes = resource({ path: '/notes/:id', schema: Note });
+export { Notes as NoteResource };
+export const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team' } });
+export let DraftResource = resource({ path: '/drafts/:id', schema: Draft });
+`,
+        );
+        write('resources/index.ts', `export * from './post';\n`);
+        write(
+          'custom.ts',
+          `
+import { resource } from './base';
+
+export const TagResource = resource({ path: '/tags/:id', schema: Tag });
+`,
+        );
+      });
+      afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('renames create on a plain resource() the module exports, through re-exports', () => {
+        const source = `
+import { useController } from '@data-client/react';
+import { PostResource, NoteResource, UserResource, DraftResource } from '../resources';
+import { PostResource as Posts } from '../resources/post.js';
+import { TagResource } from '../custom';
+import { CommentResource } from '@/resources';
+
+export function useCreate() {
+  const ctrl = useController();
+  return body => [
+    ctrl.fetch(PostResource.create, body),
+    ctrl.fetch(NoteResource.create, body),
+    ctrl.fetch(Posts.create, body),
+  ];
+}
+export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+export const createDraft = (ctrl, body) => ctrl.fetch(DraftResource.create, body);
+export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
+export const createComment = (ctrl, body) => ctrl.fetch(CommentResource.create, body);
+`;
+        expect(
+          applyTransform(
+            transform,
+            { deprecations: 'only' },
+            { source, path: path.join(dir, 'hooks/useCreate.ts') },
+          ),
+        ).toBe(
+          `
+import { useController } from '@data-client/react';
+import { PostResource, NoteResource, UserResource, DraftResource } from '../resources';
+import { PostResource as Posts } from '../resources/post.js';
+import { TagResource } from '../custom';
+import { CommentResource } from '@/resources';
+
+export function useCreate() {
+  const ctrl = useController();
+  return body => [
+    ctrl.fetch(PostResource.getList.push, body),
+    ctrl.fetch(NoteResource.getList.push, body),
+    ctrl.fetch(Posts.getList.push, body),
+  ];
+}
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createDraft = (ctrl, body) => ctrl.fetch(DraftResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createComment = (ctrl, body) => ctrl.fetch(CommentResource.create, body);
+`.trim(),
+        );
+      });
+    });
   });
 });
