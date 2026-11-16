@@ -53,8 +53,8 @@ other branch was empty), the codemod already kept that branch and deleted the ot
   on an object or class field, or in files and components it skipped. A sync-data branch behind such a check now never
   runs, and nothing fails to type-check. To check freshness without fetching, use
   `ctrl.getResponse(endpoint, ...args, ctrl.getState())`.
-- **A `.then()` chain on an unawaited call** makes a new Promise that can reject, so end it in `.catch()`. A bare
-  unawaited call needs none.
+- **A `.then()` chain or an `async` function around an unawaited call** makes a new Promise that can reject, so end
+  the chain in `.catch()`, or catch inside the function. A bare unawaited call needs none.
 - **Controller subclasses** that override `fetchIfStale()` must return a Promise.
 
 ```ts
