@@ -2067,11 +2067,16 @@ function destructuredBy(path) {
     : undefined;
 }
 
-/** Renames every reference to the variable `binding` declares */
-function renameRefs(j, root, binding, name) {
-  usesOf(j, root, binding).forEach(ref => {
+/** Renames every reference to the variable `binding` declares, unless `name` at some reference resolves to
+ * another scope than `scope` (none when undefined); returns whether it renamed */
+function renameRefs(j, root, binding, name, scope) {
+  const refs = usesOf(j, root, binding);
+  if (!refs.every(ref => (ref.scope.lookup(name) ?? undefined) === scope))
+    return false;
+  refs.forEach(ref => {
     ref.node.name = name;
   });
+  return true;
 }
 
 /** `const { waitForNextUpdate } = await renderDataCompose(...)` destructures `allSettled` instead;
@@ -2086,7 +2091,9 @@ function destructureAllSettled(j, root, property) {
       p.value.type === 'Identifier',
   );
   if (existing) {
-    renameRefs(j, root, binding, existing.value.name);
+    const { name } = existing.value;
+    if (!renameRefs(j, root, binding, name, property.scope.lookup(name)))
+      return false;
     pattern.properties = pattern.properties.filter(p => p !== property.node);
     return true;
   }
@@ -2094,9 +2101,12 @@ function destructureAllSettled(j, root, property) {
     property.node.key = j.identifier('allSettled');
     return true;
   }
-  // a visible `allSettled` would be shadowed
-  if (property.scope.lookup('allSettled')) return false;
-  renameRefs(j, root, binding, 'allSettled');
+  // a visible `allSettled` would be shadowed, here or where a nested scope declares one
+  if (
+    property.scope.lookup('allSettled') ||
+    !renameRefs(j, root, binding, 'allSettled')
+  )
+    return false;
   property.node.key = j.identifier('allSettled');
   property.node.value = j.identifier('allSettled');
   return true;

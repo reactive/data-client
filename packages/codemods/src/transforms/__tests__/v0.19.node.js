@@ -1879,6 +1879,60 @@ it('loads', async () => {
       transform,
       { path: 'useThing.test.ts' },
       `
+import { renderDataCompose } from '@data-client/vue/test';
+
+it('loads', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await result;
+  const step = async allSettled => {
+    await allSettled();
+    await waitForNextUpdate();
+  };
+  await step(flushPromises);
+});
+
+it('keeps allSettled', async () => {
+  const { result, allSettled: settle, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await result;
+  const step = async settle => {
+    await settle();
+    await waitForNextUpdate();
+  };
+  await step(flushPromises);
+});
+      `,
+      `
+import { renderDataCompose } from '@data-client/vue/test';
+
+it('loads', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await result;
+  const step = async allSettled => {
+    await allSettled();
+    // TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+    await waitForNextUpdate();
+  };
+  await step(flushPromises);
+});
+
+it('keeps allSettled', async () => {
+  const { result, allSettled: settle, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  await result;
+  const step = async settle => {
+    await settle();
+    // TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+    await waitForNextUpdate();
+  };
+  await step(flushPromises);
+});
+      `,
+      'marks Vue waitForNextUpdate() when a nested scope declares the new name',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'useThing.test.ts' },
+      `
 import { act } from '@testing-library/react';
 import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '../test-utils';
