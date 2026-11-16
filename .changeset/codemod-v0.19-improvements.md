@@ -10,10 +10,11 @@ the same, apart from the two batch differences below:
 
 - A loop that calls `ctrl.set()` once per row (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) becomes
   one [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. It does this
-  when the rows are an array, and the Entity is a class declared in the file or imported from a relative path or
-  tsconfig alias whose `pk()` and `process()` read only the row. A `resource()`'s `getList.schema.push` batches too.
+  when the receiver is a Controller (`ctrl`, `controller` or `useController()`), the rows are an array of data rather
+  than updater functions, and the Entity is a class declared in the file or imported from a relative path or tsconfig
+  alias whose `pk()` and `process()` read only the row.
   Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`, and a row whose
-  `pk()` or `process()` throws writes none of the batch, where the loop had written at least the rows before it.
+  `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default; imports `GCPolicy` from `@data-client/vue`
   instead of `@data-client/core`; and replaces `computed(() => args)` passed to a composable with the getter itself.

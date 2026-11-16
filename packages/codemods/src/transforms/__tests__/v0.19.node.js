@@ -2823,6 +2823,7 @@ export function onMessage(ctrl: Controller, event: MessageEvent) {
   for (const row of rows) {
     ctrl.set(Ticker, { product_id: row.product_id }, row);
   }
+  rows.forEach(row => ctrl.set(User, row.author));
 }
 export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
   for (const todo of todos) {
@@ -2841,13 +2842,16 @@ export function deleteTodos(ctrl: Controller, ids: string[]) {
 export function onMessage(ctrl: Controller, event: MessageEvent) {
   const rows = JSON.parse(event.data);
   ctrl.set([Ticker], rows);
+  ctrl.set([User], rows.map(row => row.author));
 }
 export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
-  ctrl.set(TodoResource.getList.schema.push, { userId } as any, todos);
+  for (const todo of todos) {
+    ctrl.set(TodoResource.getList.schema.push, { userId } as any, todo);
+  }
 }
 export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
   await ctrl.set([Todo], todos.map(todo => ({ ...todo, title: todo.title.trim() })));
-  ctrl.set([User], todos.map(todo => todo.author));
+  todos.forEach(todo => ctrl.set(User, todo.author));
 }
 export function deleteTodos(ctrl: Controller, ids: string[]) {
   ctrl.set([new Invalidate(Todo)], ids.map(id => ({ id })));
@@ -2901,6 +2905,12 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   for (const r of rows) {
     if (r.id) ctrl.set(Plain, r);
   }
+  const byType = new Map();
+  rows.forEach(s => byType.set(Plain, s));
+  await Promise.all(rows.map(t => { ctrl.set(Plain, t); }));
+  rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
+  const updaters: Array<(prev: Plain) => Plain> = [];
+  updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
 }
       `,
       `
@@ -2945,6 +2955,12 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   for (const r of rows) {
     if (r.id) ctrl.set(Plain, r);
   }
+  const byType = new Map();
+  rows.forEach(s => byType.set(Plain, s));
+  await Promise.all(rows.map(t => { ctrl.set(Plain, t); }));
+  rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
+  const updaters: Array<(prev: Plain) => Plain> = [];
+  updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
 }
       `,
       'keeps set() loops that a batch could write differently',
@@ -2980,6 +2996,7 @@ import { DataClientPlugin, GCPolicy, useSuspense, useCache } from '@data-client/
 app.use(DataClientPlugin, { gcPolicy: new GCPolicy() });
 const plugins = [[DataClientPlugin, { gcPolicy: new GCPolicy() }]];
 app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
 
 const props = defineProps<{ id: number }>();
 const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
@@ -2992,6 +3009,7 @@ import { DataClientPlugin, GCPolicy, useSuspense, useCache } from '@data-client/
 app.use(DataClientPlugin);
 const plugins = [[DataClientPlugin]];
 app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
 
 const props = defineProps<{ id: number }>();
 const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));

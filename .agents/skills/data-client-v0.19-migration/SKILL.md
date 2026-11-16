@@ -217,11 +217,11 @@ npx @data-client/codemods v0.19 <source-root> --improvements=only
 It rewrites only code it can prove does the same thing, apart from two batch differences:
 
 - A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
-  [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`, or
-  `ctrl.set(R.getList.schema.push, args, rows)`. Only when `rows` is an array and the Entity's `pk()` and `process()`
-  read only the row. Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check
+  [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`. Only
+  when `rows` is an array of row data (not updater functions) and the Entity's `pk()` and `process()` read only the
+  row. Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check
   Managers and middleware that match SET actions by schema: match `action.schema[0]` too. A row whose `pk()` or
-  `process()` throws writes none of the batch, where the loop had written at least the rows before it.
+  `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
   `@data-client/vue`, and `computed(() => args)` passed to a composable becomes the getter `() => args`.
@@ -231,7 +231,9 @@ Then, by judgment:
 
 - **Batch the `set()` loops it left** (`rg -n -B3 '\.set\(' <source-root>` near `for`, `forEach`, `map`): mixed Entity
   types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an `if` a
-  `.filter()` first. Keep a loop whose Entity reads `args` or `parent` in `pk()` or `process()`, and `unshift`
+  `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list when the
+  Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch. Keep a loop
+  whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions, and `unshift`
   (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers messages and
   flushes them with one `set()` (skill "data-client-manager", batching). Batch `ctrl.fetch(getList.push, row)` loops
   into one array `push` only when the API accepts an array body, since it sends one request instead of N.

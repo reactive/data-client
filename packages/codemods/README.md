@@ -24,6 +24,6 @@ the store provably ends up the same for valid rows: loops that call `ctrl.set()`
 [batch `set()`](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set), and code that worked around older
 limits, like `computed()` around Vue composable args, is simplified. A batch dispatches one SET action whose
 `action.schema` is `[Entity]` instead of one per row, so Managers that match `action.schema` should check
-`action.schema[0]`, and a row that throws in `pk()` writes none of the batch, where the loop had written at least the rows before it. It processes JavaScript and TypeScript files and skips `node_modules`. Other
+`action.schema[0]`, and a row whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other rows. It processes JavaScript and TypeScript files and skips `node_modules`. Other
 [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through, such as `--dry` and `--print`
 to preview changes, or `--extensions` to override the file types.

@@ -59,11 +59,11 @@ const resolveModule = require('../resolveModule');
  *
  *   9. Optional improvements that adopt 0.19 features (only with `--improvements`):
  *      - A `for...of`, `forEach()`, or unused `rows.map()` or `Promise.all(rows.map())` that calls `ctrl.set()` once per
- *        row becomes one batch `set()`: `ctrl.set(Ticker, args, row)` becomes `ctrl.set([Ticker], rows)`,
- *        and `ctrl.set(R.getList.schema.push, args, row)` becomes `ctrl.set(R.getList.schema.push, args, rows)`.
- *        Only where it writes the same rows: `rows` is an array, the Entity (and its nested Entities) is
- *        a class this file or a relative module declares whose pk() and process() read only what a batch
- *        passes them and that doesn't override validate(), and `R` is a plain `resource()`.
+ *        row becomes one batch `set()`: `ctrl.set(Ticker, args, row)` becomes `ctrl.set([Ticker], rows)`.
+ *        Only where it writes the same rows: the receiver is a Controller, `rows` is an array, each value is
+ *        row data rather than an updater function, and the Entity (and its nested Entities) is a class this
+ *        file or a relative module declares whose pk() and process() read only what a batch passes them and
+ *        that doesn't override validate().
  *      - `ctrl.set([new Invalidate(E)], [row])` becomes `ctrl.set(new Invalidate(E), row)`.
  *      - Vue: `gcPolicy: new GCPolicy()` is dropped from `DataClientPlugin`'s options, the default;
  *        `GCPolicy` is imported from `@data-client/vue` instead of `@data-client/core`; and
@@ -1878,8 +1878,7 @@ const hasOnlyKeysOutside = (object, names) =>
 
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
- * differ, and so can a custom `Endpoint` class. `replaced` names the endpoints that `extend()`, and the
- * options that `resource()`, must leave alone. */
+ * differ, and so can a custom `Endpoint` class */
 function isPlainResource(path, replaced = CREATE_SOURCES) {
   path = unwrapPath(path);
   while (
@@ -1900,10 +1899,7 @@ function isPlainResource(path, replaced = CREATE_SOURCES) {
     path.node.callee.type === 'Identifier' &&
     isImportOf(path.get('callee'), 'resource', '@data-client/rest') &&
     options?.type === 'ObjectExpression' &&
-    hasOnlyKeysOutside(
-      options,
-      new Set([...RESOURCE_UNSAFE_OPTIONS, ...replaced]),
-    )
+    hasOnlyKeysOutside(options, RESOURCE_UNSAFE_OPTIONS)
   );
 }
 
@@ -2870,26 +2866,153 @@ function patternNames(pattern, names = new Set()) {
 /** The root variable of a reference like `this.controller` or `ctrl` */
 const rootOf = node => (isMember(node) ? rootOf(node.object) : node);
 
-/** The schema of a batch that writes the rows of `call`'s schema, the value of each row when it differs from
- * `call`'s value, and whether to keep `call`'s args. `extraPerRow` says the args change with the row. */
-function batchSchemaOf(j, root, file, call, extraPerRow) {
+const CONTROLLER_NAMES = /^(ctrl|controller)$/i;
+const USE_CONTROLLER = new Set(['useController']);
+const CLIENT_PACKAGES = new Set(['@data-client/react', '@data-client/vue']);
+
+/** Whether the reference at `path` is a Controller: named `ctrl` or `controller` (`this.controller`), or a
+ * variable set to `useController()`. Other objects have set() methods too, like a Map. */
+function isController(path) {
+  const { node } = path;
+  const name = node.type === 'Identifier' ? node.name : memberName(node);
+  if (CONTROLLER_NAMES.test(name ?? '')) return true;
+  const declarator = node.type === 'Identifier' && bindingOf(path)?.parent;
+  return (
+    !!declarator &&
+    declarator.node.type === 'VariableDeclarator' &&
+    declarator.node.init?.type === 'CallExpression' &&
+    importsNameFrom(
+      declarator.get('init', 'callee'),
+      USE_CONTROLLER,
+      CLIENT_PACKAGES,
+    )
+  );
+}
+
+/** Whether `type` is a function type, or could hold one */
+function isFunctionLikeType(type) {
+  while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
+  if (!type) return true;
+  switch (type.type) {
+    case 'TSFunctionType':
+    case 'TSConstructorType':
+    case 'TSAnyKeyword':
+    case 'TSUnknownKeyword':
+      return true;
+    case 'TSUnionType':
+    case 'TSIntersectionType':
+      return type.types.some(isFunctionLikeType);
+    case 'TSTypeReference':
+      return isId(type.typeName, 'Function');
+    default:
+      return false;
+  }
+}
+
+/** The element types of an array or tuple type */
+function elementTypes(type) {
+  while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
+  if (type?.type === 'TSTypeOperator') return elementTypes(type.typeAnnotation);
+  if (type?.type === 'TSArrayType') return [type.elementType];
+  if (type?.type === 'TSTupleType') return type.elementTypes;
+  if (
+    type?.type === 'TSTypeReference' &&
+    ['Array', 'ReadonlyArray'].includes(type.typeName.name)
+  )
+    return type.typeParameters?.params ?? [];
+  return [];
+}
+
+// array methods that return some of an array's own elements
+const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
+
+/** Where the elements of the array at `path` come from: 'json' for parsed JSON or literal data, which holds
+ * no functions; 'typed' for an array typed with elements that can't be functions */
+function elementSource(path, depth = 0) {
+  const { node } = path;
+  if (depth > 5 || !node) return;
+  if (PASS_THROUGH.has(node.type)) {
+    const types = node.typeAnnotation && elementTypes(node.typeAnnotation);
+    if (types?.length)
+      return types.some(isFunctionLikeType) ? undefined : 'typed';
+    return elementSource(path.get('expression'), depth + 1);
+  }
+  if (node.type === 'ArrayExpression')
+    return (
+        node.elements.every(
+          e =>
+            e?.type === 'ObjectExpression' ||
+            e?.type === 'ArrayExpression' ||
+            LITERALS.has(e?.type),
+        )
+      ) ?
+        'json'
+      : undefined;
+  if (node.type === 'CallExpression' && isMember(node.callee)) {
+    const method = memberName(node.callee);
+    const object = path.get('callee', 'object');
+    if (
+      object.node.type === 'Identifier' &&
+      !bindingOf(object) &&
+      ((object.node.name === 'JSON' && method === 'parse') ||
+        (object.node.name === 'Object' && method === 'values'))
+    )
+      return method === 'parse' ? 'json' : (
+          elementSource(path.get('arguments', 0), depth + 1)
+        );
+    return ELEMENT_METHODS.has(method) ?
+        elementSource(object, depth + 1)
+      : undefined;
+  }
+  if (node.type !== 'Identifier') return;
+  const binding = bindingOf(path);
+  if (!binding) return;
+  const annotation = binding.node.typeAnnotation?.typeAnnotation;
+  if (annotation) {
+    const types = elementTypes(annotation);
+    return types.length && !types.some(isFunctionLikeType) ?
+        'typed'
+      : undefined;
+  }
+  const declarator = binding.parent;
+  if (
+    declarator.node.type === 'VariableDeclarator' &&
+    declarator.node.id === binding.node &&
+    declarator.parent.node.kind === 'const' &&
+    declarator.node.init
+  )
+    return elementSource(declarator.get('init'), depth + 1);
+}
+
+/** Whether `value` is row data and never an updater function, which set() calls with the stored value
+ * where a batch would normalize it: an object or array literal, the row itself from data that holds no
+ * functions, or a property of a row of parsed JSON */
+function isRowData(value, rows, names) {
+  value = unwrap(value);
+  if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression')
+    return true;
+  const source = elementSource(rows);
+  if (value.type === 'Identifier' && names.has(value.name)) return !!source;
+  return (
+    source === 'json' &&
+    isMember(value) &&
+    isReference(value) &&
+    names.has(rootOf(value).name)
+  );
+}
+
+/** The schema of a batch that writes the rows of `call`'s schema, and the value of each row when it differs
+ * from `call`'s value */
+function batchSchemaOf(j, file, call) {
   const [first, ...rest] = call.node.arguments;
   const value = rest[rest.length - 1];
-  const extra = rest.length === 2;
   const schemaPath = call.get('arguments', 0);
   // the Entity's pk() and process() read only the row, so the args can go
   if (isRowOnlyEntity(j, schemaPath, file))
     return { schema: j.arrayExpression([first]) };
-  if (extra) {
-    // push adds a list's rows in order, like one push per row
-    return !extraPerRow && isPushOfPlainResource(j, root, schemaPath, file) ?
-        { schema: first, keepArgs: true }
-      : undefined;
-  }
+  if (rest.length === 2) return;
   if (isRowOnlyInvalidate(j, schemaPath, file))
     return { schema: j.arrayExpression([first]) };
-  if (isPushOfPlainResource(j, root, schemaPath, file))
-    return { schema: first };
   // a one-row batch per element
   const row = oneElement(value);
   if (
@@ -2911,8 +3034,8 @@ const oneElement = node =>
   : undefined;
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
- * Entity, `new Invalidate(Entity)` or `getList.schema.push` of a plain resource() */
-function batchSetOf(j, root, file, { rows, param, call }) {
+ * Entity or `new Invalidate(Entity)` */
+function batchSetOf(j, file, { rows, param, call }) {
   const args = call.node.arguments;
   if (
     args.length < 2 ||
@@ -2929,6 +3052,7 @@ function batchSetOf(j, root, file, { rows, param, call }) {
   const controllerRoot = rootOf(controller);
   if (
     !isReference(controller) ||
+    !isController(call.get('callee', 'object')) ||
     mentions(controller) ||
     mentions(args[0]) ||
     (extra && !isPure(extra)) ||
@@ -2947,10 +3071,9 @@ function batchSetOf(j, root, file, { rows, param, call }) {
   )
     return;
 
-  if (!isArrayValue(rows)) return;
-  const batch = batchSchemaOf(j, root, file, call, extra && mentions(extra));
+  if (!isArrayValue(rows) || !isRowData(value, rows, names)) return;
+  const batch = batchSchemaOf(j, file, call);
   if (!batch) return;
-  const { schema, keepArgs } = batch;
   value = batch.value ?? value;
   const list =
     param.type === 'Identifier' && isId(value, param.name) ?
@@ -2964,35 +3087,11 @@ function batchSetOf(j, root, file, { rows, param, call }) {
           : value,
         ),
       ]);
-  return j.callExpression(call.node.callee, [
-    schema,
-    ...(keepArgs && extra ? [extra] : []),
-    list,
-  ]);
+  return j.callExpression(call.node.callee, [batch.schema, list]);
 }
 
-// a custom Collection class could add rows in another order
-const PUSH_REPLACED = new Set(['getList', 'Collection']);
-
-/** Whether `path` is `X.getList.schema.push` for a plain `resource()` X that this file only reads */
-function isPushOfPlainResource(j, root, path, file) {
-  const { node } = path;
-  const getList = node.object?.object;
-  if (
-    memberName(node) !== 'push' ||
-    memberName(node.object) !== 'schema' ||
-    memberName(getList) !== 'getList' ||
-    getList.object.type !== 'Identifier'
-  )
-    return false;
-  const binding = bindingOf(path.get('object', 'object', 'object'));
-  return (
-    !!binding && isPlainResourceBinding(j, root, binding, file, PUSH_REPLACED)
-  );
-}
-
-/** The `set()` call a loop body makes once per element, and whether it awaits it. A callback's
- * `return` counts when `returns`. */
+/** The `set()` call a loop body makes once per element, whether it awaits it, and whether a callback
+ * returns it (an expression body, or `return` when `returns`) */
 function setCallIn(path, returns = false) {
   let { node } = path;
   if (node.type === 'BlockStatement') {
@@ -3000,10 +3099,12 @@ function setCallIn(path, returns = false) {
     path = path.get('body', 0);
     node = path.node;
   }
+  let returned = !path.parent || path.parent.node.type !== 'BlockStatement';
   if (
     node.type === 'ExpressionStatement' ||
     (returns && node.type === 'ReturnStatement')
   ) {
+    returned = node.type === 'ReturnStatement';
     path = path.get(
       node.type === 'ReturnStatement' ? 'argument' : 'expression',
     );
@@ -3016,7 +3117,7 @@ function setCallIn(path, returns = false) {
         path.node.callee.type === 'MemberExpression' &&
         memberName(path.node.callee) === 'set'
     ) ?
-      { call: path, awaited }
+      { call: path, awaited, returned }
     : undefined;
 }
 
@@ -3041,7 +3142,7 @@ function replaceLoop(j, path, call, awaited, inner) {
 
 /** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and `rows.map()` or
  * `Promise.all(rows.map())` whose result is unused. A row whose pk() or process() throws (a malformed row)
- * then writes none of the batch, where a loop had written the rows before it (and `Promise.all()` the rest). */
+ * then makes the whole batch write nothing, where the loop still wrote some of the other rows. */
 function batchSets(j, root, file) {
   let dirty = false;
   root.find(j.ForOfStatement).forEach(path => {
@@ -3057,7 +3158,7 @@ function batchSets(j, root, file) {
     const found = setCallIn(path.get('body'));
     const call =
       found &&
-      batchSetOf(j, root, file, {
+      batchSetOf(j, file, {
         rows: path.get('right'),
         param: node.left.declarations[0].id,
         call: found.call,
@@ -3092,9 +3193,11 @@ function batchSets(j, root, file) {
     )
       return;
     const found = setCallIn(loop.get('arguments', 0, 'body'), method === 'map');
+    // `Promise.all()` of callbacks that don't return the set() waits for none of them
+    if (viaAll && found && !found.returned && !found.awaited) return;
     const call =
       found &&
-      batchSetOf(j, root, file, {
+      batchSetOf(j, file, {
         rows: loop.get('callee', 'object'),
         param: callback.params[0],
         call: found.call,
@@ -3187,8 +3290,12 @@ function dropDefaultGCPolicy(j, root) {
         p.value.type === 'NewExpression' &&
         p.value.arguments.length === 0,
     );
+    // an earlier spread or computed key could set another gcPolicy that this one overrides
     if (
       i === -1 ||
+      path.node.properties
+        .slice(0, i)
+        .some(p => p.type === 'SpreadElement' || p.computed) ||
       !importsNameFrom(
         path.get('properties', i, 'value', 'callee'),
         GC_POLICY,
@@ -3322,6 +3429,25 @@ function isCondition(path) {
   );
 }
 
+/** Replaces the expression at `path` with `node`, and drops the parentheses around it when its parent is a
+ * short `!` or `&&`/`||`: `!(todo)` becomes `!todo`. Recast keeps the source's parentheses unless it reprints
+ * the parent, which it does once the parent has no source position. Elsewhere the reprint would reflow
+ * more, so the parentheses stay. */
+function replaceInParens(path, node) {
+  const { parenthesized } = path.node.extra ?? {};
+  const parent = path.parent;
+  path.replace(node);
+  if (
+    !parenthesized ||
+    !['UnaryExpression', 'LogicalExpression'].includes(parent.node.type) ||
+    parent.node.loc?.start.line !== parent.node.loc?.end.line
+  )
+    return;
+  const reprinted = { ...parent.node };
+  for (const key of ['loc', 'start', 'end']) delete reprinted[key];
+  parent.replace(reprinted);
+}
+
 /** `!todo || typeof todo === 'symbol'` becomes `!todo` for React useCache() and useDLE() data */
 function dropSymbolChecks(j, root) {
   let dirty = false;
@@ -3353,18 +3479,10 @@ function dropSymbolChecks(j, root) {
       !isCachedData(path.get(typeofSide === 0 ? 'left' : 'right', 'argument'))
     )
       return;
-    const { parenthesized } = logical.node.extra ?? {};
-    const parent = logical.parent;
-    logical.replace(
+    replaceInParens(
+      logical,
       logical.node.left === node ? logical.node.right : logical.node.left,
     );
-    // recast keeps the source's parentheses unless it reprints the parent, which it does once the parent has no
-    // source position: `!(todo)` becomes `!todo`
-    if (parenthesized) {
-      const reprinted = { ...parent.node };
-      for (const key of ['loc', 'start', 'end']) delete reprinted[key];
-      parent.replace(reprinted);
-    }
     dirty = true;
   });
   return dirty;
