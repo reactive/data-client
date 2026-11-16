@@ -503,6 +503,7 @@ npm uninstall axios
 | `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) in `getRequestInit()`                     |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                |
 | `params` / `paramsSerializer`            | [`searchParams`](./RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)           |
+| `data` in a `delete()` config            | [`body`](./RestEndpoint.md#body) on the endpoint: a `DELETE` sends a body only when it declares one     |
 | `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                             |
 | `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                   |
 | `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                         |
