@@ -3038,6 +3038,9 @@ function TodoDetail({ id }: { id: number }) {
   if (user && typeof user !== 'symbol') return <UserCard user={user} />;
   if (typeof other === 'symbol' || !other) return null;
   const shown = todo || typeof todo === 'symbol';
+  const label = todo && typeof todo !== 'symbol' ? todo.title : '';
+  const missing = !(todo || typeof todo === 'symbol');
+  if (id > 0 && (!user || typeof user === 'symbol')) return null;
   return <h3>{todo.title.trim()}</h3>;
 }
       `,
@@ -3052,6 +3055,9 @@ function TodoDetail({ id }: { id: number }) {
   if (user) return <UserCard user={user} />;
   if (typeof other === 'symbol' || !other) return null;
   const shown = todo || typeof todo === 'symbol';
+  const label = todo ? todo.title : '';
+  const missing = !todo;
+  if (id > 0 && !user) return null;
   return <h3>{todo.title.trim()}</h3>;
 }
       `,
@@ -3109,7 +3115,7 @@ export function write(ctrl, rows: Ticker[]) {
   ctrl.set([Ticker], rows);
 }
       `,
-      'adds improvements to the upgrade with --improvements',
+      'adds improvements to the required upgrade with --improvements',
     );
 
     defineInlineTest(

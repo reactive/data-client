@@ -20,8 +20,10 @@ npx @data-client/codemods v0.19 src/
 
 For `v0.19`, `--deprecations=false` skips deprecated APIs and `--deprecations=only` does just those, so they can go in
 their own commit. `--improvements=only` makes optional rewrites that adopt 0.19 features once you've upgraded, where
-the result provably does the same thing: loops that call `ctrl.set()` once per row become one
+the store provably ends up the same for valid rows: loops that call `ctrl.set()` once per row become one
 [batch `set()`](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set), and code that worked around older
-limits, like `computed()` around Vue composable args, is simplified. It processes JavaScript and TypeScript files and skips `node_modules`. Other
+limits, like `computed()` around Vue composable args, is simplified. A batch dispatches one SET action whose
+`action.schema` is `[Entity]` instead of one per row, so Managers that match `action.schema` should check
+`action.schema[0]`, and a row that throws in `pk()` writes none of the batch, where the loop had written at least the rows before it. It processes JavaScript and TypeScript files and skips `node_modules`. Other
 [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through, such as `--dry` and `--print`
 to preview changes, or `--extensions` to override the file types.

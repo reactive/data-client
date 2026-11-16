@@ -3041,7 +3041,7 @@ function replaceLoop(j, path, call, awaited, inner) {
 
 /** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and `rows.map()` or
  * `Promise.all(rows.map())` whose result is unused. A row whose pk() or process() throws (a malformed row)
- * then drops the whole batch, where the loop dropped only that row. */
+ * then writes none of the batch, where a loop had written the rows before it (and `Promise.all()` the rest). */
 function batchSets(j, root, file) {
   let dirty = false;
   root.find(j.ForOfStatement).forEach(path => {
@@ -3244,7 +3244,7 @@ const GETTER_COMPOSABLES = new Set([
 ]);
 
 const COMPUTED = new Set(['computed']);
-const VUE_PACKAGE = new Set(['vue']);
+const VUE_FRAMEWORK = new Set(['vue']);
 
 /** `useSuspense(E, computed(() => args))` becomes `useSuspense(E, () => args)`: composables read getters
  * like refs since 0.19 */
@@ -3261,7 +3261,7 @@ function unwrapComputedArgs(j, root) {
         node.arguments.length !== 1 ||
         !isFunction(node.arguments[0]) ||
         node.arguments[0].params.length ||
-        !importsNameFrom(arg.get('callee'), COMPUTED, VUE_PACKAGE)
+        !importsNameFrom(arg.get('callee'), COMPUTED, VUE_FRAMEWORK)
       )
         return;
       arg.replace(node.arguments[0]);
@@ -3306,8 +3306,9 @@ const TESTS = new Set([
   'ConditionalExpression',
 ]);
 
-/** Whether only the truthiness of the expression at `path` matters: it is a condition, through `&&`, `||`
- * and `!`. Elsewhere `x || false` is `false`, not `x`, when `x` is falsy. */
+/** Whether only the truthiness of the expression at `path` matters: it is a condition, through `&&` and `||`,
+ * or the operand of `!`, which makes any value a boolean. Elsewhere `x || false` is `false`, not `x`, when `x`
+ * is falsy. */
 function isCondition(path) {
   while (
     path.parent.node.type === 'LogicalExpression' ||
@@ -3352,9 +3353,18 @@ function dropSymbolChecks(j, root) {
       !isCachedData(path.get(typeofSide === 0 ? 'left' : 'right', 'argument'))
     )
       return;
+    const { parenthesized } = logical.node.extra ?? {};
+    const parent = logical.parent;
     logical.replace(
       logical.node.left === node ? logical.node.right : logical.node.left,
     );
+    // recast keeps the source's parentheses unless it reprints the parent, which it does once the parent has no
+    // source position: `!(todo)` becomes `!todo`
+    if (parenthesized) {
+      const reprinted = { ...parent.node };
+      for (const key of ['loc', 'start', 'end']) delete reprinted[key];
+      parent.replace(reprinted);
+    }
     dirty = true;
   });
   return dirty;

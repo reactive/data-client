@@ -6,14 +6,14 @@ Add optional `--improvements` to the `v0.19` codemod, to adopt 0.19 features aft
 
 None of these are needed to upgrade. Run them in their own commit with
 `npx @data-client/codemods v0.19 src/ --improvements=only`. The codemod rewrites only code whose result it can prove is
-the same:
+the same, apart from the two batch differences below:
 
 - A loop that calls `ctrl.set()` once per row (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) becomes
   one [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. It does this
   when the rows are an array, and the Entity is a class declared in the file or imported from a relative path or
   tsconfig alias whose `pk()` and `process()` read only the row. A `resource()`'s `getList.schema.push` batches too.
-  Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`, and a malformed row
-  whose `pk()` or `process()` throws drops the whole batch instead of only itself.
+  Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`, and a row whose
+  `pk()` or `process()` throws writes none of the batch, where the loop had written at least the rows before it.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default; imports `GCPolicy` from `@data-client/vue`
   instead of `@data-client/core`; and replaces `computed(() => args)` passed to a composable with the getter itself.
