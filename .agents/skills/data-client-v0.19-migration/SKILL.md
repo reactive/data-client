@@ -28,8 +28,8 @@ npx @data-client/codemods v0.19 <source-root> --deprecations=false
 ```
 
 `0 errors, N unmodified` is a clean run, not a failure. The codemod parses JavaScript and TypeScript only, and skips
-files without an `@data-client/*` import; the searches below find what it skipped, including `.vue` and other
-single-file components.
+files without an `@data-client/*` import (except to migrate `__DC_CONTROLLERS__`); the searches below find what it
+skipped, including `.vue` and other single-file components.
 
 ## Step 2: `Controller.fetchIfStale()` always returns a Promise
 
@@ -53,7 +53,8 @@ other branch was empty), the codemod already kept that branch and deleted the ot
   on an object or class field, or in files and components it skipped. A sync-data branch behind such a check now never
   runs, and nothing fails to type-check. To check freshness without fetching, use
   `ctrl.getResponse(endpoint, ...args, ctrl.getState())`.
-- **Unawaited calls need no `.catch()`.** A `.then()` chain makes a new Promise, so it still ends in `.catch()`.
+- **A `.then()` chain on an unawaited call** makes a new Promise that can reject, so end it in `.catch()`. A bare
+  unawaited call needs none.
 - **Controller subclasses** that override `fetchIfStale()` must return a Promise.
 
 ```ts
@@ -184,7 +185,8 @@ npx @data-client/codemods v0.19 <source-root> --deprecations=only
 
 It renames what has a replacement that does the same thing: `resource().create` to `getList.push` (the same request)
 where it runs, for resources declared in the file or imported from a relative path or tsconfig `paths` alias; Vue
-`waitForNextUpdate()` to `allSettled()`; and `static pk()` `args` to `readonly any[]`. It leaves a `TODO(data-client)`
+`waitForNextUpdate()` to `allSettled()`; DevTools `actionsBlacklist`/`actionsWhitelist` to
+`actionsDenylist`/`actionsAllowlist`; and `static pk()` `args` to `readonly any[]`. It leaves a `TODO(data-client)`
 comment naming the replacement on the rest. Fix each, then delete the comment, and repeat Step 9. Gotchas:
 
 - `*Resource.create` it didn't rename (imported from a package, or built with something other than `resource()` from
