@@ -23,15 +23,17 @@ or by "new" versus "fixed". A reader should find their group from its heading an
 **Summary (before `{/* truncate */}`):**
 1. One or two sentences on the release's headline changes
 2. One block per concept group, most important first: a bold heading linking to its body section, one sentence on why
-   it matters to the reader, then 1-4 short bullets linking to sections
+   it matters to the reader, then 1-4 short bullets linking to sections (fixes labeled as below)
 3. Breaking Changes, grouped by audience (as in the migration guide), with anchor links
 4. Get ready for future releases (deprecations)
 
 **Details (after truncate):** one `##` per concept group, in summary order, then the migration guide.
 - Open each group with its why sentence.
 - Give a change its own `###` when it needs a demo or code: explanation → code example → PR/commit links.
-- List smaller fixes as a final bullet list in their group, each with its PR link. Put it under `### Other fixes`
+- List smaller changes as a final bullet list in their group, each with its PR link. Put it under `### Other changes`
   when the group also has `###` sections.
+- Keep fixes in their concept group, but label each one: start the bullet with `**Fix:**` and the heading with `Fix:`.
+  A list that holds only fixes can say so in its heading instead.
 
 ## Migration Guide
 
