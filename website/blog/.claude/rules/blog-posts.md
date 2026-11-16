@@ -32,14 +32,16 @@ Layers guide grouping; they don't define the top-level groups (see Blog Structur
 - Put top-level groups about the same layer next to each other (Collections beside other endpoint/schema groups).
 - Inside a cross-cutting group (Performance, Validation), order items by layer.
 - Name the public packages each change affects: a line of package tags (`` `react` `vue` ``, without the
-  `@data-client/` prefix) under each heading, and the same tags at the start of each bullet.
+  `@data-client/` prefix; `` `all` `` when every package changes) under each heading, and the same tags at the start
+  of each bullet.
 - Internal-only changes (core, normalizr) go last, since most readers don't use those packages directly.
 
 ## Blog Structure
 
 Group changes by the concept a reader cares about, not by "new" versus "fixed". Example top-level groups:
-Performance, Client (Controller, hooks, Managers on every platform), Vue, Collections, Validation (type safety,
-testing, development warnings). Split a concept into `###` subsections when it holds many changes.
+Performance, Client (Controller, hooks, Managers on every platform), Platforms (React Native, build tools), Vue,
+Collections, Validation (type safety, testing, development warnings). Every changeset in the release gets a line;
+agent-skill changes may go in their own post instead. Split a concept into `###` subsections when it holds many changes.
 
 **Summary (before `{/* truncate */}`):** short, never a full list.
 1. One or two sentences on the release
