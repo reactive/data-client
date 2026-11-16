@@ -178,8 +178,66 @@ function findManagerSlots(j, root) {
 
 /** The binding path (`id` of its declaration) for an identifier, if declared in this file */
 function bindingOf(path) {
-  const scope = path.scope?.lookup(path.node.name);
-  return scope?.getBindings()[path.node.name]?.[0];
+  const { name } = path.node;
+  const bindings = path.scope?.lookup(name)?.getBindings()[name];
+  if (!bindings || bindings.length < 2) return bindings?.[0];
+  // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
+  // block that holds `path`
+  let best;
+  let bestDepth = -1;
+  for (const binding of bindings) {
+    const block = declaringBlock(binding);
+    const depth = block ? depthIn(path, block) : -1;
+    if (depth > bestDepth) [best, bestDepth] = [binding, depth];
+  }
+  return best;
+}
+
+const BLOCKS = new Set([
+  'BlockStatement',
+  'Program',
+  'SwitchCase',
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'CatchClause',
+]);
+
+const PATTERN_PARTS = new Set([
+  'Property',
+  'ObjectProperty',
+  'ObjectPattern',
+  'ArrayPattern',
+  'AssignmentPattern',
+  'RestElement',
+]);
+
+/** The node a declaration's name is visible in: its block for `let`, `const`, a class or a function
+ * declaration, else its function or the module */
+function declaringBlock(binding) {
+  let owner = binding.parent;
+  while (PATTERN_PARTS.has(owner.node.type)) owner = owner.parent;
+  const { type } = owner.node;
+  const blockScoped =
+    (type === 'VariableDeclarator' && owner.parent.node.kind !== 'var') ||
+    ((type === 'FunctionDeclaration' || type === 'ClassDeclaration') &&
+      owner.node.id === binding.node);
+  // a parameter is visible in its own function
+  if (/Function/.test(type) && owner.node.id !== binding.node)
+    return owner.node;
+  for (let path = owner.parent; path; path = path.parent) {
+    const t = path.node.type;
+    if (/Function/.test(t) || t === 'Program' || (blockScoped && BLOCKS.has(t)))
+      return path.node;
+  }
+}
+
+/** How many levels `block` sits above `path`, or -1 when it does not hold `path` */
+function depthIn(path, block) {
+  let depth = 0;
+  for (let p = path; p; p = p.parent, depth++)
+    if (p.node === block) return Number.MAX_SAFE_INTEGER - depth;
+  return -1;
 }
 
 /** Whether `p` names something else, like an object key, a non-computed member or the other module's
@@ -447,17 +505,31 @@ function promiseCheckOf(test) {
     return { checked: unwrap(test.arguments[0]), negated };
 }
 
-/** Whether `branch` waits for the Promise `decl` holds: `await x` or `x.then()` */
-function awaits(j, branch, decl) {
+/** Whether `branch` waits for the Promise `decl` holds (`await x` or `x.then()`), and, with `uses`, also
+ * reads the data it resolves to (`(await x).title`, not a bare `await x;`, or `x.then(cb)`) */
+function awaits(j, branch, decl, uses) {
   return refsTo(j, decl, branch).some(ref => {
     const parent = ref.parent.node;
+    if (parent.type === 'AwaitExpression' && parent.argument === ref.node)
+      return (
+        !uses ||
+        outerPath(ref.parent).parent.node.type !== 'ExpressionStatement'
+      );
     return (
-      (parent.type === 'AwaitExpression' && parent.argument === ref.node) ||
-      (isMember(parent) &&
-        parent.object === ref.node &&
-        isPromiseMethodCall(ref.parent))
+      isMember(parent) &&
+      parent.object === ref.node &&
+      isPromiseMethodCall(ref.parent) &&
+      (!uses ||
+        (memberName(parent) === 'then' &&
+          ref.parent.parent.node.arguments.length > 0))
     );
   });
+}
+
+/** Whether a branch ends in `return` or `throw`, so code after its `if` was the other branch too */
+function endsEarly(branch) {
+  const last = branch.type === 'BlockStatement' ? branch.body.at(-1) : branch;
+  return last?.type === 'ReturnStatement' || last?.type === 'ThrowStatement';
 }
 
 /** Whether `statements` can move into the block around `path` without their declarations clashing with
@@ -520,7 +592,14 @@ function keepPromiseBranches(j, root) {
     const decl = ref && bindingOf(ref)?.parent;
     if (!decl || !consts.has(decl.node)) continue;
     const branch = path.get(check.negated ? 'alternate' : 'consequent');
-    if (!branch.node || !awaits(j, branch, decl)) continue;
+    const other = path.node[check.negated ? 'consequent' : 'alternate'];
+    if (!branch.node) continue;
+    // keep a branch that only waits when the other did nothing, and otherwise only one that also reads
+    // the data, so nothing the other branch did with it disappears
+    const otherEmpty =
+      (!other && !endsEarly(branch.node)) ||
+      (other?.type === 'BlockStatement' && !other.body.length);
+    if (!awaits(j, branch, decl, !otherEmpty)) continue;
     keepBranch(path, branch);
     dirty = true;
   }
@@ -531,7 +610,8 @@ const FALLBACK_TODO =
   ' TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest ' +
   `fetch failed since 0.19; handle that case in .catch() or try/catch: ${BLOG}#fetch-if-stale-promise`;
 
-/** Whether the value at `path` is checked for a missing result: `x ?? fallback`, `x && x.id`, `!x`, `x == null` */
+/** Whether the value at `path` is checked for a missing result: `x ?? fallback`, `x && x.id`, `!x`,
+ * `x == null`, `x?.id` */
 function checksMissing(path) {
   path = outerPath(path);
   const { node } = path;
@@ -550,6 +630,12 @@ function checksMissing(path) {
     case 'IfStatement':
     case 'ConditionalExpression':
       return parent.test === node;
+    case 'MemberExpression':
+    case 'OptionalMemberExpression':
+      return parent.object === node && !!parent.optional;
+    case 'CallExpression':
+    case 'OptionalCallExpression':
+      return parent.callee === node && !!parent.optional;
     default:
       return false;
   }
@@ -804,27 +890,42 @@ function isNoopHandler(node) {
 // resource() members that read: they have no sideEffect
 const RESOURCE_READS = new Set(['get', 'getList']);
 
-/** `XResource.get`, `XResource.getList` or `XResource.getList.getPage` */
-function isResourceRead(node) {
-  node = unwrap(node);
-  if (memberName(node) === 'getPage' && memberName(node.object) === 'getList')
-    node = node.object;
+/** Whether `path` reads `get`, `getList` or `getList.getPage` of a resource that keeps it a read: a plain
+ * `resource()` declared or imported here whose `extend()` doesn't replace it. An undeclared `*Resource`
+ * (a test's, say) counts by its name. */
+function isResourceRead(j, root, path, file) {
+  path = path.node && unwrapPath(path);
+  if (
+    memberName(path?.node) === 'getPage' &&
+    memberName(path.node.object) === 'getList'
+  )
+    path = path.get('object');
+  const node = path?.node;
+  if (
+    !isMember(node) ||
+    node.computed ||
+    !RESOURCE_READS.has(memberName(node)) ||
+    node.object.type !== 'Identifier' ||
+    !/Resource$/.test(node.object.name)
+  )
+    return false;
+  const binding = bindingOf(path.get('object'));
+  if (!binding) return true;
+  const replaced = new Set([memberName(node)]);
   return (
-    !node?.computed &&
-    RESOURCE_READS.has(memberName(node)) &&
-    node.object.type === 'Identifier' &&
-    /Resource$/.test(node.object.name)
+    isReadOnlyResource(j, root, binding, replaced) ||
+    isImportedPlainResource(j, root, binding, file, replaced)
   );
 }
 
-/** Whether `node` starts a read that can't reject unhandled: any `fetchIfStale()`, or `fetch()` of a
- * resource read. `fetch` named alone is `const { fetch } = useController()`, since the global
+/** Whether the call at `path` starts a read that can't reject unhandled: any `fetchIfStale()`, or `fetch()`
+ * of a resource read. `fetch` named alone is `const { fetch } = useController()`, since the global
  * fetch() takes a URL. */
-const isPrehandledRead = node =>
-  isFetchIfStaleCall(node) ||
-  (node.type === 'CallExpression' &&
-    calleeName(node) === 'fetch' &&
-    isResourceRead(node.arguments[0]));
+const isPrehandledRead = (j, root, path, file) =>
+  isFetchIfStaleCall(path.node) ||
+  (path.node.type === 'CallExpression' &&
+    calleeName(path.node) === 'fetch' &&
+    isResourceRead(j, root, path.get('arguments', 0), file));
 
 /** Whether nothing uses the value at `path`: a statement of its own, `void`, or the body of a JSX event
  * handler, whose return value React ignores */
@@ -834,28 +935,38 @@ function isUnused(path) {
   if (parent.type === 'UnaryExpression' && parent.operator === 'void')
     return true;
   const container = path.parent.parent?.node;
+  const attribute = path.parent.parent.parent?.node;
+  const element = path.parent.parent.parent.parent?.node;
+  // an async handler returns a new Promise, and a component may await what its handler returns
   return (
     parent.type === 'ArrowFunctionExpression' &&
+    !parent.async &&
     parent.body === path.node &&
     container?.type === 'JSXExpressionContainer' &&
-    /^on[A-Z]/.test(path.parent.parent.parent.node.name?.name ?? '')
+    /^on[A-Z]/.test(attribute?.name?.name ?? '') &&
+    /^[a-z]/.test(element?.name?.name ?? '')
   );
 }
 
 /** `ctrl.fetch(TodoResource.getList).catch(() => {})` becomes `ctrl.fetch(TodoResource.getList)` where
  * nothing uses the result */
-function dropNoopCatches(j, root) {
+function dropNoopCatches(j, root, file) {
   return (
     root
       .find(j.CallExpression)
-      .filter(({ node }) => {
-        const { callee } = node;
+      .filter(path => {
+        const { callee } = path.node;
         return (
           memberName(callee) === 'catch' &&
           !callee.computed &&
-          node.arguments.length === 1 &&
-          isNoopHandler(node.arguments[0]) &&
-          isPrehandledRead(unwrap(callee.object))
+          path.node.arguments.length === 1 &&
+          isNoopHandler(path.node.arguments[0]) &&
+          isPrehandledRead(
+            j,
+            root,
+            unwrapPath(path.get('callee', 'object')),
+            file,
+          )
         );
       })
       .filter(isUnused)
@@ -881,25 +992,55 @@ const isDateNow = node =>
 const isActionName = node =>
   node?.type === 'Identifier' && /(^a|A)ction$/.test(node.name);
 
-/** The fetch action's `meta` for the endpoint at `path`: `action.meta` for `action.endpoint`, or the
- * `meta` destructured with `endpoint` */
+/** Whether `path` runs only for fetch actions: under `if (action.type === actionTypes.FETCH)` or
+ * `case actionTypes.FETCH:`, the actions that carry `meta.fetchedAt` */
+function inFetchBranch(j, path) {
+  const namesFetch = test =>
+    j(test).find(j.Identifier, { name: 'FETCH' }).size() > 0 ||
+    j(test)
+      .find(j.Literal)
+      .some(({ node }) => node.value === 'rdc/fetch');
+  for (; path.parent; path = path.parent) {
+    const { node } = path.parent;
+    if (
+      node.type === 'IfStatement' &&
+      path.name === 'consequent' &&
+      namesFetch(path.parent.get('test'))
+    )
+      return true;
+    if (
+      node.type === 'SwitchCase' &&
+      node.test &&
+      namesFetch(path.parent.get('test'))
+    )
+      return true;
+  }
+  return false;
+}
+
+/** The fetch action's `meta` for the endpoint at `path` in a fetch branch: `action.meta` for
+ * `action.endpoint`, or for `endpoint` destructured from `action` (its `meta` when destructured too) */
 function fetchMetaOf(j, path) {
+  if (!inFetchBranch(j, path)) return;
   const { node } = path;
   const metaOf = action =>
     j.memberExpression(j.identifier(action.name), j.identifier('meta'));
   if (memberName(node) === 'endpoint' && isActionName(node.object))
     return metaOf(node.object);
-  // `const { endpoint } = action` or `({ endpoint, meta }) => ...`
+  // `const { endpoint } = action`
   const property = destructuredBy(path);
   if (!property || keyName(property.node) !== 'endpoint') return;
+  const declarator = property.parent.parent.node;
+  if (
+    declarator.type !== 'VariableDeclarator' ||
+    !isActionName(declarator.init)
+  )
+    return;
   const meta = property.parent.node.properties.find(
     p =>
       isProperty(p) && keyName(p) === 'meta' && p.value.type === 'Identifier',
   );
-  if (meta) return j.identifier(meta.value.name);
-  const declarator = property.parent.parent.node;
-  if (declarator.type === 'VariableDeclarator' && isActionName(declarator.init))
-    return metaOf(declarator.init);
+  return meta ? j.identifier(meta.value.name) : metaOf(declarator.init);
 }
 
 /** `controller.resolve(action.endpoint, { ..., fetchedAt: Date.now() })` passes `action.meta.fetchedAt` */
@@ -1289,7 +1430,7 @@ function transformManagerClasses(j, root, source) {
 /* globalThis.__DC__ replaces the __DC_CONTROLLERS__ Map of Controllers by store name */
 
 const DC_GLOBAL = '__DC_CONTROLLERS__';
-const DC_GLOBAL_TODO = ` TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores: ${BLOG}#dc-global`;
+const DC_GLOBAL_TODO = ` TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): ${BLOG}#dc-global`;
 
 /** `__DC__.<property>` on the same object `__DC_CONTROLLERS__` was read from */
 function dcMember(j, dcNode, property) {
@@ -1306,58 +1447,31 @@ const callsWithoutArgs = (node, callee) =>
   node.callee === callee &&
   !node.arguments.length;
 
-/** Where the Map at `path` is iterated, and the `__DC__` property that replaces it: the first value of
- * `[...map.values()][0]`, `Array.from(map.values())[0]` or `map.values().next().value` is
- * `controller`; `[...map.keys()]` or `Array.from(map.keys())` is `stores` */
-function iterationOf(path) {
+/** `[...map.keys()]` or `Array.from(map.keys())` on the Map at `path`, which reads `__DC__.stores`. The
+ * first value isn't `__DC__.controller`: that throws when several stores are mounted and none is picked. */
+function storeKeysOf(path) {
   const member = path.parent;
   const call = member.parent;
-  const method = memberName(member.node);
   if (
-    !['values', 'keys'].includes(method) ||
+    memberName(member.node) !== 'keys' ||
     member.node.object !== path.node ||
     !callsWithoutArgs(call.node, member.node)
   )
     return;
-  // `[...call]` or `Array.from(call)`
   const up = call.parent;
-  const list =
-    (
-      up.node.type === 'SpreadElement' &&
-      up.parent.node.type === 'ArrayExpression' &&
-      up.parent.node.elements.length === 1
-    ) ?
-      up.parent
-    : (
-      up.node.type === 'CallExpression' &&
-      up.node.arguments.length === 1 &&
-      isId(up.node.callee.object, 'Array') &&
-      memberName(up.node.callee) === 'from'
-    ) ?
-      up
-    : undefined;
-  if (method === 'keys') return list && { path: list, property: 'stores' };
-  if (list) {
-    const index = list.parent;
-    return (
-      isMember(index.node) &&
-      index.node.object === list.node &&
-      index.node.computed &&
-      index.node.property.value === 0 && { path: index, property: 'controller' }
-    );
-  }
-  // `call.next().value`
-  const next = call.parent;
-  const value = next.parent.parent;
-  return (
-    memberName(next.node) === 'next' &&
-    callsWithoutArgs(next.parent.node, next.node) &&
-    memberName(value.node) === 'value' &&
-    value.node.object === next.parent.node && {
-      path: value,
-      property: 'controller',
-    }
-  );
+  if (
+    up.node.type === 'SpreadElement' &&
+    up.parent.node.type === 'ArrayExpression' &&
+    up.parent.node.elements.length === 1
+  )
+    return up.parent;
+  if (
+    up.node.type === 'CallExpression' &&
+    up.node.arguments.length === 1 &&
+    isId(up.node.callee.object, 'Array') &&
+    memberName(up.node.callee) === 'from'
+  )
+    return up;
 }
 
 // parents that evaluate the child whenever they run, and the children they may run conditionally
@@ -1402,7 +1516,7 @@ function alwaysEvaluated(path, statement) {
 
 /** `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller`, after `__DC__.store = name;` on its own line
  * when it can move there, or else `(__DC__.store = name, __DC__.controller)` */
-function selectStore(j, call, dcNode) {
+function selectStore(j, call, dcNode, shared) {
   const [name] = call.node.arguments;
   const select = j.assignmentExpression(
     '=',
@@ -1410,11 +1524,21 @@ function selectStore(j, call, dcNode) {
     name,
   );
   const statement = statementOf(j, call);
-  // a name with no side effects, in a statement that always reads it (not `flag && ...`), of the same
-  // function (`page.evaluate(() => ...)` runs its function elsewhere)
+  // a name with no side effects, declared before the statement, in a statement that always reads it
+  // (not `flag && ...`) and reads no other store, of the same function (`page.evaluate(() => ...)` runs
+  // its function elsewhere)
+  const declaredIn = (binding, node) => {
+    for (let p = binding; p; p = p.parent) if (p.node === node) return true;
+    return false;
+  };
   const canHoist =
     statement &&
+    !shared.has(statement.node) &&
     Array.isArray(statement.parentPath.value) &&
+    !(
+      name.type === 'Identifier' &&
+      declaredIn(bindingOf(call.get('arguments', 0)), statement.node)
+    ) &&
     (name.type === 'Identifier' ||
       name.type === 'StringLiteral' ||
       (name.type === 'Literal' && typeof name.value === 'string') ||
@@ -1435,8 +1559,19 @@ function selectStore(j, call, dcNode) {
   call.replace(dcMember(j, dcNode, 'controller'));
 }
 
-/** `__DC_CONTROLLERS__.get(name)` reads `__DC__.controller` after picking the store; the first value
- * reads `__DC__.controller` and the keys `__DC__.stores`. Debugging scripts often don't import
+/** Whether code checks the value at `path`, or the `const` holding it, for a missing result */
+function missingChecked(j, path) {
+  if (checksMissing(path)) return true;
+  const declarator = outerPath(path).parent;
+  return (
+    declarator.node.type === 'VariableDeclarator' &&
+    declarator.node.id.type === 'Identifier' &&
+    refsTo(j, declarator).some(checksMissing)
+  );
+}
+
+/** `__DC_CONTROLLERS__.get(name)` reads `__DC__.controller` after picking the store, unless the code
+ * handles a missing store; the keys read `__DC__.stores`. Debugging scripts often don't import
  * data-client, so this runs on any file that names the global. */
 function migrateDcGlobal(j, root) {
   let dirty = false;
@@ -1451,23 +1586,37 @@ function migrateDcGlobal(j, root) {
       .filter(({ node }) => memberName(node) === DC_GLOBAL)
       .paths(),
   ];
-  for (const path of uses) {
-    const { node } = path;
+  const getCallOf = path => {
     const call = path.parent.parent;
-    if (
+    return (
       memberName(path.parent.node) === 'get' &&
-      path.parent.node.object === node &&
+      path.parent.node.object === path.node &&
       call.node.type === 'CallExpression' &&
       call.node.callee === path.parent.node &&
-      call.node.arguments.length === 1
-    ) {
-      selectStore(j, call, node);
+      call.node.arguments.length === 1 &&
+      call
+    );
+  };
+  // statements that read more than one store keep each pick next to its read
+  const seen = new Set();
+  const shared = new Set();
+  for (const path of uses) {
+    const statement = statementOf(j, path)?.node;
+    if (seen.has(statement)) shared.add(statement);
+    seen.add(statement);
+  }
+  for (const path of uses) {
+    const { node } = path;
+    const call = getCallOf(path);
+    // `.get()` returned undefined for a missing store, but `__DC__.controller` throws
+    if (call && !missingChecked(j, call)) {
+      selectStore(j, call, node, shared);
       dirty = true;
       continue;
     }
-    const iteration = iterationOf(path);
-    if (iteration) {
-      iteration.path.replace(dcMember(j, node, iteration.property));
+    const keys = !call && storeKeysOf(path);
+    if (keys) {
+      keys.replace(dcMember(j, node, 'stores'));
       dirty = true;
       continue;
     }
@@ -1563,7 +1712,7 @@ const hasOnlyKeysOutside = (object, names) =>
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
  * differ, and so can a custom `Endpoint` class */
-function isPlainResource(path) {
+function isPlainResource(path, replaced = CREATE_SOURCES) {
   path = unwrapPath(path);
   while (
     path.node?.type === 'CallExpression' &&
@@ -1571,9 +1720,9 @@ function isPlainResource(path) {
   ) {
     const [first] = path.node.arguments;
     if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
-      if (CREATE_SOURCES.has(first.value)) return false;
+      if (replaced.has(first.value)) return false;
     } else if (first?.type === 'ObjectExpression') {
-      if (!hasOnlyKeysOutside(first, CREATE_SOURCES)) return false;
+      if (!hasOnlyKeysOutside(first, replaced)) return false;
     } else return false;
     path = unwrapPath(path.get('callee', 'object'));
   }
@@ -1615,8 +1764,8 @@ function isWriteTarget(path) {
 
 /** Whether a `const` resource declared here is a plain `resource()`, and this file only reads its members.
  * Other modules could change an exported one, but they would have to write to an import. */
-const isReadOnlyResource = (j, root, binding) =>
-  isPlainResourceDeclarator(binding) &&
+const isReadOnlyResource = (j, root, binding, replaced) =>
+  isPlainResourceDeclarator(binding, replaced) &&
   binding.parent.parent.node.kind === 'const' &&
   readsOnly(j, root, binding);
 
@@ -1655,7 +1804,7 @@ function parseModule(j, file) {
 
 /** Whether the module `file` exports `name` as a plain `resource()` that it only reads, following
  * `export { name } from` and `export * from` */
-function exportsPlainResource(j, file, name, depth = 0) {
+function exportsPlainResource(j, file, name, depth, replaced) {
   const root = file && depth < 5 && parseModule(j, file);
   if (!root) return false;
   const { body } = root.get().node.program;
@@ -1665,7 +1814,7 @@ function exportsPlainResource(j, file, name, depth = 0) {
     const declared = node.declaration?.declarations?.some(d =>
       isId(d.id, name),
     );
-    if (declared) return isLocalPlainResource(j, root, name);
+    if (declared) return isLocalPlainResource(j, root, name, replaced);
     const specifier = node.specifiers?.find(
       s => staticName(s.exported) === name,
     );
@@ -1677,8 +1826,9 @@ function exportsPlainResource(j, file, name, depth = 0) {
           resolveModule(file, node.source.value),
           local,
           depth + 1,
+          replaced,
         )
-      : isLocalPlainResource(j, root, local);
+      : isLocalPlainResource(j, root, local, replaced);
   }
   // a module's own exports win over `export *`
   return body.some(
@@ -1690,24 +1840,27 @@ function exportsPlainResource(j, file, name, depth = 0) {
         resolveModule(file, node.source.value),
         name,
         depth + 1,
+        replaced,
       ),
   );
 }
 
 /** Whether a module's top-level `const name` is a plain `resource()` that the module only reads */
-function isLocalPlainResource(j, root, name) {
+function isLocalPlainResource(j, root, name, replaced) {
   const declarator = root
     .find(j.VariableDeclarator, { id: { name } })
     .filter(d =>
       ['Program', 'ExportNamedDeclaration'].includes(d.parent.parent.node.type),
     )
     .paths()[0];
-  return !!declarator && isReadOnlyResource(j, root, declarator.get('id'));
+  return (
+    !!declarator && isReadOnlyResource(j, root, declarator.get('id'), replaced)
+  );
 }
 
 /** Whether `binding` imports a plain `resource()` from a relative or tsconfig-aliased module, and this file
  * only reads it */
-function isImportedPlainResource(j, root, binding, file) {
+function isImportedPlainResource(j, root, binding, file, replaced) {
   const specifier = binding.parent;
   const declaration = specifier.parent?.node;
   if (
@@ -1723,6 +1876,8 @@ function isImportedPlainResource(j, root, binding, file) {
       j,
       file && resolveModule(file, declaration.source.value),
       staticName(imported),
+      0,
+      replaced,
     )
   );
 }
@@ -1804,9 +1959,9 @@ function migrateResourceCreate(j, root, file) {
   return addTodos(j, marked, CREATE_TODO) || dirty;
 }
 
-const isPlainResourceDeclarator = binding =>
+const isPlainResourceDeclarator = (binding, replaced) =>
   binding?.parent.node.type === 'VariableDeclarator' &&
-  isPlainResource(binding.parent.get('init'));
+  isPlainResource(binding.parent.get('init'), replaced);
 
 /** Shared `renderDataHook.cleanup()` / `.allSettled()`, which act only on the latest render */
 const findSharedTestHelpers = (j, root) =>
@@ -1919,10 +2074,10 @@ function destructureAllSettled(j, root, property) {
   return true;
 }
 
-/** Drops `await allSettled()` right after the render when the next statement awaits its `result`: the
- * first load needs only `await result`. `declarator` holds the render result: `{ result, allSettled }` or
- * `rendered` */
-function dropFirstLoadWait(j, call, declarator) {
+/** For an awaited wait right after the render, `{ statement, drop }`: `drop` says the next statement always
+ * awaits the render's `result`, so the first load needs only that. `declarator` holds the render result:
+ * `{ result, allSettled }` or `rendered`. */
+function firstLoadWait(j, call, declarator) {
   const statement = call.parent.parent;
   if (
     call.parent.node.type !== 'AwaitExpression' ||
@@ -1930,73 +2085,100 @@ function dropFirstLoadWait(j, call, declarator) {
     !Array.isArray(statement.parentPath.value)
   )
     return;
-  const siblings = statement.parentPath.value;
-  const index = siblings.indexOf(statement.node);
-  const [before, after] = [siblings[index - 1], siblings[index + 1]];
+  const index = statement.parentPath.value.indexOf(statement.node);
+  const before = statement.parentPath.value[index - 1];
   if (
-    !after ||
     before?.type !== 'VariableDeclaration' ||
     !before.declarations.includes(declarator?.node)
   )
     return;
+  const after = statement.parentPath.get(index + 1);
   const { id } = declarator.node;
   const destructured = id.type === 'ObjectPattern';
-  const valueOf = key =>
-    id.properties.find(p => isProperty(p) && keyName(p) === key)?.value;
-  const result = destructured ? valueOf('result') : id;
-  const awaitsResult =
+  const result =
+    destructured ?
+      id.properties.find(p => isProperty(p) && keyName(p) === 'result')?.value
+    : id;
+  const drop =
+    !!after.node &&
     result?.type === 'Identifier' &&
     j(after)
       .find(j.AwaitExpression)
-      .some(({ node }) => {
-        const value = unwrap(node.argument);
-        return destructured ?
+      .some(path => {
+        const value = unwrap(path.node.argument);
+        return (
+          alwaysEvaluated(path, after) &&
+          (destructured ?
             isId(value, result.name)
-          : memberName(value) === 'result' && isId(value.object, result.name);
+          : memberName(value) === 'result' && isId(value.object, result.name))
+        );
       });
-  if (!awaitsResult) return;
+  return { statement, drop };
+}
+
+/** Deletes the first-load wait at `statement`, and `allSettled` from the render's pattern when nothing
+ * else calls it */
+function dropFirstLoadWait(j, statement, declarator) {
   statement.prune();
-  if (!destructured) return;
-  // drop `allSettled` from the pattern if nothing else calls it
-  const allSettled = valueOf('allSettled');
-  const scope = declarator.scope.path;
-  const calls = j(scope)
+  const { id } = declarator.node;
+  if (id.type !== 'ObjectPattern') return;
+  const allSettled = id.properties.find(
+    p => isProperty(p) && keyName(p) === 'allSettled',
+  )?.value;
+  if (allSettled?.type !== 'Identifier') return;
+  const calls = j(declarator.scope.path)
     .find(j.Identifier, { name: allSettled.name })
     .filter(p => p.node !== allSettled && !isOtherName(p));
   if (!calls.size())
     id.properties = id.properties.filter(p => p.value !== allSettled);
 }
 
-/** Vue `waitForNextUpdate()` becomes `allSettled()`, which also waits for fetches, with no time limit;
- * returns the calls it could not convert */
+/** Vue `waitForNextUpdate()` becomes `allSettled()`, which also waits for fetches, with no time limit.
+ * Right after the render, the old call waited for a Promise `result`, which `allSettled()` doesn't, so
+ * there it is deleted where the next statement awaits `result`, and marked otherwise. Returns the calls
+ * it could not convert. */
 function waitForAllSettled(j, root, calls) {
   const unconverted = [];
   // read every binding before renaming any, since scopes keep the names they first saw
   const plans = calls.map(call => {
     const callee = call.get('callee');
-    return isMember(callee.node) ?
-        { call, declarator: bindingOf(callee.get('object'))?.parent }
-      : { call, property: destructuredBy(callee) };
+    const property = !isMember(callee.node) && destructuredBy(callee);
+    const declarator =
+      property ?
+        property.parent.parent
+      : isMember(callee.node) && bindingOf(callee.get('object'))?.parent;
+    return {
+      call,
+      property,
+      declarator,
+      first: declarator && firstLoadWait(j, call, declarator),
+    };
   });
+  // a property with a first wait that must stay keeps its name for every call
+  const kept = new Set(
+    plans
+      .filter(p => p.property && p.first && !p.first.drop)
+      .map(p => p.property),
+  );
   const converted = new Map();
-  for (const { call, declarator, property } of plans) {
-    if (declarator) {
-      const { callee } = call.node;
-      callee.property = j.identifier('allSettled');
-      callee.computed = false;
-      dropFirstLoadWait(j, call, declarator);
-      continue;
-    }
-    if (!property) {
+  for (const { call, property, declarator, first } of plans) {
+    if (!declarator || (first && !first.drop) || kept.has(property)) {
       unconverted.push(call);
       continue;
     }
-    // keyed by path: removing the property clears its node
-    if (!converted.has(property))
-      converted.set(property, destructureAllSettled(j, root, property));
-    if (converted.get(property))
-      dropFirstLoadWait(j, call, property.parent.parent);
-    else unconverted.push(call);
+    if (property) {
+      // keyed by path: removing the property clears its node
+      if (!converted.has(property))
+        converted.set(property, destructureAllSettled(j, root, property));
+      if (!converted.get(property)) {
+        unconverted.push(call);
+        continue;
+      }
+    } else {
+      call.node.callee.property = j.identifier('allSettled');
+      call.node.callee.computed = false;
+    }
+    if (first?.drop) dropFirstLoadWait(j, first.statement, declarator);
   }
   return unconverted;
 }
@@ -2017,7 +2199,7 @@ const MUTATING_ARRAY_METHODS = new Set([
 /** The readonly form of an array type: `any[]` -> `readonly any[]`, `Array<T>` -> `ReadonlyArray<T>`,
  * through unions; undefined when nothing changes */
 function readonlyType(j, type) {
-  if (type.type === 'TSArrayType')
+  if (type.type === 'TSArrayType' || type.type === 'TSTupleType')
     return j.tsTypeOperator.from({
       operator: 'readonly',
       typeAnnotation: type,
@@ -2033,6 +2215,15 @@ function readonlyType(j, type) {
     return j.tsUnionType(types.map((t, i) => t ?? type.types[i]));
   }
 }
+
+/** Whether a parameter of this type already accepts a `readonly any[]` */
+const acceptsReadonly = type =>
+  ['TSAnyKeyword', 'TSUnknownKeyword', 'TSUndefinedKeyword'].includes(
+    type.type,
+  ) ||
+  (type.type === 'TSTypeOperator' && type.operator === 'readonly') ||
+  (type.type === 'TSTypeReference' && isId(type.typeName, 'ReadonlyArray')) ||
+  (type.type === 'TSUnionType' && type.types.every(acceptsReadonly));
 
 /** Whether the parameter at `param` is only read: indexed, a non-mutating method called on it, spread,
  * or passed to `super.pk()` */
@@ -2073,7 +2264,13 @@ function readonlyPkArgs(j, root) {
       const param =
         arg.node?.type === 'AssignmentPattern' ? arg.get('left') : arg;
       const annotation = param.node?.typeAnnotation;
-      const type = annotation && readonlyType(j, annotation.typeAnnotation);
+      if (!annotation) return;
+      const type = readonlyType(j, annotation.typeAnnotation);
+      // a named type (`args?: Args`) may need its own readonly
+      if (!type && !acceptsReadonly(annotation.typeAnnotation)) {
+        marked.push(method);
+        return;
+      }
       if (!type) return;
       if (!onlyReadsArray(j, method, param)) {
         marked.push(method);
@@ -2177,7 +2374,7 @@ module.exports = function transformer(fileInfo, api, options) {
     dirty = transformManagerClasses(j, root, fileInfo.source) || dirty;
     dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
     if (fileInfo.source.includes('.catch('))
-      dirty = dropNoopCatches(j, root) || dirty;
+      dirty = dropNoopCatches(j, root, fileInfo.path) || dirty;
     if (fileInfo.source.includes('fetchedAt'))
       dirty = passFetchedAt(j, root) || dirty;
   }

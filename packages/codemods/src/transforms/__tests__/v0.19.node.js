@@ -1298,6 +1298,100 @@ jest.spyOn(real, 'fetchIfStale').mockImplementation(impl);
 
     defineInlineTest(
       transform,
+      { path: 'guards.ts' },
+      `
+import type { Controller } from '@data-client/react';
+
+export async function guarded(ctrl: Controller, id: string) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (issue instanceof Promise) {
+    await issue;
+    return;
+  }
+  cache.set(id, issue);
+}
+export async function counted(ctrl: Controller, id: string) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (issue instanceof Promise) {
+    await issue;
+  } else {
+    recordCacheHit(issue.id);
+  }
+}
+export async function waited(ctrl: Controller, id: string) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (issue instanceof Promise) {
+    await issue;
+  }
+}
+export async function shadowed(ctrl: Controller, id: string, kind: string) {
+  if (kind === 'issue') {
+    const data = ctrl.fetchIfStale(IssueResource.get, { id });
+    await data;
+  } else {
+    const data = legacyCache.read(id);
+    if (data instanceof Promise) {
+      await data;
+    } else {
+      render(data.title);
+    }
+  }
+}
+export async function title(ctrl: Controller, id: string) {
+  const data = await ctrl.fetchIfStale(IssueResource.get, { id });
+  return data?.title;
+}
+      `,
+      `
+import type { Controller } from '@data-client/react';
+
+export async function guarded(ctrl: Controller, id: string) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (issue instanceof Promise) {
+    await issue;
+    return;
+  }
+  cache.set(id, issue);
+}
+export async function counted(ctrl: Controller, id: string) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (issue instanceof Promise) {
+    await issue;
+  } else {
+    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+    recordCacheHit(issue.id);
+  }
+}
+export async function waited(ctrl: Controller, id: string) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  await issue;
+}
+export async function shadowed(ctrl: Controller, id: string, kind: string) {
+  if (kind === 'issue') {
+    const data = ctrl.fetchIfStale(IssueResource.get, { id });
+    await data;
+  } else {
+    const data = legacyCache.read(id);
+    if (data instanceof Promise) {
+      await data;
+    } else {
+      render(data.title);
+    }
+  }
+}
+export async function title(ctrl: Controller, id: string) {
+  const data = await ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  return data?.title;
+}
+      `,
+      'marks a Promise branch that only waits when the other branch used the data',
+    );
+
+    defineInlineTest(
+      transform,
       { path: 'loader.ts' },
       `
 import type { Controller } from '@data-client/react';
@@ -1406,25 +1500,71 @@ export async function loader(ctrl) {
       { path: 'reports.ts' },
       `
 import { useController } from '@data-client/react';
+import { resource } from '@data-client/rest';
+import { UserResource } from 'my-api';
+
+const TodoResource = resource({ path: '/todos/:id', schema: Todo });
+const ReportResource = resource({ path: '/reports/:id', schema: Report }).extend('get', { method: 'POST' });
 
 export function useRefresh(ctrl) {
   return () => {
     ctrl.fetch(TodoResource.getList).catch(() => void report());
     ctrl.fetch(TodoResource.getList).catch(() => void 0);
+    ctrl.fetch(ReportResource.get, { id: 1 }).catch(() => {});
+    ctrl.fetch(UserResource.get, { id: 1 }).catch(() => {});
   };
 }
       `,
       `
 import { useController } from '@data-client/react';
+import { resource } from '@data-client/rest';
+import { UserResource } from 'my-api';
+
+const TodoResource = resource({ path: '/todos/:id', schema: Todo });
+const ReportResource = resource({ path: '/reports/:id', schema: Report }).extend('get', { method: 'POST' });
 
 export function useRefresh(ctrl) {
   return () => {
     ctrl.fetch(TodoResource.getList).catch(() => void report());
     ctrl.fetch(TodoResource.getList);
+    ctrl.fetch(ReportResource.get, { id: 1 }).catch(() => {});
+    ctrl.fetch(UserResource.get, { id: 1 }).catch(() => {});
   };
 }
       `,
-      'keeps catches whose handler does something',
+      'keeps catches that do something, or on reads it cannot confirm',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'Buttons.tsx' },
+      `
+import { useController } from '@data-client/react';
+
+export function Buttons({ ctrl, id }) {
+  return (
+    <>
+      <button onClick={() => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+      <button onClick={async () => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+      <Confirm onConfirm={() => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+    </>
+  );
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+
+export function Buttons({ ctrl, id }) {
+  return (
+    <>
+      <button onClick={() => ctrl.fetch(TodoResource.get, { id })} />
+      <button onClick={async () => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+      <Confirm onConfirm={() => ctrl.fetch(TodoResource.get, { id }).catch(() => {})} />
+    </>
+  );
+}
+      `,
+      'keeps catches in async handlers and in handlers a component may await',
     );
   });
 
@@ -1442,6 +1582,10 @@ export default class LiveManager implements Manager {
       controller.resolve(action.endpoint, { args: action.args, response, fetchedAt: Date.now() });
       const { endpoint, args } = action;
       controller.resolve(endpoint, { args, response, fetchedAt: Date.now() });
+    }
+    switch (action.type) {
+      case actionTypes.SUBSCRIBE:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
     return next(action);
   };
@@ -1471,11 +1615,15 @@ export default class LiveManager implements Manager {
       const { endpoint, args } = action;
       controller.resolve(endpoint, { args, response, fetchedAt: action.meta.fetchedAt });
     }
+    switch (action.type) {
+      case actionTypes.SUBSCRIBE:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+    }
     return next(action);
   };
 
   receive = ({ endpoint, args, meta }, response) =>
-    this.controller.resolve(endpoint, { args, response, fetchedAt: meta.fetchedAt });
+    this.controller.resolve(endpoint, { args, response, fetchedAt: Date.now() });
 
   push(response) {
     this.controller.resolve(getMessages, { args: [], response, fetchedAt: Date.now() });
@@ -1488,7 +1636,7 @@ export default class LiveManager implements Manager {
   }
 }
       `,
-      "passes the fetch action's fetchedAt instead of Date.now()",
+      "passes a fetch action's fetchedAt instead of Date.now()",
     );
   });
 
@@ -1501,12 +1649,16 @@ export default class LiveManager implements Manager {
 // Paste into the browser console to copy the store
 copy(JSON.stringify(globalThis.__DC_CONTROLLERS__.get('Data Client: Chat').getState()));
 const first = [...window.__DC_CONTROLLERS__.values()][0];
-const second = Array.from(__DC_CONTROLLERS__.values())[0];
-const third = window.__DC_CONTROLLERS__.values().next().value;
 const names = [...window.__DC_CONTROLLERS__.keys()];
+const ids = Array.from(__DC_CONTROLLERS__.keys());
 const state = await page.evaluate(() => (window as any).__DC_CONTROLLERS__.get(name).getState());
 const maybe = debug ? __DC_CONTROLLERS__.get(name) : null;
 const ok = ready && __DC_CONTROLLERS__.get('b').getState();
+diff(__DC_CONTROLLERS__.get('Admin').getState(), __DC_CONTROLLERS__.get('Shop').getState());
+const store = pick(), picked = __DC_CONTROLLERS__.get(store);
+const ctrl = __DC_CONTROLLERS__.get(name);
+if (!ctrl) return null;
+const maybeState = __DC_CONTROLLERS__.get('c')?.getState();
 for (const controller of __DC_CONTROLLERS__.values()) log(controller);
       `,
       `
@@ -1515,14 +1667,21 @@ for (const controller of __DC_CONTROLLERS__.values()) log(controller);
 globalThis.__DC__.store = 'Data Client: Chat';
 
 copy(JSON.stringify(globalThis.__DC__.controller.getState()));
-const first = window.__DC__.controller;
-const second = __DC__.controller;
-const third = window.__DC__.controller;
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+const first = [...window.__DC_CONTROLLERS__.values()][0];
 const names = window.__DC__.stores;
+const ids = __DC__.stores;
 const state = await page.evaluate(() => ((window as any).__DC__.store = name, (window as any).__DC__.controller).getState());
 const maybe = debug ? (__DC__.store = name, __DC__.controller) : null;
 const ok = ready && (__DC__.store = 'b', __DC__.controller).getState();
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+diff((__DC__.store = 'Admin', __DC__.controller).getState(), (__DC__.store = 'Shop', __DC__.controller).getState());
+const store = pick(), picked = (__DC__.store = store, __DC__.controller);
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+const ctrl = __DC_CONTROLLERS__.get(name);
+if (!ctrl) return null;
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+const maybeState = __DC_CONTROLLERS__.get('c')?.getState();
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
 for (const controller of __DC_CONTROLLERS__.values())
   log(controller);
       `,
@@ -1913,9 +2072,16 @@ it('loads', async () => {
 
 it('keeps allSettled', async () => {
   const { result, allSettled: settle, waitForNextUpdate } = await renderDataCompose(() => useThing());
+  expect(result.value).toBeUndefined();
   await waitForNextUpdate();
   expect(result.value).toBeDefined();
   await settle();
+});
+
+it('marks a first wait for a result it does not await', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useTimer());
+  await waitForNextUpdate();
+  expect(result.value).toBe(true);
 });
 
 it('renames an alias', async () => {
@@ -1947,9 +2113,17 @@ it('keeps allSettled', async () => {
     result,
     allSettled: settle
   } = await renderDataCompose(() => useThing());
+  expect(result.value).toBeUndefined();
   await settle();
   expect(result.value).toBeDefined();
   await settle();
+});
+
+it('marks a first wait for a result it does not await', async () => {
+  const { result, waitForNextUpdate } = await renderDataCompose(() => useTimer());
+  // TODO(data-client): waitForNextUpdate() is deprecated; \`await result\` for the first load, and await allSettled() after changing props or calling the controller: https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+  await waitForNextUpdate();
+  expect(result.value).toBe(true);
 });
 
 it('renames an alias', async () => {
@@ -1959,7 +2133,7 @@ it('renames an alias', async () => {
   await next();
 });
       `,
-      'turns Vue waitForNextUpdate() into allSettled(), dropping it before await result',
+      'turns Vue waitForNextUpdate() into allSettled(), dropping a first wait before await result',
     );
 
     defineInlineTest(
@@ -1985,6 +2159,16 @@ class Sorted extends Entity {
 }
 class Done extends Entity {
   static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+    return value.id;
+  }
+}
+class Grouped extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: [{ group: string }]) {
+    return args?.[0]?.group;
+  }
+}
+class Named extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: Args) {
     return value.id;
   }
 }
@@ -2015,6 +2199,17 @@ class Sorted extends Entity {
 }
 class Done extends Entity {
   static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+    return value.id;
+  }
+}
+class Grouped extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: readonly [{ group: string }]) {
+    return args?.[0]?.group;
+  }
+}
+class Named extends Entity {
+  // TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-pk-args
+  static pk(value: any, parent?: any, key?: string, args?: Args) {
     return value.id;
   }
 }
@@ -2052,9 +2247,18 @@ export const CommentResource = resource({ path: '/comments/:id', schema: Comment
         );
         write(
           'tsconfig.json',
-          `{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }\n`,
+          `{ "compilerOptions": { "paths": { "@/*": ["./*"], "@/resources/*": ["./api/*"] } } }\n`,
         );
         write('resources/index.ts', `export * from './post';\n`);
+        // `@/resources/post` resolves here, by the longer alias
+        write(
+          'api/post.ts',
+          `
+import { resource } from '@data-client/rest';
+
+export const PostResource = resource({ path: '/posts/:id', schema: Post }).extend({ getList: { path: '/feed' } });
+`,
+        );
         write(
           'custom.ts',
           `
@@ -2073,6 +2277,7 @@ import { PostResource, NoteResource, UserResource, DraftResource } from '../reso
 import { PostResource as Posts } from '../resources/post.js';
 import { TagResource } from '../custom';
 import { CommentResource } from '@/resources';
+import { PostResource as FeedResource } from '@/resources/post';
 
 export function useCreate() {
   const ctrl = useController();
@@ -2086,6 +2291,7 @@ export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
 export const createDraft = (ctrl, body) => ctrl.fetch(DraftResource.create, body);
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
 export const createComment = (ctrl, body) => ctrl.fetch(CommentResource.create, body);
+export const createFeed = (ctrl, body) => ctrl.fetch(FeedResource.create, body);
 `;
         expect(
           applyTransform(
@@ -2100,6 +2306,7 @@ import { PostResource, NoteResource, UserResource, DraftResource } from '../reso
 import { PostResource as Posts } from '../resources/post.js';
 import { TagResource } from '../custom';
 import { CommentResource } from '@/resources';
+import { PostResource as FeedResource } from '@/resources/post';
 
 export function useCreate() {
   const ctrl = useController();
@@ -2116,6 +2323,8 @@ export const createDraft = (ctrl, body) => ctrl.fetch(DraftResource.create, body
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
 export const createComment = (ctrl, body) => ctrl.fetch(CommentResource.getList.push, body);
+// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
+export const createFeed = (ctrl, body) => ctrl.fetch(FeedResource.create, body);
 `.trim(),
         );
       });

@@ -5,7 +5,8 @@
 Migrate [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) results read without `await` in the `v0.19` codemod
 
 `fetchIfStale()` always returns a Promise in 0.19. Where an `instanceof Promise` or `isPromise()` check on its result
-has a branch that awaits the result, the codemod keeps that branch and deletes the other:
+has a branch that awaits the result and reads the data (or the other branch is empty), the codemod keeps that branch and
+deletes the other:
 
 ```ts
 const issue = ctrl.fetchIfStale(IssueResource.get, { id });

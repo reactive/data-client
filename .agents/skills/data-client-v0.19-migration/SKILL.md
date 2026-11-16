@@ -39,8 +39,8 @@ rejects unhandled: the error is stored for components, like any fetch error.
 
 Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
 
-Where an `instanceof Promise` or `isPromise()` check had a branch that awaited the result, the codemod already kept
-that branch and deleted the other. What's left:
+Where an `instanceof Promise` or `isPromise()` check had a branch that awaited the result and read the data (or the
+other branch was empty), the codemod already kept that branch and deleted the other. What's left:
 
 - **Fix each `TODO(data-client): fetchIfStale() always returns a Promise` comment.** The code below it reads the result
   as data (a check whose Promise branch did nothing, a field, destructuring, an `if`). `await` the call where the data
@@ -114,7 +114,8 @@ where it only returned a function, and gave Managers without middleware a pass-t
   TypeError on mount.
 - **Managers that call `controller.resolve()`** pass the `meta.fetchedAt` of the fetch action they resolve: 0.19
   matches responses to fetches by it, after `resetEntireStore()` and against newer fetches. The codemod did this where
-  the endpoint was `action.endpoint`; fix the `fetchedAt: Date.now()` it couldn't trace to an action.
+  the endpoint was `action.endpoint` under an `actionTypes.FETCH` check; fix each other `fetchedAt: Date.now()` that
+  resolves a fetch action.
 
 Details: [middleware](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware),
 [cleanup](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup),
@@ -141,8 +142,10 @@ Skip this step unless the app uses `@data-client/vue`.
 
 The codemod rewrote `__DC_CONTROLLERS__.get(name)` to `__DC__.store = name` and `__DC__.controller` in the files it
 processed. Skip this step if `rg -n '__DC_CONTROLLERS__' .` finds nothing. What's left is in strings (such as
-`page.evaluate('...')`), HTML, or files the codemod didn't process: read `__DC__.controller`, after setting
-`__DC__.store = name` when the page has several stores.
+`page.evaluate('...')`), HTML, files the codemod didn't process, and code it marked: reads of the first controller, and
+code that handled a missing store. Read `__DC__.controller`, after setting `__DC__.store = name` when the page has
+several stores. It throws when the store isn't mounted, where `.get(name)` returned `undefined`, so check
+`__DC__.stores.includes(name)` first where the store may be missing.
 [Details](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global).
 
 ## Step 9: verify
@@ -179,10 +182,10 @@ the user makes the commits, list the files this step changed instead.
 npx @data-client/codemods v0.19 <source-root> --deprecations=only
 ```
 
-It renames what has a drop-in replacement: `resource().create` to `getList.push` where it runs, for resources declared
-in the file or imported from a relative path or tsconfig `paths` alias; Vue `waitForNextUpdate()` to `allSettled()`;
-and `static pk()` `args` to `readonly any[]`. It leaves a `TODO(data-client)` comment naming the replacement on the
-rest. Fix each, then delete the comment, and repeat Step 9. Gotchas:
+It renames what has a replacement that does the same thing: `resource().create` to `getList.push` (the same request)
+where it runs, for resources declared in the file or imported from a relative path or tsconfig `paths` alias; Vue
+`waitForNextUpdate()` to `allSettled()`; and `static pk()` `args` to `readonly any[]`. It leaves a `TODO(data-client)`
+comment naming the replacement on the rest. Fix each, then delete the comment, and repeat Step 9. Gotchas:
 
 - `*Resource.create` it didn't rename (imported from a package, or built with something other than `resource()` from
   `@data-client/rest`): if the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path
@@ -191,6 +194,8 @@ rest. Fix each, then delete the comment, and repeat Step 9. Gotchas:
   `action.endpoint.name === XResource.getList.push.name`. Each read of `getList.push` makes a new endpoint, so `===`
   never matches it. Files the codemod processed carry a TODO there; also check `rg -n '\.create\b' <source-root>` for
   `.vue` and other files it skipped, and for resources not named `*Resource`.
+- The endpoint's `name` changes from `Post.create` to `Post.getList.create`. Update code that matches the name as a
+  string, such as Managers that log or time requests by name: `rg -n "\.create['\"\`]" <source-root>`.
 
 Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`. The blog's
 [future releases](https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-releases) lists changes that will break

@@ -94,21 +94,35 @@ function findModule(fromFile, spec) {
     return findFile(nodePath.resolve(nodePath.dirname(fromFile), spec));
   const { baseUrl, paths, pathsDir } = aliasConfig(fromFile);
   const root = baseUrl || pathsDir;
+  // like TypeScript: an exact pattern, else the wildcard with the longest prefix, and only that one
+  let best;
   for (const [pattern, targets] of Object.entries(paths || {})) {
     const star = pattern.indexOf('*');
-    let rest;
     if (star === -1) {
-      if (spec !== pattern) continue;
-      rest = '';
-    } else {
-      const prefix = pattern.slice(0, star);
-      const suffix = pattern.slice(star + 1);
-      if (!spec.startsWith(prefix) || !spec.endsWith(suffix)) continue;
-      rest = spec.slice(prefix.length, spec.length - suffix.length);
+      if (spec === pattern) {
+        best = { targets, rest: '' };
+        break;
+      }
+      continue;
     }
-    for (const target of targets) {
+    const prefix = pattern.slice(0, star);
+    const suffix = pattern.slice(star + 1);
+    if (
+      spec.length >= prefix.length + suffix.length &&
+      spec.startsWith(prefix) &&
+      spec.endsWith(suffix) &&
+      !(best?.prefix.length >= prefix.length)
+    )
+      best = {
+        targets,
+        prefix,
+        rest: spec.slice(prefix.length, spec.length - suffix.length),
+      };
+  }
+  if (best) {
+    for (const target of best.targets) {
       const file = findFile(
-        nodePath.resolve(root, target.split('*').join(rest)),
+        nodePath.resolve(root, target.split('*').join(best.rest)),
       );
       if (file) return file;
     }
