@@ -2606,7 +2606,16 @@ export const TagResource = resource({ path: '/tags/:id', schema: Tag });
         );
         write(
           'vite/tsconfig.node.json',
-          `{ "extends": "./tsconfig.json", "include": ["vite.config.ts"] }\n`,
+          // its own `@/*` alias, for files outside src
+          `{ "extends": "./tsconfig.json", "compilerOptions": { "paths": { "@/*": ["./server/*"] } }, "include": ["vite.config.ts", "server"] }\n`,
+        );
+        write(
+          'vite/server/api/Post.ts',
+          `
+import { resource } from '@data-client/rest';
+
+export const PostResource = resource({ path: '/posts/:id', schema: Post }).extend({ getList: { path: '/feed' } });
+`,
         );
         write(
           'vite/tsconfig.app.json',
@@ -2642,7 +2651,7 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
         }
       });
 
-      it('follows tsconfig references to the config with path aliases', () => {
+      it('follows tsconfig references to the config with path aliases that includes the file', () => {
         const source = `
 import { useController } from '@data-client/react';
 import { PostResource as P2 } from '@/api/Post';

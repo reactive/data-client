@@ -21,7 +21,7 @@ function findFile(base) {
 // tsconfig/jsconfig `paths` and `baseUrl` of the nearest config, so aliased
 // imports like `@/lib/api-client` resolve too
 const pathsCache = new Map();
-function readConfig(file, seen = new Set()) {
+function readConfig(file, fromDir, seen = new Set()) {
   // a referenced project may extend the solution config that references it; `seen` holds the configs
   // that led here
   if (seen.has(file)) return {};
@@ -39,10 +39,15 @@ function readConfig(file, seen = new Set()) {
     baseUrl: options.baseUrl && nodePath.resolve(dir, options.baseUrl),
     paths: options.paths,
     pathsDir: dir,
+    // the folders `include` names, up to its first wildcard
+    includes:
+      Array.isArray(config.include) ?
+        config.include.map(p => nodePath.resolve(dir, p.split('*')[0]))
+      : undefined,
   };
   const inherited =
     typeof config.extends === 'string' && config.extends.startsWith('.') ?
-      tryConfig(nodePath.resolve(dir, config.extends), seen)
+      tryConfig(nodePath.resolve(dir, config.extends), fromDir, seen)
     : undefined;
   const merged =
     inherited ?
@@ -50,54 +55,62 @@ function readConfig(file, seen = new Set()) {
         baseUrl: own.baseUrl || inherited.baseUrl,
         paths: own.paths || inherited.paths,
         pathsDir: own.paths ? dir : inherited.pathsDir,
+        includes: own.includes || inherited.includes,
       }
     : own;
   if (merged.paths || merged.baseUrl || !Array.isArray(config.references))
     return merged;
   // a solution-style config (create-vite: `"files": []` plus `references`) keeps its aliases in a
   // referenced config such as tsconfig.app.json
-  for (const ref of config.references) {
-    if (typeof ref?.path !== 'string') continue;
-    const found = tryConfig(nodePath.resolve(dir, ref.path), seen);
-    if (found?.paths || found?.baseUrl) return found;
-  }
-  return merged;
+  const aliased = config.references
+    .filter(ref => typeof ref?.path === 'string')
+    .map(ref => tryConfig(nodePath.resolve(dir, ref.path), fromDir, seen))
+    .filter(found => found?.paths || found?.baseUrl);
+  if (aliased.length === 1) return aliased[0];
+  // with several, only the one whose `include` holds the importing folder; unknown otherwise
+  const owners = aliased.filter(found =>
+    found.includes?.some(
+      folder => fromDir === folder || fromDir.startsWith(folder + nodePath.sep),
+    ),
+  );
+  return owners.length === 1 ? owners[0] : merged;
 }
 
 // `extends` and `references` may name a folder or leave off `.json`
-function tryConfig(target, seen) {
+function tryConfig(target, fromDir, seen) {
   const file =
     target.endsWith('.json') ? target
     : fs.statSync(target, { throwIfNoEntry: false })?.isDirectory() ?
       nodePath.join(target, 'tsconfig.json')
     : target + '.json';
   try {
-    return readConfig(file, new Set(seen));
+    return readConfig(file, fromDir, new Set(seen));
   } catch {
     return undefined;
   }
 }
 
 function aliasConfig(fromFile) {
-  const dir = nodePath.dirname(nodePath.resolve(fromFile));
-  if (pathsCache.has(dir)) return pathsCache.get(dir);
-  let config = null;
-  for (const name of ['tsconfig.json', 'jsconfig.json']) {
-    const file = nodePath.join(dir, name);
-    if (!fs.existsSync(file)) continue;
-    try {
-      config = readConfig(file);
-    } catch {
-      config = {};
+  const fromDir = nodePath.dirname(nodePath.resolve(fromFile));
+  if (pathsCache.has(fromDir)) return pathsCache.get(fromDir);
+  // the nearest config; which project a solution config picks depends on the importing folder, so the
+  // answer is kept for that folder only
+  let config = {};
+  search: for (let dir = fromDir; ; dir = nodePath.dirname(dir)) {
+    for (const name of ['tsconfig.json', 'jsconfig.json']) {
+      const file = nodePath.join(dir, name);
+      if (!fs.existsSync(file)) continue;
+      try {
+        config = readConfig(file, fromDir);
+      } catch {
+        config = {};
+      }
+      break search;
     }
-    break;
+    if (nodePath.dirname(dir) === dir) break;
   }
-  const parent = nodePath.dirname(dir);
-  // a file in the parent folder, so the lookup continues from there
-  if (!config && parent !== dir)
-    config = aliasConfig(nodePath.join(parent, 'index.js'));
-  pathsCache.set(dir, config || {});
-  return config || {};
+  pathsCache.set(fromDir, config);
+  return config;
 }
 
 // a relative import is keyed by the path it names, and any other by its folder, whose imports resolve the
