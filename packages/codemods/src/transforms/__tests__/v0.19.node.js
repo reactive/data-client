@@ -1275,6 +1275,13 @@ real.fetchIfStale = jest.fn(id => {
   if (id) return issue;
   return Promise.resolve(other);
 });
+const partial = { fetchIfStale: jest.fn(() => {
+  if (ready) return cached;
+  return;
+}) };
+const fallthrough = { fetchIfStale: jest.fn(() => {
+  if (ready) return cached;
+}) };
 jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
 jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
 jest.spyOn(real, 'fetchIfStale').mockImplementation(impl);
@@ -1288,6 +1295,13 @@ real.fetchIfStale = jest.fn(id => {
   if (id) return Promise.resolve(issue);
   return Promise.resolve(other);
 });
+const partial = { fetchIfStale: jest.fn(async () => {
+  if (ready) return cached;
+  return;
+}) };
+const fallthrough = { fetchIfStale: jest.fn(async () => {
+  if (ready) return cached;
+}) };
 jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
 jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
 // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise

@@ -840,19 +840,24 @@ function resolveImplementation(j, fn) {
   const nested = new Set(
     j(fn.body).find(j.Function).find(j.ReturnStatement).nodes(),
   );
-  let dirty = false;
-  j(fn.body)
+  const returns = j(fn.body)
     .find(j.ReturnStatement)
-    .forEach(({ node }) => {
-      if (
-        nested.has(node) ||
-        !node.argument ||
-        isPromiseValue(unwrap(node.argument))
-      )
-        return;
-      node.argument = wrap(node.argument);
-      dirty = true;
-    });
+    .filter(({ node }) => !nested.has(node))
+    .nodes();
+  // a bare `return;` or running off the end returns undefined, so make every path a Promise with `async`
+  if (
+    returns.some(node => !node.argument) ||
+    fn.body.body.at(-1)?.type !== 'ReturnStatement'
+  ) {
+    fn.async = true;
+    return true;
+  }
+  let dirty = false;
+  for (const node of returns) {
+    if (isPromiseValue(unwrap(node.argument))) continue;
+    node.argument = wrap(node.argument);
+    dirty = true;
+  }
   return dirty;
 }
 
