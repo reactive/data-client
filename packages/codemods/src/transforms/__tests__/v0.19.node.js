@@ -1497,6 +1497,56 @@ export async function f(ctrl) {
       `,
       'leaves a check on an outer variable that a later block reuses the name of',
     );
+    defineInlineTest(
+      transform,
+      { path: 'loader.js' },
+      `
+import { useController } from '@data-client/react';
+export async function f(ctrl, id) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (issue instanceof Promise) {
+    const name = (await issue).name;
+    render(name);
+  } else {
+    render(issue.name);
+  }
+  return name;
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+export async function f(ctrl, id) {
+  const issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  {
+    const name = (await issue).name;
+    render(name);
+  }
+  return name;
+}
+      `,
+      'keeps the branch in a block when code beside it reads a name the branch declares',
+    );
+    defineInlineTest(
+      transform,
+      { path: 'loader.js' },
+      `
+import { useController } from '@data-client/react';
+export function f(ctrl, id) {
+  var issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  if (!(issue instanceof Promise)) render(issue);
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+export function f(ctrl, id) {
+  var issue = ctrl.fetchIfStale(IssueResource.get, { id });
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  if (!(issue instanceof Promise))
+    render(issue);
+}
+      `,
+      'marks sync reads of a var holding the result',
+    );
   });
 
   describe('unawaited reads', () => {
@@ -1819,6 +1869,18 @@ const __DC_CONTROLLERS__ = new Map();
 const n = __DC_CONTROLLERS__.get('a');
       `,
       "leaves a local variable with the global's name",
+    );
+    defineInlineTest(
+      transform,
+      { path: 'debug.js' },
+      `
+const c = __DC_CONTROLLERS__.get(...storeArgs);
+      `,
+      `
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+const c = __DC_CONTROLLERS__.get(...storeArgs);
+      `,
+      'marks a lookup with a spread argument',
     );
   });
 

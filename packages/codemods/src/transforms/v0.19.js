@@ -462,13 +462,13 @@ function readsSynchronously(path) {
   }
 }
 
-/** `const x = ctrl.fetchIfStale(...)` declarators */
-const findFetchIfStaleConsts = (j, root) =>
+/** `const x = ctrl.fetchIfStale(...)` declarators, or with `anyKind` also `let` and `var` ones */
+const findFetchIfStaleConsts = (j, root, anyKind = false) =>
   root
     .find(j.VariableDeclarator, { id: { type: 'Identifier' } })
     .filter(
       decl =>
-        decl.parent.node.kind === 'const' &&
+        (anyKind || decl.parent.node.kind === 'const') &&
         isFetchIfStaleCall(unwrap(decl.node.init)),
     )
     .paths();
@@ -477,13 +477,13 @@ const findFetchIfStaleConsts = (j, root) =>
 const refsTo = (j, decl, path = decl.scope.path) =>
   usesOf(j, j(path), decl.get('id')).paths();
 
-/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a `const` holding it */
+/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a variable holding it */
 function findSyncReads(j, root) {
   const reads = root
     .find(j.CallExpression)
     .filter(call => isFetchIfStaleCall(call.node) && readsSynchronously(call))
     .paths();
-  for (const decl of findFetchIfStaleConsts(j, root))
+  for (const decl of findFetchIfStaleConsts(j, root, true))
     reads.push(...refsTo(j, decl).filter(readsSynchronously));
   return reads;
 }
@@ -555,7 +555,8 @@ const endsEarly = branch => endsAbruptly([branch]);
 
 /** Whether `statements` can move into the block around `path` without their declarations clashing with
  * names already visible there */
-function canInline(path, statements) {
+function canInline(j, path, statements) {
+  const siblings = path.parentPath.value.filter(node => node !== path.node);
   return statements.every(statement => {
     const declared =
       statement.type === 'VariableDeclaration' ?
@@ -568,18 +569,23 @@ function canInline(path, statements) {
       // ast-types puts block-scoped names in the function's scope, so the branch's own declaration is
       // the one binding allowed there
       const scope = path.scope.lookup(id.name);
+      // a name read beside the check may be a global, which the declaration would then shadow
+      const readBeside = siblings.some(
+        node => j(node).find(j.Identifier, { name: id.name }).size() > 0,
+      );
       return (
-        !scope ||
-        (scope === path.scope &&
-          scope.getBindings()[id.name].length === 1 &&
-          !path.scope.parent?.lookup(id.name))
+        !readBeside &&
+        (!scope ||
+          (scope === path.scope &&
+            scope.getBindings()[id.name].length === 1 &&
+            !path.scope.parent?.lookup(id.name)))
       );
     });
   });
 }
 
 /** Replaces the `if` or `?:` at `path` with the branch at `branchPath` */
-function keepBranch(path, branchPath) {
+function keepBranch(j, path, branchPath) {
   const branch = branchPath.node;
   if (path.node.type === 'ConditionalExpression') {
     path.replace(branch);
@@ -587,7 +593,7 @@ function keepBranch(path, branchPath) {
   }
   const statements = branch.type === 'BlockStatement' ? branch.body : [branch];
   const replacement =
-    Array.isArray(path.parentPath.value) && canInline(path, statements) ?
+    Array.isArray(path.parentPath.value) && canInline(j, path, statements) ?
       statements
     : [branch];
   if (replacement[0]) prependComments(replacement[0], path.node.comments);
@@ -621,7 +627,7 @@ function keepPromiseBranches(j, root) {
       (!other && !endsEarly(branch.node)) ||
       (other?.type === 'BlockStatement' && !other.body.length);
     if (!awaits(j, branch, decl, !otherEmpty)) continue;
-    keepBranch(path, branch);
+    keepBranch(j, path, branch);
     dirty = true;
   }
   return dirty;
@@ -1654,6 +1660,7 @@ function migrateDcGlobal(j, root) {
       call.node.type === 'CallExpression' &&
       call.node.callee === path.parent.node &&
       call.node.arguments.length === 1 &&
+      call.node.arguments[0].type !== 'SpreadElement' &&
       call
     );
   };
