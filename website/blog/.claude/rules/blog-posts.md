@@ -16,25 +16,46 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 - `draft: true` for unpublished/WIP posts
 - Publish a draft with `yarn blog:publish website/blog/<post>.md` (removes `draft: true`, re-dates the filename to today, fixes links). CI fails posts published with a stale date.
 
+## Package Layers
+
+Many readers use only some packages: React with custom endpoints and no REST, or REST with another state library.
+Help them skip what they don't use.
+
+| Layer | Packages | Content |
+|-------|----------|---------|
+| **Platforms** | Integration | NextJS, Expo, React Native, Vue, React versions |
+| **Client/Platform** | react, vue, core | Hooks, composables, Controller, Managers, Provider |
+| **API Definition** | rest, endpoint, graphql | Resource, RestEndpoint, Entity, Collection, schemas |
+| **Internal** | normalizr, core | State structure, normalization, typing |
+
+Layers guide grouping; they don't define the top-level groups (see Blog Structure).
+- Put top-level groups about the same layer next to each other (Collections beside other endpoint/schema groups).
+- Inside a cross-cutting group (Performance, Validation), order items by layer.
+- Name the public packages each change affects: a line of package tags (`` `react` `vue` ``, without the
+  `@data-client/` prefix) under each heading, and the same tags at the start of each bullet.
+- Internal-only changes (core, normalizr) go last, since most readers don't use those packages directly.
+
 ## Blog Structure
 
-Group changes by the concept a reader cares about (live data, performance, type safety, Vue, testing), not by package
-or by "new" versus "fixed". A reader should find their group from its heading and skip the rest.
+Group changes by the concept a reader cares about, not by "new" versus "fixed". Example top-level groups:
+Performance, Client (Controller, hooks, Managers on every platform), Vue, Collections, Validation (type safety,
+testing, development warnings). Split a concept into `###` subsections when it holds many changes.
 
-**Summary (before `{/* truncate */}`):**
-1. One or two sentences on the release's headline changes
-2. One block per concept group, most important first: a bold heading linking to its body section, one sentence on why
-   it matters to the reader, then 1-4 short bullets linking to sections (fixes labeled as below)
-3. Breaking Changes, grouped by audience (as in the migration guide), with anchor links
-4. Get ready for future releases (deprecations)
+**Summary (before `{/* truncate */}`):** short, never a full list.
+1. One or two sentences on the release
+2. One or two headline features or strong enhancements, each with a sentence and a demo, chart or graphic
+   (`<HooksPlayground>`, `<PerfChart>`, a shared demo). No `<StackBlitz>`. The body section keeps the details.
+3. "More in v0.19": one bullet per group, naming its top few changes as hash links
+4. Breaking Changes, grouped by audience (as in the migration guide), with anchor links
+5. Get ready for future releases (deprecations)
 
-**Details (after truncate):** one `##` per concept group, in summary order, then the migration guide.
-- Open each group with its why sentence.
-- Give a change its own `###` when it needs a demo or code: explanation → code example → PR/commit links.
-- List smaller changes as a final bullet list in their group, each with its PR link. Put it under `### Other changes`
-  when the group also has `###` sections.
-- Keep fixes in their concept group, but label each one: start the bullet with `**Fix:**` and the heading with `Fix:`.
-  A list that holds only fixes can say so in its heading instead.
+**Details (after truncate):** one `##` per group, in summary order, then the migration guide.
+- Open each group and subsection with one sentence on why it matters to the reader.
+- Give a change its own heading when it needs a demo or code: explanation → code example → PR/commit links.
+- List smaller changes as a final bullet list in their group, each with its PR link, under `Other changes` when
+  the group also has headings.
+- Order new features and enhancements before fixes. Keep fixes in their group, but label each one: start the bullet
+  with `**Fix:**` and the heading with `Fix:`. A list that holds only fixes can say so in its heading instead.
 
 ## Migration Guide
 
