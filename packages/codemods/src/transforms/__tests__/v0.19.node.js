@@ -2789,4 +2789,401 @@ export const createFeed = (ctrl, body) => ctrl.fetch(FeedResource.create, body);
       });
     });
   });
+
+  describe('optional improvements', () => {
+    const ENTITIES = `
+import { Entity, Invalidate, resource } from '@data-client/rest';
+import type { Controller } from '@data-client/react';
+
+class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+  pk() {
+    return this.product_id;
+  }
+}
+class Todo extends Entity {
+  id = 0;
+  title = '';
+  static schema = { author: User, createdAt: Date };
+}
+class User extends Entity {
+  id = 0;
+  static schema = { todos: [Todo] };
+}
+const TodoResource = resource({ path: '/users/:userId/todos/:id', schema: Todo });
+`;
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `${ENTITIES}
+export function onMessage(ctrl: Controller, event: MessageEvent) {
+  const rows = JSON.parse(event.data);
+  for (const row of rows) {
+    ctrl.set(Ticker, { product_id: row.product_id }, row);
+  }
+}
+export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
+  for (const todo of todos) {
+    ctrl.set(TodoResource.getList.schema.push, { userId } as any, todo);
+  }
+}
+export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
+  await Promise.all(todos.map(todo => ctrl.set(Todo, { id: todo.id }, { ...todo, title: todo.title.trim() })));
+  todos.forEach(todo => ctrl.set(User, todo.author));
+}
+export function deleteTodos(ctrl: Controller, ids: string[]) {
+  for (const id of ids) ctrl.set([new Invalidate(Todo)], [{ id }]);
+}
+      `,
+      `${ENTITIES}
+export function onMessage(ctrl: Controller, event: MessageEvent) {
+  const rows = JSON.parse(event.data);
+  ctrl.set([Ticker], rows);
+}
+export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
+  ctrl.set(TodoResource.getList.schema.push, { userId } as any, todos);
+}
+export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
+  await ctrl.set([Todo], todos.map(todo => ({ ...todo, title: todo.title.trim() })));
+  ctrl.set([User], todos.map(todo => todo.author));
+}
+export function deleteTodos(ctrl: Controller, ids: string[]) {
+  ctrl.set([new Invalidate(Todo)], ids.map(id => ({ id })));
+}
+      `,
+      'batches loops of set() into one set()',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity, schema, resource } from '@data-client/rest';
+
+class Base extends Entity {
+  static process(value, parent) {
+    return { ...value, parentId: parent.id };
+  }
+}
+class Row extends Base { id = 0; }
+class Slugged extends Entity {
+  slug = '';
+  static pk(value, parent, key, args) {
+    return args[0].slug;
+  }
+}
+class Checked extends Entity {
+  id = 0;
+  static validate(value) {
+    return value.id ? undefined : 'missing id';
+  }
+}
+class Plain extends schema.Entity { id = 0; }
+const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
+
+export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
+  for (var a of rows) ctrl.set(Plain, a);
+  const done = await Promise.all(rows.map(b => ctrl.set(Plain, b)));
+  rows.forEach((c, i) => ctrl.set(Plain, c));
+  rows.forEach(d => ctrl.set(Plain, { id: makeId() }, d));
+  rows.forEach(e => ctrl.set(Plain, { ...e, old: ctrl.get(Plain, e) }));
+  rows.forEach(f => ctrl.set(Plain, { id: f.id }, prev => ({ ...prev, ...f })));
+  rows.forEach(g => ctrl.set(Row, g));
+  rows.forEach(h => ctrl.set(Slugged, { slug: h.slug }, h));
+  rows.forEach(k => ctrl.set(Checked, k));
+  rows.forEach(m => ctrl.set(PostResource.getList.schema.push, m));
+  rows.forEach(n => ctrl.set(OtherResource.getList.schema.push, n));
+  rows.forEach(o => ctrl.set(Plain.getList.schema.unshift, o));
+  for (const p of picked) ctrl.set(Plain, p);
+  for (const q of data.rows) ctrl.set(Plain, q);
+  for (const r of rows) {
+    if (r.id) ctrl.set(Plain, r);
+  }
+}
+      `,
+      `
+import { Entity, schema, resource } from '@data-client/rest';
+
+class Base extends Entity {
+  static process(value, parent) {
+    return { ...value, parentId: parent.id };
+  }
+}
+class Row extends Base { id = 0; }
+class Slugged extends Entity {
+  slug = '';
+  static pk(value, parent, key, args) {
+    return args[0].slug;
+  }
+}
+class Checked extends Entity {
+  id = 0;
+  static validate(value) {
+    return value.id ? undefined : 'missing id';
+  }
+}
+class Plain extends schema.Entity { id = 0; }
+const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
+
+export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
+  for (var a of rows) ctrl.set(Plain, a);
+  const done = await Promise.all(rows.map(b => ctrl.set(Plain, b)));
+  rows.forEach((c, i) => ctrl.set(Plain, c));
+  rows.forEach(d => ctrl.set(Plain, { id: makeId() }, d));
+  rows.forEach(e => ctrl.set(Plain, { ...e, old: ctrl.get(Plain, e) }));
+  rows.forEach(f => ctrl.set(Plain, { id: f.id }, prev => ({ ...prev, ...f })));
+  rows.forEach(g => ctrl.set(Row, g));
+  rows.forEach(h => ctrl.set(Slugged, { slug: h.slug }, h));
+  rows.forEach(k => ctrl.set(Checked, k));
+  rows.forEach(m => ctrl.set(PostResource.getList.schema.push, m));
+  rows.forEach(n => ctrl.set(OtherResource.getList.schema.push, n));
+  rows.forEach(o => ctrl.set(Plain.getList.schema.unshift, o));
+  for (const p of picked) ctrl.set(Plain, p);
+  for (const q of data.rows) ctrl.set(Plain, q);
+  for (const r of rows) {
+    if (r.id) ctrl.set(Plain, r);
+  }
+}
+      `,
+      'keeps set() loops that a batch could write differently',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity, Invalidate } from '@data-client/rest';
+
+class Todo extends Entity { id = ''; }
+ctrl.set([new Invalidate(Todo)], [{ id: '5' }]);
+ctrl.set([new Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+      `,
+      `
+import { Entity, Invalidate } from '@data-client/rest';
+
+class Todo extends Entity { id = ''; }
+ctrl.set(new Invalidate(Todo), { id: '5' });
+ctrl.set([new Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+      `,
+      'deletes one entity without a one-row batch',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { computed } from 'vue';
+import { DataClientPlugin, GCPolicy, useSuspense, useCache } from '@data-client/vue';
+
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy() });
+const plugins = [[DataClientPlugin, { gcPolicy: new GCPolicy() }]];
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+
+const props = defineProps<{ id: number }>();
+const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
+const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+      `,
+      `
+import { computed } from 'vue';
+import { DataClientPlugin, GCPolicy, useSuspense, useCache } from '@data-client/vue';
+
+app.use(DataClientPlugin);
+const plugins = [[DataClientPlugin]];
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+
+const props = defineProps<{ id: number }>();
+const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
+const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+      `,
+      'drops Vue options and wrappers that 0.19 makes the default',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { computed } from 'vue';
+import { DataClientPlugin, useSuspense } from '@data-client/vue';
+import { GCPolicy, Controller } from '@data-client/core';
+import { GCPolicy as DefaultGC } from '@data-client/core';
+
+app.use(DataClientPlugin, { gcPolicy: new DefaultGC() });
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
+      `,
+      `
+import { DataClientPlugin, useSuspense, GCPolicy } from '@data-client/vue';
+import { Controller } from '@data-client/core';
+
+app.use(DataClientPlugin);
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
+      `,
+      'imports GCPolicy from @data-client/vue and drops unused imports',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { useCache, useDLE } from '@data-client/react';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useCache(TodoResource.get, { id });
+  const { data: user } = useDLE(UserResource.get, { id });
+  const other = useOther();
+  if (!todo || typeof todo === 'symbol') return <TodoPlaceholder />;
+  if (user && typeof user !== 'symbol') return <UserCard user={user} />;
+  if (typeof other === 'symbol' || !other) return null;
+  return <h3>{todo.title.trim()}</h3>;
+}
+      `,
+      `
+import { useCache, useDLE } from '@data-client/react';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useCache(TodoResource.get, { id });
+  const { data: user } = useDLE(UserResource.get, { id });
+  const other = useOther();
+  if (!todo) return <TodoPlaceholder />;
+  if (user) return <UserCard user={user} />;
+  if (typeof other === 'symbol' || !other) return null;
+  return <h3>{todo.title.trim()}</h3>;
+}
+      `,
+      'drops Symbol checks on useCache() and useDLE() data',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export const write = (ctrl, rows: Ticker[]) => rows.forEach(row => ctrl.set(Ticker, row));
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export const write = (ctrl, rows: Ticker[]) => rows.forEach(row => ctrl.set(Ticker, row));
+      `,
+      'makes no improvements without --improvements',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      DEPRECATIONS_INPUT,
+      DEPRECATIONS_INPUT,
+      'migrates nothing else with --improvements=only',
+    );
+
+    it('rejects other --improvements values', () => {
+      expect(() =>
+        applyTransform(
+          transform,
+          { improvements: 'yes' },
+          { source: DEPRECATIONS_INPUT },
+        ),
+      ).toThrow('--improvements must be true or only');
+    });
+
+    describe('entities imported from another module', () => {
+      const fs = require('node:fs');
+      const os = require('node:os');
+      const path = require('node:path');
+      let dir;
+      beforeAll(() => {
+        dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codemods-v0.19-'));
+        const write = (file, source) => {
+          fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+          fs.writeFileSync(path.join(dir, file), source);
+        };
+        write(
+          'resources/Ticker.ts',
+          `
+import { Entity } from '@data-client/rest';
+import { Product } from './Product';
+
+export class Ticker extends Entity {
+  product_id = '';
+  static schema = { product: Product };
+  pk() {
+    return this.product_id;
+  }
+}
+`,
+        );
+        write(
+          'resources/Product.ts',
+          `
+import { Entity } from '@data-client/rest';
+
+export class Product extends Entity {
+  id = '';
+  static process(value, parent) {
+    return { ...value, tickerId: parent.product_id };
+  }
+}
+export class Scoped extends Entity {
+  id = '';
+  static process(value, parent, key, args) {
+    return { ...value, scope: args[0].scope };
+  }
+}
+`,
+        );
+        write(
+          'resources/Quote.ts',
+          `
+import { Entity } from '@data-client/rest';
+import { Scoped } from './Product';
+
+export class Quote extends Entity {
+  id = '';
+  static schema = { scoped: Scoped };
+}
+`,
+        );
+        write(
+          'resources/index.ts',
+          `export * from './Ticker';\nexport { Quote as LatestQuote } from './Quote';\n`,
+        );
+      });
+      afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('batches rows of an Entity whose nested Entities read no args', () => {
+        const source = `
+import type { Controller } from '@data-client/react';
+import { Ticker, LatestQuote } from '../resources';
+
+export function flush(ctrl: Controller, rows: Ticker[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.product_id }, row);
+  for (const row of rows) ctrl.set(LatestQuote, row);
+}
+`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: path.join(dir, 'managers/StreamManager.ts') },
+          ),
+        ).toBe(
+          `
+import type { Controller } from '@data-client/react';
+import { Ticker, LatestQuote } from '../resources';
+
+export function flush(ctrl: Controller, rows: Ticker[]) {
+  ctrl.set([Ticker], rows);
+  for (const row of rows) ctrl.set(LatestQuote, row);
+}
+`.trim(),
+        );
+      });
+    });
+  });
 });

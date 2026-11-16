@@ -57,10 +57,24 @@ const resolveModule = require('../resolveModule');
  *      - Other `*Resource.create`, React `waitForNextUpdate()`, `renderDataHook.cleanup()`/
  *        `.allSettled()` and Vue `createDataClient()` get a `// TODO(data-client):` comment.
  *
+ *   9. Optional improvements that adopt 0.19 features (only with `--improvements`):
+ *      - A `for...of`, `forEach()` or unused `Promise.all(rows.map())` that calls `ctrl.set()` once per
+ *        row becomes one batch `set()`: `ctrl.set(Ticker, args, row)` becomes `ctrl.set([Ticker], rows)`,
+ *        and `ctrl.set(R.getList.schema.push, args, row)` becomes `ctrl.set(R.getList.schema.push, args, rows)`.
+ *        Only where it writes the same rows: `rows` is an array, the Entity (and its nested Entities) is
+ *        a class this file or a relative module declares whose pk() and process() read only what a batch
+ *        passes them and that doesn't override validate(), and `R` is a plain `resource()`.
+ *      - `ctrl.set([new Invalidate(E)], [row])` becomes `ctrl.set(new Invalidate(E), row)`.
+ *      - Vue: `gcPolicy: new GCPolicy()` is dropped from `DataClientPlugin`'s options, the default;
+ *        `GCPolicy` is imported from `@data-client/vue` instead of `@data-client/core`; and
+ *        `computed(() => args)` passed to a composable becomes the getter `() => args`.
+ *      - `|| typeof data === 'symbol'` is dropped where `data` is React `useCache()` or `useDLE()` data.
+ *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
  *   npx @data-client/codemods v0.19 src/ --deprecations=false  # skip section 8
  *   npx @data-client/codemods v0.19 src/ --deprecations=only   # just section 8
+ *   npx @data-client/codemods v0.19 src/ --improvements=only   # just section 9
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
@@ -1852,7 +1866,8 @@ const hasOnlyKeysOutside = (object, names) =>
 
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
- * differ, and so can a custom `Endpoint` class */
+ * differ, and so can a custom `Endpoint` class. `replaced` names the endpoints that `extend()`, and the
+ * options that `resource()`, must leave alone. */
 function isPlainResource(path, replaced = CREATE_SOURCES) {
   path = unwrapPath(path);
   while (
@@ -1873,7 +1888,10 @@ function isPlainResource(path, replaced = CREATE_SOURCES) {
     path.node.callee.type === 'Identifier' &&
     isImportOf(path.get('callee'), 'resource', '@data-client/rest') &&
     options?.type === 'ObjectExpression' &&
-    hasOnlyKeysOutside(options, RESOURCE_UNSAFE_OPTIONS)
+    hasOnlyKeysOutside(
+      options,
+      new Set([...RESOURCE_UNSAFE_OPTIONS, ...replaced]),
+    )
   );
 }
 
@@ -1946,43 +1964,9 @@ function parseModule(j, file) {
 /** Whether the module `file` exports `name` as a plain `resource()` that it only reads, following
  * `export { name } from` and `export * from` */
 function exportsPlainResource(j, file, name, depth, replaced) {
-  const root = file && depth < 5 && parseModule(j, file);
-  if (!root) return false;
-  const { body } = root.get().node.program;
-  for (const node of body) {
-    if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
-      continue;
-    const declared = node.declaration?.declarations?.some(d =>
-      isId(d.id, name),
-    );
-    if (declared) return isLocalPlainResource(j, root, name, replaced);
-    const specifier = node.specifiers?.find(
-      s => staticName(s.exported) === name,
-    );
-    if (!specifier) continue;
-    const local = specifier.local?.name ?? name;
-    return node.source ?
-        exportsPlainResource(
-          j,
-          resolveModule(file, node.source.value),
-          local,
-          depth + 1,
-          replaced,
-        )
-      : isLocalPlainResource(j, root, local, replaced);
-  }
-  // a module's own exports win over `export *`
-  return body.some(
-    node =>
-      node.type === 'ExportAllDeclaration' &&
-      !node.exported &&
-      exportsPlainResource(
-        j,
-        resolveModule(file, node.source.value),
-        name,
-        depth + 1,
-        replaced,
-      ),
+  const origin = exportOrigin(j, file, name, depth);
+  return (
+    !!origin && isLocalPlainResource(j, origin.root, origin.name, replaced)
   );
 }
 
@@ -2499,17 +2483,901 @@ function migrateDeprecations(j, root, { source, path: file }) {
   return dirty;
 }
 
-/** `--deprecations=false` skips moving off deprecated APIs; `--deprecations=only` does just that */
+// ---- 9. Optional improvements that adopt 0.19 features (--improvements) ----
+
+const SCHEMA_PACKAGES = new Set([
+  '@data-client/rest',
+  '@data-client/endpoint',
+  '@data-client/graphql',
+]);
+const ENTITY_BASES = new Set(['Entity', 'GQLEntity']);
+
+/** The import specifier the identifier at `path` is bound to, unless it imports only a type */
+function valueImportOf(path) {
+  const specifier = bindingOf(path)?.parent;
+  if (
+    specifier?.node.type !== 'ImportSpecifier' ||
+    specifier.node.importKind === 'type' ||
+    specifier.parent.node.importKind === 'type'
+  )
+    return;
+  return specifier;
+}
+
+/** Whether `path` is an identifier imported as one of `names` from `sources` */
+function importsNameFrom(path, names, sources) {
+  const specifier = path.node.type === 'Identifier' && valueImportOf(path);
+  return (
+    !!specifier &&
+    names.has(staticName(specifier.node.imported)) &&
+    sources.has(specifier.parent.node.source.value)
+  );
+}
+
+/** Whether `path` names one of `names` from a schema package: `Entity` imported from `@data-client/rest`,
+ * or `schema.Entity` */
+const isSchemaExport = (path, names) =>
+  importsNameFrom(path, names, SCHEMA_PACKAGES) ||
+  (isMember(path.node) &&
+    names.has(memberName(path.node)) &&
+    importsNameFrom(path.get('object'), new Set(['schema']), SCHEMA_PACKAGES));
+
+/** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
+ * `export * from` */
+function exportOrigin(j, file, name, depth = 0) {
+  const root = file && depth < 5 && parseModule(j, file);
+  if (!root) return;
+  const { body } = root.get().node.program;
+  for (const node of body) {
+    if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
+      continue;
+    const { declaration } = node;
+    if (
+      isId(declaration?.id, name) ||
+      declaration?.declarations?.some(d => isId(d.id, name))
+    )
+      return { root, file, name };
+    const specifier = node.specifiers?.find(
+      s => staticName(s.exported) === name,
+    );
+    if (!specifier) continue;
+    const local = specifier.local?.name ?? name;
+    return node.source ?
+        exportOrigin(
+          j,
+          resolveModule(file, node.source.value),
+          local,
+          depth + 1,
+        )
+      : { root, file, name: local };
+  }
+  // a module's own exports win over `export *`
+  for (const node of body) {
+    if (node.type !== 'ExportAllDeclaration' || node.exported) continue;
+    const origin = exportOrigin(
+      j,
+      resolveModule(file, node.source.value),
+      name,
+      depth + 1,
+    );
+    if (origin) return origin;
+  }
+}
+
+/** The class a module declares at its top level as `name`: `class name` or `const name = class` */
+function topLevelClass(j, root, name) {
+  const atTop = p =>
+    ['Program', 'ExportNamedDeclaration'].includes(p.parent.node.type);
+  return (
+    root.find(j.ClassDeclaration, { id: { name } }).filter(atTop).paths()[0] ??
+    root
+      .find(j.VariableDeclarator, {
+        id: { name },
+        init: { type: 'ClassExpression' },
+      })
+      .filter(p => p.parent.node.kind === 'const' && atTop(p.parent))
+      .paths()[0]
+      ?.get('init')
+  );
+}
+
+/** The class the identifier at `path` names, declared in this file or exported by the relative or
+ * tsconfig-aliased module it is imported from: `{ path, file }` */
+function classOf(j, path, file) {
+  const binding = path.node.type === 'Identifier' && bindingOf(path);
+  const owner = binding?.parent;
+  if (!owner) return;
+  if (owner.node.type === 'ClassDeclaration' && owner.node.id === binding.node)
+    return { path: owner, file };
+  if (
+    owner.node.type === 'VariableDeclarator' &&
+    owner.node.id === binding.node &&
+    owner.parent.node.kind === 'const' &&
+    owner.node.init?.type === 'ClassExpression'
+  )
+    return { path: owner.get('init'), file };
+  const specifier = valueImportOf(path);
+  const origin =
+    specifier &&
+    exportOrigin(
+      j,
+      file && resolveModule(file, specifier.parent.node.source.value),
+      staticName(specifier.node.imported),
+    );
+  const declared = origin && topLevelClass(j, origin.root, origin.name);
+  return declared && { path: declared, file: origin.file };
+}
+
+// The most parameters an Entity's pk() and process() may declare and still compute the same row either way.
+// A batch normalizes each row with no args and the list as its parent; one set() per row passes the
+// row as its parent and its own args. So the entity a set() writes may read only the row...
+const ROW_ONLY = { staticPk: 1, pk: 0, process: 1 };
+// ...while an entity nested in its schema gets the same parent and key either way, and different args.
+const ARGS_FREE = { staticPk: 3, pk: 2, process: 3 };
+
+/** Whether a pk() or process() member declares at most `max` parameters and never reads `arguments` */
+function paramsWithin(node, max) {
+  const fn = node.type === 'ClassMethod' ? node : node.value;
+  if (!(fn.type === 'ClassMethod' ? fn.kind === 'method' : isFunction(fn)))
+    return false;
+  // a TypeScript `this` parameter isn't one
+  const params = fn.params.filter(p => !isId(p, 'this'));
+  return (
+    params.length <= max &&
+    params.every(p => p.type !== 'RestElement') &&
+    !containsNode(fn.body, n => isId(n, 'arguments'))
+  );
+}
+
+/** Whether `test` holds for `node` or anything inside it */
+function containsNode(node, test) {
+  if (!node || typeof node.type !== 'string') return false;
+  if (test(node)) return true;
+  for (const key of Object.keys(node)) {
+    if (key === 'loc' || key === 'comments' || key === 'tokens') continue;
+    const value = node[key];
+    if (Array.isArray(value)) {
+      if (value.some(v => containsNode(v, test))) return true;
+    } else if (value && typeof value === 'object' && containsNode(value, test))
+      return true;
+  }
+  return false;
+}
+
+/** Whether a class member keeps rows the same when normalized in a batch, within `limits` */
+function memberAllows(j, member, file, limits, seen) {
+  const { node } = member;
+  if (!CLASS_MEMBERS.has(node.type)) return true;
+  const name = keyName(node);
+  // a computed key could be any member
+  if (name === undefined) return false;
+  if (!node.static) return name !== 'pk' || paramsWithin(node, limits.pk);
+  switch (name) {
+    // validate() could throw for one row, which drops the whole batch
+    case 'normalize':
+    case 'validate':
+      return false;
+    case 'pk':
+      return paramsWithin(node, limits.staticPk);
+    case 'process':
+      return paramsWithin(node, limits.process);
+    case 'schema':
+      return (
+        node.type === 'ClassProperty' &&
+        isArgsFreeSchema(j, member.get('value'), file, seen)
+      );
+    default:
+      return true;
+  }
+}
+
+/** Whether `cls` extends a data-client Entity, directly or through classes like it, without members that
+ * read more of normalize than `limits` allow. `seen` holds the classes being checked, by the limits they
+ * are checked with, so circular schemas end. */
+function isPlainEntity(j, cls, limits, seen = new Map()) {
+  const checked = seen.get(cls.path.node);
+  // ROW_ONLY is the stricter of the two
+  if (checked === limits || checked === ROW_ONLY) return true;
+  if (seen.size > 20) return false;
+  seen.set(cls.path.node, limits);
+  const superClass = cls.path.get('superClass');
+  if (!superClass.node) return false;
+  if (!isSchemaExport(superClass, ENTITY_BASES)) {
+    const base = classOf(j, superClass, cls.file);
+    if (!base || !isPlainEntity(j, base, limits, seen)) return false;
+  }
+  return cls.path
+    .get('body', 'body')
+    .map(member => member)
+    .every(member => memberAllows(j, member, cls.file, limits, seen));
+}
+
+// constructors a schema can name that normalize leaves the value to
+const SCALAR_GLOBALS = new Set([
+  'Date',
+  'Number',
+  'String',
+  'Boolean',
+  'BigInt',
+]);
+
+/** Whether a nested schema normalizes the same without args: plain objects and arrays of Entities that
+ * don't read args, and functions, which normalize skips */
+function isArgsFreeSchema(j, path, file, seen) {
+  path = unwrapPath(path);
+  const { node } = path;
+  switch (node?.type) {
+    case 'ObjectExpression':
+      return path
+        .get('properties')
+        .map(p => p)
+        .every(
+          p =>
+            isProperty(p.node) &&
+            isArgsFreeSchema(j, p.get('value'), file, seen),
+        );
+    case 'ArrayExpression':
+      return (
+        node.elements.length === 1 &&
+        node.elements[0]?.type !== 'SpreadElement' &&
+        isArgsFreeSchema(j, path.get('elements', 0), file, seen)
+      );
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+      return true;
+    case 'Identifier': {
+      if (SCALAR_GLOBALS.has(node.name) && !bindingOf(path)) return true;
+      const cls = classOf(j, path, file);
+      return !!cls && isPlainEntity(j, cls, ARGS_FREE, seen);
+    }
+    default:
+      return false;
+  }
+}
+
+/** Whether `path` is an Entity class whose rows normalize the same in a batch */
+const isRowOnlyEntity = (j, path, file) => {
+  const cls = classOf(j, path, file);
+  return !!cls && isPlainEntity(j, cls, ROW_ONLY);
+};
+
+/** Whether `path` is `new Invalidate(Entity)` for an Entity whose rows normalize the same in a batch */
+const isRowOnlyInvalidate = (j, path, file) =>
+  path.node.type === 'NewExpression' &&
+  path.node.arguments.length === 1 &&
+  isSchemaExport(path.get('callee'), new Set(['Invalidate'])) &&
+  isRowOnlyEntity(j, path.get('arguments', 0), file);
+
+/** Whether the type annotation `type` is an array or tuple type */
+function isArrayType(type) {
+  while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
+  if (type?.type === 'TSTypeOperator' && type.operator === 'readonly')
+    type = type.typeAnnotation;
+  return (
+    type?.type === 'TSArrayType' ||
+    type?.type === 'TSTupleType' ||
+    (type?.type === 'TSTypeReference' &&
+      ['Array', 'ReadonlyArray'].includes(type.typeName.name))
+  );
+}
+
+// global calls that return an array
+const ARRAY_FACTORIES = new Map([
+  ['Object', new Set(['values', 'keys', 'entries'])],
+  ['Array', new Set(['from', 'of'])],
+  // a loop over its result only runs when it is an array
+  ['JSON', new Set(['parse'])],
+]);
+// array methods that return an array
+const ARRAY_METHODS = new Set([
+  'map',
+  'filter',
+  'slice',
+  'concat',
+  'flat',
+  'flatMap',
+  'toSorted',
+  'toReversed',
+]);
+
+/** Whether the expression at `path` is an array: a batch set() reads only arrays and plain objects, so
+ * a Set or Map loops differently */
+function isArrayValue(path, depth = 0) {
+  const { node } = path;
+  if (depth > 5 || !node) return false;
+  if (PASS_THROUGH.has(node.type))
+    return (
+      isArrayType(node.typeAnnotation) ||
+      isArrayValue(path.get('expression'), depth + 1)
+    );
+  if (node.type === 'ArrayExpression') return true;
+  if (node.type === 'CallExpression' && isMember(node.callee)) {
+    const method = memberName(node.callee);
+    const object = path.get('callee', 'object');
+    if (
+      object.node.type === 'Identifier' &&
+      ARRAY_FACTORIES.get(object.node.name)?.has(method) &&
+      !bindingOf(object)
+    )
+      return true;
+    return ARRAY_METHODS.has(method) && isArrayValue(object, depth + 1);
+  }
+  if (node.type !== 'Identifier') return false;
+  const binding = bindingOf(path);
+  if (!binding) return false;
+  // a parameter or variable typed as an array
+  if (isArrayType(binding.node.typeAnnotation?.typeAnnotation)) return true;
+  const declarator = binding.parent;
+  return (
+    declarator.node.type === 'VariableDeclarator' &&
+    declarator.node.id === binding.node &&
+    declarator.parent.node.kind === 'const' &&
+    !!declarator.node.init &&
+    isArrayValue(declarator.get('init'), depth + 1)
+  );
+}
+
+const LITERALS = new Set([
+  'StringLiteral',
+  'NumericLiteral',
+  'BooleanLiteral',
+  'NullLiteral',
+  'Literal',
+]);
+
+/** Whether `node` reads variables and properties without calling anything: `x`, `this.x`, `x['y']` */
+const isReference = node =>
+  node.type === 'Identifier' ||
+  node.type === 'ThisExpression' ||
+  (node.type === 'MemberExpression' &&
+    (!node.computed || LITERALS.has(node.property.type)) &&
+    isReference(node.object));
+
+/** Whether evaluating `node` once or once per row is the same: references, literals, and objects and
+ * arrays of them */
+function isPure(node) {
+  node = unwrap(node);
+  if (isReference(node) || LITERALS.has(node.type)) return true;
+  if (node.type === 'ArrayExpression')
+    return node.elements.every(
+      e => e && e.type !== 'SpreadElement' && isPure(e),
+    );
+  return (
+    node.type === 'ObjectExpression' &&
+    node.properties.every(
+      p =>
+        (isProperty(p) &&
+          (!p.computed || LITERALS.has(p.key.type)) &&
+          isPure(p.value)) ||
+        (p.type === 'SpreadElement' && isPure(p.argument)),
+    )
+  );
+}
+
+/** The names a loop variable or callback parameter binds */
+function patternNames(pattern, names = new Set()) {
+  if (!pattern) return names;
+  switch (pattern.type) {
+    case 'Identifier':
+      names.add(pattern.name);
+      break;
+    case 'ObjectPattern':
+      for (const p of pattern.properties)
+        patternNames(p.type === 'RestElement' ? p.argument : p.value, names);
+      break;
+    case 'ArrayPattern':
+      for (const e of pattern.elements) patternNames(e, names);
+      break;
+    case 'RestElement':
+      patternNames(pattern.argument, names);
+      break;
+    case 'AssignmentPattern':
+      patternNames(pattern.left, names);
+      break;
+  }
+  return names;
+}
+
+/** The root variable of a reference like `this.controller` or `ctrl` */
+const rootOf = node => (isMember(node) ? rootOf(node.object) : node);
+
+/** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
+ * Entity, `new Invalidate(Entity)` or `getList.schema.push` of a plain resource() */
+function batchSetOf(j, root, file, { rows, param, call }) {
+  const args = call.node.arguments;
+  if (
+    args.length < 2 ||
+    args.length > 3 ||
+    args.some(a => a.type === 'SpreadElement')
+  )
+    return;
+  const names = patternNames(param);
+  const mentions = node =>
+    containsNode(node, n => n.type === 'Identifier' && names.has(n.name));
+  const controller = call.node.callee.object;
+  let value = args[args.length - 1];
+  const extra = args.length === 3 ? args[1] : undefined;
+  const controllerRoot = rootOf(controller);
+  if (
+    !isReference(controller) ||
+    mentions(controller) ||
+    mentions(args[0]) ||
+    (extra && !isPure(extra)) ||
+    !mentions(value) ||
+    isFunction(value) ||
+    containsNode(
+      value,
+      n =>
+        n.type === 'AwaitExpression' ||
+        n.type === 'YieldExpression' ||
+        // reads the store the earlier rows were written to
+        (controllerRoot.type === 'Identifier' ?
+          isId(n, controllerRoot.name)
+        : n.type === 'ThisExpression'),
+    )
+  )
+    return;
+
+  const schemaPath = call.get('arguments', 0);
+  let schema;
+  let keepArgs = false;
+  if (isRowOnlyEntity(j, schemaPath, file)) {
+    // the Entity's pk() and process() read only the row, so the args can go
+    schema = j.arrayExpression([args[0]]);
+  } else if (!extra && isRowOnlyInvalidate(j, schemaPath, file)) {
+    schema = j.arrayExpression([args[0]]);
+  } else if (
+    !extra &&
+    args[0].type === 'ArrayExpression' &&
+    args[0].elements.length === 1 &&
+    value.type === 'ArrayExpression' &&
+    value.elements.length === 1 &&
+    value.elements[0] &&
+    value.elements[0].type !== 'SpreadElement' &&
+    (isRowOnlyEntity(j, schemaPath.get('elements', 0), file) ||
+      isRowOnlyInvalidate(j, schemaPath.get('elements', 0), file))
+  ) {
+    // a one-row batch per element
+    schema = args[0];
+    value = value.elements[0];
+  } else if (
+    !(extra && mentions(extra)) &&
+    isPushOfPlainResource(j, root, schemaPath, file)
+  ) {
+    // push adds a list's rows in order, like one push per row
+    schema = args[0];
+    keepArgs = true;
+  } else return;
+
+  if (!isArrayValue(rows)) return;
+  const list =
+    param.type === 'Identifier' && isId(value, param.name) ?
+      rows.node
+    : j.callExpression(j.memberExpression(rows.node, j.identifier('map')), [
+        j.arrowFunctionExpression(
+          [param],
+          // keeps `({ id })` on one line
+          value.type === 'ObjectExpression' ?
+            j.parenthesizedExpression(value)
+          : value,
+        ),
+      ]);
+  return j.callExpression(call.node.callee, [
+    schema,
+    ...(keepArgs && extra ? [extra] : []),
+    list,
+  ]);
+}
+
+// a custom Collection class could add rows in another order
+const PUSH_REPLACED = new Set(['getList', 'Collection']);
+
+/** Whether `path` is `X.getList.schema.push` for a plain `resource()` X that this file only reads */
+function isPushOfPlainResource(j, root, path, file) {
+  const { node } = path;
+  const getList = node.object?.object;
+  if (
+    memberName(node) !== 'push' ||
+    memberName(node.object) !== 'schema' ||
+    memberName(getList) !== 'getList' ||
+    getList.object.type !== 'Identifier'
+  )
+    return false;
+  const binding = bindingOf(path.get('object', 'object', 'object'));
+  return (
+    !!binding &&
+    (isReadOnlyResource(j, root, binding, PUSH_REPLACED) ||
+      isImportedPlainResource(j, root, binding, file, PUSH_REPLACED))
+  );
+}
+
+/** The `set()` call a loop body makes once per element, and whether it awaits it. A callback's
+ * `return` counts when `returns`. */
+function setCallIn(path, returns = false) {
+  let { node } = path;
+  if (node.type === 'BlockStatement') {
+    if (node.body.length !== 1) return;
+    path = path.get('body', 0);
+    node = path.node;
+  }
+  if (
+    node.type === 'ExpressionStatement' ||
+    (returns && node.type === 'ReturnStatement')
+  ) {
+    path = path.get(
+      node.type === 'ReturnStatement' ? 'argument' : 'expression',
+    );
+    node = path.node;
+  }
+  const awaited = node?.type === 'AwaitExpression';
+  if (awaited) path = path.get('argument');
+  return (
+      path.node?.type === 'CallExpression' &&
+        path.node.callee.type === 'MemberExpression' &&
+        memberName(path.node.callee) === 'set'
+    ) ?
+      { call: path, awaited }
+    : undefined;
+}
+
+const isPromiseAll = node =>
+  node?.type === 'CallExpression' &&
+  node.arguments.length === 1 &&
+  isMember(node.callee) &&
+  isId(node.callee.object, 'Promise') &&
+  memberName(node.callee) === 'all';
+
+/** Replaces a loop statement with `call`, keeping the comments on the loop and on the set() statement */
+function replaceLoop(j, path, call, awaited, inner) {
+  const statement = j.expressionStatement(
+    awaited ? j.awaitExpression(call) : call,
+  );
+  prependComments(statement, [
+    ...(path.node.comments ?? []),
+    ...(inner?.comments ?? []),
+  ]);
+  path.replace(statement);
+}
+
+/** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and
+ * `Promise.all(rows.map())` whose result is unused */
+function batchSets(j, root, file) {
+  let dirty = false;
+  root.find(j.ForOfStatement).forEach(path => {
+    const { node } = path;
+    // a `var` stays visible after the loop, holding the last row
+    if (
+      node.await ||
+      node.left.type !== 'VariableDeclaration' ||
+      node.left.kind === 'var' ||
+      node.left.declarations.length !== 1
+    )
+      return;
+    const found = setCallIn(path.get('body'));
+    const call =
+      found &&
+      batchSetOf(j, root, file, {
+        rows: path.get('right'),
+        param: node.left.declarations[0].id,
+        call: found.call,
+      });
+    if (!call) return;
+    replaceLoop(j, path, call, found.awaited, node.body.body?.[0]);
+    dirty = true;
+  });
+  root.find(j.ExpressionStatement).forEach(path => {
+    let expression = path.get('expression');
+    const awaited = expression.node.type === 'AwaitExpression';
+    if (awaited) expression = expression.get('argument');
+    const viaAll = isPromiseAll(expression.node);
+    // `await rows.forEach()` waits for nothing, so it isn't a batch either
+    if (awaited && !viaAll) return;
+    const loop = viaAll ? expression.get('arguments', 0) : expression;
+    const { node } = loop;
+    if (
+      node.type !== 'CallExpression' ||
+      !isMember(node.callee) ||
+      node.arguments.length !== 1
+    )
+      return;
+    const method = memberName(node.callee);
+    if (method !== 'map' && (viaAll || method !== 'forEach')) return;
+    const callback = node.arguments[0];
+    // forEach() doesn't wait for an async callback, so its set() calls would not be awaited together
+    if (
+      callback.type !== 'ArrowFunctionExpression' ||
+      callback.params.length !== 1 ||
+      (callback.async && !viaAll)
+    )
+      return;
+    const found = setCallIn(loop.get('arguments', 0, 'body'), method === 'map');
+    const call =
+      found &&
+      batchSetOf(j, root, file, {
+        rows: loop.get('callee', 'object'),
+        param: callback.params[0],
+        call: found.call,
+      });
+    if (!call) return;
+    replaceLoop(j, path, call, awaited, callback.body.body?.[0]);
+    dirty = true;
+  });
+  return dirty;
+}
+
+/** `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`, which
+ * type-checks since 0.19 */
+function unwrapOneRowInvalidate(j, root, file) {
+  let dirty = false;
+  root.find(j.CallExpression).forEach(path => {
+    const { node } = path;
+    const [schema, value] = node.arguments;
+    if (
+      !isMember(node.callee) ||
+      memberName(node.callee) !== 'set' ||
+      node.arguments.length !== 2 ||
+      schema.type !== 'ArrayExpression' ||
+      schema.elements.length !== 1 ||
+      value.type !== 'ArrayExpression' ||
+      value.elements.length !== 1 ||
+      !value.elements[0] ||
+      value.elements[0].type === 'SpreadElement' ||
+      !isRowOnlyInvalidate(j, path.get('arguments', 0, 'elements', 0), file)
+    )
+      return;
+    node.arguments = [schema.elements[0], value.elements[0]];
+    dirty = true;
+  });
+  return dirty;
+}
+
+/** Removes the import of `name` when nothing else in the file uses it */
+function dropUnusedImport(j, root, name) {
+  const imported = importOf(j, root, name);
+  if (!imported) return;
+  const specifier = root
+    .find(j.ImportSpecifier)
+    .filter(p => p.node === imported.specifier)
+    .paths()[0];
+  const local = specifier.get(specifier.node.local ? 'local' : 'imported');
+  if (usesOf(j, root, local).size()) return;
+  const { declaration } = imported;
+  declaration.specifiers = declaration.specifiers.filter(
+    s => s !== imported.specifier,
+  );
+  if (!declaration.specifiers.length) {
+    const { body } = root.get().node.program;
+    body.splice(body.indexOf(declaration), 1);
+  }
+}
+
+const VUE = new Set(['@data-client/vue']);
+const GC_POLICY_SOURCES = new Set(['@data-client/vue', '@data-client/core']);
+
+/** `app.use(DataClientPlugin, { gcPolicy: new GCPolicy() })` drops the option, the default since 0.19 */
+function dropDefaultGCPolicy(j, root) {
+  const options = [];
+  const plugin = new Set(['DataClientPlugin']);
+  root.find(j.CallExpression).forEach(call => {
+    if (
+      memberName(call.node.callee) === 'use' &&
+      call.node.arguments.length === 2 &&
+      importsNameFrom(call.get('arguments', 0), plugin, VUE)
+    )
+      options.push(call.get('arguments', 1));
+  });
+  // test plugins: `[DataClientPlugin, { gcPolicy }]`
+  root.find(j.ArrayExpression).forEach(array => {
+    if (
+      array.node.elements.length === 2 &&
+      array.node.elements[0] &&
+      importsNameFrom(array.get('elements', 0), plugin, VUE)
+    )
+      options.push(array.get('elements', 1));
+  });
+  const dropped = new Set();
+  for (const path of options) {
+    if (path.node?.type !== 'ObjectExpression') continue;
+    const i = path.node.properties.findIndex(
+      p =>
+        isProperty(p) &&
+        !p.computed &&
+        keyName(p) === 'gcPolicy' &&
+        p.value.type === 'NewExpression' &&
+        p.value.arguments.length === 0,
+    );
+    if (
+      i === -1 ||
+      !importsNameFrom(
+        path.get('properties', i, 'value', 'callee'),
+        new Set(['GCPolicy']),
+        GC_POLICY_SOURCES,
+      )
+    )
+      continue;
+    dropped.add(path.node.properties[i].value.callee.name);
+    path.node.properties.splice(i, 1);
+    if (!path.node.properties.length) path.prune();
+  }
+  for (const name of dropped) dropUnusedImport(j, root, name);
+  return dropped.size > 0;
+}
+
+/** `GCPolicy` from `@data-client/core` comes from `@data-client/vue`, which exports it since 0.19 */
+function importGCPolicyFromVue(j, root) {
+  const imports = importsOf(root);
+  const vue = imports.find(
+    d =>
+      d.source.value === '@data-client/vue' &&
+      d.importKind !== 'type' &&
+      d.specifiers.every(s => s.type === 'ImportSpecifier'),
+  );
+  if (!vue) return false;
+  let dirty = false;
+  for (const core of imports) {
+    if (core.source.value !== '@data-client/core' || core.importKind === 'type')
+      continue;
+    const moved = core.specifiers.filter(
+      s =>
+        s.type === 'ImportSpecifier' &&
+        s.importKind !== 'type' &&
+        staticName(s.imported) === 'GCPolicy',
+    );
+    if (!moved.length) continue;
+    core.specifiers = core.specifiers.filter(s => !moved.includes(s));
+    vue.specifiers.push(...moved);
+    if (!core.specifiers.length) {
+      const { body } = root.get().node.program;
+      body.splice(body.indexOf(core), 1);
+    }
+    dirty = true;
+  }
+  return dirty;
+}
+
+// Vue composables whose arguments may be getters since 0.19
+const GETTER_COMPOSABLES = new Set([
+  'useSuspense',
+  'useLive',
+  'useCache',
+  'useDLE',
+  'useFetch',
+  'useQuery',
+  'useSubscription',
+]);
+
+/** `useSuspense(E, computed(() => args))` becomes `useSuspense(E, () => args)`: composables read getters
+ * like refs since 0.19 */
+function unwrapComputedArgs(j, root) {
+  let dirty = false;
+  const computed = new Set(['computed']);
+  root.find(j.CallExpression).forEach(call => {
+    if (!importsNameFrom(call.get('callee'), GETTER_COMPOSABLES, VUE)) return;
+    call.get('arguments').each((arg, i) => {
+      const { node } = arg;
+      // computed() passes its getter the previous value, which a getter argument doesn't get
+      if (
+        i === 0 ||
+        node.type !== 'CallExpression' ||
+        node.arguments.length !== 1 ||
+        !isFunction(node.arguments[0]) ||
+        node.arguments[0].params.length ||
+        !importsNameFrom(arg.get('callee'), computed, new Set(['vue']))
+      )
+        return;
+      arg.replace(node.arguments[0]);
+      dirty = true;
+    });
+  });
+  if (dirty) dropUnusedImport(j, root, 'computed');
+  return dirty;
+}
+
+const REACT = new Set(['@data-client/react']);
+
+/** Whether the identifier at `path` holds React useCache()'s result or useDLE()'s `data`, which are never a
+ * Symbol since 0.19 */
+function isCachedData(path) {
+  const binding = bindingOf(path);
+  if (!binding) return false;
+  let declarator = binding.parent;
+  let hook = 'useCache';
+  if (isProperty(declarator.node)) {
+    if (
+      declarator.node.value !== binding.node ||
+      keyName(declarator.node) !== 'data'
+    )
+      return false;
+    declarator = declarator.parent.parent;
+    hook = 'useDLE';
+  } else if (declarator.node.id !== binding.node) return false;
+  return (
+    declarator?.node.type === 'VariableDeclarator' &&
+    declarator.parent.node.kind === 'const' &&
+    declarator.node.init?.type === 'CallExpression' &&
+    importsNameFrom(declarator.get('init', 'callee'), new Set([hook]), REACT)
+  );
+}
+
+/** `!todo || typeof todo === 'symbol'` becomes `!todo` for React useCache() and useDLE() data */
+function dropSymbolChecks(j, root) {
+  let dirty = false;
+  root.find(j.BinaryExpression).forEach(path => {
+    const { node } = path;
+    const typeofSide = [node.left, node.right].findIndex(
+      n =>
+        n.type === 'UnaryExpression' &&
+        n.operator === 'typeof' &&
+        n.argument.type === 'Identifier',
+    );
+    const other = typeofSide === 0 ? node.right : node.left;
+    if (
+      typeofSide === -1 ||
+      !LITERALS.has(other.type) ||
+      other.value !== 'symbol'
+    )
+      return;
+    // `|| typeof x === 'symbol'` is always `|| false`, and `&& typeof x !== 'symbol'` is `&& true`
+    const operator =
+      ['===', '=='].includes(node.operator) ? '||'
+      : ['!==', '!='].includes(node.operator) ? '&&'
+      : undefined;
+    const logical = path.parent;
+    if (
+      logical.node.type !== 'LogicalExpression' ||
+      logical.node.operator !== operator ||
+      !isCachedData(path.get(typeofSide === 0 ? 'left' : 'right', 'argument'))
+    )
+      return;
+    logical.replace(
+      logical.node.left === node ? logical.node.right : logical.node.left,
+    );
+    dirty = true;
+  });
+  return dirty;
+}
+
+const IMPROVEMENT_NAMES = /\.set\(|GCPolicy|computed\(|['"]symbol['"]/;
+
+function adoptImprovements(j, root, { source, path: file }) {
+  let dirty = false;
+  if (source.includes('.set(')) {
+    dirty = batchSets(j, root, file);
+    if (source.includes('Invalidate'))
+      dirty = unwrapOneRowInvalidate(j, root, file) || dirty;
+  }
+  if (source.includes('GCPolicy'))
+    dirty = [dropDefaultGCPolicy, importGCPolicyFromVue].reduce(
+      (changed, pass) => pass(j, root) || changed,
+      dirty,
+    );
+  if (source.includes('computed('))
+    dirty = unwrapComputedArgs(j, root) || dirty;
+  if (/['"]symbol['"]/.test(source)) dirty = dropSymbolChecks(j, root) || dirty;
+  return dirty;
+}
+
+/** Which passes run. `--deprecations=false` skips moving off deprecated APIs and `--deprecations=only` does
+ * just that; `--improvements` adds the optional rewrites that adopt 0.19 features, and
+ * `--improvements=only` does just those. */
 function passesFor(options) {
   // jscodeshift parses `--deprecations=false` to a boolean
   const deprecations = options?.deprecations ?? true;
+  const improvements = options?.improvements ?? false;
   if (![true, false, 'only'].includes(deprecations))
     throw new Error(
       `--deprecations must be false or only, not ${JSON.stringify(deprecations)}`,
     );
+  if (![true, false, 'only'].includes(improvements))
+    throw new Error(
+      `--improvements must be true or only, not ${JSON.stringify(improvements)}`,
+    );
+  if (improvements === 'only')
+    return { breaking: false, deprecations: false, improvements: true };
   return {
     breaking: deprecations !== 'only',
     deprecations: deprecations !== false,
+    improvements,
   };
 }
 
@@ -2518,6 +3386,7 @@ module.exports = function transformer(fileInfo, api, options) {
   const names = [
     ...(passes.breaking ? [NAMES] : []),
     ...(passes.deprecations ? DEPRECATED_NAMES : []),
+    ...(passes.improvements ? [IMPROVEMENT_NAMES] : []),
   ];
   // debugging scripts that read the global often don't import data-client
   const dcGlobal = passes.breaking && fileInfo.source.includes(DC_GLOBAL);
@@ -2551,6 +3420,8 @@ module.exports = function transformer(fileInfo, api, options) {
   }
   if (passes.deprecations)
     dirty = migrateDeprecations(j, root, fileInfo) || dirty;
+  if (passes.improvements)
+    dirty = adoptImprovements(j, root, fileInfo) || dirty;
   return printIf(dirty, root, fileInfo.source);
 };
 
