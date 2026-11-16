@@ -49,8 +49,8 @@ const resolveModule = require('../resolveModule');
  *      file, since debugging scripts rarely import data-client; other uses get a TODO.
  *   8. Deprecated APIs:
  *      - `Resource.create` becomes `Resource.getList.push` where it runs, for an unchanged `const`
- *        `resource()` declared in the file or imported from a relative module; DevTools
- *        `actionsBlacklist`/`actionsWhitelist` options become `actionsDenylist`/`actionsAllowlist`;
+ *        `resource()` declared in the file or imported from a relative or tsconfig-aliased module;
+ *        DevTools `actionsBlacklist`/`actionsWhitelist` options become `actionsDenylist`/`actionsAllowlist`;
  *        `renderDataCompose()`'s `waitForNextUpdate()` becomes `allSettled()`, and is dropped right
  *        before `await result`; `static pk()` overrides type `args` as `readonly any[]`.
  *      - Other `*Resource.create`, React `waitForNextUpdate()`, `renderDataHook.cleanup()`/
@@ -1709,7 +1709,8 @@ function isLocalPlainResource(j, root, name) {
   return !!declarator && isReadOnlyResource(j, root, declarator.get('id'));
 }
 
-/** Whether `binding` imports a plain `resource()` from a relative module, and this file only reads it */
+/** Whether `binding` imports a plain `resource()` from a relative or tsconfig-aliased module, and this file
+ * only reads it */
 function isImportedPlainResource(j, root, binding, file) {
   const specifier = binding.parent;
   const declaration = specifier.parent?.node;

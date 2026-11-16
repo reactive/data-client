@@ -180,13 +180,13 @@ npx @data-client/codemods v0.19 <source-root> --deprecations=only
 ```
 
 It renames what has a drop-in replacement: `resource().create` to `getList.push` where it runs, for resources declared
-in the file or imported from a relative path; Vue `waitForNextUpdate()` to `allSettled()`; and `static pk()` `args` to
-`readonly any[]`. It leaves a `TODO(data-client)` comment naming the replacement on the rest. Fix each, then delete the
-comment, and repeat Step 9. Gotchas:
+in the file or imported from a relative path or tsconfig `paths` alias; Vue `waitForNextUpdate()` to `allSettled()`;
+and `static pk()` `args` to `readonly any[]`. It leaves a `TODO(data-client)` comment naming the replacement on the
+rest. Fix each, then delete the comment, and repeat Step 9. Gotchas:
 
-- `*Resource.create` it didn't rename (imported through a path alias or package, or built with something other than
-  `resource()` from `@data-client/rest`): if the resource's `extend()` replaces `create` or `getList`, check that the
-  call keeps its path and options.
+- `*Resource.create` it didn't rename (imported from a package, or built with something other than `resource()` from
+  `@data-client/rest`): if the resource's `extend()` replaces `create` or `getList`, check that the call keeps its path
+  and options.
 - Code that compares endpoints, like `action.endpoint === XResource.create`, compares `name`s instead:
   `action.endpoint.name === XResource.getList.push.name`. Each read of `getList.push` makes a new endpoint, so `===`
   never matches it. Files the codemod processed carry a TODO there; also check `rg -n '\.create\b' <source-root>` for

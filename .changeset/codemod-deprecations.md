@@ -7,8 +7,9 @@ Move off deprecated APIs in the `v0.19` codemod
 The codemod renames:
 
 - `Resource.create` to [`Resource.getList.push`](https://dataclient.io/rest/api/resource#push) where the endpoint runs,
-  for a `resource()` declared in the same file or imported from a relative path. Each read of `getList.push` makes a
-  new endpoint, so other uses, such as `===` comparisons, get a `TODO(data-client)` comment instead.
+  for a `resource()` declared in the same file or imported from a relative path or tsconfig `paths` alias. Each read
+  of `getList.push` makes a new endpoint, so other uses, such as `===` comparisons, get a `TODO(data-client)` comment
+  instead.
 - DevTools `actionsBlacklist` / `actionsWhitelist` to `actionsDenylist` / `actionsAllowlist`.
 - Vue `renderDataCompose()`'s `waitForNextUpdate()` to `allSettled()`, deleting the call right before `await result`.
 - The `args` of `static pk()` overrides to `readonly any[]`, unless the override changes `args`.

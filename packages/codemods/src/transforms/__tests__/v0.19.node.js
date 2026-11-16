@@ -2021,7 +2021,12 @@ const Notes = resource({ path: '/notes/:id', schema: Note });
 export { Notes as NoteResource };
 export const UserResource = resource({ path: '/users/:id', schema: User }).extend({ getList: { path: '/team' } });
 export let DraftResource = resource({ path: '/drafts/:id', schema: Draft });
+export const CommentResource = resource({ path: '/comments/:id', schema: Comment });
 `,
+        );
+        write(
+          'tsconfig.json',
+          `{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }\n`,
         );
         write('resources/index.ts', `export * from './post';\n`);
         write(
@@ -2035,7 +2040,7 @@ export const TagResource = resource({ path: '/tags/:id', schema: Tag });
       });
       afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
 
-      it('renames create on a plain resource() the module exports, through re-exports', () => {
+      it('renames create on a plain resource() the module exports, through re-exports and path aliases', () => {
         const source = `
 import { useController } from '@data-client/react';
 import { PostResource, NoteResource, UserResource, DraftResource } from '../resources';
@@ -2084,8 +2089,7 @@ export const createUser = (ctrl, body) => ctrl.fetch(UserResource.create, body);
 export const createDraft = (ctrl, body) => ctrl.fetch(DraftResource.create, body);
 // TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
 export const createTag = (ctrl, body) => ctrl.fetch(TagResource.create, body);
-// TODO(data-client): resource().create is deprecated; use getList.push unless extend() replaces create or getList, and compare endpoints by name, not ===: https://dataclient.io/rest/api/resource#push
-export const createComment = (ctrl, body) => ctrl.fetch(CommentResource.create, body);
+export const createComment = (ctrl, body) => ctrl.fetch(CommentResource.getList.push, body);
 `.trim(),
         );
       });
