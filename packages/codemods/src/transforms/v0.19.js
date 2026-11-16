@@ -177,20 +177,21 @@ function findManagerSlots(j, root) {
 }
 
 /** The binding path (`id` of its declaration) that `name` refers to at `path`, if declared in this file */
-const bindingAt = (path, name) =>
-  bindingIn(path, name, path.scope?.lookup(name));
-
-function bindingIn(path, name, scope) {
-  const bindings = scope?.getBindings()[name];
-  if (!bindings) return undefined;
+function bindingAt(path, name) {
   // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
   // block that holds `path`, or look further out when none does
-  const blocks = bindings.map(declaringBlock);
-  for (let p = path; p; p = p.parent) {
-    const i = blocks.indexOf(p.node);
-    if (i !== -1) return bindings[i];
+  for (
+    let scope = path.scope?.lookup(name);
+    scope;
+    scope = scope.parent?.lookup(name)
+  ) {
+    const bindings = scope.getBindings()[name];
+    const blocks = bindings.map(declaringBlock);
+    for (let p = path; p; p = p.parent) {
+      const i = blocks.indexOf(p.node);
+      if (i !== -1) return bindings[i];
+    }
   }
-  return bindingIn(path, name, scope.parent?.lookup(name));
 }
 
 /** The binding path (`id` of its declaration) for an identifier, if declared in this file */
@@ -559,7 +560,21 @@ const endsEarly = branch => endsAbruptly([branch]);
 /** Whether `statements` can move into the block around `path` without their declarations clashing with
  * names already visible there */
 function canInline(j, path, statements) {
-  const siblings = path.parentPath.value.filter(node => node !== path.node);
+  // names read beside the check may be globals, which a declaration moved out of the branch would shadow
+  let beside;
+  const readBeside = name => {
+    beside ??= new Set(
+      path.parentPath.value
+        .filter(node => node !== path.node)
+        .flatMap(node =>
+          j(node)
+            .find(j.Identifier)
+            .nodes()
+            .map(id => id.name),
+        ),
+    );
+    return beside.has(name);
+  };
   return statements.every(statement => {
     const declared =
       statement.type === 'VariableDeclaration' ?
@@ -572,16 +587,12 @@ function canInline(j, path, statements) {
       // ast-types puts block-scoped names in the function's scope, so the branch's own declaration is
       // the one binding allowed there
       const scope = path.scope.lookup(id.name);
-      // a name read beside the check may be a global, which the declaration would then shadow
-      const readBeside = siblings.some(
-        node => j(node).find(j.Identifier, { name: id.name }).size() > 0,
-      );
       return (
-        !readBeside &&
         (!scope ||
           (scope === path.scope &&
             scope.getBindings()[id.name].length === 1 &&
-            !path.scope.parent?.lookup(id.name)))
+            !path.scope.parent?.lookup(id.name))) &&
+        !readBeside(id.name)
       );
     });
   });
@@ -1601,11 +1612,7 @@ function selectStore(j, call, dcNode, shared) {
   const settled =
     statement &&
     inputs.every(input =>
-      [
-        // find() skips the node it starts from
-        ...(input.node.type === 'Identifier' ? [input] : []),
-        ...j(input).find(j.Identifier).paths(),
-      ]
+      identifiersIn(j, input)
         .filter(p => !isOtherName(p))
         .every(
           p =>
@@ -1636,6 +1643,12 @@ function selectStore(j, call, dcNode, shared) {
   statement.insertBefore(line);
   call.replace(dcMember(j, dcNode, 'controller'));
 }
+
+/** The identifiers at and inside `path` (find() skips the node it starts from) */
+const identifiersIn = (j, path) => [
+  ...(path.node.type === 'Identifier' ? [path] : []),
+  ...j(path).find(j.Identifier).paths(),
+];
 
 /** Whether `statement` writes a variable named `name`, by assignment, destructuring, `++` or a loop head */
 const assignsIn = (j, statement, name) =>

@@ -21,50 +21,57 @@ function findFile(base) {
 // tsconfig/jsconfig `paths` and `baseUrl` of the nearest config, so aliased
 // imports like `@/lib/api-client` resolve too
 const pathsCache = new Map();
+// parsed config files, shared by every folder that reads them
+const jsonCache = new Map();
+function readJson(file) {
+  if (!jsonCache.has(file))
+    jsonCache.set(
+      file,
+      JSON.parse(
+        fs
+          .readFileSync(file, 'utf8')
+          .replace(
+            /\/\*[\s\S]*?\*\/|("(?:\\.|[^"\\])*")|\/\/[^\n]*/g,
+            (m, str) => (str ? m : ''),
+          )
+          .replace(/,(\s*[}\]])/g, '$1'),
+      ),
+    );
+  return jsonCache.get(file);
+}
+
 function readConfig(file, fromDir, seen = new Set()) {
-  // a referenced project may extend the solution config that references it; `seen` holds the configs
+  // a referenced project may extend the solution config that references it; `chain` holds the configs
   // that led here
   if (seen.has(file)) return {};
-  seen.add(file);
-  const text = fs
-    .readFileSync(file, 'utf8')
-    .replace(/\/\*[\s\S]*?\*\/|("(?:\\.|[^"\\])*")|\/\/[^\n]*/g, (m, str) =>
-      str ? m : '',
-    )
-    .replace(/,(\s*[}\]])/g, '$1');
-  const config = JSON.parse(text);
+  const chain = new Set(seen).add(file);
+  const config = readJson(file);
   const options = config.compilerOptions || {};
   const dir = nodePath.dirname(file);
-  const own = {
-    baseUrl: options.baseUrl && nodePath.resolve(dir, options.baseUrl),
-    paths: options.paths,
-    pathsDir: dir,
+  const inherited =
+    (typeof config.extends === 'string' &&
+      config.extends.startsWith('.') &&
+      tryConfig(nodePath.resolve(dir, config.extends), fromDir, chain)) ||
+    {};
+  const merged = {
+    baseUrl:
+      (options.baseUrl && nodePath.resolve(dir, options.baseUrl)) ||
+      inherited.baseUrl,
+    paths: options.paths || inherited.paths,
+    pathsDir: options.paths ? dir : inherited.pathsDir,
     // the folders `include` names, up to its first wildcard
     includes:
       Array.isArray(config.include) ?
         config.include.map(p => nodePath.resolve(dir, p.split('*')[0]))
-      : undefined,
+      : inherited.includes,
   };
-  const inherited =
-    typeof config.extends === 'string' && config.extends.startsWith('.') ?
-      tryConfig(nodePath.resolve(dir, config.extends), fromDir, seen)
-    : undefined;
-  const merged =
-    inherited ?
-      {
-        baseUrl: own.baseUrl || inherited.baseUrl,
-        paths: own.paths || inherited.paths,
-        pathsDir: own.paths ? dir : inherited.pathsDir,
-        includes: own.includes || inherited.includes,
-      }
-    : own;
   if (merged.paths || merged.baseUrl || !Array.isArray(config.references))
     return merged;
   // a solution-style config (create-vite: `"files": []` plus `references`) keeps its aliases in a
   // referenced config such as tsconfig.app.json
   const aliased = config.references
     .filter(ref => typeof ref?.path === 'string')
-    .map(ref => tryConfig(nodePath.resolve(dir, ref.path), fromDir, seen))
+    .map(ref => tryConfig(nodePath.resolve(dir, ref.path), fromDir, chain))
     .filter(found => found?.paths || found?.baseUrl);
   if (aliased.length === 1) return aliased[0];
   // with several, only the one whose `include` holds the importing folder; unknown otherwise
@@ -84,7 +91,7 @@ function tryConfig(target, fromDir, seen) {
       nodePath.join(target, 'tsconfig.json')
     : target + '.json';
   try {
-    return readConfig(file, fromDir, new Set(seen));
+    return readConfig(file, fromDir, seen);
   } catch {
     return undefined;
   }
@@ -96,16 +103,17 @@ function aliasConfig(fromFile) {
   // the nearest config; which project a solution config picks depends on the importing folder, so the
   // answer is kept for that folder only
   let config = {};
-  search: for (let dir = fromDir; ; dir = nodePath.dirname(dir)) {
-    for (const name of ['tsconfig.json', 'jsconfig.json']) {
-      const file = nodePath.join(dir, name);
-      if (!fs.existsSync(file)) continue;
+  for (let dir = fromDir; ; dir = nodePath.dirname(dir)) {
+    const file = ['tsconfig.json', 'jsconfig.json']
+      .map(name => nodePath.join(dir, name))
+      .find(f => fs.existsSync(f));
+    if (file) {
       try {
         config = readConfig(file, fromDir);
       } catch {
-        config = {};
+        // an unreadable config resolves no aliases
       }
-      break search;
+      break;
     }
     if (nodePath.dirname(dir) === dir) break;
   }
