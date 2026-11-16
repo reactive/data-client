@@ -17,7 +17,7 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
   with React Navigation, stale data refetches on screen focus.
 - `@data-client/ssr` has no 0.19 release; if it's installed, read Step 4 first.
 - If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  linked skills match 0.19 (Step 10 ends by unlinking the migration skills).
+  linked skills match 0.19 (Step 11 ends by unlinking the migration skills).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`). Also pass any folder of debugging or end-to-end scripts that reads `__DC_CONTROLLERS__`
@@ -203,7 +203,48 @@ Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black
 [future releases](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#future-releases) lists changes that will break
 later.
 
-Last, whether or not you did this step: if you ran `data-client-skills --upgrade` in Step 1, run
+## Step 11: adopt 0.19 features (optional, own commit)
+
+Nothing here is needed to upgrade: it simplifies code and speeds up store writes with features new in 0.19. Ask first
+when the user can answer mid-task. Otherwise run the codemod part, and list the judgment calls below in your summary
+instead of making them. Commit Steps 1-10 first and make this its own commit.
+
+```bash
+npx @data-client/codemods v0.19 <source-root> --improvements=only
+```
+
+It rewrites only code it can prove does the same thing:
+
+- A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
+  [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`, or
+  `ctrl.set(R.getList.schema.push, args, rows)`. Only when `rows` is an array and the Entity's `pk()` and `process()`
+  read only the row. Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check
+  Managers and middleware that match SET actions by schema: match `action.schema[0]` too.
+- `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
+- Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
+  `@data-client/vue`, and `computed(() => args)` passed to a composable becomes the getter `() => args`.
+- `|| typeof data === 'symbol'` guards on React `useCache()` and `useDLE()` data are dropped.
+
+Then, by judgment:
+
+- **Batch the `set()` loops it left** (`rg -n -B3 '\.set\(' <source-root>` near `for`, `forEach`, `map`): mixed Entity
+  types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an `if` a
+  `.filter()` first. Keep a loop whose Entity reads `args` or `parent` in `pk()` or `process()`, and `unshift`
+  (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers messages and
+  flushes them with one `set()` (skill "data-client-manager", batching). Batch `ctrl.fetch(getList.push, row)` loops
+  into one array `push` only when the API accepts an array body, since it sends one request instead of N.
+- **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its schema
+  doesn't describe, so fix the value instead: `as any` on `set()` args or values, `push`/`unshift`/`remove` bodies
+  (also on Collections in a `Query` or `Lazy`), union `body` values, `FormData`, `getOptimisticResponse()` returns, a
+  `Controller` subclass passed to `DataProvider`, `prepareStore()`'s store, `action.meta.promise`; and
+  `as unknown as T[]` on `fetch(getList.push, list)` results. Type `process(value, params)` params from the endpoint by
+  removing `params: any`.
+- **Vue**: `computed()` stored in a variable only to make composable args reactive can become a getter. Delete a Vitest
+  `server.deps.inline` entry for `@data-client` added to fix `useEnhancedReducer is not a function`.
+- **Cancellation**: a custom `Endpoint` that wraps an SDK call can pass `this.signal` on to it, without declaring
+  `this`.
+
+Last, whether or not you did Steps 10 and 11: if you ran `data-client-skills --upgrade` in Step 1, run
 `npx --no data-client-skills` to unlink the migration skills. Not before: it removes this skill.
 
 ## Reference
