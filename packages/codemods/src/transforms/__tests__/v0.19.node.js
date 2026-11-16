@@ -120,7 +120,7 @@ const network = managers.find(m => m instanceof NetworkManager);
 
 export function App() {
   const memoized = useMemo(() => getDefaultManagers(), []);
-  // TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+  // TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
   return (
     <>
       <DataProvider managers={() => managers} />
@@ -183,7 +183,7 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 
 const managers = getDefaultManagers();
 
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 export const A = () => (
   <DataProvider managers={() => managers}>
     <ManagerList list={managers} />
@@ -232,7 +232,7 @@ import { DataClientPlugin } from '@data-client/vue';
 import { mountDataClient } from '@data-client/vue/test';
 
 const customManagers = [new NetworkManager()];
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 mount(Comp, { global: { plugins: [[DataClientPlugin, { managers: () => customManagers }]] } });
 customManagers[0].cleanup();
 mountDataClient(Comp, { managers: () => [new NetworkManager()] });
@@ -254,7 +254,7 @@ import { renderDataHook } from '@data-client/test';
 
 import { SubscriptionManager, PollingSubscription } from '@data-client/react';
 
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 renderDataHook(() => useThing(), { managers: () => [new NetworkManager(), logger] });
 renderDataClient(() => useThing(), { managers: () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
       `,
@@ -278,7 +278,7 @@ import { NetworkManager, SubscriptionManager, PollingSubscription } from '@data-
 
 renderDataHook(() => useThing(), { managers: () => [new LoggingManager(), new NetworkManager(), new SubscriptionManager(PollingSubscription)] });
 renderDataHook(() => useThing(), { managers: () => [new AuditNetworkManager(), new SubscriptionManager(PollingSubscription)] });
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 renderDataHook(() => useThing(), { managers: () => [logger] });
       `,
       'adds the default Managers renderDataHook() lists of new Managers lack',
@@ -457,7 +457,7 @@ const [CustomProvider] = createPersistedStore(useCustom ? custom : undefined);
 import { createPersistedStore } from '@data-client/react';
 
 const [ServerProvider] = createPersistedStore(undefined, false);
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 const [CustomProvider] = createPersistedStore(useCustom ? () => custom : undefined);
       `,
       'leaves undefined managers arguments alone, including conditional ones',
@@ -524,19 +524,19 @@ class C implements Manager {
 import type { Manager, Middleware } from '@data-client/react';
 
 class A implements Manager {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware() {
     return;
   }
   cleanup() {}
 }
 class B implements Manager {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware: Middleware;
   cleanup() {}
 }
 class C implements Manager {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   static getMiddleware() {
     return controller => next => next;
   }
@@ -566,10 +566,10 @@ import { NetworkManager } from '@data-client/react';
 
 class LiveManager {
   constructor() {
-    // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+    // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
     this.getMiddleware = this.getMiddleware.bind(this);
   }
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware() {
     return controller => next => next;
   }
@@ -626,19 +626,19 @@ const mw = new LoggingManager().getMiddleware();
 import { Manager, Middleware } from '@data-client/react';
 
 class LoggingManager implements Manager {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware() {
     return controller => next => next;
   }
 }
 class Both implements Manager {
   middleware: Middleware = controller => next => action => next(action);
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware() {
     return controller => next => next;
   }
 }
-// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
 const mw = new LoggingManager().getMiddleware();
       `,
       'keeps every getMiddleware when one beside a middleware property cannot convert',
@@ -661,12 +661,12 @@ const mw = manager.getMiddleware();
 import { NetworkManager } from '@data-client/react';
 
 const manager = {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware() {
     return controller => next => next;
   },
 };
-// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
 const mw = manager.getMiddleware();
       `,
       'marks object-literal getMiddleware and keeps its calls',
@@ -707,7 +707,7 @@ class Boss implements Manager {}
 import { useSuspense } from '@data-client/react';
 import { Manager } from './types';
 
-// TODO(data-client): if this is a data-client Manager, it throws on mount without a middleware property since 0.19; add \`middleware: Middleware = () => next => next\`: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+// TODO(data-client): if this is a data-client Manager, it throws on mount without a middleware property since 0.19; add \`middleware: Middleware = () => next => next\`: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
 class Boss implements Manager {}
       `,
       'marks classes implementing a Manager from another module',
@@ -719,10 +719,10 @@ class Boss implements Manager {}
       `
 import { NetworkManager } from '@data-client/react';
 
-function f(nm) { foo(); // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+function f(nm) { foo(); // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup
 return nm.cleanupDate; }
 function g(nm) {
-  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup
   if (nm)
     return nm.cleanupDate;
 }
@@ -730,10 +730,10 @@ function g(nm) {
       `
 import { NetworkManager } from '@data-client/react';
 
-function f(nm) { foo(); // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+function f(nm) { foo(); // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup
 return nm.cleanupDate; }
 function g(nm) {
-  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup
   if (nm)
     return nm.cleanupDate;
 }
@@ -755,7 +755,7 @@ function g(nm) {
 import { NetworkManager } from '@data-client/react';
 
 function g(nm) {
-  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+  // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup
   if (nm)
     return nm.cleanupDate;
 }
@@ -840,7 +840,7 @@ const App = () => (
 import { DataProvider, NetworkManager, type Manager } from '@data-client/react';
 
 const network = new NetworkManager();
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 const App = () => (
   <>
     <DataProvider managers={() => [network, new MyManager()]} />
@@ -874,7 +874,7 @@ const mw = manager.getMiddleware();
 import { Manager, NetworkManager } from '@data-client/react';
 
 class A implements Manager {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   async getMiddleware() {
     return controller => next => next;
   }
@@ -884,7 +884,7 @@ class C implements Manager {
   ['middleware'] = () => next => next;
   ['getMiddleware2']() {}
 }
-// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+// TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
 const mw = manager.getMiddleware();
       `,
       'marks async getMiddleware and its calls; leaves subclasses and existing middleware alone',
@@ -941,7 +941,7 @@ class Lazy extends NetworkManager {
 import { NetworkManager } from '@data-client/react';
 
 class Lazy extends NetworkManager {
-  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-middleware
+  // TODO(data-client): getMiddleware() was removed in 0.19; define a middleware property: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware
   getMiddleware() {
     const mw = super.getMiddleware();
     return mw;
@@ -993,7 +993,7 @@ import { NetworkManager } from '@data-client/react';
 export default class AuditNetworkManager extends NetworkManager {
   cleanup() {
     super.cleanup();
-    // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#manager-cleanup
+    // TODO(data-client): NetworkManager.cleanupDate was removed in 0.19: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup
     console.info(this.cleanupDate);
   }
 }
@@ -1018,7 +1018,7 @@ import { DataProvider, getDefaultManagers } from '@data-client/react';
 
 export const managers = [new MyManager(), ...getDefaultManagers()];
 
-// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#managers-function
+// TODO(data-client): managers runs once per store since 0.19; create the Managers inside this function so stores don't share them, or pass the function itself if it already is one: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function
 export const App = () => <DataProvider managers={() => managers} />;
       `,
       'wraps exported arrays where they are passed, as their importers are, with a TODO',
@@ -1090,11 +1090,11 @@ import type { Controller } from '@data-client/react';
 
 export function loader(ctrl: Controller, id: number, value: unknown) {
   const issue = ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (!(issue instanceof Promise)) {
     render(issue);
   }
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (value) {
     log(value);
   } else if (ctrl.fetchIfStale(IssueResource.get, { id }) instanceof Promise) {
@@ -1127,14 +1127,14 @@ import { Controller } from '@data-client/react';
 
 export async function loader(ctrl, id) {
   const issue = ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   const { title } = ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (ctrl.fetchIfStale(UserResource.get, { id })) {
     log(title);
   }
   const user = ctrl.fetchIfStale(UserResource.get, { id }) as User;
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   return \`\${issue.title} by \${user.name}\`;
 }
       `,
@@ -1245,7 +1245,7 @@ export async function issueLoader(ctrl: Controller, id: number) {
   const org = ctrl.fetchIfStale(OrgResource.get, { id });
   await org;
   const repo = ctrl.fetchIfStale(RepoResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (repo instanceof Promise)
     return;
   render(repo);
@@ -1304,7 +1304,7 @@ const fallthrough = { fetchIfStale: jest.fn(async () => {
 }) };
 jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
 jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
-// TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+// TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
 jest.spyOn(real, 'fetchIfStale').mockImplementation(impl);
       `,
       'makes jest.fn() mocks of fetchIfStale resolve their value',
@@ -1371,7 +1371,7 @@ import type { Controller } from '@data-client/react';
 
 export async function guarded(ctrl: Controller, id: string) {
   const issue = ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (issue instanceof Promise) {
     await issue;
     return;
@@ -1380,11 +1380,11 @@ export async function guarded(ctrl: Controller, id: string) {
 }
 export async function counted(ctrl: Controller, id: string) {
   const issue = ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (issue instanceof Promise) {
     await issue;
   } else {
-    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
     recordCacheHit(issue.id);
   }
 }
@@ -1408,18 +1408,18 @@ export async function shadowed(ctrl: Controller, id: string, kind: string) {
 export async function looped(ctrl: Controller, ids: string[]) {
   for (const id of ids) {
     const issue = ctrl.fetchIfStale(IssueResource.get, { id });
-    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
     if (issue instanceof Promise) {
       await issue;
       continue;
     }
-    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+    // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
     recordCacheHit(issue.id);
   }
 }
 export async function title(ctrl: Controller, id: string) {
   const data = await ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   return data?.title;
 }
       `,
@@ -1447,13 +1447,13 @@ import type { Controller } from '@data-client/react';
 
 export async function settingsLoader(ctrl: Controller) {
   const settings = await ctrl.fetchIfStale(SettingsResource.get, { id: 'me' });
-  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (!settings)
     log('no settings');
-  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   const theme = (await ctrl.fetchIfStale(ThemeResource.get)) ?? DEFAULT_THEME;
   const user = await ctrl.fetchIfStale(UserResource.get, { id });
-  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest fetch failed since 0.19; handle that case in .catch() or try/catch: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (user == null)
     return;
   const issue = await ctrl.fetchIfStale(IssueResource.get, { id });
@@ -1569,7 +1569,7 @@ export function f(ctrl, id) {
 import { useController } from '@data-client/react';
 export function f(ctrl, id) {
   var issue = ctrl.fetchIfStale(IssueResource.get, { id });
-  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+  // TODO(data-client): fetchIfStale() always returns a Promise since 0.19; await it to read the data: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise
   if (!(issue instanceof Promise))
     render(issue);
 }
@@ -1862,7 +1862,7 @@ for (const controller of __DC_CONTROLLERS__.values()) log(controller);
 globalThis.__DC__.store = 'Data Client: Chat';
 
 copy(JSON.stringify(globalThis.__DC__.controller.getState()));
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global
 const first = [...window.__DC_CONTROLLERS__.values()][0];
 const names = window.__DC__.stores;
 const ids = __DC__.stores;
@@ -1873,14 +1873,14 @@ diff((__DC__.store = 'Admin', __DC__.controller).getState(), (__DC__.store = 'Sh
 const store = pick(), picked = (__DC__.store = store, __DC__.controller);
 const pair = [name = next(), (__DC__.store = name, __DC__.controller)];
 f([name] = next(), (__DC__.store = name, __DC__.controller));
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global
 const framed = getWindow().__DC_CONTROLLERS__.get('app').getState();
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global
 const ctrl = __DC_CONTROLLERS__.get(name);
 if (!ctrl) return null;
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global
 const maybeState = __DC_CONTROLLERS__.get('c')?.getState();
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global
 for (const controller of __DC_CONTROLLERS__.values())
   log(controller);
       `,
@@ -1906,7 +1906,7 @@ const n = __DC_CONTROLLERS__.get('a');
 const c = __DC_CONTROLLERS__.get(...storeArgs);
       `,
       `
-// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
+// TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global
 const c = __DC_CONTROLLERS__.get(...storeArgs);
       `,
       'marks a lookup with a spread argument',
@@ -2533,7 +2533,7 @@ class Member extends User {
   }
 }
 class Sorted extends Entity {
-  // TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-pk-args
+  // TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#future-pk-args
   static pk(value: any, parent?: any, key?: string, args?: any[]) {
     return args?.sort().join(',');
   }
@@ -2549,7 +2549,7 @@ class Grouped extends Entity {
   }
 }
 class Named extends Entity {
-  // TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#future-pk-args
+  // TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: https://dataclient.io/blog/2026/11/17/v0.19-batch-set#future-pk-args
   static pk(value: any, parent?: any, key?: string, args?: Args) {
     return value.id;
   }
