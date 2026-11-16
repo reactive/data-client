@@ -82,12 +82,12 @@ or change what users see, like adding optimistic updates the app did not have, a
 | `useQuery()` where the component renders its own spinner or error | [useDLE()](../api/useDLE.md): `{ data, loading, error }` |
 | `enabled: false` | `null` in place of the args: `useSuspense(endpoint, id ? { id } : null)` returns `undefined` and fetches nothing |
 | `select` | Compute in render, or a [Query](/rest/api/Query) schema read with [useQuery()](../api/useQuery.md) |
-| `useQueries()` | [useFetch()](../api/useFetch.md) for each, then React's `use()`: they fetch in parallel |
+| `useQueries()` | [useFetch()](../api/useFetch.md) for each, then React 19's `use()`: they fetch in parallel. On React 18, call `useSuspense()` for each after the `useFetch()` calls; it reuses their requests |
 | `staleTime` | [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength) on the endpoint or base class. The default is 60 seconds (TanStack Query's is 0) |
 | `gcTime` | `DataProvider`'s [gcPolicy](../api/DataProvider.md#gcPolicy) |
 | `retry` | Delete it: Data Client has no retry loop. An errored request is fetched again when a component needs it after `errorExpiryLength` (default 1 second), like TanStack Query's `retry: false` |
 | `refetchInterval` | `pollFrequency` on the endpoint, read with [useLive()](../api/useLive.md) |
-| `refetchOnWindowFocus` | Delete it: Data Client doesn't refetch on window focus |
+| `refetchOnWindowFocus` | Delete it: Data Client doesn't refetch on window focus. On React Native with React Navigation, a screen refetches its stale data when it regains focus |
 | `placeholderData: keepPreviousData` | Change the args inside `startTransition()` (or [useDebounce()](../api/useDebounce.md) for typed input): React keeps showing the current data while the next loads |
 | `initialData` from a list query | Delete it: while the list's data is fresh, an Entity it loaded renders on the detail page without a fetch, when the detail endpoint's schema is that Entity |
 | `useMutation()` | `ctrl.fetch(endpoint, ...args)` in the event handler, from [useController()](../api/useController.md) |
@@ -194,7 +194,8 @@ The `isLoading` branch moves to a `<Suspense>` fallback, and the `isError` branc
 `?? []` guard goes away, because `useSuspense()` returns only once data is there.
 
 Two `useSuspense()` calls in one component load one after the other. When neither needs the other's data, start both
-with `useFetch()` and read them with `use()` ([parallel data loading](../api/useFetch.md#parallel-data-loading)).
+with `useFetch()` and read them with `use()` ([parallel data loading](../api/useFetch.md#parallel-data-loading)). On
+React 18, which has no `use()`, read them with `useSuspense()` after both `useFetch()` calls.
 
 ### Envelope responses
 

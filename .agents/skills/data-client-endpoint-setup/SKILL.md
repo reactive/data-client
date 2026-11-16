@@ -177,7 +177,7 @@ export const listUsers = new Endpoint(fetchUsers, {
 ### Supabase
 
 ```ts
-import { Endpoint } from '@data-client/endpoint';
+import { Endpoint, Invalidate } from '@data-client/endpoint';
 import { supabase } from './supabase';
 import { User } from '../schemas/User';
 
@@ -290,6 +290,8 @@ export const deleteUser = new Endpoint(
     return { id };
   },
   {
+    // removes the deleted User from every list that holds it
+    schema: new Invalidate(User),
     name: 'deleteUser',
     sideEffect: true,
   },

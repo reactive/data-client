@@ -214,8 +214,9 @@ export default class ApiEndpoint<
 
 </DiffEditor>
 
-Response interceptors that change the body, such as converting `snake_case` keys, go in
-[`process()`](../api/RestEndpoint.md#process); see [snakes to camels](./network-transform.md#snakes-to-camels).
+Response interceptors that change the body, such as unwrapping `{ data }` or converting `snake_case` keys, go in
+[`parseResponse()`](../api/RestEndpoint.md#parseResponse); see [snakes to camels](./network-transform.md#snakes-to-camels).
+A base class's `process()` would miss `resource().delete`, which sets its own.
 
 When a response interceptor returned `response.data`, a caller's `.data` read a field of the body, not axios's response,
 so keep it. The codemod marks these calls when the interceptor is in the same file; if a global
@@ -556,13 +557,14 @@ npm uninstall axios
 | `interceptors.request`                   | [`getHeaders()`](../api/RestEndpoint.md#getHeaders) / [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit) |
 | `interceptors.response`                  | [`parseResponse()`](../api/RestEndpoint.md#parseResponse) / [`process()`](../api/RestEndpoint.md#process)         |
 | `transformRequest`                       | [`getRequestInit()`](../api/RestEndpoint.md#getRequestInit)                                                       |
-| `transformResponse`                      | [`process()`](../api/RestEndpoint.md#process)                                                                     |
+| `transformResponse`                      | [`parseResponse()`](../api/RestEndpoint.md#parseResponse)                                                         |
 | `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                                  |
 | `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                         |
 | `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                                         |
 | `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) in `getRequestInit()`                               |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
+| `data` in a `delete()` config            | [`body`](../api/RestEndpoint.md#body) on the endpoint: a `DELETE` sends a body only when it has one (rest 0.19+)  |
 | `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                                       |
 | `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                             |
 | `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                                   |

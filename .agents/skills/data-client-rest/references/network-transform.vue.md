@@ -13,7 +13,9 @@ responses, [getRequestInit()](./RestEndpoint.vue.md#getRequestInit) for request 
 
 ## Snakes to camels
 
-Many APIs use `snake_case` keys. To use `camelCase` in TypeScript, transform the keys in both directions.
+Many APIs use `snake_case` keys. To use `camelCase` in TypeScript, transform the keys in both directions. A base class
+converts responses in [parseResponse()](./RestEndpoint.vue.md#parseResponse), not `process()`, because
+[resource()](./resource.vue.md)'s `delete` sets its own `process()`, which replaces the class's.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
@@ -39,8 +41,10 @@ class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     }
     return super.getRequestInit(body);
   }
-  process(value) {
-    return deeplyApplyKeyTransform(value, camelCase);
+  async parseResponse(response) {
+    const value = await super.parseResponse(response);
+    // a 204 response has no body
+    return value && deeplyApplyKeyTransform(value, camelCase);
   }
 }
 ```

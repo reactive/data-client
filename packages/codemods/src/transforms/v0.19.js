@@ -1,5 +1,9 @@
 'use strict';
 
+const fs = require('node:fs');
+
+const resolveModule = require('../resolveModule');
+
 /**
  * @data-client v0.19 migration codemod
  *
@@ -29,27 +33,40 @@
  *        `middleware: Middleware = () => next => next`.
  *      - Reads of the removed `NetworkManager.cleanupDate`, and `getMiddleware` code it can't
  *        rewrite, get a `// TODO(data-client):` comment.
+ *      - `controller.resolve(action.endpoint, { fetchedAt: Date.now() })` passes the fetch's
+ *        `action.meta.fetchedAt`, which 0.19 matches responses to fetches by.
  *   5. `fetchIfStale()` always returns a Promise:
  *      - `Promise.resolve(ctrl.fetchIfStale(...))` becomes the bare call.
- *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
- *      - A statement that reads its result as the data gets a `// TODO(data-client):` comment.
- *   6. Deprecated APIs:
+ *      - `if (x instanceof Promise)` (or `isPromise(x)`) on a result becomes its Promise branch, when
+ *        that branch awaits the result.
+ *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`, and
+ *        `fetchIfStale: jest.fn(() => data)` resolves its value.
+ *      - A statement that reads its result as the data, or that handles an awaited result being
+ *        missing, gets a `// TODO(data-client):` comment.
+ *   6. Unawaited reads never reject unhandled: a no-op `.catch(() => {})` on an unused `fetchIfStale()`,
+ *      or on `fetch()` of `XResource.get`/`getList`/`getList.getPage`, is dropped.
+ *   7. `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller` after `__DC__.store = name`, in any
+ *      file, since debugging scripts rarely import data-client; other uses get a TODO.
+ *   8. Deprecated APIs:
  *      - `Resource.create` becomes `Resource.getList.push` where it runs, for an unchanged `const`
- *        `resource()` declared in the file; DevTools `actionsBlacklist`/`actionsWhitelist` options
- *        become `actionsDenylist`/`actionsAllowlist`.
- *      - Other `*Resource.create`, `waitForNextUpdate()`, `renderDataHook.cleanup()`/`.allSettled()`
- *        and Vue `createDataClient()` get a `// TODO(data-client):` comment.
+ *        `resource()` declared in the file or imported from a relative or tsconfig-aliased module;
+ *        DevTools `actionsBlacklist`/`actionsWhitelist` options become `actionsDenylist`/`actionsAllowlist`;
+ *        `renderDataCompose()`'s `waitForNextUpdate()` becomes `allSettled()`; right after the render,
+ *        it is dropped before a statement that first awaits `result`, or becomes `await result` before one
+ *        that awaits it later; `static pk()` overrides type `args` as `readonly any[]`.
+ *      - Other `*Resource.create`, React `waitForNextUpdate()`, `renderDataHook.cleanup()`/
+ *        `.allSettled()` and Vue `createDataClient()` get a `// TODO(data-client):` comment.
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
- *   npx @data-client/codemods v0.19 src/ --deprecations=false  # skip section 6
- *   npx @data-client/codemods v0.19 src/ --deprecations=only   # just section 6
+ *   npx @data-client/codemods v0.19 src/ --deprecations=false  # skip section 8
+ *   npx @data-client/codemods v0.19 src/ --deprecations=only   # just section 8
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
 // every rewrite outside the deprecated APIs needs one of these names in the file
 const NAMES =
-  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b/;
+  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b|fetchedAt|\.catch\(/;
 const BLOG = 'https://dataclient.io/blog/2026/10/03/v0.19-batch-set';
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
@@ -81,6 +98,15 @@ const isFunction = node =>
 const isUndefined = node =>
   isId(node, 'undefined') ||
   (node.type === 'UnaryExpression' && node.operator === 'void');
+
+/** `undefined`, `void 0` or `null` */
+const isNullish = node =>
+  isId(node, 'undefined') ||
+  node.type === 'NullLiteral' ||
+  (node.type === 'Literal' && node.value === null) ||
+  (node.type === 'UnaryExpression' &&
+    node.operator === 'void' &&
+    /Literal$/.test(node.argument.type));
 
 const isGetDefaultManagersCall = node =>
   node.type === 'CallExpression' && isId(node.callee, 'getDefaultManagers');
@@ -151,18 +177,92 @@ function findManagerSlots(j, root) {
   return slots;
 }
 
-/** The binding path (`id` of its declaration) for an identifier, if declared in this file */
-function bindingOf(path) {
-  const scope = path.scope?.lookup(path.node.name);
-  return scope?.getBindings()[path.node.name]?.[0];
+/** The binding path (`id` of its declaration) that `name` refers to at `path`, if declared in this file */
+function bindingAt(path, name) {
+  // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
+  // block that holds `path`, or look further out when none does
+  for (
+    let scope = path.scope?.lookup(name);
+    scope;
+    scope = scope.parent?.lookup(name)
+  ) {
+    const bindings = scope.getBindings()[name];
+    const blocks = bindings.map(declaringBlock);
+    for (let p = path; p; p = p.parent) {
+      const i = blocks.indexOf(p.node);
+      if (i !== -1) return bindings[i];
+    }
+  }
 }
 
-/** Whether `p` names something else, like an object key or a non-computed member */
+/** The binding path (`id` of its declaration) for an identifier, if declared in this file */
+const bindingOf = path => bindingAt(path, path.node.name);
+
+/** Whether the identifier at `path` names a variable this file declares, other than an ambient
+ * `declare var` or `declare global` one, which describes a global */
+function isLocalName(path) {
+  const binding = bindingOf(path);
+  if (!binding) return false;
+  for (let p = binding; p; p = p.parent)
+    if (p.node.declare || p.node.type === 'TSModuleDeclaration') return false;
+  return true;
+}
+
+/** Whether `node` is `path`'s node or one of its ancestors */
+function isWithin(path, node) {
+  for (let p = path; p; p = p.parent) if (p.node === node) return true;
+  return false;
+}
+
+const BLOCKS = new Set([
+  'BlockStatement',
+  'Program',
+  'SwitchCase',
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'CatchClause',
+]);
+
+const PATTERN_PARTS = new Set([
+  'Property',
+  'ObjectProperty',
+  'ObjectPattern',
+  'ArrayPattern',
+  'AssignmentPattern',
+  'RestElement',
+]);
+
+/** The node a declaration's name is visible in: its block for `let`, `const`, a class or a function
+ * declaration, else its function or the module */
+function declaringBlock(binding) {
+  let owner = binding.parent;
+  while (PATTERN_PARTS.has(owner.node.type)) owner = owner.parent;
+  const { type } = owner.node;
+  const blockScoped =
+    (type === 'VariableDeclarator' && owner.parent.node.kind !== 'var') ||
+    ((type === 'FunctionDeclaration' || type === 'ClassDeclaration') &&
+      owner.node.id === binding.node);
+  // a parameter is visible in its own function
+  if (/Function/.test(type) && owner.node.id !== binding.node)
+    return owner.node;
+  for (let path = owner.parent; path; path = path.parent) {
+    const t = path.node.type;
+    if (/Function/.test(t) || t === 'Program' || (blockScoped && BLOCKS.has(t)))
+      return path.node;
+  }
+}
+
+/** Whether `p` names something else, like an object key, a non-computed member or the other module's
+ * name in `import { name as local }` */
 function isOtherName(p) {
   const parent = p.parent.node;
   return (
     (isMember(parent) && parent.property === p.node && !parent.computed) ||
-    (isProperty(parent) && parent.key === p.node && parent.value !== p.node)
+    (isProperty(parent) && parent.key === p.node && parent.value !== p.node) ||
+    (parent.type === 'ImportSpecifier' &&
+      parent.imported === p.node &&
+      parent.local !== p.node)
   );
 }
 
@@ -288,6 +388,9 @@ const FETCH_IF_STALE_TODO =
   `${BLOG}#fetch-if-stale-promise`;
 // Promise methods; reading any other member of the result means the code expected the data
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+const MOCK_TODO =
+  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: ' +
+  `${BLOG}#fetch-if-stale-promise`;
 const MOCK_RENAMES = new Map([
   ['mockReturnValue', 'mockResolvedValue'],
   ['mockReturnValueOnce', 'mockResolvedValueOnce'],
@@ -300,6 +403,17 @@ const PASS_THROUGH = new Set([
   'TSTypeAssertion',
   'ParenthesizedExpression',
 ]);
+
+/** The outermost wrapper around the value at `path` that passes it through unchanged */
+function outerPath(path) {
+  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  return path;
+}
+
+/** Puts `comments` above the ones `node` already has */
+const prependComments = (node, comments) => {
+  node.comments = [...(comments ?? []), ...(node.comments ?? [])];
+};
 
 const isFetchIfStaleCall = node =>
   node?.type === 'CallExpression' && calleeName(node) === 'fetchIfStale';
@@ -321,7 +435,7 @@ function isPromiseMethodCall(path) {
 
 /** Whether the value at `path` is used as if it were the data, not a Promise */
 function readsSynchronously(path) {
-  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  path = outerPath(path);
   const { node } = path;
   const parent = path.parent.node;
   switch (parent.type) {
@@ -345,35 +459,252 @@ function readsSynchronously(path) {
     case 'VariableDeclarator':
       // destructuring: ObjectPattern or ArrayPattern
       return parent.init === node && parent.id.type.endsWith('Pattern');
+    case 'CallExpression':
+      // `isPromise(result)` checks for the data
+      return isPromiseCheckCall(parent) && parent.arguments[0] === node;
     default:
       return false;
   }
 }
 
-/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a `const` holding it */
+/** `const x = ctrl.fetchIfStale(...)` declarators, or with `anyKind` also `let` and `var` ones */
+const findFetchIfStaleConsts = (j, root, anyKind = false) =>
+  root
+    .find(j.VariableDeclarator, { id: { type: 'Identifier' } })
+    .filter(
+      decl =>
+        (anyKind || decl.parent.node.kind === 'const') &&
+        isFetchIfStaleCall(unwrap(decl.node.init)),
+    )
+    .paths();
+
+/** The identifiers in `path` (default: the declaration's scope) that read the variable `decl` declares */
+const refsTo = (j, decl, path = decl.scope.path) =>
+  usesOf(j, j(path), decl.get('id')).paths();
+
+/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a variable holding it */
 function findSyncReads(j, root) {
   const reads = root
     .find(j.CallExpression)
     .filter(call => isFetchIfStaleCall(call.node) && readsSynchronously(call))
     .paths();
-  root
-    .find(j.VariableDeclarator, { id: { type: 'Identifier' } })
-    .filter(decl => isFetchIfStaleCall(unwrap(decl.node.init)))
-    .forEach(decl => {
-      const { name } = decl.node.id;
-      root.find(j.Identifier, { name }).forEach(ref => {
-        if (
-          // JSX names are JSXIdentifiers
-          ref.node.type === 'Identifier' &&
-          ref.node !== decl.node.id &&
-          !isOtherName(ref) &&
-          bindingOf(ref)?.parent.node === decl.node &&
-          readsSynchronously(ref)
-        )
-          reads.push(ref);
-      });
-    });
+  for (const decl of findFetchIfStaleConsts(j, root, true))
+    reads.push(...refsTo(j, decl).filter(readsSynchronously));
   return reads;
+}
+
+/** `isPromise(x)` or `isThenable(x)`, a helper that checks for a Promise */
+const isPromiseCheckCall = node =>
+  node.type === 'CallExpression' &&
+  node.arguments.length === 1 &&
+  /^is(Promise|Thenable)(Like)?$/.test(calleeName(node) ?? '');
+
+/** What a test checks is a Promise, and whether it is negated: `x instanceof Promise`, `isPromise(x)`,
+ * or either under `!` */
+function promiseCheckOf(test) {
+  let negated = false;
+  test = unwrap(test);
+  while (test?.type === 'UnaryExpression' && test.operator === '!') {
+    negated = !negated;
+    test = unwrap(test.argument);
+  }
+  if (
+    test?.type === 'BinaryExpression' &&
+    test.operator === 'instanceof' &&
+    isId(test.right, 'Promise')
+  )
+    return { checked: unwrap(test.left), negated };
+  if (test && isPromiseCheckCall(test))
+    return { checked: unwrap(test.arguments[0]), negated };
+}
+
+/** Whether `branch` waits for the Promise `decl` holds (`await x` or `x.then()`), and, with `uses`, also
+ * reads the data it resolves to (`(await x).title`, not a bare `await x;`, or `x.then(cb)`) */
+function awaits(j, branch, decl, uses) {
+  return refsTo(j, decl, branch).some(ref => {
+    const parent = ref.parent.node;
+    if (parent.type === 'AwaitExpression' && parent.argument === ref.node)
+      return (
+        !uses ||
+        outerPath(ref.parent).parent.node.type !== 'ExpressionStatement'
+      );
+    return (
+      isMember(parent) &&
+      parent.object === ref.node &&
+      isPromiseMethodCall(ref.parent) &&
+      (!uses ||
+        (memberName(parent) === 'then' &&
+          ref.parent.parent.node.arguments.length > 0))
+    );
+  });
+}
+
+const JUMPS = new Set([
+  'ReturnStatement',
+  'ThrowStatement',
+  'BreakStatement',
+  'ContinueStatement',
+]);
+
+/** Whether control never runs past the end of `statements`: the last one returns, throws, breaks or
+ * continues, directly or as the last statement of a nested block */
+function endsAbruptly(statements) {
+  const last = statements.at(-1);
+  return last?.type === 'BlockStatement' ?
+      endsAbruptly(last.body)
+    : JUMPS.has(last?.type);
+}
+
+/** Whether a branch ends abruptly, so code after its `if` was the other branch too */
+const endsEarly = branch => endsAbruptly([branch]);
+
+/** Whether `statements` can move into the block around `path` without their declarations clashing with
+ * names already visible there */
+function canInline(j, path, statements) {
+  // names read beside the check may be globals, which a declaration moved out of the branch would shadow
+  let beside;
+  const readBeside = name => {
+    beside ??= new Set(
+      path.parentPath.value
+        .filter(node => node !== path.node)
+        .flatMap(node =>
+          j(node)
+            .find(j.Identifier)
+            .nodes()
+            .map(id => id.name),
+        ),
+    );
+    return beside.has(name);
+  };
+  return statements.every(statement => {
+    const declared =
+      statement.type === 'VariableDeclaration' ?
+        statement.declarations.map(d => d.id)
+      : [statement.id];
+    if (!declared.every(id => id === undefined || id?.type === 'Identifier'))
+      return false;
+    return declared.every(id => {
+      if (!id) return true;
+      // ast-types puts block-scoped names in the function's scope, so the branch's own declaration is
+      // the one binding allowed there
+      const scope = path.scope.lookup(id.name);
+      return (
+        (!scope ||
+          (scope === path.scope &&
+            scope.getBindings()[id.name].length === 1 &&
+            !path.scope.parent?.lookup(id.name))) &&
+        !readBeside(id.name)
+      );
+    });
+  });
+}
+
+/** Replaces the `if` or `?:` at `path` with the branch at `branchPath` */
+function keepBranch(j, path, branchPath) {
+  const branch = branchPath.node;
+  if (path.node.type === 'ConditionalExpression') {
+    path.replace(branch);
+    return;
+  }
+  const statements = branch.type === 'BlockStatement' ? branch.body : [branch];
+  const replacement =
+    Array.isArray(path.parentPath.value) && canInline(j, path, statements) ?
+      statements
+    : [branch];
+  if (replacement[0]) prependComments(replacement[0], path.node.comments);
+  path.replace(...replacement);
+}
+
+/** A check like `if (x instanceof Promise)` on a `fetchIfStale()` result now always takes the Promise
+ * branch, so where that branch waits for the result, it replaces the whole check */
+function keepPromiseBranches(j, root) {
+  const consts = new Set(findFetchIfStaleConsts(j, root).map(d => d.node));
+  if (!consts.size) return false;
+  let dirty = false;
+  const checks = [
+    ...root.find(j.IfStatement).paths(),
+    ...root.find(j.ConditionalExpression).paths(),
+  ].reverse(); // inner checks first, so replacing an outer one keeps their edits
+  for (const path of checks) {
+    const check = promiseCheckOf(path.node.test);
+    if (check?.checked.type !== 'Identifier') continue;
+    const ref = j(path.get('test'))
+      .find(j.Identifier, { name: check.checked.name })
+      .paths()[0];
+    const decl = ref && bindingOf(ref)?.parent;
+    if (!decl || !consts.has(decl.node)) continue;
+    const branch = path.get(check.negated ? 'alternate' : 'consequent');
+    const other = path.node[check.negated ? 'consequent' : 'alternate'];
+    if (!branch.node) continue;
+    // keep a branch that only waits when the other did nothing, and otherwise only one that also reads
+    // the data, so nothing the other branch did with it disappears
+    const otherEmpty =
+      (!other && !endsEarly(branch.node)) ||
+      (other?.type === 'BlockStatement' && !other.body.length);
+    if (!awaits(j, branch, decl, !otherEmpty)) continue;
+    keepBranch(j, path, branch);
+    dirty = true;
+  }
+  return dirty;
+}
+
+const FALLBACK_TODO =
+  ' TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest ' +
+  `fetch failed since 0.19; handle that case in .catch() or try/catch: ${BLOG}#fetch-if-stale-promise`;
+
+/** Whether the value at `path` is checked for a missing result: `x ?? fallback`, `x && x.id`, `!x`,
+ * `x == null`, `x?.id` */
+function checksMissing(path) {
+  path = outerPath(path);
+  const { node } = path;
+  const parent = path.parent.node;
+  switch (parent.type) {
+    case 'LogicalExpression':
+      return parent.left === node;
+    case 'UnaryExpression':
+      return parent.operator === '!';
+    case 'BinaryExpression': {
+      const other = parent.left === node ? parent.right : parent.left;
+      return (
+        ['==', '===', '!=', '!=='].includes(parent.operator) && isNullish(other)
+      );
+    }
+    case 'IfStatement':
+    case 'ConditionalExpression':
+      return parent.test === node;
+    case 'MemberExpression':
+    case 'OptionalMemberExpression':
+      return parent.object === node && !!parent.optional;
+    case 'CallExpression':
+    case 'OptionalCallExpression':
+      return parent.callee === node && !!parent.optional;
+    default:
+      return false;
+  }
+}
+
+/** Code that handled an awaited `fetchIfStale()` resolving `undefined` after a failed fetch */
+function markMissingChecks(j, root) {
+  const marked = [];
+  root
+    .find(j.AwaitExpression)
+    .filter(({ node }) => isFetchIfStaleCall(unwrap(node.argument)))
+    .forEach(awaited => marked.push(...missingChecks(j, awaited)));
+  return addTodos(j, marked, FALLBACK_TODO);
+}
+
+/** The places that check the value at `path`, or the `const` holding it, for a missing result */
+function missingChecks(j, path) {
+  const found = checksMissing(path) ? [path] : [];
+  const outer = outerPath(path);
+  const decl = outer.parent;
+  if (
+    decl.node.type === 'VariableDeclarator' &&
+    decl.node.init === outer.node &&
+    decl.node.id.type === 'Identifier'
+  )
+    found.push(...refsTo(j, decl).filter(checksMissing));
+  return found;
 }
 
 /** Comments `text` above each statement holding one of `paths`; returns whether it added any */
@@ -442,21 +773,6 @@ function statementOf(j, path) {
   return statement;
 }
 
-/** The `spyOn(obj, 'fetchIfStale')` call under a chain of `.mock*()` calls, if any */
-function spiesOnFetchIfStale(node) {
-  while (
-    node?.type === 'CallExpression' &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.property.name?.startsWith('mock')
-  )
-    node = node.callee.object;
-  return (
-    node?.type === 'CallExpression' &&
-    calleeName(node) === 'spyOn' &&
-    node.arguments[1]?.value === 'fetchIfStale'
-  );
-}
-
 /** `Promise.resolve(ctrl.fetchIfStale(...))` made `.catch()` work on fresh data, which the call now does itself */
 function unwrapPromiseResolve(j, root) {
   return (
@@ -474,22 +790,126 @@ function unwrapPromiseResolve(j, root) {
   );
 }
 
-/** Mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` */
-function renameFetchIfStaleMocks(j, root) {
+/** `jest.fn(...)` or `vi.fn(...)` */
+const isMockFn = node =>
+  node?.type === 'CallExpression' &&
+  memberName(node.callee) === 'fn' &&
+  ['jest', 'vi'].includes(node.callee.object?.name);
+
+/** The `.mock*()` calls chained onto the mock created at `path`, innermost first */
+function mockChain(path) {
+  const chain = [];
+  while (
+    isMember(path.parent.node) &&
+    path.parent.node.object === path.node &&
+    memberName(path.parent.node)?.startsWith('mock') &&
+    path.parent.parent.node.type === 'CallExpression' &&
+    path.parent.parent.node.callee === path.parent.node
+  ) {
+    path = path.parent.parent;
+    chain.push(path);
+  }
+  return chain;
+}
+
+/** Whether the mock created at `path` stands in for fetchIfStale: `spyOn(ctrl, 'fetchIfStale')`, or a
+ * `jest.fn()` held by a `fetchIfStale` property or assigned to `ctrl.fetchIfStale` */
+function mocksFetchIfStale(path) {
+  const { node } = path;
+  if (calleeName(node) === 'spyOn')
+    return node.arguments[1]?.value === 'fetchIfStale';
+  if (!isMockFn(node)) return false;
+  const top = mockChain(path).at(-1) ?? path;
+  const parent = top.parent.node;
   return (
-    root
-      .find(j.CallExpression, { callee: { type: 'MemberExpression' } })
-      .filter(
-        call =>
-          MOCK_RENAMES.has(call.node.callee.property.name) &&
-          spiesOnFetchIfStale(call.node.callee.object),
-      )
-      .forEach(call => {
-        const { callee } = call.node;
-        callee.property = j.identifier(MOCK_RENAMES.get(callee.property.name));
-      })
-      .size() > 0
+    (isProperty(parent) &&
+      parent.value === top.node &&
+      keyName(parent) === 'fetchIfStale') ||
+    (parent.type === 'AssignmentExpression' &&
+      parent.right === top.node &&
+      memberName(parent.left) === 'fetchIfStale')
   );
+}
+
+const MOCK_IMPLEMENTATIONS = new Set([
+  'mockImplementation',
+  'mockImplementationOnce',
+]);
+
+/** `Promise.resolve(...)`, `Promise.reject(...)` or `new Promise(...)` */
+const isPromiseValue = node =>
+  (node.type === 'CallExpression' &&
+    isId(node.callee.object, 'Promise') &&
+    ['resolve', 'reject'].includes(memberName(node.callee))) ||
+  (node.type === 'NewExpression' && isId(node.callee, 'Promise'));
+
+/** Makes a mock implementation return a Promise: `() => data` becomes `() => Promise.resolve(data)`.
+ * Returns whether it changed it. */
+function resolveImplementation(j, fn) {
+  if (!isFunction(fn) || fn.async || fn.generator) return false;
+  const wrap = value =>
+    j.callExpression(
+      j.memberExpression(j.identifier('Promise'), j.identifier('resolve')),
+      [value],
+    );
+  if (fn.body.type !== 'BlockStatement') {
+    if (isPromiseValue(unwrap(fn.body))) return false;
+    fn.body = wrap(fn.body);
+    return true;
+  }
+  // only this function's own returns, not those of functions inside it
+  const nested = new Set(
+    j(fn.body).find(j.Function).find(j.ReturnStatement).nodes(),
+  );
+  const returns = j(fn.body)
+    .find(j.ReturnStatement)
+    .filter(({ node }) => !nested.has(node))
+    .nodes();
+  // a bare `return;` or running off the end returns undefined, so make every path a Promise with `async`
+  if (
+    returns.some(node => !node.argument) ||
+    fn.body.body.at(-1)?.type !== 'ReturnStatement'
+  ) {
+    fn.async = true;
+    return true;
+  }
+  let dirty = false;
+  for (const node of returns) {
+    if (isPromiseValue(unwrap(node.argument))) continue;
+    node.argument = wrap(node.argument);
+    dirty = true;
+  }
+  return dirty;
+}
+
+/** Mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` resolves its
+ * value, and so do `jest.fn(() => data)` implementations of `fetchIfStale` */
+function resolveFetchIfStaleMocks(j, root) {
+  let dirty = false;
+  const marked = [];
+  // an implementation defined elsewhere (`mockImplementation(impl)`) gets a TODO
+  const resolve = (call, fn) => {
+    if (isFunction(fn)) dirty = resolveImplementation(j, fn) || dirty;
+    else marked.push(call);
+  };
+  root
+    .find(j.CallExpression)
+    .filter(mocksFetchIfStale)
+    .forEach(mock => {
+      if (isMockFn(mock.node) && mock.node.arguments[0])
+        resolve(mock, mock.node.arguments[0]);
+      for (const call of mockChain(mock)) {
+        const { node } = call;
+        const name = memberName(node.callee);
+        if (MOCK_RENAMES.has(name)) {
+          node.callee.property = j.identifier(MOCK_RENAMES.get(name));
+          dirty = true;
+        } else if (MOCK_IMPLEMENTATIONS.has(name) && node.arguments[0]) {
+          resolve(call, node.arguments[0]);
+        }
+      }
+    });
+  return addTodos(j, marked, MOCK_TODO) || dirty;
 }
 
 /** Where to `await` depends on the code around it, so mark the statement instead */
@@ -500,8 +920,227 @@ function markSyncReads(j, root) {
 function transformFetchIfStale(j, root, source) {
   if (!source.includes('fetchIfStale')) return false;
   let dirty = unwrapPromiseResolve(j, root);
-  dirty = renameFetchIfStaleMocks(j, root) || dirty;
+  dirty = resolveFetchIfStaleMocks(j, root) || dirty;
+  dirty = keepPromiseBranches(j, root) || dirty;
   dirty = markSyncReads(j, root) || dirty;
+  dirty = markMissingChecks(j, root) || dirty;
+  return dirty;
+}
+
+/* Reads you don't await never reject unhandled since 0.19, so their no-op catches are dead code */
+
+/** `() => {}`, `() => undefined` or `() => null` */
+function isNoopHandler(node) {
+  if (!isFunction(node) || node.async || node.generator) return false;
+  const { body } = node;
+  return body.type === 'BlockStatement' ?
+      body.body.length === 0
+    : isNullish(body);
+}
+
+// resource() members that read: they have no sideEffect
+const RESOURCE_READS = new Set(['get', 'getList']);
+
+/** Whether `path` reads `get`, `getList` or `getList.getPage` of a resource that keeps it a read: a plain
+ * `resource()` declared or imported here whose `extend()` doesn't replace it. An undeclared `*Resource`
+ * (a test's, say) counts by its name. */
+function isResourceRead(j, root, path, file) {
+  path = path.node && unwrapPath(path);
+  if (
+    memberName(path?.node) === 'getPage' &&
+    memberName(path.node.object) === 'getList'
+  )
+    path = path.get('object');
+  const node = path?.node;
+  if (
+    !isMember(node) ||
+    node.computed ||
+    !RESOURCE_READS.has(memberName(node)) ||
+    node.object.type !== 'Identifier' ||
+    !/Resource$/.test(node.object.name)
+  )
+    return false;
+  const binding = bindingOf(path.get('object'));
+  if (!binding) return true;
+  const replaced = new Set([memberName(node)]);
+  return (
+    isReadOnlyResource(j, root, binding, replaced) ||
+    isImportedPlainResource(j, root, binding, file, replaced)
+  );
+}
+
+/** Whether the call at `path` starts a read that can't reject unhandled: any `fetchIfStale()`, or `fetch()`
+ * of a resource read. `fetch` named alone is `const { fetch } = useController()`, since the global
+ * fetch() takes a URL. */
+const isPrehandledRead = (j, root, path, file) =>
+  isFetchIfStaleCall(path.node) ||
+  (path.node.type === 'CallExpression' &&
+    calleeName(path.node) === 'fetch' &&
+    isResourceRead(j, root, path.get('arguments', 0), file));
+
+/** Whether nothing uses the value at `path`: a statement of its own, `void`, or the body of a JSX event
+ * handler, whose return value React ignores */
+function isUnused(path) {
+  const parent = path.parent.node;
+  if (parent.type === 'ExpressionStatement') return true;
+  if (parent.type === 'UnaryExpression' && parent.operator === 'void')
+    return true;
+  const container = path.parent.parent?.node;
+  const attribute = path.parent.parent.parent?.node;
+  const element = path.parent.parent.parent.parent?.node;
+  // an async handler returns a new Promise, and a component may await what its handler returns
+  return (
+    parent.type === 'ArrowFunctionExpression' &&
+    !parent.async &&
+    parent.body === path.node &&
+    container?.type === 'JSXExpressionContainer' &&
+    /^on[A-Z]/.test(attribute?.name?.name ?? '') &&
+    /^[a-z]/.test(element?.name?.name ?? '')
+  );
+}
+
+/** `ctrl.fetch(TodoResource.getList).catch(() => {})` becomes `ctrl.fetch(TodoResource.getList)` where
+ * nothing uses the result */
+function dropNoopCatches(j, root, file) {
+  return (
+    root
+      .find(j.CallExpression)
+      .filter(path => {
+        const { callee } = path.node;
+        return (
+          memberName(callee) === 'catch' &&
+          !callee.computed &&
+          path.node.arguments.length === 1 &&
+          isNoopHandler(path.node.arguments[0]) &&
+          isUnused(path) &&
+          isPrehandledRead(
+            j,
+            root,
+            unwrapPath(path.get('callee', 'object')),
+            file,
+          )
+        );
+      })
+      .forEach(call => {
+        const read = call.node.callee.object;
+        prependComments(read, call.node.comments);
+        call.replace(read);
+      })
+      .size() > 0
+  );
+}
+
+/* controller.resolve() matches a response to its fetch by fetchedAt since 0.19 */
+
+/** `Date.now()` */
+const isDateNow = node =>
+  node?.type === 'CallExpression' &&
+  !node.arguments.length &&
+  isId(node.callee.object, 'Date') &&
+  memberName(node.callee) === 'now';
+
+// names a fetch action goes by; another object with an `endpoint` (props, options) has no `meta`
+const isActionName = node =>
+  node?.type === 'Identifier' && /(^a|A)ction$/.test(node.name);
+
+/** Whether `path` runs only when `action` (an identifier path) is a fetch action: under
+ * `if (action.type === actionTypes.FETCH)` or `case actionTypes.FETCH:` of `switch (action.type)`, the
+ * actions that carry `meta.fetchedAt` */
+function inFetchBranch(path, action) {
+  const { name } = action.node;
+  const binding = bindingOf(action);
+  const isFetch = node =>
+    nameOf(node) === 'FETCH' ||
+    ((node.type === 'StringLiteral' || node.type === 'Literal') &&
+      node.value === 'rdc/fetch');
+  // `action.type` of the same variable, so a callback's own `action` isn't taken as the fetch
+  const isActionType = (node, at) =>
+    memberName(node) === 'type' &&
+    isId(node.object, name) &&
+    bindingAt(at, name) === binding;
+  // true only when the test holds just for fetch actions: `action.type === FETCH`, alone or in an `&&`
+  const onlyFetch = (test, at) =>
+    (test.type === 'LogicalExpression' &&
+      test.operator === '&&' &&
+      (onlyFetch(test.left, at) || onlyFetch(test.right, at))) ||
+    (test.type === 'BinaryExpression' &&
+      (test.operator === '===' || test.operator === '==') &&
+      ((isFetch(test.left) && isActionType(test.right, at)) ||
+        (isFetch(test.right) && isActionType(test.left, at))));
+  for (; path.parent; path = path.parent) {
+    const { node } = path.parent;
+    if (
+      node.type === 'IfStatement' &&
+      path.name === 'consequent' &&
+      onlyFetch(node.test, path.parent)
+    )
+      return true;
+    const switchPath = path.parent.parent;
+    if (
+      node.type === 'SwitchCase' &&
+      node.test &&
+      isFetch(node.test) &&
+      isActionType(switchPath.node.discriminant, switchPath)
+    ) {
+      // another case may fall through into this one
+      const { cases } = switchPath.node;
+      const before = cases[cases.indexOf(node) - 1];
+      if (!before || endsAbruptly(before.consequent)) return true;
+    }
+  }
+  return false;
+}
+
+/** The fetch action's `meta` for the endpoint at `path` in a fetch branch: `action.meta` for
+ * `action.endpoint`, or for `endpoint` destructured from `action` (its `meta` when destructured too) */
+function fetchMetaOf(j, path) {
+  const { node } = path;
+  const metaOf = action =>
+    j.memberExpression(j.identifier(action.name), j.identifier('meta'));
+  if (memberName(node) === 'endpoint' && isActionName(node.object))
+    return inFetchBranch(path, path.get('object')) ?
+        metaOf(node.object)
+      : undefined;
+  // `const { endpoint } = action`
+  const property = destructuredBy(path);
+  if (!property || keyName(property.node) !== 'endpoint') return;
+  const declarator = property.parent.parent;
+  if (
+    declarator.node.type !== 'VariableDeclarator' ||
+    !isActionName(declarator.node.init) ||
+    !inFetchBranch(path, declarator.get('init'))
+  )
+    return;
+  const meta = property.parent.node.properties.find(
+    p =>
+      isProperty(p) && keyName(p) === 'meta' && p.value.type === 'Identifier',
+  );
+  const { name } = meta ? meta.value : declarator.node.init;
+  // the name must mean the same variable at the resolve() call as where `endpoint` was destructured
+  if (bindingAt(path, name) !== bindingAt(property, name)) return;
+  return meta ? j.identifier(name) : metaOf(declarator.node.init);
+}
+
+/** `controller.resolve(action.endpoint, { ..., fetchedAt: Date.now() })` passes `action.meta.fetchedAt` */
+function passFetchedAt(j, root) {
+  let dirty = false;
+  root
+    .find(j.CallExpression)
+    .filter(
+      ({ node }) =>
+        memberName(node.callee) === 'resolve' &&
+        node.arguments[1]?.type === 'ObjectExpression',
+    )
+    .forEach(call => {
+      const fetchedAt = call.node.arguments[1].properties.find(
+        p => isProperty(p) && !p.computed && keyName(p) === 'fetchedAt',
+      );
+      if (!fetchedAt || !isDateNow(fetchedAt.value)) return;
+      const meta = fetchMetaOf(j, call.get('arguments', 0));
+      if (!meta) return;
+      fetchedAt.value = j.memberExpression(meta, j.identifier('fetchedAt'));
+      dirty = true;
+    });
   return dirty;
 }
 
@@ -866,6 +1505,267 @@ function transformManagerClasses(j, root, source) {
   return dirty;
 }
 
+/* globalThis.__DC__ replaces the __DC_CONTROLLERS__ Map of Controllers by store name */
+
+const DC_GLOBAL = '__DC_CONTROLLERS__';
+const DC_GLOBAL_TODO = ` TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): ${BLOG}#dc-global`;
+
+/** `__DC__.<property>` on the same object `__DC_CONTROLLERS__` was read from */
+function dcMember(j, dcNode, property) {
+  const dc =
+    dcNode.type === 'Identifier' ?
+      j.identifier('__DC__')
+    : j.memberExpression(dcNode.object, j.identifier('__DC__'));
+  return j.memberExpression(dc, j.identifier(property));
+}
+
+/** Whether `node` calls the member `callee` with no arguments */
+const callsWithoutArgs = (node, callee) =>
+  node.type === 'CallExpression' &&
+  node.callee === callee &&
+  !node.arguments.length;
+
+/** `[...map.keys()]` or `Array.from(map.keys())` on the Map at `path`, which reads `__DC__.stores`. The
+ * first value isn't `__DC__.controller`: that throws when several stores are mounted and none is picked. */
+function storeKeysOf(path) {
+  const member = path.parent;
+  const call = member.parent;
+  if (
+    memberName(member.node) !== 'keys' ||
+    member.node.object !== path.node ||
+    !callsWithoutArgs(call.node, member.node)
+  )
+    return;
+  const up = call.parent;
+  if (
+    up.node.type === 'SpreadElement' &&
+    up.parent.node.type === 'ArrayExpression' &&
+    up.parent.node.elements.length === 1
+  )
+    return up.parent;
+  if (
+    up.node.type === 'CallExpression' &&
+    up.node.arguments.length === 1 &&
+    isId(up.node.callee.object, 'Array') &&
+    memberName(up.node.callee) === 'from'
+  )
+    return up;
+}
+
+// parents that evaluate the child whenever they run, and the children they may run conditionally
+const ALWAYS_EVALUATES = {
+  ConditionalExpression: ['test'],
+  IfStatement: ['test'],
+  LogicalExpression: ['left'],
+};
+const EVALUATES_ALL = new Set([
+  'CallExpression',
+  'NewExpression',
+  'MemberExpression',
+  'AwaitExpression',
+  'ArrayExpression',
+  'ObjectExpression',
+  'Property',
+  'ObjectProperty',
+  'SpreadElement',
+  'TemplateLiteral',
+  'VariableDeclarator',
+  'VariableDeclaration',
+  'ExpressionStatement',
+  'ReturnStatement',
+  'ThrowStatement',
+  ...PASS_THROUGH,
+]);
+
+/** Whether `statement` always evaluates the expression at `path` when it runs */
+function alwaysEvaluated(path, statement) {
+  for (; path !== statement; path = path.parent) {
+    const { node } = path.parent;
+    const always = ALWAYS_EVALUATES[node.type];
+    const evaluated =
+      always ?
+        always.includes(path.name)
+      : EVALUATES_ALL.has(node.type) ||
+        (node.type === 'AssignmentExpression' && node.operator === '=');
+    if (!evaluated || node.optional) return false;
+  }
+  return true;
+}
+
+/** Whether `statement` evaluates the expression at `path` before anything else, but the name of a function it
+ * calls: in `const data = await result` or `expect(await result)`, not `const ready = flag, data = await result` */
+function evaluatedFirst(path, statement) {
+  for (; path !== statement; path = path.parent) {
+    const { node } = path.parent;
+    // an array element's key is its array's, as `arguments`
+    const inArray = typeof path.name === 'number';
+    const key = inArray ? path.parentPath.name : path.name;
+    if (inArray && path.name !== 0) return false;
+    if (node.optional) return false;
+    switch (node.type) {
+      case 'CallExpression':
+      case 'NewExpression':
+        if (key !== 'callee' && node.callee.type !== 'Identifier') return false;
+        break;
+      case 'MemberExpression':
+        if (key !== 'object') return false;
+        break;
+      case 'AssignmentExpression':
+        if (node.operator !== '=' || node.left.type !== 'Identifier')
+          return false;
+        break;
+      case 'Property':
+      case 'ObjectProperty':
+        if (node.computed) return false;
+        break;
+      case 'TemplateLiteral':
+      case 'ArrayExpression':
+      case 'ObjectExpression':
+      case 'VariableDeclaration':
+        break;
+      default:
+        if (!alwaysEvaluated(path, path.parent)) return false;
+    }
+  }
+  return true;
+}
+
+/** `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller`, after `__DC__.store = name;` on its own line
+ * when it can move there, or else `(__DC__.store = name, __DC__.controller)` */
+function selectStore(j, call, dcNode, shared) {
+  const [name] = call.node.arguments;
+  const select = j.assignmentExpression(
+    '=',
+    dcMember(j, dcNode, 'store'),
+    name,
+  );
+  const statement = statementOf(j, call);
+  // a name with no side effects, in a statement that always reads it (not `flag && ...`) and reads no other
+  // store, of the same function (`page.evaluate(() => ...)` runs its function elsewhere); the variables in
+  // the name and the receiver (`frame.__DC_CONTROLLERS__`) must be declared before the statement and not
+  // set in it
+  const inputs = [
+    call.get('arguments', 0),
+    ...(isMember(dcNode) ? [call.get('callee', 'object', 'object')] : []),
+  ];
+  const settled =
+    statement &&
+    inputs.every(input =>
+      identifiersIn(j, input)
+        .filter(p => !isOtherName(p))
+        .every(
+          p =>
+            !isWithin(bindingOf(p), statement.node) &&
+            !assignsIn(j, statement, p.node.name),
+        ),
+    );
+  const canHoist =
+    settled &&
+    !shared.has(statement.node) &&
+    Array.isArray(statement.parentPath.value) &&
+    (name.type === 'Identifier' ||
+      name.type === 'StringLiteral' ||
+      (name.type === 'Literal' && typeof name.value === 'string') ||
+      (name.type === 'TemplateLiteral' && !name.expressions.length)) &&
+    alwaysEvaluated(call, statement);
+  if (!canHoist) {
+    call.replace(
+      j.sequenceExpression([select, dcMember(j, dcNode, 'controller')]),
+    );
+    return;
+  }
+  const line = j.expressionStatement(select);
+  // comments above the statement stay above both lines
+  const comments = statement.node.comments ?? [];
+  line.comments = comments.filter(c => c.leading);
+  statement.node.comments = comments.filter(c => !c.leading);
+  statement.insertBefore(line);
+  call.replace(dcMember(j, dcNode, 'controller'));
+}
+
+/** The identifiers at and inside `path` (find() skips the node it starts from) */
+const identifiersIn = (j, path) => [
+  ...(path.node.type === 'Identifier' ? [path] : []),
+  ...j(path).find(j.Identifier).paths(),
+];
+
+/** Whether `statement` writes a variable named `name`, by assignment, destructuring, `++` or a loop head */
+const assignsIn = (j, statement, name) =>
+  j(statement)
+    .find(j.Identifier, { name })
+    .some(p => !isOtherName(p) && isWriteTarget(p));
+
+/** Whether `node` is a name or a chain of named members (`window`, `(window as any).top`), so evaluating it
+ * twice reads the same object without side effects */
+function isPlainRef(node) {
+  node = unwrap(node);
+  return (
+    node.type === 'Identifier' ||
+    node.type === 'ThisExpression' ||
+    (isMember(node) && !node.computed && isPlainRef(node.object))
+  );
+}
+
+/** `__DC_CONTROLLERS__.get(name)` reads `__DC__.controller` after picking the store, unless the code
+ * handles a missing store; the keys read `__DC__.stores`. Debugging scripts often don't import
+ * data-client, so this runs on any file that names the global. */
+function migrateDcGlobal(j, root) {
+  let dirty = false;
+  const marked = [];
+  const uses = [
+    ...root
+      .find(j.Identifier, { name: DC_GLOBAL })
+      .filter(p => !isOtherName(p) && !isLocalName(p))
+      .paths(),
+    ...root
+      .find(j.MemberExpression)
+      .filter(({ node }) => memberName(node) === DC_GLOBAL)
+      .paths(),
+  ];
+  const getCallOf = path => {
+    const call = path.parent.parent;
+    return (
+      memberName(path.parent.node) === 'get' &&
+      path.parent.node.object === path.node &&
+      call.node.type === 'CallExpression' &&
+      call.node.callee === path.parent.node &&
+      call.node.arguments.length === 1 &&
+      call.node.arguments[0].type !== 'SpreadElement' &&
+      call
+    );
+  };
+  // statements that read more than one store keep each pick next to its read
+  const seen = new Set();
+  const shared = new Set();
+  for (const path of uses) {
+    const statement = statementOf(j, path)?.node;
+    if (seen.has(statement)) shared.add(statement);
+    seen.add(statement);
+  }
+  for (const path of uses) {
+    const { node } = path;
+    const call = getCallOf(path);
+    // `.get()` returned undefined for a missing store, but `__DC__.controller` throws
+    if (
+      call &&
+      !missingChecks(j, call).length &&
+      (node.type === 'Identifier' || isPlainRef(node.object))
+    ) {
+      selectStore(j, call, node, shared);
+      dirty = true;
+      continue;
+    }
+    const keys = storeKeysOf(path);
+    if (keys) {
+      keys.replace(dcMember(j, node, 'stores'));
+      dirty = true;
+      continue;
+    }
+    marked.push(path);
+  }
+  return addTodos(j, marked, DC_GLOBAL_TODO) || dirty;
+}
+
 /* Deprecated APIs: renamed where the replacement does the same thing, marked otherwise */
 
 const DEVTOOLS_RENAMES = new Map([
@@ -953,7 +1853,7 @@ const hasOnlyKeysOutside = (object, names) =>
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
  * differ, and so can a custom `Endpoint` class */
-function isPlainResource(path) {
+function isPlainResource(path, replaced = CREATE_SOURCES) {
   path = unwrapPath(path);
   while (
     path.node?.type === 'CallExpression' &&
@@ -961,9 +1861,9 @@ function isPlainResource(path) {
   ) {
     const [first] = path.node.arguments;
     if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
-      if (CREATE_SOURCES.has(first.value)) return false;
+      if (replaced.has(first.value)) return false;
     } else if (first?.type === 'ObjectExpression') {
-      if (!hasOnlyKeysOutside(first, CREATE_SOURCES)) return false;
+      if (!hasOnlyKeysOutside(first, replaced)) return false;
     } else return false;
     path = unwrapPath(path.get('callee', 'object'));
   }
@@ -1003,19 +1903,20 @@ function isWriteTarget(path) {
   );
 }
 
-/** Whether every use of a `const` resource reads its members without writing them, passing the resource
- * on, or letting `create` or `getList` escape, so they stay what its declaration made them */
-function isReadOnlyResource(j, root, binding) {
-  if (
-    !isPlainResourceDeclarator(binding) ||
-    binding.parent.parent.node.kind !== 'const' ||
-    isExported(binding)
-  )
-    return false;
+/** Whether a `const` resource declared here is a plain `resource()`, and this file only reads its members.
+ * Other modules could change an exported one, but they would have to write to an import. */
+const isReadOnlyResource = (j, root, binding, replaced) =>
+  isPlainResourceDeclarator(binding, replaced) &&
+  binding.parent.parent.node.kind === 'const' &&
+  readsOnly(j, root, binding);
+
+/** Whether every use of a resource reads its members without writing them, passing the resource on, or
+ * letting `create` or `getList` escape, so they stay what its declaration made them */
+function readsOnly(j, root, binding) {
   return usesOf(j, root, binding).every(p => {
     const parent = p.parent.node;
-    // `typeof X` in a type
-    if (parent.type === 'TSTypeQuery') return true;
+    // `typeof X` in a type or `export { X }`
+    if (['TSTypeQuery', 'ExportSpecifier'].includes(parent.type)) return true;
     return (
       isMember(parent) &&
       parent.object === p.node &&
@@ -1024,6 +1925,102 @@ function isReadOnlyResource(j, root, binding) {
       !escapes(p.parentPath)
     );
   });
+}
+
+// parsed modules by file, so each is read once per run
+const modules = new Map();
+
+function parseModule(j, file) {
+  if (!modules.has(file)) {
+    let root = null;
+    try {
+      root = j(fs.readFileSync(file, 'utf8'));
+    } catch {
+      // unreadable or unparsable: treat as unknown
+    }
+    modules.set(file, root);
+  }
+  return modules.get(file);
+}
+
+/** Whether the module `file` exports `name` as a plain `resource()` that it only reads, following
+ * `export { name } from` and `export * from` */
+function exportsPlainResource(j, file, name, depth, replaced) {
+  const root = file && depth < 5 && parseModule(j, file);
+  if (!root) return false;
+  const { body } = root.get().node.program;
+  for (const node of body) {
+    if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
+      continue;
+    const declared = node.declaration?.declarations?.some(d =>
+      isId(d.id, name),
+    );
+    if (declared) return isLocalPlainResource(j, root, name, replaced);
+    const specifier = node.specifiers?.find(
+      s => staticName(s.exported) === name,
+    );
+    if (!specifier) continue;
+    const local = specifier.local?.name ?? name;
+    return node.source ?
+        exportsPlainResource(
+          j,
+          resolveModule(file, node.source.value),
+          local,
+          depth + 1,
+          replaced,
+        )
+      : isLocalPlainResource(j, root, local, replaced);
+  }
+  // a module's own exports win over `export *`
+  return body.some(
+    node =>
+      node.type === 'ExportAllDeclaration' &&
+      !node.exported &&
+      exportsPlainResource(
+        j,
+        resolveModule(file, node.source.value),
+        name,
+        depth + 1,
+        replaced,
+      ),
+  );
+}
+
+/** Whether a module's top-level `const name` is a plain `resource()` that the module only reads */
+function isLocalPlainResource(j, root, name, replaced) {
+  const declarator = root
+    .find(j.VariableDeclarator, { id: { name } })
+    .filter(d =>
+      ['Program', 'ExportNamedDeclaration'].includes(d.parent.parent.node.type),
+    )
+    .paths()[0];
+  return (
+    !!declarator && isReadOnlyResource(j, root, declarator.get('id'), replaced)
+  );
+}
+
+/** Whether `binding` imports a plain `resource()` from a relative or tsconfig-aliased module, and this file
+ * only reads it */
+function isImportedPlainResource(j, root, binding, file, replaced) {
+  const specifier = binding.parent;
+  const declaration = specifier.parent?.node;
+  if (
+    specifier.node.type !== 'ImportSpecifier' ||
+    specifier.node.importKind === 'type' ||
+    declaration.importKind === 'type'
+  )
+    return false;
+  const imported = specifier.node.imported;
+  return (
+    readsOnly(j, root, binding) &&
+    exportsPlainResource(
+      j,
+      file && resolveModule(file, declaration.source.value),
+      staticName(imported),
+      0,
+      replaced,
+    )
+  );
 }
 
 /** Whether `X.create` or `X.getList` at `path` goes somewhere that could change it, like `Object.assign()` or an alias */
@@ -1063,14 +2060,20 @@ function isRun(path) {
 
 /** `Resource.create` -> `Resource.getList.push` where it runs, for a `resource()` declared in this file and
  * never changed; other `*Resource.create` get a TODO */
-function migrateResourceCreate(j, root) {
+function migrateResourceCreate(j, root, file) {
   let dirty = false;
   const marked = [];
   const readOnly = new Map();
   root
-    .find(j.MemberExpression, { object: { type: 'Identifier' } })
+    .find(j.MemberExpression)
     .filter(({ node }) => !node.computed && memberName(node) === 'create')
     .forEach(path => {
+      const { object } = path.node;
+      // `api.PostResource.create` from `import * as api`
+      if (object.type !== 'Identifier') {
+        if (/Resource$/.test(memberName(object) ?? '')) marked.push(path);
+        return;
+      }
       const binding = bindingOf(path.get('object'));
       const declaration = binding?.parent.node;
       // a class or function declared here is not a resource
@@ -1081,7 +2084,11 @@ function migrateResourceCreate(j, root) {
       )
         return;
       if (binding && !readOnly.has(binding))
-        readOnly.set(binding, isReadOnlyResource(j, root, binding));
+        readOnly.set(
+          binding,
+          isReadOnlyResource(j, root, binding) ||
+            isImportedPlainResource(j, root, binding, file),
+        );
       if (readOnly.get(binding) && isRun(path)) {
         path.node.object = j.memberExpression(
           path.node.object,
@@ -1099,9 +2106,9 @@ function migrateResourceCreate(j, root) {
   return addTodos(j, marked, CREATE_TODO) || dirty;
 }
 
-const isPlainResourceDeclarator = binding =>
+const isPlainResourceDeclarator = (binding, replaced) =>
   binding?.parent.node.type === 'VariableDeclarator' &&
-  isPlainResource(binding.parent.get('init'));
+  isPlainResource(binding.parent.get('init'), replaced);
 
 /** Shared `renderDataHook.cleanup()` / `.allSettled()`, which act only on the latest render */
 const findSharedTestHelpers = (j, root) =>
@@ -1166,12 +2173,294 @@ const findWaitForNextUpdate = (j, root) =>
     })
     .filter(({ render }) => RENDER_CALLS.has(render));
 
+/** The `{ ... }` property a destructured name at `path` is bound by, if any */
+function destructuredBy(path) {
+  const binding = path.node.type === 'Identifier' ? bindingOf(path) : undefined;
+  const property = binding?.parent;
+  return (
+      isProperty(property?.node) &&
+        property.node.value === binding.node &&
+        property.parent.node.type === 'ObjectPattern'
+    ) ?
+      property
+    : undefined;
+}
+
+/** Renames every reference to the variable `binding` declares, unless `name` at some reference means another
+ * variable than `target` (none when undefined); returns whether it renamed */
+function renameRefs(j, root, binding, name, target) {
+  const refs = usesOf(j, root, binding);
+  if (!refs.every(ref => bindingAt(ref, name) === target)) return false;
+  refs.forEach(ref => {
+    ref.node.name = name;
+  });
+  return true;
+}
+
+/** `const { waitForNextUpdate } = await renderDataCompose(...)` destructures `allSettled` instead;
+ * returns whether it could */
+function destructureAllSettled(j, root, property) {
+  const pattern = property.parent.node;
+  const binding = property.get('value');
+  const existing = pattern.properties.find(
+    p =>
+      isProperty(p) &&
+      keyName(p) === 'allSettled' &&
+      p.value.type === 'Identifier',
+  );
+  if (existing) {
+    const target = property.parent.get(
+      'properties',
+      pattern.properties.indexOf(existing),
+      'value',
+    );
+    if (!renameRefs(j, root, binding, existing.value.name, target))
+      return false;
+    pattern.properties = pattern.properties.filter(p => p !== property.node);
+    return true;
+  }
+  if (!property.node.shorthand) {
+    property.node.key = j.identifier('allSettled');
+    return true;
+  }
+  // a visible `allSettled` would be shadowed, here or where a nested scope declares one
+  if (
+    bindingAt(property, 'allSettled') ||
+    !renameRefs(j, root, binding, 'allSettled')
+  )
+    return false;
+  property.node.key = j.identifier('allSettled');
+  property.node.value = j.identifier('allSettled');
+  return true;
+}
+
+/** For an awaited wait right after the render, `{ statement, drop }`. `drop` is set when the next statement
+ * always awaits the render's `result`, so the first load needs only that: `'delete'` when it awaits it before
+ * reading anything, else `'await'` (the wait becomes `await result`, so reads before it still come after the
+ * first load). `declarator` holds the render result: `{ result, allSettled }` or `rendered`. */
+function firstLoadWait(j, call, declarator) {
+  const statement = call.parent.parent;
+  if (
+    call.parent.node.type !== 'AwaitExpression' ||
+    statement.node.type !== 'ExpressionStatement' ||
+    !Array.isArray(statement.parentPath.value)
+  )
+    return;
+  const index = statement.parentPath.value.indexOf(statement.node);
+  const before = statement.parentPath.value[index - 1];
+  if (
+    before?.type !== 'VariableDeclaration' ||
+    !before.declarations.includes(declarator?.node)
+  )
+    return;
+  const after = statement.parentPath.get(index + 1);
+  const { id } = declarator.node;
+  const destructured = id.type === 'ObjectPattern';
+  const result =
+    destructured ?
+      id.properties.find(p => isProperty(p) && keyName(p) === 'result')?.value
+    : id;
+  const awaits =
+    after.node && result?.type === 'Identifier' ?
+      j(after)
+        .find(j.AwaitExpression)
+        .filter(path => {
+          const value = unwrap(path.node.argument);
+          return (
+            alwaysEvaluated(path, after) &&
+            (destructured ?
+              isId(value, result.name)
+            : memberName(value) === 'result' && isId(value.object, result.name))
+          );
+        })
+        .paths()
+    : [];
+  const drop =
+    awaits.some(path => evaluatedFirst(path, after)) ? 'delete'
+    : awaits.length ? 'await'
+    : undefined;
+  if (!drop) return { statement };
+  const awaited =
+    destructured ?
+      j.identifier(result.name)
+    : j.memberExpression(j.identifier(result.name), j.identifier('result'));
+  return { statement, drop, awaited };
+}
+
+/** Deletes the first-load wait (`drop` `'delete'`) or makes it `await result` (`'await'`), and deletes
+ * `allSettled` from the render's pattern when nothing else calls it */
+function dropFirstLoadWait(j, { statement, drop, awaited }, declarator) {
+  if (drop === 'delete') statement.prune();
+  else statement.node.expression = j.awaitExpression(awaited);
+  const { id } = declarator.node;
+  if (id.type !== 'ObjectPattern') return;
+  const allSettled = id.properties.find(
+    p => isProperty(p) && keyName(p) === 'allSettled',
+  )?.value;
+  if (allSettled?.type !== 'Identifier') return;
+  const calls = j(declarator.scope.path)
+    .find(j.Identifier, { name: allSettled.name })
+    .filter(p => p.node !== allSettled && !isOtherName(p));
+  if (!calls.size())
+    id.properties = id.properties.filter(p => p.value !== allSettled);
+}
+
+/** Vue `waitForNextUpdate()` becomes `allSettled()`, which also waits for fetches, with no time limit.
+ * Right after the render, the old call waited for a Promise `result`, which `allSettled()` doesn't, so
+ * there it is deleted where the next statement awaits `result`, and marked otherwise. Returns the calls
+ * it could not convert. */
+function waitForAllSettled(j, root, calls) {
+  const unconverted = [];
+  // read every binding before renaming any, since scopes keep the names they first saw
+  const plans = calls.map(call => {
+    const callee = call.get('callee');
+    const property = !isMember(callee.node) && destructuredBy(callee);
+    const declarator =
+      property ?
+        property.parent.parent
+      : isMember(callee.node) && bindingOf(callee.get('object'))?.parent;
+    return {
+      call,
+      property,
+      declarator,
+      first: declarator && firstLoadWait(j, call, declarator),
+    };
+  });
+  // a property with a first wait that must stay keeps its name for every call
+  const kept = new Set(
+    plans
+      .filter(p => p.property && p.first && !p.first.drop)
+      .map(p => p.property),
+  );
+  const converted = new Map();
+  for (const { call, property, declarator, first } of plans) {
+    if (!declarator || (first && !first.drop) || kept.has(property)) {
+      unconverted.push(call);
+      continue;
+    }
+    if (property) {
+      // keyed by path: removing the property clears its node
+      if (!converted.has(property))
+        converted.set(property, destructureAllSettled(j, root, property));
+      if (!converted.get(property)) {
+        unconverted.push(call);
+        continue;
+      }
+    } else {
+      call.node.callee.property = j.identifier('allSettled');
+      call.node.callee.computed = false;
+    }
+    if (first?.drop) dropFirstLoadWait(j, first, declarator);
+  }
+  return unconverted;
+}
+
+const PK_ARGS_TODO = ` TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: ${BLOG}#future-pk-args`;
+const MUTATING_ARRAY_METHODS = new Set([
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'sort',
+  'reverse',
+  'fill',
+  'copyWithin',
+]);
+
+/** The readonly form of an array type: `any[]` -> `readonly any[]`, `Array<T>` -> `ReadonlyArray<T>`,
+ * through unions; undefined when nothing changes */
+function readonlyType(j, type) {
+  if (type.type === 'TSArrayType' || type.type === 'TSTupleType')
+    return j.tsTypeOperator.from({
+      operator: 'readonly',
+      typeAnnotation: type,
+    });
+  if (type.type === 'TSTypeReference' && isId(type.typeName, 'Array'))
+    return j.tsTypeReference(
+      j.identifier('ReadonlyArray'),
+      type.typeParameters ?? null,
+    );
+  if (type.type === 'TSUnionType') {
+    const types = type.types.map(t => readonlyType(j, t));
+    if (!types.some(Boolean)) return;
+    return j.tsUnionType(types.map((t, i) => t ?? type.types[i]));
+  }
+}
+
+/** Whether a parameter of this type already accepts a `readonly any[]` */
+const acceptsReadonly = type =>
+  ['TSAnyKeyword', 'TSUnknownKeyword', 'TSUndefinedKeyword'].includes(
+    type.type,
+  ) ||
+  (type.type === 'TSTypeOperator' && type.operator === 'readonly') ||
+  (type.type === 'TSTypeReference' && isId(type.typeName, 'ReadonlyArray')) ||
+  (type.type === 'TSUnionType' && type.types.every(acceptsReadonly));
+
+/** Whether the parameter at `param` is only read: indexed, a non-mutating method called on it, spread,
+ * or passed to `super.pk()` */
+function onlyReadsArray(j, method, param) {
+  if (!method.node.body) return true;
+  return usesOf(j, j(method.get('body')), param).every(p => {
+    const parent = p.parent.node;
+    if (isMember(parent) && parent.object === p.node)
+      return (
+        !MUTATING_ARRAY_METHODS.has(memberName(parent)) &&
+        !isWriteTarget(p.parent)
+      );
+    return (
+      parent.type === 'SpreadElement' ||
+      (parent.type === 'CallExpression' &&
+        parent.callee.object?.type === 'Super' &&
+        memberName(parent.callee) === 'pk')
+    );
+  });
+}
+
+/** `static pk(value, parent, key, args?: any[])` overrides type `args` readonly, as Entity.pk() will
+ * require */
+function readonlyPkArgs(j, root) {
+  const marked = [];
+  let dirty = false;
+  root
+    .find(j.Node)
+    .filter(
+      ({ node, parent }) =>
+        (node.type === 'ClassMethod' || node.type === 'TSDeclareMethod') &&
+        node.static &&
+        keyName(node) === 'pk' &&
+        !!parent.parent.node.superClass,
+    )
+    .forEach(method => {
+      const arg = method.get('params', 3);
+      const param =
+        arg.node?.type === 'AssignmentPattern' ? arg.get('left') : arg;
+      const annotation = param.node?.typeAnnotation;
+      if (!annotation) return;
+      const type = readonlyType(j, annotation.typeAnnotation);
+      if (!type) {
+        // a named type (`args?: Args`) may need its own readonly
+        if (!acceptsReadonly(annotation.typeAnnotation)) marked.push(method);
+        return;
+      }
+      if (!onlyReadsArray(j, method, param)) {
+        marked.push(method);
+        return;
+      }
+      annotation.typeAnnotation = type;
+      dirty = true;
+    });
+  return addTodos(j, marked, PK_ARGS_TODO) || dirty;
+}
+
 const DEVTOOLS_NAMES = /actions(Black|White)list/;
 const CREATE_NAME = /\.create\b/;
 const TEST_HELPER_NAMES = /\.(cleanup|allSettled)\b/;
 const VUE_SETUP_NAMES = /createDataClient|ProvidedDataClient/;
 const WAIT_FOR_NEXT_UPDATE_NAME = /waitForNextUpdate/;
+const PK_NAME = /\bstatic\s+pk\b/;
 const DEPRECATED_NAMES = [
+  PK_NAME,
   DEVTOOLS_NAMES,
   CREATE_NAME,
   TEST_HELPER_NAMES,
@@ -1179,10 +2468,12 @@ const DEPRECATED_NAMES = [
   WAIT_FOR_NEXT_UPDATE_NAME,
 ];
 
-function migrateDeprecations(j, root, source) {
+function migrateDeprecations(j, root, { source, path: file }) {
   let dirty = false;
   if (DEVTOOLS_NAMES.test(source)) dirty = renameDevToolsOptions(j, root);
-  if (CREATE_NAME.test(source)) dirty = migrateResourceCreate(j, root) || dirty;
+  if (CREATE_NAME.test(source))
+    dirty = migrateResourceCreate(j, root, file) || dirty;
+  if (PK_NAME.test(source)) dirty = readonlyPkArgs(j, root) || dirty;
   if (TEST_HELPER_NAMES.test(source))
     dirty =
       addTodos(j, findSharedTestHelpers(j, root), SHARED_TEST_HELPER_TODO) ||
@@ -1197,10 +2488,12 @@ function migrateDeprecations(j, root, source) {
         .filter(({ render }) => (render === 'renderDataCompose') === isVue)
         .map(({ path }) => path),
     );
+    const unconverted = waitForAllSettled(j, root, vue);
     dirty =
       [
+        unconverted.length < vue.length,
         addTodos(j, react, WAIT_FOR_NEXT_UPDATE_TODO),
-        addTodos(j, vue, VUE_WAIT_FOR_NEXT_UPDATE_TODO),
+        addTodos(j, unconverted, VUE_WAIT_FOR_NEXT_UPDATE_TODO),
       ].some(Boolean) || dirty;
   }
   return dirty;
@@ -1226,21 +2519,24 @@ module.exports = function transformer(fileInfo, api, options) {
     ...(passes.breaking ? [NAMES] : []),
     ...(passes.deprecations ? DEPRECATED_NAMES : []),
   ];
+  // debugging scripts that read the global often don't import data-client
+  const dcGlobal = passes.breaking && fileInfo.source.includes(DC_GLOBAL);
   // skip parsing files that have nothing to migrate
   if (
-    !fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
-    !names.some(name => name.test(fileInfo.source))
+    !dcGlobal &&
+    (!fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
+      !names.some(name => name.test(fileInfo.source)))
   )
     return fileInfo.source;
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
+  let dirty = dcGlobal && migrateDcGlobal(j, root);
   const hasDataClientImport = importsOf(root).some(d =>
     String(d.source.value).startsWith(DATA_CLIENT_PREFIX),
   );
-  if (!hasDataClientImport) return fileInfo.source;
+  if (!hasDataClientImport) return printIf(dirty, root, fileInfo.source);
 
-  let dirty = false;
   if (passes.breaking) {
     dirty = transformManagers(j, root) || dirty;
     if (/renderData(Hook|Client)/.test(fileInfo.source))
@@ -1248,14 +2544,18 @@ module.exports = function transformer(fileInfo, api, options) {
     dirty = transformInitManager(j, root) || dirty;
     dirty = transformManagerClasses(j, root, fileInfo.source) || dirty;
     dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
+    if (fileInfo.source.includes('.catch('))
+      dirty = dropNoopCatches(j, root, fileInfo.path) || dirty;
+    if (fileInfo.source.includes('fetchedAt'))
+      dirty = passFetchedAt(j, root) || dirty;
   }
   if (passes.deprecations)
-    dirty = migrateDeprecations(j, root, fileInfo.source) || dirty;
-
-  // recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
-  return dirty ?
-      root.toSource({ quote: 'single', wrapColumn: Infinity })
-    : fileInfo.source;
+    dirty = migrateDeprecations(j, root, fileInfo) || dirty;
+  return printIf(dirty, root, fileInfo.source);
 };
+
+// recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
+const printIf = (dirty, root, source) =>
+  dirty ? root.toSource({ quote: 'single', wrapColumn: Infinity }) : source;
 
 module.exports.parser = 'tsx';

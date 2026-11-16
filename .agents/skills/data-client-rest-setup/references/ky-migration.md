@@ -54,14 +54,14 @@ export const getUsers = new ApiEndpoint({
 | `prefixUrl` | `urlPrefix` |
 | `headers` option | `getHeaders()` |
 | `hooks.beforeRequest` | `getHeaders()` or `getRequestInit()` |
-| `hooks.afterResponse` | `process()` or `parseResponse()` |
+| `hooks.afterResponse` | `parseResponse()` in the base class (`resource().delete` replaces a base `process()`) |
 | `hooks.beforeError` | `fetchResponse()` override |
 | `ky.create()` shared options | Base class overrides |
 | `.json<T>()` | Automatic — RestEndpoint parses JSON by default |
 | `HTTPError` | `NetworkError` |
 | `searchParams` option | `searchParams` type on endpoint |
-| `timeout` | `signal: AbortSignal.timeout(ms)` |
-| `retry` | Use error-policy for retry behavior |
+| `timeout` | `AbortSignal.timeout(ms)` in a `getRequestInit()` override, so each request gets its own timer ([Timeout](axios-migration.md#timeout)); a `signal` option would start one timer when the endpoint is created |
+| `retry` (ky retries by default) | Delete it: Data Client has no retry loop, and a failed request is fetched again when a component next needs it after `errorExpiryLength` (default 1 second). Tell the user that automatic retries are dropped |
 | `credentials` | `getRequestInit()` override |
 
 ### Hooks → lifecycle methods

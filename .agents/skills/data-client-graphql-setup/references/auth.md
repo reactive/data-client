@@ -7,28 +7,42 @@
 Here's an example using simple cookie auth:
 
 ```ts title="schema/endpoint.ts"
-export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
-  getRequestInit(body: any): Promise<RequestInit> {
+import { GQLEndpoint } from '@data-client/graphql';
+
+class CookieGQLEndpoint extends GQLEndpoint<any> {
+  getRequestInit(variables: any): RequestInit {
     return {
-      ...super.getRequestInit(body),
+      ...super.getRequestInit(variables),
       credentials: 'same-origin',
     };
   }
-});
+}
+
+export const gql = new CookieGQLEndpoint(
+  'https://nosy-baritone.glitch.me',
+);
 export default gql;
 ```
 
 ## Access Tokens
 
-Here we'll use a member variable to track the access token and send it
-in a header.
+Here we'll keep the access token in a module variable and send it in a header. Endpoints made with
+`gql.query()` and `gql.mutation()` copy `gql` when they are created, so a value set on `gql` afterward
+would not reach them; a module variable is read on every request.
 
 ```ts title="schema/endpoint.ts"
+import { GQLEndpoint } from '@data-client/graphql';
+
+let accessToken = '';
+export function setAccessToken(token: string) {
+  accessToken = token;
+}
+
 export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
   getHeaders(headers: HeadersInit): HeadersInit {
     return {
       ...headers,
-      'Access-Token': this.accessToken,
+      'Access-Token': accessToken,
     };
   },
 });
@@ -38,14 +52,14 @@ export default gql;
 Then be sure to set the access token upon login:
 
 ```ts
-import gql from 'schema/endpoint';
+import { setAccessToken } from 'schema/endpoint';
 
 function Auth() {
   const handleLogin = useCallback(
     async e => {
       const { accessToken } = await login(new FormData(e.target));
       // success!
-      gql.accessToken = accessToken;
+      setAccessToken(accessToken);
     },
     [login],
   );

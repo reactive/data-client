@@ -165,8 +165,9 @@ export default class ApiEndpoint<
 }
 ```
 
-Response interceptors that change the body, such as converting `snake_case` keys, go in
-[`process()`](./RestEndpoint.md#process); see [snakes to camels](https://dataclient.io/rest/guides/network-transform#snakes-to-camels).
+Response interceptors that change the body, such as unwrapping `{ data }` or converting `snake_case` keys, go in
+[`parseResponse()`](./RestEndpoint.md#parseResponse); see [snakes to camels](https://dataclient.io/rest/guides/network-transform#snakes-to-camels).
+A base class's `process()` would miss `resource().delete`, which sets its own.
 
 When a response interceptor returned `response.data`, a caller's `.data` read a field of the body, not axios's response,
 so keep it. The codemod marks these calls when the interceptor is in the same file; if a global
@@ -489,24 +490,25 @@ npm uninstall axios
 
 ## Axios options reference {#quick-reference}
 
-| Axios                                    | @data-client/rest                                                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `baseURL`                                | [`urlPrefix`](./RestEndpoint.md#urlPrefix)                                                              |
-| `headers` config                         | [`getHeaders()`](./RestEndpoint.md#getHeaders)                                                          |
-| `interceptors.request`                   | [`getHeaders()`](./RestEndpoint.md#getHeaders) / [`getRequestInit()`](./RestEndpoint.md#getRequestInit) |
-| `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.md#parseResponse) / [`process()`](./RestEndpoint.md#process)         |
-| `transformRequest`                       | [`getRequestInit()`](./RestEndpoint.md#getRequestInit)                                                  |
-| `transformResponse`                      | [`process()`](./RestEndpoint.md#process)                                                                |
-| `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                        |
-| `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                               |
-| `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                               |
-| `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) in `getRequestInit()`                     |
-| `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                |
-| `params` / `paramsSerializer`            | [`searchParams`](./RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)           |
-| `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                             |
-| `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                   |
-| `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                         |
-| `onUploadProgress`                       | [Custom `fetchResponse()` with XMLHttpRequest](#upload-progress)                                        |
+| Axios                                    | @data-client/rest                                                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `baseURL`                                | [`urlPrefix`](./RestEndpoint.md#urlPrefix)                                                                  |
+| `headers` config                         | [`getHeaders()`](./RestEndpoint.md#getHeaders)                                                              |
+| `interceptors.request`                   | [`getHeaders()`](./RestEndpoint.md#getHeaders) / [`getRequestInit()`](./RestEndpoint.md#getRequestInit)     |
+| `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.md#parseResponse) / [`process()`](./RestEndpoint.md#process)             |
+| `transformRequest`                       | [`getRequestInit()`](./RestEndpoint.md#getRequestInit)                                                      |
+| `transformResponse`                      | [`parseResponse()`](./RestEndpoint.md#parseResponse)                                                        |
+| `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                            |
+| `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                   |
+| `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                                   |
+| `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) in `getRequestInit()`                         |
+| `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                    |
+| `params` / `paramsSerializer`            | [`searchParams`](./RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)               |
+| `data` in a `delete()` config            | [`body`](./RestEndpoint.md#body) on the endpoint: a `DELETE` sends a body only when it has one (rest 0.19+) |
+| `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                                 |
+| `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                       |
+| `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                             |
+| `onUploadProgress`                       | [Custom `fetchResponse()` with XMLHttpRequest](#upload-progress)                                            |
 
 ### Cancellation
 

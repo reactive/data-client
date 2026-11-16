@@ -42,66 +42,53 @@ Scan the existing codebase for GraphQL patterns:
 
 ### With Authentication
 
+`getHeaders()` runs synchronously, so it can add a token that is already in memory:
+
 ```ts
 import { GQLEndpoint } from '@data-client/graphql';
 
 export const gql = new GQLEndpoint('/graphql', {
-  getHeaders() {
+  getHeaders(headers: HeadersInit): HeadersInit {
     const token = localStorage.getItem('authToken');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+    return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
   },
 });
 ```
 
-### Async Authentication (token refresh)
+### Async Authentication and Error Handling
+
+If the token must be awaited (for example, refreshed), override `fetchResponse()` in a subclass. GraphQL errors in a
+response reject with `GQLNetworkError`, whose `errors` holds the response's `errors` array:
 
 ```ts
-import { GQLEndpoint } from '@data-client/graphql';
+import { GQLEndpoint, GQLNetworkError } from '@data-client/graphql';
 
-export const gql = new GQLEndpoint('/graphql', {
-  async getHeaders() {
-    const token = await getValidToken();
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    };
-  },
-});
-```
-
-### Custom Error Handling
-
-```ts
-import { GQLEndpoint } from '@data-client/graphql';
-
-class CustomGQLEndpoint extends GQLEndpoint {
-  async fetchResponse(input: RequestInfo, init: RequestInit): Promise<any> {
-    const response = await super.fetchResponse(input, init);
-    
-    // Handle GraphQL errors
-    if (response.errors?.length) {
-      const authError = response.errors.find(
-        e => e.extensions?.code === 'UNAUTHENTICATED'
-      );
-      if (authError) {
+class AuthGQLEndpoint extends GQLEndpoint<any> {
+  async fetchResponse(input: RequestInfo, init: RequestInit) {
+    const headers = new Headers(init.headers);
+    headers.set('Authorization', `Bearer ${await getValidToken()}`);
+    try {
+      return await super.fetchResponse(input, { ...init, headers });
+    } catch (error) {
+      if (
+        error instanceof GQLNetworkError &&
+        error.errors.some((e: any) => e.extensions?.code === 'UNAUTHENTICATED')
+      ) {
         window.dispatchEvent(new CustomEvent('auth:expired'));
       }
+      throw error;
     }
-    
-    return response;
   }
 }
 
-export const gql = new CustomGQLEndpoint('/graphql');
+export const gql = new AuthGQLEndpoint('/graphql');
 ```
 
 ## Defining Queries and Mutations
 
-The `schema` option normalizes each response into the shared cache, and the examples below import Entity classes
-that must already exist. Apply the skill "data-client-schema" to define them before writing endpoints.
+The second argument of `gql.query()` and `gql.mutation()` is the schema, shaped like the response's `data`: a query
+for `user { ... }` takes `{ user: User }`, and the component reads `.user`. The schema normalizes each response into the
+shared cache, and the examples below import Entity classes that must already exist. Apply the skill "data-client-schema" to define them before writing endpoints.
 
 ### Query Example
 
@@ -119,7 +106,7 @@ export const getUser = gql.query(
       }
     }
   `,
-  { schema: User },
+  { user: User },
 );
 ```
 
@@ -138,7 +125,7 @@ export const updateUser = gql.mutation(
       }
     }
   `,
-  { schema: User },
+  { updateUser: User },
 );
 ```
 
@@ -146,10 +133,10 @@ export const updateUser = gql.mutation(
 
 ```ts
 import { gql } from './gql';
-import { User, UserCollection } from '../schemas/User';
+import { UserCollection } from '../schemas/User';
 
 export const listUsers = gql.query(
-  () => `
+  `
     query ListUsers {
       users {
         id
@@ -158,7 +145,7 @@ export const listUsers = gql.query(
       }
     }
   `,
-  { schema: UserCollection },
+  { users: UserCollection },
 );
 
 export const createUser = gql.mutation(
@@ -171,7 +158,7 @@ export const createUser = gql.mutation(
       }
     }
   `,
-  { schema: UserCollection.push },
+  { createUser: UserCollection.push },
 );
 ```
 
@@ -182,7 +169,7 @@ import { useSuspense, useController } from '@data-client/react';
 import { getUser, updateUser } from './api/users';
 
 function UserProfile({ id }: { id: string }) {
-  const user = useSuspense(getUser, { id });
+  const { user } = useSuspense(getUser, { id });
   const ctrl = useController();
 
   const handleUpdate = async (name: string) => {

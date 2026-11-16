@@ -69,6 +69,6 @@ follow the instructions to [add legacy browser support to packages](https://data
 
 <summary>Vue 3</summary>
 
-`@data-client/vue` supports Vue 3 and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
+`@data-client/vue` supports Vue 3.4 and above and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
 
 </details>
