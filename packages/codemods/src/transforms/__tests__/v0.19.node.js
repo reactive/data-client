@@ -2885,6 +2885,14 @@ class Checked extends Entity {
   }
 }
 class Plain extends schema.Entity { id = 0; }
+class Versioned extends Entity {
+  id = 0;
+  static shouldUpdate(existingMeta, incomingMeta, existing, incoming) {
+    return incoming.version > existing.version;
+  }
+}
+class Assigned extends Entity { id = 0; }
+Assigned.schema = { child: Slugged };
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2911,6 +2919,8 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
   const updaters: Array<(prev: Plain) => Plain> = [];
   updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
+  rows.forEach(w => ctrl.set(Versioned, w));
+  rows.forEach(x => ctrl.set(Assigned, x));
 }
       `,
       `
@@ -2935,6 +2945,14 @@ class Checked extends Entity {
   }
 }
 class Plain extends schema.Entity { id = 0; }
+class Versioned extends Entity {
+  id = 0;
+  static shouldUpdate(existingMeta, incomingMeta, existing, incoming) {
+    return incoming.version > existing.version;
+  }
+}
+class Assigned extends Entity { id = 0; }
+Assigned.schema = { child: Slugged };
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2961,6 +2979,8 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
   const updaters: Array<(prev: Plain) => Plain> = [];
   updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
+  rows.forEach(w => ctrl.set(Versioned, w));
+  rows.forEach(x => ctrl.set(Assigned, x));
 }
       `,
       'keeps set() loops that a batch could write differently',
@@ -3059,6 +3079,7 @@ function TodoDetail({ id }: { id: number }) {
   const label = todo && typeof todo !== 'symbol' ? todo.title : '';
   const missing = !(todo || typeof todo === 'symbol');
   if (id > 0 && (!user || typeof user === 'symbol')) return null;
+  const fallback = (todo || typeof todo === 'symbol') ?? true;
   return <h3>{todo.title.trim()}</h3>;
 }
       `,
@@ -3076,6 +3097,7 @@ function TodoDetail({ id }: { id: number }) {
   const label = todo ? todo.title : '';
   const missing = !todo;
   if (id > 0 && !user) return null;
+  const fallback = (todo || typeof todo === 'symbol') ?? true;
   return <h3>{todo.title.trim()}</h3>;
 }
       `,

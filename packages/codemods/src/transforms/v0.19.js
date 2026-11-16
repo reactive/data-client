@@ -2635,9 +2635,14 @@ function memberAllows(j, member, file, limits, seen) {
   if (name === undefined) return false;
   if (!node.static) return name !== 'pk' || paramsWithin(node, limits.pk);
   switch (name) {
-    // validate() could throw for one row, which drops the whole batch
+    // validate() could throw for one row, which drops the whole batch, and rows with the same pk meet in
+    // merge() within a batch, skipping the store checks
     case 'normalize':
     case 'validate':
+    case 'shouldUpdate':
+    case 'shouldReorder':
+    case 'mergeWithStore':
+    case 'mergeMetaWithStore':
       return false;
     case 'pk':
       return paramsWithin(node, limits.staticPk);
@@ -2653,6 +2658,44 @@ function memberAllows(j, member, file, limits, seen) {
   }
 }
 
+/** The name a class declaration, or the `const` holding a class expression, binds */
+const classNameOf = path =>
+  path.node.id?.name ??
+  (path.parent.node.type === 'VariableDeclarator' ?
+    path.parent.node.id.name
+  : undefined);
+
+// member writes found per module, by class name
+const memberWrites = new WeakMap();
+
+/** Whether the module holding `path` writes to a member of `name` after declaring it, like
+ * `Todo.schema = { child }` or `Object.assign(Todo, ...)`, which can add what the class body doesn't show */
+function writesMembersOf(j, path, name) {
+  if (!name) return true;
+  let top = path;
+  while (top.parent) top = top.parent;
+  if (!memberWrites.has(top.node)) memberWrites.set(top.node, new Map());
+  const found = memberWrites.get(top.node);
+  if (!found.has(name)) {
+    const rootedAt = node => isMember(node) && isId(rootOf(node), name);
+    const program = j(top);
+    found.set(
+      name,
+      program.find(j.AssignmentExpression).some(p => rootedAt(p.node.left)) ||
+        program
+          .find(j.CallExpression)
+          .some(
+            p =>
+              isMember(p.node.callee) &&
+              isId(p.node.callee.object, 'Object') &&
+              (isId(p.node.arguments[0], name) ||
+                rootedAt(p.node.arguments[0])),
+          ),
+    );
+  }
+  return found.get(name);
+}
+
 /** The paths of a list's items: a list's path has map() but no every() */
 const childPaths = listPath => listPath.map(p => p);
 
@@ -2665,6 +2708,7 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
   if (checked === limits || checked === ROW_ONLY) return true;
   if (seen.size > 20) return false;
   seen.set(cls.path.node, limits);
+  if (writesMembersOf(j, cls.path, classNameOf(cls.path))) return false;
   const superClass = cls.path.get('superClass');
   if (!superClass.node) return false;
   if (!isSchemaExport(superClass, ENTITY_BASES)) {
@@ -2717,7 +2761,11 @@ function isArgsFreeSchema(j, path, file, seen) {
 /** Whether `path` is an Entity class whose rows normalize the same in a batch */
 const isRowOnlyEntity = (j, path, file) => {
   const cls = classOf(j, path, file);
-  return !!cls && isPlainEntity(j, cls, ROW_ONLY);
+  return (
+    !!cls &&
+    !writesMembersOf(j, path, path.node.name) &&
+    isPlainEntity(j, cls, ROW_ONLY)
+  );
 };
 
 const INVALIDATE = new Set(['Invalidate']);
@@ -3417,8 +3465,10 @@ const TESTS = new Set([
  * or the operand of `!`, which makes any value a boolean. Elsewhere `x || false` is `false`, not `x`, when `x`
  * is falsy. */
 function isCondition(path) {
+  // `??` reads more than truthiness: `(x || false) ?? true` is false, `x ?? true` is true
   while (
-    path.parent.node.type === 'LogicalExpression' ||
+    (path.parent.node.type === 'LogicalExpression' &&
+      path.parent.node.operator !== '??') ||
     path.parent.node.type === 'ParenthesizedExpression'
   )
     path = path.parent;
