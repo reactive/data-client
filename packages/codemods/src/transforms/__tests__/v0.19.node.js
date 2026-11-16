@@ -1499,6 +1499,35 @@ export async function f(ctrl) {
     );
     defineInlineTest(
       transform,
+      { path: 'loader.tsx' },
+      `
+import { useController } from '@data-client/react';
+if (cached instanceof Promise) {
+  set((await cached).x);
+} else {
+  set(cached.x);
+}
+for (const id of ids) {
+  const cached = ctrl.fetchIfStale(A.get, { id });
+  await cached;
+}
+      `,
+      `
+import { useController } from '@data-client/react';
+if (cached instanceof Promise) {
+  set((await cached).x);
+} else {
+  set(cached.x);
+}
+for (const id of ids) {
+  const cached = ctrl.fetchIfStale(A.get, { id });
+  await cached;
+}
+      `,
+      'leaves a module-level check on a global that a later block reuses the name of',
+    );
+    defineInlineTest(
+      transform,
       { path: 'loader.js' },
       `
 import { useController } from '@data-client/react';

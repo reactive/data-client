@@ -177,7 +177,10 @@ function findManagerSlots(j, root) {
 }
 
 /** The binding path (`id` of its declaration) that `name` refers to at `path`, if declared in this file */
-function bindingAt(path, name, scope = path.scope?.lookup(name)) {
+const bindingAt = (path, name) =>
+  bindingIn(path, name, path.scope?.lookup(name));
+
+function bindingIn(path, name, scope) {
   const bindings = scope?.getBindings()[name];
   if (!bindings) return undefined;
   // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
@@ -187,7 +190,7 @@ function bindingAt(path, name, scope = path.scope?.lookup(name)) {
     const i = blocks.indexOf(p.node);
     if (i !== -1) return bindings[i];
   }
-  return bindingAt(path, name, scope.parent?.lookup(name));
+  return bindingIn(path, name, scope.parent?.lookup(name));
 }
 
 /** The binding path (`id` of its declaration) for an identifier, if declared in this file */
