@@ -15,47 +15,32 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 - `draft: true` for unpublished/WIP posts
 - Publish a draft with `yarn blog:publish website/blog/<post>.md` (removes `draft: true`, re-dates the filename to today, fixes links). CI fails posts published with a stale date.
 
-## Package Layers
-
-Organize content by package layer. Both feature sections and migration guides follow this order:
-
-| Layer | Packages | Content |
-|-------|----------|---------|
-| **Platforms** | Integration | NextJS, Expo, React Native, Vue, React versions |
-| **Client/Platform** | react, vue, core | Hooks, composables, Controller, Managers, Provider |
-| **API Definition** | rest, endpoint, graphql | Resource, RestEndpoint, Entity, Collection, schemas |
-| **Internal** | normalizr, core | State structure, normalization, typing |
-
 ## Blog Structure
 
+Group changes by the concept a reader cares about (live data, performance, type safety, Vue, testing), not by package
+or by "new" versus "fixed". A reader should find their group from its heading and skip the rest.
+
 **Summary (before `{/* truncate */}`):**
-1. Platforms/major features (highest visibility)
-2. Package consolidations (import path changes)
-3. New APIs (hooks, controller methods, schemas)
-4. Other Improvements (bulleted list)
-5. Breaking Changes (with anchor links to migration sections)
+1. One or two sentences on the release's headline changes
+2. One block per concept group, most important first: a bold heading linking to its body section, one sentence on why
+   it matters to the reader, then 1-4 short bullets linking to sections
+3. Breaking Changes, grouped by audience (as in the migration guide), with anchor links
+4. Get ready for future releases (deprecations)
 
-**Details (after truncate):**
-1. Major features (with `<StackBlitz>`, `<HooksPlayground>` demos)
-2. New/changed APIs (with `<TypeScriptEditor>` examples)
-3. Performance (with `<PerfChart>` if benchmarked)
-4. Other improvements
-5. Migration guide
-
-Within each section: explanation → code example → PR/commit links
+**Details (after truncate):** one `##` per concept group, in summary order, then the migration guide.
+- Open each group with its why sentence.
+- Give a change its own `###` when it needs a demo or code: explanation → code example → PR/commit links.
+- List smaller fixes in a final `### Other fixes` bullet list in their group, each with its PR link.
 
 ## Migration Guide
 
 Start with `<PkgTabs pkgs="..." upgrade />`, end with Upgrade support blurb.
 
-**By Package** - Group changes by package when multiple packages have breaking changes:
-- `### @data-client/react X.Y` - Client/Platform changes
-- `### @data-client/rest X.Y` - API Definition changes
-
-**By Audience** - Within packages (or standalone), group by who's affected:
-- `### For all users` / `#### For all users`
+Group changes by who's affected, each change as a `####` under its audience:
+- `### For all users`
 - `### For custom Manager authors {#custom-managers}` - Action/middleware changes
 - `### For custom Schema authors {#custom-schemas}` - normalize/denormalize changes
+- `### For test authors` - @data-client/test and fixture changes
 
 Add skip guidance for specialized sections: "Skip this section if you don't have custom [Managers](/docs/concepts/managers)."
 
