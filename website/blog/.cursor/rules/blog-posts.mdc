@@ -30,7 +30,8 @@ or by "new" versus "fixed". A reader should find their group from its heading an
 **Details (after truncate):** one `##` per concept group, in summary order, then the migration guide.
 - Open each group with its why sentence.
 - Give a change its own `###` when it needs a demo or code: explanation → code example → PR/commit links.
-- List smaller fixes in a final `### Other fixes` bullet list in their group, each with its PR link.
+- List smaller fixes as a final bullet list in their group, each with its PR link. Put it under `### Other fixes`
+  when the group also has `###` sections.
 
 ## Migration Guide
 
