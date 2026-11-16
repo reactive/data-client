@@ -2695,6 +2695,19 @@ export const PostResource = resource({ path: '/posts/:id', schema: Post });
         }
       });
 
+      it('picks the referenced config whose include names the importing file', () => {
+        jest.isolateModules(() => {
+          const resolveModule = require('../../resolveModule');
+          expect(
+            resolveModule(path.join(dir, 'vite/vite.config.ts'), '@/api/Post'),
+          ).toBe(path.join(dir, 'vite/server/api/Post.ts'));
+          // a neighbour that no config includes resolves no alias
+          expect(
+            resolveModule(path.join(dir, 'vite/other.ts'), '@/api/Post'),
+          ).toBeUndefined();
+        });
+      });
+
       it('follows tsconfig references to the config with path aliases that includes the file', () => {
         const source = `
 import { useController } from '@data-client/react';

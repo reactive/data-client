@@ -40,7 +40,7 @@ function readJson(file) {
   return jsonCache.get(file);
 }
 
-function readConfig(file, fromDir, seen = new Set()) {
+function readConfig(file, fromFile, seen = new Set()) {
   // a referenced project may extend the solution config that references it; `chain` holds the configs
   // that led here
   if (seen.has(file)) return {};
@@ -51,7 +51,7 @@ function readConfig(file, fromDir, seen = new Set()) {
   const inherited =
     (typeof config.extends === 'string' &&
       config.extends.startsWith('.') &&
-      tryConfig(nodePath.resolve(dir, config.extends), fromDir, chain)) ||
+      tryConfig(nodePath.resolve(dir, config.extends), fromFile, chain)) ||
     {};
   const merged = {
     baseUrl:
@@ -59,7 +59,7 @@ function readConfig(file, fromDir, seen = new Set()) {
       inherited.baseUrl,
     paths: options.paths || inherited.paths,
     pathsDir: options.paths ? dir : inherited.pathsDir,
-    // the folders `include` names, up to its first wildcard
+    // the files and folders `include` names, up to its first wildcard
     includes:
       Array.isArray(config.include) ?
         config.include.map(p => nodePath.resolve(dir, p.split('*')[0]))
@@ -71,45 +71,45 @@ function readConfig(file, fromDir, seen = new Set()) {
   // referenced config such as tsconfig.app.json
   const aliased = config.references
     .filter(ref => typeof ref?.path === 'string')
-    .map(ref => tryConfig(nodePath.resolve(dir, ref.path), fromDir, chain))
+    .map(ref => tryConfig(nodePath.resolve(dir, ref.path), fromFile, chain))
     .filter(found => found?.paths || found?.baseUrl);
   if (aliased.length === 1) return aliased[0];
-  // with several, only the one whose `include` holds the importing folder; unknown otherwise
+  // with several, only the one whose `include` holds the importing file; unknown otherwise
   const owners = aliased.filter(found =>
     found.includes?.some(
-      folder => fromDir === folder || fromDir.startsWith(folder + nodePath.sep),
+      entry => fromFile === entry || fromFile.startsWith(entry + nodePath.sep),
     ),
   );
   return owners.length === 1 ? owners[0] : merged;
 }
 
 // `extends` and `references` may name a folder or leave off `.json`
-function tryConfig(target, fromDir, seen) {
+function tryConfig(target, fromFile, seen) {
   const file =
     target.endsWith('.json') ? target
     : fs.statSync(target, { throwIfNoEntry: false })?.isDirectory() ?
       nodePath.join(target, 'tsconfig.json')
     : target + '.json';
   try {
-    return readConfig(file, fromDir, seen);
+    return readConfig(file, fromFile, seen);
   } catch {
     return undefined;
   }
 }
 
-function aliasConfig(fromFile) {
-  const fromDir = nodePath.dirname(nodePath.resolve(fromFile));
-  if (pathsCache.has(fromDir)) return pathsCache.get(fromDir);
-  // the nearest config; which project a solution config picks depends on the importing folder, so the
-  // answer is kept for that folder only
+function aliasConfig(importer) {
+  const fromFile = nodePath.resolve(importer);
+  if (pathsCache.has(fromFile)) return pathsCache.get(fromFile);
+  // the nearest config; which project a solution config picks depends on the importing file (its
+  // `include` can name the file itself), so the answer is kept for that file only
   let config = {};
-  for (let dir = fromDir; ; dir = nodePath.dirname(dir)) {
+  for (let dir = nodePath.dirname(fromFile); ; dir = nodePath.dirname(dir)) {
     const file = ['tsconfig.json', 'jsconfig.json']
       .map(name => nodePath.join(dir, name))
       .find(f => fs.existsSync(f));
     if (file) {
       try {
-        config = readConfig(file, fromDir);
+        config = readConfig(file, fromFile);
       } catch {
         // an unreadable config resolves no aliases
       }
@@ -117,17 +117,19 @@ function aliasConfig(fromFile) {
     }
     if (nodePath.dirname(dir) === dir) break;
   }
-  pathsCache.set(fromDir, config);
+  pathsCache.set(fromFile, config);
   return config;
 }
 
-// a relative import is keyed by the path it names, and any other by its folder, whose imports resolve the
-// same way, so files share lookups
+// a relative import is keyed by the path it names, so files share lookups, and any other by its importing
+// file, whose tsconfig project can differ from its neighbours' (create-vite's vite.config.ts)
 const resolveCache = new Map();
 function resolveModule(fromFile, spec) {
-  const dir = nodePath.dirname(nodePath.resolve(fromFile));
+  const file = nodePath.resolve(fromFile);
   const key =
-    spec.startsWith('.') ? nodePath.resolve(dir, spec) : dir + '\0' + spec;
+    spec.startsWith('.') ?
+      nodePath.resolve(nodePath.dirname(file), spec)
+    : file + '\0' + spec;
   if (!resolveCache.has(key)) resolveCache.set(key, findModule(fromFile, spec));
   return resolveCache.get(key);
 }
