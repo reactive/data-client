@@ -1586,6 +1586,11 @@ export default class LiveManager implements Manager {
     switch (action.type) {
       case actionTypes.SUBSCRIBE:
         controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+      case actionTypes.FETCH:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+    }
+    if (action.type === actionTypes.FETCH || action.type === actionTypes.SUBSCRIBE) {
+      controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
     return next(action);
   };
@@ -1618,6 +1623,11 @@ export default class LiveManager implements Manager {
     switch (action.type) {
       case actionTypes.SUBSCRIBE:
         controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+      case actionTypes.FETCH:
+        controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
+    }
+    if (action.type === actionTypes.FETCH || action.type === actionTypes.SUBSCRIBE) {
+      controller.resolve(action.endpoint, { args: action.args, response: {}, fetchedAt: Date.now() });
     }
     return next(action);
   };

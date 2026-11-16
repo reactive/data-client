@@ -995,25 +995,43 @@ const isActionName = node =>
 /** Whether `path` runs only for fetch actions: under `if (action.type === actionTypes.FETCH)` or
  * `case actionTypes.FETCH:`, the actions that carry `meta.fetchedAt` */
 function inFetchBranch(j, path) {
-  const namesFetch = test =>
-    j(test).find(j.Identifier, { name: 'FETCH' }).size() > 0 ||
-    j(test)
-      .find(j.Literal)
-      .some(({ node }) => node.value === 'rdc/fetch');
+  const isFetch = node =>
+    (node.type === 'Identifier' && node.name === 'FETCH') ||
+    (node.type === 'MemberExpression' &&
+      !node.computed &&
+      node.property.name === 'FETCH') ||
+    ((node.type === 'StringLiteral' || node.type === 'Literal') &&
+      node.value === 'rdc/fetch');
+  // true only when the test holds just for fetch actions: `a.type === FETCH`, alone or in an `&&`
+  const onlyFetch = test =>
+    (test.type === 'LogicalExpression' &&
+      test.operator === '&&' &&
+      (onlyFetch(test.left) || onlyFetch(test.right))) ||
+    (test.type === 'BinaryExpression' &&
+      (test.operator === '===' || test.operator === '==') &&
+      (isFetch(test.left) || isFetch(test.right)));
   for (; path.parent; path = path.parent) {
     const { node } = path.parent;
     if (
       node.type === 'IfStatement' &&
       path.name === 'consequent' &&
-      namesFetch(path.parent.get('test'))
+      onlyFetch(node.test)
     )
       return true;
-    if (
-      node.type === 'SwitchCase' &&
-      node.test &&
-      namesFetch(path.parent.get('test'))
-    )
-      return true;
+    if (node.type === 'SwitchCase' && node.test && isFetch(node.test)) {
+      // another case may fall through into this one
+      const cases = path.parent.parent.node.cases;
+      const before = cases[cases.indexOf(node) - 1];
+      const last = before && before.consequent[before.consequent.length - 1];
+      if (
+        !before ||
+        (last &&
+          ['BreakStatement', 'ReturnStatement', 'ThrowStatement'].includes(
+            last.type,
+          ))
+      )
+        return true;
+    }
   }
   return false;
 }
