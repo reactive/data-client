@@ -1,7 +1,8 @@
 'use strict';
 
 const fs = require('node:fs');
-const path = require('node:path');
+
+const resolveModule = require('../resolveModule');
 
 /**
  * @data-client v0.19 migration codemod
@@ -303,6 +304,9 @@ const FETCH_IF_STALE_TODO =
   `${BLOG}#fetch-if-stale-promise`;
 // Promise methods; reading any other member of the result means the code expected the data
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+const MOCK_TODO =
+  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: ' +
+  `${BLOG}#fetch-if-stale-promise`;
 const MOCK_RENAMES = new Map([
   ['mockReturnValue', 'mockResolvedValue'],
   ['mockReturnValueOnce', 'mockResolvedValueOnce'],
@@ -739,23 +743,30 @@ function resolveImplementation(j, fn) {
  * value, and so do `jest.fn(() => data)` implementations of `fetchIfStale` */
 function resolveFetchIfStaleMocks(j, root) {
   let dirty = false;
+  const marked = [];
+  // an implementation defined elsewhere (`mockImplementation(impl)`) gets a TODO
+  const resolve = (call, fn) => {
+    if (isFunction(fn)) dirty = resolveImplementation(j, fn) || dirty;
+    else marked.push(call);
+  };
   root
     .find(j.CallExpression)
     .filter(mocksFetchIfStale)
     .forEach(mock => {
       if (isMockFn(mock.node) && mock.node.arguments[0])
-        dirty = resolveImplementation(j, mock.node.arguments[0]) || dirty;
-      for (const { node } of mockChain(mock)) {
+        resolve(mock, mock.node.arguments[0]);
+      for (const call of mockChain(mock)) {
+        const { node } = call;
         const name = memberName(node.callee);
         if (MOCK_RENAMES.has(name)) {
           node.callee.property = j.identifier(MOCK_RENAMES.get(name));
           dirty = true;
         } else if (MOCK_IMPLEMENTATIONS.has(name) && node.arguments[0]) {
-          dirty = resolveImplementation(j, node.arguments[0]) || dirty;
+          resolve(call, node.arguments[0]);
         }
       }
     });
-  return dirty;
+  return addTodos(j, marked, MOCK_TODO) || dirty;
 }
 
 /** Where to `await` depends on the code around it, so mark the statement instead */
@@ -866,11 +877,15 @@ const isDateNow = node =>
   isId(node.callee.object, 'Date') &&
   memberName(node.callee) === 'now';
 
+// names a fetch action goes by; another object with an `endpoint` (props, options) has no `meta`
+const isActionName = node =>
+  node?.type === 'Identifier' && /(^a|A)ction$/.test(node.name);
+
 /** The fetch action's `meta` for the endpoint at `path`: `action.meta` for `action.endpoint`, or the
  * `meta` destructured with `endpoint` */
 function fetchMetaOf(j, path) {
   const { node } = path;
-  if (memberName(node) === 'endpoint' && node.object.type === 'Identifier')
+  if (memberName(node) === 'endpoint' && isActionName(node.object))
     return j.memberExpression(
       j.identifier(node.object.name),
       j.identifier('meta'),
@@ -887,10 +902,7 @@ function fetchMetaOf(j, path) {
   );
   if (meta) return j.identifier(meta.value.name);
   const declarator = property.parent.parent.node;
-  if (
-    declarator.type === 'VariableDeclarator' &&
-    declarator.init?.type === 'Identifier'
-  )
+  if (declarator.type === 'VariableDeclarator' && isActionName(declarator.init))
     return j.memberExpression(
       j.identifier(declarator.init.name),
       j.identifier('meta'),
@@ -1355,6 +1367,46 @@ function iterationOf(path) {
   );
 }
 
+// parents that evaluate the child whenever they run, and the children they may run conditionally
+const ALWAYS_EVALUATES = {
+  ConditionalExpression: ['test'],
+  IfStatement: ['test'],
+  LogicalExpression: ['left'],
+};
+const EVALUATES_ALL = new Set([
+  'CallExpression',
+  'NewExpression',
+  'MemberExpression',
+  'AwaitExpression',
+  'ArrayExpression',
+  'ObjectExpression',
+  'Property',
+  'ObjectProperty',
+  'SpreadElement',
+  'TemplateLiteral',
+  'VariableDeclarator',
+  'VariableDeclaration',
+  'ExpressionStatement',
+  'ReturnStatement',
+  'ThrowStatement',
+  ...PASS_THROUGH,
+]);
+
+/** Whether `statement` always evaluates the expression at `path` when it runs */
+function alwaysEvaluated(path, statement) {
+  for (; path !== statement; path = path.parent) {
+    const { node } = path.parent;
+    const always = ALWAYS_EVALUATES[node.type];
+    const evaluated =
+      always ?
+        always.includes(path.name)
+      : EVALUATES_ALL.has(node.type) ||
+        (node.type === 'AssignmentExpression' && node.operator === '=');
+    if (!evaluated || node.optional) return false;
+  }
+  return true;
+}
+
 /** `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller`, after `__DC__.store = name;` on its own line
  * when it can move there, or else `(__DC__.store = name, __DC__.controller)` */
 function selectStore(j, call, dcNode) {
@@ -1365,9 +1417,8 @@ function selectStore(j, call, dcNode) {
     name,
   );
   const statement = j(call).closest(j.Statement).paths()[0];
-  const fn = path => j(path).closest(j.Function).nodes()[0];
-  // a name with no side effects, in a statement of the same function (`page.evaluate(() => ...)` runs
-  // its function elsewhere)
+  // a name with no side effects, in a statement that always reads it (not `flag && ...`), of the same
+  // function (`page.evaluate(() => ...)` runs its function elsewhere)
   const canHoist =
     statement &&
     Array.isArray(statement.parentPath.value) &&
@@ -1375,7 +1426,7 @@ function selectStore(j, call, dcNode) {
       name.type === 'StringLiteral' ||
       (name.type === 'Literal' && typeof name.value === 'string') ||
       (name.type === 'TemplateLiteral' && !name.expressions.length)) &&
-    fn(call) === fn(statement);
+    alwaysEvaluated(call, statement);
   if (!canHoist) {
     call.replace(
       j.sequenceExpression([select, dcMember(j, dcNode, 'controller')]),
@@ -1598,36 +1649,6 @@ function readsOnly(j, root, binding) {
   });
 }
 
-const EXTENSIONS = [
-  '.ts',
-  '.tsx',
-  '.mts',
-  '.cts',
-  '.js',
-  '.jsx',
-  '.mjs',
-  '.cjs',
-];
-
-/** The file a relative import from `from` loads, trying TypeScript's extensions and index files */
-function resolveModule(from, specifier) {
-  if (!from || !/^\.\.?(\/|$)/.test(specifier)) return;
-  const base = path.resolve(path.dirname(from), specifier);
-  // TypeScript ESM imports `./x.js` for `./x.ts`
-  const stem = base.replace(/\.[mc]?jsx?$/, '');
-  return [
-    base,
-    ...EXTENSIONS.map(ext => stem + ext),
-    ...EXTENSIONS.map(ext => path.join(base, `index${ext}`)),
-  ].find(file => {
-    try {
-      return fs.statSync(file).isFile();
-    } catch {
-      return false;
-    }
-  });
-}
-
 // parsed modules by file, so each is read once per run
 const modules = new Map();
 
@@ -1703,7 +1724,7 @@ function isImportedPlainResource(j, root, binding, file) {
     readsOnly(j, root, binding) &&
     exportsPlainResource(
       j,
-      resolveModule(file, declaration.source.value),
+      file && resolveModule(file, declaration.source.value),
       imported.name ?? imported.value,
     )
   );

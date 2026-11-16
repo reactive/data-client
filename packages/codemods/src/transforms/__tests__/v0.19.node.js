@@ -1277,6 +1277,7 @@ real.fetchIfStale = jest.fn(id => {
 });
 jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
 jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
+jest.spyOn(real, 'fetchIfStale').mockImplementation(impl);
       `,
       `
 import { Controller } from '@data-client/react';
@@ -1289,6 +1290,8 @@ real.fetchIfStale = jest.fn(id => {
 });
 jest.spyOn(real, 'fetchIfStale').mockImplementation(async () => issue);
 jest.spyOn(real, 'fetchIfStale').mockImplementationOnce(() => Promise.reject(error));
+// TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#fetch-if-stale-promise
+jest.spyOn(real, 'fetchIfStale').mockImplementation(impl);
       `,
       'makes jest.fn() mocks of fetchIfStale resolve their value',
     );
@@ -1423,6 +1426,12 @@ export default class LiveManager implements Manager {
   push(response) {
     this.controller.resolve(getMessages, { args: [], response, fetchedAt: Date.now() });
   }
+
+  relay(props, options) {
+    this.controller.resolve(props.endpoint, { args: [], response: props.data, fetchedAt: Date.now() });
+    const { endpoint } = options;
+    this.controller.resolve(endpoint, { args: [], response: options.data, fetchedAt: Date.now() });
+  }
 }
       `,
       `
@@ -1445,6 +1454,12 @@ export default class LiveManager implements Manager {
   push(response) {
     this.controller.resolve(getMessages, { args: [], response, fetchedAt: Date.now() });
   }
+
+  relay(props, options) {
+    this.controller.resolve(props.endpoint, { args: [], response: props.data, fetchedAt: Date.now() });
+    const { endpoint } = options;
+    this.controller.resolve(endpoint, { args: [], response: options.data, fetchedAt: Date.now() });
+  }
 }
       `,
       "passes the fetch action's fetchedAt instead of Date.now()",
@@ -1464,6 +1479,8 @@ const second = Array.from(__DC_CONTROLLERS__.values())[0];
 const third = window.__DC_CONTROLLERS__.values().next().value;
 const names = [...window.__DC_CONTROLLERS__.keys()];
 const state = await page.evaluate(() => (window as any).__DC_CONTROLLERS__.get(name).getState());
+const maybe = debug ? __DC_CONTROLLERS__.get(name) : null;
+const ok = ready && __DC_CONTROLLERS__.get('b').getState();
 for (const controller of __DC_CONTROLLERS__.values()) log(controller);
       `,
       `
@@ -1477,6 +1494,8 @@ const second = __DC__.controller;
 const third = window.__DC__.controller;
 const names = window.__DC__.stores;
 const state = await page.evaluate(() => ((window as any).__DC__.store = name, (window as any).__DC__.controller).getState());
+const maybe = debug ? (__DC__.store = name, __DC__.controller) : null;
+const ok = ready && (__DC__.store = 'b', __DC__.controller).getState();
 // TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores: https://dataclient.io/blog/2026/10/03/v0.19-batch-set#dc-global
 for (const controller of __DC_CONTROLLERS__.values())
   log(controller);
