@@ -608,6 +608,34 @@ const result = new RestEndpoint({
       {},
       `
 import axios from 'axios';
+export async function removeTags(id, tags) {
+  await axios.delete(\`/posts/\${id}/tags\`, { params: { force: true }, data: { tags } });
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+const removeTagsEndpoint = new RestEndpoint({
+  path: '/posts/:id/tags',
+  method: 'DELETE',
+  body: {}
+});
+
+export async function removeTags(id, tags) {
+  await removeTagsEndpoint({
+    id,
+    force: true
+  }, { tags });
+}
+      `,
+      'sends the data of axios.delete as the body of an endpoint that declares one',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
 const url = getUrl();
 const result = axios.get(url);
       `,
@@ -2175,6 +2203,29 @@ export const hit = cache.get('posts');
       it(name, () => {
         runInlineTest(transform, {}, { source: input, path: 'api.ts' }, output);
       });
+
+    tsTest(
+      `
+import axios from 'axios';
+export async function removeAll(data: { ids: number[] }) {
+  await axios.delete('/posts', { data });
+}
+`,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+const removeAllEndpoint = new RestEndpoint({
+  path: '/posts',
+  method: 'DELETE',
+  body: {} as any
+});
+
+export async function removeAll(data: { ids: number[] }) {
+  await removeAllEndpoint(data);
+}
+`,
+      'declares an untyped body for axios.delete data',
+    );
 
     tsTest(
       `

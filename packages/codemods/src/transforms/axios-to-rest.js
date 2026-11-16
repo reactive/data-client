@@ -1148,7 +1148,7 @@ function buildCall(j, callPath, className, prefixed, isTS) {
   }
 
   const hasBody = BODY_METHODS.has(methodName);
-  const data = hasBody ? args[1] : undefined;
+  let data = hasBody ? args[1] : undefined;
   const config = hasBody ? args[2] : args[1];
   if (args.some(a => a.type === 'SpreadElement')) return null;
 
@@ -1160,7 +1160,10 @@ function buildCall(j, callPath, className, prefixed, isTS) {
     if (config.type !== 'ObjectExpression') return null;
     for (const prop of config.properties) {
       const key = propKey(prop);
-      if (key === 'params') {
+      if (key === 'data' && methodName === 'delete' && !prop.computed) {
+        // a DELETE endpoint sends a body when it declares `body`
+        data = prop.value;
+      } else if (key === 'params') {
         if (prop.value.type === 'ObjectExpression') {
           configParams.push(...prop.value.properties);
         } else {
@@ -1241,6 +1244,16 @@ function buildCall(j, callPath, className, prefixed, isTS) {
       ),
     );
     options.push(j.objectProperty(j.identifier('searchParams'), searchParams));
+  }
+  if (methodName === 'delete' && data) {
+    // the body's type is unknown, as it was for axios
+    const marker = j.objectExpression([]);
+    options.push(
+      j.objectProperty(
+        j.identifier('body'),
+        isTS ? j.tsAsExpression(marker, j.tsAnyKeyword()) : marker,
+      ),
+    );
   }
   // with no body, a single argument is params rather than the body
   if (hasBody && !data) {
