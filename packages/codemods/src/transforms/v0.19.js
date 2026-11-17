@@ -3379,7 +3379,11 @@ function callsLocalCode(j, path, names) {
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)` */
-function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
+function batchSetOf(
+  j,
+  file,
+  { rows, list: listRef = rows.node, param, call, keepHoles = false },
+) {
   const args = call.node.arguments;
   if (
     args.length < 2 ||
@@ -3431,7 +3435,7 @@ function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
   if (!batch) return;
   value = batch.value ?? value;
   if (param.type === 'Identifier' && isId(value, param.name))
-    return j.callExpression(call.node.callee, [batch.schema, rows.node]);
+    return j.callExpression(call.node.callee, [batch.schema, listRef]);
   const mapper = j.arrowFunctionExpression(
     [param],
     // keeps `({ id })` on one line
@@ -3444,9 +3448,9 @@ function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
     keepHoles ?
       j.callExpression(
         j.memberExpression(j.identifier('Array'), j.identifier('from')),
-        [rows.node, mapper],
+        [listRef, mapper],
       )
-    : j.callExpression(j.memberExpression(rows.node, j.identifier('map')), [
+    : j.callExpression(j.memberExpression(listRef, j.identifier('map')), [
         mapper,
       ]);
   return j.callExpression(call.node.callee, [batch.schema, list]);
@@ -3490,16 +3494,45 @@ const isPromiseAll = node =>
   isId(node.callee.object, 'Promise') &&
   memberName(node.callee) === 'all';
 
-/** Replaces a loop statement with `call`, keeping the comments on the loop and on the set() statement */
-function replaceLoop(j, path, call, awaited, inner) {
-  const statement = j.expressionStatement(
+/** How a batch keeps a loop's no-op on an empty list: `list` is what the batch reads, `test` (when the list
+ * can be empty) guards it, and `setup` (when reading `rows` twice could differ) stores it in a new `const`.
+ * Undefined for an empty array literal, whose loop does nothing. */
+function emptyGuardOf(j, root, rows) {
+  const node = unwrap(rows.node);
+  if (node.type === 'ArrayExpression')
+    return node.elements.length ? { list: rows.node } : undefined;
+  const length = list => j.memberExpression(list, j.identifier('length'));
+  if (isReference(node)) return { list: rows.node, test: length(rows.node) };
+  // a name the enclosing function never uses, so the `const` shadows nothing it reads
+  const scope = j(rows).closest(j.Function).paths()[0] ?? root.paths()[0];
+  let name = 'rows';
+  for (let i = 2; j(scope).find(j.Identifier, { name }).size(); i++)
+    name = `rows${i}`;
+  return {
+    list: j.identifier(name),
+    test: length(j.identifier(name)),
+    setup: j.variableDeclaration('const', [
+      j.variableDeclarator(j.identifier(name), rows.node),
+    ]),
+  };
+}
+
+/** Replaces a loop statement with `call`, guarded by `guard` (from emptyGuardOf()), keeping the comments on the
+ * loop and on the set() statement */
+function replaceLoop(j, path, call, awaited, inner, guard) {
+  let statement = j.expressionStatement(
     awaited ? j.awaitExpression(call) : call,
   );
-  prependComments(statement, [
+  if (guard.test)
+    statement = j.ifStatement(guard.test, j.blockStatement([statement]));
+  const statements = guard.setup ? [guard.setup, statement] : [statement];
+  prependComments(statements[0], [
     ...(path.node.comments ?? []),
     ...(inner?.comments ?? []),
   ]);
-  path.replace(statement);
+  if (statements.length > 1 && !Array.isArray(path.parentPath.value))
+    path.replace(j.blockStatement(statements));
+  else path.replace(...statements);
 }
 
 /** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and `rows.map()` or
@@ -3518,16 +3551,18 @@ function batchSets(j, root, file) {
     )
       return;
     const found = setCallIn(path.get('body'));
+    const guard = found && emptyGuardOf(j, root, path.get('right'));
     const call =
-      found &&
+      guard &&
       batchSetOf(j, file, {
         rows: path.get('right'),
+        list: guard.list,
         param: node.left.declarations[0].id,
         call: found.call,
         keepHoles: true,
       });
     if (!call) return;
-    replaceLoop(j, path, call, found.awaited, node.body.body?.[0]);
+    replaceLoop(j, path, call, found.awaited, node.body.body?.[0], guard);
     dirty = true;
   });
   root.find(j.ExpressionStatement).forEach(path => {
@@ -3558,15 +3593,17 @@ function batchSets(j, root, file) {
     const found = setCallIn(loop.get('arguments', 0, 'body'), method === 'map');
     // `Promise.all()` of callbacks that don't return the set() waits for none of them
     if (viaAll && found && !found.returned && !found.awaited) return;
+    const guard = found && emptyGuardOf(j, root, loop.get('callee', 'object'));
     const call =
-      found &&
+      guard &&
       batchSetOf(j, file, {
         rows: loop.get('callee', 'object'),
+        list: guard.list,
         param: callback.params[0],
         call: found.call,
       });
     if (!call) return;
-    replaceLoop(j, path, call, awaited, callback.body.body?.[0]);
+    replaceLoop(j, path, call, awaited, callback.body.body?.[0], guard);
     dirty = true;
   });
   return dirty;

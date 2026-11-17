@@ -2847,7 +2847,11 @@ export function seed(ctrl: Controller, more: { product_id: string; price: number
       `${ENTITIES}
 export function onMessage(ctrl: Controller, event: MessageEvent) {
   const rows = JSON.parse(event.data);
-  ctrl.set([Ticker], rows);
+
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+
   rows.forEach(row => ctrl.set(User, row.author));
 }
 export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
@@ -2856,17 +2860,30 @@ export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
   }
 }
 export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
-  await ctrl.set([Todo], todos.map(todo => ({ ...todo, title: todo.title.trim() })));
+  if (todos.length) {
+    await ctrl.set([Todo], todos.map(todo => ({ ...todo, title: todo.title.trim() })));
+  }
+
   todos.forEach(todo => ctrl.set(User, todo.author));
 }
 export function deleteTodos(ctrl: Controller, ids: string[]) {
-  ctrl.set([new Invalidate(Todo)], Array.from(ids, id => ({ id })));
+  if (ids.length) {
+    ctrl.set([new Invalidate(Todo)], Array.from(ids, id => ({ id })));
+  }
 }
 export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
   const rows = [{ product_id: 'BTC', price: 1 }];
   rows.forEach(row => ctrl.set(Ticker, row));
-  ctrl.set([Ticker], more);
-  ctrl.set([Ticker], Object.values(JSON.parse(text)));
+
+  if (more.length) {
+    ctrl.set([Ticker], more);
+  }
+
+  const rows2 = Object.values(JSON.parse(text));
+
+  if (rows2.length) {
+    ctrl.set([Ticker], rows2);
+  }
 }
       `,
       'batches loops of set() into one set()',
@@ -3311,6 +3328,50 @@ const key = () => 'count';`,
       });
     });
 
+    describe('set() loops over a list that can be empty', () => {
+      const run = loop =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; }
+export function save(ctrl, text: string) {
+  ${loop}
+}`,
+            path: 'save.tsx',
+          },
+        );
+
+      it('keeps a loop over an empty array literal', () => {
+        expect(run('for (const id of []) ctrl.set(Todo, { id });')).toContain(
+          'for (const id of []) ctrl.set(Todo, { id });',
+        );
+      });
+
+      it('batches a non-empty array literal without a guard', () => {
+        expect(
+          run("for (const id of ['a', 'b']) ctrl.set(Todo, { id });"),
+        ).toContain(
+          "\n  ctrl.set([Todo], Array.from(['a', 'b'], id => ({ id })));\n",
+        );
+      });
+
+      it('wraps the stored list and guard in a block when the loop is a lone statement', () => {
+        expect(
+          run(
+            'if (text) for (const row of JSON.parse(text)) ctrl.set(Todo, row);',
+          ),
+        ).toContain(`if (text) {
+    const rows = JSON.parse(text);
+
+    if (rows.length) {
+      ctrl.set([Todo], rows);
+    }
+  }`);
+      });
+    });
+
     describe('set() loops of an Entity with declaration-only members', () => {
       const run = members =>
         applyTransform(
@@ -3688,7 +3749,9 @@ class Box extends Entity {
 Box.schema = { todos: [Todo] };
 
 export function save(ctrl, rows: Todo[]) {
-  ctrl.set([Todo], rows);
+  if (rows.length) {
+    ctrl.set([Todo], rows);
+  }
 }
       `,
       'batches rows of an Entity that is constructed or held in a schema',
@@ -3830,7 +3893,10 @@ import { Entity } from '@data-client/rest';
 
 class Ticker extends Entity { id = ''; }
 export async function write(ctrl, rows: Ticker[]) {
-  ctrl.set([Ticker], rows);
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+
   await rows.forEach(row => ctrl.set(Ticker, row));
   const results = rows.map(row => ctrl.set(Ticker, row));
 }
@@ -3860,7 +3926,9 @@ class Ticker extends Entity { id = ''; }
 const managers = () => [new StreamManager()];
 export const App = () => <DataProvider managers={managers} />;
 export function write(ctrl, rows: Ticker[]) {
-  ctrl.set([Ticker], rows);
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
 }
       `,
       'adds improvements to the required upgrade with --improvements',
@@ -4039,7 +4107,10 @@ import type { Controller } from '@data-client/react';
 import { Ticker, LatestQuote } from '../resources';
 
 export function flush(ctrl: Controller, rows: Ticker[]) {
-  ctrl.set([Ticker], rows);
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+
   for (const row of rows) ctrl.set(LatestQuote, row);
 }
 `.trim(),
