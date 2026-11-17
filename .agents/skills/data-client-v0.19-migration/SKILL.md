@@ -214,7 +214,8 @@ make this its own commit; if the user makes the commits, list the files this ste
 npx @data-client/codemods v0.19 <source-root> --improvements=only
 ```
 
-It rewrites only code it can prove does the same thing, apart from two batch differences:
+It rewrites only code it can prove does the same thing, apart from two batch differences. Each item links the
+release post's example; read it when a rewrite or a judgment call below is unclear.
 
 - A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
   [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`. Only
@@ -227,31 +228,47 @@ It rewrites only code it can prove does the same thing, apart from two batch dif
   `action.schema` is the Array (`[Ticker]`), so check Managers and middleware that match SET actions by schema:
   match `action.schema[0]` too. A row whose `pk()` or `process()` throws makes the whole batch write nothing, where
   the loop still wrote some of the other rows.
-- `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
+- `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
-  `@data-client/vue`, and `computed(() => args)` passed to a composable becomes the getter `() => args`.
-- `|| typeof data === 'symbol'` guards on React `useCache()` and `useDLE()` data are dropped.
+  `@data-client/vue` ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)), and
+  `computed(() => args)` passed to a composable becomes the getter `() => args`
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-getter-args)).
+- `|| typeof data === 'symbol'` guards on React `useCache()` and `useDLE()` data are dropped
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#deleted-entity-undefined)).
 
 Then, by judgment:
 
-- **Batch the `set()` loops it left** (`rg -n -B3 '\.set\(' <source-root>` near `for`, `forEach`, `map`): mixed Entity
-  types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an `if` a
-  `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list when the
-  Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch. Keep a loop
-  whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions, and `unshift`
-  (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers messages and
-  flushes them with one `set()` (skill "data-client-manager", batching). Batch `ctrl.fetch(getList.push, row)` loops
-  into one array `push` only when the API accepts an array body, since it sends one request instead of N.
-- **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its schema
-  doesn't describe, so fix the value instead: `as any` on `set()` args or values, `push`/`unshift`/`remove` bodies
-  (also on Collections in a `Query` or `Lazy`), union `body` values, `FormData`, `getOptimisticResponse()` returns, a
-  `Controller` subclass passed to `DataProvider`, `prepareStore()`'s store, `action.meta.promise`; and
-  `as unknown as T[]` on `fetch(getList.push, list)` results. Type `process(value, params)` params from the endpoint by
-  removing `params: any`.
-- **Vue**: `computed()` stored in a variable only to make composable args reactive can become a getter. Delete a Vitest
-  `server.deps.inline` entry for `@data-client` added to fix `useEnhancedReducer is not a function`.
+- **Batch the `set()` loops it left** (`rg -n -B3 '\.set\(' <source-root>` near `for`, `forEach`, `map`): mixed
+  Entity types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an
+  `if` a `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list
+  when the Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch.
+  Keep a loop whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions,
+  and `unshift` (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message
+  buffers messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch
+  `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array body, since it
+  sends one request instead of N. Examples:
+  [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
+  [push a list](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list).
+- **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its
+  schema doesn't describe, so fix the value instead: `as any` on `set()` args or values, `push`/`unshift`/`remove`
+  bodies (also on Collections in a `Query` or `Lazy`), union `body` values, `FormData`, `getOptimisticResponse()`
+  returns, a `Controller` subclass passed to `DataProvider`, `prepareStore()`'s store, `action.meta.promise`; and
+  `as unknown as T[]` on `fetch(getList.push, list)` results. Type `process(value, params)` params from the
+  endpoint by removing `params: any`. Examples:
+  [set() values](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#typed-set),
+  [process() params](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#extend-process-params),
+  [optimistic responses](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#typed-optimistic-response),
+  [push bodies](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list),
+  [Collections in a Query](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#query-collection-push),
+  [FormData](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#create-formdata),
+  [union bodies](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#union-body),
+  [other types](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#type-fixes).
+- **Vue**: `computed()` stored in a variable only to make composable args reactive can become a getter. Delete a
+  Vitest `server.deps.inline` entry for `@data-client` added to fix `useEnhancedReducer is not a function`
+  ([details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#testing)).
 - **Cancellation**: a custom `Endpoint` that wraps an SDK call can pass `this.signal` on to it, without declaring
-  `this`.
+  `this` ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#endpoint-signal)).
 
 ## Step 12: unlink the migration skills
 
