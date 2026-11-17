@@ -1980,13 +1980,13 @@ function parseModule(j, file) {
 
 /** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
  * `export * from`: `{ root, file, name, via }`, where `via` lists each module it re-exports through, outermost
- * first, with the source and name it re-exports. Sets `unknown.hit` when a module in the chain is too deep to
+ * first, with the source and name it re-exports. Sets `unresolved.hit` when a module in the chain is too deep to
  * follow or can't be parsed. */
-function exportOrigin(j, file, name, depth = 0, unknown = {}) {
+function exportOrigin(j, file, name, depth = 0, unresolved = {}) {
   if (!file) return;
   const root = depth < 5 && parseModule(j, file);
   if (!root) {
-    unknown.hit = true;
+    unresolved.hit = true;
     return;
   }
   const through = (source, local) => {
@@ -1995,7 +1995,7 @@ function exportOrigin(j, file, name, depth = 0, unknown = {}) {
       resolveModule(file, source),
       local,
       depth + 1,
-      unknown,
+      unresolved,
     );
     return (
       origin && {
@@ -2642,9 +2642,10 @@ function mayExport(j, file, source, name) {
   if (!file) return true;
   const target = resolveModule(file, source);
   // a chain too deep to follow, or through a module it can't parse, might reach it
-  const unknown = {};
+  const unresolved = {};
   return (
-    !!target && (!!exportOrigin(j, target, name, 0, unknown) || !!unknown.hit)
+    !!target &&
+    (!!exportOrigin(j, target, name, 0, unresolved) || !!unresolved.hit)
   );
 }
 
@@ -2834,7 +2835,7 @@ const mayLink = node =>
  * `const self = this`. A computed key it doesn't spell out, like `models[name]`, can pick a class too, unless
  * it reads a local array or object literal of plain data, like `grid[0][1]`. A class a module names has its
  * writes followed by writesMembersOf() instead. */
-function mayHoldClass(path, depth = 0) {
+function mayHoldClass(j, path, depth = 0) {
   const { node } = path;
   if (isThisOrSuper(node)) return inStaticMember(path);
   if (isMember(node)) {
@@ -2849,7 +2850,7 @@ function mayHoldClass(path, depth = 0) {
     // an instance's own `this.schema` is not a class
     if (isThisOrSuper(root.node))
       return inStaticMember(path) && (linked || dynamicKey);
-    return linked || (dynamicKey && !isDataVariable(root));
+    return linked || (dynamicKey && !isDataVariable(j, root));
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
   const binding = bindingOf(path);
@@ -2858,36 +2859,52 @@ function mayHoldClass(path, depth = 0) {
     owner?.node.type === 'VariableDeclarator' &&
     owner.node.id === binding.node &&
     !!owner.node.init &&
-    mayHoldClass(unwrapPath(owner.get('init')), depth + 1)
+    mayHoldClass(j, unwrapPath(owner.get('init')), depth + 1)
   );
 }
 
-/** Whether `path` names a variable set to an array or object literal of plain data, like `const grid = [[]]`,
- * so a computed key into it can't reach a class */
-function isDataVariable(path) {
+/** Whether `path` names a module-private `const` that only ever holds plain data, like `const grid = [[]]` with
+ * `grid[0][1] = 2`, so a computed key into it can't reach a class: set to a literal of plain data, and used
+ * only to store plain data in it or to read from it into an expression that can't keep the value */
+function isDataVariable(j, path) {
   if (path.node.type !== 'Identifier') return false;
   const binding = bindingOf(path);
-  const owner = binding?.parent;
-  return (
-    owner?.node.type === 'VariableDeclarator' &&
-    owner.node.id === binding.node &&
-    isDataLiteral(owner.node.init)
-  );
+  if (
+    !binding ||
+    isExported(binding) ||
+    !isPlainData(constInitOf(binding)?.node)
+  )
+    return false;
+  return moduleUsesOf(j, path, binding).every(use => {
+    const parent = use.parent.node;
+    if (!isMember(parent) || parent.object !== use.node) return false;
+    const chain = memberChainOf(use);
+    const holder = chain.parent.node;
+    return holder.type === 'AssignmentExpression' ?
+        holder.left === chain.node && isPlainData(holder.right)
+      : DATA_READS.has(holder.type) ||
+          (holder.type === 'UnaryExpression' && holder.operator !== 'delete') ||
+          // a condition, like `if (grid[i][j])`
+          (TESTS.has(holder.type) && holder.test === chain.node);
+  });
 }
 
-/** Whether `node` is an array or object literal that holds only literals, like `[[0, 1]]` or `{ a: '' }` */
-function isDataLiteral(node) {
-  node = node && unwrap(node);
-  if (node?.type === 'ArrayExpression')
-    return node.elements.every(
-      e => !e || isDataLiteral(e) || isLiteralValue(e),
-    );
-  if (node?.type === 'ObjectExpression')
-    return node.properties.every(
-      p =>
-        isProperty(p) &&
-        keyName(p) !== undefined &&
-        (isDataLiteral(p.value) || isLiteralValue(p.value)),
+// expressions that use a value without keeping or passing it on, like `grid[0][1]++` or `total + grid[i][j]`
+const DATA_READS = new Set([
+  'UpdateExpression',
+  'BinaryExpression',
+  'TemplateLiteral',
+]);
+
+/** Whether `node` is a literal, or an array or object literal of them, like `2`, `[[0, 1]]` or `{ a: '' }` */
+function isPlainData(node) {
+  const value = node && unwrap(node);
+  if (isLiteralValue(value)) return true;
+  if (value?.type === 'ArrayExpression')
+    return value.elements.every(e => !e || isPlainData(e));
+  if (value?.type === 'ObjectExpression')
+    return value.properties.every(
+      p => isProperty(p) && keyName(p) !== undefined && isPlainData(p.value),
     );
   return false;
 }
@@ -2942,7 +2959,7 @@ function writesHooksIndirectly(j, top) {
             .find(type)
             .some(p => {
               const object = hookWriteOf(p);
-              return !!object && mayHoldClass(object);
+              return !!object && mayHoldClass(j, object);
             }),
         ),
     );

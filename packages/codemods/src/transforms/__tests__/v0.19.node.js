@@ -3629,8 +3629,10 @@ Box.schema = { todos: [Todo] };`,
         ],
         [
           'a nested computed write on an array',
-          `const grid: number[][] = [[]];
-grid[0][1] = 2;`,
+          `const grid: number[][] = [[0]];
+grid[0][1] = 2;
+grid[0][0]++;
+export const total = () => grid[0][0] + grid[0][1];`,
         ],
         [
           'a namespace import from @data-client given the class',
@@ -3816,6 +3818,55 @@ class Todo extends Entity { id = 0; }
 const registry = models;
 export function patchOne(name: string) {
   registry[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a let data literal later set to a registry',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+let grid: any = [[]];
+grid = models;
+export function patchOne(name: string) {
+  grid[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on an exported data literal',
+          `class Todo extends Entity { id = 0; }
+export const models: any = {};
+export function patchOne(name: string) {
+  models[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a data literal that a registry is stored in',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const grid: any = [[]];
+grid[0] = models;
+export function patchOne(i: number, name: string) {
+  grid[i][name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a data literal passed to Object.assign()',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const grid: any = {};
+Object.assign(grid, models);
+export function patchOne(name: string) {
+  grid[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on an alias of a row of a data literal',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const grid: any = [[]];
+const row = grid[0];
+row[0] = models;
+export function patchOne(name: string) {
+  grid[0][0][name].process = (input, parent) => ({ ...input, parent });
 }`,
         ],
         [
