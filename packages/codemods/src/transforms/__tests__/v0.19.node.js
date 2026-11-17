@@ -3621,6 +3621,11 @@ Box.schema = { todos: [Todo] };`,
 }`,
         ],
         [
+          'a nested computed write on an array',
+          `const grid: number[][] = [[]];
+grid[0][1] = 2;`,
+        ],
+        [
           'a namespace import from @data-client given the class',
           `import * as DC from '@data-client/rest';
 export const TodoList = new DC.Collection(Todo);`,
@@ -4381,33 +4386,74 @@ export function flush(ctrl: Controller, rows: any[]) {
         ).toBe(source.trim());
       });
 
-      it('keeps rows of an Entity patched through a namespace import', () => {
-        const barrel = `
+      const nsFlush = (imports, setup) => `
 import type { Controller } from '@data-client/react';
-import { Ticker } from '../nspatched';
-
+${imports}
+${setup}
 export function flush(ctrl: Controller, rows: any[]) {
   for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
 }
 `;
-        const loopFile = `
-import type { Controller } from '@data-client/react';
-import { Ticker } from '../resources/Ticker';
-import * as T from '../resources/Ticker';
+      const runNs = source =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          { source, path: path.join(dir, 'managers/NsManager.ts') },
+        );
+      const tickerImport = `import { Ticker } from '../resources/Ticker';`;
 
-T.Ticker.shouldUpdate = () => false;
-export function flush(ctrl: Controller, rows: any[]) {
-  for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
-}
-`;
-        for (const source of [barrel, loopFile])
-          expect(
-            applyTransform(
-              transform,
-              { improvements: 'only' },
-              { source, path: path.join(dir, 'managers/NsManager.ts') },
-            ),
-          ).toBe(source.trim());
+      it.each([
+        [
+          'a barrel it is imported through',
+          `import { Ticker } from '../nspatched';`,
+          '',
+        ],
+        [
+          'the loop file',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';`,
+          'T.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, spelling the module with its extension',
+          `${tickerImport}\nimport * as T from '../resources/Ticker.ts';`,
+          'T.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, through a barrel',
+          `${tickerImport}\nimport * as R from '../resources';`,
+          'R.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, passing the namespace on',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';\nimport { register } from '../registry';`,
+          'register(T);',
+        ],
+        [
+          'the loop file, with a computed key',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';`,
+          'export const pick = (key: string) => T[key];',
+        ],
+      ])(
+        'keeps rows of an Entity patched through a namespace import in %s',
+        (_, imports, setup) => {
+          const source = nsFlush(imports, setup);
+          expect(runNs(source)).toBe(source.trim());
+        },
+      );
+
+      it.each([
+        [
+          'reads a member',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';`,
+          'console.log(T.Ticker.key);',
+        ],
+        [
+          'destructures a package namespace',
+          `${tickerImport}\nimport * as nodePath from 'node:path';`,
+          'const { join } = nodePath;',
+        ],
+      ])('batches rows when the loop file %s', (_, imports, setup) => {
+        expect(runNs(nsFlush(imports, setup))).toContain('ctrl.set([Ticker]');
       });
 
       it('keeps rows of an Entity whose module patches its nested Entity or base', () => {

@@ -1318,16 +1318,16 @@ const importsOf = root =>
     .get()
     .node.program.body.filter(node => node.type === 'ImportDeclaration');
 
+/** Whether an import specifier imports a value, not only a type */
+const isValueImport = specifier =>
+  specifier.node.importKind !== 'type' &&
+  specifier.parent.node.importKind !== 'type';
+
 /** The import specifier the identifier at `path` is bound to, unless it imports only a type */
 function valueImportOf(path) {
   const specifier = bindingOf(path)?.parent;
-  if (
-    specifier?.node.type !== 'ImportSpecifier' ||
-    specifier.node.importKind === 'type' ||
-    specifier.parent.node.importKind === 'type'
-  )
-    return;
-  return specifier;
+  if (specifier?.node.type === 'ImportSpecifier' && isValueImport(specifier))
+    return specifier;
 }
 
 /** Whether `path` is an identifier imported as one of `names` from `sources` */
@@ -1994,7 +1994,7 @@ function exportOrigin(j, file, name, depth = 0) {
     return (
       origin && {
         ...origin,
-        via: [{ root, source, name: local }, ...origin.via],
+        via: [{ root, file, source, name: local }, ...origin.via],
       }
     );
   };
@@ -2591,9 +2591,9 @@ const constInitOf = binding => {
 
 /** Whether a module that re-exports `name` from `source` (a step of exportOrigin()'s `via`) could also write
  * to its members, through a hook-writing pattern or its own import of it */
-const reexportWrites = (j, { root, source, name }) =>
+const reexportWrites = (j, { root, file, source, name }) =>
   writesHooksIndirectly(j, root.paths()[0]) ||
-  namespaceWrites(j, root, source, name) ||
+  namespaceWrites(j, root, file, name) ||
   root
     .find(j.ImportDeclaration, { source: { value: source } })
     .some(declaration =>
@@ -2601,7 +2601,7 @@ const reexportWrites = (j, { root, source, name }) =>
         s =>
           importedName(s) === name &&
           isValueImport(s) &&
-          writesMembersOf(j, s.get('local')),
+          writesMembersOf(j, s.get('local'), file),
       ),
     );
 
@@ -2612,31 +2612,34 @@ const importedName = specifier =>
     staticName(specifier.node.imported)
   : undefined;
 
-/** Whether an import specifier imports a value, not only a type */
-const isValueImport = specifier =>
-  specifier.node.importKind !== 'type' &&
-  specifier.parent.node.importKind !== 'type';
-
-/** Whether the module `root` could write to the export `name` of `source` through a namespace import of it:
- * any use of the namespace but a type or a read of a member, like `M.Todo.process = ...`, `patch(M.Todo)`,
- * `M[key]` or `patch(M)` */
-function namespaceWrites(j, root, source, name) {
-  return root
+/** Whether the module `root`, at `file`, could write to a class exported as `name` through a namespace import
+ * of an app module. Any app module counts, by the name it exports, since `'./Todo.ts'` and a barrel that
+ * re-exports it reach the same class as `'./Todo'`. */
+const namespaceWrites = (j, root, file, name) =>
+  root
     .find(j.ImportNamespaceSpecifier)
-    .filter(s => s.parent.node.source.value === source && isValueImport(s))
+    .filter(
+      s =>
+        isValueImport(s) &&
+        (!file || !!resolveModule(file, s.parent.node.source.value)),
+    )
     .some(s =>
-      moduleUsesOf(j, s, s.get('local')).some(use => {
-        const parent = use.parent.node;
-        if (parent.type === 'TSQualifiedName' || parent.type === 'TSTypeQuery')
-          return false;
-        if (!isMember(parent) || parent.object !== use.node) return true;
-        const member = memberName(parent);
-        return (
-          member === undefined ||
-          (member === name && !readsClass(j, use.parent))
-        );
-      }),
+      moduleUsesOf(j, s, s.get('local')).some(use =>
+        namespaceUseWrites(j, use, name),
+      ),
     );
+
+/** Whether a use of a namespace could write to its export `name`: any use but a type or a read of a member,
+ * like `M.Todo.process = ...`, `patch(M.Todo)`, `M[key]` or `patch(M)` */
+function namespaceUseWrites(j, use, name) {
+  const parent = use.parent.node;
+  if (parent.type === 'TSQualifiedName' || parent.type === 'TSTypeQuery')
+    return false;
+  if (!isMember(parent) || parent.object !== use.node) return true;
+  const member = memberName(parent);
+  return (
+    member === undefined || (member === name && !readsClass(j, use.parent))
+  );
 }
 
 /** The class the identifier at `path` names, declared in this file or exported by the relative or
@@ -2815,14 +2818,18 @@ function mayHoldClass(path, depth = 0) {
   if (isThisOrSuper(node)) return inStaticMember(path);
   if (isMember(node)) {
     let linked = false;
+    let computed = false;
     let root = node;
     for (; isMember(root); root = unwrap(root.object)) {
       if (memberName(root) === 'constructor') return true;
-      if (mayLink(root)) linked = true;
+      if (CLASS_LINKS.has(memberName(root))) linked = true;
+      else if (mayLink(root)) computed = true;
     }
-    // an instance's own `this.schema` is not a class
-    const ofInstance = isThisOrSuper(root) && !inStaticMember(path);
-    return linked && !ofInstance;
+    // an instance's own `this.schema` is not a class, and a computed key it doesn't spell out, like
+    // `this[name]`, leads to a class only from one, unlike `grid[0][1] = 2`
+    if (isThisOrSuper(root))
+      return inStaticMember(path) && (linked || computed);
+    return linked;
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
   const binding = bindingOf(path);
@@ -3078,7 +3085,7 @@ function isObjectOrReflectTarget(path) {
  * what the class body doesn't show: any use other than a read, like `Todo.schema = { child }`,
  * `(Todo as any).process = ...`, `Object.assign(Todo, ...)`, `patch(Todo)` with a local `patch()`, or a write
  * through an alias like `const list = [Todo]` */
-function writesMembersOf(j, binding) {
+function writesMembersOf(j, binding, file) {
   if (!memberWrites.has(binding.node)) {
     let top = binding;
     while (top.parent) top = top.parent;
@@ -3091,16 +3098,16 @@ function writesMembersOf(j, binding) {
         moduleUsesOf(j, top, binding).some(p => !readsClass(j, p)) ||
         (name !== undefined &&
           isValueImport(specifier) &&
-          namespaceWrites(j, j(top), specifier.parent.node.source.value, name)),
+          namespaceWrites(j, j(top), file, name)),
     );
   }
   return memberWrites.get(binding.node);
 }
 
 /** Whether the module that names a class at `path`, often by importing it, could write to its members */
-function writesThrough(j, path) {
+function writesThrough(j, path, file) {
   const binding = path.node.type === 'Identifier' && bindingOf(path);
-  return !!binding && writesMembersOf(j, binding);
+  return !!binding && writesMembersOf(j, binding, file);
 }
 
 /** The paths of a list's items: a list's path has map() but no every() */
@@ -3172,7 +3179,9 @@ function isArgsFreeSchema(j, path, file, seen) {
 function isPlainEntityAt(j, path, file, limits, seen) {
   const cls = classOf(j, path, file);
   return (
-    !!cls && !writesThrough(j, path) && isPlainEntity(j, cls, limits, seen)
+    !!cls &&
+    !writesThrough(j, path, file) &&
+    isPlainEntity(j, cls, limits, seen)
   );
 }
 
