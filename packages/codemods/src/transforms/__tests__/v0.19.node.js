@@ -3109,6 +3109,13 @@ function currentCount(id: string) {
           '{ id: row.id, count: currentCount(row.id) + 1 }',
         ],
         [
+          'a function the module declares, called optionally',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, count: currentCount?.(row.id) + 1 }',
+        ],
+        [
           'a function the module declares through a sequence',
           `function currentCount(id: string) {
   return id.length;
