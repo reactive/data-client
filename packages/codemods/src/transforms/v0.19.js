@@ -2633,11 +2633,62 @@ function containsNode(node, test) {
   return false;
 }
 
+/** The member chain a write targets: an assignment's left side, an updated or deleted member, or the first
+ * argument of `Object.*()` or `Reflect.*()`, with how many members below it the write reaches */
+function writeTargetOf(node) {
+  if (node.type === 'AssignmentExpression') return [node.left, 0];
+  if (node.type === 'UpdateExpression') return [node.argument, 0];
+  if (node.type === 'UnaryExpression' && node.operator === 'delete')
+    return [node.argument, 0];
+  if (
+    node.type === 'CallExpression' &&
+    isMember(node.callee) &&
+    (isId(node.callee.object, 'Object') || isId(node.callee.object, 'Reflect'))
+  )
+    return [node.arguments[0], 1];
+  return [];
+}
+
+/** Whether a class member writes to its own class's members: through `this` in a static member, like
+ * `static useArgs() { this.process = ... }`, or through `this.constructor` in any member */
+function patchesOwnClass(member) {
+  return containsNode(member, node => {
+    let throughConstructor = false;
+    for (
+      let t = unwrap(writeTargetOf(node)[0]);
+      t;
+      t = isMember(t) && unwrap(t.object)
+    ) {
+      if (t.type === 'ThisExpression')
+        return member.static || throughConstructor;
+      if (isMember(t) && memberName(t) === 'constructor')
+        throughConstructor = true;
+    }
+    return false;
+  });
+}
+
+/** Whether a write reaches inside a class held in a schema, like `Parent.schema.leaf.process = ...`, which
+ * changes that class without naming it */
+function writesIntoSchema(node) {
+  let [target, depth] = writeTargetOf(node);
+  for (
+    target = unwrap(target);
+    isMember(target);
+    target = unwrap(target.object), depth++
+  )
+    if (memberName(target) === 'schema') return depth >= 2;
+  return false;
+}
+
+// whether each module writes inside a schema, by its Program node
+const schemaWrites = new WeakMap();
+
 /** Whether a class member keeps rows the same when normalized in a batch, within `limits` */
 function memberAllows(j, member, file, limits, seen) {
   const { node } = member;
   // a static block can assign any member through `this`
-  if (node.type === 'StaticBlock') return false;
+  if (node.type === 'StaticBlock' || patchesOwnClass(node)) return false;
   if (!CLASS_MEMBERS.has(node.type)) return true;
   const name = keyName(node);
   // a computed key could be any member
@@ -2759,25 +2810,34 @@ function literalHolding(path) {
 function passesToLibrary(path) {
   if (isObjectOrReflectTarget(path)) return false;
   let callee = path.parent.get('callee');
-  if (callee.node.type === 'Identifier') {
-    const binding = bindingOf(callee);
-    return !binding || binding.parent.node.type.startsWith('Import');
-  }
+  if (callee.node.type === 'Identifier') return isLibraryName(callee);
+  if (isMember(callee.node) && isController(callee.get('object'))) return true;
   while (isMember(callee.node)) callee = callee.get('object');
-  if (callee.node.type !== 'Identifier') return true;
-  const binding = bindingOf(callee);
-  const owner = binding?.parent.node;
-  // a parameter or global, or a variable that isn't its declarator's whole id
-  if (!binding || owner.id !== binding.node) return true;
-  const init = owner.type === 'VariableDeclarator' && unwrap(owner.init);
-  return !(
-    owner.type === 'ClassDeclaration' ||
-    owner.type === 'FunctionDeclaration' ||
-    (init &&
-      (init.type === 'ObjectExpression' ||
-        init.type === 'ClassExpression' ||
-        isFunction(init)))
-  );
+  return isLibraryValue(callee);
+}
+
+/** Whether `path` names an import or a global, or a `const` set to a call of one, like `resource()`: a value
+ * whose methods this module didn't write */
+function isLibraryValue(path) {
+  if (path.node.type !== 'Identifier') return false;
+  const binding = bindingOf(path);
+  if (!binding) return true;
+  const owner = binding.parent;
+  if (owner.node.type.startsWith('Import')) return true;
+  const init = owner.node.type === 'VariableDeclarator' && owner.get('init');
+  if (!init?.node || owner.node.id !== binding.node) return false;
+  const call = unwrapPath(init);
+  if (call.node.type !== 'CallExpression' && call.node.type !== 'NewExpression')
+    return false;
+  let callee = call.get('callee');
+  while (isMember(callee.node)) callee = callee.get('object');
+  return callee.node.type === 'Identifier' && isLibraryName(callee);
+}
+
+/** Whether `path` names an import or a global */
+function isLibraryName(path) {
+  const binding = bindingOf(path);
+  return !binding || binding.parent.node.type.startsWith('Import');
 }
 
 /** Whether `path` is the first argument of an `Object.*()` or `Reflect.*()` call, which can write to it */
@@ -2798,9 +2858,14 @@ function isObjectOrReflectTarget(path) {
  * through an alias like `const list = [Todo]` */
 function writesMembersOf(j, binding) {
   if (!memberWrites.has(binding.node)) {
+    let top = binding;
+    while (top.parent) top = top.parent;
+    if (!schemaWrites.has(top.node))
+      schemaWrites.set(top.node, containsNode(top.node, writesIntoSchema));
     memberWrites.set(
       binding.node,
-      moduleUsesOf(j, binding, binding).some(p => !readsClass(j, p)),
+      schemaWrites.get(top.node) ||
+        moduleUsesOf(j, top, binding).some(p => !readsClass(j, p)),
     );
   }
   return memberWrites.get(binding.node);

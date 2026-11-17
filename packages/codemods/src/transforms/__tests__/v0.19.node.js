@@ -2950,6 +2950,25 @@ const helpers = {
   },
 };
 helpers.patch(Helped);
+class SelfPatched extends Entity {
+  id = 0;
+  static useArgs() {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}
+class CtorPatched extends Entity {
+  id = 0;
+  touch() {
+    (this.constructor as any).shouldUpdate = () => false;
+  }
+}
+class Made extends Entity { id = 0; }
+const makeHelpers = () => ({
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+});
+makeHelpers().patch(Made);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2996,6 +3015,9 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(z2 => ctrl.set(Stored, { id: z2.id }));
   rows.forEach(a3 => ctrl.set(Fielded, { id: a3.id }));
   rows.forEach(b3 => ctrl.set(Helped, { id: b3.id }));
+  rows.forEach(c3 => ctrl.set(SelfPatched, { id: c3.id }));
+  rows.forEach(d3 => ctrl.set(CtorPatched, { id: d3.id }));
+  rows.forEach(f3 => ctrl.set(Made, { id: f3.id }));
   const optional: { id?: number }[] = [];
   optional.forEach(u2 => ctrl.set(Plain, u2));
   const named: { name: string }[] = [];
@@ -3081,6 +3103,25 @@ const helpers = {
   },
 };
 helpers.patch(Helped);
+class SelfPatched extends Entity {
+  id = 0;
+  static useArgs() {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}
+class CtorPatched extends Entity {
+  id = 0;
+  touch() {
+    (this.constructor as any).shouldUpdate = () => false;
+  }
+}
+class Made extends Entity { id = 0; }
+const makeHelpers = () => ({
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+});
+makeHelpers().patch(Made);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -3127,6 +3168,9 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(z2 => ctrl.set(Stored, { id: z2.id }));
   rows.forEach(a3 => ctrl.set(Fielded, { id: a3.id }));
   rows.forEach(b3 => ctrl.set(Helped, { id: b3.id }));
+  rows.forEach(c3 => ctrl.set(SelfPatched, { id: c3.id }));
+  rows.forEach(d3 => ctrl.set(CtorPatched, { id: d3.id }));
+  rows.forEach(f3 => ctrl.set(Made, { id: f3.id }));
   const optional: { id?: number }[] = [];
   optional.forEach(u2 => ctrl.set(Plain, u2));
   const named: { name: string }[] = [];
@@ -3138,6 +3182,40 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
 }
       `,
       'keeps set() loops that a batch could write differently',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Nested extends Entity { id = 0; }
+class Outer extends Entity {
+  id = 0;
+  static schema = { nested: Nested };
+}
+Outer.schema.nested.shouldUpdate = () => false;
+
+export function save(ctrl, rows: Nested[]) {
+  rows.forEach(row => ctrl.set(Nested, row));
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class Nested extends Entity { id = 0; }
+class Outer extends Entity {
+  id = 0;
+  static schema = { nested: Nested };
+}
+Outer.schema.nested.shouldUpdate = () => false;
+
+export function save(ctrl, rows: Nested[]) {
+  rows.forEach(row => ctrl.set(Nested, row));
+}
+      `,
+      'keeps set() loops of an Entity patched through a schema that holds it',
     );
 
     defineInlineTest(
