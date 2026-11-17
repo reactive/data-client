@@ -210,7 +210,7 @@ Each guide holds working code. Read the matching section before writing code.
 | The token is in React context | "Auth Headers from" in [auth](references/auth.md) | [`hookifyResource()`](references/hookifyResource.md) |
 | A `401` logs the user out | skill "data-client-manager" | `LogoutManager` |
 | A list loads in pages | [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) | `paginationField` and `getList.getPage`, which adds each page to the list |
-| A paged list comes in a `{ data, meta }` envelope | "Page numbers in an envelope" in [pagination](references/pagination.md#envelope) | keep the envelope as the schema, with the Collection where the list is; covers `getPage` and `push` |
+| A paged list comes in a `{ data, meta }` envelope | "Page numbers in an envelope" in [pagination](references/pagination.md#envelope) | the envelope is the schema, with the `Collection` at `data` |
 | The next-page token is in a response header | "Tokens in HTTP Headers" in [pagination](references/pagination.md) | `parseResponse()` adds the header to the body |
 | The UI changes before the server answers | [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) | `optimistic: true` on a resource; `getOptimisticResponse()` on other endpoints |
 | Responses can arrive out of order | "Compensating for Server timing variations" in [optimistic-updates](references/optimistic-updates.md) | compare `updatedAt` in `Entity.shouldReorder()` |

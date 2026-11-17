@@ -271,10 +271,8 @@ export const getValidators = new RestEndpoint({
 ### Page numbers in an envelope {#envelope}
 
 Many APIs wrap each list in an envelope: an outer object that holds the data next to metadata, like
-`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Keep the
-envelope as the schema rather than unwrapping it in [process()](./RestEndpoint.vue.md#process), put the
-[Collection](https://dataclient.io/rest/api/Collection) where the list is, and set [paginationField](./RestEndpoint.vue.md#paginationfield)
-to the page parameter:
+`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Make the envelope the schema, with the
+[Collection](https://dataclient.io/rest/api/Collection) at `data`, so components can read `meta` too:
 
 ```ts title="Comment"
 import { Collection, Entity, RestEndpoint } from '@data-client/rest';
@@ -295,17 +293,29 @@ export const getComments = new RestEndpoint({
 });
 ```
 
-- **Leave the page out of the first fetch**: `useSuspense(getComments, { discussionId })`. `getPage` drops the
-  `paginationField` from its args to find the list to extend, so a first fetch with `page: 1` makes a different list
-  that `getPage` never extends.
-- **Load more with `getPage`**: `ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 })`, where `ctrl`
-  is `useController()` and `meta` comes from the `useSuspense()` result. It appends to `data` and replaces `meta` with
-  the new page's, so `meta.page < meta.totalPages` tells whether there is more.
-- **Creates join the same list**: `ctrl.fetch(getComments.push, { discussionId }, { body })`.
-  [push](./RestEndpoint.vue.md#push) sends a `POST` to the same path and adds its response (one `Comment`, not an envelope) to the list whose args match. A separate create endpoint works too: give it
-  `schema: getComments.schema.data.push` and call it with `{ discussionId }`.
-- **Single items use the same envelope.** A detail endpoint returning `{ "data": {...} }` takes
-  `schema: { data: Comment }`.
+```html title="CommentList.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+
+  const props = defineProps<{ discussionId: string }>();
+  const comments = await useSuspense(getComments, { discussionId: props.discussionId });
+  const ctrl = useController();
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, {
+      discussionId: props.discussionId,
+      page: comments.value.meta.page + 1,
+    });
+  const add = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId: props.discussionId }, { body });
+</script>
+```
+
+- The first fetch leaves out `page`: [getPage](./RestEndpoint.vue.md#getpage) finds the list to extend by its args
+  without the [paginationField](./RestEndpoint.vue.md#paginationfield), so a list fetched with `page: 1` is a
+  different one that never grows.
+- Each page appends to `data` and replaces `meta`, so `meta` always describes the latest page.
+- [push](./RestEndpoint.vue.md#push) sends a `POST` to the same path and adds the one `Comment` it returns. A separate
+  create endpoint joins the same list with `schema: getComments.schema.data.push`, called with `{ discussionId }`.
 
 ### Infinite Scrolling
 

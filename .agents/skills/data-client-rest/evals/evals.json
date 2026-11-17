@@ -35,7 +35,7 @@
         "Sets `paginationField: 'page'` and loads more with `.getPage`, passing the next page from `meta`.",
         "The first-page `useSuspense` call does not pass `page`.",
         "Creating a comment uses `getComments.push` or a `.push` of the same Collection instance, with `{ discussionId }` args.",
-        "Does not unwrap `data` in `process()`, and does not refetch or `expireAll` the list after creating."
+        "The created comment appears in the list from the create response alone, with no refetch or `expireAll`."
       ]
     }
   ]
