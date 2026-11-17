@@ -2721,8 +2721,37 @@ function hookWithin(j, member, max, file, seen) {
   if (!paramsWithin(member.node, max)) return false;
   if (!member.node.static) return instanceCodeWithin(j, member, file, seen);
   const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
-  return !fn.node || !callsLocalCode(j, fn, new Set());
+  return (
+    !fn.node || (!callsLocalCode(j, fn, new Set()) && !namesMutableState(j, fn))
+  );
 }
+
+/** Whether the function at `fn` names a variable outside it that could change between rows, like `seq` in
+ * `stamp: seq++`, which a batch reads after every row's value is built: anything but a global, an import, a
+ * class or function declaration, a `const` set to a literal, or plain data nothing changes (isReadOnlyData()) */
+function namesMutableState(j, fn) {
+  return identifiersIn(j, fn).some(p => {
+    if (isOtherName(p) || isTypeName(p) || isLibraryName(p)) return false;
+    const binding = bindingOf(p);
+    if (isWithin(binding, fn.node)) return false;
+    const owner = binding.parent.node;
+    if (
+      (owner.type === 'ClassDeclaration' ||
+        owner.type === 'FunctionDeclaration') &&
+      owner.id === binding.node
+    )
+      return false;
+    return !isLiteralValue(constInitOf(binding)?.node) && !isReadOnlyData(j, p);
+  });
+}
+
+/** Whether `path` names plain data nothing changes, like `const KINDS = { a: 'x' }` read as `KINDS[this.kind]`:
+ * a variable isDataVariable() accepts that is never written */
+const isReadOnlyData = (j, path) =>
+  isDataVariable(j, path) &&
+  moduleUsesOf(j, path, bindingOf(path)).every(
+    use => !isWriteTarget(memberChainOf(use)),
+  );
 
 const isMethodNode = node =>
   node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
@@ -2743,7 +2772,7 @@ function instanceCodeWithin(j, member, file, seen) {
 
 /** Whether instance code names anything the module declares, which it could call, store (`this.count =
  * currentCount`) or return for pk() to call. It may name types, globals, imports, its own declarations,
- * `const`s set to a literal, variables that only hold plain data (isDataVariable()), and Entity classes it
+ * `const`s set to a literal, plain data nothing changes (isReadOnlyData()), and Entity classes it
  * constructs (`author = User.fromJS()`) whose own code passes these
  * checks. */
 function namesLocalCode(j, code, file, seen) {
@@ -2757,7 +2786,7 @@ function namesLocalCode(j, code, file, seen) {
     )
       return false;
     const binding = bindingOf(p);
-    if (isWithin(binding, code.node) || isDataVariable(j, p)) return false;
+    if (isWithin(binding, code.node) || isReadOnlyData(j, p)) return false;
     if (binding.parent.node.type === 'ClassDeclaration') {
       const parent = p.parent.node;
       const constructs =
@@ -3541,8 +3570,14 @@ function readsOnlyArray(j, path, binding) {
       return false;
     const holder = use.parent.parent;
     const called = isCall(holder.node) && holder.node.callee === parent;
-    // `rows[i]` or `rows.length`, not a method to call later like `rows.push.call(...)`
-    if (!called) return parent.computed || memberName(parent) === 'length';
+    // `rows[i]` or `rows.length`, not a method to call later like `rows.push.call(...)` or `rows['push']`
+    if (!called) {
+      const name = memberName(parent);
+      return (
+        name === 'length' ||
+        (parent.computed && (name === undefined || /^\d+$/.test(name)))
+      );
+    }
     return (
       ARRAY_READS.has(memberName(parent)) &&
       // a callback gets the array as its third argument, so it must be one that can't use it: an inline function
@@ -4242,7 +4277,8 @@ function unwrapComputedArgs(j, root) {
         node.type !== 'CallExpression' ||
         node.arguments.length !== 1 ||
         !isFunction(node.arguments[0]) ||
-        node.arguments[0].params.length ||
+        // the previous value as a parameter or as `arguments[0]`
+        !takesAtMost(node.arguments[0], 0) ||
         !importsNameFrom(arg.get('callee'), COMPUTED, VUE_FRAMEWORK)
       )
         return;

@@ -21,12 +21,13 @@ the same, apart from the differences noted below:
     declares (`this.count`, `live.count`). Loop variable defaults are literals, names, or arrays and objects of
     them.
   - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
-  - Its `pk()` and `process()` read only the row and call only globals, imports and methods of the row. Its instance
-    code (constructor, methods, getters, setters and field values, which `pk()` can reach through `this`) names only
-    types, globals, imports, its own variables, `const`s set to a literal, lookup tables of plain data and Entity
-    classes it constructs (`author = User.fromJS()`, if no class in its chain overrides `fromJS()`), and never reaches
-    static members (`this.constructor` or `new.target`). It has no `static indexes` and no decorators, and overrides
-    neither `validate()` nor the store-merge methods.
+  - Its `pk()` and `process()` read only the row, call only globals, imports and methods of the row, and read no
+    variable that can change between rows (`let seq`). Its instance code (constructor, methods, getters, setters and
+    field values, which `pk()` can reach through `this`) names only types, globals, imports, its own variables,
+    `const`s set to a literal, plain data nothing changes and Entity classes it constructs (`author = User.fromJS()`,
+    if no class in its chain overrides `fromJS()`), and never reaches static members (`this.constructor` or
+    `new.target`). It has no `static indexes` and no decorators, and overrides neither `validate()` nor the
+    store-merge methods.
   - No code the codemod reads changes its static members or passes the class to a function outside `@data-client`:
     its own file, the loop's file, a barrel it is imported through, and the files its schema imports. Check that no
     other file patches a batched Entity.

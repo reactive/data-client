@@ -228,9 +228,9 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     which could run a getter the file declares);
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
-    read the store; its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach
+    read the store, and read no variable that can change between rows (`let seq`); its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach
     through `this` or `super`) names only types, globals, imports, its own variables, `const`s set to a literal,
-    lookup tables of plain data and Entity classes it constructs (`author = User.fromJS()`, if no class in its chain
+    plain data nothing changes and Entity classes it constructs (`author = User.fromJS()`, if no class in its chain
     overrides `fromJS()`), and never reaches static members (`this.constructor` or `new.target`);
   - it has no `static indexes` (one `set()` per row keeps only the last row's index entry), no decorators, and no
     override of `validate()` or the store-merge methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`,

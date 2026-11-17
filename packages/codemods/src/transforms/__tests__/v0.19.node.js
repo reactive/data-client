@@ -3451,6 +3451,11 @@ const key = () => 'count';`,
           'live.count',
         ],
         [
+          'what an optional call of a function the module declares returns',
+          'const makeLive: any = () => ({ get count() { return currentCount(); } });\nconst live = makeLive?.();',
+          'live.count',
+        ],
+        [
           'a global given a getter',
           'const live = Object.freeze({ get count() { return currentCount(); } });',
           'live.count',
@@ -3846,6 +3851,26 @@ export function save(ctrl, rows: any[]) {
             "function count() {\n  return 1;\n}\nconst KINDS: any = { a: 'x' };\nKINDS.b = count;",
           ),
         ).not.toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it.each([
+        [
+          'static process() reads a variable the value changes',
+          '  static process(value) {\n    return { ...value, stamp: seq++ };\n  }',
+          'let seq = 0;',
+        ],
+        [
+          'static pk() reads plain data something changes',
+          '  static pk(value) {\n    return value.id + STATE.n;\n  }',
+          'const STATE = { n: 0 };\nexport function bump() {\n  STATE.n++;\n}',
+        ],
+        [
+          'pk() reads plain data something changes',
+          '  pk() {\n    return this.id + STATE.n;\n  }',
+          'const STATE = { n: 0 };\nexport function bump() {\n  STATE.n++;\n}',
+        ],
+      ])('keeps the loop when %s', (_, members, before) => {
+        expect(run(members, before)).not.toContain('ctrl.set([Todo]');
       });
 
       it('batches when pk() or process() calls only globals and methods of the row', () => {
@@ -4467,6 +4492,7 @@ app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
 const props = defineProps<{ id: number }>();
 const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
 const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+const kept = useCache(ArticleResource.get, computed(function () { return props.id ? { id: props.id } : arguments[0]; }));
 const chosen = useCache(computed(() => props.endpoint), computed(() => ({ id: props.id })));
       `,
       `
@@ -4481,6 +4507,7 @@ app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
 const props = defineProps<{ id: number }>();
 const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
 const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+const kept = useCache(ArticleResource.get, computed(function () { return props.id ? { id: props.id } : arguments[0]; }));
 const chosen = useCache(computed(() => props.endpoint), () => ({ id: props.id }));
       `,
       'drops Vue options and wrappers that 0.19 makes the default',
