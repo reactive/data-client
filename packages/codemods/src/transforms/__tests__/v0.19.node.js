@@ -3581,6 +3581,12 @@ class Tag {
   count(id: string) {
     return currentCount(id);
   }
+}
+class Counter extends Entity {
+  id = '';
+  static fromJS(): any {
+    return { id: String(currentCount('all')) };
+  }
 }`;
         const kept = [
           '  pk() {\n    return this.lookup();\n  }\n  lookup() {\n    return currentCount(this.id);\n  }',
@@ -3599,6 +3605,8 @@ class Tag {
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  constructor(...args) {\n    super(...args);\n    this.kind = new.target;\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
           '  pk() {\n    return this.counter()(this.id);\n  }\n  counter() {\n    return currentCount;\n  }',
           '  pk() {\n    return this.tag.count(this.id);\n  }\n  tag = new Tag();',
+          // an Entity whose static fromJS() reads the store
+          '  pk() {\n    return this.id + Counter.fromJS().id;\n  }',
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this.constructor;\n  static key(id) {\n    return currentCount(id);\n  }',
           "  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this['constructor'];\n  static key(id) {\n    return currentCount(id);\n  }",
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = Object.getPrototypeOf(this);\n  static key(id) {\n    return currentCount(id);\n  }',

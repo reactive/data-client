@@ -2751,10 +2751,31 @@ function namesLocalCode(j, code, file, seen) {
         (memberName(parent) === 'fromJS' &&
           parent.object === p.node &&
           p.parent.parent.node.callee === parent);
-      return !constructs || !isPlainEntityAt(j, p, file, ARGS_FREE, seen);
+      return (
+        !constructs ||
+        !isPlainEntityAt(j, p, file, ARGS_FREE, seen) ||
+        // an override runs code the check above doesn't read
+        (parent.type !== 'NewExpression' &&
+          declaresStatic(j, p, file, 'fromJS'))
+      );
     }
     return !isLiteralValue(constInitOf(binding)?.node);
   });
+}
+
+/** Whether the class at `path` (from classOf()), or a class it extends, declares a static `name` */
+function declaresStatic(j, path, file, name) {
+  for (let depth = 0; depth < 20; depth++) {
+    const cls = classOf(j, path, file);
+    if (!cls) return true;
+    const members = childPaths(cls.path.get('body', 'body'));
+    if (members.some(m => m.node.static && keyName(m.node) === name))
+      return true;
+    path = cls.path.get('superClass');
+    file = cls.file;
+    if (!path.node || isSchemaExport(path, ENTITY_BASES)) return false;
+  }
+  return true;
 }
 
 /** Whether instance code at `code` can reach the class's static members: it names `constructor`
