@@ -3836,22 +3836,21 @@ function callsLocalCode(j, path, names) {
   );
 }
 
-/** Whether the value at `path` reads a member of something that could have a getter the module declares, which
- * could read the store the earlier rows were written to: `this.count`, or `live.count` where `live` isn't
- * provably free of one (holdsLocalGetter()). */
+/** Whether the value at `path` reads something that could have a getter the module declares, which could read
+ * the store the earlier rows were written to: `this.count`, or `live.count`, `{ ...live }` or `{ live }` where
+ * `live` isn't provably free of one (holdsLocalGetter()). */
 function readsLocalGetter(j, path, names, file) {
   // `this.count` can be a getter of the class around the loop
   if (containsNode(path.node, isThisOrSuper)) return true;
-  return identifiersIn(j, path).some(p => {
-    const parent = p.parent.node;
-    return (
-      isMember(parent) &&
-      parent.object === p.node &&
+  // any read can run one: `live.count`, `{ ...live }`, or `{ live }`, whose getter normalize() runs
+  return identifiersIn(j, path).some(
+    p =>
+      !isOtherName(p) &&
+      !isTypeName(p) &&
       !names.has(p.node.name) &&
       !isWithin(bindingOf(p), path.node) &&
-      holdsLocalGetter(j, p, file, 0, path.node)
-    );
-  });
+      holdsLocalGetter(j, p, file, 0, path.node),
+  );
 }
 
 const isStaticGetter = member => member.kind === 'get';
@@ -3859,7 +3858,7 @@ const isStaticGetter = member => member.kind === 'get';
 /** Whether the variable at `path` can hold something with a getter the module declares. It can't when it is a
  * global or an import, a class whose chain declares no static getter, or a `const` set to plain data
  * (`{ count: 1 }`) or to what a global or import returns (`Date.now()`, `await fetch(url)`, `res.json()` of
- * such a `res`) that the module doesn't give one later (gainsLocalGetter(), which skips uses within `value`).
+ * such a `res`) that the module doesn't give one later (gainsLocalGetter(), which skips reads within `value`).
  * Anything else counts as one that can, such as `const { live } = cfg`, except a parameter, which the module
  * can't see into. */
 function holdsLocalGetter(j, path, file, depth = 0, value = undefined) {
@@ -3924,8 +3923,8 @@ function wrappedChainOf(path) {
  * (`history.push({ get count() {} })`, `cfg.live = live`), or by handing the value on, so other code can
  * (`stash(cfg.live)`, `const ref = cfg.live`, `return cfg.live`, `[cfg.live]`, `for (const x of history)`).
  * Reading a member into an expression that can't keep it (`cfg.n + 1`, `if (cfg.on)`), and method calls given
- * only values that hold no getter (`history.at(0)`, `res.json()`), can't. Uses within `value`, the set() value
- * being checked, are skipped: they hand it to the store. Other modules can when it is exported. */
+ * only values that hold no getter (`history.at(0)`, `res.json()`), can't. Reads within `value`, the code the
+ * batch replaces, are skipped, while writes there still count. Other modules can when it is exported. */
 function gainsLocalGetter(j, path, binding, file, depth, value) {
   if (isExported(binding)) return true;
   const holds = arg => mayHoldLocalGetter(j, arg, file, depth + 1, value);
@@ -4058,7 +4057,7 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
   const array = arrayOf(j, rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
   // a row with a getter the module declares, like `new Live()`, runs it before any row is written. Parsed rows
-  // have none. Uses of the list in the loop's own header, like `for (const row of rows)`, don't hand it on.
+  // have none. Reads of the list inside the loop being replaced, like `for (const row of rows)`, don't hand it on.
   if (!array.data && mayHoldLocalGetter(j, rows, file, 0, rows.parent.node))
     return;
   const batch = batchSchemaOf(j, file, call);

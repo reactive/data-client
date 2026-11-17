@@ -3521,6 +3521,21 @@ const key = () => 'count';`,
           '(cfg.x ??= g).count',
         ],
         [
+          'a spread of an object getter',
+          'const live = { get count() { return currentCount(); } };',
+          '{ ...live }.count',
+        ],
+        [
+          'an object getter stored whole',
+          'const live = { get count() { return currentCount(); } };',
+          '[live][0].count',
+        ],
+        [
+          'a getter a tag stores through a template value',
+          'const g = { get count() { return currentCount(); } };\nconst cfg: any = { x: {} };\nfunction tag(_: any, v: any) { v.y = g; }\ntag`${cfg.x}`;',
+          'cfg.x.y.count',
+        ],
+        [
           'a destructured object getter',
           'const cfg = { live: { get count() { return currentCount(); } } };\nconst { live } = cfg;',
           'live.count',
@@ -3566,6 +3581,16 @@ const key = () => 'count';`,
     await ctrl.set(Todo, { id: row.id, count: row.count + 1 });`,
           ),
         ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('keeps a loop whose dropped args spread a getter that changes the value', () => {
+        expect(
+          run(
+            'let seq = 0;\nconst options = { get args() { seq++; return {}; } };',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...options }, { ...row, id: row.id });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
       });
 
       it('keeps a loop whose dropped args read a getter that changes the value', () => {
