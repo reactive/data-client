@@ -150,7 +150,9 @@ step that owns the change, never `fetch` itself (that replaces the whole lifecyc
 | Query string format | `searchToString(searchParams)` |
 | The network call (retries, another client) | `fetchResponse(input, init)` |
 | Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |
-| Shape of the parsed data | `process(value, ...args)` |
+| Every response's shape (unwrap, key case) | `async parseResponse(response)` on a base class |
+| One endpoint's result, e.g. a value from its args | `process(value, ...args)` |
+| One Entity's fields, wherever it appears | `Entity.process()` (skill "data-client-schema") |
 
 ---
 

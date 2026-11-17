@@ -495,7 +495,7 @@ npm uninstall axios
 | `baseURL`                                | [`urlPrefix`](./RestEndpoint.md#urlPrefix)                                                                  |
 | `headers` config                         | [`getHeaders()`](./RestEndpoint.md#getHeaders)                                                              |
 | `interceptors.request`                   | [`getHeaders()`](./RestEndpoint.md#getHeaders) / [`getRequestInit()`](./RestEndpoint.md#getRequestInit)     |
-| `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.md#parseResponse) / [`process()`](./RestEndpoint.md#process)             |
+| `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.md#parseResponse)                                                        |
 | `transformRequest`                       | [`getRequestInit()`](./RestEndpoint.md#getRequestInit)                                                      |
 | `transformResponse`                      | [`parseResponse()`](./RestEndpoint.md#parseResponse)                                                        |
 | `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                            |

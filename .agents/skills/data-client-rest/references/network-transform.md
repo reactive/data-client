@@ -2,9 +2,10 @@
 
 # Transforming data on fetch
 
-Transform data in [RestEndpoint](./RestEndpoint.md) members: [process()](./RestEndpoint.md#process) for
-responses, [getRequestInit()](./RestEndpoint.md#getRequestInit) for request bodies, and
-[parseResponse()](./RestEndpoint.md#parseResponse) for headers and raw bodies.
+Transform requests in [getRequestInit()](./RestEndpoint.md#getRequestInit) and responses in
+[parseResponse()](./RestEndpoint.md#parseResponse), on a base class when every endpoint needs it. Use
+[process()](./RestEndpoint.md#process) for one endpoint's result, such as adding a value from its arguments, and
+[Entity.process()](https://dataclient.io/rest/api/Entity#process) for one Entity's fields wherever it appears.
 
 > **Tip**
 >
@@ -343,30 +344,43 @@ For `ArrayBuffer` responses (useful for processing binary data in-memory), use
 
 ## Name calling
 
-To rename a key the API uses, map it in both directions. Your Entity and components then use only your name.
+To rename a key the API uses, map it in both directions: the Entity's [process()](https://dataclient.io/rest/api/Entity#process) renames it
+in every response that contains the Entity, including lists and nested data, and the endpoint's
+[getRequestInit()](./RestEndpoint.md#getRequestInit) renames it back in request bodies. Components then use only
+your name.
 
-```typescript title="ArticleResource.ts"
-class RenamedEndpoint<
+```typescript title="Article.ts"
+import { Entity, RestEndpoint, RestGenerics } from '@data-client/rest';
+
+export class Article extends Entity {
+  id = '';
+  carrotsUsed = 0;
+
+  static process(value: any, parent: any, key: string, args: any[]) {
+    const { carrotsUsedIsThisNameTooLong, ...rest } = super.process(
+      value,
+      parent,
+      key,
+      args,
+    );
+    return carrotsUsedIsThisNameTooLong === undefined ? rest : (
+        { ...rest, carrotsUsed: carrotsUsedIsThisNameTooLong }
+      );
+  }
+}
+
+export class RenamedEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  getRequestInit(body) {
+  getRequestInit(body: any) {
     if (body && 'carrotsUsed' in body) {
-      const newBody = {
-        ...body,
-        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
-      };
-      delete newBody.carrotsUsed;
-      return super.getRequestInit(newBody);
+      const { carrotsUsed, ...rest } = body;
+      return super.getRequestInit({
+        ...rest,
+        carrotsUsedIsThisNameTooLong: carrotsUsed,
+      });
     }
     return super.getRequestInit(body);
-  }
-  process(value) {
-    if ('carrotsUsedIsThisNameTooLong' in value) {
-      // ok to mutate jsonResponse since we control it
-      value.carrotsUsed = value.carrotsUsedIsThisNameTooLong;
-      delete value.carrotsUsedIsThisNameTooLong;
-    }
-    return value;
   }
 }
 ```
