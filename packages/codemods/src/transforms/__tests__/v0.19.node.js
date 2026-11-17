@@ -3028,6 +3028,50 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
       'keeps set() loops that a batch could write differently',
     );
 
+    describe('set() loops whose rows call functions', () => {
+      const run = (setup, value) => {
+        const source = `import { Entity } from '@data-client/rest';
+import { toId } from './ids';
+class Todo extends Entity { id = ''; }
+${setup}
+export async function save(ctrl, rows: any[]) {
+  for (const row of rows) await ctrl.set(Todo, ${value});
+}`;
+        return applyTransform(
+          transform,
+          { improvements: 'only' },
+          { source, path: 'save.tsx' },
+        );
+      };
+
+      it.each([
+        ['a global', '{ id: String(row.id), at: new Date(row.at) }'],
+        ['a method of the row', '{ id: row.id.trim() }'],
+        ['an imported function', '{ id: toId(row) }'],
+      ])('batches rows that call %s', (_, value) => {
+        expect(run('', value)).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it.each([
+        [
+          'a function the module declares',
+          `export const latest = { ctrl: undefined as any };
+function currentCount(id: string) {
+  const { ctrl } = latest;
+  return ctrl.get(Todo, { id }, ctrl.getState())?.count ?? 0;
+}`,
+          '{ id: row.id, count: currentCount(row.id) + 1 }',
+        ],
+        [
+          'a method of a local object',
+          `const counter = { next: (id: string) => id };`,
+          '{ id: counter.next(row.id) }',
+        ],
+      ])('keeps rows that call %s', (_, setup, value) => {
+        expect(run(setup, value)).toContain('for (const row of rows)');
+      });
+    });
+
     describe('keeps set() loops of an Entity that code patches', () => {
       const save = `
 export function save(ctrl, rows: any[]) {

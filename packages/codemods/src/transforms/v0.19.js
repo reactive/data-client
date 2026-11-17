@@ -3307,6 +3307,27 @@ const oneElement = node =>
     node.elements[0]
   : undefined;
 
+/** Whether the value at `path` calls code the module declares, other than methods of the row `names`, which
+ * could read the store the earlier rows were written to: `{ ...row, count: currentCount(row.id) + 1 }` where
+ * `currentCount()` calls `ctrl.get()` */
+function callsLocalCode(j, path, names) {
+  const calls = [j.CallExpression, j.NewExpression];
+  return calls.some(type =>
+    j(path)
+      .find(type)
+      .some(p => {
+        let root = unwrapPath(p.get('callee'));
+        while (isMember(root.node) || root.node.type === 'CallExpression')
+          root = unwrapPath(
+            root.get(isMember(root.node) ? 'object' : 'callee'),
+          );
+        if (root.node.type !== 'Identifier')
+          return root.node.type === 'ThisExpression';
+        return !names.has(root.node.name) && !isLibraryName(root);
+      }),
+  );
+}
+
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)` */
 function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
@@ -3341,7 +3362,8 @@ function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
         (controllerRoot.type === 'Identifier' ?
           isId(n, controllerRoot.name)
         : n.type === 'ThisExpression'),
-    )
+    ) ||
+    callsLocalCode(j, call.get('arguments', args.length - 1), names)
   )
     return;
 
