@@ -3153,6 +3153,37 @@ const alias = countOf;`,
       });
     });
 
+    describe('set() loops of an Entity with declaration-only members', () => {
+      const run = members =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity {
+  id = '';
+${members}
+}
+export function save(ctrl, rows: any[]) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id }));
+}`,
+            path: 'save.tsx',
+          },
+        );
+
+      it('batches when they only declare types', () => {
+        expect(
+          run(
+            '  declare static pk: typeof Entity.pk;\n  declare static process: typeof Entity.process;\n  declare pk: () => string;',
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it('keeps the loop when a field without a value hides pk()', () => {
+        expect(run('  pk: any;')).toContain('rows.forEach(');
+      });
+    });
+
     describe('keeps set() loops of an Entity that code patches', () => {
       const save = `
 export function save(ctrl, rows: any[]) {

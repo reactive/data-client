@@ -2607,6 +2607,8 @@ const ARGS_FREE = { staticPk: 3, pk: 2, process: 3 };
 /** Whether a pk() or process() member declares at most `max` parameters and never reads `arguments` */
 function paramsWithin(node, max) {
   const fn = node.type === 'ClassMethod' ? node : node.value;
+  // `declare static pk: ...` only types the inherited member, but a bare `pk;` field sets it to undefined
+  if (!fn) return !!node.declare;
   if (!(fn.type === 'ClassMethod' ? fn.kind === 'method' : isFunction(fn)))
     return false;
   // a TypeScript `this` parameter isn't one
