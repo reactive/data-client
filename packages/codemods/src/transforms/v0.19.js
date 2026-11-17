@@ -2684,6 +2684,7 @@ const ENTITY_HOOKS = new Set([
   'mergeMetaWithStore',
   'shouldUpdate',
   'shouldReorder',
+  'indexes',
 ]);
 
 /** Whether a key named `name` can be an Entity hook: a hook's name, or a computed key it doesn't spell out, like

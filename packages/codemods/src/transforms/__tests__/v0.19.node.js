@@ -3692,6 +3692,16 @@ Array.of(Todo)[0].shouldUpdate = () => false;`,
 }`,
         ],
         [
+          'a static method setting indexes on this',
+          `class Todo extends Entity {
+  id = 0;
+  static configure() {
+    this.indexes = ['title'];
+  }
+}
+Todo.configure();`,
+        ],
+        [
           'a static method writing super',
           `class Todo extends Entity {
   id = 0;
