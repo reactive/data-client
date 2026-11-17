@@ -127,6 +127,9 @@ const isNullish = node =>
 const isGetDefaultManagersCall = node =>
   node.type === 'CallExpression' && isId(node.callee, 'getDefaultManagers');
 
+const isCall = node =>
+  node.type === 'CallExpression' || node.type === 'OptionalCallExpression';
+
 const isMember = node =>
   node?.type === 'MemberExpression' ||
   node?.type === 'OptionalMemberExpression';
@@ -1225,7 +1228,7 @@ const returnsOwnMiddleware = member => {
 
 /** `x.getMiddleware()`, `x?.getMiddleware()` or `x['getMiddleware']()` */
 const isGetMiddlewareCall = node =>
-  (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') &&
+  isCall(node) &&
   !node.arguments.length &&
   memberName(node.callee) === 'getMiddleware';
 
@@ -2103,8 +2106,7 @@ const ENDPOINT_RUNNERS = new Set([
 function isRun(path) {
   const parent = path.parent.node;
   return (
-    (parent.type === 'CallExpression' ||
-      parent.type === 'OptionalCallExpression') &&
+    isCall(parent) &&
     (parent.callee === path.node ||
       (parent.arguments[0] === path.node &&
         ENDPOINT_RUNNERS.has(calleeName(parent))))
@@ -2714,7 +2716,8 @@ function takesAtMost(fn, max) {
   );
 }
 
-/** Whether a pk() or process() member declares at most `max` parameters and calls no code the module declares.
+/** Whether a pk() or process() member declares at most `max` parameters, calls no code the module declares
+ * and, if static, reads no variable that can change between rows (namesMutableState()).
  * A batch runs it for every row before any write, while one set() per row runs it after the earlier rows are
  * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. */
 function hookWithin(j, member, max, file, seen) {
@@ -3581,7 +3584,8 @@ function readsOnlyArray(j, path, binding) {
     return (
       ARRAY_READS.has(memberName(parent)) &&
       // a callback gets the array as its third argument, so it must be one that can't use it: an inline function
-      // with at most two parameters, or a global or import like `String`
+      // with at most two parameters, or a global or import like `String`. A variable could hold a function the
+      // module declares, so `rows.includes(id)` with a local `id` keeps the loop too.
       childPaths(holder.get('arguments')).every(
         arg =>
           isLiteralValue(arg.node) ||
@@ -3591,9 +3595,6 @@ function readsOnlyArray(j, path, binding) {
     );
   });
 }
-
-const isCall = node =>
-  node.type === 'CallExpression' || node.type === 'OptionalCallExpression';
 
 const LITERALS = new Set([
   'StringLiteral',
@@ -3816,7 +3817,8 @@ const isStaticGetter = member => member.kind === 'get';
 /** Whether the variable at `path` can hold something with a getter the module declares. It can't when it is a
  * global or an import, a class whose chain declares no static getter, or a `const` set to plain data
  * (`{ count: 1 }`) or to what a global or import returns (`Date.now()`, `await fetch(url)`, `res.json()` of
- * such a `res`). Anything else counts as one that can, except a parameter, which the module can't see into. */
+ * such a `res`) that the module doesn't give one later (gainsLocalGetter()). Anything else counts as one that
+ * can, such as `const { live } = cfg`, except a parameter, which the module can't see into. */
 function holdsLocalGetter(j, path, file, depth = 0) {
   if (isLibraryName(path)) return false;
   if (depth > MAX_CHAIN) return true;
@@ -3824,19 +3826,74 @@ function holdsLocalGetter(j, path, file, depth = 0) {
   const owner = binding.parent;
   if (owner.node.type === 'ClassDeclaration' && owner.node.id === binding.node)
     return declaresStatic(j, path, file, isStaticGetter, true);
-  if (owner.node.type !== 'VariableDeclarator')
-    // a function's own members, or a parameter
-    return (
-      owner.node.type === 'FunctionDeclaration' &&
-      owner.node.id === binding.node
-    );
+  if (
+    owner.node.type !== 'VariableDeclarator' ||
+    owner.node.id !== binding.node
+  )
+    return !isParameter(binding);
   // `declare const url: string` is a global
   if (owner.parent.node.declare) return false;
   if (owner.parent.node.kind !== 'const' || !owner.node.init) return true;
   const init = unwrapPath(owner.get('init'));
   if (init.node.type === 'ClassExpression')
     return declaresStatic(j, path, file, isStaticGetter, true);
-  return mayHoldLocalGetter(j, init, file, depth + 1);
+  return (
+    mayHoldLocalGetter(j, init, file, depth + 1) ||
+    gainsLocalGetter(j, path, binding, file, depth + 1)
+  );
+}
+
+// nodes between a destructured name and the declaration that holds the pattern
+const DESTRUCTURING = new Set([
+  ...PATTERNS,
+  'ObjectProperty',
+  'Property',
+  'AssignmentPattern',
+  'TSParameterProperty',
+]);
+
+/** Whether `binding` is a function's parameter, also when destructured, like `live` in `function f({ live })` */
+function isParameter(binding) {
+  let path = binding;
+  while (DESTRUCTURING.has(path.parent.node.type)) path = path.parent;
+  return path.parent.node.params?.includes(path.node) ?? false;
+}
+
+/** Whether code in the module can give the `const` at `binding` a getter after it is set: by storing one in it
+ * (`history.push({ get count() {} })`, `cfg.live = live`), or by handing the value on, so other code can
+ * (`stash(cfg.live)`, `const ref = cfg.live`, `for (const x of history)`). Reading members, and method calls
+ * given only values that hold no getter (`history.at(0)`, `res.json()`), can't. Other modules can when it is
+ * exported. */
+function gainsLocalGetter(j, path, binding, file, depth) {
+  if (isExported(binding)) return true;
+  const holds = arg => mayHoldLocalGetter(j, arg, file, depth + 1);
+  return moduleUsesOf(j, path, binding).some(use => {
+    const parent = use.parent.node;
+    if (parent.type === 'TSTypeQuery') return false;
+    if (!isMember(parent) || parent.object !== use.node) return true;
+    const chain = memberChainOf(use);
+    const holder = chain.parent;
+    const { type } = holder.node;
+    if (isWriteTarget(chain))
+      return (
+        type !== 'UpdateExpression' &&
+        type !== 'UnaryExpression' &&
+        (type !== 'AssignmentExpression' || holds(holder.get('right')))
+      );
+    if (isCall(holder.node) || type === 'NewExpression') {
+      const args = childPaths(holder.get('arguments'));
+      if (holder.node.callee === chain.node) return args.some(holds);
+      let root = unwrapPath(holder.get('callee'));
+      while (isMember(root.node)) root = unwrapPath(root.get('object'));
+      // `String(cfg.n)` can't store a getter in it, but `stash(cfg.live)` or `Object.assign(cfg.live, live)` can
+      return (
+        root.node.type !== 'Identifier' ||
+        !isLibraryName(root) ||
+        args.some(arg => arg.node !== chain.node && holds(arg))
+      );
+    }
+    return type === 'VariableDeclarator' || type === 'AssignmentExpression';
+  });
 }
 
 /** Whether the value of the expression at `path` can have a getter the module declares (holdsLocalGetter()) */

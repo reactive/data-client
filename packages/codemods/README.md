@@ -22,14 +22,28 @@ For `v0.19`, `--deprecations=false` skips deprecated APIs and `--deprecations=on
 their own commit. `--improvements=only` makes optional rewrites that adopt 0.19 features once you've upgraded: loops
 that call `ctrl.set()` once per row become one [batch `set()`](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
 and code that worked around older limits, like `computed()` around Vue composable args, is simplified. A batch runs only
-`if (rows.length)` (unless its list is an array literal without a spread). It keeps loops whose Entity has
-`static indexes`, decorators, hooks that read args, a `pk()` or `process()` that calls a function the file declares
-(it could read the store), or instance code (constructor, method, getter, setter or field value) that names one,
-reaches `this.constructor` or `new.target`, or calls an overridden `fromJS()`. It keeps a loop whose row reads a
-member of something that could have a getter the file declares (`this`, or a variable not set to plain data or to
-what a global or import returns), or whose parsed array the file changes, exports or passes to a callback. But a file the codemod didn't read can still patch
-the Entity.
-Three things differ from the loop:
+`if (rows.length)` (unless its list is an array literal without a spread).
+
+A batch builds every row and runs `pk()` and `process()` before it writes, so the codemod keeps a loop when that could
+read the store or state that changes between rows. It keeps loops:
+
+- whose receiver isn't `ctrl`, `controller` or the result of `useController()`;
+- whose row could be an updater function: anything but an object literal, a row of a `JSON.parse()` array (without a
+  reviver) that the file only reads and doesn't export, or a value typed as the Entity or a plain object type;
+- whose row value calls a function the file declares, passes a call anything but the row, literals and `const`s set
+  to a literal, or reads a member of something that could have a getter the
+  file declares: `this`, or a variable not set to plain data or to what a global or import returns, or one the file
+  stores anything else in;
+- whose Entity isn't declared in the file or imported from a relative path or tsconfig alias, or has
+  `static indexes`, decorators, hooks that read args, or an override of `validate()` or a store-merge method;
+- whose Entity's `pk()` or `process()` calls a function the file declares (it could read the store) or reads a
+  variable that can change between rows (`let seq`);
+- whose Entity's instance code (constructor, method, getter, setter or field value) names a function the file
+  declares, reaches `this.constructor` or `new.target`, or calls an overridden `fromJS()`;
+- whose Entity's static members the files it reads change, or which they pass to a function outside `@data-client`.
+
+It reads only the Entity's file, the loop's file, barrels between them and the files the schema imports, so a file the
+codemod didn't read can still patch the Entity. Three things differ from the loop:
 
 - The batch dispatches one SET action whose `action.schema` is `[Entity]` instead of one per row, so Managers that
   match `action.schema` should check `action.schema[0]`.

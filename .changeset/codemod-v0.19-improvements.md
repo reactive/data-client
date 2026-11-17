@@ -10,27 +10,12 @@ the same, apart from the differences noted below:
 
 - A loop that calls `ctrl.set()` once per row becomes one
   [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. The loop can be
-  `for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`. The codemod batches it only when all of these
-  hold:
-  - The receiver is a Controller: `ctrl`, `controller` or the result of `useController()`.
-  - Each row is plain data, not an updater function: an object literal, a row of `JSON.parse()` without a reviver
-    whose array the file only reads and doesn't export, or a value typed as the Entity or a plain object type.
-  - The row calls only globals, imports and methods of values built from the row. Their arguments use only the row,
-    literals and `const`s set to a literal. It reads members only of the row, globals, imports, `const`s of plain
-    data, classes with no static getter, and what globals and imports return, so it can't run a getter the file
-    declares (`this.count`, `live.count`). Loop variable defaults are literals, names, or arrays and objects of
-    them.
-  - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
-  - Its `pk()` and `process()` read only the row, call only globals, imports and methods of the row, and read no
-    variable that can change between rows (`let seq`). Its instance code (constructor, methods, getters, setters and
-    field values, which `pk()` can reach through `this`) names only types, globals, imports, its own variables,
-    `const`s set to a literal, plain data nothing changes and Entity classes it constructs (`author = User.fromJS()`,
-    if no class in its chain overrides `fromJS()`), and never reaches static members (`this.constructor` or
-    `new.target`). It has no `static indexes` and no decorators, and overrides neither `validate()` nor the
-    store-merge methods.
-  - No code the codemod reads changes its static members or passes the class to a function outside `@data-client`:
-    its own file, the loop's file, a barrel it is imported through, and the files its schema imports. Check that no
-    other file patches a batched Entity.
+  `for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`. The codemod batches it only when each row is
+  plain data and nothing the loop runs (the row's value, the Entity's `pk()`, `process()` and instance code) can read
+  the store or state that changes between rows. The
+  [codemods README](https://github.com/reactive/data-client/tree/master/packages/codemods#readme) lists what it
+  keeps as a loop. It reads only the Entity's file, the loop's file, barrels between them and the files the schema
+  imports, so check that no other file patches a batched Entity.
 
   A batch over a list that can be empty is guarded with `if (rows.length)`, so an empty list still dispatches nothing.
   Three things differ from the loop:

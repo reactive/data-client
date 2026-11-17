@@ -3460,6 +3460,36 @@ const key = () => 'count';`,
           'const live = Object.freeze({ get count() { return currentCount(); } });',
           'live.count',
         ],
+        [
+          'a getter pushed into a plain array',
+          'const history: any[] = [];\nhistory.push({ get count() { return currentCount(); } });\nconst latest = history.at(0);',
+          'latest.count',
+        ],
+        [
+          'an element of a plain array given a getter',
+          'const history: any[] = [];\nhistory.push({ get count() { return currentCount(); } });',
+          'history[0].count',
+        ],
+        [
+          'a getter assigned into a plain object',
+          'const cfg: any = {};\ncfg.live = { get count() { return currentCount(); } };',
+          'cfg.live.count',
+        ],
+        [
+          'a getter a local function stores in a plain object',
+          'const cfg: any = {};\nfunction stash(o: any) { o.live = { get count() { return currentCount(); } }; }\nstash(cfg);',
+          'cfg.live.count',
+        ],
+        [
+          'a getter stored in what a global returns',
+          'declare const url: string;\nconst page = await (await fetch(url)).json();\npage.live = { get count() { return currentCount(); } };',
+          'page.live.count',
+        ],
+        [
+          'a destructured object getter',
+          'const cfg = { live: { get count() { return currentCount(); } } };\nconst { live } = cfg;',
+          'live.count',
+        ],
       ])('keeps a value that reads %s', (_, setup, read) => {
         expect(
           run(
@@ -3507,6 +3537,16 @@ const key = () => 'count';`,
             'const DEFAULTS = { count: 1 };',
             `for (const row of JSON.parse(text))
     await ctrl.set(Todo, { ...row, count: DEFAULTS.count, type: Todo.key });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('batches a value that reads plain data the module changes only with plain data', () => {
+        expect(
+          run(
+            'const history = [{ count: 1 }];\nhistory.push({ count: 2 });\nhistory[0].count++;\nconst latest = history.at(0);',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: latest.count + history[1].count });`,
           ),
         ).toContain('await ctrl.set([Todo], Array.from(');
       });
