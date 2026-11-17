@@ -219,10 +219,10 @@ release post's example; read it when a rewrite or a judgment call below is uncle
 
 - A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
   [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`. Only
-  when each row is plain data (an object literal, a row of parsed JSON, or typed as the Entity or a plain object
-  type) that calls only globals, imports and methods of values built from the row, with arguments built from the row,
-  literals and `const`s set to a literal, never an updater function, and the Entity's `pk()` and `process()` read
-  only the row and it overrides neither `validate()` nor the store-merge methods (`shouldUpdate()`,
+  when each row is plain data (an object literal, a row of `JSON.parse()` without a reviver, or typed as the Entity
+  or a plain object type) that calls only globals, imports and methods of values built from the row, with arguments
+  built from the row, literals and `const`s set to a literal, never an updater function, and the Entity's `pk()` and
+  `process()` read only the row and it overrides neither `validate()` nor the store-merge methods (`shouldUpdate()`,
   `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`), and nothing in the Entity's file or the loop's file
   changes the class's static members. It reads only those files and the files its schema imports, so check that no
   other file patches a batched Entity. Each batch dispatches one SET action whose `action.schema` is the Array
@@ -241,14 +241,14 @@ release post's example; read it when a rewrite or a judgment call below is uncle
 Then, by judgment:
 
 - **Batch the `set()` loops it left** (`rg -n -B3 '\.set\(' <source-root>` near `for`, `forEach`, `map`): mixed
-  Entity types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an
-  `if` a `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list
-  when the Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch.
-  Keep a loop whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions,
-  and `unshift` (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message
-  buffers messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch
-  `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array body, since it
-  sends one request instead of N. Examples:
+  Entity types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an `if`
+  a `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list when the
+  Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch. Keep a loop
+  whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions or has a loop
+  variable default that calls code, and `unshift` (a list goes in as given, one per row reverses it). A Manager that
+  calls `set()` per message buffers messages and flushes them with one `set()` (skill "data-client-manager",
+  batching). Batch `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array
+  body, since it sends one request instead of N. Examples:
   [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
   [push a list](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list).
 - **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its

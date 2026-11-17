@@ -3246,6 +3246,53 @@ export async function save(ctrl, text: string) {
         ).toContain('await ctrl.set([Todo], Array.from(');
       });
 
+      it.each([
+        ['an optional call', 'count = currentCount?.(id)'],
+        ['an optional method call', 'count = counter?.next(id)'],
+        ['an update', 'count = n++'],
+        ['a computed key that calls a function', '[key()]: count = 0'],
+      ])('keeps a default or key with %s', (_, binding) => {
+        const loop = `for (const { id, ${binding} } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count: count + 1 });`;
+        expect(
+          run(
+            `function currentCount(id: string) {
+  return id.length;
+}
+const counter = { next: (id: string) => id.length };
+let n = 0;
+const key = () => 'count';`,
+            loop,
+          ),
+        ).toContain('for (const {');
+      });
+
+      it('batches defaults that are references and literals', () => {
+        expect(
+          run(
+            'const NONE = 0;',
+            `for (const { id, count = NONE, tags = [], ['a']: a = '' } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count, tags, a });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it.each([
+        [
+          'through Object.values()',
+          `Object.values(JSON.parse(text, (key, value) => value)).forEach(row =>
+    ctrl.set(Todo, { id: 'a' }, row),
+  );`,
+        ],
+        [
+          'through a spread',
+          `const args = [text, (key, value) => value] as const;
+  for (const row of JSON.parse(...args)) await ctrl.set(Todo, row);`,
+        ],
+      ])('keeps rows that JSON.parse() builds with a reviver %s', (_, loop) => {
+        expect(run('', loop)).not.toContain('ctrl.set([Todo]');
+      });
+
       it('keeps rows that JSON.parse() builds with a reviver', () => {
         expect(
           run(

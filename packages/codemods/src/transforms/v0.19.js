@@ -3103,6 +3103,11 @@ const ARRAY_FACTORIES = new Map([
   // a loop over a parsed object throws, and a set() per character or digit writes no rows
   ['JSON', new Set(['parse'])],
 ]);
+/** `JSON.parse(text)` with no reviver, which could return functions that a one-row set() calls as updaters */
+const isPlainParse = node =>
+  isId(node.callee.object, 'JSON') &&
+  node.arguments.length === 1 &&
+  node.arguments[0].type !== 'SpreadElement';
 // array methods that return an array
 const ARRAY_METHODS = new Set([
   'map',
@@ -3120,7 +3125,7 @@ const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
 
 /** Whether the expression at `path` is an array, since a batch set() reads only arrays and plain objects, so
  * a Set or Map loops differently. Returns what is known about its elements: `{ data: true }` for parsed
- * JSON, which holds no functions, or `{ element }`, their declared type. */
+ * JSON with no reviver, which holds no functions, or `{ element }`, their declared type. */
 function arrayOf(path, depth = 0) {
   const { node } = path;
   if (depth > 5 || !node) return;
@@ -3139,15 +3144,12 @@ function arrayOf(path, depth = 0) {
       !bindingOf(object)
     )
       return (
-        (
-            // a reviver can return functions, which a one-row set() calls as updaters
-            (object.node.name === 'JSON' && node.arguments.length === 1) ||
-              (method === 'values' &&
-                arrayOf(path.get('arguments', 0), depth + 1)?.data)
-          ) ?
-            { data: true }
-          : {}
-      );
+          isPlainParse(node) ||
+            (method === 'values' &&
+              arrayOf(path.get('arguments', 0), depth + 1)?.data)
+        ) ?
+          { data: true }
+        : {};
     const array = ARRAY_METHODS.has(method) && arrayOf(object, depth + 1);
     return array && (ELEMENT_METHODS.has(method) ? array : {});
   }
@@ -3205,6 +3207,26 @@ function isPure(node) {
 }
 
 /** The names a loop variable or callback parameter binds */
+/** Whether every default and computed key in a binding `pattern` is pure, like `{ id, tags = [] }` */
+function isPurePattern(pattern) {
+  switch (pattern?.type) {
+    case 'ObjectPattern':
+      return pattern.properties.every(p =>
+        p.type === 'RestElement' ?
+          isPurePattern(p.argument)
+        : (!p.computed || isPure(p.key)) && isPurePattern(p.value),
+      );
+    case 'ArrayPattern':
+      return pattern.elements.every(isPurePattern);
+    case 'RestElement':
+      return isPurePattern(pattern.argument);
+    case 'AssignmentPattern':
+      return isPure(pattern.right) && isPurePattern(pattern.left);
+    default:
+      return true;
+  }
+}
+
 function patternNames(pattern, names = new Set()) {
   if (!pattern) return names;
   switch (pattern.type) {
@@ -3369,14 +3391,6 @@ function callsLocalCode(j, path, names) {
   );
 }
 
-const PARAM_CALLS = new Set([
-  'CallExpression',
-  'NewExpression',
-  'TaggedTemplateExpression',
-  'AwaitExpression',
-  'YieldExpression',
-]);
-
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)` */
 function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
@@ -3402,8 +3416,8 @@ function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
     (extra && !isPure(extra)) ||
     !mentions(value) ||
     isFunction(value) ||
-    // a default or computed key in the loop variable runs per row, before any write in a batch
-    containsNode(param, n => PARAM_CALLS.has(n.type)) ||
+    // a batch evaluates the loop variable's defaults for every row before any write
+    !isPurePattern(param) ||
     containsNode(
       value,
       n =>
