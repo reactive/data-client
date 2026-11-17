@@ -2860,7 +2860,7 @@ export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
   todos.forEach(todo => ctrl.set(User, todo.author));
 }
 export function deleteTodos(ctrl: Controller, ids: string[]) {
-  ctrl.set([new Invalidate(Todo)], ids.map(id => ({ id })));
+  ctrl.set([new Invalidate(Todo)], Array.from(ids, id => ({ id })));
 }
 export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
   const rows = [{ product_id: 'BTC', price: 1 }];

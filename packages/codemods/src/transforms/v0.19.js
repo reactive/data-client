@@ -3256,7 +3256,7 @@ const oneElement = node =>
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)` */
-function batchSetOf(j, file, { rows, param, call }) {
+function batchSetOf(j, file, { rows, param, call, iterates = false }) {
   const args = call.node.arguments;
   if (
     args.length < 2 ||
@@ -3297,17 +3297,24 @@ function batchSetOf(j, file, { rows, param, call }) {
   const batch = batchSchemaOf(j, file, call);
   if (!batch) return;
   value = batch.value ?? value;
+  if (param.type === 'Identifier' && isId(value, param.name))
+    return j.callExpression(call.node.callee, [batch.schema, rows.node]);
+  const mapper = j.arrowFunctionExpression(
+    [param],
+    // keeps `({ id })` on one line
+    value.type === 'ObjectExpression' ?
+      j.parenthesizedExpression(value)
+    : value,
+  );
+  // for...of visits a sparse array's holes, which map() skips
   const list =
-    param.type === 'Identifier' && isId(value, param.name) ?
-      rows.node
+    iterates ?
+      j.callExpression(
+        j.memberExpression(j.identifier('Array'), j.identifier('from')),
+        [rows.node, mapper],
+      )
     : j.callExpression(j.memberExpression(rows.node, j.identifier('map')), [
-        j.arrowFunctionExpression(
-          [param],
-          // keeps `({ id })` on one line
-          value.type === 'ObjectExpression' ?
-            j.parenthesizedExpression(value)
-          : value,
-        ),
+        mapper,
       ]);
   return j.callExpression(call.node.callee, [batch.schema, list]);
 }
@@ -3384,6 +3391,7 @@ function batchSets(j, root, file) {
         rows: path.get('right'),
         param: node.left.declarations[0].id,
         call: found.call,
+        iterates: true,
       });
     if (!call) return;
     replaceLoop(j, path, call, found.awaited, node.body.body?.[0]);
