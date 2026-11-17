@@ -100,6 +100,8 @@ const POSITIONAL_CALLS = new Map([
 ]);
 
 const isId = (node, name) => node?.type === 'Identifier' && node.name === name;
+const isThisOrSuper = node =>
+  node.type === 'ThisExpression' || node.type === 'Super';
 
 const isProperty = node =>
   node?.type === 'ObjectProperty' || node?.type === 'Property';
@@ -2740,8 +2742,7 @@ const CLASS_LINKS = new Set(['constructor', 'prototype', 'schema']);
  * `const self = this`. A class a module names has its writes followed by writesMembersOf() instead. */
 function mayHoldClass(path, depth = 0) {
   const { node } = path;
-  const isThis = n => n.type === 'ThisExpression' || n.type === 'Super';
-  if (isThis(node)) return inStaticMember(path);
+  if (isThisOrSuper(node)) return inStaticMember(path);
   if (isMember(node)) {
     let linked = false;
     let root = node;
@@ -2751,7 +2752,7 @@ function mayHoldClass(path, depth = 0) {
       if (CLASS_LINKS.has(name)) linked = true;
     }
     // an instance's own `this.schema` is not a class
-    const ofInstance = isThis(root) && !inStaticMember(path);
+    const ofInstance = isThisOrSuper(root) && !inStaticMember(path);
     return linked && !ofInstance;
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
@@ -3344,10 +3345,8 @@ function callsLocalCode(j, path, names) {
   };
   // whether the expression at `part` can name code the module declares
   const namesLocalCode = (part, allowed = isSafe) =>
-    containsNode(
-      part.node,
-      n => n.type === 'ThisExpression' || n.type === 'Super',
-    ) || identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
+    containsNode(part.node, isThisOrSuper) ||
+    identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
   const isArgSafe = p => isSafe(p) || isLiteralConst(p);
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
   return calls.some(type =>
@@ -3360,7 +3359,8 @@ function callsLocalCode(j, path, names) {
           tagged ? call.get('quasi', 'expressions') : call.get('arguments');
         return (
           namesLocalCode(call.get(tagged ? 'tag' : 'callee')) ||
-          argList.map(arg => namesLocalCode(arg, isArgSafe)).includes(true)
+          // a NodePath of a list has map() but not some()
+          argList.map(arg => arg).some(arg => namesLocalCode(arg, isArgSafe))
         );
       }),
   );
