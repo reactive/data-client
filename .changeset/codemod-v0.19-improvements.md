@@ -16,9 +16,9 @@ the same, apart from the two batch differences below:
   file or imported from a relative path or tsconfig alias whose `pk()` and `process()` read only the row, that
   overrides neither `validate()` nor the store-merge methods, and whose static members neither its own file nor the
   loop's file changes. It reads only those files and the files its schema imports, so check that no other file patches
-  a batched Entity. Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`, and a
-  row whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the
-  other rows.
+  a batched Entity. Managers that match SET actions by `action.schema` now see one `[Ticker]` action instead of one
+  `Ticker` action per row, even for an empty list, and a row whose `pk()` or `process()` throws makes the whole batch
+  write nothing, where the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
   ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default

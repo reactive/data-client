@@ -23,8 +23,9 @@ their own commit. `--improvements=only` makes optional rewrites that adopt 0.19 
 the store ends up the same for valid rows, unless a file the codemod didn't read patches the Entity: loops that call
 `ctrl.set()` once per row become one [batch `set()`](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
 and code that worked around older limits, like `computed()` around Vue composable args, is simplified. A batch
-dispatches one SET action whose `action.schema` is `[Entity]` instead of one per row, so Managers that match
-`action.schema` should check `action.schema[0]`, and a row whose `pk()` or `process()` throws makes the whole batch
-write nothing, where the loop still wrote some of the other rows. It processes JavaScript and TypeScript files and
-skips `node_modules`. Other [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through,
-such as `--dry` and `--print` to preview changes, or `--extensions` to override the file types.
+dispatches one SET action whose `action.schema` is `[Entity]` instead of one per row (and one for an empty list), so
+Managers that match `action.schema` should check `action.schema[0]`, and a row whose `pk()` or `process()` throws
+makes the whole batch write nothing, where the loop still wrote some of the other rows. It processes JavaScript and
+TypeScript files and skips `node_modules`. Other
+[jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through, such as `--dry` and `--print`
+to preview changes, or `--extensions` to override the file types.
