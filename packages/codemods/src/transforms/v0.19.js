@@ -2667,52 +2667,92 @@ const classBindingOf = path =>
 // member writes found per class binding
 const memberWrites = new WeakMap();
 
-const CASTS = new Set([
-  'TSAsExpression',
-  'TSSatisfiesExpression',
-  'TSNonNullExpression',
-  'TSTypeAssertion',
-  'ParenthesizedExpression',
-]);
-
-/** Whether a use of a class only reads it or names it in a schema, call or type: `Todo.key`, `[Todo]`,
- * `{ todo: Todo }`, `ctrl.set(Todo, row)`, `extends Todo`, `Todo[]` */
-function readsClass(path) {
+/** Whether a use of a class only reads it or names it in a schema, call or type: `Todo.key`, `new Todo()`,
+ * `ctrl.set(Todo, row)`, `static schema = { todos: [Todo] }`, `extends Todo`, `Todo[]`. A `const` holding
+ * it, like `const list = [Todo]`, reads it when each of its uses does. */
+function readsClass(j, path, depth = 0) {
   const chain = memberChainOf(path);
   const parent = chain.parent.node;
+  // a member read that isn't a write, cast or alias, which could reach a member write later
   if (chain !== path)
     return (
       !isWriteTarget(chain) &&
-      !CASTS.has(parent.type) &&
+      !PASS_THROUGH.has(parent.type) &&
       !(parent.type === 'VariableDeclarator' && parent.init === chain.node) &&
       !(
         parent.type === 'AssignmentExpression' && parent.right === chain.node
       ) &&
       !isObjectOrReflectTarget(chain)
     );
-  switch (parent.type) {
+  const outer = literalHolding(path);
+  const holder = outer.parent.node;
+  switch (holder.type) {
     case 'CallExpression':
     case 'NewExpression':
-      return parent.callee !== path.node && !isObjectOrReflectTarget(path);
-    case 'ArrayExpression':
+      return holder.callee === outer.node || passesToLibrary(outer);
+    case 'VariableDeclarator': {
+      const id = outer.parent.get('id');
+      if (
+        holder.init !== outer.node ||
+        id.node.type !== 'Identifier' ||
+        outer.parent.parent.node.kind !== 'const' ||
+        depth > 3
+      )
+        return false;
+      let top = outer;
+      while (top.parent) top = top.parent;
+      return usesOf(j, j(top), bindingOf(id)).every(p =>
+        readsClass(j, p, depth + 1),
+      );
+    }
+    case 'ClassProperty':
+    case 'PropertyDefinition':
+      return holder.value === outer.node;
+    case 'ReturnStatement':
+      return true;
+    case 'AssignmentExpression':
+      return holder.right === outer.node && isMember(holder.left);
     case 'ExportSpecifier':
     case 'TSTypeReference':
     case 'TSTypeQuery':
     case 'TSQualifiedName':
       return true;
-    case 'ObjectProperty':
-    case 'Property':
-      return parent.value === path.node && !parent.computed;
     case 'ClassDeclaration':
     case 'ClassExpression':
-      return parent.superClass === path.node;
+      return holder.superClass === outer.node;
     default:
       return false;
   }
 }
 
+/** The outermost array or object literal that holds `path` as an element or property value, or `path` */
+function literalHolding(path) {
+  let p = path;
+  for (;;) {
+    const parent = p.parent.node;
+    if (parent.type === 'ArrayExpression') p = p.parent;
+    else if (
+      (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
+      parent.value === p.node &&
+      !parent.computed
+    )
+      p = p.parent.parent;
+    else return p;
+  }
+}
+
+/** Whether the call that takes `path` as an argument can't write to it: its callee is neither `Object.*()`
+ * nor `Reflect.*()`, nor a function or class this module declares, which could patch its parameter */
+function passesToLibrary(path) {
+  if (isObjectOrReflectTarget(path)) return false;
+  const callee = path.parent.get('callee');
+  if (callee.node.type !== 'Identifier') return true;
+  const binding = bindingOf(callee);
+  return !binding || binding.parent.node.type.startsWith('Import');
+}
+
 /** Whether `path` is the first argument of an `Object.*()` or `Reflect.*()` call, which can write to it */
-const isObjectOrReflectTarget = path => {
+function isObjectOrReflectTarget(path) {
   const parent = path.parent.node;
   return (
     parent.type === 'CallExpression' &&
@@ -2721,18 +2761,19 @@ const isObjectOrReflectTarget = path => {
     (isId(parent.callee.object, 'Object') ||
       isId(parent.callee.object, 'Reflect'))
   );
-};
+}
 
 /** Whether the module that declares or imports `binding` could write to the class's members, which can add
  * what the class body doesn't show: any use other than a read, like `Todo.schema = { child }`,
- * `(Todo as any).process = ...`, `Object.assign(Todo, ...)` or an alias `const T = Todo` */
+ * `(Todo as any).process = ...`, `Object.assign(Todo, ...)`, `patch(Todo)` with a local `patch()`, or a write
+ * through an alias like `const list = [Todo]` */
 function writesMembersOf(j, binding) {
   if (!memberWrites.has(binding.node)) {
     let top = binding;
     while (top.parent) top = top.parent;
     memberWrites.set(
       binding.node,
-      usesOf(j, j(top), binding).some(p => !readsClass(p)),
+      usesOf(j, j(top), binding).some(p => !readsClass(j, p)),
     );
   }
   return memberWrites.get(binding.node);
@@ -2997,13 +3038,16 @@ function isController(path) {
  * a function doesn't have, unlike `{}` or `{ name?: string }` */
 const isPlainObjectType = type =>
   type.members.every(m => m.type === 'TSPropertySignature') &&
-  type.members.some(
-    m =>
+  type.members.some(m => {
+    const key = keyName(m);
+    // a function's own keys: those it inherits, and `prototype`
+    return (
       !m.optional &&
       !m.computed &&
-      !(keyName(m) in Function.prototype) &&
-      keyName(m) !== 'prototype',
-  );
+      !(key in Function.prototype) &&
+      key !== 'prototype'
+    );
+  });
 
 /** Whether `value` is row data and never an updater function, which set() would call with the stored value
  * where a batch normalizes it: an object or array literal, a row of parsed JSON, or a row of an array typed as

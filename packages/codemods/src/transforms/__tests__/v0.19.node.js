@@ -2912,6 +2912,17 @@ class Patched extends Entity { id = 0; }
 Reflect.set(Patched, 'shouldUpdate', () => false);
 class Cast extends Entity { id = 0; }
 (Cast as any).process = (input, parent) => ({ ...input, parent });
+class Listed extends Entity { id = 0; }
+const listed = [Listed];
+listed[0].schema = { child: Slugged };
+class Held extends Entity { id = 0; }
+const holder = { held: Held };
+holder.held.shouldUpdate = () => false;
+class Attached extends Entity { id = 0; }
+function attach(Cls) {
+  Cls.schema = { child: Slugged };
+}
+attach(Attached);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2921,9 +2932,9 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(d => ctrl.set(Plain, { id: makeId() }, d));
   rows.forEach(e => ctrl.set(Plain, { ...e, old: ctrl.get(Plain, e) }));
   rows.forEach(f => ctrl.set(Plain, { id: f.id }, prev => ({ ...prev, ...f })));
-  rows.forEach(g => ctrl.set(Row, g));
+  rows.forEach(g => ctrl.set(Row, { id: g.id }));
   rows.forEach(h => ctrl.set(Slugged, { slug: h.slug }, h));
-  rows.forEach(k => ctrl.set(Checked, k));
+  rows.forEach(k => ctrl.set(Checked, { id: k.id }));
   rows.forEach(m => ctrl.set(PostResource.getList.schema.push, m));
   rows.forEach(n => ctrl.set(OtherResource.getList.schema.push, n));
   rows.forEach(o => ctrl.set(Plain.getList.schema.unshift, o));
@@ -2943,16 +2954,24 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(({ id, apply }) => ctrl.set(Plain, { id }, apply));
   const literal = [{ id: 1, apply: prev => prev }];
   literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
-  rows.forEach(w => ctrl.set(Versioned, w));
+  rows.forEach(w => ctrl.set(Versioned, { id: w.id }));
   const parsed = JSON.parse(data);
   parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
   parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
-  rows.forEach(n2 => ctrl.set(Aliased, n2));
-  rows.forEach(o2 => ctrl.set(Patched, o2));
-  rows.forEach(p2 => ctrl.set(Cast, p2));
+  rows.forEach(n2 => ctrl.set(Aliased, { id: n2.id }));
+  rows.forEach(o2 => ctrl.set(Patched, { id: o2.id }));
+  rows.forEach(p2 => ctrl.set(Cast, { id: p2.id }));
+  rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
+  rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
+  rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
+  const optional: { id?: number }[] = [];
+  optional.forEach(u2 => ctrl.set(Plain, u2));
+  const named: { name: string }[] = [];
+  named.forEach(v2 => ctrl.set(Plain, v2));
+  parsed.forEach(w2 => ctrl.set(Plain, w2.data));
   const empty: {}[] = [];
   empty.forEach(q2 => ctrl.set(Plain, q2));
-  rows.forEach(x => ctrl.set(Assigned, x));
+  rows.forEach(x => ctrl.set(Assigned, { id: x.id }));
 }
       `,
       `
@@ -2992,6 +3011,17 @@ class Patched extends Entity { id = 0; }
 Reflect.set(Patched, 'shouldUpdate', () => false);
 class Cast extends Entity { id = 0; }
 (Cast as any).process = (input, parent) => ({ ...input, parent });
+class Listed extends Entity { id = 0; }
+const listed = [Listed];
+listed[0].schema = { child: Slugged };
+class Held extends Entity { id = 0; }
+const holder = { held: Held };
+holder.held.shouldUpdate = () => false;
+class Attached extends Entity { id = 0; }
+function attach(Cls) {
+  Cls.schema = { child: Slugged };
+}
+attach(Attached);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -3001,9 +3031,9 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(d => ctrl.set(Plain, { id: makeId() }, d));
   rows.forEach(e => ctrl.set(Plain, { ...e, old: ctrl.get(Plain, e) }));
   rows.forEach(f => ctrl.set(Plain, { id: f.id }, prev => ({ ...prev, ...f })));
-  rows.forEach(g => ctrl.set(Row, g));
+  rows.forEach(g => ctrl.set(Row, { id: g.id }));
   rows.forEach(h => ctrl.set(Slugged, { slug: h.slug }, h));
-  rows.forEach(k => ctrl.set(Checked, k));
+  rows.forEach(k => ctrl.set(Checked, { id: k.id }));
   rows.forEach(m => ctrl.set(PostResource.getList.schema.push, m));
   rows.forEach(n => ctrl.set(OtherResource.getList.schema.push, n));
   rows.forEach(o => ctrl.set(Plain.getList.schema.unshift, o));
@@ -3023,19 +3053,57 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(({ id, apply }) => ctrl.set(Plain, { id }, apply));
   const literal = [{ id: 1, apply: prev => prev }];
   literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
-  rows.forEach(w => ctrl.set(Versioned, w));
+  rows.forEach(w => ctrl.set(Versioned, { id: w.id }));
   const parsed = JSON.parse(data);
   parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
   parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
-  rows.forEach(n2 => ctrl.set(Aliased, n2));
-  rows.forEach(o2 => ctrl.set(Patched, o2));
-  rows.forEach(p2 => ctrl.set(Cast, p2));
+  rows.forEach(n2 => ctrl.set(Aliased, { id: n2.id }));
+  rows.forEach(o2 => ctrl.set(Patched, { id: o2.id }));
+  rows.forEach(p2 => ctrl.set(Cast, { id: p2.id }));
+  rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
+  rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
+  rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
+  const optional: { id?: number }[] = [];
+  optional.forEach(u2 => ctrl.set(Plain, u2));
+  const named: { name: string }[] = [];
+  named.forEach(v2 => ctrl.set(Plain, v2));
+  parsed.forEach(w2 => ctrl.set(Plain, w2.data));
   const empty: {}[] = [];
   empty.forEach(q2 => ctrl.set(Plain, q2));
-  rows.forEach(x => ctrl.set(Assigned, x));
+  rows.forEach(x => ctrl.set(Assigned, { id: x.id }));
 }
       `,
       'keeps set() loops that a batch could write differently',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity, schema } from '@data-client/rest';
+
+class Todo extends Entity { id = 0; }
+const todoList = [Todo];
+const TodoCollection = new schema.Collection(todoList);
+export const blank = () => new Todo();
+
+export function save(ctrl, rows: Todo[]) {
+  rows.forEach(row => ctrl.set(Todo, row));
+}
+      `,
+      `
+import { Entity, schema } from '@data-client/rest';
+
+class Todo extends Entity { id = 0; }
+const todoList = [Todo];
+const TodoCollection = new schema.Collection(todoList);
+export const blank = () => new Todo();
+
+export function save(ctrl, rows: Todo[]) {
+  ctrl.set([Todo], rows);
+}
+      `,
+      'batches rows of an Entity that is constructed or held in a schema',
     );
 
     defineInlineTest(
