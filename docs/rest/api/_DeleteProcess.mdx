@@ -1,5 +1,8 @@
 ```ts
 (value, params) {
-  return value && Object.keys(value).length ? value : params;
+  // runs the resource's or Endpoint class's process() first
+  return value && Object.keys(value).length ?
+      super.process(value, params)
+    : params;
 },
 ```

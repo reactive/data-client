@@ -14,9 +14,7 @@ wherever it appears, including lists and nested data, use [Entity.process()](htt
 
 ## Snakes to camels
 
-Many APIs use `snake_case` keys. To use `camelCase` in TypeScript, transform the keys in both directions. A base class
-converts responses in [parseResponse()](./RestEndpoint.md#parseResponse), not `process()`, because
-[resource()](./resource.md)'s `delete` sets its own `process()`, which replaces the class's.
+Many APIs use `snake_case` keys. To use `camelCase` in TypeScript, transform the keys in both directions.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
@@ -42,8 +40,7 @@ class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     }
     return super.getRequestInit(body);
   }
-  async parseResponse(response) {
-    const value = await super.parseResponse(response);
+  process(value) {
     // a 204 response has no body
     return value && deeplyApplyKeyTransform(value, camelCase);
   }

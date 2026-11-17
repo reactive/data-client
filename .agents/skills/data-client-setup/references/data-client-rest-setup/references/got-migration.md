@@ -45,7 +45,7 @@ export const getUsers = new RestEndpoint({
 | `headers` option | `getHeaders()` |
 | `searchParams` | `searchParams` type (same concept, different runtime) |
 | `hooks.beforeRequest` | `getHeaders()` or `getRequestInit()` |
-| `hooks.afterResponse` | `parseResponse()` in the base class (`resource().delete` replaces a base `process()`) |
+| `hooks.afterResponse` | `process()` in the base class |
 | `hooks.beforeError` | `fetchResponse()` override |
 | `.json<T>()` | Automatic — RestEndpoint parses JSON by default |
 | `retry` (got retries by default) | Delete it: Data Client has no retry loop, and a failed request is fetched again when a component next needs it after `errorExpiryLength` (default 1 second). Tell the user that automatic retries are dropped |

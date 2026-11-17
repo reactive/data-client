@@ -636,14 +636,17 @@ import { PostResource } from './Resource';
 PostResource.delete({ group: 'react', id: '1' });
 ```
 
-|  Field  | Value                                                                                        |
-| :-----: | -------------------------------------------------------------------------------------------- |
-|  method | 'DELETE'                                                                                     |
-|   path  | [path](#path)                                                                                |
-|  schema | [new Invalidate(schema)](https://dataclient.io/rest/api/Invalidate)                          |
+|  Field  | Value                                                                                                                                                                                      |
+| :-----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|  method | 'DELETE'                                                                                                                                                                                   |
+|   path  | [path](#path)                                                                                                                                                                              |
+|  schema | [new Invalidate(schema)](https://dataclient.io/rest/api/Invalidate)                                                                                                                        |
 | process | ```ts
 (value, params) {
-  return value && Object.keys(value).length ? value : params;
+  // runs the resource's or Endpoint class's process() first
+  return value && Object.keys(value).length ?
+      super.process(value, params)
+    : params;
 },
 ``` |
 

@@ -84,6 +84,8 @@ This warning will not show in production.`,
   // Retype this if a future TypeScript resolves that conditional here.
   const extraBaseOptions: Record<string, any> = extraOptions;
   const extraMutateOptions = { ...extraBaseOptions };
+  const baseProcess: (...args: any) => any =
+    extraBaseOptions.process ?? Endpoint.prototype.process;
   const extraPartialOptions = { ...extraBaseOptions };
   const get: GetEndpoint<{ path: O['path']; schema: O['schema'] }> =
     new Endpoint({
@@ -144,8 +146,11 @@ This warning will not show in production.`,
       // a `body` in the resource's options is for its other mutations
       body: undefined,
       name: getName('delete'),
+      // keeps the resource's or base class's process(); an empty body becomes params
       process(res: any, params: any) {
-        return res && Object.keys(res).length ? res : params;
+        return res && Object.keys(res).length ?
+            baseProcess.call(this, res, params)
+          : params;
       },
       getOptimisticResponse: optimistic ? (optimisticDelete as any) : undefined,
     }),
