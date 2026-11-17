@@ -220,8 +220,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
 - A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
   [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`. Only
   when each row is plain data (an object literal, a row of parsed JSON, or typed as the Entity or a plain object
-  type) that calls no function the file declares, never an updater function, and the Entity's `pk()` and
-  `process()` read only the row and it overrides neither `validate()` nor the store-merge methods
+  type) that calls only globals, imports and methods of the row, never an updater function, and the Entity's `pk()`
+  and `process()` read only the row and it overrides neither `validate()` nor the store-merge methods
   (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`), and nothing in the Entity's
   file or the loop's file changes the class's static members. It reads only those files and the files its schema
   imports, so check that no other file patches a batched Entity. Each batch dispatches one SET action whose

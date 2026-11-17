@@ -3316,26 +3316,66 @@ const oneElement = node =>
     node.elements[0]
   : undefined;
 
-/** Whether the value at `path` calls code the module declares, other than methods of the row `names`, which
- * could read the store the earlier rows were written to: `{ ...row, count: currentCount(row.id) + 1 }` where
- * `currentCount()` calls `ctrl.get()` */
+/** Whether `path` names a function or class the module declares */
+function isLocalFunction(path) {
+  const binding = bindingOf(path);
+  const owner = binding?.parent?.node;
+  if (!owner || owner.id !== binding.node) return false;
+  if (owner.type === 'VariableDeclarator')
+    return (
+      !!owner.init &&
+      (isFunction(owner.init) || owner.init.type === 'ClassExpression')
+    );
+  return (
+    owner.type === 'FunctionDeclaration' || owner.type === 'ClassDeclaration'
+  );
+}
+
+/** Whether the value at `path` can run code the module declares, which could read the store the earlier rows
+ * were written to: `{ ...row, count: currentCount(row.id) + 1 }` where `currentCount()` calls `ctrl.get()`.
+ * A call is safe only on a global, an import, a literal, the row `names`, or a value the row value itself
+ * declares, like `tag` in `row.tags.map(tag => tag.trim())`; any other callee, like `this.format()` or
+ * `(cond ? a : b)()`, counts. */
 function callsLocalCode(j, path, names) {
+  const declaredInside = p => {
+    for (let q = p.scope?.lookup(p.node.name)?.path; q; q = q.parent)
+      if (q === path) return true;
+    return false;
+  };
+  // an identifier that names a variable, not a property
+  const isVariable = p => {
+    const parent = p.parent.node;
+    if (isMember(parent) && parent.property === p.node) return parent.computed;
+    if (isProperty(parent) && parent.key === p.node)
+      return parent.computed || parent.shorthand;
+    return true;
+  };
+  const safeRoot = root =>
+    root.node.type === 'Identifier' ?
+      names.has(root.node.name) || declaredInside(root) || isLibraryName(root)
+    : LITERALS.has(root.node.type) || root.node.type === 'TemplateLiteral';
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
-  return calls.some(type =>
-    j(path)
-      .find(type)
-      .some(p => {
-        let root = unwrapPath(
-          p.get(p.node.type === 'TaggedTemplateExpression' ? 'tag' : 'callee'),
-        );
-        while (isMember(root.node) || root.node.type === 'CallExpression')
-          root = unwrapPath(
-            root.get(isMember(root.node) ? 'object' : 'callee'),
+  return (
+    calls.some(type =>
+      j(path)
+        .find(type)
+        .some(p => {
+          let root = unwrapPath(
+            p.get(
+              p.node.type === 'TaggedTemplateExpression' ? 'tag' : 'callee',
+            ),
           );
-        if (root.node.type !== 'Identifier')
-          return root.node.type === 'ThisExpression';
-        return !names.has(root.node.name) && !isLibraryName(root);
-      }),
+          while (isMember(root.node) || root.node.type === 'CallExpression')
+            root = unwrapPath(
+              root.get(isMember(root.node) ? 'object' : 'callee'),
+            );
+          return !safeRoot(root);
+        }),
+    ) ||
+    // a local function passed along, like `[row.id].map(currentCount)`
+    j(path)
+      .find(j.Identifier)
+      .some(p => isVariable(p) && isLocalFunction(p))
   );
 }
 

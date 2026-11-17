@@ -3048,6 +3048,11 @@ export async function save(ctrl, rows: any[]) {
         ['a global', '{ id: String(row.id), at: new Date(row.at) }'],
         ['a method of the row', '{ id: row.id.trim() }'],
         ['an imported function', '{ id: toId(row) }'],
+        [
+          'a method of a callback parameter',
+          '{ id: row.id, tags: row.tags.map(tag => tag.trim()) }',
+        ],
+        ['a method of a literal', "{ id: 'todo-'.concat(row.id) }"],
       ])('batches rows that call %s', (_, value) => {
         expect(run('', value)).toContain('await ctrl.set([Todo], Array.from(');
       });
@@ -3061,6 +3066,27 @@ function currentCount(id: string) {
   return ctrl.get(Todo, { id }, ctrl.getState())?.count ?? 0;
 }`,
           '{ id: row.id, count: currentCount(row.id) + 1 }',
+        ],
+        [
+          'a function the module declares through a sequence',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, count: (0, currentCount)(row.id) }',
+        ],
+        [
+          'a function the module declares passed to map()',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, count: [row.id].map(currentCount)[0] }',
+        ],
+        [
+          'a class the module declares',
+          `class Counter {
+  constructor(public id: string) {}
+}`,
+          '{ id: new Counter(row.id).id }',
         ],
         [
           'a tagged template the module declares',
