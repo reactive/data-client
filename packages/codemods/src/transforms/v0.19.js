@@ -2667,7 +2667,10 @@ function hookWriteOf(path) {
     target = path.get('argument');
   if (target) {
     target = unwrapPath(target);
-    return isMember(target.node) && ENTITY_HOOKS.has(memberName(target.node)) ?
+    if (!isMember(target.node)) return;
+    const name = memberName(target.node);
+    // a computed key, like `this[name] = fn`, could be one
+    return name === undefined || ENTITY_HOOKS.has(name) ?
         unwrapPath(target.get('object'))
       : undefined;
   }
@@ -2678,31 +2681,43 @@ function hookWriteOf(path) {
     !(isId(node.callee.object, 'Object') || isId(node.callee.object, 'Reflect'))
   )
     return;
-  const [, key] = node.arguments;
-  const object = unwrapPath(path.get('arguments', 0));
-  let writes;
-  if (key?.type === 'ObjectExpression')
-    writes = key.properties.some(
-      p => !isProperty(p) || ENTITY_HOOKS.has(keyName(p)),
-    );
-  else if (memberName(node.callee) === 'assign')
-    // a source it doesn't spell out could hold hooks when it lands on a class, as in a static
-    // `Object.assign(this, mixin)`, but not on an instance, as in a constructor's `Object.assign(this, options)`
-    writes = !!key && (isMember(object.node) || inStaticMember(path));
-  // a key it doesn't spell out, like `Reflect.set(this, name, fn)`, could be one
-  else writes = typeof key?.value !== 'string' || ENTITY_HOOKS.has(key.value);
-  return writes ? object : undefined;
+  // Object.assign() copies every source after the target; the others take one key or descriptor map
+  const keys =
+    memberName(node.callee) === 'assign' ?
+      node.arguments.slice(1)
+    : node.arguments.slice(1, 2);
+  const writes = keys.some(key =>
+    key.type === 'ObjectExpression' ?
+      key.properties.some(p => !isProperty(p) || ENTITY_HOOKS.has(keyName(p)))
+      // a source or key it doesn't spell out, like `Object.assign(this, mixin)` or
+      // `Reflect.set(this, name, fn)`, could hold one
+    : typeof key.value !== 'string' || ENTITY_HOOKS.has(key.value),
+  );
+  return writes ? unwrapPath(path.get('arguments', 0)) : undefined;
 }
 
-/** Whether `this` at `path` is a class: inside a static member, and not inside a nested `function` */
+// class members whose `static` flag decides what `this` is inside them
+const THIS_MEMBERS = new Set([
+  ...CLASS_MEMBERS,
+  'ClassPrivateMethod',
+  'ClassPrivateProperty',
+  'ClassAccessorProperty',
+]);
+// functions with their own `this`
+const THIS_FUNCTIONS = new Set([
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ObjectMethod',
+]);
+
+/** Whether `this` at `path` is a class: inside a static member, and not inside a nested function or object
+ * method */
 function inStaticMember(path) {
   for (let p = path.parent; p; p = p.parent) {
     const { type } = p.node;
     if (type === 'StaticBlock') return true;
-    if (CLASS_MEMBERS.has(type) || type === 'ClassPrivateMethod')
-      return !!p.node.static;
-    if (type === 'FunctionDeclaration' || type === 'FunctionExpression')
-      return false;
+    if (THIS_MEMBERS.has(type)) return !!p.node.static;
+    if (THIS_FUNCTIONS.has(type)) return false;
   }
   return false;
 }
@@ -2710,16 +2725,23 @@ function inStaticMember(path) {
 // members that lead from a value to a class: `this.constructor`, `Todo.prototype`, `Parent.schema.leaf`
 const CLASS_LINKS = new Set(['constructor', 'prototype', 'schema']);
 
-/** Whether the object a write sets a hook on can be a class without naming it: `this` or `super`, a chain
- * through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like `const self = this`.
- * A class a module names has its writes followed by writesMembersOf() instead. */
+/** Whether the object a write sets a hook on can be a class without naming it: `this` or `super` in a static
+ * member, a chain through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like
+ * `const self = this`. A class a module names has its writes followed by writesMembersOf() instead. */
 function mayHoldClass(path, depth = 0) {
   const { node } = path;
-  if (node.type === 'ThisExpression' || node.type === 'Super') return true;
+  const isThis = n => n.type === 'ThisExpression' || n.type === 'Super';
+  if (isThis(node)) return inStaticMember(path);
   if (isMember(node)) {
-    for (let t = node; isMember(t); t = unwrap(t.object))
-      if (CLASS_LINKS.has(memberName(t))) return true;
-    return false;
+    let linked = false;
+    let root = node;
+    for (; isMember(root); root = unwrap(root.object)) {
+      const name = memberName(root);
+      if (name === 'constructor') return true;
+      if (CLASS_LINKS.has(name)) linked = true;
+    }
+    // an instance's own `this.schema` is not a class
+    return linked && !(isThis(root) && !inStaticMember(path));
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
   const binding = bindingOf(path);
@@ -3287,7 +3309,7 @@ const oneElement = node =>
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)` */
-function batchSetOf(j, file, { rows, param, call, iterates = false }) {
+function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
   const args = call.node.arguments;
   if (
     args.length < 2 ||
@@ -3339,7 +3361,7 @@ function batchSetOf(j, file, { rows, param, call, iterates = false }) {
   );
   // for...of visits a sparse array's holes, which map() skips
   const list =
-    iterates ?
+    keepHoles ?
       j.callExpression(
         j.memberExpression(j.identifier('Array'), j.identifier('from')),
         [rows.node, mapper],
@@ -3422,7 +3444,7 @@ function batchSets(j, root, file) {
         rows: path.get('right'),
         param: node.left.declarations[0].id,
         call: found.call,
-        iterates: true,
+        keepHoles: true,
       });
     if (!call) return;
     replaceLoop(j, path, call, found.awaited, node.body.body?.[0]);

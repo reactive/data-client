@@ -3071,6 +3071,28 @@ Object.assign(opts, { process: (x: any) => x });`,
           `class Box extends Entity { id = 0; }
 Box.schema = { todos: [Todo] };`,
         ],
+        [
+          'an instance assigning its own hook-named members',
+          `export class Form {
+  constructor(schema: any) {
+    this.schema = schema;
+    this.validate = (v: any) => !!v;
+    this.schema[schema.key] = schema;
+  }
+}`,
+        ],
+        [
+          'an object method inside a static method',
+          `export class Mixer {
+  static make(mixin: object) {
+    return {
+      apply() {
+        Object.assign(this, mixin);
+      },
+    };
+  }
+}`,
+        ],
       ])('batches the loop when %s writes', (_, setup) => {
         expect(
           run(
@@ -3148,6 +3170,41 @@ Reflect.set(Todo, 'shouldUpdate', () => false);`,
   id = 0;
   static configure(mixin: object) {
     Object.assign(this, mixin);
+  }
+}`,
+        ],
+        [
+          'Object.assign() with a later source',
+          `class Todo extends Entity {
+  id = 0;
+  static configure(mixin: object) {
+    Object.assign(this, { retries: 2 }, mixin);
+  }
+}`,
+        ],
+        [
+          'Object.assign() on an alias of this.constructor',
+          `class Todo extends Entity {
+  id = 0;
+  touch(mixin: object) {
+    const Cls = this.constructor as any;
+    Object.assign(Cls, mixin);
+  }
+}`,
+        ],
+        [
+          'a static private field',
+          `class Todo extends Entity {
+  id = 0;
+  static #configured = Object.assign(this, mixin);
+}`,
+        ],
+        [
+          'a computed key in a static method',
+          `class Todo extends Entity {
+  id = 0;
+  static define(name: string, fn: any) {
+    this[name] = fn;
   }
 }`,
         ],
