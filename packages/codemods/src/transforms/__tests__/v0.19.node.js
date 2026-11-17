@@ -3749,6 +3749,47 @@ class Box extends Entity {
 }`,
         ],
         [
+          'a function given a class reached from static super',
+          `class Todo extends Entity { id = 0; }
+function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+class SubBox extends Box {
+  static init() {
+    patch(super.schema.todo);
+  }
+}`,
+        ],
+        [
+          'a function given a computed member of static this',
+          `class Todo extends Entity { id = 0; }
+function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+  static init(name: string) {
+    patch(this[name].todo);
+  }
+}`,
+        ],
+        [
+          'a hook write through a computed member of static this',
+          `class Todo extends Entity { id = 0; }
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+  static init(name: string) {
+    this[name].todo.shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
           'a registry holding static this',
           `const registry: any = {};
 class Todo extends Entity {
@@ -4311,6 +4352,13 @@ Object.assign(Ticker, { pk(value, parent, key, args) { return args[0].id; } });
 Quote.shouldUpdate = () => false;
 `,
         );
+        write(
+          'nspatched/index.ts',
+          `export { Ticker } from '../resources/Ticker';
+import * as T from '../resources/Ticker';
+T.Ticker.shouldUpdate = () => false;
+`,
+        );
       });
       afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
 
@@ -4331,6 +4379,35 @@ export function flush(ctrl: Controller, rows: any[]) {
             { source, path: path.join(dir, 'managers/PatchedManager.ts') },
           ),
         ).toBe(source.trim());
+      });
+
+      it('keeps rows of an Entity patched through a namespace import', () => {
+        const barrel = `
+import type { Controller } from '@data-client/react';
+import { Ticker } from '../nspatched';
+
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
+}
+`;
+        const loopFile = `
+import type { Controller } from '@data-client/react';
+import { Ticker } from '../resources/Ticker';
+import * as T from '../resources/Ticker';
+
+T.Ticker.shouldUpdate = () => false;
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
+}
+`;
+        for (const source of [barrel, loopFile])
+          expect(
+            applyTransform(
+              transform,
+              { improvements: 'only' },
+              { source, path: path.join(dir, 'managers/NsManager.ts') },
+            ),
+          ).toBe(source.trim());
       });
 
       it('keeps rows of an Entity whose module patches its nested Entity or base', () => {

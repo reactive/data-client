@@ -2593,15 +2593,51 @@ const constInitOf = binding => {
  * to its members, through a hook-writing pattern or its own import of it */
 const reexportWrites = (j, { root, source, name }) =>
   writesHooksIndirectly(j, root.paths()[0]) ||
+  namespaceWrites(j, root, source, name) ||
   root
-    .find(j.ImportSpecifier)
-    .filter(
-      s =>
-        s.parent.node.source.value === source &&
-        staticName(s.node.imported) === name &&
-        !!valueImportOf(s.get('local')),
-    )
-    .some(s => writesMembersOf(j, s.get('local')));
+    .find(j.ImportDeclaration, { source: { value: source } })
+    .some(declaration =>
+      childPaths(declaration.get('specifiers')).some(
+        s =>
+          importedName(s) === name &&
+          isValueImport(s) &&
+          writesMembersOf(j, s.get('local')),
+      ),
+    );
+
+/** The export a named or default import specifier imports, or undefined for a namespace */
+const importedName = specifier =>
+  specifier.node.type === 'ImportDefaultSpecifier' ? 'default'
+  : specifier.node.type === 'ImportSpecifier' ?
+    staticName(specifier.node.imported)
+  : undefined;
+
+/** Whether an import specifier imports a value, not only a type */
+const isValueImport = specifier =>
+  specifier.node.importKind !== 'type' &&
+  specifier.parent.node.importKind !== 'type';
+
+/** Whether the module `root` could write to the export `name` of `source` through a namespace import of it:
+ * any use of the namespace but a type or a read of a member, like `M.Todo.process = ...`, `patch(M.Todo)`,
+ * `M[key]` or `patch(M)` */
+function namespaceWrites(j, root, source, name) {
+  return root
+    .find(j.ImportNamespaceSpecifier)
+    .filter(s => s.parent.node.source.value === source && isValueImport(s))
+    .some(s =>
+      moduleUsesOf(j, s, s.get('local')).some(use => {
+        const parent = use.parent.node;
+        if (parent.type === 'TSQualifiedName' || parent.type === 'TSTypeQuery')
+          return false;
+        if (!isMember(parent) || parent.object !== use.node) return true;
+        const member = memberName(parent);
+        return (
+          member === undefined ||
+          (member === name && !readsClass(j, use.parent))
+        );
+      }),
+    );
+}
 
 /** The class the identifier at `path` names, declared in this file or exported by the relative or
  * tsconfig-aliased module it is imported from: `{ path, file }` */
@@ -2765,6 +2801,12 @@ function inStaticMember(path) {
 // members that lead from a value to a class: `this.constructor`, `Todo.prototype`, `Parent.schema.leaf`
 const CLASS_LINKS = new Set(['constructor', 'prototype', 'schema']);
 
+/** Whether the member `node` can lead to a class: a class link, or a computed key it doesn't spell out, like
+ * `this[name]` */
+const mayLink = node =>
+  CLASS_LINKS.has(memberName(node)) ||
+  (node.computed && memberName(node) === undefined);
+
 /** Whether the object a write sets a hook on can be a class without naming it: `this` or `super` in a static
  * member, a chain through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like
  * `const self = this`. A class a module names has its writes followed by writesMembersOf() instead. */
@@ -2775,9 +2817,8 @@ function mayHoldClass(path, depth = 0) {
     let linked = false;
     let root = node;
     for (; isMember(root); root = unwrap(root.object)) {
-      const name = memberName(root);
-      if (name === 'constructor') return true;
-      if (CLASS_LINKS.has(name)) linked = true;
+      if (memberName(root) === 'constructor') return true;
+      if (mayLink(root)) linked = true;
     }
     // an instance's own `this.schema` is not a class
     const ofInstance = isThisOrSuper(root) && !inStaticMember(path);
@@ -2794,10 +2835,11 @@ function mayHoldClass(path, depth = 0) {
   );
 }
 
-/** Whether static `this` at `path`, or a class reached from it like `this.schema.author`, leaves the class, so
- * code the module doesn't show could set a hook on it: `patch(this)`, `registry.Quote = this` or `return this`.
- * A method call, `new this()` and `instanceof this` keep it, and so does a member chain with no class link,
- * like `this.key`. A chain through a link counts as a class even when it ends in a plain value, like
+/** Whether static `this` or `super` at `path`, or a class reached from it like `this.schema.author`, leaves
+ * the class, so code the module doesn't show could set a hook on it: `patch(this)`, `registry.Quote = this`,
+ * `return this` or `patch(super.schema.todo)`. A method call, `new this()` and `instanceof this` keep it, and
+ * so does a member chain with no class link, like `this.key`; a computed key it doesn't spell out, like
+ * `this[name]`, can be one. A chain through a link counts as a class even when it ends in a plain value, like
  * `this.schema.key`. */
 function thisEscapes(path) {
   if (!inStaticMember(path)) return false;
@@ -2809,7 +2851,7 @@ function thisEscapes(path) {
     outer.parent.node.object === outer.node
   ) {
     read = true;
-    linked ||= CLASS_LINKS.has(memberName(outer.parent.node));
+    linked ||= mayLink(outer.parent.node);
     outer = outerPath(outer.parent);
   }
   if (read && !linked) return false;
@@ -2837,6 +2879,7 @@ function writesHooksIndirectly(j, top) {
     hookWrites.set(
       top.node,
       j(top).find(j.ThisExpression).some(thisEscapes) ||
+        j(top).find(j.Super).some(thisEscapes) ||
         types.some(type =>
           j(top)
             .find(type)
@@ -3039,10 +3082,16 @@ function writesMembersOf(j, binding) {
   if (!memberWrites.has(binding.node)) {
     let top = binding;
     while (top.parent) top = top.parent;
+    // a namespace import of the same module reaches the class too, like `M.Todo.process = ...`
+    const specifier = binding.parent;
+    const name = importedName(specifier);
     memberWrites.set(
       binding.node,
       writesHooksIndirectly(j, top) ||
-        moduleUsesOf(j, top, binding).some(p => !readsClass(j, p)),
+        moduleUsesOf(j, top, binding).some(p => !readsClass(j, p)) ||
+        (name !== undefined &&
+          isValueImport(specifier) &&
+          namespaceWrites(j, j(top), specifier.parent.node.source.value, name)),
     );
   }
   return memberWrites.get(binding.node);
