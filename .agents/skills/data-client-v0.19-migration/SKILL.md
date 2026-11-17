@@ -224,10 +224,13 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     or typed as the Entity or a plain object type;
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
     literals and `const`s set to a literal;
-  - the Entity's `pk()` and `process()` read only the row, and they, its instance methods and its getters call only
-    globals, imports and methods of the row (a helper the file declares could read the store), and it has no `static indexes` (one `set()` per row keeps
-    only the last row's index entry), no decorators, and no override of `validate()` or the store-merge methods
-    (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`);
+  - the Entity's `pk()` and `process()` read only the row;
+  - its `pk()`, `process()` and instance code (methods, getters, setters and function fields, which `pk()` can reach
+    through `this` or `super`) call only globals, imports and methods of the row, since a helper the file declares
+    could read the store, and its instance code never reaches static members (`this.constructor`);
+  - it has no `static indexes` (one `set()` per row keeps only the last row's index entry), no decorators, and no
+    override of `validate()` or the store-merge methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`,
+    `mergeMetaWithStore()`);
   - nothing in the Entity's file, the loop's file or a barrel it is imported through changes the class's static
     members or passes the class to a function outside `@data-client`. It reads only those files and the files its
     schema imports, so check that no other file patches a batched Entity.
@@ -258,7 +261,8 @@ Then, by judgment:
   Entity types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an `if`
   a `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list when the
   Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch. Keep a loop
-  whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions or has a loop
+  whose Entity reads `args` or `parent` in `pk()` or `process()`, or whose `pk()`, `process()` or instance code calls
+  a helper the file declares, a loop that passes updater functions or has a loop
   variable default other than a literal, a name, or an array or object of them (`count = currentCount(id)`), and
   `unshift` (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers
   messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch

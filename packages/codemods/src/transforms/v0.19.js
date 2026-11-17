@@ -2725,24 +2725,67 @@ function hookWithin(j, member, max) {
  * (`this.constructor.key()`). */
 function instanceCodeWithin(j, member) {
   const { node } = member;
-  const fn =
-    node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod' ? member
-    : isFunction(node.value) ? member.get('value')
-    : undefined;
-  return (
-    !fn ||
-    (!containsNode(fn.node, reachesStatics) &&
-      !callsLocalCode(j, fn, new Set(), true))
-  );
+  // normalize never constructs the class, and a row built before the loop was constructed already
+  if (node.kind === 'constructor') return true;
+  let fn = member;
+  if (node.type !== 'ClassMethod' && node.type !== 'ClassPrivateMethod') {
+    if (!node.value) return true;
+    fn = unwrapPath(member.get('value'));
+    // a field can also hold a function the module declares, like `count = lookupCount` or `lookup.bind(this)`
+    if (!isFunction(fn.node)) return !mayHoldLocalCode(j, fn);
+  }
+  return !reachesStatics(j, fn) && !callsLocalCode(j, fn, new Set(), true);
 }
 
-/** Whether `node` is `x.constructor` or `this[key]`, which can reach the class's static members */
-const reachesStatics = node =>
-  isMember(node) &&
-  (memberName(node) === 'constructor' ||
-    (node.computed &&
-      isThisOrSuper(node.object) &&
-      memberName(node) === undefined));
+/** Whether a field's value can be code the module declares: it names anything the module declares but a
+ * `const` set to a literal, or a class it constructs (`new Tag()`, `Tag.fromJS()`) */
+function mayHoldLocalCode(j, value) {
+  return identifiersIn(j, value).some(p => {
+    if (isOtherName(p) || isLibraryName(p)) return false;
+    const declaration = bindingOf(p).parent;
+    const owner = declaration.node;
+    const parent = p.parent.node;
+    if (owner.type === 'ClassDeclaration')
+      return !(
+        (parent.type === 'NewExpression' && parent.callee === p.node) ||
+        (memberName(parent) === 'fromJS' &&
+          parent.object === p.node &&
+          p.parent.parent.node.callee === parent)
+      );
+    return !(
+      owner.type === 'VariableDeclarator' &&
+      declaration.parent.node.kind === 'const' &&
+      isLiteralValue(owner.init)
+    );
+  });
+}
+
+/** Whether the function at `fn` can reach the class's static members: it names `constructor` (`x.constructor`,
+ * `const { constructor: C } = row`), or uses `this` or `super` other than to read a named member
+ * (`this[key]`, `Reflect.get(this, 'constructor')`, `const self = this`) */
+function reachesStatics(j, fn) {
+  return (
+    containsNode(
+      fn.node,
+      n =>
+        isId(n, 'constructor') ||
+        ((n.type === 'StringLiteral' || n.type === 'Literal') &&
+          n.value === 'constructor'),
+    ) ||
+    [j.ThisExpression, j.Super].some(type =>
+      j(fn)
+        .find(type)
+        .some(p => {
+          const parent = p.parent.node;
+          return (
+            !isMember(parent) ||
+            parent.object !== p.node ||
+            memberName(parent) === undefined
+          );
+        }),
+    )
+  );
+}
 
 /** Whether `test` holds for `node` or anything inside it */
 function containsNode(node, test) {

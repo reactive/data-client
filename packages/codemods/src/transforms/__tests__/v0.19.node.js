@@ -3584,6 +3584,11 @@ function currentCount(id: string) {
           '  pk() {\n    return this.count();\n  }\n  count = () => currentCount(this.id);',
           '  pk() {\n    return this.constructor.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
           '  pk() {\n    const Class = this.constructor;\n    return Class.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    const { constructor: Class } = this as any;\n    return Class.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          "  pk() {\n    return Reflect.get(this, 'constructor').key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }",
+          '  pk() {\n    return this.count(this.id);\n  }\n  count = currentCount;',
+          '  pk() {\n    return this.count(this.id);\n  }\n  count = ((id: string) => currentCount(id)) as any;',
+          '  pk() {\n    return this.count();\n  }\n  count = currentCount.bind(null, this.id);',
         ];
         for (const members of kept)
           expect(run(members, helper)).toContain('rows.forEach(');
@@ -3617,6 +3622,13 @@ export function save(ctrl, rows: any[]) {
         expect(
           run(
             "  slug = '';\n  pk() {\n    return `${this.id}-${this.label}`;\n  }\n  get label() {\n    return this.slug.trim();\n  }\n  title() {\n    return this.label.toUpperCase();\n  }",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+        // field values that construct a class or hold a literal const aren't code
+        expect(
+          run(
+            '  tag = new Tag();\n  author = Tag.fromJS();\n  label = LABEL;\n  pk() {\n    return this.id;\n  }',
+            "class Tag {\n  static fromJS() {\n    return new Tag();\n  }\n}\nconst LABEL = 'todo';",
           ),
         ).toContain('ctrl.set([Todo], rows.map(');
       });
