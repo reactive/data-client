@@ -17,10 +17,10 @@ the same, apart from the two batch differences below:
   them, and the Entity is a class declared in the file or imported from a relative path or tsconfig alias whose `pk()`
   and `process()` read only the row, that overrides neither `validate()` nor the store-merge methods, and whose static
   members neither its own file nor the loop's file changes. It reads only those files and the files its schema imports,
-  so check that no other file patches a batched Entity. Each batch is guarded with `if (rows.length)`, so an empty
-  list still dispatches nothing. Managers that match SET actions by `action.schema` now see one `[Ticker]` action
-  instead of one `Ticker` action per row, and a row whose `pk()` or `process()` throws makes the whole batch write
-  nothing, where the loop still wrote some of the other rows.
+  so check that no other file patches a batched Entity. A batch over a list that can be empty is guarded with
+  `if (rows.length)`, so an empty list still dispatches nothing. Managers that match SET actions by `action.schema` now
+  see one `[Ticker]` action instead of one `Ticker` action per row, and a row whose `pk()` or `process()` throws makes
+  the whole batch write nothing, where the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
   ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default

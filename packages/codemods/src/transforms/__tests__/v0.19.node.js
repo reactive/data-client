@@ -3357,6 +3357,50 @@ export function save(ctrl, text: string) {
         );
       });
 
+      it('guards an array literal with a spread, which can be empty', () => {
+        expect(run('for (const id of [...text]) ctrl.set(Todo, { id });'))
+          .toContain(`const rows = [...text];
+
+  if (rows.length) {
+    ctrl.set([Todo], Array.from(rows, id => ({ id })));
+  }`);
+      });
+
+      it('stores a property read in a const, since a getter could return a different list on the second read', () => {
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            {
+              source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; }
+export function save(ctrl, queue) {
+  for (const row of queue.items as Todo[]) ctrl.set(Todo, row);
+}`,
+              path: 'save.tsx',
+            },
+          ),
+        ).toContain(`const rows = queue.items as Todo[];
+
+  if (rows.length) {
+    ctrl.set([Todo], rows);
+  }`);
+      });
+
+      it('keeps an else after the loop on its own if', () => {
+        expect(
+          run(`if (text) for (const id of ['a', ...text]) ctrl.set(Todo, { id });
+  else console.log('none');`),
+        ).toContain(`if (text) {
+    const rows = ['a', ...text];
+
+    if (rows.length) {
+      ctrl.set([Todo], Array.from(rows, id => ({ id })));
+    }
+  } else
+    console.log('none');`);
+      });
+
       it('wraps the stored list and guard in a block when the loop is a lone statement', () => {
         expect(
           run(

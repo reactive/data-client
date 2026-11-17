@@ -3495,14 +3495,18 @@ const isPromiseAll = node =>
   memberName(node.callee) === 'all';
 
 /** How a batch keeps a loop's no-op on an empty list: `list` is what the batch reads, `test` (when the list
- * can be empty) guards it, and `setup` (when reading `rows` twice could differ) stores it in a new `const`.
- * Undefined for an empty array literal, whose loop does nothing. */
+ * can be empty) guards it, and `setup` (when `rows` is not a plain name, so reading it twice could differ, as
+ * with a getter) stores it in a new `const`. Undefined for an empty array literal, whose loop does nothing. */
 function emptyGuardOf(j, root, rows) {
   const node = unwrap(rows.node);
-  if (node.type === 'ArrayExpression')
+  if (
+    node.type === 'ArrayExpression' &&
+    !node.elements.some(el => el?.type === 'SpreadElement')
+  )
     return node.elements.length ? { list: rows.node } : undefined;
   const length = list => j.memberExpression(list, j.identifier('length'));
-  if (isReference(node)) return { list: rows.node, test: length(rows.node) };
+  if (node.type === 'Identifier')
+    return { list: rows.node, test: length(rows.node) };
   // a name the enclosing function never uses, so the `const` shadows nothing it reads
   const scope = j(rows).closest(j.Function).paths()[0] ?? root.paths()[0];
   let name = 'rows';
@@ -3530,7 +3534,8 @@ function replaceLoop(j, path, call, awaited, inner, guard) {
     ...(path.node.comments ?? []),
     ...(inner?.comments ?? []),
   ]);
-  if (statements.length > 1 && !Array.isArray(path.parentPath.value))
+  // a lone `if` would take an `else` that followed the loop
+  if (guard.test && !Array.isArray(path.parentPath.value))
     path.replace(j.blockStatement(statements));
   else path.replace(...statements);
 }
