@@ -291,6 +291,13 @@ const usesOf = (j, root, binding) =>
       bindingOf(p) === binding,
   );
 
+/** The uses of `binding` anywhere in the module that holds `path` */
+function moduleUsesOf(j, path, binding) {
+  let top = path;
+  while (top.parent) top = top.parent;
+  return usesOf(j, j(top), binding);
+}
+
 /** Whether a variable is declared in `export const`, so other modules can use or change it */
 const isExported = binding =>
   binding.parent.parent?.parent?.node.type === 'ExportNamedDeclaration';
@@ -2698,22 +2705,25 @@ function readsClass(j, path, depth = 0) {
         holder.init !== outer.node ||
         id.node.type !== 'Identifier' ||
         outer.parent.parent.node.kind !== 'const' ||
+        // aliases of aliases this deep are rare enough to keep the loop
         depth > 3
       )
         return false;
-      let top = outer;
-      while (top.parent) top = top.parent;
-      return usesOf(j, j(top), bindingOf(id)).every(p =>
+      return moduleUsesOf(j, outer, bindingOf(id)).every(p =>
         readsClass(j, p, depth + 1),
       );
     }
+    // a schema slot: `static schema = { todos: [Todo] }` or `Parent.schema = { todo: Todo }`; another field
+    // could be an alias that code writes through
     case 'ClassProperty':
     case 'PropertyDefinition':
-      return holder.value === outer.node;
-    case 'ReturnStatement':
-      return true;
+      return holder.value === outer.node && keyName(holder) === 'schema';
     case 'AssignmentExpression':
-      return holder.right === outer.node && isMember(holder.left);
+      return (
+        holder.right === outer.node &&
+        isMember(holder.left) &&
+        memberName(holder.left) === 'schema'
+      );
     case 'ExportSpecifier':
     case 'TSTypeReference':
     case 'TSTypeQuery':
@@ -2744,13 +2754,30 @@ function literalHolding(path) {
 }
 
 /** Whether the call that takes `path` as an argument can't write to it: its callee is neither `Object.*()`
- * nor `Reflect.*()`, nor a function or class this module declares, which could patch its parameter */
+ * nor `Reflect.*()`, nor a function or class this module declares (`patch(Todo)`), nor a method of an object
+ * or class it declares (`helpers.patch(Todo)`), any of which could patch its parameter */
 function passesToLibrary(path) {
   if (isObjectOrReflectTarget(path)) return false;
-  const callee = path.parent.get('callee');
+  let callee = path.parent.get('callee');
+  if (callee.node.type === 'Identifier') {
+    const binding = bindingOf(callee);
+    return !binding || binding.parent.node.type.startsWith('Import');
+  }
+  while (isMember(callee.node)) callee = callee.get('object');
   if (callee.node.type !== 'Identifier') return true;
   const binding = bindingOf(callee);
-  return !binding || binding.parent.node.type.startsWith('Import');
+  const owner = binding?.parent.node;
+  // a parameter or global, or a variable that isn't its declarator's whole id
+  if (!binding || owner.id !== binding.node) return true;
+  const init = owner.type === 'VariableDeclarator' && unwrap(owner.init);
+  return !(
+    owner.type === 'ClassDeclaration' ||
+    owner.type === 'FunctionDeclaration' ||
+    (init &&
+      (init.type === 'ObjectExpression' ||
+        init.type === 'ClassExpression' ||
+        isFunction(init)))
+  );
 }
 
 /** Whether `path` is the first argument of an `Object.*()` or `Reflect.*()` call, which can write to it */
@@ -2771,11 +2798,9 @@ function isObjectOrReflectTarget(path) {
  * through an alias like `const list = [Todo]` */
 function writesMembersOf(j, binding) {
   if (!memberWrites.has(binding.node)) {
-    let top = binding;
-    while (top.parent) top = top.parent;
     memberWrites.set(
       binding.node,
-      usesOf(j, j(top), binding).some(p => !readsClass(j, p)),
+      moduleUsesOf(j, binding, binding).some(p => !readsClass(j, p)),
     );
   }
   return memberWrites.get(binding.node);

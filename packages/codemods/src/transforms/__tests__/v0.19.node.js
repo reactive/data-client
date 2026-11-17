@@ -2929,6 +2929,27 @@ function attach(Cls) {
   Cls.schema = { child: Slugged };
 }
 attach(Attached);
+class Returned extends Entity { id = 0; }
+const returned = () => {
+  return Returned;
+};
+returned().shouldUpdate = () => false;
+class Stored extends Entity { id = 0; }
+const store: any = {};
+store.T = Stored;
+store.T.shouldUpdate = () => false;
+class Fielded extends Entity { id = 0; }
+class Holder {
+  static T = Fielded;
+}
+Holder.T.shouldUpdate = () => false;
+class Helped extends Entity { id = 0; }
+const helpers = {
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+};
+helpers.patch(Helped);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2971,6 +2992,10 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
   rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
   rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
+  rows.forEach(y2 => ctrl.set(Returned, { id: y2.id }));
+  rows.forEach(z2 => ctrl.set(Stored, { id: z2.id }));
+  rows.forEach(a3 => ctrl.set(Fielded, { id: a3.id }));
+  rows.forEach(b3 => ctrl.set(Helped, { id: b3.id }));
   const optional: { id?: number }[] = [];
   optional.forEach(u2 => ctrl.set(Plain, u2));
   const named: { name: string }[] = [];
@@ -3035,6 +3060,27 @@ function attach(Cls) {
   Cls.schema = { child: Slugged };
 }
 attach(Attached);
+class Returned extends Entity { id = 0; }
+const returned = () => {
+  return Returned;
+};
+returned().shouldUpdate = () => false;
+class Stored extends Entity { id = 0; }
+const store: any = {};
+store.T = Stored;
+store.T.shouldUpdate = () => false;
+class Fielded extends Entity { id = 0; }
+class Holder {
+  static T = Fielded;
+}
+Holder.T.shouldUpdate = () => false;
+class Helped extends Entity { id = 0; }
+const helpers = {
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+};
+helpers.patch(Helped);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -3077,6 +3123,10 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
   rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
   rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
+  rows.forEach(y2 => ctrl.set(Returned, { id: y2.id }));
+  rows.forEach(z2 => ctrl.set(Stored, { id: z2.id }));
+  rows.forEach(a3 => ctrl.set(Fielded, { id: a3.id }));
+  rows.forEach(b3 => ctrl.set(Helped, { id: b3.id }));
   const optional: { id?: number }[] = [];
   optional.forEach(u2 => ctrl.set(Plain, u2));
   const named: { name: string }[] = [];
@@ -3100,6 +3150,11 @@ class Todo extends Entity { id = 0; }
 const todoList = [Todo];
 const TodoCollection = new schema.Collection(todoList);
 export const blank = () => new Todo();
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+Box.schema = { todos: [Todo] };
 
 export function save(ctrl, rows: Todo[]) {
   rows.forEach(row => ctrl.set(Todo, row));
@@ -3112,6 +3167,11 @@ class Todo extends Entity { id = 0; }
 const todoList = [Todo];
 const TodoCollection = new schema.Collection(todoList);
 export const blank = () => new Todo();
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+Box.schema = { todos: [Todo] };
 
 export function save(ctrl, rows: Todo[]) {
   ctrl.set([Todo], rows);
