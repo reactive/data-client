@@ -3478,12 +3478,13 @@ export function save(ctrl, queue) {
     });
 
     describe('set() loops of an Entity with declaration-only members', () => {
-      const run = members =>
+      const run = (members, before = '') =>
         applyTransform(
           transform,
           { improvements: 'only' },
           {
             source: `import { Entity } from '@data-client/rest';
+${before}
 class Todo extends Entity {
   id = '';
 ${members}
@@ -3542,6 +3543,40 @@ export function save(ctrl, rows: any[]) {
     static indexes = ['username'];
   } };`),
         ).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when pk() or process() calls code the module declares', () => {
+        // a batch runs them for every row before any write, so a helper that reads the store sees older data
+        const helper = `export const latest = { ctrl: undefined as any };
+function currentCount(id: string) {
+  return latest.ctrl.get(Todo, { id }, latest.ctrl.getState())?.count ?? 0;
+}`;
+        expect(
+          run(
+            '  static process(value) {\n    return { ...value, count: currentCount(value.id) + 1 };\n  }',
+            helper,
+          ),
+        ).toContain('rows.forEach(');
+        expect(
+          run(
+            '  pk() {\n    return `${this.id}-${currentCount(this.id)}`;\n  }',
+            helper,
+          ),
+        ).toContain('rows.forEach(');
+        expect(
+          run(
+            '  static pk(value) {\n    return this.key + currentCount(value.id);\n  }',
+            helper,
+          ),
+        ).toContain('rows.forEach(');
+      });
+
+      it('batches when pk() or process() calls only globals and methods of the row', () => {
+        expect(
+          run(
+            "  slug = '';\n  pk() {\n    return [this.id, this.slug].join('-');\n  }\n  static process(value) {\n    return { ...value, slug: String(value.slug).trim() };\n  }",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
       });
 
       it('batches with private and accessor members that are not hooks', () => {
@@ -3633,6 +3668,12 @@ Box.schema = { todos: [Todo] };`,
 grid[0][1] = 2;
 grid[0][0]++;
 export const total = () => grid[0][0] + grid[0][1];`,
+        ],
+        [
+          'a nested computed write on a let array it never reassigns',
+          `let grid: number[][] = [[0]];
+grid[0][1] = 2;
+export const filled = () => (grid[0][0] && grid[0][1] ? 'yes' : 'no');`,
         ],
         [
           'a namespace import from @data-client given the class',

@@ -224,7 +224,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     or typed as the Entity or a plain object type;
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
     literals and `const`s set to a literal;
-  - the Entity's `pk()` and `process()` read only the row, and it has no `static indexes` (one `set()` per row keeps
+  - the Entity's `pk()` and `process()` read only the row and call only globals, imports and methods of the row (a
+    helper the file declares could read the store), and it has no `static indexes` (one `set()` per row keeps
     only the last row's index entry), no decorators, and no override of `validate()` or the store-merge methods
     (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`);
   - nothing in the Entity's file, the loop's file or a barrel it is imported through changes the class's static

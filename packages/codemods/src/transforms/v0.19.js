@@ -2708,6 +2708,16 @@ function paramsWithin(node, max) {
   );
 }
 
+/** Whether a pk() or process() member declares at most `max` parameters and calls no code the module declares.
+ * A batch runs it for every row before any write, while one set() per row runs it after the earlier rows are
+ * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. An instance
+ * pk() may call methods of `this`, the row it builds, like `[this.a, this.b].join('-')`. */
+function hookWithin(j, member, max) {
+  if (!paramsWithin(member.node, max)) return false;
+  const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
+  return !fn.node || !callsLocalCode(j, fn, new Set(), !member.node.static);
+}
+
 /** Whether `test` holds for `node` or anything inside it */
 function containsNode(node, test) {
   if (!node || typeof node.type !== 'string') return false;
@@ -2833,8 +2843,8 @@ const mayLink = node =>
 /** Whether the object a write sets a hook on can be a class without naming it: `this` or `super` in a static
  * member, a chain through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like
  * `const self = this`. A computed key it doesn't spell out, like `models[name]`, can pick a class too, unless
- * it reads a local array or object literal of plain data, like `grid[0][1]`. A class a module names has its
- * writes followed by writesMembersOf() instead. */
+ * its root only ever holds plain data (isDataVariable()), like `grid` in `const grid = [[0]]; grid[0][1] = 2`.
+ * A class a module names has its writes followed by writesMembersOf() instead. */
 function mayHoldClass(j, path, depth = 0) {
   const { node } = path;
   if (isThisOrSuper(node)) return inStaticMember(path);
@@ -2863,18 +2873,23 @@ function mayHoldClass(j, path, depth = 0) {
   );
 }
 
-/** Whether `path` names a module-private `const` that only ever holds plain data, like `const grid = [[]]` with
- * `grid[0][1] = 2`, so a computed key into it can't reach a class: set to a literal of plain data, and used
- * only to store plain data in it or to read from it into an expression that can't keep the value */
+/** Whether `path` names a module-private variable that only ever holds plain data, like `const grid = [[]]` with
+ * `grid[0][1] = 2`, so a computed key into it can't reach a class: set to a literal of plain data, never
+ * reassigned, exported or aliased, and used only to store plain data in it or to read from it into an expression
+ * that can't keep the value, like `total + grid[i][j]` or `if (grid[i][j])`. Storing anything else, such as a
+ * function in `grid[0][name].process = fn`, makes it not plain data. */
 function isDataVariable(j, path) {
   if (path.node.type !== 'Identifier') return false;
   const binding = bindingOf(path);
+  const owner = binding?.parent;
   if (
-    !binding ||
+    owner?.node.type !== 'VariableDeclarator' ||
+    owner.node.id !== binding.node ||
     isExported(binding) ||
-    !isPlainData(constInitOf(binding)?.node)
+    !isPlainData(owner.node.init)
   )
     return false;
+  // any reassignment, export or alias is a use outside a member chain
   return moduleUsesOf(j, path, binding).every(use => {
     const parent = use.parent.node;
     if (!isMember(parent) || parent.object !== use.node) return false;
@@ -2884,8 +2899,7 @@ function isDataVariable(j, path) {
         holder.left === chain.node && isPlainData(holder.right)
       : DATA_READS.has(holder.type) ||
           (holder.type === 'UnaryExpression' && holder.operator !== 'delete') ||
-          // a condition, like `if (grid[i][j])`
-          (TESTS.has(holder.type) && holder.test === chain.node);
+          isCondition(chain);
   });
 }
 
@@ -2978,7 +2992,7 @@ function memberAllows(j, member, file, limits, seen) {
   const name = keyName(node);
   // a computed key could be any member
   if (name === undefined) return false;
-  if (!node.static) return name !== 'pk' || paramsWithin(node, limits.pk);
+  if (!node.static) return name !== 'pk' || hookWithin(j, member, limits.pk);
   switch (name) {
     // validate() could throw for one row, which drops the whole batch, and rows with the same pk meet in
     // merge() within a batch, skipping the store checks. normalize() starts each index empty, so one set() per
@@ -2992,9 +3006,9 @@ function memberAllows(j, member, file, limits, seen) {
     case 'mergeMetaWithStore':
       return false;
     case 'pk':
-      return paramsWithin(node, limits.staticPk);
+      return hookWithin(j, member, limits.staticPk);
     case 'process':
-      return paramsWithin(node, limits.process);
+      return hookWithin(j, member, limits.process);
     case 'schema':
       return (
         node.type === 'ClassProperty' &&
@@ -3521,7 +3535,7 @@ const oneElement = node =>
  * `${}`), a `const` set to a literal like `3` or `-1`. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)`
  * are safe, but `format(row)`, `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are
  * not. */
-function callsLocalCode(j, path, names) {
+function callsLocalCode(j, path, names, allowThis = false) {
   const isSafe = p =>
     names.has(p.node.name) ||
     isLibraryName(p) ||
@@ -3536,7 +3550,7 @@ function callsLocalCode(j, path, names) {
   };
   // whether the expression at `part` can name code the module declares
   const namesLocalCode = (part, allowed = isSafe) =>
-    containsNode(part.node, isThisOrSuper) ||
+    (!allowThis && containsNode(part.node, isThisOrSuper)) ||
     identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
   const isArgSafe = p => isSafe(p) || isLiteralConst(p);
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
