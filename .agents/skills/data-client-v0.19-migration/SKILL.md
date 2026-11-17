@@ -223,8 +223,9 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver
     whose array the file only reads and doesn't export, or typed as the Entity or a plain object type;
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
-    literals and `const`s set to a literal, and reads no getter the file declares (on an object, a class, `this`,
-    or what a function the file declares returns);
+    literals and `const`s set to a literal, and reads members only of the row, globals, imports, `const`s of plain
+    data, classes with no static getter, and what globals and imports return (never `this.count` or `live.count`,
+    which could run a getter the file declares);
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store; its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach

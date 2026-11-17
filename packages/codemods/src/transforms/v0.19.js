@@ -2699,6 +2699,12 @@ function paramsWithin(node, max) {
   if (!fn) return !!node.declare;
   if (!(fn.type === 'ClassMethod' ? fn.kind === 'method' : isFunction(fn)))
     return false;
+  return takesAtMost(fn, max);
+}
+
+/** Whether the function `fn` reads at most its first `max` arguments: no more parameters, no rest parameter,
+ * and no `arguments` */
+function takesAtMost(fn, max) {
   // a TypeScript `this` parameter isn't one
   const params = fn.params.filter(p => !isId(p, 'this'));
   return (
@@ -2764,22 +2770,30 @@ function namesLocalCode(j, code, file, seen) {
         !isPlainEntityAt(j, p, file, ARGS_FREE, seen) ||
         // an override of fromJS() runs code the check above doesn't read; `new` doesn't call it
         (parent.type !== 'NewExpression' &&
-          declaresStatic(j, p, file, 'fromJS'))
+          declaresStatic(j, p, file, m => keyName(m) === 'fromJS'))
       );
     }
     return !isLiteralValue(constInitOf(binding)?.node);
   });
 }
 
-/** Whether the class at `path` (from classOf()), or a class it extends, can declare a static `name`. A chain
- * classOf() can't follow counts as one that does. */
-function declaresStatic(j, path, file, name) {
-  for (let depth = 0; depth < 20; depth++) {
+// how many links (superclasses, or variables set to one another) a walk follows before it counts the chain as unknown
+const MAX_CHAIN = 20;
+
+/** Whether the class at `path` (from classOf()), or a class it extends, can declare a static member that
+ * passes `test`. A chain classOf() can't follow counts as one that does, unless `trustImports` and the class
+ * it stops at is an import or a global, like a library's base class. */
+function declaresStatic(j, path, file, test, trustImports = false) {
+  for (let depth = 0; depth < MAX_CHAIN; depth++) {
     const cls = classOf(j, path, file);
-    if (!cls) return true;
+    if (!cls)
+      return !(
+        trustImports &&
+        path.node?.type === 'Identifier' &&
+        isLibraryName(path)
+      );
     const members = childPaths(cls.path.get('body', 'body'));
-    if (members.some(m => m.node.static && keyName(m.node) === name))
-      return true;
+    if (members.some(m => m.node.static && test(m.node))) return true;
     path = cls.path.get('superClass');
     file = cls.file;
     if (!path.node || isSchemaExport(path, ENTITY_BASES)) return false;
@@ -3525,26 +3539,26 @@ function readsOnlyArray(j, path, binding) {
       isWriteTarget(memberChainOf(use))
     )
       return false;
-    const holder = use.parent.parent.node;
-    const called =
-      (holder.type === 'CallExpression' ||
-        holder.type === 'OptionalCallExpression') &&
-      holder.callee === parent;
+    const holder = use.parent.parent;
+    const called = isCall(holder.node) && holder.node.callee === parent;
     // `rows[i]` or `rows.length`, not a method to call later like `rows.push.call(...)`
     if (!called) return parent.computed || memberName(parent) === 'length';
     return (
       ARRAY_READS.has(memberName(parent)) &&
-      // a callback gets the array as its third argument
-      !holder.arguments.some(
+      // a callback gets the array as its third argument, so it must be one that can't use it: an inline function
+      // with at most two parameters, or a global or import like `String`
+      childPaths(holder.get('arguments')).every(
         arg =>
-          /Function/.test(arg.type) &&
-          (arg.params.length > 2 ||
-            arg.params.some(p => p.type === 'RestElement') ||
-            containsNode(arg.body, n => isId(n, 'arguments'))),
+          isLiteralValue(arg.node) ||
+          (isFunction(arg.node) && takesAtMost(arg.node, 2)) ||
+          (arg.node.type === 'Identifier' && isLibraryName(arg)),
       )
     );
   });
 }
+
+const isCall = node =>
+  node.type === 'CallExpression' || node.type === 'OptionalCallExpression';
 
 const LITERALS = new Set([
   'StringLiteral',
@@ -3744,81 +3758,73 @@ function callsLocalCode(j, path, names) {
   );
 }
 
-/** Whether the value at `path` reads a member of an object or class the module declares with a getter, which
- * could read the store the earlier rows were written to: `live.count` where `const live = { get count() {...} }`,
- * an instance of a class the module declares, or a static getter of one. */
-function readsLocalGetter(j, path, names) {
+/** Whether the value at `path` reads a member of something that could have a getter the module declares, which
+ * could read the store the earlier rows were written to: `this.count`, or `live.count` where `live` isn't
+ * provably free of one (holdsLocalGetter()). */
+function readsLocalGetter(j, path, names, file) {
   // `this.count` can be a getter of the class around the loop
   if (containsNode(path.node, isThisOrSuper)) return true;
   return identifiersIn(j, path).some(p => {
     const parent = p.parent.node;
-    if (
-      !isMember(parent) ||
-      parent.object !== p.node ||
-      names.has(p.node.name) ||
-      isLibraryName(p)
-    )
-      return false;
-    const binding = bindingOf(p);
-    if (isWithin(binding, path.node)) return false;
-    const owner = binding.parent;
-    if (owner.node.type === 'ClassDeclaration') return hasStaticGetter(owner);
     return (
-      owner.node.type === 'VariableDeclarator' &&
-      owner.node.id === binding.node &&
-      !!owner.node.init &&
-      mayHaveGetter(unwrapPath(owner.get('init')))
+      isMember(parent) &&
+      parent.object === p.node &&
+      !names.has(p.node.name) &&
+      !isWithin(bindingOf(p), path.node) &&
+      holdsLocalGetter(j, p, file)
     );
   });
 }
 
-/** Whether the value of the expression at `path` can have a getter the module declares: an object literal with
- * one (also nested), a class with a static one, or what code the module declares returns (`new Live()`,
- * `makeLive()`) */
-function mayHaveGetter(path) {
-  const { node } = path;
-  const isGetter = n => n.kind === 'get';
-  switch (node.type) {
-    case 'ObjectExpression':
-      return containsNode(node, isGetter);
-    case 'ClassExpression':
-      return hasStaticGetter(path);
-    case 'NewExpression':
-    case 'CallExpression': {
-      let root = unwrapPath(path.get('callee'));
-      while (isMember(root.node)) root = unwrapPath(root.get('object'));
-      return (
-        root.node.type !== 'Identifier' ||
-        !isLibraryName(root) ||
-        node.arguments.some(arg => containsNode(arg, isGetter))
-      );
-    }
-    default:
-      return false;
-  }
+const isStaticGetter = member => member.kind === 'get';
+
+/** Whether the variable at `path` can hold something with a getter the module declares. It can't when it is a
+ * global or an import, a class whose chain declares no static getter, or a `const` set to plain data
+ * (`{ count: 1 }`) or to what a global or import returns (`Date.now()`, `await fetch(url)`, `res.json()` of
+ * such a `res`). Anything else counts as one that can, except a parameter, which the module can't see into. */
+function holdsLocalGetter(j, path, file, depth = 0) {
+  if (isLibraryName(path)) return false;
+  if (depth > MAX_CHAIN) return true;
+  const binding = bindingOf(path);
+  const owner = binding.parent;
+  if (owner.node.type === 'ClassDeclaration' && owner.node.id === binding.node)
+    return declaresStatic(j, path, file, isStaticGetter, true);
+  if (owner.node.type !== 'VariableDeclarator')
+    // a function's own members, or a parameter
+    return (
+      owner.node.type === 'FunctionDeclaration' &&
+      owner.node.id === binding.node
+    );
+  // `declare const url: string` is a global
+  if (owner.parent.node.declare) return false;
+  if (owner.parent.node.kind !== 'const' || !owner.node.init) return true;
+  const init = unwrapPath(owner.get('init'));
+  if (init.node.type === 'ClassExpression')
+    return declaresStatic(j, path, file, isStaticGetter, true);
+  return mayHoldLocalGetter(j, init, file, depth + 1);
 }
 
-/** Whether the class at `path`, or a class the module declares that it extends, has a static getter */
-function hasStaticGetter(path) {
-  for (let depth = 0; depth < 20; depth++) {
-    const cls = unwrapPath(path);
-    if (
-      cls.node.type !== 'ClassDeclaration' &&
-      cls.node.type !== 'ClassExpression'
+/** Whether the value of the expression at `path` can have a getter the module declares (holdsLocalGetter()) */
+function mayHoldLocalGetter(j, path, file, depth) {
+  if (depth > MAX_CHAIN) return true;
+  path = unwrapPath(path);
+  const { node } = path;
+  if (isPlainData(node)) return false;
+  if (node.type === 'AwaitExpression')
+    return mayHoldLocalGetter(j, path.get('argument'), file, depth + 1);
+  if (node.type === 'Identifier')
+    return holdsLocalGetter(j, path, file, depth + 1);
+  if (!isCall(node) && node.type !== 'NewExpression') return true;
+  // a global or import, or a method of a value that holds no getter, given only plain data or such values
+  let root = unwrapPath(path.get('callee'));
+  if (root.node.type === 'Identifier' && !isLibraryName(root)) return true;
+  while (isMember(root.node)) root = unwrapPath(root.get('object'));
+  return (
+    mayHoldLocalGetter(j, root, file, depth + 1) ||
+    childPaths(path.get('arguments')).some(arg =>
+      mayHoldLocalGetter(j, arg, file, depth + 1),
     )
-      return false;
-    if (cls.node.body.body.some(m => m.kind === 'get' && m.static)) return true;
-    const base = unwrapPath(cls.get('superClass'));
-    if (base.node?.type !== 'Identifier' || isLibraryName(base)) return false;
-    const binding = bindingOf(base);
-    const owner = binding.parent;
-    path =
-      owner.node.type === 'VariableDeclarator' ? owner.get('init')
-      : owner.node.type === 'ClassDeclaration' ? owner
-      : undefined;
-    if (!path?.node) return true;
-  }
-  return true;
+  );
 }
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
@@ -3865,7 +3871,7 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
         : n.type === 'ThisExpression'),
     ) ||
     callsLocalCode(j, call.get('arguments', args.length - 1), names) ||
-    readsLocalGetter(j, call.get('arguments', args.length - 1), names)
+    readsLocalGetter(j, call.get('arguments', args.length - 1), names, file)
   )
     return;
 

@@ -16,8 +16,9 @@ the same, apart from the differences noted below:
   - Each row is plain data, not an updater function: an object literal, a row of `JSON.parse()` without a reviver
     whose array the file only reads and doesn't export, or a value typed as the Entity or a plain object type.
   - The row calls only globals, imports and methods of values built from the row. Their arguments use only the row,
-    literals and `const`s set to a literal. It reads no getter the file declares (on an object, a class, `this`, or
-    what a function the file declares returns). Loop variable defaults are literals, names, or arrays and objects of
+    literals and `const`s set to a literal. It reads members only of the row, globals, imports, `const`s of plain
+    data, classes with no static getter, and what globals and imports return, so it can't run a getter the file
+    declares (`this.count`, `live.count`). Loop variable defaults are literals, names, or arrays and objects of
     them.
   - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
   - Its `pk()` and `process()` read only the row and call only globals, imports and methods of the row. Its instance

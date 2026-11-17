@@ -26,7 +26,8 @@ and code that worked around older limits, like `computed()` around Vue composabl
 `static indexes`, decorators, hooks that read args, a `pk()` or `process()` that calls a function the file declares
 (it could read the store), or instance code (constructor, method, getter, setter or field value) that names one,
 reaches `this.constructor` or `new.target`, or calls an overridden `fromJS()`. It keeps a loop whose row reads a
-getter the file declares (or `this`), or whose parsed array the file changes or exports. But a file the codemod didn't read can still patch
+member of something that could have a getter the file declares (`this`, or a variable not set to plain data or to
+what a global or import returns), or whose parsed array the file changes, exports or passes to a callback. But a file the codemod didn't read can still patch
 the Entity.
 Three things differ from the loop:
 

@@ -3347,6 +3347,14 @@ const key = () => 'count';`,
         ],
         ['through an optional call', 'rows.push?.((prev: any) => prev);'],
         [
+          'through a named callback',
+          'function stash(row: any, i: number, all: any[]) {\n    all.push((prev: any) => prev);\n  }\n  rows.forEach(stash);',
+        ],
+        [
+          'through a callback method',
+          'const helpers = {\n    stash(row: any, i: number, all: any[]) {\n      all.push((prev: any) => prev);\n    },\n  };\n  rows.forEach(helpers.stash);',
+        ],
+        [
           "through a callback's array argument",
           'rows.forEach((row, i, all) => all.push((prev: any) => prev));',
         ],
@@ -3412,6 +3420,41 @@ const key = () => 'count';`,
           'class Base { static get count() { return currentCount(); } }\nclass Live extends Base {}',
           'Live.count',
         ],
+        [
+          'a static getter two classes up',
+          'class Base { static get count() { return currentCount(); } }\nclass Mid extends Base {}\nclass Live extends Mid {}',
+          'Live.count',
+        ],
+        [
+          'a static getter of a base a function returns',
+          'function makeBase() { return class { static get count() { return currentCount(); } }; }\nconst Base = makeBase();\nclass Live extends Base {}',
+          'Live.count',
+        ],
+        [
+          'an alias of an object getter',
+          'const live0 = { get count() { return currentCount(); } };\nconst live = live0;',
+          'live.count',
+        ],
+        [
+          'a member of an object with a getter',
+          'const holder = { inner: { get count() { return currentCount(); } } };\nconst live = holder.inner;',
+          'live.count',
+        ],
+        [
+          'one branch of a conditional',
+          'const live0 = { get count() { return currentCount(); } };\nconst live = Math.random() ? live0 : { count: 0 };',
+          'live.count',
+        ],
+        [
+          'what an awaited function the module declares returns',
+          'async function makeLive() { return { get count() { return currentCount(); } }; }\nconst live = await makeLive();',
+          'live.count',
+        ],
+        [
+          'a global given a getter',
+          'const live = Object.freeze({ get count() { return currentCount(); } });',
+          'live.count',
+        ],
       ])('keeps a value that reads %s', (_, setup, read) => {
         expect(
           run(
@@ -3439,6 +3482,18 @@ const key = () => 'count';`,
     await ctrl.set(Todo, { ...row, count: (this as any).count + 1 });`,
           ),
         ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it('batches a value that reads what globals and imports return', () => {
+        expect(
+          run(
+            'declare const url: string;\nconst res = await fetch(url);\nconst page = await res.json();\nconst started = new Date();',
+            `const rows = JSON.parse(text);
+  console.log(rows.map(String), rows.filter(Boolean).length);
+  for (const row of rows)
+    await ctrl.set(Todo, { ...row, page: page.number, time: Date.now() });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
       });
 
       it('batches a value that reads plain objects and Entity members', () => {
