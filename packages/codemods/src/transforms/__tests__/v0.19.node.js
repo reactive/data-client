@@ -3060,12 +3060,19 @@ export async function save(ctrl, rows: any[]) {
           "{ id: [row.first, row.last].join(' ') }",
         ],
         [
-          'a row field named like a local function',
-          '{ id: row.id, count: row.currentCount }',
+          'a method with a row field named like a local function',
+          '{ id: row.id.concat(row.currentCount) }',
+        ],
+        [
+          'a global with a literal constant',
+          '{ id: row.id, n: Math.min(row.n, LIMIT) }',
         ],
       ])('batches rows that call %s', (_, value) => {
         expect(
-          run('function currentCount() {\n  return 0;\n}', value),
+          run(
+            'function currentCount() {\n  return 0;\n}\nconst LIMIT = 3;',
+            value,
+          ),
         ).toContain('await ctrl.set([Todo], Array.from(');
       });
 
@@ -3114,6 +3121,23 @@ const alias = countOf;`,
           '{ id: row.id, tags: row.tags.map(alias) }',
         ],
         ['a method of this', '', '{ id: this.format(row.id) }'],
+        [
+          'a method of a local object passed to map()',
+          `const helpers = { format: (tag: string) => tag };`,
+          '{ id: row.id, tags: row.tags.map(helpers.format) }',
+        ],
+        [
+          'a method of this passed to map()',
+          '',
+          '{ id: row.id, tags: row.tags.map(this.format) }',
+        ],
+        [
+          'a function the module declares inside an argument',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, n: Object.values({ count: currentCount })[0](row.id) }',
+        ],
         [
           'a tagged template the module declares',
           `const tag = (strings: TemplateStringsArray, id: string) => id;`,

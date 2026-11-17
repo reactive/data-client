@@ -3318,37 +3318,45 @@ const oneElement = node =>
 
 /** Whether the value at `path` can run code the module declares, which could read the store the earlier rows
  * were written to: `{ ...row, count: currentCount(row.id) + 1 }` where `currentCount()` calls `ctrl.get()`.
- * Every name in a callee must be a global, an import, the row `names`, or declared inside the value, like
- * `tag` in `row.tags.map(tag => tag.trim())`, so `(row.name || '').trim()` is safe but `format(row)`,
- * `this.format(row)` or `(0, format)(row)` is not. A name passed to a call, like `[row.id].map(format)`, may
- * also be a parameter, since the module can't call what it didn't declare. */
+ * Every name in a call's callee and arguments must be a global, an import, the row `names`, declared inside
+ * the value (like `tag` in `row.tags.map(tag => tag.trim())`), or, in an argument, a `const` set to a
+ * literal. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)` are safe, but `format(row)`,
+ * `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are not. */
 function callsLocalCode(j, path, names) {
-  const isSafe = p => {
-    if (names.has(p.node.name) || isLibraryName(p)) return true;
-    return isWithin(bindingOf(p), path.node);
+  const isSafe = p =>
+    names.has(p.node.name) ||
+    isLibraryName(p) ||
+    isWithin(bindingOf(p), path.node);
+  const isLiteralConst = p => {
+    const owner = bindingOf(p)?.parent;
+    const init = owner?.node.type === 'VariableDeclarator' && owner.node.init;
+    return (
+      !!init &&
+      owner.parent.node.kind === 'const' &&
+      (LITERALS.has(init.type) ||
+        (init.type === 'TemplateLiteral' && !init.expressions.length))
+    );
   };
-  const isParam = p => {
-    const owner = bindingOf(p)?.parent?.node;
-    return !!owner && isFunction(owner) && owner.id !== bindingOf(p).node;
-  };
+  // whether the expression at `part` can name code the module declares
+  const namesLocalCode = (part, allowed = isSafe) =>
+    part.node.type === 'ThisExpression' ||
+    j(part).find(j.ThisExpression).size() > 0 ||
+    identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
   return calls.some(type =>
     j(path)
       .find(type)
       .some(call => {
-        const callee = call.get(
-          call.node.type === 'TaggedTemplateExpression' ? 'tag' : 'callee',
+        const tagged = call.node.type === 'TaggedTemplateExpression';
+        return (
+          namesLocalCode(call.get(tagged ? 'tag' : 'callee')) ||
+          (call.node.arguments ?? []).some((_, i) =>
+            namesLocalCode(
+              call.get('arguments', i),
+              p => isSafe(p) || isLiteralConst(p),
+            ),
+          )
         );
-        if (
-          j(callee).find(j.ThisExpression).size() ||
-          callee.node.type === 'ThisExpression' ||
-          identifiersIn(j, callee).some(p => !isOtherName(p) && !isSafe(p))
-        )
-          return true;
-        return (call.node.arguments ?? []).some((arg, i) => {
-          const a = unwrapPath(call.get('arguments', i));
-          return a.node.type === 'Identifier' && !isSafe(a) && !isParam(a);
-        });
       }),
   );
 }
