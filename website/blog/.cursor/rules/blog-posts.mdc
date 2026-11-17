@@ -32,7 +32,7 @@ Layers guide grouping; they don't define the top-level groups (see Blog Structur
 - Inside a cross-cutting group (Performance, Validation), order items by layer.
 - Name the public packages each change affects: a line of package tags (`` `react` `vue` ``, without the
   `@data-client/` prefix; `` `all` `` when every package changes) under each heading, and the same tags at the start
-  of each bullet.
+  of each bullet. Skip the tags when the change is about how apps build or bundle, not about a package's API.
 - Internal-only changes (core, normalizr) go last, since most readers don't use those packages directly.
 
 ## Blog Structure
