@@ -3345,6 +3345,11 @@ const key = () => 'count';`,
           'through a computed method',
           "rows['push' as any]((prev: any) => prev);",
         ],
+        ['through an optional call', 'rows.push?.((prev: any) => prev);'],
+        [
+          "through a callback's array argument",
+          'rows.forEach((row, i, all) => all.push((prev: any) => prev));',
+        ],
       ])(
         'keeps parsed rows when code could put an updater in the array: %s',
         (_, change) => {
@@ -3355,7 +3360,7 @@ const key = () => 'count';`,
   ${change}
   rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
             ),
-          ).toContain('rows.forEach(');
+          ).toContain("rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));");
         },
       );
 
@@ -3387,12 +3392,51 @@ const key = () => 'count';`,
           'class Live { static get count() { return currentCount(); } }',
           'Live.count',
         ],
+        [
+          'a nested object getter',
+          'const live = { inner: { get count() { return currentCount(); } } };',
+          'live.inner.count',
+        ],
+        [
+          'what a function the module declares returns',
+          'function makeLive() { return { get count() { return currentCount(); } }; }\nconst live = makeLive();',
+          'live.count',
+        ],
+        [
+          'a class expression that extends one with a static getter',
+          'class Base { static get count() { return currentCount(); } }\nconst Live = class extends Base {};',
+          'Live.count',
+        ],
+        [
+          'an inherited static getter',
+          'class Base { static get count() { return currentCount(); } }\nclass Live extends Base {}',
+          'Live.count',
+        ],
       ])('keeps a value that reads %s', (_, setup, read) => {
         expect(
           run(
             `declare function currentCount(): number;\n${setup}`,
             `for (const row of JSON.parse(text))
     await ctrl.set(Todo, { ...row, count: ${read} + 1 });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it('keeps parsed rows another module could change', () => {
+        expect(
+          run(
+            "export const shared = JSON.parse('[]');",
+            `shared.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+          ),
+        ).toContain('shared.forEach(');
+      });
+
+      it('keeps a value that reads this, which can have a getter', () => {
+        expect(
+          run(
+            '',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: (this as any).count + 1 });`,
           ),
         ).toContain('for (const row of JSON.parse(text))');
       });

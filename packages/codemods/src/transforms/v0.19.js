@@ -3430,7 +3430,7 @@ const isPlainParse = node =>
   memberName(node.callee) === 'parse' &&
   node.arguments.length === 1 &&
   node.arguments[0].type !== 'SpreadElement';
-// array methods that return an array
+// array methods that return a new array built from the one they're called on
 const ARRAY_METHODS = new Set([
   'map',
   'filter',
@@ -3513,6 +3513,8 @@ const ARRAY_READS = new Set([
  * `length`, or calls a method that doesn't change it. Anything else, like `rows.push(fn)`, `rows[0] = fn` or
  * `fill(rows)`, could put a function in it. */
 function readsOnlyArray(j, path, binding) {
+  // another module could change an exported one
+  if (isExported(binding)) return false;
   return moduleUsesOf(j, path, binding).every(use => {
     const parent = use.parent.node;
     if (parent.type === 'ForOfStatement') return parent.right === use.node;
@@ -3524,8 +3526,23 @@ function readsOnlyArray(j, path, binding) {
     )
       return false;
     const holder = use.parent.parent.node;
-    const called = holder.type === 'CallExpression' && holder.callee === parent;
-    return !called || ARRAY_READS.has(memberName(parent));
+    const called =
+      (holder.type === 'CallExpression' ||
+        holder.type === 'OptionalCallExpression') &&
+      holder.callee === parent;
+    // `rows[i]` or `rows.length`, not a method to call later like `rows.push.call(...)`
+    if (!called) return parent.computed || memberName(parent) === 'length';
+    return (
+      ARRAY_READS.has(memberName(parent)) &&
+      // a callback gets the array as its third argument
+      !holder.arguments.some(
+        arg =>
+          /Function/.test(arg.type) &&
+          (arg.params.length > 2 ||
+            arg.params.some(p => p.type === 'RestElement') ||
+            containsNode(arg.body, n => isId(n, 'arguments'))),
+      )
+    );
   });
 }
 
@@ -3731,6 +3748,8 @@ function callsLocalCode(j, path, names) {
  * could read the store the earlier rows were written to: `live.count` where `const live = { get count() {...} }`,
  * an instance of a class the module declares, or a static getter of one. */
 function readsLocalGetter(j, path, names) {
+  // `this.count` can be a getter of the class around the loop
+  if (containsNode(path.node, isThisOrSuper)) return true;
   return identifiersIn(j, path).some(p => {
     const parent = p.parent.node;
     if (
@@ -3743,31 +3762,64 @@ function readsLocalGetter(j, path, names) {
     const binding = bindingOf(p);
     if (isWithin(binding, path.node)) return false;
     const owner = binding.parent;
-    if (owner.node.type === 'ClassDeclaration')
-      return hasGetter(owner.node, true);
-    const init =
+    if (owner.node.type === 'ClassDeclaration') return hasStaticGetter(owner);
+    return (
       owner.node.type === 'VariableDeclarator' &&
       owner.node.id === binding.node &&
-      owner.node.init &&
-      unwrap(owner.node.init);
-    if (!init) return false;
-    if (init.type === 'ObjectExpression')
-      return init.properties.some(
-        prop => prop.kind === 'get' || prop.kind === 'set',
-      );
-    if (init.type === 'ClassExpression') return hasGetter(init, true);
-    // an instance of a class the module declares
-    return (
-      init.type === 'NewExpression' &&
-      init.callee.type === 'Identifier' &&
-      !isLibraryName(unwrapPath(owner.get('init')).get('callee'))
+      !!owner.node.init &&
+      mayHaveGetter(unwrapPath(owner.get('init')))
     );
   });
 }
 
-/** Whether `cls` declares a static or instance getter itself */
-const hasGetter = (cls, isStatic) =>
-  cls.body.body.some(m => m.kind === 'get' && !!m.static === isStatic);
+/** Whether the value of the expression at `path` can have a getter the module declares: an object literal with
+ * one (also nested), a class with a static one, or what code the module declares returns (`new Live()`,
+ * `makeLive()`) */
+function mayHaveGetter(path) {
+  const { node } = path;
+  const isGetter = n => n.kind === 'get';
+  switch (node.type) {
+    case 'ObjectExpression':
+      return containsNode(node, isGetter);
+    case 'ClassExpression':
+      return hasStaticGetter(path);
+    case 'NewExpression':
+    case 'CallExpression': {
+      let root = unwrapPath(path.get('callee'));
+      while (isMember(root.node)) root = unwrapPath(root.get('object'));
+      return (
+        root.node.type !== 'Identifier' ||
+        !isLibraryName(root) ||
+        node.arguments.some(arg => containsNode(arg, isGetter))
+      );
+    }
+    default:
+      return false;
+  }
+}
+
+/** Whether the class at `path`, or a class the module declares that it extends, has a static getter */
+function hasStaticGetter(path) {
+  for (let depth = 0; depth < 20; depth++) {
+    const cls = unwrapPath(path);
+    if (
+      cls.node.type !== 'ClassDeclaration' &&
+      cls.node.type !== 'ClassExpression'
+    )
+      return false;
+    if (cls.node.body.body.some(m => m.kind === 'get' && m.static)) return true;
+    const base = unwrapPath(cls.get('superClass'));
+    if (base.node?.type !== 'Identifier' || isLibraryName(base)) return false;
+    const binding = bindingOf(base);
+    const owner = binding.parent;
+    path =
+      owner.node.type === 'VariableDeclarator' ? owner.get('init')
+      : owner.node.type === 'ClassDeclaration' ? owner
+      : undefined;
+    if (!path?.node) return true;
+  }
+  return true;
+}
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)`. Returns `{ call, guard }`, the guard from emptyGuardOf(). */
