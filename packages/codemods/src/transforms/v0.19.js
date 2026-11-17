@@ -2711,86 +2711,83 @@ function paramsWithin(node, max) {
 /** Whether a pk() or process() member declares at most `max` parameters and calls no code the module declares.
  * A batch runs it for every row before any write, while one set() per row runs it after the earlier rows are
  * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. */
-function hookWithin(j, member, max) {
+function hookWithin(j, member, max, file, seen) {
   if (!paramsWithin(member.node, max)) return false;
-  if (!member.node.static) return instanceCodeWithin(j, member);
+  if (!member.node.static) return instanceCodeWithin(j, member, file, seen);
   const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
   return !fn.node || !callsLocalCode(j, fn, new Set());
 }
 
-/** Whether an instance member calls no code the module declares. `this` in pk() is the row, which can be an
- * instance of the class, and `super.label()` runs the base class's method, so pk() may call any instance
- * method or accessor in the class chain, like `[this.id, this.label].join('-')`. Each of them is checked
- * with this rule, so they may call each other through `this` and `super`, but not reach static members
- * (`this.constructor.key()`). */
-function instanceCodeWithin(j, member) {
+const isMethodNode = node =>
+  node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
+
+/** Whether an instance member (constructor, method, accessor or field value) can't run code the module
+ * declares. `this` in pk() is the row, which can be an instance of the class: its constructor ran when it was
+ * built, and pk() can call any of its methods, accessors and fields, or the base class's through `super`. So
+ * each of them is checked: it may call the others through `this` and `super`, but not reach static members
+ * (`this.constructor.key()`) or name a helper the module declares (`currentCount(this.id)`, `count =
+ * currentCount`). */
+function instanceCodeWithin(j, member, file, seen) {
   const { node } = member;
-  const isMethod =
-    node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
+  const isMethod = isMethodNode(node);
   if (!isMethod && !node.value) return true;
   const code = isMethod ? member : unwrapPath(member.get('value'));
-  // a field can hold the class too, like `kind = this.constructor`, for pk() to call `this.kind.key()`
-  if (reachesStatics(j, code)) return false;
-  // or a function the module declares, like `count = lookupCount` or `lookupCount.bind(null)`
-  return isMethod || isFunction(code.node) ?
-      !callsLocalCode(j, code, new Set(), true)
-    : !mayHoldLocalCode(j, code);
+  return !reachesStatics(j, code) && !namesLocalCode(j, code, file, seen);
 }
 
-/** Whether a field's value can be code the module declares: it names anything the module declares but a
- * `const` set to a literal, or a class it constructs (`new Tag()`, `Tag.fromJS()`) */
-function mayHoldLocalCode(j, value) {
-  return identifiersIn(j, value).some(p => {
+/** Whether instance code names anything the module declares, which it could call, store (`this.count =
+ * currentCount`) or return for pk() to call. It may name globals, imports, its own declarations, `const`s set
+ * to a literal, and Entity classes it constructs (`author = User.fromJS()`) whose own code passes these
+ * checks. */
+function namesLocalCode(j, code, file, seen) {
+  return identifiersIn(j, code).some(p => {
     if (isOtherName(p) || isLibraryName(p)) return false;
     const binding = bindingOf(p);
-    const parent = p.parent.node;
-    if (binding.parent.node.type === 'ClassDeclaration')
-      return !(
+    if (isWithin(binding, code.node)) return false;
+    if (binding.parent.node.type === 'ClassDeclaration') {
+      const parent = p.parent.node;
+      const constructs =
         (parent.type === 'NewExpression' && parent.callee === p.node) ||
         (memberName(parent) === 'fromJS' &&
           parent.object === p.node &&
-          p.parent.parent.node.callee === parent)
-      );
+          p.parent.parent.node.callee === parent);
+      return !constructs || !isPlainEntityAt(j, p, file, ARGS_FREE, seen);
+    }
     return !isLiteralValue(constInitOf(binding)?.node);
   });
 }
 
-/** Whether the function at `fn` can reach the class's static members: it names `constructor` (`x.constructor`,
- * `const { constructor: C } = row`), or uses `this` or `super` other than to read a named member
- * (`this[key]`, `Reflect.get(this, 'constructor')`, `const self = this`) */
-function reachesStatics(j, fn) {
-  const { node } = fn;
+/** Whether instance code at `code` can reach the class's static members: it names `constructor`
+ * (`x.constructor`, `const { constructor: C } = row`) or `new.target`, or uses `this` or `super` other than to
+ * read a named member or call `super()` (`this[key]`, `Reflect.get(this, 'constructor')`, `kind = this`) */
+function reachesStatics(j, code) {
+  const { node } = code;
   // a method's own key, like `constructor() {}`, is not code
-  const code =
-    node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod' ?
-      [...node.params, node.body]
-    : [node];
-  return (
-    code.some(part =>
-      containsNode(
-        part,
-        n =>
-          isId(n, 'constructor') ||
-          ((n.type === 'StringLiteral' || n.type === 'Literal') &&
-            n.value === 'constructor'),
-      ),
-    ) ||
-    [j.ThisExpression, j.Super].some(type =>
-      j(fn)
-        .find(type)
-        .some(p => {
-          const parent = p.parent.node;
-          // a constructor's `super()`
-          if (parent.type === 'CallExpression' && parent.callee === p.node)
-            return false;
-          return (
-            !isMember(parent) ||
-            parent.object !== p.node ||
-            memberName(parent) === undefined
-          );
-        }),
-    )
+  const parts = isMethodNode(node) ? [...node.params, node.body] : [node];
+  const reachesByName = n =>
+    isId(n, 'constructor') ||
+    ((n.type === 'StringLiteral' || n.type === 'Literal') &&
+      n.value === 'constructor') ||
+    n.type === 'MetaProperty';
+  if (parts.some(part => containsNode(part, reachesByName))) return true;
+  const selves = [j.ThisExpression, j.Super].flatMap(type =>
+    j(code).find(type).paths(),
   );
+  if (isThisOrSuper(node)) selves.push(code);
+  return selves.some(p => {
+    const parent = p.parent.node;
+    if (
+      p.node.type === 'Super' &&
+      parent.type === 'CallExpression' &&
+      parent.callee === p.node
+    )
+      return false;
+    return (
+      !isMember(parent) ||
+      parent.object !== p.node ||
+      memberName(parent) === undefined
+    );
+  });
 }
 
 /** Whether `test` holds for `node` or anything inside it */
@@ -3069,8 +3066,8 @@ function memberAllows(j, member, file, limits, seen) {
   if (!isPrivate && name === undefined) return false;
   if (!node.static)
     return !isPrivate && name === 'pk' ?
-        hookWithin(j, member, limits.pk)
-      : instanceCodeWithin(j, member);
+        hookWithin(j, member, limits.pk, file, seen)
+      : instanceCodeWithin(j, member, file, seen);
   // only a private member can't be a hook; an `accessor` field can
   if (isPrivate) return true;
   switch (name) {
@@ -3614,24 +3611,16 @@ const oneElement = node =>
  * the value (like `tag` in `row.tags.map(tag => tag.trim())`), or, in an argument (or a tagged template's
  * `${}`), a `const` set to a literal like `3` or `-1`. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)`
  * are safe, but `format(row)`, `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are
- * not. `allowThis` makes calls through `this` and `super` safe, for instanceCodeWithin(), which checks every
- * method they can reach. */
-function callsLocalCode(j, path, names, allowThis = false) {
+ * not. */
+function callsLocalCode(j, path, names) {
   const isSafe = p =>
     names.has(p.node.name) ||
     isLibraryName(p) ||
     isWithin(bindingOf(p), path.node);
-  const isLiteralConst = p => {
-    const owner = bindingOf(p)?.parent;
-    return (
-      owner?.node.type === 'VariableDeclarator' &&
-      owner.parent.node.kind === 'const' &&
-      isLiteralValue(owner.node.init)
-    );
-  };
+  const isLiteralConst = p => isLiteralValue(constInitOf(bindingOf(p))?.node);
   // whether the expression at `part` can name code the module declares
-  const namesLocalCode = (part, allowed = isSafe) =>
-    (!allowThis && containsNode(part.node, isThisOrSuper)) ||
+  const namesCode = (part, allowed = isSafe) =>
+    containsNode(part.node, isThisOrSuper) ||
     identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
   const isArgSafe = p => isSafe(p) || isLiteralConst(p);
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
@@ -3644,8 +3633,8 @@ function callsLocalCode(j, path, names, allowThis = false) {
         const argList =
           tagged ? call.get('quasi', 'expressions') : call.get('arguments');
         return (
-          namesLocalCode(call.get(tagged ? 'tag' : 'callee')) ||
-          childPaths(argList).some(arg => namesLocalCode(arg, isArgSafe))
+          namesCode(call.get(tagged ? 'tag' : 'callee')) ||
+          childPaths(argList).some(arg => namesCode(arg, isArgSafe))
         );
       }),
   );

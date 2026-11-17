@@ -3576,6 +3576,11 @@ function currentCount(id: string) {
         const helper = `export const latest = { ctrl: undefined as any };
 function currentCount(id: string) {
   return latest.ctrl.get(Todo, { id }, latest.ctrl.getState())?.count ?? 0;
+}
+class Tag {
+  count(id: string) {
+    return currentCount(id);
+  }
 }`;
         const kept = [
           '  pk() {\n    return this.lookup();\n  }\n  lookup() {\n    return currentCount(this.id);\n  }',
@@ -3589,6 +3594,11 @@ function currentCount(id: string) {
           '  pk() {\n    return this.count(this.id);\n  }\n  count = currentCount;',
           '  pk() {\n    return this.count(this.id);\n  }\n  count = ((id: string) => currentCount(id)) as any;',
           '  pk() {\n    return this.count();\n  }\n  count = currentCount.bind(null, this.id);',
+          '  pk() {\n    return this.kind[this.name].key(this.id);\n  }\n  name = "con" + "structor";\n  kind = this as any;\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    return this.count(this.id);\n  }\n  constructor(...args) {\n    super(...args);\n    this.count = currentCount;\n  }',
+          '  pk() {\n    return this.kind.key(this.id);\n  }\n  constructor(...args) {\n    super(...args);\n    this.kind = new.target;\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    return this.counter()(this.id);\n  }\n  counter() {\n    return currentCount;\n  }',
+          '  pk() {\n    return this.tag.count(this.id);\n  }\n  tag = new Tag();',
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this.constructor;\n  static key(id) {\n    return currentCount(id);\n  }',
           "  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this['constructor'];\n  static key(id) {\n    return currentCount(id);\n  }",
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = Object.getPrototypeOf(this);\n  static key(id) {\n    return currentCount(id);\n  }',
@@ -3629,11 +3639,11 @@ export function save(ctrl, rows: any[]) {
             "  slug = '';\n  pk() {\n    return `${this.id}-${this.label}`;\n  }\n  get label() {\n    return this.slug.trim();\n  }\n  title() {\n    return this.label.toUpperCase();\n  }\n  constructor(...args) {\n    super(...args);\n    this.slug = String(this.slug);\n  }",
           ),
         ).toContain('ctrl.set([Todo], rows.map(');
-        // field values that construct a class or hold a literal const aren't code
+        // field values that construct an Entity or hold a literal const aren't code, and types aren't either
         expect(
           run(
-            '  tag = new Tag();\n  author = Tag.fromJS();\n  label = LABEL;\n  pk() {\n    return this.id;\n  }',
-            "class Tag {\n  static fromJS() {\n    return new Tag();\n  }\n}\nconst LABEL = 'todo';",
+            '  tag = new Tag();\n  author = Tag.fromJS();\n  label = LABEL;\n  pk() {\n    return this.id;\n  }\n  title(): Label {\n    return LABEL;\n  }',
+            "class Tag extends Entity {\n  id = '';\n}\nconst LABEL = 'todo';\ntype Label = string;",
           ),
         ).toContain('ctrl.set([Todo], rows.map(');
       });
