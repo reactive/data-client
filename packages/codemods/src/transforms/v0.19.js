@@ -2658,42 +2658,43 @@ function memberAllows(j, member, file, limits, seen) {
   }
 }
 
-/** The name a class declaration, or the `const` holding a class expression, binds */
-const classNameOf = path =>
-  path.node.id?.name ??
-  (path.parent.node.type === 'VariableDeclarator' ?
-    path.parent.node.id.name
-  : undefined);
+/** The identifier a class declaration, or the `const` holding a class expression, binds */
+const classBindingOf = path =>
+  path.node.type === 'ClassDeclaration' ?
+    path.get('id')
+  : path.parent.get('id');
 
-// member writes found per module, by class name
+// member writes found per class binding
 const memberWrites = new WeakMap();
 
-/** Whether the module holding `path` writes to a member of `name` after declaring it, like
- * `Todo.schema = { child }` or `Object.assign(Todo, ...)`, which can add what the class body doesn't show */
-function writesMembersOf(j, path, name) {
-  if (!name) return true;
-  let top = path;
-  while (top.parent) top = top.parent;
-  if (!memberWrites.has(top.node)) memberWrites.set(top.node, new Map());
-  const found = memberWrites.get(top.node);
-  if (!found.has(name)) {
-    const rootedAt = node => isMember(node) && isId(rootOf(node), name);
-    const program = j(top);
-    found.set(
-      name,
-      program.find(j.AssignmentExpression).some(p => rootedAt(p.node.left)) ||
-        program
-          .find(j.CallExpression)
-          .some(
-            p =>
-              isMember(p.node.callee) &&
-              isId(p.node.callee.object, 'Object') &&
-              (isId(p.node.arguments[0], name) ||
-                rootedAt(p.node.arguments[0])),
-          ),
+/** Whether the module that declares or imports `binding` writes to the class's members, which can add what the
+ * class body doesn't show: `Todo.schema = { child }`, `Object.assign(Todo, ...)`, `Reflect.set(Todo, ...)`, or
+ * an alias like `const T = Todo` that could be written instead */
+function writesMembersOf(j, binding) {
+  if (!memberWrites.has(binding.node)) {
+    let top = binding;
+    while (top.parent) top = top.parent;
+    memberWrites.set(
+      binding.node,
+      usesOf(j, j(top), binding).some(p => {
+        const chain = memberChainOf(p);
+        const parent = chain.parent.node;
+        return (
+          isWriteTarget(chain) ||
+          (parent.type === 'VariableDeclarator' &&
+            parent.init === chain.node) ||
+          (parent.type === 'AssignmentExpression' &&
+            parent.right === chain.node) ||
+          (parent.type === 'CallExpression' &&
+            parent.arguments[0] === chain.node &&
+            isMember(parent.callee) &&
+            (isId(parent.callee.object, 'Object') ||
+              isId(parent.callee.object, 'Reflect')))
+        );
+      }),
     );
   }
-  return found.get(name);
+  return memberWrites.get(binding.node);
 }
 
 /** The paths of a list's items: a list's path has map() but no every() */
@@ -2708,7 +2709,7 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
   if (checked === limits || checked === ROW_ONLY) return true;
   if (seen.size > 20) return false;
   seen.set(cls.path.node, limits);
-  if (writesMembersOf(j, cls.path, classNameOf(cls.path))) return false;
+  if (writesMembersOf(j, classBindingOf(cls.path))) return false;
   const superClass = cls.path.get('superClass');
   if (!superClass.node) return false;
   if (!isSchemaExport(superClass, ENTITY_BASES)) {
@@ -2763,7 +2764,7 @@ const isRowOnlyEntity = (j, path, file) => {
   const cls = classOf(j, path, file);
   return (
     !!cls &&
-    !writesMembersOf(j, path, path.node.name) &&
+    !writesMembersOf(j, bindingOf(path)) &&
     isPlainEntity(j, cls, ROW_ONLY)
   );
 };
@@ -2815,12 +2816,21 @@ const ARRAY_METHODS = new Set([
   'toReversed',
 ]);
 
+/** Whether `node` is a literal that holds no functions: `1`, `'a'`, or objects and arrays of them */
+const isLiteralData = node =>
+  LITERALS.has(node?.type) ||
+  (node?.type === 'ArrayExpression' && node.elements.every(isLiteralData)) ||
+  (node?.type === 'ObjectExpression' &&
+    node.properties.every(
+      p => isProperty(p) && !p.computed && isLiteralData(p.value),
+    ));
+
 // array methods that return some of an array's own elements
 const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
 
 /** Whether the expression at `path` is an array, since a batch set() reads only arrays and plain objects, so
- * a Set or Map loops differently. Returns what is known about its elements: `{ json: true }` for parsed
- * JSON, which holds no functions, or `{ element }`, its declared element type. */
+ * a Set or Map loops differently. Returns what is known about its elements: `{ data: true }` when they
+ * hold no functions (parsed JSON or literals), or `{ element }`, their declared type. */
 function arrayOf(path, depth = 0) {
   const { node } = path;
   if (depth > 5 || !node) return;
@@ -2829,7 +2839,8 @@ function arrayOf(path, depth = 0) {
       arrayType(node.typeAnnotation) ??
       arrayOf(path.get('expression'), depth + 1)
     );
-  if (node.type === 'ArrayExpression') return {};
+  if (node.type === 'ArrayExpression')
+    return node.elements.every(isLiteralData) ? { data: true } : {};
   if (node.type === 'CallExpression' && isMember(node.callee)) {
     const method = memberName(node.callee);
     const object = path.get('callee', 'object');
@@ -2838,7 +2849,13 @@ function arrayOf(path, depth = 0) {
       ARRAY_FACTORIES.get(object.node.name)?.has(method) &&
       !bindingOf(object)
     )
-      return object.node.name === 'JSON' ? { json: true } : {};
+      return (
+          object.node.name === 'JSON' ||
+            (method === 'values' &&
+              arrayOf(path.get('arguments', 0), depth + 1)?.data)
+        ) ?
+          { data: true }
+        : {};
     const array = ARRAY_METHODS.has(method) && arrayOf(object, depth + 1);
     return array && (ELEMENT_METHODS.has(method) ? array : {});
   }
@@ -2945,23 +2962,36 @@ function isController(path) {
   );
 }
 
+/** Whether the member chain `node` reads only properties a plain object can hold: `row.author.name`, not
+ * `row.toString`, which every object inherits */
+const readsOwnProperties = node =>
+  !isMember(node) ||
+  (!(memberName(node) in Object.prototype) && readsOwnProperties(node.object));
+
 /** Whether `value` is row data and never an updater function, which set() would call with the stored value
- * where a batch normalizes it: an object or array literal, a row of parsed JSON or a property of one, or a row
- * of an array typed as instances of the `schema` class */
-function isRowData(value, array, param, names, schema) {
+ * where a batch normalizes it: an object or array literal, a row of data that holds no functions (parsed JSON
+ * or literals) or one of its own properties, or a row of an array typed as instances of the `schema` class
+ * or as a plain object type */
+function isRowData(value, array, param, schema) {
   value = unwrap(value);
   if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression')
     return true;
-  if (array.json)
+  // a destructured name could have a default, like `apply = prev => prev`
+  if (param.type !== 'Identifier') return false;
+  if (array.data)
     return (
-      (value.type === 'Identifier' ||
-        (isMember(value) && isReference(value))) &&
-      names.has(rootOf(value).name)
+      isReference(value) &&
+      isId(rootOf(value), param.name) &&
+      readsOwnProperties(value)
     );
+  const { element } = array;
   return (
-    isId(value, param.type === 'Identifier' && param.name) &&
-    array.element?.type === 'TSTypeReference' &&
-    isId(array.element.typeName, schema.type === 'Identifier' && schema.name)
+    isId(value, param.name) &&
+    ((element?.type === 'TSTypeReference' &&
+      schema.type === 'Identifier' &&
+      isId(element.typeName, schema.name)) ||
+      (element?.type === 'TSTypeLiteral' &&
+        element.members.every(m => m.type === 'TSPropertySignature')))
   );
 }
 
@@ -3036,7 +3066,7 @@ function batchSetOf(j, file, { rows, param, call }) {
     return;
 
   const array = arrayOf(rows);
-  if (!array || !isRowData(value, array, param, names, args[0])) return;
+  if (!array || !isRowData(value, array, param, args[0])) return;
   const batch = batchSchemaOf(j, file, call);
   if (!batch) return;
   value = batch.value ?? value;
@@ -3382,7 +3412,8 @@ const TESTS = new Set([
  * or the operand of `!`, which makes any value a boolean. Elsewhere `x || false` is `false`, not `x`, when `x`
  * is falsy. */
 function isCondition(path) {
-  // `??` reads more than truthiness: `(x || false) ?? true` is false, `x ?? true` is true
+  // `??` reads more than truthiness: when `x` is undefined, `(x || false) ?? true` is false and `x ?? true`
+  // is true
   while (
     (path.parent.node.type === 'LogicalExpression' &&
       path.parent.node.operator !== '??') ||

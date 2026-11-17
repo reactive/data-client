@@ -218,8 +218,9 @@ It rewrites only code it can prove does the same thing, apart from two batch dif
 
 - A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
   [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`. Only
-  when `rows` is an array of row data (not updater functions) and the Entity's `pk()` and `process()` read only the
-  row. Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check
+  when each row is plain data (parsed JSON, literals, or typed as the Entity), never an updater function, and the
+  Entity's `pk()` and `process()` read only the row and it overrides neither `validate()` nor the store-merge
+  methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`). Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check
   Managers and middleware that match SET actions by schema: match `action.schema[0]` too. A row whose `pk()` or
   `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.

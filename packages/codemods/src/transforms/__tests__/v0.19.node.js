@@ -2837,6 +2837,12 @@ export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
 export function deleteTodos(ctrl: Controller, ids: string[]) {
   for (const id of ids) ctrl.set([new Invalidate(Todo)], [{ id }]);
 }
+export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
+  const rows = [{ product_id: 'BTC', price: 1 }];
+  rows.forEach(row => ctrl.set(Ticker, row));
+  more.forEach(row => ctrl.set(Ticker, row));
+  Object.values(JSON.parse(text)).forEach(row => ctrl.set(Ticker, row));
+}
       `,
       `${ENTITIES}
 export function onMessage(ctrl: Controller, event: MessageEvent) {
@@ -2855,6 +2861,12 @@ export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
 }
 export function deleteTodos(ctrl: Controller, ids: string[]) {
   ctrl.set([new Invalidate(Todo)], ids.map(id => ({ id })));
+}
+export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
+  const rows = [{ product_id: 'BTC', price: 1 }];
+  ctrl.set([Ticker], rows);
+  ctrl.set([Ticker], more);
+  ctrl.set([Ticker], Object.values(JSON.parse(text)));
 }
       `,
       'batches loops of set() into one set()',
@@ -2893,6 +2905,11 @@ class Versioned extends Entity {
 }
 class Assigned extends Entity { id = 0; }
 Assigned.schema = { child: Slugged };
+class Aliased extends Entity { id = 0; }
+const Alias = Aliased;
+Alias.shouldUpdate = () => false;
+class Patched extends Entity { id = 0; }
+Reflect.set(Patched, 'shouldUpdate', () => false);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2925,6 +2942,11 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   const literal = [{ id: 1, apply: prev => prev }];
   literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
   rows.forEach(w => ctrl.set(Versioned, w));
+  const parsed = JSON.parse(data);
+  parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
+  parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
+  rows.forEach(n2 => ctrl.set(Aliased, n2));
+  rows.forEach(o2 => ctrl.set(Patched, o2));
   rows.forEach(x => ctrl.set(Assigned, x));
 }
       `,
@@ -2958,6 +2980,11 @@ class Versioned extends Entity {
 }
 class Assigned extends Entity { id = 0; }
 Assigned.schema = { child: Slugged };
+class Aliased extends Entity { id = 0; }
+const Alias = Aliased;
+Alias.shouldUpdate = () => false;
+class Patched extends Entity { id = 0; }
+Reflect.set(Patched, 'shouldUpdate', () => false);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2990,6 +3017,11 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   const literal = [{ id: 1, apply: prev => prev }];
   literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
   rows.forEach(w => ctrl.set(Versioned, w));
+  const parsed = JSON.parse(data);
+  parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
+  parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
+  rows.forEach(n2 => ctrl.set(Aliased, n2));
+  rows.forEach(o2 => ctrl.set(Patched, o2));
   rows.forEach(x => ctrl.set(Assigned, x));
 }
       `,
