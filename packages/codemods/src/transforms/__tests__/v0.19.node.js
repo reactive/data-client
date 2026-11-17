@@ -2848,7 +2848,7 @@ export function seed(ctrl: Controller, more: { product_id: string; price: number
 export function onMessage(ctrl: Controller, event: MessageEvent) {
   const rows = JSON.parse(event.data);
   ctrl.set([Ticker], rows);
-  ctrl.set([User], rows.map(row => row.author));
+  rows.forEach(row => ctrl.set(User, row.author));
 }
 export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
   for (const todo of todos) {
@@ -2864,7 +2864,7 @@ export function deleteTodos(ctrl: Controller, ids: string[]) {
 }
 export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
   const rows = [{ product_id: 'BTC', price: 1 }];
-  ctrl.set([Ticker], rows);
+  rows.forEach(row => ctrl.set(Ticker, row));
   ctrl.set([Ticker], more);
   ctrl.set([Ticker], Object.values(JSON.parse(text)));
 }
@@ -2910,6 +2910,8 @@ const Alias = Aliased;
 Alias.shouldUpdate = () => false;
 class Patched extends Entity { id = 0; }
 Reflect.set(Patched, 'shouldUpdate', () => false);
+class Cast extends Entity { id = 0; }
+(Cast as any).process = (input, parent) => ({ ...input, parent });
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -2947,6 +2949,9 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
   rows.forEach(n2 => ctrl.set(Aliased, n2));
   rows.forEach(o2 => ctrl.set(Patched, o2));
+  rows.forEach(p2 => ctrl.set(Cast, p2));
+  const empty: {}[] = [];
+  empty.forEach(q2 => ctrl.set(Plain, q2));
   rows.forEach(x => ctrl.set(Assigned, x));
 }
       `,
@@ -2985,6 +2990,8 @@ const Alias = Aliased;
 Alias.shouldUpdate = () => false;
 class Patched extends Entity { id = 0; }
 Reflect.set(Patched, 'shouldUpdate', () => false);
+class Cast extends Entity { id = 0; }
+(Cast as any).process = (input, parent) => ({ ...input, parent });
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -3022,6 +3029,9 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
   rows.forEach(n2 => ctrl.set(Aliased, n2));
   rows.forEach(o2 => ctrl.set(Patched, o2));
+  rows.forEach(p2 => ctrl.set(Cast, p2));
+  const empty: {}[] = [];
+  empty.forEach(q2 => ctrl.set(Plain, q2));
   rows.forEach(x => ctrl.set(Assigned, x));
 }
       `,

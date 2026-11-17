@@ -2667,31 +2667,72 @@ const classBindingOf = path =>
 // member writes found per class binding
 const memberWrites = new WeakMap();
 
-/** Whether the module that declares or imports `binding` writes to the class's members, which can add what the
- * class body doesn't show: `Todo.schema = { child }`, `Object.assign(Todo, ...)`, `Reflect.set(Todo, ...)`, or
- * an alias like `const T = Todo` that could be written instead */
+const CASTS = new Set([
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSNonNullExpression',
+  'TSTypeAssertion',
+  'ParenthesizedExpression',
+]);
+
+/** Whether a use of a class only reads it or names it in a schema, call or type: `Todo.key`, `[Todo]`,
+ * `{ todo: Todo }`, `ctrl.set(Todo, row)`, `extends Todo`, `Todo[]` */
+function readsClass(path) {
+  const chain = memberChainOf(path);
+  const parent = chain.parent.node;
+  if (chain !== path)
+    return (
+      !isWriteTarget(chain) &&
+      !CASTS.has(parent.type) &&
+      !(parent.type === 'VariableDeclarator' && parent.init === chain.node) &&
+      !(
+        parent.type === 'AssignmentExpression' && parent.right === chain.node
+      ) &&
+      !isObjectOrReflectTarget(chain)
+    );
+  switch (parent.type) {
+    case 'CallExpression':
+    case 'NewExpression':
+      return parent.callee !== path.node && !isObjectOrReflectTarget(path);
+    case 'ArrayExpression':
+    case 'ExportSpecifier':
+    case 'TSTypeReference':
+    case 'TSTypeQuery':
+    case 'TSQualifiedName':
+      return true;
+    case 'ObjectProperty':
+    case 'Property':
+      return parent.value === path.node && !parent.computed;
+    case 'ClassDeclaration':
+    case 'ClassExpression':
+      return parent.superClass === path.node;
+    default:
+      return false;
+  }
+}
+
+/** Whether `path` is the first argument of an `Object.*()` or `Reflect.*()` call, which can write to it */
+const isObjectOrReflectTarget = path => {
+  const parent = path.parent.node;
+  return (
+    parent.type === 'CallExpression' &&
+    parent.arguments[0] === path.node &&
+    isMember(parent.callee) &&
+    (isId(parent.callee.object, 'Object') ||
+      isId(parent.callee.object, 'Reflect'))
+  );
+};
+
+/** Whether the module that declares or imports `binding` could write to the class's members, which can add
+ * what the class body doesn't show: any use other than a read, like `Todo.schema = { child }`,
+ * `(Todo as any).process = ...`, `Object.assign(Todo, ...)` or an alias `const T = Todo` */
 function writesMembersOf(j, binding) {
   if (!memberWrites.has(binding.node)) {
     let top = binding;
     while (top.parent) top = top.parent;
     memberWrites.set(
       binding.node,
-      usesOf(j, j(top), binding).some(p => {
-        const chain = memberChainOf(p);
-        const parent = chain.parent.node;
-        return (
-          isWriteTarget(chain) ||
-          (parent.type === 'VariableDeclarator' &&
-            parent.init === chain.node) ||
-          (parent.type === 'AssignmentExpression' &&
-            parent.right === chain.node) ||
-          (parent.type === 'CallExpression' &&
-            parent.arguments[0] === chain.node &&
-            isMember(parent.callee) &&
-            (isId(parent.callee.object, 'Object') ||
-              isId(parent.callee.object, 'Reflect')))
-        );
-      }),
+      usesOf(j, j(top), binding).some(p => !readsClass(p)),
     );
   }
   return memberWrites.get(binding.node);
@@ -2816,21 +2857,12 @@ const ARRAY_METHODS = new Set([
   'toReversed',
 ]);
 
-/** Whether `node` is a literal that holds no functions: `1`, `'a'`, or objects and arrays of them */
-const isLiteralData = node =>
-  LITERALS.has(node?.type) ||
-  (node?.type === 'ArrayExpression' && node.elements.every(isLiteralData)) ||
-  (node?.type === 'ObjectExpression' &&
-    node.properties.every(
-      p => isProperty(p) && !p.computed && isLiteralData(p.value),
-    ));
-
 // array methods that return some of an array's own elements
 const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
 
 /** Whether the expression at `path` is an array, since a batch set() reads only arrays and plain objects, so
- * a Set or Map loops differently. Returns what is known about its elements: `{ data: true }` when they
- * hold no functions (parsed JSON or literals), or `{ element }`, their declared type. */
+ * a Set or Map loops differently. Returns what is known about its elements: `{ data: true }` for parsed
+ * JSON, which holds no functions, or `{ element }`, their declared type. */
 function arrayOf(path, depth = 0) {
   const { node } = path;
   if (depth > 5 || !node) return;
@@ -2839,8 +2871,7 @@ function arrayOf(path, depth = 0) {
       arrayType(node.typeAnnotation) ??
       arrayOf(path.get('expression'), depth + 1)
     );
-  if (node.type === 'ArrayExpression')
-    return node.elements.every(isLiteralData) ? { data: true } : {};
+  if (node.type === 'ArrayExpression') return {};
   if (node.type === 'CallExpression' && isMember(node.callee)) {
     const method = memberName(node.callee);
     const object = path.get('callee', 'object');
@@ -2962,36 +2993,36 @@ function isController(path) {
   );
 }
 
-/** Whether the member chain `node` reads only properties a plain object can hold: `row.author.name`, not
- * `row.toString`, which every object inherits */
-const readsOwnProperties = node =>
-  !isMember(node) ||
-  (!(memberName(node) in Object.prototype) && readsOwnProperties(node.object));
+/** Whether the type literal `type` can't hold a function: only properties, and at least one required one that
+ * a function doesn't have, unlike `{}` or `{ name?: string }` */
+const isPlainObjectType = type =>
+  type.members.every(m => m.type === 'TSPropertySignature') &&
+  type.members.some(
+    m =>
+      !m.optional &&
+      !m.computed &&
+      !(keyName(m) in Function.prototype) &&
+      keyName(m) !== 'prototype',
+  );
 
 /** Whether `value` is row data and never an updater function, which set() would call with the stored value
- * where a batch normalizes it: an object or array literal, a row of data that holds no functions (parsed JSON
- * or literals) or one of its own properties, or a row of an array typed as instances of the `schema` class
- * or as a plain object type */
+ * where a batch normalizes it: an object or array literal, a row of parsed JSON, or a row of an array typed as
+ * instances of the `schema` class or as a plain object type */
 function isRowData(value, array, param, schema) {
   value = unwrap(value);
   if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression')
     return true;
   // a destructured name could have a default, like `apply = prev => prev`
   if (param.type !== 'Identifier') return false;
-  if (array.data)
-    return (
-      isReference(value) &&
-      isId(rootOf(value), param.name) &&
-      readsOwnProperties(value)
-    );
+  // a property of a parsed row could be a method its prototype gives it, like `row.trim`
+  if (array.data) return isId(value, param.name);
   const { element } = array;
   return (
     isId(value, param.name) &&
     ((element?.type === 'TSTypeReference' &&
       schema.type === 'Identifier' &&
       isId(element.typeName, schema.name)) ||
-      (element?.type === 'TSTypeLiteral' &&
-        element.members.every(m => m.type === 'TSPropertySignature')))
+      (element?.type === 'TSTypeLiteral' && isPlainObjectType(element)))
   );
 }
 
