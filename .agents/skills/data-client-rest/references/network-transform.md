@@ -357,15 +357,12 @@ export class Article extends Entity {
   carrotsUsed = 0;
 
   static process(value: any, parent: any, key: string, args: any[]) {
-    const { carrotsUsedIsThisNameTooLong, ...rest } = super.process(
-      value,
-      parent,
-      key,
-      args,
-    );
-    return carrotsUsedIsThisNameTooLong === undefined ? rest : (
-        { ...rest, carrotsUsed: carrotsUsedIsThisNameTooLong }
-      );
+    const processed = super.process(value, parent, key, args);
+    if ('carrotsUsedIsThisNameTooLong' in processed) {
+      processed.carrotsUsed = processed.carrotsUsedIsThisNameTooLong;
+      delete processed.carrotsUsedIsThisNameTooLong;
+    }
+    return processed;
   }
 }
 
@@ -383,4 +380,10 @@ export class RenamedEndpoint<
     return super.getRequestInit(body);
   }
 }
+
+export const updateArticle = new RenamedEndpoint({
+  path: '/articles/:id',
+  method: 'PATCH',
+  schema: Article,
+});
 ```
