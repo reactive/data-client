@@ -130,6 +130,13 @@ const isGetDefaultManagersCall = node =>
 const isCall = node =>
   node.type === 'CallExpression' || node.type === 'OptionalCallExpression';
 
+/** Whether `node` is the global `Object` or `Reflect`, also as a member like `globalThis.Object` */
+const isObjectGlobal = node =>
+  isId(node, 'Object') ||
+  isId(node, 'Reflect') ||
+  (node?.type?.endsWith('MemberExpression') &&
+    !node.computed &&
+    (isId(node.property, 'Object') || isId(node.property, 'Reflect')));
 const isMember = node =>
   node?.type === 'MemberExpression' ||
   node?.type === 'OptionalMemberExpression';
@@ -2600,6 +2607,27 @@ const constInitOf = binding => {
     : undefined;
 };
 
+/** Whether the file uses the named function whose parameter is `binding` other than to export it, so it could
+ * pass the parameter anything, like `save(ctrl, rows, live)`. An unnamed function, like a callback, is called by
+ * code the file hands it to. */
+function fileCallsWith(j, binding) {
+  let path = binding;
+  while (PATTERN_PARTS.has(path.parent.node.type)) path = path.parent;
+  const fn = path.parent;
+  const name =
+    fn.node.type === 'FunctionDeclaration' ? fn.get('id')
+    : (
+      fn.parent.node.type === 'VariableDeclarator' &&
+      fn.parent.node.init === fn.node
+    ) ?
+      fn.parent.get('id')
+    : undefined;
+  if (name?.node?.type !== 'Identifier') return false;
+  return moduleUsesOf(j, name, bindingOf(name)).some(
+    use => use.parent.node.type !== 'ExportSpecifier',
+  );
+}
+
 /** Whether `binding` is a `const` set to a literal, like `const LIMIT = 3` */
 const isLiteralConst = binding => isLiteralValue(constInitOf(binding)?.node);
 
@@ -2969,7 +2997,7 @@ function hookWriteOf(path) {
     node.type !== 'CallExpression' ||
     !isMember(node.callee) ||
     !OBJECT_WRITERS.has(memberName(node.callee)) ||
-    !(isId(node.callee.object, 'Object') || isId(node.callee.object, 'Reflect'))
+    !isObjectGlobal(node.callee.object)
   )
     return;
   // Object.assign() copies every source after the target; the others take one key or descriptor map
@@ -3162,7 +3190,7 @@ function writesHooksIndirectly(j, top) {
     ];
     hookWrites.set(
       top.node,
-      selvesIn(j, top).some(p => thisEscapes(p)) ||
+      selvesIn(j, top).some(thisEscapes) ||
         types.some(type =>
           j(top)
             .find(type)
@@ -3187,6 +3215,7 @@ function memberAllows(j, member, file, limits, seen) {
   const name = keyName(node);
   // a computed key could be any member
   if (!isPrivate && name === undefined) return false;
+  // an instance pk() is held to the same parameter limit as a static one
   if (!node.static)
     return (
       (isPrivate || name !== 'pk' || paramsWithin(node, limits.pk)) &&
@@ -3370,8 +3399,7 @@ function isObjectOrReflectTarget(path) {
     parent.type === 'CallExpression' &&
     parent.arguments[0] === path.node &&
     isMember(parent.callee) &&
-    (isId(parent.callee.object, 'Object') ||
-      isId(parent.callee.object, 'Reflect'))
+    isObjectGlobal(parent.callee.object)
   );
 }
 
@@ -3843,18 +3871,24 @@ function callsLocalCode(j, path, names) {
 
 /** Whether the expression at `path`, which a batch evaluates for every row before any write, reads something
  * that can differ from when the loop read it: `this` or `super`; a `let` or `var`, which other code can change
- * while the loop awaits; or, in a file that can make a getter (`getters`, from makesGetters()), any name but the
- * loop's own (`names`), a global, an import, a parameter, a function declaration, a `const` set to a literal or
- * a variable of plain data (isDataVariable()), since `live.count`, `{ ...live }` and `{ [live]: 1 }` can each run
- * a getter the file declares. Like imports, parameters are trusted. */
-function readsChangingState(j, path, names, getters) {
+ * while the loop awaits; or, in a file that can make a getter (`fileMakesGetters`, from makesGetters()), any
+ * name but the loop's own (`names`), a global (also `declare const`), an import, a function declaration, a `const`
+ * set to a literal or a variable of plain data (isDataVariable()), since `live.count`, `{ ...live }` and
+ * `{ [live]: 1 }` can each run a getter the file declares. A parameter is trusted like an import, unless the
+ * file itself calls its function and so could pass it one: `save(ctrl, rows, live)`. */
+function readsChangingState(j, path, names, fileMakesGetters) {
   if (containsNode(path.node, isThisOrSuper)) return true;
   return outerNamesIn(j, path).some(p => {
     if (names.has(p.node.name)) return false;
     const binding = bindingOf(p);
     const kind = bindingKind(binding);
     if (kind === 'let' || kind === 'var') return true;
-    if (!getters || kind === 'param' || kind === 'FunctionDeclaration')
+    if (
+      !fileMakesGetters ||
+      kind === 'declare' ||
+      kind === 'FunctionDeclaration' ||
+      (kind === 'param' && !fileCallsWith(j, binding))
+    )
       return false;
     return (
       kind !== 'const' || !(isLiteralConst(binding) || isDataVariable(j, p))
@@ -3891,7 +3925,6 @@ const ACCESSOR_INSTALLERS = new Set([
   '__proto__',
   'Proxy',
 ]);
-const isObjectGlobal = node => isId(node, 'Object') || isId(node, 'Reflect');
 /** Whether `node` stores or passes `Object` or `Reflect` itself, like `const O = Object`, `const { create } =
  * Object` or `use(Reflect)`, so a later member read of it could be any of their methods */
 const isGlobalObjectValue = node =>
@@ -3928,8 +3961,8 @@ function makesGetters(top) {
 
 /** Whether the rows a batch would hand to normalize() can have a getter the file declares, which would run
  * before any row is written. Only a file that can make one (makesGetters()) needs this check. The rows must be
- * a parameter's, or parsed JSON or a literal of plain data that only the loop (`loop`), a `length` read or a
- * condition uses, so `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keeps the loop. */
+ * a parameter the file can't pass them to (fileCallsWith()), or parsed JSON or a literal of plain data that only
+ * the loop (`loop`), a `length` read or a condition uses, so `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keeps the loop. */
 function rowsMayHoldGetter(j, rows, loop) {
   rows = unwrapPath(rows);
   const plain = path => arrayOf(j, path)?.data || isPlainData(path.node);
@@ -3937,7 +3970,7 @@ function rowsMayHoldGetter(j, rows, loop) {
   const binding = bindingOf(rows);
   if (!binding) return true;
   const kind = bindingKind(binding);
-  if (kind === 'param') return false;
+  if (kind === 'param') return fileCallsWith(j, binding);
   const init = constInitOf(binding);
   return (
     kind !== 'const' ||
@@ -4011,7 +4044,7 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
     // the batch drops the args, so a getter they read, like one that bumps `seq`, no longer runs
     (getters &&
       ((extra &&
-        readsChangingState(j, call.get('arguments', 1), names, true)) ||
+        readsChangingState(j, call.get('arguments', 1), names, getters)) ||
         rowsMayHoldGetter(j, rows, rows.parent.node)))
   )
     return;

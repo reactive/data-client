@@ -224,12 +224,14 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     whose array the file only reads and doesn't export, or typed as the Entity or a plain object type;
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
     literals and `const`s set to a literal, and reads no `this`, `let` or `var`;
-  - in a file that can make a getter (it declares a getter or setter, or uses `Object.defineProperty()`,
-    `defineProperties()`, `setPrototypeOf()`, `__defineGetter__()`, `__proto__`, `Proxy`, `Object.create()` or
-    `Object` itself as a value), the row and dropped args also read only the row, globals, imports, parameters,
-    `const`s set to a literal and variables of plain data, so `live.count` and `{ ...live }` can't run a getter
-    there, and the rows are a parameter, or parsed JSON or plain data that only the loop reads (`[new Live()]` and
-    `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keep the loop);
+  - in a file that can make a getter (it declares a getter or setter, names `defineProperty`, `defineProperties`,
+    `setPrototypeOf`, `__defineGetter__`, `__proto__` or `Proxy`, also destructured or as a string key, or uses
+    `Object` or `Reflect` other than to read a named member, like `Object.create()`, `Object[name]` or
+    `const O = Object`), the row and dropped args also read only the row, globals, imports, `const`s set to a
+    literal and variables of plain data, so `live.count` and `{ ...live }` can't run a getter there, and the rows
+    are parsed JSON or plain data that only the loop reads (`[new Live()]` and
+    `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keep the loop). A parameter counts as an
+    import unless the file calls its function (`save(ctrl, rows, live)`);
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store, and read no variable that can change between rows (`let seq`) and no static getter the file

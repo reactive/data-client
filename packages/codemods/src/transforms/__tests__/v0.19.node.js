@@ -3452,6 +3452,24 @@ const key = () => 'count';`,
           '{ id: row.id, count: row.proto.count }',
         ],
         [
+          'with a Proxy',
+          'declare const handler: object;',
+          'const live = rows.map(row => new Proxy(row, handler));\n  live.length;',
+          'row',
+        ],
+        [
+          'with an alias of Reflect',
+          'const R = Reflect;\ndeclare function install(row: any): void;',
+          'rows.forEach(row => R.apply(install, null, [row]));',
+          'row',
+        ],
+        [
+          'with globalThis.Object',
+          'const proto = globalThis.Object.create(null, { count: { get: currentCount } });',
+          'rows.forEach(row => (row.proto = proto));',
+          '{ id: row.id, count: row.proto.count }',
+        ],
+        [
           'by storing an instance of a class the module declares with a getter',
           'class Live { get count() { return currentCount(); } }',
           'rows.forEach(row => (row.live = new Live()));',
@@ -3496,6 +3514,65 @@ const key = () => 'count';`,
           ).toContain(expected);
         },
       );
+
+      it('keeps a value or rows from a parameter the module can pass a getter', () => {
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            {
+              source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+declare const store: { count: number };
+const live = { get count() { return store.count; } };
+export function save(ctrl, rows: { id: string }[], extra: { count: number }) {
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, { ...row, count: extra.count });
+}
+save(ctrl, [{ id: 'a' }], live);`,
+              path: 'save.tsx',
+            },
+          ),
+        ).toContain('for (const row of rows)');
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            {
+              source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+declare const store: { count: number };
+export function save(ctrl, rows: { id: string }[]) {
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, row);
+}
+save(ctrl, [{ id: 'a', get count() { return store.count; } }]);`,
+              path: 'save.tsx',
+            },
+          ),
+        ).toContain('for (const row of rows)');
+      });
+
+      it.each([
+        [
+          'a declared global in a module that declares a getter',
+          'class Live { get count() { return 1; } }\ndeclare const LIMIT: number;',
+          '{ ...row, at: LIMIT }',
+          'row',
+        ],
+        [
+          'a let in the dropped args of a module with no getter',
+          'let seq = 0;',
+          'row',
+          '{ seq }',
+        ],
+      ])('batches a loop that reads %s', (_, declarations, value, args) => {
+        expect(
+          run(
+            declarations,
+            `const rows = JSON.parse(text);
+  for (const row of rows) ctrl.set(Todo, ${args === 'row' ? '{ id: row.id }' : args}, ${value});`,
+          ),
+        ).toContain('ctrl.set([Todo]');
+      });
 
       it('batches parsed rows only the loop reads in a module that declares a getter', () => {
         expect(
