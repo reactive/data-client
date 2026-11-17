@@ -3445,6 +3445,25 @@ export function save(ctrl, rows: any[]) {
       it('keeps the loop when a field without a value hides pk()', () => {
         expect(run('  pk: any;')).toContain('rows.forEach(');
       });
+
+      it('keeps the loop when an accessor field overrides a hook', () => {
+        expect(
+          run(
+            '  static accessor process = (input, parent) => ({ ...input, scope: parent.scope });',
+          ),
+        ).toContain('rows.forEach(');
+        expect(run('  static accessor shouldUpdate = () => false;')).toContain(
+          'rows.forEach(',
+        );
+      });
+
+      it('batches with private and accessor members that are not hooks', () => {
+        expect(
+          run(
+            '  static #count = 0;\n  static #bump() {}\n  static accessor label = "";',
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
     });
 
     describe('keeps set() loops of an Entity that code patches', () => {

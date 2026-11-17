@@ -2022,8 +2022,8 @@ function exportOrigin(j, file, name, depth = 0) {
 
 /** Whether the module `file` exports `name` as a plain `resource()` that it only reads, following
  * `export { name } from` and `export * from` */
-function exportsPlainResource(j, file, name, depth, replaced) {
-  const origin = exportOrigin(j, file, name, depth);
+function exportsPlainResource(j, file, name, replaced) {
+  const origin = exportOrigin(j, file, name);
   return (
     !!origin && isLocalPlainResource(j, origin.root, origin.name, replaced)
   );
@@ -2060,7 +2060,6 @@ function isImportedPlainResource(j, root, binding, file, replaced) {
       j,
       file && resolveModule(file, declaration.source.value),
       staticName(imported),
-      0,
       replaced,
     )
   );
@@ -2572,6 +2571,18 @@ function topLevelClass(j, root, name) {
   );
 }
 
+const constInitOf = binding => {
+  const owner = binding?.parent;
+  return (
+      owner?.node.type === 'VariableDeclarator' &&
+        owner.node.id === binding.node &&
+        owner.parent.node.kind === 'const' &&
+        owner.node.init
+    ) ?
+      owner.get('init')
+    : undefined;
+};
+
 /** The class the identifier at `path` names, declared in this file or exported by the relative or
  * tsconfig-aliased module it is imported from: `{ path, file }` */
 function classOf(j, path, file) {
@@ -2580,13 +2591,8 @@ function classOf(j, path, file) {
   if (!owner) return;
   if (owner.node.type === 'ClassDeclaration' && owner.node.id === binding.node)
     return { path: owner, file };
-  if (
-    owner.node.type === 'VariableDeclarator' &&
-    owner.node.id === binding.node &&
-    owner.parent.node.kind === 'const' &&
-    owner.node.init?.type === 'ClassExpression'
-  )
-    return { path: owner.get('init'), file };
+  const init = constInitOf(binding);
+  if (init?.node.type === 'ClassExpression') return { path: init, file };
   const specifier = valueImportOf(path);
   const origin =
     specifier &&
@@ -2800,7 +2806,9 @@ function memberAllows(j, member, file, limits, seen) {
   const { node } = member;
   // a static block can assign any member through `this`
   if (node.type === 'StaticBlock') return false;
-  if (!CLASS_MEMBERS.has(node.type)) return true;
+  // only a private or type-only member can't be a hook; an `accessor` field can
+  if (node.key?.type === 'PrivateName' || node.type.startsWith('TS'))
+    return true;
   const name = keyName(node);
   // a computed key could be any member
   if (name === undefined) return false;
@@ -2931,17 +2939,9 @@ function passesToLibrary(path) {
  * whose methods this module didn't write */
 function isLibraryValue(path) {
   if (path.node.type !== 'Identifier') return false;
-  const binding = bindingOf(path);
-  if (!binding) return true;
-  const owner = binding.parent;
-  if (owner.node.type.startsWith('Import')) return true;
-  const init = owner.node.type === 'VariableDeclarator' && owner.get('init');
-  if (
-    !init?.node ||
-    owner.node.id !== binding.node ||
-    owner.parent.node.kind !== 'const'
-  )
-    return false;
+  if (isLibraryName(path)) return true;
+  const init = constInitOf(bindingOf(path));
+  if (!init) return false;
   const call = unwrapPath(init);
   if (call.node.type !== 'CallExpression' && call.node.type !== 'NewExpression')
     return false;
@@ -3006,15 +3006,11 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
   if (writesMembersOf(j, classBindingOf(cls.path))) return false;
   const superClass = cls.path.get('superClass');
   if (!superClass.node) return false;
-  if (!isSchemaExport(superClass, ENTITY_BASES)) {
-    const base = classOf(j, superClass, cls.file);
-    if (
-      !base ||
-      writesThrough(j, superClass) ||
-      !isPlainEntity(j, base, limits, seen)
-    )
-      return false;
-  }
+  if (
+    !isSchemaExport(superClass, ENTITY_BASES) &&
+    !isPlainEntityAt(j, superClass, cls.file, limits, seen)
+  )
+    return false;
   return childPaths(cls.path.get('body', 'body')).every(member =>
     memberAllows(j, member, cls.file, limits, seen),
   );
@@ -3050,23 +3046,21 @@ function isArgsFreeSchema(j, path, file, seen) {
       return true;
     case 'Identifier': {
       if (SCALAR_GLOBALS.has(node.name) && !bindingOf(path)) return true;
-      const cls = classOf(j, path, file);
-      return (
-        !!cls &&
-        !writesThrough(j, path) &&
-        isPlainEntity(j, cls, ARGS_FREE, seen)
-      );
+      return isPlainEntityAt(j, path, file, ARGS_FREE, seen);
     }
     default:
       return false;
   }
 }
 
-/** Whether `path` is an Entity class whose rows normalize the same in a batch */
-const isRowOnlyEntity = (j, path, file) => {
+function isPlainEntityAt(j, path, file, limits, seen) {
   const cls = classOf(j, path, file);
-  return !!cls && !writesThrough(j, path) && isPlainEntity(j, cls, ROW_ONLY);
-};
+  return (
+    !!cls && !writesThrough(j, path) && isPlainEntity(j, cls, limits, seen)
+  );
+}
+const isRowOnlyEntity = (j, path, file) =>
+  isPlainEntityAt(j, path, file, ROW_ONLY);
 
 const INVALIDATE = new Set(['Invalidate']);
 
@@ -3160,14 +3154,8 @@ function arrayOf(path, depth = 0) {
   // a parameter or variable typed as an array
   const typed = arrayType(binding.node.typeAnnotation?.typeAnnotation);
   if (typed) return typed;
-  const declarator = binding.parent;
-  if (
-    declarator.node.type === 'VariableDeclarator' &&
-    declarator.node.id === binding.node &&
-    declarator.parent.node.kind === 'const' &&
-    declarator.node.init
-  )
-    return arrayOf(declarator.get('init'), depth + 1);
+  const init = constInitOf(binding);
+  if (init) return arrayOf(init, depth + 1);
 }
 
 const LITERALS = new Set([
@@ -3251,7 +3239,7 @@ const CLIENT_PACKAGES = new Set(['@data-client/react', '@data-client/vue']);
  * variable set to `useController()`. Other objects have set() methods too, like a Map. */
 function isController(path) {
   const { node } = path;
-  const name = node.type === 'Identifier' ? node.name : memberName(node);
+  const name = nameOf(node);
   if (CONTROLLER_NAMES.test(name ?? '')) return true;
   const declarator = node.type === 'Identifier' && bindingOf(path)?.parent;
   return (
@@ -3288,17 +3276,16 @@ function isRowData(value, array, param, schema) {
   value = unwrap(value);
   if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression')
     return true;
-  // a destructured name could have a default, like `apply = prev => prev`
-  if (param.type !== 'Identifier') return false;
-  // a property of a parsed row could be a method its prototype gives it, like `row.trim`
-  if (array.data) return isId(value, param.name);
+  // otherwise only the loop variable itself (a destructured one has no name, and could have a function
+  // default), since a property of a parsed row could be a method its prototype gives it, like `row.trim`
+  if (!isId(value, param.name)) return false;
+  if (array.data) return true;
   const { element } = array;
   return (
-    isId(value, param.name) &&
-    ((element?.type === 'TSTypeReference' &&
+    (element?.type === 'TSTypeReference' &&
       schema.type === 'Identifier' &&
       isId(element.typeName, schema.name)) ||
-      (element?.type === 'TSTypeLiteral' && isPlainObjectType(element)))
+    (element?.type === 'TSTypeLiteral' && isPlainObjectType(element))
   );
 }
 
@@ -3370,20 +3357,15 @@ function callsLocalCode(j, path, names) {
           tagged ? call.get('quasi', 'expressions') : call.get('arguments');
         return (
           namesLocalCode(call.get(tagged ? 'tag' : 'callee')) ||
-          // a NodePath of a list has map() but not some()
-          argList.map(arg => arg).some(arg => namesLocalCode(arg, isArgSafe))
+          childPaths(argList).some(arg => namesLocalCode(arg, isArgSafe))
         );
       }),
   );
 }
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
- * Entity or `new Invalidate(Entity)` */
-function batchSetOf(
-  j,
-  file,
-  { rows, list: listRef = rows.node, param, call, keepHoles = false },
-) {
+ * Entity or `new Invalidate(Entity)`. Returns `{ call, guard }`, the guard from emptyGuardOf(). */
+function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
   const args = call.node.arguments;
   if (
     args.length < 2 ||
@@ -3405,7 +3387,6 @@ function batchSetOf(
     mentions(args[0]) ||
     (extra && !isPure(extra)) ||
     !mentions(value) ||
-    isFunction(value) ||
     // a batch evaluates the loop variable's defaults and computed keys for every row before any write
     containsNode(
       param,
@@ -3432,10 +3413,15 @@ function batchSetOf(
   const array = arrayOf(rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
   const batch = batchSchemaOf(j, file, call);
-  if (!batch) return;
+  const guard = batch && emptyGuardOf(j, root, rows);
+  if (!guard) return;
+  const listRef = guard.list;
   value = batch.value ?? value;
   if (param.type === 'Identifier' && isId(value, param.name))
-    return j.callExpression(call.node.callee, [batch.schema, listRef]);
+    return {
+      guard,
+      call: j.callExpression(call.node.callee, [batch.schema, listRef]),
+    };
   const mapper = j.arrowFunctionExpression(
     [param],
     // keeps `({ id })` on one line
@@ -3453,19 +3439,23 @@ function batchSetOf(
     : j.callExpression(j.memberExpression(listRef, j.identifier('map')), [
         mapper,
       ]);
-  return j.callExpression(call.node.callee, [batch.schema, list]);
+  return {
+    guard,
+    call: j.callExpression(call.node.callee, [batch.schema, list]),
+  };
 }
 
 /** The `set()` call a loop body makes once per element, whether it awaits it, and whether a callback
  * returns it (an expression body, or `return` when `returns`) */
 function setCallIn(path, returns = false) {
   let { node } = path;
+  let inner;
   if (node.type === 'BlockStatement') {
     if (node.body.length !== 1) return;
     path = path.get('body', 0);
-    node = path.node;
+    node = inner = path.node;
   }
-  let returned = !path.parent || path.parent.node.type !== 'BlockStatement';
+  let returned = true;
   if (
     node.type === 'ExpressionStatement' ||
     (returns && node.type === 'ReturnStatement')
@@ -3483,7 +3473,7 @@ function setCallIn(path, returns = false) {
         path.node.callee.type === 'MemberExpression' &&
         memberName(path.node.callee) === 'set'
     ) ?
-      { call: path, awaited, returned }
+      { call: path, awaited, returned, inner }
     : undefined;
 }
 
@@ -3494,8 +3484,8 @@ const isPromiseAll = node =>
   isId(node.callee.object, 'Promise') &&
   memberName(node.callee) === 'all';
 
-/** How a batch keeps a loop's no-op on an empty list: `list` is what the batch reads, `test` (when the list
- * can be empty) guards it, and `setup` (when `rows` is not a plain name, so reading it twice could differ, as
+/** How a batch keeps a loop's no-op on an empty list: `list` is what the batch reads, `guarded` (when the
+ * list can be empty) wraps it in `if (list.length)`, and `setup` (when `rows` is not a plain name, so reading it twice could differ, as
  * with a getter) stores it in a new `const`. Undefined for an empty array literal, whose loop does nothing. */
 function emptyGuardOf(j, root, rows) {
   const node = unwrap(rows.node);
@@ -3504,17 +3494,20 @@ function emptyGuardOf(j, root, rows) {
     !node.elements.some(el => el?.type === 'SpreadElement')
   )
     return node.elements.length ? { list: rows.node } : undefined;
-  const length = list => j.memberExpression(list, j.identifier('length'));
-  if (node.type === 'Identifier')
-    return { list: rows.node, test: length(rows.node) };
+  if (node.type === 'Identifier') return { list: rows.node, guarded: true };
   // a name the enclosing function never uses, so the `const` shadows nothing it reads
   const scope = j(rows).closest(j.Function).paths()[0] ?? root.paths()[0];
+  const used = new Set(
+    j(scope)
+      .find(j.Identifier)
+      .nodes()
+      .map(n => n.name),
+  );
   let name = 'rows';
-  for (let i = 2; j(scope).find(j.Identifier, { name }).size(); i++)
-    name = `rows${i}`;
+  for (let i = 2; used.has(name); i++) name = `rows${i}`;
   return {
     list: j.identifier(name),
-    test: length(j.identifier(name)),
+    guarded: true,
     setup: j.variableDeclaration('const', [
       j.variableDeclarator(j.identifier(name), rows.node),
     ]),
@@ -3523,19 +3516,22 @@ function emptyGuardOf(j, root, rows) {
 
 /** Replaces a loop statement with `call`, guarded by `guard` (from emptyGuardOf()), keeping the comments on the
  * loop and on the set() statement */
-function replaceLoop(j, path, call, awaited, inner, guard) {
+function replaceLoop(j, path, { call, guard }, awaited, inner) {
   let statement = j.expressionStatement(
     awaited ? j.awaitExpression(call) : call,
   );
-  if (guard.test)
-    statement = j.ifStatement(guard.test, j.blockStatement([statement]));
+  if (guard.guarded)
+    statement = j.ifStatement(
+      j.memberExpression(guard.list, j.identifier('length')),
+      j.blockStatement([statement]),
+    );
   const statements = guard.setup ? [guard.setup, statement] : [statement];
   prependComments(statements[0], [
     ...(path.node.comments ?? []),
     ...(inner?.comments ?? []),
   ]);
   // a lone `if` would take an `else` that followed the loop
-  if (guard.test && !Array.isArray(path.parentPath.value))
+  if (guard.guarded && !Array.isArray(path.parentPath.value))
     path.replace(j.blockStatement(statements));
   else path.replace(...statements);
 }
@@ -3556,18 +3552,16 @@ function batchSets(j, root, file) {
     )
       return;
     const found = setCallIn(path.get('body'));
-    const guard = found && emptyGuardOf(j, root, path.get('right'));
-    const call =
-      guard &&
-      batchSetOf(j, file, {
+    const batch =
+      found &&
+      batchSetOf(j, root, file, {
         rows: path.get('right'),
-        list: guard.list,
         param: node.left.declarations[0].id,
         call: found.call,
         keepHoles: true,
       });
-    if (!call) return;
-    replaceLoop(j, path, call, found.awaited, node.body.body?.[0], guard);
+    if (!batch) return;
+    replaceLoop(j, path, batch, found.awaited, found.inner);
     dirty = true;
   });
   root.find(j.ExpressionStatement).forEach(path => {
@@ -3598,17 +3592,15 @@ function batchSets(j, root, file) {
     const found = setCallIn(loop.get('arguments', 0, 'body'), method === 'map');
     // `Promise.all()` of callbacks that don't return the set() waits for none of them
     if (viaAll && found && !found.returned && !found.awaited) return;
-    const guard = found && emptyGuardOf(j, root, loop.get('callee', 'object'));
-    const call =
-      guard &&
-      batchSetOf(j, file, {
+    const batch =
+      found &&
+      batchSetOf(j, root, file, {
         rows: loop.get('callee', 'object'),
-        list: guard.list,
         param: callback.params[0],
         call: found.call,
       });
-    if (!call) return;
-    replaceLoop(j, path, call, awaited, callback.body.body?.[0], guard);
+    if (!batch) return;
+    replaceLoop(j, path, batch, awaited, found.inner);
     dirty = true;
   });
   return dirty;
