@@ -2655,6 +2655,11 @@ const ENTITY_HOOKS = new Set([
   'shouldReorder',
 ]);
 
+/** Whether a key named `name` can be an Entity hook: a hook's name, or a computed key it doesn't spell out, like
+ * `this[name]` or `{ [name]: fn }` */
+const mayBeHook = (name, computed) =>
+  ENTITY_HOOKS.has(name) || (computed && name === undefined);
+
 /** The hook names a write sets and the object it sets them on: an assignment, update or `delete` of a
  * member, or `Object.assign(X, { process })`, `Object.defineProperty(X, 'pk', ...)` or
  * `Reflect.set(X, 'pk', ...)` */
@@ -2667,10 +2672,10 @@ function hookWriteOf(path) {
     target = path.get('argument');
   if (target) {
     target = unwrapPath(target);
-    if (!isMember(target.node)) return;
-    const name = memberName(target.node);
-    // a computed key, like `this[name] = fn`, could be one
-    return name === undefined || ENTITY_HOOKS.has(name) ?
+    return (
+        isMember(target.node) &&
+          mayBeHook(memberName(target.node), target.node.computed)
+      ) ?
         unwrapPath(target.get('object'))
       : undefined;
   }
@@ -2688,11 +2693,14 @@ function hookWriteOf(path) {
     : node.arguments.slice(1, 2);
   const writes = keys.some(key =>
     key.type === 'ObjectExpression' ?
-      key.properties.some(p => !isProperty(p) || ENTITY_HOOKS.has(keyName(p)))
+      key.properties.some(
+        p => !isProperty(p) || mayBeHook(keyName(p), p.computed),
+      )
       // a source or key it doesn't spell out, like `Object.assign(this, mixin)` or
       // `Reflect.set(this, name, fn)`, could hold one
-    : typeof key.value !== 'string' || ENTITY_HOOKS.has(key.value),
+    : mayBeHook(staticName(key, true), true),
   );
+  // mayHoldClass() then drops an instance target, like a constructor's `Object.assign(this, options)`
   return writes ? unwrapPath(path.get('arguments', 0)) : undefined;
 }
 
@@ -2741,7 +2749,8 @@ function mayHoldClass(path, depth = 0) {
       if (CLASS_LINKS.has(name)) linked = true;
     }
     // an instance's own `this.schema` is not a class
-    return linked && !(isThis(root) && !inStaticMember(path));
+    const ofInstance = isThis(root) && !inStaticMember(path);
+    return linked && !ofInstance;
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
   const binding = bindingOf(path);
@@ -3311,12 +3320,14 @@ const oneElement = node =>
  * could read the store the earlier rows were written to: `{ ...row, count: currentCount(row.id) + 1 }` where
  * `currentCount()` calls `ctrl.get()` */
 function callsLocalCode(j, path, names) {
-  const calls = [j.CallExpression, j.NewExpression];
+  const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
   return calls.some(type =>
     j(path)
       .find(type)
       .some(p => {
-        let root = unwrapPath(p.get('callee'));
+        let root = unwrapPath(
+          p.get(p.node.type === 'TaggedTemplateExpression' ? 'tag' : 'callee'),
+        );
         while (isMember(root.node) || root.node.type === 'CallExpression')
           root = unwrapPath(
             root.get(isMember(root.node) ? 'object' : 'callee'),

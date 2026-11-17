@@ -3063,6 +3063,11 @@ function currentCount(id: string) {
           '{ id: row.id, count: currentCount(row.id) + 1 }',
         ],
         [
+          'a tagged template the module declares',
+          `const tag = (strings: TemplateStringsArray, id: string) => id;`,
+          '{ id: tag`${row.id}` }',
+        ],
+        [
           'a method of a local object',
           `const counter = { next: (id: string) => id };`,
           '{ id: counter.next(row.id) }',
@@ -3122,6 +3127,15 @@ Box.schema = { todos: [Todo] };`,
     this.schema = schema;
     this.validate = (v: any) => !!v;
     this.schema[schema.key] = schema;
+  }
+}`,
+        ],
+        [
+          'a static private counter',
+          `export class Counter {
+  static #next = 1;
+  static nextId() {
+    return this.#next++;
   }
 }`,
         ],
@@ -3241,6 +3255,15 @@ Reflect.set(Todo, 'shouldUpdate', () => false);`,
           `class Todo extends Entity {
   id = 0;
   static #configured = Object.assign(this, mixin);
+}`,
+        ],
+        [
+          'Object.assign() with a computed key',
+          `class Todo extends Entity {
+  id = 0;
+  static configure(name: string, fn: any) {
+    Object.assign(this, { [name]: fn });
+  }
 }`,
         ],
         [
