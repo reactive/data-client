@@ -2710,13 +2710,39 @@ function paramsWithin(node, max) {
 
 /** Whether a pk() or process() member declares at most `max` parameters and calls no code the module declares.
  * A batch runs it for every row before any write, while one set() per row runs it after the earlier rows are
- * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. An instance
- * pk() may call methods of `this`, the row it builds, like `[this.a, this.b].join('-')`. */
+ * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. */
 function hookWithin(j, member, max) {
   if (!paramsWithin(member.node, max)) return false;
+  if (!member.node.static) return instanceCodeWithin(j, member);
   const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
-  return !fn.node || !callsLocalCode(j, fn, new Set(), !member.node.static);
+  return !fn.node || !callsLocalCode(j, fn, new Set());
 }
+
+/** Whether an instance member calls no code the module declares. `this` in pk() is the row, which can be an
+ * instance of the class, and `super.label()` runs the base class's method, so pk() may call any instance
+ * method or accessor in the class chain, like `[this.id, this.label].join('-')`. Each of them is checked
+ * with this rule, so they may call each other through `this` and `super`, but not reach static members
+ * (`this.constructor.key()`). */
+function instanceCodeWithin(j, member) {
+  const { node } = member;
+  const fn =
+    node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod' ? member
+    : isFunction(node.value) ? member.get('value')
+    : undefined;
+  return (
+    !fn ||
+    (!containsNode(fn.node, reachesStatics) &&
+      !callsLocalCode(j, fn, new Set(), true))
+  );
+}
+
+/** Whether `node` is `x.constructor` or `this[key]`, which can reach the class's static members */
+const reachesStatics = node =>
+  isMember(node) &&
+  (memberName(node) === 'constructor' ||
+    (node.computed &&
+      isThisOrSuper(node.object) &&
+      memberName(node) === undefined));
 
 /** Whether `test` holds for `node` or anything inside it */
 function containsNode(node, test) {
@@ -2986,13 +3012,18 @@ function memberAllows(j, member, file, limits, seen) {
   const { node } = member;
   // a static block can assign any member through `this`, and a decorator can replace the member
   if (node.type === 'StaticBlock' || node.decorators?.length) return false;
-  // only a private or type-only member can't be a hook; an `accessor` field can
-  if (node.key?.type === 'PrivateName' || node.type.startsWith('TS'))
-    return true;
+  // a type-only member does nothing at runtime
+  if (node.type.startsWith('TS')) return true;
+  const isPrivate = node.key?.type === 'PrivateName';
   const name = keyName(node);
   // a computed key could be any member
-  if (name === undefined) return false;
-  if (!node.static) return name !== 'pk' || hookWithin(j, member, limits.pk);
+  if (!isPrivate && name === undefined) return false;
+  if (!node.static)
+    return !isPrivate && name === 'pk' ?
+        hookWithin(j, member, limits.pk)
+      : instanceCodeWithin(j, member);
+  // only a private member can't be a hook; an `accessor` field can
+  if (isPrivate) return true;
   switch (name) {
     // validate() could throw for one row, which drops the whole batch, and rows with the same pk meet in
     // merge() within a batch, skipping the store checks. normalize() starts each index empty, so one set() per
@@ -3534,7 +3565,8 @@ const oneElement = node =>
  * the value (like `tag` in `row.tags.map(tag => tag.trim())`), or, in an argument (or a tagged template's
  * `${}`), a `const` set to a literal like `3` or `-1`. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)`
  * are safe, but `format(row)`, `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are
- * not. */
+ * not. `allowThis` makes calls through `this` and `super` safe, for instanceCodeWithin(), which checks every
+ * method they can reach. */
 function callsLocalCode(j, path, names, allowThis = false) {
   const isSafe = p =>
     names.has(p.node.name) ||

@@ -3571,6 +3571,56 @@ function currentCount(id: string) {
         ).toContain('rows.forEach(');
       });
 
+      it('keeps the loop when pk() reaches code the module declares through the class', () => {
+        // a row can be an instance of the class, and `super` reaches the base class whatever the row is
+        const helper = `export const latest = { ctrl: undefined as any };
+function currentCount(id: string) {
+  return latest.ctrl.get(Todo, { id }, latest.ctrl.getState())?.count ?? 0;
+}`;
+        const kept = [
+          '  pk() {\n    return this.lookup();\n  }\n  lookup() {\n    return currentCount(this.id);\n  }',
+          '  pk() {\n    return `${this.id}-${this.count}`;\n  }\n  get count() {\n    return currentCount(this.id);\n  }',
+          '  pk() {\n    return this.#count();\n  }\n  #count() {\n    return currentCount(this.id);\n  }',
+          '  pk() {\n    return this.count();\n  }\n  count = () => currentCount(this.id);',
+          '  pk() {\n    return this.constructor.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    const Class = this.constructor;\n    return Class.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+        ];
+        for (const members of kept)
+          expect(run(members, helper)).toContain('rows.forEach(');
+        const base = applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+${helper}
+class Base extends Entity {
+  label() {
+    return currentCount(this.id);
+  }
+}
+class Todo extends Base {
+  id = '';
+  pk() {
+    return \`\${this.id}-\${super.label()}\`;
+  }
+}
+export function save(ctrl, rows: any[]) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id }));
+}`,
+            path: 'save.tsx',
+          },
+        );
+        expect(base).toContain('rows.forEach(');
+      });
+
+      it('batches when instance methods call only globals and members of the row', () => {
+        expect(
+          run(
+            "  slug = '';\n  pk() {\n    return `${this.id}-${this.label}`;\n  }\n  get label() {\n    return this.slug.trim();\n  }\n  title() {\n    return this.label.toUpperCase();\n  }",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
       it('batches when pk() or process() calls only globals and methods of the row', () => {
         expect(
           run(
