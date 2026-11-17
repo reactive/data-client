@@ -2633,62 +2633,108 @@ function containsNode(node, test) {
   return false;
 }
 
-/** The member chain a write targets: an assignment's left side, an updated or deleted member, or the first
- * argument of `Object.*()` or `Reflect.*()`, with how many members below it the write reaches */
-function writeTargetOf(node) {
-  if (node.type === 'AssignmentExpression') return [node.left, 0];
-  if (node.type === 'UpdateExpression') return [node.argument, 0];
-  if (node.type === 'UnaryExpression' && node.operator === 'delete')
-    return [node.argument, 0];
+// Object.* and Reflect.* methods that write their first argument's members
+const OBJECT_WRITERS = new Set([
+  'assign',
+  'defineProperty',
+  'defineProperties',
+  'set',
+  'deleteProperty',
+]);
+// static members that decide how an Entity normalizes and merges rows
+const ENTITY_HOOKS = new Set([
+  'pk',
+  'process',
+  'schema',
+  'normalize',
+  'validate',
+  'merge',
+  'mergeWithStore',
+  'mergeMetaWithStore',
+  'shouldUpdate',
+  'shouldReorder',
+]);
+
+/** The hook names a write sets and the object it sets them on: an assignment, update or `delete` of a
+ * member, or `Object.assign(X, { process })`, `Object.defineProperty(X, 'pk', ...)` or
+ * `Reflect.set(X, 'pk', ...)` */
+function hookWriteOf(path) {
+  const { node } = path;
+  let target;
+  if (node.type === 'AssignmentExpression') target = path.get('left');
+  else if (node.type === 'UpdateExpression') target = path.get('argument');
+  else if (node.type === 'UnaryExpression' && node.operator === 'delete')
+    target = path.get('argument');
+  if (target) {
+    target = unwrapPath(target);
+    return isMember(target.node) && ENTITY_HOOKS.has(memberName(target.node)) ?
+        unwrapPath(target.get('object'))
+      : undefined;
+  }
   if (
-    node.type === 'CallExpression' &&
-    isMember(node.callee) &&
-    (isId(node.callee.object, 'Object') || isId(node.callee.object, 'Reflect'))
+    node.type !== 'CallExpression' ||
+    !isMember(node.callee) ||
+    !OBJECT_WRITERS.has(memberName(node.callee)) ||
+    !(isId(node.callee.object, 'Object') || isId(node.callee.object, 'Reflect'))
   )
-    return [node.arguments[0], 1];
-  return [];
+    return;
+  // a source this module doesn't spell out, like `Object.assign(this, options)`, is assumed not to hold hooks
+  const [, key] = node.arguments;
+  const names =
+    key?.type === 'ObjectExpression' ?
+      key.properties.map(p => (isProperty(p) ? keyName(p) : undefined))
+    : [key?.value];
+  return names.some(name => ENTITY_HOOKS.has(name)) ?
+      unwrapPath(path.get('arguments', 0))
+    : undefined;
 }
 
-/** Whether a class member writes to its own class's members: through `this` in a static member, like
- * `static useArgs() { this.process = ... }`, or through `this.constructor` in any member */
-function patchesOwnClass(member) {
-  return containsNode(member, node => {
-    let throughConstructor = false;
-    for (
-      let t = unwrap(writeTargetOf(node)[0]);
-      t;
-      t = isMember(t) && unwrap(t.object)
-    ) {
-      if (t.type === 'ThisExpression')
-        return member.static || throughConstructor;
-      if (isMember(t) && memberName(t) === 'constructor')
-        throughConstructor = true;
-    }
-    return false;
-  });
+/** Whether `path` names a class directly: its declaration, an import, or a `const` alias of one, whose
+ * writes writesMembersOf() follows */
+function namesClass(path) {
+  if (path.node.type !== 'Identifier') return false;
+  const owner = bindingOf(path)?.parent.node;
+  if (!owner) return false;
+  if (owner.type === 'ClassDeclaration' || owner.type.startsWith('Import'))
+    return true;
+  const init = owner.type === 'VariableDeclarator' && unwrap(owner.init);
+  return init?.type === 'ClassExpression' || init?.type === 'Identifier';
 }
 
-/** Whether a write reaches inside a class held in a schema, like `Parent.schema.leaf.process = ...`, which
- * changes that class without naming it */
-function writesIntoSchema(node) {
-  let [target, depth] = writeTargetOf(node);
-  for (
-    target = unwrap(target);
-    isMember(target);
-    target = unwrap(target.object), depth++
-  )
-    if (memberName(target) === 'schema') return depth >= 2;
-  return false;
-}
+// whether each module writes an Entity hook without naming its class, by its Program node
+const hookWrites = new WeakMap();
 
-// whether each module writes inside a schema, by its Program node
-const schemaWrites = new WeakMap();
+/** Whether the module `top` sets an Entity hook on something other than a class it names, which can change
+ * a class whose name the write never uses: `static useArgs() { this.process = ... }`, `super.pk = ...`,
+ * `const self = this; self.validate = ...` or `Parent.schema.leaf.process = ...` */
+function writesHooksIndirectly(j, top) {
+  if (!hookWrites.has(top.node)) {
+    const types = [
+      j.AssignmentExpression,
+      j.UpdateExpression,
+      j.UnaryExpression,
+      j.CallExpression,
+    ];
+    hookWrites.set(
+      top.node,
+      types.some(type =>
+        j(top)
+          .find(type)
+          .some(p => {
+            const object = hookWriteOf(p);
+            return !!object && !namesClass(object);
+          }),
+      ),
+    );
+  }
+  return hookWrites.get(top.node);
+}
 
 /** Whether a class member keeps rows the same when normalized in a batch, within `limits` */
 function memberAllows(j, member, file, limits, seen) {
   const { node } = member;
   // a static block can assign any member through `this`
-  if (node.type === 'StaticBlock' || patchesOwnClass(node)) return false;
+  if (node.type === 'StaticBlock') return false;
   if (!CLASS_MEMBERS.has(node.type)) return true;
   const name = keyName(node);
   // a computed key could be any member
@@ -2825,7 +2871,12 @@ function isLibraryValue(path) {
   const owner = binding.parent;
   if (owner.node.type.startsWith('Import')) return true;
   const init = owner.node.type === 'VariableDeclarator' && owner.get('init');
-  if (!init?.node || owner.node.id !== binding.node) return false;
+  if (
+    !init?.node ||
+    owner.node.id !== binding.node ||
+    owner.parent.node.kind !== 'const'
+  )
+    return false;
   const call = unwrapPath(init);
   if (call.node.type !== 'CallExpression' && call.node.type !== 'NewExpression')
     return false;
@@ -2860,11 +2911,9 @@ function writesMembersOf(j, binding) {
   if (!memberWrites.has(binding.node)) {
     let top = binding;
     while (top.parent) top = top.parent;
-    if (!schemaWrites.has(top.node))
-      schemaWrites.set(top.node, containsNode(top.node, writesIntoSchema));
     memberWrites.set(
       binding.node,
-      schemaWrites.get(top.node) ||
+      writesHooksIndirectly(j, top) ||
         moduleUsesOf(j, top, binding).some(p => !readsClass(j, p)),
     );
   }

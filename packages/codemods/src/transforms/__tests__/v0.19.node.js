@@ -2905,70 +2905,6 @@ class Versioned extends Entity {
 }
 class Assigned extends Entity { id = 0; }
 Assigned.schema = { child: Slugged };
-class Aliased extends Entity { id = 0; }
-const Alias = Aliased;
-Alias.shouldUpdate = () => false;
-class Patched extends Entity { id = 0; }
-Reflect.set(Patched, 'shouldUpdate', () => false);
-class Cast extends Entity { id = 0; }
-(Cast as any).process = (input, parent) => ({ ...input, parent });
-class Blocked extends Entity {
-  id = 0;
-  static {
-    this.process = (input, parent) => ({ ...input, parent });
-  }
-}
-class Listed extends Entity { id = 0; }
-const listed = [Listed];
-listed[0].schema = { child: Slugged };
-class Held extends Entity { id = 0; }
-const holder = { held: Held };
-holder.held.shouldUpdate = () => false;
-class Attached extends Entity { id = 0; }
-function attach(Cls) {
-  Cls.schema = { child: Slugged };
-}
-attach(Attached);
-class Returned extends Entity { id = 0; }
-const returned = () => {
-  return Returned;
-};
-returned().shouldUpdate = () => false;
-class Stored extends Entity { id = 0; }
-const store: any = {};
-store.T = Stored;
-store.T.shouldUpdate = () => false;
-class Fielded extends Entity { id = 0; }
-class Holder {
-  static T = Fielded;
-}
-Holder.T.shouldUpdate = () => false;
-class Helped extends Entity { id = 0; }
-const helpers = {
-  patch(Cls) {
-    Cls.shouldUpdate = () => false;
-  },
-};
-helpers.patch(Helped);
-class SelfPatched extends Entity {
-  id = 0;
-  static useArgs() {
-    this.process = (input, parent) => ({ ...input, parent });
-  }
-}
-class CtorPatched extends Entity {
-  id = 0;
-  touch() {
-    (this.constructor as any).shouldUpdate = () => false;
-  }
-}
-class Made extends Entity { id = 0; }
-const makeHelpers = () => ({
-  patch(Cls) {
-    Cls.shouldUpdate = () => false;
-  },
-});
-makeHelpers().patch(Made);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -3004,20 +2940,6 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   const parsed = JSON.parse(data);
   parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
   parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
-  rows.forEach(n2 => ctrl.set(Aliased, { id: n2.id }));
-  rows.forEach(o2 => ctrl.set(Patched, { id: o2.id }));
-  rows.forEach(p2 => ctrl.set(Cast, { id: p2.id }));
-  rows.forEach(x2 => ctrl.set(Blocked, { id: x2.id }));
-  rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
-  rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
-  rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
-  rows.forEach(y2 => ctrl.set(Returned, { id: y2.id }));
-  rows.forEach(z2 => ctrl.set(Stored, { id: z2.id }));
-  rows.forEach(a3 => ctrl.set(Fielded, { id: a3.id }));
-  rows.forEach(b3 => ctrl.set(Helped, { id: b3.id }));
-  rows.forEach(c3 => ctrl.set(SelfPatched, { id: c3.id }));
-  rows.forEach(d3 => ctrl.set(CtorPatched, { id: d3.id }));
-  rows.forEach(f3 => ctrl.set(Made, { id: f3.id }));
   const optional: { id?: number }[] = [];
   optional.forEach(u2 => ctrl.set(Plain, u2));
   const named: { name: string }[] = [];
@@ -3058,70 +2980,6 @@ class Versioned extends Entity {
 }
 class Assigned extends Entity { id = 0; }
 Assigned.schema = { child: Slugged };
-class Aliased extends Entity { id = 0; }
-const Alias = Aliased;
-Alias.shouldUpdate = () => false;
-class Patched extends Entity { id = 0; }
-Reflect.set(Patched, 'shouldUpdate', () => false);
-class Cast extends Entity { id = 0; }
-(Cast as any).process = (input, parent) => ({ ...input, parent });
-class Blocked extends Entity {
-  id = 0;
-  static {
-    this.process = (input, parent) => ({ ...input, parent });
-  }
-}
-class Listed extends Entity { id = 0; }
-const listed = [Listed];
-listed[0].schema = { child: Slugged };
-class Held extends Entity { id = 0; }
-const holder = { held: Held };
-holder.held.shouldUpdate = () => false;
-class Attached extends Entity { id = 0; }
-function attach(Cls) {
-  Cls.schema = { child: Slugged };
-}
-attach(Attached);
-class Returned extends Entity { id = 0; }
-const returned = () => {
-  return Returned;
-};
-returned().shouldUpdate = () => false;
-class Stored extends Entity { id = 0; }
-const store: any = {};
-store.T = Stored;
-store.T.shouldUpdate = () => false;
-class Fielded extends Entity { id = 0; }
-class Holder {
-  static T = Fielded;
-}
-Holder.T.shouldUpdate = () => false;
-class Helped extends Entity { id = 0; }
-const helpers = {
-  patch(Cls) {
-    Cls.shouldUpdate = () => false;
-  },
-};
-helpers.patch(Helped);
-class SelfPatched extends Entity {
-  id = 0;
-  static useArgs() {
-    this.process = (input, parent) => ({ ...input, parent });
-  }
-}
-class CtorPatched extends Entity {
-  id = 0;
-  touch() {
-    (this.constructor as any).shouldUpdate = () => false;
-  }
-}
-class Made extends Entity { id = 0; }
-const makeHelpers = () => ({
-  patch(Cls) {
-    Cls.shouldUpdate = () => false;
-  },
-});
-makeHelpers().patch(Made);
 const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
 
 export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
@@ -3157,20 +3015,6 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   const parsed = JSON.parse(data);
   parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
   parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
-  rows.forEach(n2 => ctrl.set(Aliased, { id: n2.id }));
-  rows.forEach(o2 => ctrl.set(Patched, { id: o2.id }));
-  rows.forEach(p2 => ctrl.set(Cast, { id: p2.id }));
-  rows.forEach(x2 => ctrl.set(Blocked, { id: x2.id }));
-  rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
-  rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
-  rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
-  rows.forEach(y2 => ctrl.set(Returned, { id: y2.id }));
-  rows.forEach(z2 => ctrl.set(Stored, { id: z2.id }));
-  rows.forEach(a3 => ctrl.set(Fielded, { id: a3.id }));
-  rows.forEach(b3 => ctrl.set(Helped, { id: b3.id }));
-  rows.forEach(c3 => ctrl.set(SelfPatched, { id: c3.id }));
-  rows.forEach(d3 => ctrl.set(CtorPatched, { id: d3.id }));
-  rows.forEach(f3 => ctrl.set(Made, { id: f3.id }));
   const optional: { id?: number }[] = [];
   optional.forEach(u2 => ctrl.set(Plain, u2));
   const named: { name: string }[] = [];
@@ -3184,39 +3028,187 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
       'keeps set() loops that a batch could write differently',
     );
 
-    defineInlineTest(
-      transform,
-      { improvements: 'only' },
-      `
-import { Entity } from '@data-client/rest';
+    describe('keeps set() loops of an Entity that code patches', () => {
+      const save = `
+export function save(ctrl, rows: any[]) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id }));
+}`;
+      const run = source =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          { source, path: 'save.tsx' },
+        );
 
-class Nested extends Entity { id = 0; }
+      it('batches the loop when nothing patches the Entity', () => {
+        expect(
+          run(
+            `import { Entity } from '@data-client/rest';\nclass Todo extends Entity { id = 0; }${save}`,
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it.each([
+        [
+          'an alias of it',
+          `class Todo extends Entity { id = 0; }
+const Alias = Todo;
+Alias.shouldUpdate = () => false;`,
+        ],
+        [
+          'Reflect.set()',
+          `class Todo extends Entity { id = 0; }
+Reflect.set(Todo, 'shouldUpdate', () => false);`,
+        ],
+        [
+          'a cast',
+          `class Todo extends Entity { id = 0; }
+(Todo as any).process = (input, parent) => ({ ...input, parent });`,
+        ],
+        [
+          'a static block',
+          `class Todo extends Entity {
+  id = 0;
+  static {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}`,
+        ],
+        [
+          'a static method writing this',
+          `class Todo extends Entity {
+  id = 0;
+  static useArgs() {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}`,
+        ],
+        [
+          'a static method writing super',
+          `class Todo extends Entity {
+  id = 0;
+  static useArgs() {
+    super.process = (input, parent) => ({ ...input, parent });
+  }
+}`,
+        ],
+        [
+          'an alias of this',
+          `class Todo extends Entity {
+  id = 0;
+  static useArgs() {
+    const self = this;
+    self.shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
+          'this.constructor',
+          `class Todo extends Entity {
+  id = 0;
+  touch() {
+    (this.constructor as any).shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
+          'an array holding it',
+          `class Todo extends Entity { id = 0; }
+const listed = [Todo];
+listed[0].shouldUpdate = () => false;`,
+        ],
+        [
+          'an object holding it',
+          `class Todo extends Entity { id = 0; }
+const holder = { todo: Todo };
+holder.todo.shouldUpdate = () => false;`,
+        ],
+        [
+          'a schema holding it',
+          `class Todo extends Entity { id = 0; }
 class Outer extends Entity {
   id = 0;
-  static schema = { nested: Nested };
+  static schema = { todo: Todo };
 }
-Outer.schema.nested.shouldUpdate = () => false;
-
-export function save(ctrl, rows: Nested[]) {
-  rows.forEach(row => ctrl.set(Nested, row));
-}
-      `,
-      `
-import { Entity } from '@data-client/rest';
-
-class Nested extends Entity { id = 0; }
+Outer.schema.todo.shouldUpdate = () => false;`,
+        ],
+        [
+          'an alias of a schema slot',
+          `class Todo extends Entity { id = 0; }
 class Outer extends Entity {
   id = 0;
-  static schema = { nested: Nested };
+  static schema = { todo: Todo };
 }
-Outer.schema.nested.shouldUpdate = () => false;
-
-export function save(ctrl, rows: Nested[]) {
-  rows.forEach(row => ctrl.set(Nested, row));
+const slot = Outer.schema.todo;
+slot.shouldUpdate = () => false;`,
+        ],
+        [
+          'a member assigned it',
+          `class Todo extends Entity { id = 0; }
+const store: any = {};
+store.T = Todo;
+store.T.shouldUpdate = () => false;`,
+        ],
+        [
+          'a class field holding it',
+          `class Todo extends Entity { id = 0; }
+class Holder {
+  static T = Todo;
 }
-      `,
-      'keeps set() loops of an Entity patched through a schema that holds it',
-    );
+Holder.T.shouldUpdate = () => false;`,
+        ],
+        [
+          'a function returning it',
+          `class Todo extends Entity { id = 0; }
+const returned = () => {
+  return Todo;
+};
+returned().shouldUpdate = () => false;`,
+        ],
+        [
+          'a local function',
+          `class Todo extends Entity { id = 0; }
+function patch(Cls) {
+  Cls.shouldUpdate = () => false;
+}
+patch(Todo);`,
+        ],
+        [
+          'a method of a local object',
+          `class Todo extends Entity { id = 0; }
+const helpers = {
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+};
+helpers.patch(Todo);`,
+        ],
+        [
+          'a method of a locally built object',
+          `class Todo extends Entity { id = 0; }
+const makeHelpers = () => ({
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+});
+makeHelpers().patch(Todo);`,
+        ],
+        [
+          'a method of a reassigned let',
+          `class Todo extends Entity { id = 0; }
+let helpers = makeHelpers();
+helpers = {
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+};
+helpers.patch(Todo);`,
+        ],
+      ])('through %s', (_, setup) => {
+        const source = `import { Entity } from '@data-client/rest';\n${setup}${save}`;
+        expect(run(source)).toBe(source);
+      });
+    });
 
     defineInlineTest(
       transform,
