@@ -231,7 +231,7 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store, and read no variable that can change between rows (`let seq`) and no static getter the file
-    declares (`Live.count`, `this.count`); its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach
+    declares (`Live.count`, `this.count`) or static field it writes, and never write through `this`; its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach
     through `this` or `super`) names only types, globals, imports, its own variables, `const`s set to a literal,
     plain data nothing changes and Entity classes it constructs (`author = User.fromJS()`, if no class in its chain
     overrides `fromJS()`), and never reaches static members (`this.constructor` or `new.target`);

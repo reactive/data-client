@@ -3619,6 +3619,16 @@ const key = () => 'count';`,
         ).toContain('await ctrl.set([Todo], Array.from(');
       });
 
+      it('batches a value that reads a plain object the module only reads into conditions and math', () => {
+        expect(
+          run(
+            "const cfg = { n: 1, on: true, key: 'a' };\nif (cfg.on) console.log(`${cfg.n + 1}`, !cfg.on, { a: 1 }[cfg.key]);",
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: cfg.n, meta: { on: cfg.on } });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
       it('batches a value that reads plain data the module changes only with plain data', () => {
         expect(
           run(

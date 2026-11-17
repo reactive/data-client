@@ -2758,14 +2758,11 @@ function namesMutableState(j, fn, file) {
 /** Whether `this.count` or `super.count` in the static hook `fn` can change between rows: the class's chain
  * declares a static getter, which could read the store, or `fn` writes through `this` or `super` */
 function staticThisChanges(j, fn, file) {
-  let cls = fn;
-  while (!/^Class(Declaration|Expression)$/.test(cls.node.type))
-    cls = cls.parent;
-  const ownGetter = childPaths(cls.get('body', 'body')).some(
-    m => m.node.static && isStaticGetter(m.node),
-  );
+  const cls = j(fn)
+    .closest(j.Node, n => /^Class(Declaration|Expression)$/.test(n.type))
+    .paths()[0];
   if (
-    ownGetter ||
+    classDeclaresStatic(cls, isStaticGetter) ||
     (cls.node.superClass &&
       declaresStatic(j, cls.get('superClass'), file, isStaticGetter, true))
   )
@@ -2841,6 +2838,10 @@ function namesLocalCode(j, code, file, seen) {
 // how many links (superclasses, or variables set to one another) a walk follows before it counts the chain as unknown
 const MAX_CHAIN = 20;
 
+/** Whether the class at `cls` itself declares a static member that passes `test` */
+const classDeclaresStatic = (cls, test) =>
+  childPaths(cls.get('body', 'body')).some(m => m.node.static && test(m.node));
+
 /** Whether the class at `path` (from classOf()), or a class it extends, can declare a static member that
  * passes `test`. A chain classOf() can't follow counts as one that does, unless `trustImports` and the class
  * it stops at is an import or a global, like a library's base class. */
@@ -2853,8 +2854,7 @@ function declaresStatic(j, path, file, test, trustImports = false) {
         path.node?.type === 'Identifier' &&
         isLibraryName(path)
       );
-    const members = childPaths(cls.path.get('body', 'body'));
-    if (members.some(m => m.node.static && test(m.node))) return true;
+    if (classDeclaresStatic(cls.path, test)) return true;
     path = cls.path.get('superClass');
     file = cls.file;
     if (!path.node || isSchemaExport(path, ENTITY_BASES)) return false;
@@ -3074,9 +3074,7 @@ function isDataVariable(j, path) {
     const holder = chain.parent.node;
     return holder.type === 'AssignmentExpression' ?
         holder.left === chain.node && isPlainData(holder.right)
-      : DATA_READS.has(holder.type) ||
-          (holder.type === 'UnaryExpression' && holder.operator !== 'delete') ||
-          isCondition(chain);
+      : isUnkeptRead(chain);
   });
 }
 
@@ -3086,6 +3084,21 @@ const DATA_READS = new Set([
   'BinaryExpression',
   'TemplateLiteral',
 ]);
+
+/** Whether the member chain at `chain` is read into an expression that can't keep the value, like
+ * `total + grid[i][j]`, `!cfg.on` or `if (cfg.on)`. A tag gets a template's values, so `` tag`${x.a}` `` can. */
+function isUnkeptRead(chain) {
+  const { type, operator } = chain.parent.node;
+  return (
+    (DATA_READS.has(type) &&
+      !(
+        type === 'TemplateLiteral' &&
+        chain.parent.parent.node.type === 'TaggedTemplateExpression'
+      )) ||
+    (type === 'UnaryExpression' && operator !== 'delete') ||
+    isCondition(chain)
+  );
+}
 
 /** Whether `node` is a literal, or an array or object literal of them, like `2`, `[[0, 1]]` or `{ a: '' }` */
 function isPlainData(node) {
@@ -3889,9 +3902,9 @@ function isParameter(binding) {
   return path.parent.node.params?.includes(path.node) ?? false;
 }
 
-/** The innermost object of the callee of the call at `path`: `x` in `x.a.b()` */
-function calleeRootOf(path) {
-  let root = unwrapPath(path.get('callee'));
+/** The innermost object of the member chain at `path`, through casts: `x` in `(x.a as any).b` */
+function memberRootOf(path) {
+  let root = unwrapPath(path);
   while (isMember(root.node)) root = unwrapPath(root.get('object'));
   return root;
 }
@@ -3935,7 +3948,7 @@ function gainsLocalGetter(j, path, binding, file, depth, value) {
     if (isCall(holder.node) || type === 'NewExpression') {
       const args = childPaths(holder.get('arguments'));
       if (holder.node.callee === chain.node) return args.some(holds);
-      const root = calleeRootOf(holder);
+      const root = memberRootOf(holder.get('callee'));
       // `String(cfg.n)` can't store a getter in it, but `stash(cfg.live)` or `Object.assign(cfg.live, live)` can
       return (
         root.node.type !== 'Identifier' ||
@@ -3943,14 +3956,12 @@ function gainsLocalGetter(j, path, binding, file, depth, value) {
         args.some(arg => arg.node !== chain.node && holds(arg))
       );
     }
-    // the same reads isDataVariable() accepts, and a computed key
-    const keeps =
-      DATA_READS.has(type) ||
-      type === 'UnaryExpression' ||
+    // a statement or computed key that only reads it can't keep it either
+    return !(
+      isUnkeptRead(chain) ||
       type === 'ExpressionStatement' ||
-      (isMember(holder.node) && holder.node.property === chain.node) ||
-      isCondition(chain);
-    return !keeps || holder.parent.node.type === 'TaggedTemplateExpression';
+      (isMember(holder.node) && holder.node.property === chain.node)
+    );
   });
 }
 
@@ -3969,8 +3980,7 @@ function mayHoldLocalGetter(j, path, file, depth, value) {
         e.node && may(e.node.type === 'SpreadElement' ? e.get('argument') : e),
     );
   if (isMember(node)) {
-    let root = path;
-    while (isMember(root.node)) root = unwrapPath(root.get('object'));
+    const root = memberRootOf(path);
     return root.node.type !== 'Identifier' || may(root);
   }
   if (node.type === 'ObjectExpression')
@@ -3989,9 +3999,10 @@ function mayHoldLocalGetter(j, path, file, depth, value) {
   // a global or import, or a method of a value that holds no getter, given only plain data or such values
   const callee = unwrapPath(path.get('callee'));
   if (callee.node.type === 'Identifier' && !isLibraryName(callee)) return true;
-  return [calleeRootOf(path), ...childPaths(path.get('arguments'))].some(p =>
-    mayHoldLocalGetter(j, p, file, depth + 1, value),
-  );
+  return [
+    memberRootOf(path.get('callee')),
+    ...childPaths(path.get('arguments')),
+  ].some(p => mayHoldLocalGetter(j, p, file, depth + 1, value));
 }
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
