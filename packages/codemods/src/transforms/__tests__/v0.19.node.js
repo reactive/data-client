@@ -3565,6 +3565,10 @@ save(ctrl, [{ id: 'a', get count() { return store.count; } }]);`,
           "const api: any = {};\napi.save = function (ctrl, rows: { id: string }[], extra: { count: number }) { LOOP };\napi.save(ctrl, [{ id: 'a' }], live);",
         ],
         [
+          'a const function under `as`',
+          "const save = ((ctrl, rows: { id: string }[], extra: { count: number }) => { LOOP }) as any;\nsave(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
           'a callback',
           "function run(f) { f(ctrl, [{ id: 'a' }], live); }\nrun((ctrl, rows: { id: string }[], extra: { count: number }) => { LOOP });",
         ],

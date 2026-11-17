@@ -231,8 +231,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     literal and variables of plain data, so `live.count` and `{ ...live }` can't run a getter there, and the rows
     are parsed JSON or plain data that only the loop reads (`[new Live()]` and
     `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keep the loop). A parameter counts as an
-    import only when its function is a named function the file doesn't call, so a parameter of a method, a callback
-    or a function the file calls (`save(ctrl, rows, live)`) keeps the loop;
+    import only when its function is a named function the file uses only to export, so a parameter of a method, a
+    callback or a function the file calls (`save(ctrl, rows, live)`) keeps the loop;
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store, and read no variable that can change between rows (`let seq`) and no static getter the file

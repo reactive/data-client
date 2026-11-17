@@ -3875,8 +3875,8 @@ function callsLocalCode(j, path, names) {
  * while the loop awaits; or, in a file that can make a getter (`fileMakesGetters`, from makesGetters()), any
  * name but the loop's own (`names`), a global (also `declare const`), an import, a function declaration, a `const`
  * set to a literal or a variable of plain data (isDataVariable()), since `live.count`, `{ ...live }` and
- * `{ [live]: 1 }` can each run a getter the file declares. A parameter is trusted like an import, unless the
- * file itself calls its function and so could pass it one: `save(ctrl, rows, live)`. */
+ * `{ [live]: 1 }` can each run a getter the file declares. A parameter is trusted like an import only when its
+ * function is a named one the file uses only to export (fileCallsWith()), not `save(ctrl, rows, live)`. */
 function readsChangingState(j, path, names, fileMakesGetters) {
   if (containsNode(path.node, isThisOrSuper)) return true;
   return outerNamesIn(j, path).some(p => {
