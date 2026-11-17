@@ -35,7 +35,8 @@ the same, apart from the three batch differences below:
     server whose clock runs ahead), or when the list holds the same row object twice.
 
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
-  ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
+  ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)). Its SET action's `action.schema`
+  is then the `Invalidate` instead of an Array.
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default
   ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)); imports `GCPolicy` from
   `@data-client/vue` instead of `@data-client/core`; and replaces `computed(() => args)` passed to a composable with

@@ -2793,15 +2793,27 @@ function mayHoldClass(path, depth = 0) {
   );
 }
 
-/** Whether static `this` at `path` leaves the class, so code the module doesn't show could set a hook on it:
- * `patch(this)`, `registry.Quote = this` or `return this`. A member read, `new this()` and `instanceof this`
- * keep it. */
+/** Whether static `this` at `path`, or a class reached from it like `this.schema.author`, leaves the class, so
+ * code the module doesn't show could set a hook on it: `patch(this)`, `registry.Quote = this` or `return this`.
+ * A method call, `new this()` and `instanceof this` keep it, and so does a member read that isn't a class link,
+ * like `this.key`. */
 function thisEscapes(path) {
   if (!inStaticMember(path)) return false;
-  const outer = outerPath(path);
+  let outer = outerPath(path);
+  let read = false;
+  let linked = false;
+  while (
+    isMember(outer.parent.node) &&
+    outer.parent.node.object === outer.node
+  ) {
+    read = true;
+    linked ||= CLASS_LINKS.has(memberName(outer.parent.node));
+    outer = outerPath(outer.parent);
+  }
+  if (read && !linked) return false;
   const parent = outer.parent.node;
-  if (isMember(parent)) return parent.object !== outer.node;
-  if (parent.type === 'NewExpression') return parent.callee !== outer.node;
+  if (parent.type === 'CallExpression' || parent.type === 'NewExpression')
+    return parent.callee !== outer.node;
   return !(
     parent.type === 'BinaryExpression' && parent.operator === 'instanceof'
   );
@@ -3825,6 +3837,7 @@ function unwrapComputedArgs(j, root) {
   let dirty = false;
   root.find(j.CallExpression).forEach(call => {
     if (!importsNameFrom(call.get('callee'), GETTER_COMPOSABLES, VUE)) return;
+    // each() passes only the child path, whose `name` is its index
     call.get('arguments').each(arg => {
       const { node } = arg;
       // computed() passes its getter the previous value, which a getter argument doesn't get

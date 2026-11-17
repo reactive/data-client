@@ -3609,6 +3609,17 @@ Box.schema = { todos: [Todo] };`,
 }`,
         ],
         [
+          'a static method that reads, constructs and checks this',
+          `export class Model {
+  static label = 'model';
+  static make(props: object) {
+    const item = new this();
+    this.validate(item);
+    return item instanceof this ? this.label : '';
+  }
+}`,
+        ],
+        [
           'an object method inside a static method',
           `export class Mixer {
   static make(mixin: object) {
@@ -3698,6 +3709,20 @@ class Todo extends Entity {
   id = 0;
   static init() {
     patch(this);
+  }
+}`,
+        ],
+        [
+          'a function given a class reached from static this',
+          `class Todo extends Entity { id = 0; }
+function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+  static init() {
+    patch(this.schema.todo);
   }
 }`,
         ],

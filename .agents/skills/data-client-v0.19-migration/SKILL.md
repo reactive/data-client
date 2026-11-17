@@ -242,7 +242,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     SSR from a server whose clock runs ahead), or when the list holds the same row object twice.
 
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
-  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)). Its SET action's
+  `action.schema` is then the `Invalidate` instead of an Array.
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
   `@data-client/vue` ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)), and
   `computed(() => args)` passed to a composable becomes the getter `() => args`
