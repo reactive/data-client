@@ -214,7 +214,7 @@ make this its own commit; if the user makes the commits, list the files this ste
 npx @data-client/codemods v0.19 <source-root> --improvements=only
 ```
 
-It rewrites only code it can prove does the same thing, apart from two batch differences. Each item links the
+It rewrites only code it can prove does the same thing, apart from three batch differences. Each item links the
 release post's example; read it when a rewrite or a judgment call below is unclear.
 
 - A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
@@ -223,13 +223,16 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   or a plain object type) that calls only globals, imports and methods of values built from the row, with arguments
   built from the row, literals and `const`s set to a literal, never an updater function, and the Entity's `pk()` and
   `process()` read only the row and it overrides neither `validate()` nor the store-merge methods (`shouldUpdate()`,
-  `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`), and nothing in the Entity's file or the loop's file
-  changes the class's static members. It reads only those files and the files its schema imports, so check that no
-  other file patches a batched Entity. The codemod guards each batch over a list that can be empty with
-  `if (rows.length)`, so an empty list still dispatches nothing; keep that guard when you batch by hand. Each batch
-  dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check Managers and middleware that
-  match SET actions by schema: match `action.schema[0]` too. A row whose `pk()` or `process()` throws makes the whole
-  batch write nothing, where the loop still wrote some of the other rows.
+  `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`), it has no decorators, and nothing in the Entity's
+  file, the loop's file or a barrel it is imported through changes the class's static members. It reads only those
+  files and the files its schema imports, so check that no other file patches a batched Entity. The codemod guards
+  each batch over a list that can be empty with `if (rows.length)`, so an empty list still dispatches nothing; keep
+  that guard when you batch by hand. Each batch dispatches one SET action whose `action.schema` is the Array
+  (`[Ticker]`), so check Managers and middleware that match SET actions by schema: match `action.schema[0]` too. A
+  row whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the
+  other rows. Rows with the same `pk` in one batch merge with each other, so only the first is checked against the
+  stored entity's `fetchedAt`; this differs only when the store holds newer data than the client's clock, such as
+  after SSR from a server whose clock runs ahead.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
   ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from

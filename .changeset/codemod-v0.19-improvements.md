@@ -6,7 +6,7 @@ Add optional `--improvements` to the `v0.19` codemod, to adopt 0.19 features aft
 
 None of these are needed to upgrade. Run them in their own commit with
 `npx @data-client/codemods v0.19 src/ --improvements=only`. The codemod rewrites only code whose result it can prove is
-the same, apart from the two batch differences below:
+the same, apart from the three batch differences below:
 
 - A loop that calls `ctrl.set()` once per row (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) becomes one
   [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. It does this when
@@ -15,12 +15,15 @@ the same, apart from the two batch differences below:
   imports and methods of values built from the row, with arguments built from the row, literals and `const`s set to a
   literal, rather than an updater function, whose loop variable defaults are literals, names, or arrays and objects of
   them, and the Entity is a class declared in the file or imported from a relative path or tsconfig alias whose `pk()`
-  and `process()` read only the row, that overrides neither `validate()` nor the store-merge methods, and whose static
-  members neither its own file nor the loop's file changes. It reads only those files and the files its schema imports,
-  so check that no other file patches a batched Entity. A batch over a list that can be empty is guarded with
-  `if (rows.length)`, so an empty list still dispatches nothing. Managers that match SET actions by `action.schema` now
-  see one `[Ticker]` action instead of one `Ticker` action per row, and a row whose `pk()` or `process()` throws makes
-  the whole batch write nothing, where the loop still wrote some of the other rows.
+  and `process()` read only the row, that overrides neither `validate()` nor the store-merge methods, that has no
+  decorators, and whose static members neither its own file, the loop's file, nor a barrel it is imported through
+  changes. It reads only those files and the files its schema imports, so check that no other file patches a batched
+  Entity. A batch over a list that can be empty is guarded with `if (rows.length)`, so an empty list still dispatches
+  nothing. Managers that match SET actions by `action.schema` now see one `[Ticker]` action instead of one `Ticker`
+  action per row, and a row whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still
+  wrote some of the other rows. Rows with the same `pk` in one batch merge with each other, so only the first is checked
+  against the stored entity's `fetchedAt`; this differs only when the store holds newer data than the client's clock,
+  such as after SSR from a server whose clock runs ahead.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
   ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default

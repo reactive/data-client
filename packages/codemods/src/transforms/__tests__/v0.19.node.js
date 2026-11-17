@@ -3343,6 +3343,48 @@ export function save(ctrl, text: string) {
           },
         );
 
+      it('keeps the set() statement comments on the batch set()', () => {
+        expect(
+          run(`for (const row of JSON.parse(text)) {
+    // keep the server title
+    ctrl.set(Todo, row); // per-row
+  }
+  /* after */`),
+        ).toContain(`if (rows.length) {
+    // keep the server title
+    // per-row
+    ctrl.set([Todo], rows);
+  }
+  /* after */`);
+      });
+
+      it('keeps a loop over an Entity with a class decorator', () => {
+        for (const decorator of [
+          `function argsPk(cls) {
+  cls.pk = (value, parent, key, args) => args[0].id;
+  return cls;
+}`,
+          "import { argsPk } from 'entity-registry';",
+        ]) {
+          expect(
+            applyTransform(
+              transform,
+              { improvements: 'only' },
+              {
+                source: `import { Entity } from '@data-client/rest';
+${decorator}
+@argsPk
+class Todo extends Entity { id = ''; }
+export function save(ctrl, rows: Todo[]) {
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, row);
+}`,
+                path: 'save.tsx',
+              },
+            ),
+          ).toContain('for (const row of rows)');
+        }
+      });
+
       it('keeps a loop over an empty array literal', () => {
         expect(run('for (const id of []) ctrl.set(Todo, { id });')).toContain(
           'for (const id of []) ctrl.set(Todo, { id });',
@@ -3461,6 +3503,13 @@ export function save(ctrl, rows: any[]) {
         expect(
           run('  accessor pk = (parent, key, args) => args[0].id;'),
         ).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when a decorator could replace a member', () => {
+        expect(
+          run('  @wrap static pk(value) {\n    return value.id;\n  }'),
+        ).toContain('rows.forEach(');
+        expect(run('  @observable title = "";')).toContain('rows.forEach(');
       });
 
       it('batches with private and accessor members that are not hooks', () => {
@@ -4132,8 +4181,37 @@ export class Sub extends Base {
           'resources/index.ts',
           `export * from './Ticker';\nexport { Quote as LatestQuote } from './Quote';\n`,
         );
+        write(
+          'patched/index.ts',
+          `export { Ticker } from '../resources/Ticker';
+export * from '../resources/Quote';
+import { Ticker } from '../resources/Ticker';
+import { Quote } from '../resources/Quote';
+Object.assign(Ticker, { pk(value, parent, key, args) { return args[0].id; } });
+Quote.shouldUpdate = () => false;
+`,
+        );
       });
       afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('keeps rows of an Entity that a barrel it is imported through patches', () => {
+        const source = `
+import type { Controller } from '@data-client/react';
+import { Ticker, Quote } from '../patched';
+
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
+  for (const row of rows) ctrl.set(Quote, { id: row.id });
+}
+`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: path.join(dir, 'managers/PatchedManager.ts') },
+          ),
+        ).toBe(source.trim());
+      });
 
       it('keeps rows of an Entity whose module patches its nested Entity or base', () => {
         const source = `

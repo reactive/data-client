@@ -26,6 +26,8 @@ and code that worked around older limits, like `computed()` around Vue composabl
 `if (rows.length)` (unless its list is an array literal) and dispatches one SET action whose `action.schema` is
 `[Entity]` instead of one per row, so Managers that match `action.schema` should check `action.schema[0]`, and a row
 whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other
-rows. It processes JavaScript and TypeScript files and skips `node_modules`. Other
+rows. Rows with the same `pk` in one batch merge with each other, so only the first is checked against the stored
+entity's `fetchedAt`; this differs only when the store holds newer data than the client's clock, such as after SSR from
+a server whose clock runs ahead. It processes JavaScript and TypeScript files and skips `node_modules`. Other
 [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through, such as `--dry` and `--print` to
 preview changes, or `--extensions` to override the file types.

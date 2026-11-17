@@ -1979,8 +1979,8 @@ function parseModule(j, file) {
 }
 
 /** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
- * `export * from` */
-function exportOrigin(j, file, name, depth = 0) {
+ * `export * from`. Each module it re-exports through is added to `via`, with the source and name it re-exports. */
+function exportOrigin(j, file, name, via = [], depth = 0) {
   const root = file && depth < 5 && parseModule(j, file);
   if (!root) return;
   const { body } = root.get().node.program;
@@ -1998,25 +1998,29 @@ function exportOrigin(j, file, name, depth = 0) {
     );
     if (!specifier) continue;
     const local = specifier.local?.name ?? name;
-    return node.source ?
-        exportOrigin(
-          j,
-          resolveModule(file, node.source.value),
-          local,
-          depth + 1,
-        )
-      : { root, file, name: local };
+    if (!node.source) return { root, file, name: local };
+    via.push({ root, source: node.source.value, name: local });
+    return exportOrigin(
+      j,
+      resolveModule(file, node.source.value),
+      local,
+      via,
+      depth + 1,
+    );
   }
   // a module's own exports win over `export *`
   for (const node of body) {
     if (node.type !== 'ExportAllDeclaration' || node.exported) continue;
+    const length = via.push({ root, source: node.source.value, name });
     const origin = exportOrigin(
       j,
       resolveModule(file, node.source.value),
       name,
+      via,
       depth + 1,
     );
     if (origin) return origin;
+    via.length = length - 1;
   }
 }
 
@@ -2584,6 +2588,19 @@ const constInitOf = binding => {
     : undefined;
 };
 
+/** Whether a module that re-exports `name` from `source` (a step of exportOrigin()'s `via`) could also write
+ * to its members, through a hook-writing pattern or its own import of it */
+const reexportWrites = (j, { root, source, name }) =>
+  writesHooksIndirectly(j, root.paths()[0]) ||
+  root
+    .find(j.ImportDeclaration, { source: { value: source } })
+    .filter(decl => decl.node.importKind !== 'type')
+    .find(j.ImportSpecifier)
+    .filter(
+      s => s.node.importKind !== 'type' && staticName(s.node.imported) === name,
+    )
+    .some(s => writesMembersOf(j, s.get('local')));
+
 /** The class the identifier at `path` names, declared in this file or exported by the relative or
  * tsconfig-aliased module it is imported from: `{ path, file }` */
 function classOf(j, path, file) {
@@ -2595,14 +2612,17 @@ function classOf(j, path, file) {
   const init = constInitOf(binding);
   if (init?.node.type === 'ClassExpression') return { path: init, file };
   const specifier = valueImportOf(path);
+  const via = [];
   const origin =
     specifier &&
     exportOrigin(
       j,
       file && resolveModule(file, specifier.parent.node.source.value),
       staticName(specifier.node.imported),
+      via,
     );
-  const declared = origin && topLevelClass(j, origin.root, origin.name);
+  if (!origin || via.some(step => reexportWrites(j, step))) return;
+  const declared = topLevelClass(j, origin.root, origin.name);
   return declared && { path: declared, file: origin.file };
 }
 
@@ -2805,8 +2825,8 @@ function writesHooksIndirectly(j, top) {
 /** Whether a class member keeps rows the same when normalized in a batch, within `limits` */
 function memberAllows(j, member, file, limits, seen) {
   const { node } = member;
-  // a static block can assign any member through `this`
-  if (node.type === 'StaticBlock') return false;
+  // a static block can assign any member through `this`, and a decorator can replace the member
+  if (node.type === 'StaticBlock' || node.decorators?.length) return false;
   // only a private or type-only member can't be a hook; an `accessor` field can
   if (node.key?.type === 'PrivateName' || node.type.startsWith('TS'))
     return true;
@@ -3004,6 +3024,8 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
   if (checked === limits || checked === ROW_ONLY) return true;
   if (seen.size > 20) return false;
   seen.set(cls.path.node, limits);
+  // a decorator can replace the class or its members, like a static block
+  if (cls.path.node.decorators?.length) return false;
   if (writesMembersOf(j, classBindingOf(cls.path))) return false;
   const superClass = cls.path.get('superClass');
   if (!superClass.node) return false;
@@ -3520,16 +3542,27 @@ function replaceLoop(j, path, { call, guard }, awaited, inner) {
   let statement = j.expressionStatement(
     awaited ? j.awaitExpression(call) : call,
   );
+  // the set() statement's own comments, trailing ones too, stay on the batch set()
+  statement.comments = inner?.comments?.map(c => ({
+    ...c,
+    leading: true,
+    trailing: false,
+  }));
   if (guard.guarded)
     statement = j.ifStatement(
       j.memberExpression(guard.list, j.identifier('length')),
       j.blockStatement([statement]),
     );
   const statements = guard.setup ? [guard.setup, statement] : [statement];
-  prependComments(statements[0], [
-    ...(path.node.comments ?? []),
-    ...(inner?.comments ?? []),
-  ]);
+  const comments = path.node.comments ?? [];
+  prependComments(
+    statements[0],
+    comments.filter(c => !c.trailing),
+  );
+  statement.comments = [
+    ...(statement.comments ?? []),
+    ...comments.filter(c => c.trailing),
+  ];
   // a lone `if` would take an `else` that followed the loop
   if (guard.guarded && !Array.isArray(path.parentPath.value))
     path.replace(j.blockStatement(statements));
