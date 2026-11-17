@@ -54,7 +54,7 @@ export const getUsers = new ApiEndpoint({
 | `prefixUrl` | `urlPrefix` |
 | `headers` option | `getHeaders()` |
 | `hooks.beforeRequest` | `getHeaders()` or `getRequestInit()` |
-| `hooks.afterResponse` | `parseResponse()` in the base class (`resource().delete` replaces a base `process()`) |
+| `hooks.afterResponse` | `process()` in the base class |
 | `hooks.beforeError` | `fetchResponse()` override |
 | `ky.create()` shared options | Base class overrides |
 | `.json<T>()` | Automatic — RestEndpoint parses JSON by default |

@@ -7,7 +7,8 @@ import { RestEndpoint } from '@data-client/rest';
 
 Transform data in [RestEndpoint](../api/RestEndpoint.md) members: [process()](../api/RestEndpoint.md#process) for
 responses, [getRequestInit()](../api/RestEndpoint.md#getRequestInit) for request bodies, and
-[parseResponse()](../api/RestEndpoint.md#parseResponse) for headers and raw bodies.
+[parseResponse()](../api/RestEndpoint.md#parseResponse) for headers and raw bodies. To change one Entity's fields
+wherever it appears, including lists and nested data, use [Entity.process()](../api/Entity.md#process).
 
 :::tip
 
@@ -18,9 +19,7 @@ for APIs you do not control.
 
 ## Snakes to camels
 
-Many APIs use `snake_case` keys. To use `camelCase` in TypeScript, transform the keys in both directions. A base class
-converts responses in [parseResponse()](../api/RestEndpoint.md#parseResponse), not `process()`, because
-[resource()](../api/resource.md)'s `delete` sets its own `process()`, which replaces the class's.
+Many APIs use `snake_case` keys. To use `camelCase` in TypeScript, transform the keys in both directions.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
@@ -46,8 +45,7 @@ class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     }
     return super.getRequestInit(body);
   }
-  async parseResponse(response) {
-    const value = await super.parseResponse(response);
+  process(value) {
     // a 204 response has no body
     return value && deeplyApplyKeyTransform(value, camelCase);
   }
@@ -471,30 +469,46 @@ For `ArrayBuffer` responses (useful for processing binary data in-memory), use
 
 ## Name calling
 
-To rename a key the API uses, map it in both directions. Your Entity and components then use only your name.
+To rename a key the API uses, map it in both directions: the Entity's [process()](../api/Entity.md#process) renames it
+in every response that contains the Entity, including lists and nested data, and the endpoint's
+[getRequestInit()](../api/RestEndpoint.md#getRequestInit) renames it back in request bodies. Components then use only
+your name.
 
-```typescript title="ArticleResource.ts"
-class RenamedEndpoint<
+```typescript title="Article.ts"
+import { Entity, RestEndpoint, RestGenerics } from '@data-client/rest';
+
+export class Article extends Entity {
+  id = '';
+  carrotsUsed = 0;
+
+  static process(value: any, parent: any, key: string, args: any[]) {
+    const processed = super.process(value, parent, key, args);
+    if ('carrotsUsedIsThisNameTooLong' in processed) {
+      processed.carrotsUsed = processed.carrotsUsedIsThisNameTooLong;
+      delete processed.carrotsUsedIsThisNameTooLong;
+    }
+    return processed;
+  }
+}
+
+export class RenamedEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  getRequestInit(body) {
+  getRequestInit(body: any) {
     if (body && 'carrotsUsed' in body) {
-      const newBody = {
-        ...body,
-        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
-      };
-      delete newBody.carrotsUsed;
-      return super.getRequestInit(newBody);
+      const { carrotsUsed, ...rest } = body;
+      return super.getRequestInit({
+        ...rest,
+        carrotsUsedIsThisNameTooLong: carrotsUsed,
+      });
     }
     return super.getRequestInit(body);
   }
-  process(value) {
-    if ('carrotsUsedIsThisNameTooLong' in value) {
-      // ok to mutate jsonResponse since we control it
-      value.carrotsUsed = value.carrotsUsedIsThisNameTooLong;
-      delete value.carrotsUsedIsThisNameTooLong;
-    }
-    return value;
-  }
 }
+
+export const updateArticle = new RenamedEndpoint({
+  path: '/articles/:id',
+  method: 'PATCH',
+  schema: Article,
+});
 ```

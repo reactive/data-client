@@ -166,8 +166,7 @@ export default class ApiEndpoint<
 ```
 
 Response interceptors that change the body, such as unwrapping `{ data }` or converting `snake_case` keys, go in
-[`parseResponse()`](./RestEndpoint.md#parseResponse); see [snakes to camels](https://dataclient.io/rest/guides/network-transform#snakes-to-camels).
-A base class's `process()` would miss `resource().delete`, which sets its own.
+[`process()`](./RestEndpoint.md#process); see [snakes to camels](https://dataclient.io/rest/guides/network-transform#snakes-to-camels).
 
 When a response interceptor returned `response.data`, a caller's `.data` read a field of the body, not axios's response,
 so keep it. The codemod marks these calls when the interceptor is in the same file; if a global
@@ -497,7 +496,7 @@ npm uninstall axios
 | `interceptors.request`                   | [`getHeaders()`](./RestEndpoint.md#getHeaders) / [`getRequestInit()`](./RestEndpoint.md#getRequestInit)     |
 | `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.md#parseResponse) / [`process()`](./RestEndpoint.md#process)             |
 | `transformRequest`                       | [`getRequestInit()`](./RestEndpoint.md#getRequestInit)                                                      |
-| `transformResponse`                      | [`parseResponse()`](./RestEndpoint.md#parseResponse)                                                        |
+| `transformResponse`                      | [`process()`](./RestEndpoint.md#process)                                                                    |
 | `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                            |
 | `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                   |
 | `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                                   |
