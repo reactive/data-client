@@ -3139,12 +3139,15 @@ function arrayOf(path, depth = 0) {
       !bindingOf(object)
     )
       return (
-          object.node.name === 'JSON' ||
-            (method === 'values' &&
-              arrayOf(path.get('arguments', 0), depth + 1)?.data)
-        ) ?
-          { data: true }
-        : {};
+        (
+            // a reviver can return functions, which a one-row set() calls as updaters
+            (object.node.name === 'JSON' && node.arguments.length === 1) ||
+              (method === 'values' &&
+                arrayOf(path.get('arguments', 0), depth + 1)?.data)
+          ) ?
+            { data: true }
+          : {}
+      );
     const array = ARRAY_METHODS.has(method) && arrayOf(object, depth + 1);
     return array && (ELEMENT_METHODS.has(method) ? array : {});
   }
@@ -3366,6 +3369,14 @@ function callsLocalCode(j, path, names) {
   );
 }
 
+const PARAM_CALLS = new Set([
+  'CallExpression',
+  'NewExpression',
+  'TaggedTemplateExpression',
+  'AwaitExpression',
+  'YieldExpression',
+]);
+
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)` */
 function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
@@ -3391,6 +3402,8 @@ function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
     (extra && !isPure(extra)) ||
     !mentions(value) ||
     isFunction(value) ||
+    // a default or computed key in the loop variable runs per row, before any write in a batch
+    containsNode(param, n => PARAM_CALLS.has(n.type)) ||
     containsNode(
       value,
       n =>

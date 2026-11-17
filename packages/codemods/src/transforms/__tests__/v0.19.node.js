@@ -3208,6 +3208,55 @@ export class Saver extends Base {
       });
     });
 
+    describe('set() loops whose loop variable runs code', () => {
+      const run = (setup, loop) =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+${setup}
+export async function save(ctrl, text: string) {
+  ${loop}
+}`,
+            path: 'save.tsx',
+          },
+        );
+
+      it('keeps a default that calls a function', () => {
+        expect(
+          run(
+            `function currentCount(id: string) {
+  return id.length;
+}`,
+            `for (const { id, count = currentCount(id) } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count: count + 1 });`,
+          ),
+        ).toContain('for (const { id, count = currentCount(id) }');
+      });
+
+      it('batches a literal default', () => {
+        expect(
+          run(
+            '',
+            `for (const { id, count = 0 } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count: count + 1 });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('keeps rows that JSON.parse() builds with a reviver', () => {
+        expect(
+          run(
+            '',
+            `const rows = JSON.parse(text, (key, value) => value);
+  rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+          ),
+        ).toContain('rows.forEach(');
+      });
+    });
+
     describe('set() loops of an Entity with declaration-only members', () => {
       const run = members =>
         applyTransform(
