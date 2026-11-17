@@ -273,6 +273,53 @@ export default function ValidatorList() {
 render(<ValidatorList />);
 ```
 
+### Page numbers in an envelope {#envelope}
+
+Many APIs wrap each list in an envelope: an outer object that holds the data next to metadata, like
+`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Make the envelope the schema, with the
+[Collection](https://dataclient.io/rest/api/Collection) at `data`, so components can read `meta` too:
+
+```ts title="Comment"
+import { Collection, Entity, RestEndpoint } from '@data-client/rest';
+
+export class Comment extends Entity {
+  id = '';
+  body = '';
+}
+
+export const getComments = new RestEndpoint({
+  path: '/comments',
+  searchParams: {} as { discussionId: string; page?: number },
+  paginationField: 'page',
+  schema: {
+    data: new Collection([Comment]),
+    meta: { page: 0, totalPages: 0 },
+  },
+});
+```
+
+```tsx title="CommentList"
+import { useController, useSuspense } from '@data-client/react';
+import { getComments } from './Comment';
+
+function CommentList({ discussionId }: { discussionId: string }) {
+  const { data, meta } = useSuspense(getComments, { discussionId });
+  const ctrl = useController();
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 });
+  const add = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId }, { body });
+  // render data, a "Load more" button while meta.page < meta.totalPages, and a form calling add()
+}
+```
+
+- The first fetch leaves out `page`: [getPage](./RestEndpoint.md#getpage) finds the list to extend by its args
+  without the [paginationField](./RestEndpoint.md#paginationfield), so a list fetched with `page: 1` is a
+  different one that never grows.
+- Each page appends to `data` and replaces `meta`, so `meta` always describes the latest page.
+- [push](./RestEndpoint.md#push) sends a `POST` to the same path and adds the one `Comment` it returns. A separate
+  create endpoint joins the same list with `schema: getComments.schema.data.push`, called with `{ discussionId }`.
+
 ### Infinite Scrolling
 
 Infinite scroll UI differs by app and platform (React Native or web). This example uses a `Pagination` component that
