@@ -3621,6 +3621,11 @@ Box.schema = { todos: [Todo] };`,
 }`,
         ],
         [
+          'a namespace import from @data-client given the class',
+          `import * as DC from '@data-client/rest';
+export const TodoList = new DC.Collection(Todo);`,
+        ],
+        [
           'an object method inside a static method',
           `export class Mixer {
   static make(mixin: object) {

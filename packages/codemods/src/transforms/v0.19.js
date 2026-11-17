@@ -3001,12 +3001,15 @@ function isDataClientValue(path) {
   return callee.node.type === 'Identifier' && isDataClientName(callee);
 }
 
-/** Whether `path` names a value imported from a @data-client package */
+/** Whether `path` names a value imported from a @data-client package, by name, default or namespace */
 function isDataClientName(path) {
-  const specifier = valueImportOf(path);
+  const specifier = bindingOf(path)?.parent;
+  if (!specifier?.node.type.startsWith('Import')) return false;
+  const declaration = specifier.parent.node;
   return (
-    !!specifier &&
-    specifier.parent.node.source.value.startsWith(DATA_CLIENT_PREFIX)
+    specifier.node.importKind !== 'type' &&
+    declaration.importKind !== 'type' &&
+    declaration.source.value.startsWith(DATA_CLIENT_PREFIX)
   );
 }
 
