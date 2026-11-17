@@ -3857,8 +3857,10 @@ function readsLocalGetter(j, path, names, file) {
 }
 
 const isStaticGetter = member => member.kind === 'get';
+const isAccessor = member => member.kind === 'get' || member.kind === 'set';
 
-// members that give an existing object a getter: `Object.defineProperty(row, 'count', { get })`
+// names that give an existing object a getter: `Object.defineProperty(row, 'count', { get })`, also
+// destructured as `const { defineProperty } = Object`
 const ACCESSOR_INSTALLERS = new Set([
   'defineProperty',
   'defineProperties',
@@ -3866,12 +3868,12 @@ const ACCESSOR_INSTALLERS = new Set([
   '__defineGetter__',
   '__proto__',
 ]);
-// whether each module can make a getter, by its Program node
+// whether each module can make a getter, by its File node
 const accessorModules = new WeakMap();
 
-/** Whether the module `top` declares a getter or setter, or can give an existing object one, so parsed rows it
- * hands on could gain one: `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` or
- * `rows.forEach(row => (row.live = new Live()))` */
+/** Whether the module `top` (its File node) declares a getter or setter anywhere, or names an accessor
+ * installer, so parsed rows it hands on could gain a getter: `rows.forEach(row => Object.defineProperty(row,
+ * 'count', { get }))`. It reads only this file; an imported helper is trusted like any other import. */
 function makesGetters(top) {
   if (!accessorModules.has(top))
     accessorModules.set(
@@ -3879,8 +3881,8 @@ function makesGetters(top) {
       containsNode(
         top,
         n =>
-          n.kind === 'get' ||
-          n.kind === 'set' ||
+          isAccessor(n) ||
+          (n.type === 'Identifier' && ACCESSOR_INSTALLERS.has(n.name)) ||
           (isMember(n) && ACCESSOR_INSTALLERS.has(memberName(n))),
       ),
     );
@@ -4019,8 +4021,7 @@ function mayHoldLocalGetter(j, path, file, depth, value) {
       p =>
         !isProperty(p.node) ||
         p.node.computed ||
-        p.node.kind === 'get' ||
-        p.node.kind === 'set' ||
+        isAccessor(p.node) ||
         may(p.get('value')),
     );
   if (node.type === 'AwaitExpression') return may(path.get('argument'));

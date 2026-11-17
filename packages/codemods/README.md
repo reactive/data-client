@@ -31,7 +31,8 @@ read the store or state that changes between rows. It keeps loops:
 - whose row could be an updater function: anything but an object literal, a row of a `JSON.parse()` array (without a
   reviver) that the file only reads and doesn't export, or a value typed as the Entity or a plain object type;
 - whose rows could have a getter the file declares, like `[new Live()]`, or whose dropped args read one. Parsed rows
-  count when the file hands them on and declares a getter or calls `Object.defineProperty()`;
+  count when the file hands them on and declares a getter or setter or names an accessor installer
+  (`defineProperty()`, `defineProperties()`, `setPrototypeOf()`, `__defineGetter__()` or `__proto__`);
 - whose row value calls a function the file declares, or gives a call an argument other than the row, a literal or a
   `const` set to a literal;
 - whose row value reads (`live.count`, `{ ...live }`) something that could have a getter the file declares: `this`, a
