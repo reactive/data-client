@@ -2612,22 +2612,33 @@ const importedName = specifier =>
     staticName(specifier.node.imported)
   : undefined;
 
-/** Whether the module `root`, at `file`, could write to a class exported as `name` through a namespace import
- * of an app module. Any app module counts, by the name it exports, since `'./Todo.ts'` and a barrel that
- * re-exports it reach the same class as `'./Todo'`. */
+/** Whether the module `root`, at `file`, could write to a class exported as `name` through a namespace import.
+ * Each namespace of a module that exports `name` counts, since `'./Todo.ts'` and a barrel that re-exports it
+ * reach the same class as `'./Todo'`; namespaceUseWrites() then checks each use. With no `file` to resolve
+ * imports from, every namespace counts. */
 const namespaceWrites = (j, root, file, name) =>
   root
     .find(j.ImportNamespaceSpecifier)
     .filter(
       s =>
         isValueImport(s) &&
-        (!file || !!resolveModule(file, s.parent.node.source.value)),
+        mayExport(j, file, s.parent.node.source.value, name),
     )
     .some(s =>
       moduleUsesOf(j, s, s.get('local')).some(use =>
         namespaceUseWrites(j, use, name),
       ),
     );
+
+/** Whether the module that `file` imports as `source` could export the app class `name`: not a package, nor an
+ * app module whose exports don't reach it. A module this can't parse might. */
+function mayExport(j, file, source, name) {
+  if (!file) return true;
+  const target = resolveModule(file, source);
+  return (
+    !!target && (!parseModule(j, target) || !!exportOrigin(j, target, name))
+  );
+}
 
 /** Whether a use of a namespace could write to its export `name`: any use but a type or a read of a member,
  * like `M.Todo.process = ...`, `patch(M.Todo)`, `M[key]` or `patch(M)` */
@@ -2818,18 +2829,24 @@ function mayHoldClass(path, depth = 0) {
   if (isThisOrSuper(node)) return inStaticMember(path);
   if (isMember(node)) {
     let linked = false;
-    let computed = false;
-    let root = node;
-    for (; isMember(root); root = unwrap(root.object)) {
-      if (memberName(root) === 'constructor') return true;
-      if (CLASS_LINKS.has(memberName(root))) linked = true;
-      else if (mayLink(root)) computed = true;
+    let dynamicKey = false;
+    let root = path;
+    for (; isMember(root.node); root = unwrapPath(root.get('object'))) {
+      if (memberName(root.node) === 'constructor') return true;
+      if (CLASS_LINKS.has(memberName(root.node))) linked = true;
+      else if (root.node.computed && memberName(root.node) === undefined)
+        dynamicKey = true;
     }
-    // an instance's own `this.schema` is not a class, and a computed key it doesn't spell out, like
-    // `this[name]`, leads to a class only from one, unlike `grid[0][1] = 2`
-    if (isThisOrSuper(root))
-      return inStaticMember(path) && (linked || computed);
-    return linked;
+    // an instance's own `this.schema` is not a class
+    if (isThisOrSuper(root.node))
+      return inStaticMember(path) && (linked || dynamicKey);
+    // a computed key it doesn't spell out can pick a class from static `this` or from a value another module
+    // fills, like `models[name].process = ...`; a local value holding a class is followed by readsClass()
+    // instead, so `grid[0][1] = 2` writes no hook
+    return (
+      linked ||
+      (dynamicKey && root.node.type === 'Identifier' && isLibraryName(root))
+    );
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
   const binding = bindingOf(path);
@@ -3057,8 +3074,7 @@ function isDataClientName(path) {
   if (!specifier?.node.type.startsWith('Import')) return false;
   const declaration = specifier.parent.node;
   return (
-    specifier.node.importKind !== 'type' &&
-    declaration.importKind !== 'type' &&
+    isValueImport(specifier) &&
     declaration.source.value.startsWith(DATA_CLIENT_PREFIX)
   );
 }
@@ -3124,7 +3140,7 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
   seen.set(cls.path.node, limits);
   // a decorator can replace the class or its members, like a static block
   if (cls.path.node.decorators?.length) return false;
-  if (writesMembersOf(j, classBindingOf(cls.path))) return false;
+  if (writesMembersOf(j, classBindingOf(cls.path), cls.file)) return false;
   const superClass = cls.path.get('superClass');
   if (!superClass.node) return false;
   if (

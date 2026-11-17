@@ -3795,6 +3795,14 @@ class Box extends Entity {
 }`,
         ],
         [
+          'a computed key on an imported registry',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+export function patchOne(name: string) {
+  models[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
           'a registry holding static this',
           `const registry: any = {};
 class Todo extends Entity {
@@ -4357,6 +4365,7 @@ Object.assign(Ticker, { pk(value, parent, key, args) { return args[0].id; } });
 Quote.shouldUpdate = () => false;
 `,
         );
+        write('icons/index.ts', `export const star = '*';\n`);
         write(
           'nspatched/index.ts',
           `export { Ticker } from '../resources/Ticker';
@@ -4446,6 +4455,11 @@ export function flush(ctrl: Controller, rows: any[]) {
           'reads a member',
           `${tickerImport}\nimport * as T from '../resources/Ticker';`,
           'console.log(T.Ticker.key);',
+        ],
+        [
+          'reads a computed key of a namespace that does not export the Entity',
+          `${tickerImport}\nimport * as Icons from '../icons';`,
+          'export const pick = (key: string) => Icons[key];',
         ],
         [
           'destructures a package namespace',
