@@ -3511,6 +3511,16 @@ const key = () => 'count';`,
           'cfg.live.x.count',
         ],
         [
+          'a getter the value itself stores in a plain object',
+          'const g = { get count() { return currentCount(); } };\nconst cfg: any = {};',
+          '(cfg.x = g, cfg.x.count)',
+        ],
+        [
+          'a getter the value itself stores with a logical assignment',
+          'const g = { get count() { return currentCount(); } };\nconst cfg: any = {};',
+          '(cfg.x ??= g).count',
+        ],
+        [
           'a destructured object getter',
           'const cfg = { live: { get count() { return currentCount(); } } };\nconst { live } = cfg;',
           'live.count',

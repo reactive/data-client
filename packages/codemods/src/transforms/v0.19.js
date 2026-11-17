@@ -3917,7 +3917,9 @@ function gainsLocalGetter(j, path, binding, file, depth, value) {
   if (isExported(binding)) return true;
   const holds = arg => mayHoldLocalGetter(j, arg, file, depth + 1, value);
   return moduleUsesOf(j, path, binding).some(use => {
-    if (value && isWithin(use, value)) return false;
+    // a write within the value can still store a getter, like `(cfg.x = live, cfg.x.count)`
+    if (value && isWithin(use, value) && !isWriteTarget(wrappedChainOf(use)))
+      return false;
     const parent = use.parent.node;
     if (parent.type === 'TSTypeQuery') return false;
     if (!isMember(parent) || parent.object !== use.node) return true;
