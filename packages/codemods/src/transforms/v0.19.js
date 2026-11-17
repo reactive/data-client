@@ -81,7 +81,7 @@ const DATA_CLIENT_PREFIX = '@data-client/';
 // every rewrite outside the deprecated APIs needs one of these names in the file
 const NAMES =
   /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b|fetchedAt|\.catch\(/;
-const BLOG = 'https://dataclient.io/blog/2026/11/17/v0.19-batch-set';
+const BLOG = 'https://dataclient.io/blog/2026/11/18/v0.19-batch-set';
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
   'createDataClient',

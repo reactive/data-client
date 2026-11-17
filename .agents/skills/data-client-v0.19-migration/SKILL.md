@@ -6,7 +6,7 @@ description: Upgrade apps that already use @data-client to v0.19. Runs the v0.19
 # @data-client v0.19 Migration
 
 Every breaking change, with Before/After code:
-[v0.19 migration guide](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#migration-guide).
+[v0.19 migration guide](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#migration-guide).
 
 ## Step 1: bump and run the codemod
 
@@ -35,7 +35,7 @@ skipped, including `.vue` and other single-file components.
 
 It used to return the data synchronously when fresh. Now it always returns a Promise, and a call you don't await never
 rejects unhandled: the error is stored for components, like any fetch error.
-[Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#fetch-if-stale-promise).
+[Details](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#fetch-if-stale-promise).
 
 Skip this step if `rg -n 'fetchIfStale' <source-root>` finds nothing.
 
@@ -88,7 +88,7 @@ Skip this step unless the app uses `@data-client/ssr` (`DataClientDocument`, `Ap
 `pages/_app`). It stops at `@data-client/react` 0.14, and 0.19 supports only the App Router: render `DataProvider` from
 `@data-client/react/nextjs` in `app/layout.tsx`, then uninstall `@data-client/ssr` (and `@data-client/redux` if nothing
 else uses it). Moving pages to the App Router is a routing migration, so confirm with the owner before starting it.
-[Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#nextjs-pages-router).
+[Details](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#nextjs-pages-router).
 
 ## Step 5: custom Managers
 
@@ -118,9 +118,9 @@ where it only returned a function, and gave Managers without middleware a pass-t
   the endpoint was `action.endpoint` under an `actionTypes.FETCH` check; fix each other `fetchedAt: Date.now()` that
   resolves a fetch action.
 
-Details: [middleware](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-middleware),
-[cleanup](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#manager-cleanup),
-[managers function](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#managers-function).
+Details: [middleware](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#manager-middleware),
+[cleanup](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#manager-cleanup),
+[managers function](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#managers-function).
 
 ## Step 6: test helpers
 
@@ -129,7 +129,7 @@ Details: [middleware](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#mana
   (the codemod adds both to lists of `new` calls), and the test's Managers now act on its actions.
 - **A custom Provider passed to [makeRenderDataHook()](https://dataclient.io/docs/api/makeRenderDataHook)** must accept
   `managers: () => Manager[]`, like `DataProvider`.
-  [Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#test-react-0.19).
+  [Details](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#test-react-0.19).
 
 ## Step 7: Vue
 
@@ -147,7 +147,7 @@ processed. Skip this step if `rg -n '__DC_CONTROLLERS__' .` finds nothing. What'
 code that handled a missing store. Read `__DC__.controller`, after setting `__DC__.store = name` when the page has
 several stores. It throws when the store isn't mounted, where `.get(name)` returned `undefined`, so check
 `__DC__.stores.includes(name)` first where the store may be missing.
-[Details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#dc-global).
+[Details](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#dc-global).
 
 ## Step 9: verify
 
@@ -200,7 +200,7 @@ comment naming the replacement on the rest. Fix each, then delete the comment, a
   string, such as Managers that log or time requests by name: `rg -n "\.create['\"\`]" <source-root>`.
 
 Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black|White)list' <source-root>`. The blog's
-[future releases](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#future-releases) lists changes that will break
+[future releases](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#future-releases) lists changes that will break
 later.
 
 ## Step 11: adopt 0.19 features (optional, own commit)
@@ -218,7 +218,7 @@ It rewrites only code it can prove does the same thing, apart from the differenc
 release post's example; read it when a rewrite or a judgment call below is unclear.
 
 - A loop (`for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`) that calls `set()` once per row
-  becomes one [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set):
+  becomes one [batch set()](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#batch-set):
   `ctrl.set([Ticker], rows)`. It batches only when:
   - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver
     whose array the file only reads and doesn't export, or typed as the Entity or a plain object type;
@@ -258,14 +258,14 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     SSR from a server whose clock runs ahead), or when the list holds the same row object twice.
 
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
-  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)). Its SET action's
+  ([before/after](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#set-invalidate)). Its SET action's
   `action.schema` is then the `Invalidate` instead of an Array.
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
-  `@data-client/vue` ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)), and
+  `@data-client/vue` ([before/after](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#vue-gc)), and
   `computed(() => args)` passed to a composable becomes the getter `() => args`
-  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-getter-args)).
+  ([before/after](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#vue-getter-args)).
 - `|| typeof data === 'symbol'` guards in conditions on React `useCache()` and `useDLE()` data are dropped
-  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#deleted-entity-undefined)).
+  ([before/after](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#deleted-entity-undefined)).
 
 Then, by judgment:
 
@@ -279,27 +279,27 @@ Then, by judgment:
   `unshift` (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers
   messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch
   `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array body, since it sends
-  one request instead of N. Examples: [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
-  [push a list](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list).
+  one request instead of N. Examples: [batch set()](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#batch-set),
+  [push a list](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#push-list).
 - **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its
   schema doesn't describe, so fix the value instead: `as any` on `set()` args or values, `push`/`unshift`/`remove`
   bodies (also on Collections in a `Query` or `Lazy`), union `body` values, `FormData`, `getOptimisticResponse()`
   returns, a `Controller` subclass passed to `DataProvider`, `prepareStore()`'s store, `action.meta.promise`; and
   `as unknown as T[]` on `fetch(getList.push, list)` results. Type `process(value, params)` params from the
   endpoint by removing `params: any`. Examples:
-  [set() values](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#typed-set),
-  [process() params](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#extend-process-params),
-  [optimistic responses](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#typed-optimistic-response),
-  [push bodies](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list),
-  [Collections in a Query](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#query-collection-push),
-  [FormData](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#create-formdata),
-  [union bodies](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#union-body),
-  [other types](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#type-fixes).
+  [set() values](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#typed-set),
+  [process() params](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#extend-process-params),
+  [optimistic responses](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#typed-optimistic-response),
+  [push bodies](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#push-list),
+  [Collections in a Query](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#query-collection-push),
+  [FormData](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#create-formdata),
+  [union bodies](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#union-body),
+  [other types](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#type-fixes).
 - **Vue**: `computed()` stored in a variable only to make composable args reactive can become a getter. Delete a
   Vitest `server.deps.inline` entry for `@data-client` added to fix `useEnhancedReducer is not a function`
-  ([details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#testing)).
+  ([details](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#testing)).
 - **Cancellation**: a custom `Endpoint` that wraps an SDK call can pass `this.signal` on to it, without declaring
-  `this` ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#endpoint-signal)).
+  `this` ([example](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#endpoint-signal)).
 
 ## Step 12: unlink the migration skills
 
