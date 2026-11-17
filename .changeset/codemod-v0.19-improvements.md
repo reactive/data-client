@@ -28,15 +28,15 @@ the same, apart from the differences noted below:
     server whose clock runs ahead), or when the list holds the same row object twice.
 
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
-  ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)). Its SET action's `action.schema`
+  ([example](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#set-invalidate)). Its SET action's `action.schema`
   is then the `Invalidate` instead of an Array.
 - Vue: drops `gcPolicy: new GCPolicy()`, now `DataClientPlugin`'s default
-  ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)); imports `GCPolicy` from
+  ([example](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#vue-gc)); imports `GCPolicy` from
   `@data-client/vue` instead of `@data-client/core`; and replaces `computed(() => args)` passed to a composable with
-  the getter itself ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-getter-args)).
+  the getter itself ([example](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#vue-getter-args)).
 - Drops `|| typeof data === 'symbol'` (and `&& typeof data !== 'symbol'`) from conditions on React `useCache()` and
   `useDLE()` data, which is `undefined` instead of a Symbol
-  ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#deleted-entity-undefined)).
+  ([example](https://dataclient.io/blog/2026/11/18/v0.19-batch-set#deleted-entity-undefined)).
 
 ```ts
 ws.onmessage = event => {
