@@ -221,7 +221,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   becomes one [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set):
   `ctrl.set([Ticker], rows)`. It batches only when:
   - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver
-    whose array the file only reads and doesn't export, or typed as the Entity or a plain object type;
+    whose array the file only reads and doesn't export, or typed as the Entity or a plain object type, and no row
+    or dropped arg has a getter the file declares (`[new Live()]`);
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
     literals and `const`s set to a literal, and reads members only of the row, globals, imports, classes with no
     static getter, and `const`s set to plain data or to what globals and imports return that the file stores only

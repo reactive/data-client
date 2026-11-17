@@ -3525,6 +3525,49 @@ const key = () => 'count';`,
         ).toContain('for (const row of JSON.parse(text))');
       });
 
+      it.each([
+        [
+          'rows that are instances of a local class with a getter',
+          "class Live {\n  id = 'a';\n  get count() {\n    return currentCount();\n  }\n}",
+          'const rows = [new Live(), new Live()];',
+        ],
+        [
+          'rows that are object literals with a getter',
+          '',
+          "const rows = [{ id: 'a', get count() { return currentCount(); } }];",
+        ],
+      ])('keeps %s', (_, setup, rows) => {
+        expect(
+          run(
+            `declare function currentCount(): number;\n${setup}`,
+            `${rows}
+  for (const row of rows)
+    await ctrl.set(Todo, { id: row.id, count: row.count + 1 });`,
+          ),
+        ).toContain('for (const row of rows)');
+      });
+
+      it('batches rows that are plain objects, also spread from a parameter', () => {
+        expect(
+          run(
+            '',
+            `const rows = [{ id: 'a', count: 1 }, ...JSON.parse(text)];
+  for (const row of rows)
+    await ctrl.set(Todo, { id: row.id, count: row.count + 1 });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('keeps a loop whose dropped args read a getter that changes the value', () => {
+        expect(
+          run(
+            'let seq = 0;\nconst options = { get args() { seq++; return {}; } };',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, options.args, { ...row, seq });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
       it('keeps parsed rows another module could change', () => {
         expect(
           run(

@@ -3958,8 +3958,29 @@ function mayHoldLocalGetter(j, path, file, depth, value) {
   path = unwrapPath(path);
   const { node } = path;
   if (isPlainData(node)) return false;
-  if (node.type === 'AwaitExpression')
-    return mayHoldLocalGetter(j, path.get('argument'), file, depth + 1, value);
+  const may = p => mayHoldLocalGetter(j, p, file, depth + 1, value);
+  // `[a, ...b, { n: c }]` holds what `a`, `b` and `c` hold, and `a.b` what `a` holds; a method, getter or
+  // computed key can hold more
+  if (node.type === 'ArrayExpression')
+    return childPaths(path.get('elements')).some(
+      e =>
+        e.node && may(e.node.type === 'SpreadElement' ? e.get('argument') : e),
+    );
+  if (isMember(node)) {
+    let root = path;
+    while (isMember(root.node)) root = unwrapPath(root.get('object'));
+    return root.node.type !== 'Identifier' || may(root);
+  }
+  if (node.type === 'ObjectExpression')
+    return childPaths(path.get('properties')).some(
+      p =>
+        !isProperty(p.node) ||
+        p.node.computed ||
+        p.node.kind === 'get' ||
+        p.node.kind === 'set' ||
+        may(p.get('value')),
+    );
+  if (node.type === 'AwaitExpression') return may(path.get('argument'));
   if (node.type === 'Identifier')
     return holdsLocalGetter(j, path, file, depth + 1, value);
   if (!isCall(node) && node.type !== 'NewExpression') return true;
@@ -4015,12 +4036,18 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
         : n.type === 'ThisExpression'),
     ) ||
     callsLocalCode(j, call.get('arguments', args.length - 1), names) ||
-    readsLocalGetter(j, call.get('arguments', args.length - 1), names, file)
+    readsLocalGetter(j, call.get('arguments', args.length - 1), names, file) ||
+    // the batch drops the args, so a getter they read, like one that bumps `seq`, no longer runs
+    (extra && readsLocalGetter(j, call.get('arguments', 1), names, file))
   )
     return;
 
   const array = arrayOf(j, rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
+  // a row with a getter the module declares, like `new Live()`, runs it before any row is written. Parsed rows
+  // have none. Uses of the list in the loop's own header, like `for (const row of rows)`, don't hand it on.
+  if (!array.data && mayHoldLocalGetter(j, rows, file, 0, rows.parent.node))
+    return;
   const batch = batchSchemaOf(j, file, call);
   const guard = batch && emptyGuardOf(j, root, rows);
   if (!guard) return;
