@@ -214,7 +214,7 @@ make this its own commit; if the user makes the commits, list the files this ste
 npx @data-client/codemods v0.19 <source-root> --improvements=only
 ```
 
-It rewrites only code it can prove does the same thing, apart from three batch differences. Each item links the
+It rewrites only code it can prove does the same thing, apart from the differences noted below. Each item links the
 release post's example; read it when a rewrite or a judgment call below is unclear.
 
 - A loop (`for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`) that calls `set()` once per row
@@ -228,8 +228,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
     only the last row's index entry), no decorators, and no override of `validate()` or the store-merge methods
     (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`);
   - nothing in the Entity's file, the loop's file or a barrel it is imported through changes the class's static
-    members. It reads only those files and the files its schema imports, so check that no other file patches a
-    batched Entity.
+    members or passes the class to a function outside `@data-client`. It reads only those files and the files its
+    schema imports, so check that no other file patches a batched Entity.
 
   It guards each batch over a list that can be empty with `if (rows.length)`, so an empty list still dispatches
   nothing; keep that guard when you batch by hand. Three things differ from the loop:

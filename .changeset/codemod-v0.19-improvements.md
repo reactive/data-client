@@ -6,7 +6,7 @@ Add optional `--improvements` to the `v0.19` codemod, to adopt 0.19 features aft
 
 None of these are needed to upgrade. Run them in their own commit with
 `npx @data-client/codemods v0.19 src/ --improvements=only`. The codemod rewrites only code whose result it can prove is
-the same, apart from the three batch differences below:
+the same, apart from the differences noted below:
 
 - A loop that calls `ctrl.set()` once per row becomes one
   [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. The loop can be
@@ -21,8 +21,9 @@ the same, apart from the three batch differences below:
   - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
   - Its `pk()` and `process()` read only the row. It has no `static indexes` and no decorators, and overrides neither
     `validate()` nor the store-merge methods.
-  - No code the codemod reads changes its static members: its own file, the loop's file, a barrel it is imported
-    through, and the files its schema imports. Check that no other file patches a batched Entity.
+  - No code the codemod reads changes its static members or passes the class to a function outside `@data-client`:
+    its own file, the loop's file, a barrel it is imported through, and the files its schema imports. Check that no
+    other file patches a batched Entity.
 
   A batch over a list that can be empty is guarded with `if (rows.length)`, so an empty list still dispatches nothing.
   Three things differ from the loop:

@@ -1979,10 +1979,24 @@ function parseModule(j, file) {
 }
 
 /** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
- * `export * from`. Each module it re-exports through is added to `via`, with the source and name it re-exports. */
-function exportOrigin(j, file, name, via = [], depth = 0) {
+ * `export * from`. `via` lists each module it re-exports through, with the source and name it re-exports. */
+function exportOrigin(j, file, name, depth = 0) {
   const root = file && depth < 5 && parseModule(j, file);
   if (!root) return;
+  const through = (source, local) => {
+    const origin = exportOrigin(
+      j,
+      resolveModule(file, source),
+      local,
+      depth + 1,
+    );
+    return (
+      origin && {
+        ...origin,
+        via: [{ root, source, name: local }, ...origin.via],
+      }
+    );
+  };
   const { body } = root.get().node.program;
   for (const node of body) {
     if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
@@ -1992,35 +2006,21 @@ function exportOrigin(j, file, name, via = [], depth = 0) {
       isId(declaration?.id, name) ||
       declaration?.declarations?.some(d => isId(d.id, name))
     )
-      return { root, file, name };
+      return { root, file, name, via: [] };
     const specifier = node.specifiers?.find(
       s => staticName(s.exported) === name,
     );
     if (!specifier) continue;
     const local = specifier.local?.name ?? name;
-    if (!node.source) return { root, file, name: local };
-    via.push({ root, source: node.source.value, name: local });
-    return exportOrigin(
-      j,
-      resolveModule(file, node.source.value),
-      local,
-      via,
-      depth + 1,
-    );
+    return node.source ?
+        through(node.source.value, local)
+      : { root, file, name: local, via: [] };
   }
   // a module's own exports win over `export *`
   for (const node of body) {
     if (node.type !== 'ExportAllDeclaration' || node.exported) continue;
-    const length = via.push({ root, source: node.source.value, name });
-    const origin = exportOrigin(
-      j,
-      resolveModule(file, node.source.value),
-      name,
-      via,
-      depth + 1,
-    );
+    const origin = through(node.source.value, name);
     if (origin) return origin;
-    via.length = length - 1;
   }
 }
 
@@ -2593,11 +2593,12 @@ const constInitOf = binding => {
 const reexportWrites = (j, { root, source, name }) =>
   writesHooksIndirectly(j, root.paths()[0]) ||
   root
-    .find(j.ImportDeclaration, { source: { value: source } })
-    .filter(decl => decl.node.importKind !== 'type')
     .find(j.ImportSpecifier)
     .filter(
-      s => s.node.importKind !== 'type' && staticName(s.node.imported) === name,
+      s =>
+        s.parent.node.source.value === source &&
+        staticName(s.node.imported) === name &&
+        !!valueImportOf(s.get('local')),
     )
     .some(s => writesMembersOf(j, s.get('local')));
 
@@ -2612,16 +2613,14 @@ function classOf(j, path, file) {
   const init = constInitOf(binding);
   if (init?.node.type === 'ClassExpression') return { path: init, file };
   const specifier = valueImportOf(path);
-  const via = [];
   const origin =
     specifier &&
     exportOrigin(
       j,
       file && resolveModule(file, specifier.parent.node.source.value),
       staticName(specifier.node.imported),
-      via,
     );
-  if (!origin || via.some(step => reexportWrites(j, step))) return;
+  if (!origin || origin.via.some(step => reexportWrites(j, step))) return;
   const declared = topLevelClass(j, origin.root, origin.name);
   return declared && { path: declared, file: origin.file };
 }
@@ -2796,8 +2795,9 @@ function mayHoldClass(path, depth = 0) {
 
 /** Whether static `this` at `path`, or a class reached from it like `this.schema.author`, leaves the class, so
  * code the module doesn't show could set a hook on it: `patch(this)`, `registry.Quote = this` or `return this`.
- * A method call, `new this()` and `instanceof this` keep it, and so does a member read that isn't a class link,
- * like `this.key`. */
+ * A method call, `new this()` and `instanceof this` keep it, and so does a member chain with no class link,
+ * like `this.key`. A chain through a link counts as a class even when it ends in a plain value, like
+ * `this.schema.key`. */
 function thisEscapes(path) {
   if (!inStaticMember(path)) return false;
   let outer = outerPath(path);
@@ -2813,11 +2813,9 @@ function thisEscapes(path) {
   }
   if (read && !linked) return false;
   const parent = outer.parent.node;
-  if (parent.type === 'CallExpression' || parent.type === 'NewExpression')
-    return parent.callee !== outer.node;
-  return !(
-    parent.type === 'BinaryExpression' && parent.operator === 'instanceof'
-  );
+  return parent.type === 'CallExpression' || parent.type === 'NewExpression' ?
+      parent.callee !== outer.node
+    : !(parent.type === 'BinaryExpression' && parent.operator === 'instanceof');
 }
 
 // whether each module writes an Entity hook without naming its class, by its Program node
@@ -2975,35 +2973,23 @@ function literalHolding(path) {
   }
 }
 
-/** Whether the call that takes `path` as an argument can't write to it: its callee is neither `Object.*()`
- * nor `Reflect.*()`, nor a built-in container that could hand it back, nor a function or class this module declares (`patch(Todo)`), nor a method of an object
- * or class it declares (`helpers.patch(Todo)`), any of which could patch its parameter */
+/** Whether the call that takes `path` as an argument can't write to it: a Controller method, or a function
+ * or a method of a value from a @data-client package, like `useSuspense(Todo)` or `TodoResource.extend(Todo)`.
+ * Any other function could patch its parameter or hand it back to code that does, like `patch(Todo)`,
+ * `Object.assign(Todo, ...)` or `new Set([Todo])`. */
 function passesToLibrary(path) {
-  if (isObjectOrReflectTarget(path)) return false;
   let callee = path.parent.get('callee');
-  const direct = callee.node.type === 'Identifier';
   if (isMember(callee.node) && isController(callee.get('object'))) return true;
+  if (callee.node.type === 'Identifier') return isDataClientName(callee);
   while (isMember(callee.node)) callee = callee.get('object');
-  // a built-in container hands the class back, like `new Set([Todo])` or `Array.of(Todo)`
-  if (CONTAINER_GLOBALS.has(callee.node.name) && !bindingOf(callee))
-    return false;
-  return direct ? isLibraryName(callee) : isLibraryValue(callee);
+  return isDataClientValue(callee);
 }
 
-const CONTAINER_GLOBALS = new Set([
-  'Array',
-  'Map',
-  'Set',
-  'WeakMap',
-  'WeakRef',
-  'Promise',
-]);
-
-/** Whether `path` names an import or a global, or a `const` set to a call of one, like `resource()`: a value
+/** Whether `path` names a @data-client import, or a `const` set to a call of one, like `resource()`: a value
  * whose methods this module didn't write */
-function isLibraryValue(path) {
+function isDataClientValue(path) {
   if (path.node.type !== 'Identifier') return false;
-  if (isLibraryName(path)) return true;
+  if (isDataClientName(path)) return true;
   const init = constInitOf(bindingOf(path));
   if (!init) return false;
   const call = unwrapPath(init);
@@ -3011,7 +2997,16 @@ function isLibraryValue(path) {
     return false;
   let callee = call.get('callee');
   while (isMember(callee.node)) callee = callee.get('object');
-  return callee.node.type === 'Identifier' && isLibraryName(callee);
+  return callee.node.type === 'Identifier' && isDataClientName(callee);
+}
+
+/** Whether `path` names an import from a @data-client package */
+function isDataClientName(path) {
+  const specifier = bindingOf(path)?.parent;
+  return (
+    !!specifier?.node.type.startsWith('Import') &&
+    specifier.parent.node.source.value.startsWith('@data-client/')
+  );
 }
 
 /** Whether `path` names an import or a global */
@@ -3582,30 +3577,30 @@ function emptyGuardOf(j, root, rows) {
 /** Replaces a loop statement with `call`, guarded by `guard` (from emptyGuardOf()), keeping the comments on the
  * loop and on the set() statement */
 function replaceLoop(j, path, { call, guard }, awaited, inner) {
-  let statement = j.expressionStatement(
-    awaited ? j.awaitExpression(call) : call,
-  );
+  const batch = j.expressionStatement(awaited ? j.awaitExpression(call) : call);
   // the set() statement's own comments, trailing ones too, stay on the batch set()
-  statement.comments = inner?.comments?.map(c => ({
+  batch.comments = inner?.comments?.map(c => ({
     ...c,
     leading: true,
     trailing: false,
   }));
-  if (guard.guarded)
-    statement = j.ifStatement(
-      j.memberExpression(guard.list, j.identifier('length')),
-      j.blockStatement([statement]),
-    );
+  const statement =
+    guard.guarded ?
+      j.ifStatement(
+        j.memberExpression(guard.list, j.identifier('length')),
+        j.blockStatement([batch]),
+      )
+    : batch;
   const statements = guard.setup ? [guard.setup, statement] : [statement];
+  // the loop's leading comments go before the first statement, and its trailing ones after the last
   const comments = path.node.comments ?? [];
+  const trailing = comments.filter(c => c.trailing);
   prependComments(
     statements[0],
     comments.filter(c => !c.trailing),
   );
-  statement.comments = [
-    ...(statement.comments ?? []),
-    ...comments.filter(c => c.trailing),
-  ];
+  if (trailing.length)
+    statement.comments = [...(statement.comments ?? []), ...trailing];
   // a lone `if` would take an `else` that followed the loop, and a `const` in a `case` is visible to every case
   if (
     (guard.guarded && !Array.isArray(path.parentPath.value)) ||
@@ -3696,11 +3691,11 @@ function unwrapOneRowInvalidate(j, root, file) {
     if (
       !isMember(node.callee) ||
       memberName(node.callee) !== 'set' ||
-      !isController(path.get('callee', 'object')) ||
       node.arguments.length !== 2 ||
       !oneElement(schema) ||
       // one set() calls a function value as an updater, and throws on null where a batch skips it
       oneElement(value)?.type !== 'ObjectExpression' ||
+      !isController(path.get('callee', 'object')) ||
       !isRowOnlyInvalidate(j, path.get('arguments', 0, 'elements', 0), file)
     )
       return;

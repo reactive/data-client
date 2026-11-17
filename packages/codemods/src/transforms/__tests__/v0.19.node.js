@@ -3615,6 +3615,7 @@ Box.schema = { todos: [Todo] };`,
   static make(props: object) {
     const item = new this();
     this.validate(item);
+    this.schema.todo.fromJS({});
     return item instanceof this ? this.label : '';
   }
 }`,
@@ -3650,6 +3651,12 @@ Alias.shouldUpdate = () => false;`,
           'Reflect.set()',
           `class Todo extends Entity { id = 0; }
 Reflect.set(Todo, 'shouldUpdate', () => false);`,
+        ],
+        [
+          'a function imported from the app',
+          `import { register } from './registry';
+class Todo extends Entity { id = 0; }
+register(Todo);`,
         ],
         [
           'a Set holding it',
