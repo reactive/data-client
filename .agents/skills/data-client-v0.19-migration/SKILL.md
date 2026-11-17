@@ -221,10 +221,11 @@ It rewrites only code it can prove does the same thing, apart from two batch dif
   when each row is plain data (an object literal, a row of parsed JSON, or typed as the Entity or a plain object
   type), never an updater function, and the Entity's `pk()` and `process()` read only the row and it overrides
   neither `validate()` nor the store-merge methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`,
-  `mergeMetaWithStore()`), and nothing changes the class's static members (through its name, an alias, `this`, or a
-  helper it is passed to). Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so
-  check Managers and middleware that match SET actions by schema: match `action.schema[0]` too. A row whose `pk()` or
-  `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other rows.
+  `mergeMetaWithStore()`), and nothing in the Entity's file or the loop's file changes the class's static members. It
+  reads no other files, so check that nothing else patches a batched Entity. Each batch dispatches one SET action
+  whose `action.schema` is the Array (`[Ticker]`), so check Managers and middleware that match SET actions by schema:
+  match `action.schema[0]` too. A row whose `pk()` or `process()` throws makes the whole batch write nothing, where
+  the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
   `@data-client/vue`, and `computed(() => args)` passed to a composable becomes the getter `() => args`.

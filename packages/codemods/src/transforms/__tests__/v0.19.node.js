@@ -3040,10 +3040,41 @@ export function save(ctrl, rows: any[]) {
           { source, path: 'save.tsx' },
         );
 
-      it('batches the loop when nothing patches the Entity', () => {
+      it.each([
+        ['no other code', ''],
+        [
+          'a plain object property named like a hook',
+          `export function bind(form: any, schema: any) {
+  form.schema = schema;
+}
+const opts = { retries: 2 };
+Object.assign(opts, { process: (x: any) => x });`,
+        ],
+        [
+          'an instance property of another class',
+          `export class Form {
+  constructor(public opts: any) {
+    this.opts.validate = (v: any) => !!v;
+  }
+}`,
+        ],
+        [
+          'a constructor assigning options to an instance',
+          `export class StreamManager {
+  constructor(options: object) {
+    Object.assign(this, options);
+  }
+}`,
+        ],
+        [
+          'a schema assigned after the class',
+          `class Box extends Entity { id = 0; }
+Box.schema = { todos: [Todo] };`,
+        ],
+      ])('batches the loop when %s writes', (_, setup) => {
         expect(
           run(
-            `import { Entity } from '@data-client/rest';\nclass Todo extends Entity { id = 0; }${save}`,
+            `import { Entity } from '@data-client/rest';\nclass Todo extends Entity { id = 0; }\n${setup}${save}`,
           ),
         ).toContain('ctrl.set([Todo], rows.map(');
       });
@@ -3108,6 +3139,30 @@ Reflect.set(Todo, 'shouldUpdate', () => false);`,
   id = 0;
   touch() {
     (this.constructor as any).shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
+          'Object.assign() in a static method',
+          `class Todo extends Entity {
+  id = 0;
+  static configure(mixin: object) {
+    Object.assign(this, mixin);
+  }
+}`,
+        ],
+        [
+          'a let alias of it',
+          `class Todo extends Entity { id = 0; }
+let alias = Todo;
+alias.process = (input, parent) => ({ ...input, parent });`,
+        ],
+        [
+          'Reflect.set() with a computed key',
+          `class Todo extends Entity {
+  id = 0;
+  static patch(name: string, fn: any) {
+    Reflect.set(this, name, fn);
   }
 }`,
         ],

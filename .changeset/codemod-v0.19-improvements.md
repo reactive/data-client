@@ -14,7 +14,8 @@ the same, apart from the two batch differences below:
   literal, a row of parsed JSON, or typed as the Entity or a plain object type) rather than an updater function, and
   the Entity is a class declared in the file or imported from a relative path or tsconfig alias whose `pk()` and
   `process()` read only the row, that overrides neither `validate()` nor the store-merge methods, and whose static
-  members nothing in the files that declare, import or use it changes.
+  members neither its own file nor the loop's file changes. It reads only those files (and the files its schema
+  imports), so it can't see another file that patches the Entity.
   Managers that match SET actions by `action.schema` now see `[Ticker]` instead of `Ticker`, and a row whose
   `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other rows.
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`.

@@ -2678,34 +2678,65 @@ function hookWriteOf(path) {
     !(isId(node.callee.object, 'Object') || isId(node.callee.object, 'Reflect'))
   )
     return;
-  // a source this module doesn't spell out, like `Object.assign(this, options)`, is assumed not to hold hooks
   const [, key] = node.arguments;
-  const names =
-    key?.type === 'ObjectExpression' ?
-      key.properties.map(p => (isProperty(p) ? keyName(p) : undefined))
-    : [key?.value];
-  return names.some(name => ENTITY_HOOKS.has(name)) ?
-      unwrapPath(path.get('arguments', 0))
-    : undefined;
+  const object = unwrapPath(path.get('arguments', 0));
+  let writes;
+  if (key?.type === 'ObjectExpression')
+    writes = key.properties.some(
+      p => !isProperty(p) || ENTITY_HOOKS.has(keyName(p)),
+    );
+  else if (memberName(node.callee) === 'assign')
+    // a source it doesn't spell out could hold hooks when it lands on a class, as in a static
+    // `Object.assign(this, mixin)`, but not on an instance, as in a constructor's `Object.assign(this, options)`
+    writes = !!key && (isMember(object.node) || inStaticMember(path));
+  // a key it doesn't spell out, like `Reflect.set(this, name, fn)`, could be one
+  else writes = typeof key?.value !== 'string' || ENTITY_HOOKS.has(key.value);
+  return writes ? object : undefined;
 }
 
-/** Whether `path` names a class directly: its declaration, an import, or a `const` alias of one, whose
- * writes writesMembersOf() follows */
-function namesClass(path) {
-  if (path.node.type !== 'Identifier') return false;
-  const owner = bindingOf(path)?.parent.node;
-  if (!owner) return false;
-  if (owner.type === 'ClassDeclaration' || owner.type.startsWith('Import'))
-    return true;
-  const init = owner.type === 'VariableDeclarator' && unwrap(owner.init);
-  return init?.type === 'ClassExpression' || init?.type === 'Identifier';
+/** Whether `this` at `path` is a class: inside a static member, and not inside a nested `function` */
+function inStaticMember(path) {
+  for (let p = path.parent; p; p = p.parent) {
+    const { type } = p.node;
+    if (type === 'StaticBlock') return true;
+    if (CLASS_MEMBERS.has(type) || type === 'ClassPrivateMethod')
+      return !!p.node.static;
+    if (type === 'FunctionDeclaration' || type === 'FunctionExpression')
+      return false;
+  }
+  return false;
+}
+
+// members that lead from a value to a class: `this.constructor`, `Todo.prototype`, `Parent.schema.leaf`
+const CLASS_LINKS = new Set(['constructor', 'prototype', 'schema']);
+
+/** Whether the object a write sets a hook on can be a class without naming it: `this` or `super`, a chain
+ * through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like `const self = this`.
+ * A class a module names has its writes followed by writesMembersOf() instead. */
+function mayHoldClass(path, depth = 0) {
+  const { node } = path;
+  if (node.type === 'ThisExpression' || node.type === 'Super') return true;
+  if (isMember(node)) {
+    for (let t = node; isMember(t); t = unwrap(t.object))
+      if (CLASS_LINKS.has(memberName(t))) return true;
+    return false;
+  }
+  if (node.type !== 'Identifier' || depth > 3) return false;
+  const binding = bindingOf(path);
+  const owner = binding?.parent;
+  return (
+    owner?.node.type === 'VariableDeclarator' &&
+    owner.node.id === binding.node &&
+    !!owner.node.init &&
+    mayHoldClass(unwrapPath(owner.get('init')), depth + 1)
+  );
 }
 
 // whether each module writes an Entity hook without naming its class, by its Program node
 const hookWrites = new WeakMap();
 
-/** Whether the module `top` sets an Entity hook on something other than a class it names, which can change
- * a class whose name the write never uses: `static useArgs() { this.process = ... }`, `super.pk = ...`,
+/** Whether the module `top` sets an Entity hook on a value that can be a class it doesn't name, which can
+ * change a class whose name the write never uses: `static useArgs() { this.process = ... }`, `super.pk = ...`,
  * `const self = this; self.validate = ...` or `Parent.schema.leaf.process = ...` */
 function writesHooksIndirectly(j, top) {
   if (!hookWrites.has(top.node)) {
@@ -2722,7 +2753,7 @@ function writesHooksIndirectly(j, top) {
           .find(type)
           .some(p => {
             const object = hookWriteOf(p);
-            return !!object && !namesClass(object);
+            return !!object && mayHoldClass(object);
           }),
       ),
     );
