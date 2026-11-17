@@ -130,7 +130,8 @@ const isGetDefaultManagersCall = node =>
 const isCall = node =>
   node.type === 'CallExpression' || node.type === 'OptionalCallExpression';
 
-/** Whether `node` is the global `Object` or `Reflect`, also as a member like `globalThis.Object` */
+/** Whether `node` is the global `Object` or `Reflect`, or any member named like one, such as `globalThis.Object`
+ * (conservative: `lib.Reflect` matches too) */
 const isObjectGlobal = node =>
   isId(node, 'Object') ||
   isId(node, 'Reflect') ||
@@ -2607,9 +2608,9 @@ const constInitOf = binding => {
     : undefined;
 };
 
-/** Whether the file uses the named function whose parameter is `binding` other than to export it, so it could
- * pass the parameter anything, like `save(ctrl, rows, live)`. An unnamed function, like a callback, is called by
- * code the file hands it to. */
+/** Whether the file could pass the parameter `binding` anything, like `save(ctrl, rows, live)`: its function is
+ * a method, a callback or another function without a declared name, or the file uses that name other than to
+ * export it. */
 function fileCallsWith(j, binding) {
   let path = binding;
   while (PATTERN_PARTS.has(path.parent.node.type)) path = path.parent;
@@ -2622,7 +2623,7 @@ function fileCallsWith(j, binding) {
     ) ?
       fn.parent.get('id')
     : undefined;
-  if (name?.node?.type !== 'Identifier') return false;
+  if (name?.node?.type !== 'Identifier') return true;
   return moduleUsesOf(j, name, bindingOf(name)).some(
     use => use.parent.node.type !== 'ExportSpecifier',
   );
@@ -4038,13 +4039,18 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
     return;
   const array = arrayOf(j, rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
-  const getters = makesGetters(root.paths()[0].node);
+  const fileMakesGetters = makesGetters(root.paths()[0].node);
   if (
-    readsChangingState(j, valuePath, names, getters) ||
+    readsChangingState(j, valuePath, names, fileMakesGetters) ||
     // the batch drops the args, so a getter they read, like one that bumps `seq`, no longer runs
-    (getters &&
+    (fileMakesGetters &&
       ((extra &&
-        readsChangingState(j, call.get('arguments', 1), names, getters)) ||
+        readsChangingState(
+          j,
+          call.get('arguments', 1),
+          names,
+          fileMakesGetters,
+        )) ||
         rowsMayHoldGetter(j, rows, rows.parent.node)))
   )
     return;

@@ -39,7 +39,8 @@ read the store or state that changes between rows. It keeps loops:
   (`Object.create()`, `Object[name]`, `const O = Object`). There it also keeps loops whose row value or dropped args
   read anything but the row, globals, imports, `const`s set to a literal and variables of plain data (`live.count`,
   `{ ...live }`), and whose rows aren't parsed JSON or plain data that only the loop reads. A parameter counts as an
-  import unless the file calls its function, like `save(ctrl, rows, live)`;
+  import only when its function is a named function the file doesn't call, like `export function save(ctrl, rows)`,
+  so a parameter of a method, a callback or a function the file calls (`save(ctrl, rows, live)`) keeps the loop;
 - whose Entity isn't declared in the file or imported from a relative path or tsconfig alias, or has
   `static indexes`, decorators, hooks that read args, or an override of `validate()` or a store-merge method;
 - whose Entity's `pk()` or `process()` calls a function the file declares (it could read the store), reads a

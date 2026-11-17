@@ -3553,6 +3553,43 @@ save(ctrl, [{ id: 'a', get count() { return store.count; } }]);`,
 
       it.each([
         [
+          'an object method',
+          "const api = { save(ctrl, rows: { id: string }[], extra: { count: number }) { LOOP } };\napi.save(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a class method',
+          "class Saver { save(ctrl, rows: { id: string }[], extra: { count: number }) { LOOP } }\nnew Saver().save(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a function assigned to a member',
+          "const api: any = {};\napi.save = function (ctrl, rows: { id: string }[], extra: { count: number }) { LOOP };\napi.save(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a callback',
+          "function run(f) { f(ctrl, [{ id: 'a' }], live); }\nrun((ctrl, rows: { id: string }[], extra: { count: number }) => { LOOP });",
+        ],
+      ])(
+        'keeps a value from a parameter of %s the module can pass a getter',
+        (_, code) => {
+          expect(
+            applyTransform(
+              transform,
+              { improvements: 'only' },
+              {
+                source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+declare const store: { count: number };
+const live = { get count() { return store.count; } };
+${code.replace('LOOP', 'for (const row of rows) ctrl.set(Todo, { id: row.id }, { ...row, count: extra.count });')}`,
+                path: 'save.tsx',
+              },
+            ),
+          ).toContain('for (const row of rows)');
+        },
+      );
+
+      it.each([
+        [
           'a declared global in a module that declares a getter',
           'class Live { get count() { return 1; } }\ndeclare const LIMIT: number;',
           '{ ...row, at: LIMIT }',
