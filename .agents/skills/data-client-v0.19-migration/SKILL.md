@@ -225,7 +225,8 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
     literals and `const`s set to a literal, and reads members only of the row, globals, imports, classes with no
     static getter, and `const`s set to plain data or to what globals and imports return that the file stores only
-    plain data in (never `this.count` or `live.count`, which could run a getter the file declares);
+    plain data in and never hands on (`stash(cfg)`, `return cfg.live`), so `this.count` and `live.count` can't run a
+    getter the file declares;
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store, and read no variable that can change between rows (`let seq`) and no static getter the file

@@ -3836,7 +3836,7 @@ function readsLocalGetter(j, path, names, file) {
       parent.object === p.node &&
       !names.has(p.node.name) &&
       !isWithin(bindingOf(p), path.node) &&
-      holdsLocalGetter(j, p, file)
+      holdsLocalGetter(j, p, file, 0, path.node)
     );
   });
 }
@@ -3846,9 +3846,10 @@ const isStaticGetter = member => member.kind === 'get';
 /** Whether the variable at `path` can hold something with a getter the module declares. It can't when it is a
  * global or an import, a class whose chain declares no static getter, or a `const` set to plain data
  * (`{ count: 1 }`) or to what a global or import returns (`Date.now()`, `await fetch(url)`, `res.json()` of
- * such a `res`) that the module doesn't give one later (gainsLocalGetter()). Anything else counts as one that
- * can, such as `const { live } = cfg`, except a parameter, which the module can't see into. */
-function holdsLocalGetter(j, path, file, depth = 0) {
+ * such a `res`) that the module doesn't give one later (gainsLocalGetter(), which skips uses within `value`).
+ * Anything else counts as one that can, such as `const { live } = cfg`, except a parameter, which the module
+ * can't see into. */
+function holdsLocalGetter(j, path, file, depth = 0, value = undefined) {
   if (isLibraryName(path)) return false;
   if (depth > MAX_CHAIN) return true;
   const binding = bindingOf(path);
@@ -3867,8 +3868,8 @@ function holdsLocalGetter(j, path, file, depth = 0) {
   if (init.node.type === 'ClassExpression')
     return declaresStatic(j, path, file, isStaticGetter, true);
   return (
-    mayHoldLocalGetter(j, init, file, depth + 1) ||
-    gainsLocalGetter(j, path, binding, file, depth + 1)
+    mayHoldLocalGetter(j, init, file, depth + 1, value) ||
+    gainsLocalGetter(j, path, binding, file, depth + 1, value)
   );
 }
 
@@ -3888,19 +3889,39 @@ function isParameter(binding) {
   return path.parent.node.params?.includes(path.node) ?? false;
 }
 
+/** The innermost object of the callee of the call at `path`: `x` in `x.a.b()` */
+function calleeRootOf(path) {
+  let root = unwrapPath(path.get('callee'));
+  while (isMember(root.node)) root = unwrapPath(root.get('object'));
+  return root;
+}
+
+/** The outermost expression that `X.a.b`, starting at the identifier `X`, passes through unchanged: also
+ * through casts, like `(X.a as any).b!` */
+function wrappedChainOf(path) {
+  for (;;) {
+    path = memberChainOf(path);
+    while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+    if (!isMember(path.parent.node) || path.parent.node.object !== path.node)
+      return path;
+  }
+}
+
 /** Whether code in the module can give the `const` at `binding` a getter after it is set: by storing one in it
  * (`history.push({ get count() {} })`, `cfg.live = live`), or by handing the value on, so other code can
- * (`stash(cfg.live)`, `const ref = cfg.live`, `for (const x of history)`). Reading members, and method calls
- * given only values that hold no getter (`history.at(0)`, `res.json()`), can't. Other modules can when it is
- * exported. */
-function gainsLocalGetter(j, path, binding, file, depth) {
+ * (`stash(cfg.live)`, `const ref = cfg.live`, `return cfg.live`, `[cfg.live]`, `for (const x of history)`).
+ * Reading a member into an expression that can't keep it (`cfg.n + 1`, `if (cfg.on)`), and method calls given
+ * only values that hold no getter (`history.at(0)`, `res.json()`), can't. Uses within `value`, the set() value
+ * being checked, are skipped: they hand it to the store. Other modules can when it is exported. */
+function gainsLocalGetter(j, path, binding, file, depth, value) {
   if (isExported(binding)) return true;
-  const holds = arg => mayHoldLocalGetter(j, arg, file, depth + 1);
+  const holds = arg => mayHoldLocalGetter(j, arg, file, depth + 1, value);
   return moduleUsesOf(j, path, binding).some(use => {
+    if (value && isWithin(use, value)) return false;
     const parent = use.parent.node;
     if (parent.type === 'TSTypeQuery') return false;
     if (!isMember(parent) || parent.object !== use.node) return true;
-    const chain = memberChainOf(use);
+    const chain = wrappedChainOf(use);
     const holder = chain.parent;
     const { type } = holder.node;
     if (isWriteTarget(chain))
@@ -3912,8 +3933,7 @@ function gainsLocalGetter(j, path, binding, file, depth) {
     if (isCall(holder.node) || type === 'NewExpression') {
       const args = childPaths(holder.get('arguments'));
       if (holder.node.callee === chain.node) return args.some(holds);
-      let root = unwrapPath(holder.get('callee'));
-      while (isMember(root.node)) root = unwrapPath(root.get('object'));
+      const root = calleeRootOf(holder);
       // `String(cfg.n)` can't store a getter in it, but `stash(cfg.live)` or `Object.assign(cfg.live, live)` can
       return (
         root.node.type !== 'Identifier' ||
@@ -3921,30 +3941,33 @@ function gainsLocalGetter(j, path, binding, file, depth) {
         args.some(arg => arg.node !== chain.node && holds(arg))
       );
     }
-    return type === 'VariableDeclarator' || type === 'AssignmentExpression';
+    // the same reads isDataVariable() accepts, and a computed key
+    const keeps =
+      DATA_READS.has(type) ||
+      type === 'UnaryExpression' ||
+      type === 'ExpressionStatement' ||
+      (isMember(holder.node) && holder.node.property === chain.node) ||
+      isCondition(chain);
+    return !keeps || holder.parent.node.type === 'TaggedTemplateExpression';
   });
 }
 
 /** Whether the value of the expression at `path` can have a getter the module declares (holdsLocalGetter()) */
-function mayHoldLocalGetter(j, path, file, depth) {
+function mayHoldLocalGetter(j, path, file, depth, value) {
   if (depth > MAX_CHAIN) return true;
   path = unwrapPath(path);
   const { node } = path;
   if (isPlainData(node)) return false;
   if (node.type === 'AwaitExpression')
-    return mayHoldLocalGetter(j, path.get('argument'), file, depth + 1);
+    return mayHoldLocalGetter(j, path.get('argument'), file, depth + 1, value);
   if (node.type === 'Identifier')
-    return holdsLocalGetter(j, path, file, depth + 1);
+    return holdsLocalGetter(j, path, file, depth + 1, value);
   if (!isCall(node) && node.type !== 'NewExpression') return true;
   // a global or import, or a method of a value that holds no getter, given only plain data or such values
-  let root = unwrapPath(path.get('callee'));
-  if (root.node.type === 'Identifier' && !isLibraryName(root)) return true;
-  while (isMember(root.node)) root = unwrapPath(root.get('object'));
-  return (
-    mayHoldLocalGetter(j, root, file, depth + 1) ||
-    childPaths(path.get('arguments')).some(arg =>
-      mayHoldLocalGetter(j, arg, file, depth + 1),
-    )
+  const callee = unwrapPath(path.get('callee'));
+  if (callee.node.type === 'Identifier' && !isLibraryName(callee)) return true;
+  return [calleeRootOf(path), ...childPaths(path.get('arguments'))].some(p =>
+    mayHoldLocalGetter(j, p, file, depth + 1, value),
   );
 }
 

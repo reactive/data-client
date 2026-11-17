@@ -3486,6 +3486,31 @@ const key = () => 'count';`,
           'page.live.count',
         ],
         [
+          'a getter stored through a member a function returns',
+          'const cfg: any = { live: {} };\nfunction inner() { return cfg.live; }\ninner().x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a member an object literal holds',
+          'const cfg: any = { live: {} };\nconst view = { inner: cfg.live };\nview.inner.x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a member an array literal holds',
+          'const cfg: any = { live: {} };\nconst box = [cfg.live];\nbox[0].x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a member an arrow returns',
+          'const cfg: any = { live: {} };\nconst inner = () => cfg.live;\ninner().x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a cast alias of a member',
+          'const cfg: any = { live: {} };\nconst alias = cfg.live as any;\nalias.x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
           'a destructured object getter',
           'const cfg = { live: { get count() { return currentCount(); } } };\nconst { live } = cfg;',
           'live.count',

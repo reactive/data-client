@@ -30,10 +30,11 @@ read the store or state that changes between rows. It keeps loops:
 - whose receiver isn't `ctrl`, `controller` or the result of `useController()`;
 - whose row could be an updater function: anything but an object literal, a row of a `JSON.parse()` array (without a
   reviver) that the file only reads and doesn't export, or a value typed as the Entity or a plain object type;
-- whose row value calls a function the file declares, passes a call anything but the row, literals and `const`s set
-  to a literal, or reads a member of something that could have a getter the
-  file declares: `this`, or a variable not set to plain data or to what a global or import returns, or one the file
-  stores anything else in;
+- whose row value calls a function the file declares, or gives a call an argument other than the row, a literal or a
+  `const` set to a literal;
+- whose row value reads a member of something that could have a getter the file declares: `this`, a variable not set
+  to plain data or to what a global or import returns, or a `const` the file stores anything but plain data in or
+  hands on (`stash(cfg)`, `return cfg.live`, `const ref = cfg.live`);
 - whose Entity isn't declared in the file or imported from a relative path or tsconfig alias, or has
   `static indexes`, decorators, hooks that read args, or an override of `validate()` or a store-merge method;
 - whose Entity's `pk()` or `process()` calls a function the file declares (it could read the store), reads a
