@@ -3386,6 +3386,49 @@ const key = () => 'count';`,
 
       it.each([
         [
+          'with Object.defineProperty()',
+          '',
+          "rows.forEach(row => Object.defineProperty(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with Object.setPrototypeOf()',
+          'const proto = { get count() { return currentCount(); } };',
+          'rows.forEach(row => Object.setPrototypeOf(row, proto));',
+          'row',
+        ],
+        [
+          'by storing an instance of a class the module declares',
+          'class Live { get count() { return currentCount(); } }',
+          'rows.forEach(row => (row.live = new Live()));',
+          '{ id: row.id, count: row.live.count }',
+        ],
+      ])(
+        'keeps parsed rows the module could give a getter %s',
+        (_, declarations, change, value) => {
+          expect(
+            run(
+              `declare function currentCount(): number;\n${declarations}`,
+              `const rows = JSON.parse(text);
+  ${change}
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, ${value});`,
+            ),
+          ).toContain('for (const row of rows)');
+        },
+      );
+
+      it('batches parsed rows only the loop reads in a module that declares a getter', () => {
+        expect(
+          run(
+            'class Live { get count() { return 1; } }',
+            `const rows = JSON.parse(text);
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, row);`,
+          ),
+        ).toContain('ctrl.set([Todo], rows)');
+      });
+
+      it.each([
+        [
           'an object getter',
           'const live = { get count() { return currentCount(); } };',
           'live.count',

@@ -3855,6 +3855,35 @@ function readsLocalGetter(j, path, names, file) {
 
 const isStaticGetter = member => member.kind === 'get';
 
+// members that give an existing object a getter: `Object.defineProperty(row, 'count', { get })`
+const ACCESSOR_INSTALLERS = new Set([
+  'defineProperty',
+  'defineProperties',
+  'setPrototypeOf',
+  '__defineGetter__',
+  '__proto__',
+]);
+// whether each module can make a getter, by its Program node
+const accessorModules = new WeakMap();
+
+/** Whether the module `top` declares a getter or setter, or can give an existing object one, so parsed rows it
+ * hands on could gain one: `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` or
+ * `rows.forEach(row => (row.live = new Live()))` */
+function makesGetters(top) {
+  if (!accessorModules.has(top))
+    accessorModules.set(
+      top,
+      containsNode(
+        top,
+        n =>
+          n.kind === 'get' ||
+          n.kind === 'set' ||
+          (isMember(n) && ACCESSOR_INSTALLERS.has(memberName(n))),
+      ),
+    );
+  return accessorModules.get(top);
+}
+
 /** Whether the variable at `path` can hold something with a getter the module declares. It can't when it is a
  * global or an import, a class whose chain declares no static getter, or a `const` set to plain data
  * (`{ count: 1 }`) or to what a global or import returns (`Date.now()`, `await fetch(url)`, `res.json()` of
@@ -4057,8 +4086,12 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
   const array = arrayOf(j, rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
   // a row with a getter the module declares, like `new Live()`, runs it before any row is written. Parsed rows
-  // have none. Reads of the list inside the loop being replaced, like `for (const row of rows)`, don't hand it on.
-  if (!array.data && mayHoldLocalGetter(j, rows, file, 0, rows.parent.node))
+  // have none unless the module can make one and hands them on. Reads of the list inside the loop being
+  // replaced, like `for (const row of rows)`, don't hand it on.
+  if (
+    (!array.data || makesGetters(root.paths()[0].node)) &&
+    mayHoldLocalGetter(j, rows, file, 0, rows.parent.node)
+  )
     return;
   const batch = batchSchemaOf(j, file, call);
   const guard = batch && emptyGuardOf(j, root, rows);
