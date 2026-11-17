@@ -16,8 +16,8 @@ export default function PerfTable({
   columns,
   rows,
 }: {
-  /** Header and unit of each metric; lower is better */
-  columns: { label: string; unit: string }[];
+  /** Header and unit of each metric; lower is better. `delta: 'absolute'` labels the change in units instead of percent */
+  columns: { label: string; unit: string; delta?: 'percent' | 'absolute' }[];
   rows: PerfTableRow[];
 }) {
   const tips = useTips<string>();
@@ -42,8 +42,11 @@ export default function PerfTable({
                 )}
               </th>
               {values.map(([before, after], i) => {
-                const { unit } = columns[i];
-                const change = Math.round(((after - before) / before) * 100);
+                const { unit, delta = 'percent' } = columns[i];
+                const change =
+                  delta === 'absolute' ?
+                    after - before
+                  : Math.round(((after - before) / before) * 100);
                 const max = Math.max(before, after);
                 return (
                   <td
@@ -71,7 +74,8 @@ export default function PerfTable({
                       >
                         {change === 0 ?
                           'same'
-                        : `${change > 0 ? '+' : ''}${change}%`}
+                        : `${change > 0 ? '+' : ''}${change}${delta === 'absolute' ? ` ${unit}` : '%'}`
+                        }
                       </span>
                     </div>
                     {/* exact numbers stay in the DOM for crawlers and screen readers */}

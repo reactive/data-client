@@ -33,7 +33,7 @@ Layers guide grouping; they don't define the top-level groups (see Blog Structur
 - Inside a cross-cutting group (Performance, Validation), order items by layer.
 - Name the public packages each change affects: a line of package tags (`` `react` `vue` ``, without the
   `@data-client/` prefix; `` `all` `` when every package changes) under each heading, and the same tags at the start
-  of each bullet.
+  of each bullet. Skip the tags when the change is about how apps build or bundle, not about a package's API.
 - Internal-only changes (core, normalizr) go last, since most readers don't use those packages directly.
 
 ## Blog Structure
@@ -147,6 +147,8 @@ the same `scaleMax` (the largest speedup among them) so their 1x lines line up.
 
 For several metrics per row (like time and memory), use `<PerfTable>` instead of a markdown table. Each cell shows
 paired before/after bars and a colored percent-change badge, with exact numbers on hover or tap; lower is better.
+Set `delta: 'absolute'` on a column when its percent rounds to almost nothing (like bundle bytes); the badge then shows
+the change in its unit.
 
 ```mdx
 import PerfTable from '@site/src/components/PerfTable';
