@@ -21,8 +21,9 @@ the same, apart from the differences noted below:
   - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
   - Its `pk()` and `process()` read only the row and call only globals, imports and methods of the row. Its instance
     code (constructor, methods, getters, setters and field values, which `pk()` can reach through `this`) names only
-    globals, imports, its own variables, `const`s set to a literal and Entity classes it constructs
-    (`author = User.fromJS()`), and never reaches static members (`this.constructor`). It has no `static indexes` and
+    types, globals, imports, its own variables, `const`s set to a literal, lookup tables of plain data and Entity
+    classes it constructs (`author = User.fromJS()`), and never reaches static members (`this.constructor` or
+    `new.target`). It has no `static indexes` and
     no decorators, and overrides neither `validate()` nor the store-merge methods.
   - No code the codemod reads changes its static members or passes the class to a function outside `@data-client`:
     its own file, the loop's file, a barrel it is imported through, and the files its schema imports. Check that no

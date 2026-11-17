@@ -2736,14 +2736,22 @@ function instanceCodeWithin(j, member, file, seen) {
 }
 
 /** Whether instance code names anything the module declares, which it could call, store (`this.count =
- * currentCount`) or return for pk() to call. It may name globals, imports, its own declarations, `const`s set
- * to a literal, and Entity classes it constructs (`author = User.fromJS()`) whose own code passes these
+ * currentCount`) or return for pk() to call. It may name types, globals, imports, its own declarations,
+ * `const`s set to a literal, variables that only hold plain data (isDataVariable()), and Entity classes it
+ * constructs (`author = User.fromJS()`) whose own code passes these
  * checks. */
 function namesLocalCode(j, code, file, seen) {
   return identifiersIn(j, code).some(p => {
-    if (isOtherName(p) || isLibraryName(p)) return false;
+    if (
+      // a method's own key, like `count() {}`, is not code
+      p.node === code.node.key ||
+      isOtherName(p) ||
+      isTypeName(p) ||
+      isLibraryName(p)
+    )
+      return false;
     const binding = bindingOf(p);
-    if (isWithin(binding, code.node)) return false;
+    if (isWithin(binding, code.node) || isDataVariable(j, p)) return false;
     if (binding.parent.node.type === 'ClassDeclaration') {
       const parent = p.parent.node;
       const constructs =
@@ -3239,6 +3247,22 @@ function isDataClientName(path) {
     isValueImport(specifier) &&
     declaration.source.value.startsWith(DATA_CLIENT_PREFIX)
   );
+}
+
+// TypeScript nodes whose child identifiers are values, like `row` in `row as Row`
+const TS_VALUE_WRAPPERS = new Set([
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSNonNullExpression',
+  'TSTypeAssertion',
+  'TSInstantiationExpression',
+  'TSParameterProperty',
+]);
+
+/** Whether `path` names a type, like `User` in `owner(): User` or `typeof LABEL`, which runs no code */
+function isTypeName(path) {
+  const { type } = path.parent.node;
+  return type.startsWith('TS') && !TS_VALUE_WRAPPERS.has(type);
 }
 
 /** Whether `path` names an import or a global */

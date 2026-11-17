@@ -3656,6 +3656,24 @@ export function save(ctrl, rows: any[]) {
         ).toContain('ctrl.set([Todo], rows.map(');
       });
 
+      it('batches when instance code names a type, a lookup table or a method named like a module function', () => {
+        expect(
+          run(
+            "  kind = 'a';\n  pk() {\n    return KINDS[this.kind] + this.id;\n  }\n  owner(): Tag | undefined {\n    return undefined;\n  }\n  count(): typeof Tag {\n    return this.kind as any;\n  }",
+            "class Tag extends Entity {\n  id = '';\n  static fromJS(): any {\n    return { id: String(count()) };\n  }\n}\nfunction count() {\n  return 1;\n}\nconst KINDS = { a: 'x', b: 'y' };",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it('keeps the loop when a lookup table holds code', () => {
+        expect(
+          run(
+            "  kind = 'a';\n  pk() {\n    return KINDS[this.kind] + this.id;\n  }",
+            "function count() {\n  return 1;\n}\nconst KINDS: any = { a: 'x' };\nKINDS.b = count;",
+          ),
+        ).not.toContain('ctrl.set([Todo], rows.map(');
+      });
+
       it('batches when pk() or process() calls only globals and methods of the row', () => {
         expect(
           run(
