@@ -221,15 +221,15 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   becomes one [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set):
   `ctrl.set([Ticker], rows)`. It batches only when:
   - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver
-    whose array the file only reads and doesn't export, or typed as the Entity or a plain object type, and no row
-    has a getter the file declares (`[new Live()]`), no dropped arg has or reads one (`{ ...options }`), and parsed
-    rows aren't handed on in a file that declares a getter or setter or uses `Object.defineProperty()`,
-    `setPrototypeOf()` or `__proto__`;
+    whose array the file only reads and doesn't export, or typed as the Entity or a plain object type;
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
-    literals and `const`s set to a literal, and reads only the row, globals, imports, classes with no
-    static getter, and `const`s set to plain data or to what globals and imports return that the file stores only
-    plain data in and never hands on (`stash(cfg)`, `return cfg.live`), so `this.count`, `live.count` and `{ ...live }`
-    can't run a getter the file declares;
+    literals and `const`s set to a literal, and reads no `this`, `let` or `var`;
+  - in a file that can make a getter (it declares a getter or setter, or uses `Object.defineProperty()`,
+    `defineProperties()`, `setPrototypeOf()`, `__defineGetter__()`, `__proto__`, `Proxy`, `Object.create()` or
+    `Object` itself as a value), the row and dropped args also read only the row, globals, imports, parameters,
+    `const`s set to a literal and variables of plain data, so `live.count` and `{ ...live }` can't run a getter
+    there, and the rows are a parameter, or parsed JSON or plain data that only the loop reads (`[new Live()]` and
+    `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keep the loop);
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store, and read no variable that can change between rows (`let seq`) and no static getter the file

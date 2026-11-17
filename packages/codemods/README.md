@@ -30,15 +30,15 @@ read the store or state that changes between rows. It keeps loops:
 - whose receiver isn't `ctrl`, `controller` or the result of `useController()`;
 - whose row could be an updater function: anything but an object literal, a row of a `JSON.parse()` array (without a
   reviver) that the file only reads and doesn't export, or a value typed as the Entity or a plain object type;
-- whose rows could have a getter the file declares, like `[new Live()]`, or whose dropped args read one. Parsed rows
-  count when the file hands them on and declares a getter or setter or names an accessor installer
-  (`defineProperty()`, `defineProperties()`, `setPrototypeOf()`, `__defineGetter__()` or `__proto__`);
 - whose row value calls a function the file declares, or gives a call an argument other than the row, a literal or a
   `const` set to a literal;
-- whose row value reads (`live.count`, `{ ...live }`) something that could have a getter the file declares: `this`, a
-  `let` or `var` (it can change between rows), a `const` not set to plain data or to what a global or import
-  returns, or a `const` the file stores anything but plain data in or hands on (`stash(cfg)`, `return cfg.live`,
-  `const ref = cfg.live`);
+- whose row value reads `this` or a `let` or `var`, which can change between rows;
+- in a file that can make a getter, which the batch could run before any row is written: one that declares a getter
+  or setter, names an accessor installer (`defineProperty()`, `defineProperties()`, `setPrototypeOf()`,
+  `__defineGetter__()`, `__proto__` or `Proxy`), or uses `Object` or `Reflect` other than to read a named member
+  (`Object.create()`, `const O = Object`). There it also keeps loops whose row value or dropped args read anything but
+  the row, globals, imports, parameters, `const`s set to a literal and variables of plain data (`live.count`,
+  `{ ...live }`), and whose rows aren't a parameter, or parsed JSON or plain data that only the loop reads;
 - whose Entity isn't declared in the file or imported from a relative path or tsconfig alias, or has
   `static indexes`, decorators, hooks that read args, or an override of `validate()` or a store-merge method;
 - whose Entity's `pk()` or `process()` calls a function the file declares (it could read the store), reads a

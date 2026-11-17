@@ -3410,10 +3410,46 @@ const key = () => 'count';`,
           'row',
         ],
         [
-          'with a setter that can install one',
-          'const box = { set row(row: any) { Object.assign(row, {}); } };',
+          'with a declared setter',
+          'const box = { set row(row: any) {} };',
           'rows.forEach(row => (box.row = row));',
           'row',
+        ],
+        [
+          'with Object.defineProperties()',
+          '',
+          'rows.forEach(row => Object.defineProperties(row, { count: { get: currentCount } }));',
+          'row',
+        ],
+        [
+          'with __defineGetter__()',
+          '',
+          "rows.forEach(row => row.__defineGetter__('count', currentCount));",
+          'row',
+        ],
+        [
+          'with defineProperty() destructured by a string key',
+          "const { 'defineProperty': dp } = Object;",
+          "rows.forEach(row => dp(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with a computed Object member',
+          "const dp = Object['define' + 'Property'];",
+          "rows.forEach(row => dp(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with Object.create()',
+          'const proto = Object.create(null, { count: { get: currentCount } });',
+          'rows.forEach(row => (row.proto = proto));',
+          '{ id: row.id, count: row.proto.count }',
+        ],
+        [
+          'with an alias of Object',
+          'const O = Object;\nconst proto = O.create(null, { count: { get: currentCount } });',
+          'rows.forEach(row => (row.proto = proto));',
+          '{ id: row.id, count: row.proto.count }',
         ],
         [
           'by storing an instance of a class the module declares with a getter',
@@ -3432,6 +3468,32 @@ const key = () => 'count';`,
   for (const row of rows) ctrl.set(Todo, { id: row.id }, ${value});`,
             ),
           ).toContain('for (const row of rows)');
+        },
+      );
+
+      it.each([
+        [
+          'keeps',
+          'that declares a getter',
+          'class Live { get count() { return 1; } }\n',
+          'for (const row of rows)',
+        ],
+        [
+          'batches',
+          'with no getter',
+          '',
+          'ctrl.set([Todo], Array.from(rows, row => ({ ...row, at: now })))',
+        ],
+      ])(
+        '%s a value that reads a const set by a global call, in a file %s',
+        (_, __, declarations, expected) => {
+          expect(
+            run(
+              `${declarations}const now = Date.now();`,
+              `const rows = JSON.parse(text);
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, { ...row, at: now });`,
+            ),
+          ).toContain(expected);
         },
       );
 

@@ -2600,6 +2600,9 @@ const constInitOf = binding => {
     : undefined;
 };
 
+/** Whether `binding` is a `const` set to a literal, like `const LIMIT = 3` */
+const isLiteralConst = binding => isLiteralValue(constInitOf(binding)?.node);
+
 /** Whether a module that re-exports `name` from `source` (a step of exportOrigin()'s `via`) could also write
  * to its members, through a hook-writing pattern or its own import of it */
 const reexportWrites = (j, { root, file, source, name }) =>
@@ -2719,13 +2722,12 @@ function takesAtMost(fn, max) {
   );
 }
 
-/** Whether a pk() or process() member declares at most `max` parameters, calls no code the module declares
- * and, if static, reads no variable that can change between rows (namesMutableState()).
+/** Whether a static pk() or process() declares at most `max` parameters, calls no code the module declares
+ * and reads no variable that can change between rows (namesMutableState()).
  * A batch runs it for every row before any write, while one set() per row runs it after the earlier rows are
  * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. */
-function hookWithin(j, member, max, file, seen) {
+function hookWithin(j, member, max, file) {
   if (!paramsWithin(member.node, max)) return false;
-  if (!member.node.static) return instanceCodeWithin(j, member, file, seen);
   const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
   return (
     !fn.node ||
@@ -2739,24 +2741,32 @@ function hookWithin(j, member, max, file, seen) {
 function namesMutableState(j, fn, file) {
   if (containsNode(fn.node, isThisOrSuper) && staticThisChanges(j, fn, file))
     return true;
-  return identifiersIn(j, fn).some(p => {
-    if (isOtherName(p) || isTypeName(p) || isLibraryName(p)) return false;
+  return outerNamesIn(j, fn).some(p => {
     const binding = bindingOf(p);
-    if (isWithin(binding, fn.node)) return false;
     const owner =
       binding.parent.node.id === binding.node ? binding.parent.node : undefined;
     // `Live.count` can be a static getter that reads the store, and `Live.count++` changes it between rows
     if (owner?.type === 'ClassDeclaration')
-      return (
-        holdsLocalGetter(j, p, file) ||
-        moduleUsesOf(j, p, binding).some(use =>
-          isWriteTarget(memberChainOf(use)),
-        )
-      );
+      return declaresStatic(j, p, file, isGetter, true) || membersWritten(j, p);
     if (owner?.type === 'FunctionDeclaration') return false;
-    return !isLiteralValue(constInitOf(binding)?.node) && !isReadOnlyData(j, p);
+    return !isLiteralConst(binding) && !isReadOnlyData(j, p);
   });
 }
+
+/** The identifiers in `code` that name a variable the module declares outside it, not a type, global or
+ * import */
+const outerNamesIn = (j, code) =>
+  identifiersIn(j, code).filter(
+    p =>
+      !isOtherName(p) &&
+      !isTypeName(p) &&
+      !isLibraryName(p) &&
+      !isWithin(bindingOf(p), code.node),
+  );
+
+/** The `this` and `super` expressions within `path` */
+const selvesIn = (j, path) =>
+  [j.ThisExpression, j.Super].flatMap(type => j(path).find(type).paths());
 
 /** Whether `this.count` or `super.count` in the static hook `fn` can change between rows: the class's chain
  * declares a static getter, which could read the store, or `fn` writes through `this` or `super` */
@@ -2765,25 +2775,24 @@ function staticThisChanges(j, fn, file) {
     .closest(j.Node, n => /^Class(Declaration|Expression)$/.test(n.type))
     .paths()[0];
   if (
-    classDeclaresStatic(cls, isStaticGetter) ||
+    classDeclaresStatic(cls, isGetter) ||
     (cls.node.superClass &&
-      declaresStatic(j, cls.get('superClass'), file, isStaticGetter, true))
+      declaresStatic(j, cls.get('superClass'), file, isGetter, true))
   )
     return true;
-  return [j.ThisExpression, j.Super].some(type =>
-    j(fn)
-      .find(type)
-      .some(p => isWriteTarget(memberChainOf(p))),
-  );
+  return selvesIn(j, fn).some(p => isWriteTarget(memberChainOf(p)));
 }
+
+/** Whether code in the module writes a member of the variable at `path`, like `Live.count++` */
+const membersWritten = (j, path) =>
+  moduleUsesOf(j, path, bindingOf(path)).some(use =>
+    isWriteTarget(memberChainOf(use)),
+  );
 
 /** Whether `path` names plain data nothing changes, like `const KINDS = { a: 'x' }` read as `KINDS[this.kind]`:
  * a variable isDataVariable() accepts that is never written */
 const isReadOnlyData = (j, path) =>
-  isDataVariable(j, path) &&
-  moduleUsesOf(j, path, bindingOf(path)).every(
-    use => !isWriteTarget(memberChainOf(use)),
-  );
+  isDataVariable(j, path) && !membersWritten(j, path);
 
 const isMethodNode = node =>
   node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
@@ -2808,17 +2817,15 @@ function instanceCodeWithin(j, member, file, seen) {
  * constructs (`author = User.fromJS()`) whose own code passes these
  * checks. */
 function namesLocalCode(j, code, file, seen) {
-  return identifiersIn(j, code).some(p => {
+  return outerNamesIn(j, code).some(p => {
+    const binding = bindingOf(p);
     if (
       // a method's own name, like `count() {}`, is not code
       (p.node === code.node.key && !code.node.computed) ||
-      isOtherName(p) ||
-      isTypeName(p) ||
-      isLibraryName(p)
+      isLiteralConst(binding) ||
+      isReadOnlyData(j, p)
     )
       return false;
-    const binding = bindingOf(p);
-    if (isWithin(binding, code.node) || isReadOnlyData(j, p)) return false;
     if (binding.parent.node.type === 'ClassDeclaration') {
       const parent = p.parent.node;
       const constructs =
@@ -2834,7 +2841,7 @@ function namesLocalCode(j, code, file, seen) {
           declaresStatic(j, p, file, m => keyName(m) === 'fromJS'))
       );
     }
-    return !isLiteralValue(constInitOf(binding)?.node);
+    return true;
   });
 }
 
@@ -2878,9 +2885,7 @@ function reachesStatics(j, code) {
       n.value === 'constructor') ||
     n.type === 'MetaProperty';
   if (parts.some(part => containsNode(part, reachesByName))) return true;
-  const selves = [j.ThisExpression, j.Super].flatMap(type =>
-    j(code).find(type).paths(),
-  );
+  const selves = selvesIn(j, code);
   if (isThisOrSuper(node)) selves.push(code);
   return selves.some(p => {
     const parent = p.parent.node;
@@ -3110,9 +3115,7 @@ function isPlainData(node) {
   if (value?.type === 'ArrayExpression')
     return value.elements.every(e => !e || isPlainData(e));
   if (value?.type === 'ObjectExpression')
-    return value.properties.every(
-      p => isProperty(p) && keyName(p) !== undefined && isPlainData(p.value),
-    );
+    return value.properties.every(p => hasStaticKey(p) && isPlainData(p.value));
   return false;
 }
 
@@ -3159,8 +3162,7 @@ function writesHooksIndirectly(j, top) {
     ];
     hookWrites.set(
       top.node,
-      j(top).find(j.ThisExpression).some(thisEscapes) ||
-        j(top).find(j.Super).some(thisEscapes) ||
+      selvesIn(j, top).some(p => thisEscapes(p)) ||
         types.some(type =>
           j(top)
             .find(type)
@@ -3186,9 +3188,10 @@ function memberAllows(j, member, file, limits, seen) {
   // a computed key could be any member
   if (!isPrivate && name === undefined) return false;
   if (!node.static)
-    return !isPrivate && name === 'pk' ?
-        hookWithin(j, member, limits.pk, file, seen)
-      : instanceCodeWithin(j, member, file, seen);
+    return (
+      (isPrivate || name !== 'pk' || paramsWithin(node, limits.pk)) &&
+      instanceCodeWithin(j, member, file, seen)
+    );
   // only a private member can't be a hook; an `accessor` field can
   if (isPrivate) return true;
   switch (name) {
@@ -3816,12 +3819,11 @@ function callsLocalCode(j, path, names) {
     names.has(p.node.name) ||
     isLibraryName(p) ||
     isWithin(bindingOf(p), path.node);
-  const isLiteralConst = p => isLiteralValue(constInitOf(bindingOf(p))?.node);
   // whether the expression at `part` can name code the module declares
   const namesCode = (part, allowed = isSafe) =>
     containsNode(part.node, isThisOrSuper) ||
     identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
-  const isArgSafe = p => isSafe(p) || isLiteralConst(p);
+  const isArgSafe = p => isSafe(p) || isLiteralConst(bindingOf(p));
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
   return calls.some(type =>
     j(path)
@@ -3839,41 +3841,71 @@ function callsLocalCode(j, path, names) {
   );
 }
 
-/** Whether the value at `path` reads something that could have a getter the module declares, which could read
- * the store the earlier rows were written to: `this.count`, or `live.count`, `{ ...live }` or `{ live }` where
- * `live` isn't provably free of one (holdsLocalGetter()). */
-function readsLocalGetter(j, path, names, file) {
-  // `this.count` can be a getter of the class around the loop
+/** Whether the expression at `path`, which a batch evaluates for every row before any write, reads something
+ * that can differ from when the loop read it: `this` or `super`; a `let` or `var`, which other code can change
+ * while the loop awaits; or, in a file that can make a getter (`getters`, from makesGetters()), any name but the
+ * loop's own (`names`), a global, an import, a parameter, a function declaration, a `const` set to a literal or
+ * a variable of plain data (isDataVariable()), since `live.count`, `{ ...live }` and `{ [live]: 1 }` can each run
+ * a getter the file declares. Like imports, parameters are trusted. */
+function readsChangingState(j, path, names, getters) {
   if (containsNode(path.node, isThisOrSuper)) return true;
-  // any read can run one: `live.count`, `{ ...live }`, or `{ live }`, whose getter normalize() runs
-  return identifiersIn(j, path).some(
-    p =>
-      !isOtherName(p) &&
-      !isTypeName(p) &&
-      !names.has(p.node.name) &&
-      !isWithin(bindingOf(p), path.node) &&
-      holdsLocalGetter(j, p, file, 0, path.node),
-  );
+  return outerNamesIn(j, path).some(p => {
+    if (names.has(p.node.name)) return false;
+    const binding = bindingOf(p);
+    const kind = bindingKind(binding);
+    if (kind === 'let' || kind === 'var') return true;
+    if (!getters || kind === 'param' || kind === 'FunctionDeclaration')
+      return false;
+    return (
+      kind !== 'const' || !(isLiteralConst(binding) || isDataVariable(j, p))
+    );
+  });
 }
 
-const isStaticGetter = member => member.kind === 'get';
+/** How `binding` is declared: `const`, `let` or `var` (also when destructured), `param` for a function's
+ * parameter, `declare` for an ambient `declare const`, or the declaring node's type, like `ClassDeclaration` */
+function bindingKind(binding) {
+  let path = binding;
+  while (PATTERN_PARTS.has(path.parent.node.type)) path = path.parent;
+  const owner = path.parent;
+  if (owner.node.type === 'VariableDeclarator' && owner.node.id === path.node)
+    return owner.parent.node.declare ? 'declare' : owner.parent.node.kind;
+  if (
+    owner.node.type === 'TSParameterProperty' ||
+    owner.node.params?.includes(path.node)
+  )
+    return 'param';
+  return owner.node.type;
+}
+
+const isGetter = member => member.kind === 'get';
 const isAccessor = member => member.kind === 'get' || member.kind === 'set';
 
-// names that give an existing object a getter: `Object.defineProperty(row, 'count', { get })`, also
-// destructured as `const { defineProperty } = Object`
+// names that give an object a getter: `Object.defineProperty(row, 'count', { get })`, also destructured as
+// `const { defineProperty } = Object` or spelled `Object['defineProperty']`, and `new Proxy(row, { get() {} })`
 const ACCESSOR_INSTALLERS = new Set([
   'defineProperty',
   'defineProperties',
   'setPrototypeOf',
   '__defineGetter__',
   '__proto__',
+  'Proxy',
 ]);
+const isObjectGlobal = node => isId(node, 'Object') || isId(node, 'Reflect');
+/** Whether `node` stores or passes `Object` or `Reflect` itself, like `const O = Object`, `const { create } =
+ * Object` or `use(Reflect)`, so a later member read of it could be any of their methods */
+const isGlobalObjectValue = node =>
+  (node.type === 'VariableDeclarator' && isObjectGlobal(node.init)) ||
+  (node.type === 'AssignmentExpression' && isObjectGlobal(node.right)) ||
+  ((isCall(node) || node.type === 'NewExpression') &&
+    node.arguments.some(isObjectGlobal));
 // whether each module can make a getter, by its File node
 const accessorModules = new WeakMap();
 
-/** Whether the module `top` (its File node) declares a getter or setter anywhere, or names an accessor
- * installer, so parsed rows it hands on could gain a getter: `rows.forEach(row => Object.defineProperty(row,
- * 'count', { get }))`. It reads only this file; an imported helper is trusted like any other import. */
+/** Whether the module `top` (its File node) can make a getter: it declares a getter or setter anywhere, names
+ * an accessor installer, or uses `Object` or `Reflect` other than to read a named member, which covers
+ * `Object.create(proto, { count: { get } })`, `Object['define' + 'Property']` and `const O = Object`. It reads
+ * only this file; an imported helper is trusted like any other import. */
 function makesGetters(top) {
   if (!accessorModules.has(top))
     accessorModules.set(
@@ -3883,158 +3915,44 @@ function makesGetters(top) {
         n =>
           isAccessor(n) ||
           (n.type === 'Identifier' && ACCESSOR_INSTALLERS.has(n.name)) ||
-          (isMember(n) && ACCESSOR_INSTALLERS.has(memberName(n))),
+          ((n.type === 'StringLiteral' || n.type === 'Literal') &&
+            ACCESSOR_INSTALLERS.has(n.value)) ||
+          (isMember(n) &&
+            isObjectGlobal(n.object) &&
+            (n.computed || memberName(n) === 'create')) ||
+          isGlobalObjectValue(n),
       ),
     );
   return accessorModules.get(top);
 }
 
-/** Whether the variable at `path` can hold something with a getter the module declares. It can't when it is a
- * global or an import, a class whose chain declares no static getter, or a `const` set to plain data
- * (`{ count: 1 }`) or to what a global or import returns (`Date.now()`, `await fetch(url)`, `res.json()` of
- * such a `res`) that the module doesn't give one later (gainsLocalGetter(), which skips reads within `value`).
- * Anything else counts as one that can, such as `const { live } = cfg`, except a parameter, which the module
- * can't see into. */
-function holdsLocalGetter(j, path, file, depth = 0, value = undefined) {
-  if (isLibraryName(path)) return false;
-  if (depth > MAX_CHAIN) return true;
-  const binding = bindingOf(path);
-  const owner = binding.parent;
-  if (owner.node.type === 'ClassDeclaration' && owner.node.id === binding.node)
-    return declaresStatic(j, path, file, isStaticGetter, true);
-  if (
-    owner.node.type !== 'VariableDeclarator' ||
-    owner.node.id !== binding.node
-  )
-    return !isParameter(binding);
-  // `declare const url: string` is a global
-  if (owner.parent.node.declare) return false;
-  if (owner.parent.node.kind !== 'const' || !owner.node.init) return true;
-  const init = unwrapPath(owner.get('init'));
-  if (init.node.type === 'ClassExpression')
-    return declaresStatic(j, path, file, isStaticGetter, true);
+/** Whether the rows a batch would hand to normalize() can have a getter the file declares, which would run
+ * before any row is written. Only a file that can make one (makesGetters()) needs this check. The rows must be
+ * a parameter's, or parsed JSON or a literal of plain data that only the loop (`loop`), a `length` read or a
+ * condition uses, so `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keeps the loop. */
+function rowsMayHoldGetter(j, rows, loop) {
+  rows = unwrapPath(rows);
+  const plain = path => arrayOf(j, path)?.data || isPlainData(path.node);
+  if (rows.node.type !== 'Identifier') return !plain(rows);
+  const binding = bindingOf(rows);
+  if (!binding) return true;
+  const kind = bindingKind(binding);
+  if (kind === 'param') return false;
+  const init = constInitOf(binding);
   return (
-    mayHoldLocalGetter(j, init, file, depth + 1, value) ||
-    gainsLocalGetter(j, path, binding, file, depth + 1, value)
+    kind !== 'const' ||
+    !init ||
+    isExported(binding) ||
+    !plain(unwrapPath(init)) ||
+    !moduleUsesOf(j, rows, binding).every(
+      use =>
+        isWithin(use, loop) ||
+        isCondition(use) ||
+        (isMember(use.parent.node) &&
+          use.parent.node.object === use.node &&
+          memberName(use.parent.node) === 'length'),
+    )
   );
-}
-
-// nodes between a destructured name and the declaration that holds the pattern
-const DESTRUCTURING = new Set([
-  ...PATTERNS,
-  'ObjectProperty',
-  'Property',
-  'AssignmentPattern',
-  'TSParameterProperty',
-]);
-
-/** Whether `binding` is a function's parameter, also when destructured, like `live` in `function f({ live })` */
-function isParameter(binding) {
-  let path = binding;
-  while (DESTRUCTURING.has(path.parent.node.type)) path = path.parent;
-  return path.parent.node.params?.includes(path.node) ?? false;
-}
-
-/** The innermost object of the member chain at `path`, through casts: `x` in `(x.a as any).b` */
-function memberRootOf(path) {
-  let root = unwrapPath(path);
-  while (isMember(root.node)) root = unwrapPath(root.get('object'));
-  return root;
-}
-
-/** The outermost expression that `X.a.b`, starting at the identifier `X`, passes through unchanged: also
- * through casts, like `(X.a as any).b!` */
-function wrappedChainOf(path) {
-  for (;;) {
-    path = memberChainOf(path);
-    while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
-    if (!isMember(path.parent.node) || path.parent.node.object !== path.node)
-      return path;
-  }
-}
-
-/** Whether code in the module can give the `const` at `binding` a getter after it is set: by storing one in it
- * (`history.push({ get count() {} })`, `cfg.live = live`), or by handing the value on, so other code can
- * (`stash(cfg.live)`, `const ref = cfg.live`, `return cfg.live`, `[cfg.live]`, `for (const x of history)`).
- * Reading a member into an expression that can't keep it (`cfg.n + 1`, `if (cfg.on)`), and method calls given
- * only values that hold no getter (`history.at(0)`, `res.json()`), can't. Reads within `value`, the code the
- * batch replaces, are skipped, while writes there still count. Other modules can when it is exported. */
-function gainsLocalGetter(j, path, binding, file, depth, value) {
-  if (isExported(binding)) return true;
-  const holds = arg => mayHoldLocalGetter(j, arg, file, depth + 1, value);
-  return moduleUsesOf(j, path, binding).some(use => {
-    // a write within the value can still store a getter, like `(cfg.x = live, cfg.x.count)`
-    if (value && isWithin(use, value) && !isWriteTarget(wrappedChainOf(use)))
-      return false;
-    const parent = use.parent.node;
-    if (parent.type === 'TSTypeQuery') return false;
-    if (!isMember(parent) || parent.object !== use.node) return true;
-    const chain = wrappedChainOf(use);
-    const holder = chain.parent;
-    const { type } = holder.node;
-    if (isWriteTarget(chain))
-      return (
-        type !== 'UpdateExpression' &&
-        type !== 'UnaryExpression' &&
-        (type !== 'AssignmentExpression' || holds(holder.get('right')))
-      );
-    if (isCall(holder.node) || type === 'NewExpression') {
-      const args = childPaths(holder.get('arguments'));
-      if (holder.node.callee === chain.node) return args.some(holds);
-      const root = memberRootOf(holder.get('callee'));
-      // `String(cfg.n)` can't store a getter in it, but `stash(cfg.live)` or `Object.assign(cfg.live, live)` can
-      return (
-        root.node.type !== 'Identifier' ||
-        !isLibraryName(root) ||
-        args.some(arg => arg.node !== chain.node && holds(arg))
-      );
-    }
-    // a statement or computed key that only reads it can't keep it either
-    return !(
-      isUnkeptRead(chain) ||
-      type === 'ExpressionStatement' ||
-      (isMember(holder.node) && holder.node.property === chain.node)
-    );
-  });
-}
-
-/** Whether the value of the expression at `path` can have a getter the module declares (holdsLocalGetter()) */
-function mayHoldLocalGetter(j, path, file, depth, value) {
-  if (depth > MAX_CHAIN) return true;
-  path = unwrapPath(path);
-  const { node } = path;
-  if (isPlainData(node)) return false;
-  const may = p => mayHoldLocalGetter(j, p, file, depth + 1, value);
-  // `[a, ...b, { n: c }]` holds what `a`, `b` and `c` hold, and `a.b` what `a` holds; a method, getter or
-  // computed key can hold more
-  if (node.type === 'ArrayExpression')
-    return childPaths(path.get('elements')).some(
-      e =>
-        e.node && may(e.node.type === 'SpreadElement' ? e.get('argument') : e),
-    );
-  if (isMember(node)) {
-    const root = memberRootOf(path);
-    return root.node.type !== 'Identifier' || may(root);
-  }
-  if (node.type === 'ObjectExpression')
-    return childPaths(path.get('properties')).some(
-      p =>
-        !isProperty(p.node) ||
-        p.node.computed ||
-        isAccessor(p.node) ||
-        may(p.get('value')),
-    );
-  if (node.type === 'AwaitExpression') return may(path.get('argument'));
-  if (node.type === 'Identifier')
-    return holdsLocalGetter(j, path, file, depth + 1, value);
-  if (!isCall(node) && node.type !== 'NewExpression') return true;
-  // a global or import, or a method of a value that holds no getter, given only plain data or such values
-  const callee = unwrapPath(path.get('callee'));
-  if (callee.node.type === 'Identifier' && !isLibraryName(callee)) return true;
-  return [
-    memberRootOf(path.get('callee')),
-    ...childPaths(path.get('arguments')),
-  ].some(p => mayHoldLocalGetter(j, p, file, depth + 1, value));
 }
 
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
@@ -4052,6 +3970,7 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
     containsNode(node, n => n.type === 'Identifier' && names.has(n.name));
   const controller = call.node.callee.object;
   let value = args[args.length - 1];
+  const valuePath = call.get('arguments', args.length - 1);
   const extra = args.length === 3 ? args[1] : undefined;
   const controllerRoot = rootOf(controller);
   if (
@@ -4080,21 +3999,20 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
           isId(n, controllerRoot.name)
         : n.type === 'ThisExpression'),
     ) ||
-    callsLocalCode(j, call.get('arguments', args.length - 1), names) ||
-    readsLocalGetter(j, call.get('arguments', args.length - 1), names, file) ||
-    // the batch drops the args, so a getter they read, like one that bumps `seq`, no longer runs
-    (extra && readsLocalGetter(j, call.get('arguments', 1), names, file))
+    // a getter the file declares can't run where it can't make one
+    callsLocalCode(j, valuePath, names)
   )
     return;
-
   const array = arrayOf(j, rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
-  // a row with a getter the module declares, like `new Live()`, runs it before any row is written. Parsed rows
-  // have none unless the module can make one and hands them on. Reads of the list inside the loop being
-  // replaced, like `for (const row of rows)`, don't hand it on.
+  const getters = makesGetters(root.paths()[0].node);
   if (
-    (!array.data || makesGetters(root.paths()[0].node)) &&
-    mayHoldLocalGetter(j, rows, file, 0, rows.parent.node)
+    readsChangingState(j, valuePath, names, getters) ||
+    // the batch drops the args, so a getter they read, like one that bumps `seq`, no longer runs
+    (getters &&
+      ((extra &&
+        readsChangingState(j, call.get('arguments', 1), names, true)) ||
+        rowsMayHoldGetter(j, rows, rows.parent.node)))
   )
     return;
   const batch = batchSchemaOf(j, file, call);
