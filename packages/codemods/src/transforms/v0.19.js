@@ -2725,27 +2725,56 @@ function hookWithin(j, member, max, file, seen) {
   if (!member.node.static) return instanceCodeWithin(j, member, file, seen);
   const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
   return (
-    !fn.node || (!callsLocalCode(j, fn, new Set()) && !namesMutableState(j, fn))
+    !fn.node ||
+    (!callsLocalCode(j, fn, new Set()) && !namesMutableState(j, fn, file))
   );
 }
 
 /** Whether the function at `fn` names a variable outside it that could change between rows, like `seq` in
  * `stamp: seq++`, which a batch reads after every row's value is built: anything but a global, an import, a
  * class or function declaration, a `const` set to a literal, or plain data nothing changes (isReadOnlyData()) */
-function namesMutableState(j, fn) {
+function namesMutableState(j, fn, file) {
+  if (containsNode(fn.node, isThisOrSuper) && staticThisChanges(j, fn, file))
+    return true;
   return identifiersIn(j, fn).some(p => {
     if (isOtherName(p) || isTypeName(p) || isLibraryName(p)) return false;
     const binding = bindingOf(p);
     if (isWithin(binding, fn.node)) return false;
-    const owner = binding.parent.node;
-    if (
-      (owner.type === 'ClassDeclaration' ||
-        owner.type === 'FunctionDeclaration') &&
-      owner.id === binding.node
-    )
-      return false;
+    const owner =
+      binding.parent.node.id === binding.node ? binding.parent.node : undefined;
+    // `Live.count` can be a static getter that reads the store, and `Live.count++` changes it between rows
+    if (owner?.type === 'ClassDeclaration')
+      return (
+        holdsLocalGetter(j, p, file) ||
+        moduleUsesOf(j, p, binding).some(use =>
+          isWriteTarget(memberChainOf(use)),
+        )
+      );
+    if (owner?.type === 'FunctionDeclaration') return false;
     return !isLiteralValue(constInitOf(binding)?.node) && !isReadOnlyData(j, p);
   });
+}
+
+/** Whether `this.count` or `super.count` in the static hook `fn` can change between rows: the class's chain
+ * declares a static getter, which could read the store, or `fn` writes through `this` or `super` */
+function staticThisChanges(j, fn, file) {
+  let cls = fn;
+  while (!/^Class(Declaration|Expression)$/.test(cls.node.type))
+    cls = cls.parent;
+  const ownGetter = childPaths(cls.get('body', 'body')).some(
+    m => m.node.static && isStaticGetter(m.node),
+  );
+  if (
+    ownGetter ||
+    (cls.node.superClass &&
+      declaresStatic(j, cls.get('superClass'), file, isStaticGetter, true))
+  )
+    return true;
+  return [j.ThisExpression, j.Super].some(type =>
+    j(fn)
+      .find(type)
+      .some(p => isWriteTarget(memberChainOf(p))),
+  );
 }
 
 /** Whether `path` names plain data nothing changes, like `const KINDS = { a: 'x' }` read as `KINDS[this.kind]`:
@@ -3159,9 +3188,9 @@ function memberAllows(j, member, file, limits, seen) {
     case 'mergeMetaWithStore':
       return false;
     case 'pk':
-      return hookWithin(j, member, limits.staticPk);
+      return hookWithin(j, member, limits.staticPk, file);
     case 'process':
-      return hookWithin(j, member, limits.process);
+      return hookWithin(j, member, limits.process, file);
     case 'schema':
       return (
         node.type === 'ClassProperty' &&

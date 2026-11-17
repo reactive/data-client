@@ -36,8 +36,9 @@ read the store or state that changes between rows. It keeps loops:
   stores anything else in;
 - whose Entity isn't declared in the file or imported from a relative path or tsconfig alias, or has
   `static indexes`, decorators, hooks that read args, or an override of `validate()` or a store-merge method;
-- whose Entity's `pk()` or `process()` calls a function the file declares (it could read the store) or reads a
-  variable that can change between rows (`let seq`);
+- whose Entity's `pk()` or `process()` calls a function the file declares (it could read the store), reads a
+  variable that can change between rows (`let seq`), or reads a static getter the file declares (`Live.count`,
+  `this.count`);
 - whose Entity's instance code (constructor, method, getter, setter or field value) names a function the file
   declares, reaches `this.constructor` or `new.target`, or calls an overridden `fromJS()`;
 - whose Entity's static members the files it reads change, or which they pass to a function outside `@data-client`.

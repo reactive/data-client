@@ -3909,6 +3909,26 @@ export function save(ctrl, rows: any[]) {
           '  pk() {\n    return this.id + STATE.n;\n  }',
           'const STATE = { n: 0 };\nexport function bump() {\n  STATE.n++;\n}',
         ],
+        [
+          'static process() reads a static getter of a local class',
+          '  static process(value) {\n    return { ...value, count: Live.count + 1 };\n  }',
+          'class Live {\n  static get count() {\n    return 1;\n  }\n}',
+        ],
+        [
+          'static process() reads a static field something changes',
+          '  static process(value) {\n    return { ...value, count: Live.n + 1 };\n  }',
+          'class Live {\n  static n = 0;\n}\nexport function bump() {\n  Live.n++;\n}',
+        ],
+        [
+          'static process() reads a static getter through this',
+          '  static get live() {\n    return 1;\n  }\n  static process(value) {\n    return { ...value, count: this.live + 1 };\n  }',
+          '',
+        ],
+        [
+          'static process() writes through this',
+          '  static process(value) {\n    this.n = (this.n ?? 0) + 1;\n    return { ...value, n: this.n };\n  }',
+          '',
+        ],
       ])('keeps the loop when %s', (_, members, before) => {
         expect(run(members, before)).not.toContain('ctrl.set([Todo]');
       });
