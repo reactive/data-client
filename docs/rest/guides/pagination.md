@@ -292,6 +292,7 @@ export const getComments = new RestEndpoint({
 
 ```tsx title="CommentList"
 import { useController, useSuspense } from '@data-client/react';
+import { getComments } from './Comment';
 
 function CommentList({ discussionId }: { discussionId: string }) {
   const { data, meta } = useSuspense(getComments, { discussionId });
@@ -311,6 +312,7 @@ function CommentList({ discussionId }: { discussionId: string }) {
 ```html title="CommentList.vue"
 <script setup lang="ts">
   import { useController, useSuspense } from '@data-client/vue';
+  import { getComments } from './Comment';
 
   const props = defineProps<{ discussionId: string }>();
   const comments = await useSuspense(getComments, { discussionId: props.discussionId });

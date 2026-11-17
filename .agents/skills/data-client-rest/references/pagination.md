@@ -300,6 +300,7 @@ export const getComments = new RestEndpoint({
 
 ```tsx title="CommentList"
 import { useController, useSuspense } from '@data-client/react';
+import { getComments } from './Comment';
 
 function CommentList({ discussionId }: { discussionId: string }) {
   const { data, meta } = useSuspense(getComments, { discussionId });
