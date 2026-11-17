@@ -245,10 +245,10 @@ Then, by judgment:
   a `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list when the
   Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch. Keep a loop
   whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions or has a loop
-  variable default that calls code, and `unshift` (a list goes in as given, one per row reverses it). A Manager that
-  calls `set()` per message buffers messages and flushes them with one `set()` (skill "data-client-manager",
-  batching). Batch `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array
-  body, since it sends one request instead of N. Examples:
+  variable default other than a literal or a name (`count = currentCount(id)`), and `unshift` (a list goes in as
+  given, one per row reverses it). A Manager that calls `set()` per message buffers messages and flushes them with
+  one `set()` (skill "data-client-manager", batching). Batch `ctrl.fetch(getList.push, row)` loops into one array
+  `push` only when the API accepts an array body, since it sends one request instead of N. Examples:
   [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
   [push a list](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list).
 - **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its

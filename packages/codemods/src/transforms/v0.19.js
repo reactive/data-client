@@ -3106,6 +3106,7 @@ const ARRAY_FACTORIES = new Map([
 /** `JSON.parse(text)` with no reviver, which could return functions that a one-row set() calls as updaters */
 const isPlainParse = node =>
   isId(node.callee.object, 'JSON') &&
+  memberName(node.callee) === 'parse' &&
   node.arguments.length === 1 &&
   node.arguments[0].type !== 'SpreadElement';
 // array methods that return an array
@@ -3177,6 +3178,15 @@ const LITERALS = new Set([
   'Literal',
 ]);
 
+/** A literal value like `3`, `-1` or `` `todo` `` */
+const isLiteralValue = node =>
+  !!node &&
+  (LITERALS.has(node.type) ||
+    (node.type === 'UnaryExpression' &&
+      '-+'.includes(node.operator) &&
+      LITERALS.has(node.argument.type)) ||
+    (node.type === 'TemplateLiteral' && !node.expressions.length));
+
 /** Whether `node` reads variables and properties without calling anything: `x`, `this.x`, `x['y']` */
 const isReference = node =>
   node.type === 'Identifier' ||
@@ -3207,26 +3217,6 @@ function isPure(node) {
 }
 
 /** The names a loop variable or callback parameter binds */
-/** Whether every default and computed key in a binding `pattern` is pure, like `{ id, tags = [] }` */
-function isPurePattern(pattern) {
-  switch (pattern?.type) {
-    case 'ObjectPattern':
-      return pattern.properties.every(p =>
-        p.type === 'RestElement' ?
-          isPurePattern(p.argument)
-        : (!p.computed || isPure(p.key)) && isPurePattern(p.value),
-      );
-    case 'ArrayPattern':
-      return pattern.elements.every(isPurePattern);
-    case 'RestElement':
-      return isPurePattern(pattern.argument);
-    case 'AssignmentPattern':
-      return isPure(pattern.right) && isPurePattern(pattern.left);
-    default:
-      return true;
-  }
-}
-
 function patternNames(pattern, names = new Set()) {
   if (!pattern) return names;
   switch (pattern.type) {
@@ -3358,14 +3348,10 @@ function callsLocalCode(j, path, names) {
     isWithin(bindingOf(p), path.node);
   const isLiteralConst = p => {
     const owner = bindingOf(p)?.parent;
-    let init = owner?.node.type === 'VariableDeclarator' && owner.node.init;
-    if (init?.type === 'UnaryExpression' && '-+'.includes(init.operator))
-      init = init.argument;
     return (
-      !!init &&
+      owner?.node.type === 'VariableDeclarator' &&
       owner.parent.node.kind === 'const' &&
-      (LITERALS.has(init.type) ||
-        (init.type === 'TemplateLiteral' && !init.expressions.length))
+      isLiteralValue(owner.node.init)
     );
   };
   // whether the expression at `part` can name code the module declares
@@ -3416,8 +3402,15 @@ function batchSetOf(j, file, { rows, param, call, keepHoles = false }) {
     (extra && !isPure(extra)) ||
     !mentions(value) ||
     isFunction(value) ||
-    // a batch evaluates the loop variable's defaults for every row before any write
-    !isPurePattern(param) ||
+    // a batch evaluates the loop variable's defaults and computed keys for every row before any write
+    containsNode(
+      param,
+      n =>
+        (n.type === 'AssignmentPattern' &&
+          !isPure(n.right) &&
+          !isLiteralValue(n.right)) ||
+        (isProperty(n) && n.computed && !isPure(n.key)),
+    ) ||
     containsNode(
       value,
       n =>
