@@ -5,10 +5,10 @@ title: Transforming data on fetch
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
-Transform requests in [getRequestInit()](../api/RestEndpoint.md#getRequestInit) and responses in
-[parseResponse()](../api/RestEndpoint.md#parseResponse), on a base class when every endpoint needs it. Use
-[process()](../api/RestEndpoint.md#process) for one endpoint's result, such as adding a value from its arguments, and
-[Entity.process()](../api/Entity.md#process) for one Entity's fields wherever it appears.
+Transform data in [RestEndpoint](../api/RestEndpoint.md) members: [process()](../api/RestEndpoint.md#process) for
+responses, [getRequestInit()](../api/RestEndpoint.md#getRequestInit) for request bodies, and
+[parseResponse()](../api/RestEndpoint.md#parseResponse) for headers and raw bodies. To change one Entity's fields
+wherever it appears, including lists and nested data, use [Entity.process()](../api/Entity.md#process).
 
 :::tip
 

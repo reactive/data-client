@@ -2,10 +2,10 @@
 
 # Transforming data on fetch
 
-Transform requests in [getRequestInit()](./RestEndpoint.vue.md#getRequestInit) and responses in
-[parseResponse()](./RestEndpoint.vue.md#parseResponse), on a base class when every endpoint needs it. Use
-[process()](./RestEndpoint.vue.md#process) for one endpoint's result, such as adding a value from its arguments, and
-[Entity.process()](https://dataclient.io/rest/api/Entity#process) for one Entity's fields wherever it appears.
+Transform data in [RestEndpoint](./RestEndpoint.vue.md) members: [process()](./RestEndpoint.vue.md#process) for
+responses, [getRequestInit()](./RestEndpoint.vue.md#getRequestInit) for request bodies, and
+[parseResponse()](./RestEndpoint.vue.md#parseResponse) for headers and raw bodies. To change one Entity's fields
+wherever it appears, including lists and nested data, use [Entity.process()](https://dataclient.io/rest/api/Entity#process).
 
 > **Tip**
 >

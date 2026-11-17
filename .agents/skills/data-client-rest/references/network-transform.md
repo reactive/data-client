@@ -2,10 +2,10 @@
 
 # Transforming data on fetch
 
-Transform requests in [getRequestInit()](./RestEndpoint.md#getRequestInit) and responses in
-[parseResponse()](./RestEndpoint.md#parseResponse), on a base class when every endpoint needs it. Use
-[process()](./RestEndpoint.md#process) for one endpoint's result, such as adding a value from its arguments, and
-[Entity.process()](https://dataclient.io/rest/api/Entity#process) for one Entity's fields wherever it appears.
+Transform data in [RestEndpoint](./RestEndpoint.md) members: [process()](./RestEndpoint.md#process) for
+responses, [getRequestInit()](./RestEndpoint.md#getRequestInit) for request bodies, and
+[parseResponse()](./RestEndpoint.md#parseResponse) for headers and raw bodies. To change one Entity's fields
+wherever it appears, including lists and nested data, use [Entity.process()](https://dataclient.io/rest/api/Entity#process).
 
 > **Tip**
 >

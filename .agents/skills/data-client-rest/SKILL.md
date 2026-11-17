@@ -150,8 +150,7 @@ step that owns the change, never `fetch` itself (that replaces the whole lifecyc
 | Query string format | `searchToString(searchParams)` |
 | The network call (retries, another client) | `fetchResponse(input, init)` |
 | Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |
-| Every response's shape (unwrap, key case) | `async parseResponse(response)` on a base class |
-| One endpoint's result, e.g. a value from its args | `process(value, ...args)` |
+| Shape of the parsed data | `process(value, ...args)` |
 | One Entity's fields, wherever it appears | `Entity.process()` (skill "data-client-schema") |
 
 ---
@@ -213,7 +212,7 @@ Each guide holds working code. Read the matching section before writing code.
 | The next-page token is in a response header | "Tokens in HTTP Headers" in [pagination](references/pagination.md) | `parseResponse()` adds the header to the body |
 | The UI changes before the server answers | [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) | `optimistic: true` on a resource; `getOptimisticResponse()` on other endpoints |
 | Responses can arrive out of order | "Compensating for Server timing variations" in [optimistic-updates](references/optimistic-updates.md) | compare `updatedAt` in `Entity.shouldReorder()` |
-| The API's shape differs from the app's (key case, field types, primary key, headers) | [network-transform](references/network-transform.md) | `parseResponse()` on a base class for every response; `Entity.process()` for one Entity's fields; `getRequestInit()` for request bodies; `Entity.schema` for field types |
+| The API's shape differs from the app's (key case, field types, primary key, headers) | [network-transform](references/network-transform.md) | `process()` / `getRequestInit()` / `parseResponse()` on the endpoint; `Entity.process()` for one Entity's fields wherever it appears; `Entity.schema` for field types |
 | A response is not JSON | "File download" in [network-transform](references/network-transform.md#file-download) | `content: 'blob'` |
 | How long data stays fresh, and refreshing it on demand | [expiry-policy](references/expiry-policy.md) | `dataExpiryLength`, `invalidIfStale`; `ctrl.fetch()` / `ctrl.expireAll()`; `ctrl.invalidate()` |
 | What shows when a refetch fails | [error-policy](references/error-policy.md) | `errorPolicy()`: `'soft'` keeps the last data, `'hard'` replaces it with the error |
