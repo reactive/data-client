@@ -2743,8 +2743,8 @@ function instanceCodeWithin(j, member, file, seen) {
 function namesLocalCode(j, code, file, seen) {
   return identifiersIn(j, code).some(p => {
     if (
-      // a method's own key, like `count() {}`, is not code
-      p.node === code.node.key ||
+      // a method's own name, like `count() {}`, is not code
+      (p.node === code.node.key && !code.node.computed) ||
       isOtherName(p) ||
       isTypeName(p) ||
       isLibraryName(p)
@@ -2762,7 +2762,7 @@ function namesLocalCode(j, code, file, seen) {
       return (
         !constructs ||
         !isPlainEntityAt(j, p, file, ARGS_FREE, seen) ||
-        // an override runs code the check above doesn't read
+        // an override of fromJS() runs code the check above doesn't read; `new` doesn't call it
         (parent.type !== 'NewExpression' &&
           declaresStatic(j, p, file, 'fromJS'))
       );
@@ -2771,7 +2771,8 @@ function namesLocalCode(j, code, file, seen) {
   });
 }
 
-/** Whether the class at `path` (from classOf()), or a class it extends, declares a static `name` */
+/** Whether the class at `path` (from classOf()), or a class it extends, can declare a static `name`. A chain
+ * classOf() can't follow counts as one that does. */
 function declaresStatic(j, path, file, name) {
   for (let depth = 0; depth < 20; depth++) {
     const cls = classOf(j, path, file);
@@ -3251,10 +3252,7 @@ function isDataClientName(path) {
 
 // TypeScript nodes whose child identifiers are values, like `row` in `row as Row`
 const TS_VALUE_WRAPPERS = new Set([
-  'TSAsExpression',
-  'TSSatisfiesExpression',
-  'TSNonNullExpression',
-  'TSTypeAssertion',
+  ...PASS_THROUGH,
   'TSInstantiationExpression',
   'TSParameterProperty',
 ]);
@@ -3450,13 +3448,13 @@ const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
 /** Whether the expression at `path` is an array, since a batch set() reads only arrays and plain objects, so
  * a Set or Map loops differently. Returns what is known about its elements: `{ data: true }` for parsed
  * JSON with no reviver, which holds no functions, or `{ element }`, their declared type. */
-function arrayOf(path, depth = 0) {
+function arrayOf(j, path, depth = 0) {
   const { node } = path;
   if (depth > 5 || !node) return;
   if (PASS_THROUGH.has(node.type))
     return (
       arrayType(node.typeAnnotation) ??
-      arrayOf(path.get('expression'), depth + 1)
+      arrayOf(j, path.get('expression'), depth + 1)
     );
   if (node.type === 'ArrayExpression') return {};
   if (node.type === 'CallExpression' && isMember(node.callee)) {
@@ -3470,11 +3468,11 @@ function arrayOf(path, depth = 0) {
       return (
           isPlainParse(node) ||
             (method === 'values' &&
-              arrayOf(path.get('arguments', 0), depth + 1)?.data)
+              arrayOf(j, path.get('arguments', 0), depth + 1)?.data)
         ) ?
           { data: true }
         : {};
-    const array = ARRAY_METHODS.has(method) && arrayOf(object, depth + 1);
+    const array = ARRAY_METHODS.has(method) && arrayOf(j, object, depth + 1);
     return array && (ELEMENT_METHODS.has(method) ? array : {});
   }
   if (node.type !== 'Identifier') return;
@@ -3484,7 +3482,51 @@ function arrayOf(path, depth = 0) {
   const typed = arrayType(binding.node.typeAnnotation?.typeAnnotation);
   if (typed) return typed;
   const init = constInitOf(binding);
-  if (init) return arrayOf(init, depth + 1);
+  const array = init && arrayOf(j, init, depth + 1);
+  // parsed JSON holds no functions only while nothing can put one in it
+  return array?.data && !readsOnlyArray(j, path, binding) ? {} : array;
+}
+
+// array members that read an array without changing it
+const ARRAY_READS = new Set([
+  ...ARRAY_METHODS,
+  'forEach',
+  'some',
+  'every',
+  'find',
+  'findIndex',
+  'findLast',
+  'findLastIndex',
+  'includes',
+  'indexOf',
+  'lastIndexOf',
+  'at',
+  'join',
+  'reduce',
+  'reduceRight',
+  'entries',
+  'keys',
+  'values',
+]);
+
+/** Whether every use of the array variable `binding` only reads it: loops over it, reads an element or
+ * `length`, or calls a method that doesn't change it. Anything else, like `rows.push(fn)`, `rows[0] = fn` or
+ * `fill(rows)`, could put a function in it. */
+function readsOnlyArray(j, path, binding) {
+  return moduleUsesOf(j, path, binding).every(use => {
+    const parent = use.parent.node;
+    if (parent.type === 'ForOfStatement') return parent.right === use.node;
+    if (parent.type === 'TSTypeQuery') return true;
+    if (
+      !isMember(parent) ||
+      parent.object !== use.node ||
+      isWriteTarget(memberChainOf(use))
+    )
+      return false;
+    const holder = use.parent.parent.node;
+    const called = holder.type === 'CallExpression' && holder.callee === parent;
+    return !called || ARRAY_READS.has(memberName(parent));
+  });
 }
 
 const LITERALS = new Set([
@@ -3685,6 +3727,48 @@ function callsLocalCode(j, path, names) {
   );
 }
 
+/** Whether the value at `path` reads a member of an object or class the module declares with a getter, which
+ * could read the store the earlier rows were written to: `live.count` where `const live = { get count() {...} }`,
+ * an instance of a class the module declares, or a static getter of one. */
+function readsLocalGetter(j, path, names) {
+  return identifiersIn(j, path).some(p => {
+    const parent = p.parent.node;
+    if (
+      !isMember(parent) ||
+      parent.object !== p.node ||
+      names.has(p.node.name) ||
+      isLibraryName(p)
+    )
+      return false;
+    const binding = bindingOf(p);
+    if (isWithin(binding, path.node)) return false;
+    const owner = binding.parent;
+    if (owner.node.type === 'ClassDeclaration')
+      return hasGetter(owner.node, true);
+    const init =
+      owner.node.type === 'VariableDeclarator' &&
+      owner.node.id === binding.node &&
+      owner.node.init &&
+      unwrap(owner.node.init);
+    if (!init) return false;
+    if (init.type === 'ObjectExpression')
+      return init.properties.some(
+        prop => prop.kind === 'get' || prop.kind === 'set',
+      );
+    if (init.type === 'ClassExpression') return hasGetter(init, true);
+    // an instance of a class the module declares
+    return (
+      init.type === 'NewExpression' &&
+      init.callee.type === 'Identifier' &&
+      !isLibraryName(unwrapPath(owner.get('init')).get('callee'))
+    );
+  });
+}
+
+/** Whether `cls` declares a static or instance getter itself */
+const hasGetter = (cls, isStatic) =>
+  cls.body.body.some(m => m.kind === 'get' && !!m.static === isStatic);
+
 /** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
  * Entity or `new Invalidate(Entity)`. Returns `{ call, guard }`, the guard from emptyGuardOf(). */
 function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
@@ -3728,11 +3812,12 @@ function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
           isId(n, controllerRoot.name)
         : n.type === 'ThisExpression'),
     ) ||
-    callsLocalCode(j, call.get('arguments', args.length - 1), names)
+    callsLocalCode(j, call.get('arguments', args.length - 1), names) ||
+    readsLocalGetter(j, call.get('arguments', args.length - 1), names)
   )
     return;
 
-  const array = arrayOf(rows);
+  const array = arrayOf(j, rows);
   if (!array || !isRowData(value, array, param, args[0])) return;
   const batch = batchSchemaOf(j, file, call);
   const guard = batch && emptyGuardOf(j, root, rows);

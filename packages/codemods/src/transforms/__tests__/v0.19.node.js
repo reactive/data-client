@@ -3333,6 +3333,79 @@ const key = () => 'count';`,
           ),
         ).toContain('rows.forEach(');
       });
+
+      it.each([
+        [
+          'pushed',
+          'rows.push((prev: any) => ({ ...prev, count: prev.count + 1 }));',
+        ],
+        ['assigned', 'rows[0] = (prev: any) => prev;'],
+        ['passed to a function', 'addUpdaters(rows);'],
+        [
+          'through a computed method',
+          "rows['push' as any]((prev: any) => prev);",
+        ],
+      ])(
+        'keeps parsed rows when code could put an updater in the array: %s',
+        (_, change) => {
+          expect(
+            run(
+              'declare function addUpdaters(rows: any[]): void;',
+              `const rows = JSON.parse(text);
+  ${change}
+  rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+            ),
+          ).toContain('rows.forEach(');
+        },
+      );
+
+      it('batches parsed rows the function only reads', () => {
+        expect(
+          run(
+            '',
+            `const rows = JSON.parse(text);
+  console.log(rows.length, rows[0], rows.map(row => row.id).join());
+  for (const row of rows) console.log(row);
+  rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+          ),
+        ).toContain('ctrl.set([Todo], rows)');
+      });
+
+      it.each([
+        [
+          'an object getter',
+          'const live = { get count() { return currentCount(); } };',
+          'live.count',
+        ],
+        [
+          'an instance of a class the module declares',
+          'class Live { get count() { return currentCount(); } }\nconst live = new Live();',
+          'live.count',
+        ],
+        [
+          'a static getter',
+          'class Live { static get count() { return currentCount(); } }',
+          'Live.count',
+        ],
+      ])('keeps a value that reads %s', (_, setup, read) => {
+        expect(
+          run(
+            `declare function currentCount(): number;\n${setup}`,
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: ${read} + 1 });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it('batches a value that reads plain objects and Entity members', () => {
+        expect(
+          run(
+            'const DEFAULTS = { count: 1 };',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: DEFAULTS.count, type: Todo.key });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
     });
 
     describe('set() loops over a list that can be empty', () => {
@@ -3587,7 +3660,8 @@ class Counter extends Entity {
   static fromJS(): any {
     return { id: String(currentCount('all')) };
   }
-}`;
+}
+class SubCounter extends Counter {}`;
         const kept = [
           '  pk() {\n    return this.lookup();\n  }\n  lookup() {\n    return currentCount(this.id);\n  }',
           '  pk() {\n    return `${this.id}-${this.count}`;\n  }\n  get count() {\n    return currentCount(this.id);\n  }',
@@ -3607,6 +3681,7 @@ class Counter extends Entity {
           '  pk() {\n    return this.tag.count(this.id);\n  }\n  tag = new Tag();',
           // an Entity whose static fromJS() reads the store
           '  pk() {\n    return this.id + Counter.fromJS().id;\n  }',
+          '  pk() {\n    return this.id + SubCounter.fromJS().id;\n  }',
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this.constructor;\n  static key(id) {\n    return currentCount(id);\n  }',
           "  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this['constructor'];\n  static key(id) {\n    return currentCount(id);\n  }",
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = Object.getPrototypeOf(this);\n  static key(id) {\n    return currentCount(id);\n  }',

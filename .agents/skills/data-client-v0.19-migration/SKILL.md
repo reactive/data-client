@@ -220,16 +220,16 @@ release post's example; read it when a rewrite or a judgment call below is uncle
 - A loop (`for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`) that calls `set()` once per row
   becomes one [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set):
   `ctrl.set([Ticker], rows)`. It batches only when:
-  - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver,
-    or typed as the Entity or a plain object type;
+  - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver
+    whose array the code only reads, or typed as the Entity or a plain object type;
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
-    literals and `const`s set to a literal;
+    literals and `const`s set to a literal, and reads no getter the file declares;
   - the Entity's `pk()` and `process()` read only the row;
   - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
     read the store; its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach
     through `this` or `super`) names only types, globals, imports, its own variables, `const`s set to a literal,
-    lookup tables of plain data and Entity classes it constructs (`author = User.fromJS()`), and never reaches static
-    members (`this.constructor` or `new.target`);
+    lookup tables of plain data and Entity classes it constructs (`author = User.fromJS()`, if no class in its chain
+    overrides `fromJS()`), and never reaches static members (`this.constructor` or `new.target`);
   - it has no `static indexes` (one `set()` per row keeps only the last row's index entry), no decorators, and no
     override of `validate()` or the store-merge methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`,
     `mergeMetaWithStore()`);

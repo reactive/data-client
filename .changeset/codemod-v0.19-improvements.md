@@ -13,18 +13,18 @@ the same, apart from the differences noted below:
   `for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`. The codemod batches it only when all of these
   hold:
   - The receiver is a Controller: `ctrl`, `controller` or the result of `useController()`.
-  - Each row is plain data, not an updater function: an object literal, a row of `JSON.parse()` without a reviver, or
-    a value typed as the Entity or a plain object type.
-  - The row calls only globals, imports and methods of values built from the row. Their arguments use only the row,
-    literals and `const`s set to a literal. Loop variable defaults are literals, names, or arrays and objects of
+  - Each row is plain data, not an updater function: an object literal, a row of `JSON.parse()` without a reviver
+    whose array the code only reads, or a value typed as the Entity or a plain object type.
+  - The row calls only globals, imports and methods of values built from the row, and reads no getter the file
+    declares. Their arguments use only the row, literals and `const`s set to a literal. Loop variable defaults are literals, names, or arrays and objects of
     them.
   - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
   - Its `pk()` and `process()` read only the row and call only globals, imports and methods of the row. Its instance
     code (constructor, methods, getters, setters and field values, which `pk()` can reach through `this`) names only
     types, globals, imports, its own variables, `const`s set to a literal, lookup tables of plain data and Entity
-    classes it constructs (`author = User.fromJS()`), and never reaches static members (`this.constructor` or
-    `new.target`). It has no `static indexes` and
-    no decorators, and overrides neither `validate()` nor the store-merge methods.
+    classes it constructs (`author = User.fromJS()`, if no class in its chain overrides `fromJS()`), and never reaches
+    static members (`this.constructor` or `new.target`). It has no `static indexes` and no decorators, and overrides
+    neither `validate()` nor the store-merge methods.
   - No code the codemod reads changes its static members or passes the class to a function outside `@data-client`:
     its own file, the loop's file, a barrel it is imported through, and the files its schema imports. Check that no
     other file patches a batched Entity.
