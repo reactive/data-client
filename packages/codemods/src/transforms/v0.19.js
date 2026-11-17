@@ -2629,6 +2629,8 @@ function containsNode(node, test) {
 /** Whether a class member keeps rows the same when normalized in a batch, within `limits` */
 function memberAllows(j, member, file, limits, seen) {
   const { node } = member;
+  // a static block can assign any member through `this`
+  if (node.type === 'StaticBlock') return false;
   if (!CLASS_MEMBERS.has(node.type)) return true;
   const name = keyName(node);
   // a computed key could be any member
@@ -2779,6 +2781,12 @@ function writesMembersOf(j, binding) {
   return memberWrites.get(binding.node);
 }
 
+/** Whether the module that names a class at `path`, often by importing it, could write to its members */
+function writesThrough(j, path) {
+  const binding = path.node.type === 'Identifier' && bindingOf(path);
+  return !!binding && writesMembersOf(j, binding);
+}
+
 /** The paths of a list's items: a list's path has map() but no every() */
 const childPaths = listPath => listPath.map(p => p);
 
@@ -2796,7 +2804,12 @@ function isPlainEntity(j, cls, limits, seen = new Map()) {
   if (!superClass.node) return false;
   if (!isSchemaExport(superClass, ENTITY_BASES)) {
     const base = classOf(j, superClass, cls.file);
-    if (!base || !isPlainEntity(j, base, limits, seen)) return false;
+    if (
+      !base ||
+      writesThrough(j, superClass) ||
+      !isPlainEntity(j, base, limits, seen)
+    )
+      return false;
   }
   return childPaths(cls.path.get('body', 'body')).every(member =>
     memberAllows(j, member, cls.file, limits, seen),
@@ -2834,7 +2847,11 @@ function isArgsFreeSchema(j, path, file, seen) {
     case 'Identifier': {
       if (SCALAR_GLOBALS.has(node.name) && !bindingOf(path)) return true;
       const cls = classOf(j, path, file);
-      return !!cls && isPlainEntity(j, cls, ARGS_FREE, seen);
+      return (
+        !!cls &&
+        !writesThrough(j, path) &&
+        isPlainEntity(j, cls, ARGS_FREE, seen)
+      );
     }
     default:
       return false;
@@ -2844,11 +2861,7 @@ function isArgsFreeSchema(j, path, file, seen) {
 /** Whether `path` is an Entity class whose rows normalize the same in a batch */
 const isRowOnlyEntity = (j, path, file) => {
   const cls = classOf(j, path, file);
-  return (
-    !!cls &&
-    !writesMembersOf(j, bindingOf(path)) &&
-    isPlainEntity(j, cls, ROW_ONLY)
-  );
+  return !!cls && !writesThrough(j, path) && isPlainEntity(j, cls, ROW_ONLY);
 };
 
 const INVALIDATE = new Set(['Invalidate']);

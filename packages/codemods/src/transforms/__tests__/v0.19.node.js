@@ -2912,6 +2912,12 @@ class Patched extends Entity { id = 0; }
 Reflect.set(Patched, 'shouldUpdate', () => false);
 class Cast extends Entity { id = 0; }
 (Cast as any).process = (input, parent) => ({ ...input, parent });
+class Blocked extends Entity {
+  id = 0;
+  static {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}
 class Listed extends Entity { id = 0; }
 const listed = [Listed];
 listed[0].schema = { child: Slugged };
@@ -2961,6 +2967,7 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(n2 => ctrl.set(Aliased, { id: n2.id }));
   rows.forEach(o2 => ctrl.set(Patched, { id: o2.id }));
   rows.forEach(p2 => ctrl.set(Cast, { id: p2.id }));
+  rows.forEach(x2 => ctrl.set(Blocked, { id: x2.id }));
   rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
   rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
   rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
@@ -3011,6 +3018,12 @@ class Patched extends Entity { id = 0; }
 Reflect.set(Patched, 'shouldUpdate', () => false);
 class Cast extends Entity { id = 0; }
 (Cast as any).process = (input, parent) => ({ ...input, parent });
+class Blocked extends Entity {
+  id = 0;
+  static {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}
 class Listed extends Entity { id = 0; }
 const listed = [Listed];
 listed[0].schema = { child: Slugged };
@@ -3060,6 +3073,7 @@ export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
   rows.forEach(n2 => ctrl.set(Aliased, { id: n2.id }));
   rows.forEach(o2 => ctrl.set(Patched, { id: o2.id }));
   rows.forEach(p2 => ctrl.set(Cast, { id: p2.id }));
+  rows.forEach(x2 => ctrl.set(Blocked, { id: x2.id }));
   rows.forEach(r2 => ctrl.set(Listed, { id: r2.id }));
   rows.forEach(s2 => ctrl.set(Held, { id: s2.id }));
   rows.forEach(t2 => ctrl.set(Attached, { id: t2.id }));
@@ -3376,11 +3390,58 @@ export class Quote extends Entity {
 `,
         );
         write(
+          'resources/Base.ts',
+          `
+import { Entity } from '@data-client/rest';
+
+export class Base extends Entity {}
+export class Leaf extends Entity {
+  id = '';
+}
+`,
+        );
+        write(
+          'resources/Order.ts',
+          `
+import { Entity } from '@data-client/rest';
+import { Base, Leaf } from './Base';
+
+Leaf.process = (value, parent, key, args) => ({ ...value, scope: args[0].scope });
+Base.shouldUpdate = () => false;
+export class Order extends Entity {
+  id = '';
+  static schema = { leaf: Leaf };
+}
+export class Sub extends Base {
+  id = '';
+}
+`,
+        );
+        write(
           'resources/index.ts',
           `export * from './Ticker';\nexport { Quote as LatestQuote } from './Quote';\n`,
         );
       });
       afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('keeps rows of an Entity whose module patches its nested Entity or base', () => {
+        const source = `
+import type { Controller } from '@data-client/react';
+import { Order, Sub } from '../resources/Order';
+
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Order, { id: row.id });
+  for (const row of rows) ctrl.set(Sub, { id: row.id });
+}
+`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: path.join(dir, 'managers/OrderManager.ts') },
+          ),
+        ).toBe(source.trim());
+      });
 
       it('batches rows of an Entity whose nested Entities read no args', () => {
         const source = `
