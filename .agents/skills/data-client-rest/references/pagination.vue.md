@@ -299,7 +299,9 @@ export const getComments = new RestEndpoint({
   import { getComments } from './Comment';
 
   const props = defineProps<{ discussionId: string }>();
-  const comments = await useSuspense(getComments, { discussionId: props.discussionId });
+  const comments = await useSuspense(getComments, () => ({
+    discussionId: props.discussionId,
+  }));
   const ctrl = useController();
   const loadMore = () =>
     ctrl.fetch(getComments.getPage, {
