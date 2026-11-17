@@ -2789,4 +2789,2589 @@ export const createFeed = (ctrl, body) => ctrl.fetch(FeedResource.create, body);
       });
     });
   });
+
+  describe('optional improvements', () => {
+    const ENTITIES = `
+import { Entity, Invalidate, resource } from '@data-client/rest';
+import type { Controller } from '@data-client/react';
+
+class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+  pk() {
+    return this.product_id;
+  }
+}
+class Todo extends Entity {
+  id = 0;
+  title = '';
+  static schema = { author: User, createdAt: Date };
+}
+class User extends Entity {
+  id = 0;
+  static schema = { todos: [Todo] };
+}
+const TodoResource = resource({ path: '/users/:userId/todos/:id', schema: Todo });
+`;
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `${ENTITIES}
+export function onMessage(ctrl: Controller, event: MessageEvent) {
+  const rows = JSON.parse(event.data);
+  for (const row of rows) {
+    ctrl.set(Ticker, { product_id: row.product_id }, row);
+  }
+  rows.forEach(row => ctrl.set(User, row.author));
+}
+export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
+  for (const todo of todos) {
+    ctrl.set(TodoResource.getList.schema.push, { userId } as any, todo);
+  }
+}
+export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
+  await Promise.all(todos.map(todo => ctrl.set(Todo, { id: todo.id }, { ...todo, title: todo.title.trim() })));
+  todos.forEach(todo => ctrl.set(User, todo.author));
+}
+export function deleteTodos(ctrl: Controller, ids: string[]) {
+  for (const id of ids) ctrl.set([new Invalidate(Todo)], [{ id }]);
+}
+export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
+  const rows = [{ product_id: 'BTC', price: 1 }];
+  rows.forEach(row => ctrl.set(Ticker, row));
+  more.forEach(row => ctrl.set(Ticker, row));
+  Object.values(JSON.parse(text)).forEach(row => ctrl.set(Ticker, row));
+}
+      `,
+      `${ENTITIES}
+export function onMessage(ctrl: Controller, event: MessageEvent) {
+  const rows = JSON.parse(event.data);
+
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+
+  rows.forEach(row => ctrl.set(User, row.author));
+}
+export function addTodos(ctrl: Controller, userId: string, todos: Todo[]) {
+  for (const todo of todos) {
+    ctrl.set(TodoResource.getList.schema.push, { userId } as any, todo);
+  }
+}
+export async function saveTodos(ctrl: Controller, todos: readonly Todo[]) {
+  if (todos.length) {
+    await ctrl.set([Todo], todos.map(todo => ({ ...todo, title: todo.title.trim() })));
+  }
+
+  todos.forEach(todo => ctrl.set(User, todo.author));
+}
+export function deleteTodos(ctrl: Controller, ids: string[]) {
+  if (ids.length) {
+    ctrl.set([new Invalidate(Todo)], Array.from(ids, id => ({ id })));
+  }
+}
+export function seed(ctrl: Controller, more: { product_id: string; price: number }[]) {
+  const rows = [{ product_id: 'BTC', price: 1 }];
+  rows.forEach(row => ctrl.set(Ticker, row));
+
+  if (more.length) {
+    ctrl.set([Ticker], more);
+  }
+
+  const rows2 = Object.values(JSON.parse(text));
+
+  if (rows2.length) {
+    ctrl.set([Ticker], rows2);
+  }
+}
+      `,
+      'batches loops of set() into one set()',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity, schema, resource } from '@data-client/rest';
+
+class Base extends Entity {
+  static process(value, parent) {
+    return { ...value, parentId: parent.id };
+  }
+}
+class Row extends Base { id = 0; }
+class Slugged extends Entity {
+  slug = '';
+  static pk(value, parent, key, args) {
+    return args[0].slug;
+  }
+}
+class Checked extends Entity {
+  id = 0;
+  static validate(value) {
+    return value.id ? undefined : 'missing id';
+  }
+}
+class Plain extends schema.Entity { id = 0; }
+class Versioned extends Entity {
+  id = 0;
+  static shouldUpdate(existingMeta, incomingMeta, existing, incoming) {
+    return incoming.version > existing.version;
+  }
+}
+class Assigned extends Entity { id = 0; }
+Assigned.schema = { child: Slugged };
+const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
+
+export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
+  for (var a of rows) ctrl.set(Plain, a);
+  const done = await Promise.all(rows.map(b => ctrl.set(Plain, b)));
+  rows.forEach((c, i) => ctrl.set(Plain, c));
+  rows.forEach(d => ctrl.set(Plain, { id: makeId() }, d));
+  rows.forEach(e => ctrl.set(Plain, { ...e, old: ctrl.get(Plain, e) }));
+  rows.forEach(f => ctrl.set(Plain, { id: f.id }, prev => ({ ...prev, ...f })));
+  rows.forEach(g => ctrl.set(Row, { id: g.id }));
+  rows.forEach(h => ctrl.set(Slugged, { slug: h.slug }, h));
+  rows.forEach(k => ctrl.set(Checked, { id: k.id }));
+  rows.forEach(m => ctrl.set(PostResource.getList.schema.push, m));
+  rows.forEach(n => ctrl.set(OtherResource.getList.schema.push, n));
+  rows.forEach(o => ctrl.set(Plain.getList.schema.unshift, o));
+  for (const p of picked) ctrl.set(Plain, p);
+  for (const q of data.rows) ctrl.set(Plain, q);
+  for (const r of rows) {
+    if (r.id) ctrl.set(Plain, r);
+  }
+  const byType = new Map();
+  rows.forEach(s => byType.set(Plain, s));
+  await Promise.all(rows.map(t => { ctrl.set(Plain, t); }));
+  rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
+  const updaters: Array<(prev: Plain) => Plain> = [];
+  updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
+  const typedUpdaters: Updater[] = [];
+  typedUpdaters.forEach(y => ctrl.set(Plain, { id: 1 }, y));
+  rows.forEach(({ id, apply }) => ctrl.set(Plain, { id }, apply));
+  const literal = [{ id: 1, apply: prev => prev }];
+  literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
+  rows.forEach(w => ctrl.set(Versioned, { id: w.id }));
+  const parsed = JSON.parse(data);
+  parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
+  parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
+  const optional: { id?: number }[] = [];
+  optional.forEach(u2 => ctrl.set(Plain, u2));
+  const named: { name: string }[] = [];
+  named.forEach(v2 => ctrl.set(Plain, v2));
+  parsed.forEach(w2 => ctrl.set(Plain, w2.data));
+  const empty: {}[] = [];
+  empty.forEach(q2 => ctrl.set(Plain, q2));
+  rows.forEach(x => ctrl.set(Assigned, { id: x.id }));
+}
+      `,
+      `
+import { Entity, schema, resource } from '@data-client/rest';
+
+class Base extends Entity {
+  static process(value, parent) {
+    return { ...value, parentId: parent.id };
+  }
+}
+class Row extends Base { id = 0; }
+class Slugged extends Entity {
+  slug = '';
+  static pk(value, parent, key, args) {
+    return args[0].slug;
+  }
+}
+class Checked extends Entity {
+  id = 0;
+  static validate(value) {
+    return value.id ? undefined : 'missing id';
+  }
+}
+class Plain extends schema.Entity { id = 0; }
+class Versioned extends Entity {
+  id = 0;
+  static shouldUpdate(existingMeta, incomingMeta, existing, incoming) {
+    return incoming.version > existing.version;
+  }
+}
+class Assigned extends Entity { id = 0; }
+Assigned.schema = { child: Slugged };
+const PostResource = resource({ path: '/posts/:id', schema: Plain, Collection: SortedCollection });
+
+export async function update(ctrl, rows: Plain[], picked: Set<Plain>, data) {
+  for (var a of rows) ctrl.set(Plain, a);
+  const done = await Promise.all(rows.map(b => ctrl.set(Plain, b)));
+  rows.forEach((c, i) => ctrl.set(Plain, c));
+  rows.forEach(d => ctrl.set(Plain, { id: makeId() }, d));
+  rows.forEach(e => ctrl.set(Plain, { ...e, old: ctrl.get(Plain, e) }));
+  rows.forEach(f => ctrl.set(Plain, { id: f.id }, prev => ({ ...prev, ...f })));
+  rows.forEach(g => ctrl.set(Row, { id: g.id }));
+  rows.forEach(h => ctrl.set(Slugged, { slug: h.slug }, h));
+  rows.forEach(k => ctrl.set(Checked, { id: k.id }));
+  rows.forEach(m => ctrl.set(PostResource.getList.schema.push, m));
+  rows.forEach(n => ctrl.set(OtherResource.getList.schema.push, n));
+  rows.forEach(o => ctrl.set(Plain.getList.schema.unshift, o));
+  for (const p of picked) ctrl.set(Plain, p);
+  for (const q of data.rows) ctrl.set(Plain, q);
+  for (const r of rows) {
+    if (r.id) ctrl.set(Plain, r);
+  }
+  const byType = new Map();
+  rows.forEach(s => byType.set(Plain, s));
+  await Promise.all(rows.map(t => { ctrl.set(Plain, t); }));
+  rows.forEach(u => ctrl.set(Plain, { id: u.id }, u.apply));
+  const updaters: Array<(prev: Plain) => Plain> = [];
+  updaters.forEach(v => ctrl.set(Plain, { id: 1 }, v));
+  const typedUpdaters: Updater[] = [];
+  typedUpdaters.forEach(y => ctrl.set(Plain, { id: 1 }, y));
+  rows.forEach(({ id, apply }) => ctrl.set(Plain, { id }, apply));
+  const literal = [{ id: 1, apply: prev => prev }];
+  literal.forEach(z => ctrl.set(Plain, { id: z.id }, z.apply));
+  rows.forEach(w => ctrl.set(Versioned, { id: w.id }));
+  const parsed = JSON.parse(data);
+  parsed.forEach(({ id, apply = prev => prev }) => ctrl.set(Plain, { id }, apply));
+  parsed.forEach(m2 => ctrl.set(Plain, { id: m2.id }, m2.toString));
+  const optional: { id?: number }[] = [];
+  optional.forEach(u2 => ctrl.set(Plain, u2));
+  const named: { name: string }[] = [];
+  named.forEach(v2 => ctrl.set(Plain, v2));
+  parsed.forEach(w2 => ctrl.set(Plain, w2.data));
+  const empty: {}[] = [];
+  empty.forEach(q2 => ctrl.set(Plain, q2));
+  rows.forEach(x => ctrl.set(Assigned, { id: x.id }));
+}
+      `,
+      'keeps set() loops that a batch could write differently',
+    );
+
+    describe('set() loops whose rows call functions', () => {
+      const run = (setup, value) => {
+        const source = `import { Entity } from '@data-client/rest';
+import { toId } from './ids';
+class Todo extends Entity { id = ''; }
+${setup}
+export async function save(ctrl, rows: any[]) {
+  for (const row of rows) await ctrl.set(Todo, ${value});
+}`;
+        return applyTransform(
+          transform,
+          { improvements: 'only' },
+          { source, path: 'save.tsx' },
+        );
+      };
+
+      it.each([
+        ['a global', '{ id: String(row.id), at: new Date(row.at) }'],
+        ['a method of the row', '{ id: row.id.trim() }'],
+        ['an imported function', '{ id: toId(row) }'],
+        [
+          'a method of a callback parameter',
+          '{ id: row.id, tags: row.tags.map(tag => tag.trim()) }',
+        ],
+        ['a method of a literal', "{ id: 'todo-'.concat(row.id) }"],
+        ['a method of a built value', '{ id: new Date(row.at).toISOString() }'],
+        ['a method of an expression', "{ id: (row.name || '').trim() }"],
+        [
+          'a method of an array literal',
+          "{ id: [row.first, row.last].join(' ') }",
+        ],
+        [
+          'a method with a row field named like a local function',
+          '{ id: row.id.concat(row.currentCount) }',
+        ],
+        [
+          'a global with a literal constant',
+          '{ id: row.id, n: Math.min(row.n, LIMIT) }',
+        ],
+        [
+          'a global with a negative constant',
+          '{ id: row.id, n: Math.max(row.n, MIN) }',
+        ],
+        ['a global tag with row values', '{ id: String.raw`${row.id}` }'],
+      ])('batches rows that call %s', (_, value) => {
+        expect(
+          run(
+            'function currentCount() {\n  return 0;\n}\nconst LIMIT = 3;\nconst MIN = -1;',
+            value,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it.each([
+        [
+          'a function the module declares',
+          `export const latest = { ctrl: undefined as any };
+function currentCount(id: string) {
+  const { ctrl } = latest;
+  return ctrl.get(Todo, { id }, ctrl.getState())?.count ?? 0;
+}`,
+          '{ id: row.id, count: currentCount(row.id) + 1 }',
+        ],
+        [
+          'a function the module declares, called optionally',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, count: currentCount?.(row.id) + 1 }',
+        ],
+        [
+          'a function the module declares through a sequence',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, count: (0, currentCount)(row.id) }',
+        ],
+        [
+          'a function the module declares passed to map()',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, count: [row.id].map(currentCount)[0] }',
+        ],
+        [
+          'a class the module declares',
+          `class Counter {
+  constructor(public id: string) {}
+}`,
+          '{ id: new Counter(row.id).id }',
+        ],
+        [
+          'a value the module builds, passed to map()',
+          `const format = makeFormatter();`,
+          '{ id: row.id, tags: row.tags.map(format) }',
+        ],
+        [
+          'an alias of a function the module declares',
+          `function countOf(id: string) {
+  return id.length;
+}
+const alias = countOf;`,
+          '{ id: row.id, tags: row.tags.map(alias) }',
+        ],
+        ['a method of this', '', '{ id: this.format(row.id) }'],
+        [
+          'a method of a local object passed to map()',
+          `const helpers = { format: (tag: string) => tag };`,
+          '{ id: row.id, tags: row.tags.map(helpers.format) }',
+        ],
+        [
+          'a method of this passed to map()',
+          '',
+          '{ id: row.id, tags: row.tags.map(this.format) }',
+        ],
+        [
+          'a function the module declares inside an argument',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, n: Object.values({ count: currentCount })[0](row.id) }',
+        ],
+        [
+          'a tagged template the module declares',
+          `const tag = (strings: TemplateStringsArray, id: string) => id;`,
+          '{ id: tag`${row.id}` }',
+        ],
+        [
+          'a method of a local object',
+          `const counter = { next: (id: string) => id };`,
+          '{ id: counter.next(row.id) }',
+        ],
+        [
+          'a global tag with a function the module declares',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, n: String.raw`${currentCount}` }',
+        ],
+        [
+          'a global with a let',
+          `let LIMIT = 3;`,
+          '{ id: row.id, n: Math.min(row.n, LIMIT) }',
+        ],
+        [
+          'a global with a computed constant',
+          `const LIMIT = makeLimit();`,
+          '{ id: row.id, n: Math.min(row.n, LIMIT) }',
+        ],
+      ])('keeps rows that call %s', (_, setup, value) => {
+        expect(run(setup, value)).toContain('for (const row of rows)');
+      });
+
+      it('keeps rows that pass a parameter of the enclosing function', () => {
+        const source = `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; }
+export function save(ctrl, rows: any[], format: (tag: string) => string) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id, tags: row.tags.map(format) }));
+}`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: 'save.tsx' },
+          ),
+        ).toContain('rows.forEach(');
+      });
+
+      it('keeps rows that call a method of super', () => {
+        const source = `import { Entity } from '@data-client/rest';
+import { Base } from './base';
+class Todo extends Entity { id = ''; }
+export class Saver extends Base {
+  save(ctrl, rows: any[]) {
+    rows.forEach(row => ctrl.set(Todo, { id: row.id, n: super.count(row.id) }));
+  }
+}`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: 'save.tsx' },
+          ),
+        ).toContain('rows.forEach(');
+      });
+    });
+
+    describe('set() loops whose loop variable runs code', () => {
+      const run = (setup, loop) =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+${setup}
+export async function save(ctrl, text: string) {
+  ${loop}
+}`,
+            path: 'save.tsx',
+          },
+        );
+
+      it('keeps a default that calls a function', () => {
+        expect(
+          run(
+            `function currentCount(id: string) {
+  return id.length;
+}`,
+            `for (const { id, count = currentCount(id) } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count: count + 1 });`,
+          ),
+        ).toContain('for (const { id, count = currentCount(id) }');
+      });
+
+      it('batches a literal default', () => {
+        expect(
+          run(
+            '',
+            `for (const { id, count = 0 } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count: count + 1 });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it.each([
+        ['an optional call', 'count = currentCount?.(id)'],
+        ['an optional method call', 'count = counter?.next(id)'],
+        ['an update', 'count = n++'],
+        ['a computed key that calls a function', '[key()]: count = 0'],
+        ['a nested call', 'meta: { count = currentCount(id) }'],
+        ['a call in an array pattern', 'counts: [count = currentCount(id)]'],
+      ])('keeps a default or key with %s', (_, binding) => {
+        const loop = `for (const { id, ${binding} } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count: count + 1 });`;
+        expect(
+          run(
+            `function currentCount(id: string) {
+  return id.length;
+}
+const counter = { next: (id: string) => id.length };
+let n = 0;
+const key = () => 'count';`,
+            loop,
+          ),
+        ).toContain('for (const {');
+      });
+
+      it('batches defaults that are references and literals', () => {
+        expect(
+          run(
+            'const NONE = 0;',
+            `for (const { id, count = NONE, tags = [], ['a']: a = '', rank = -1, label = \`Untitled\`, ...rest } of JSON.parse(text))
+    await ctrl.set(Todo, { id, count, tags, a, rank, label, rest });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it.each([
+        [
+          'through Object.values()',
+          `Object.values(JSON.parse(text, (key, value) => value)).forEach(row =>
+    ctrl.set(Todo, { id: 'a' }, row),
+  );`,
+          '.forEach(row =>',
+        ],
+        [
+          'through a spread',
+          `const args = [text, (key, value) => value] as const;
+  for (const row of JSON.parse(...args)) await ctrl.set(Todo, row);`,
+          'for (const row of JSON.parse(...args))',
+        ],
+      ])(
+        'keeps rows that JSON.parse() builds with a reviver %s',
+        (_, loop, kept) => {
+          expect(run('', loop)).toContain(kept);
+        },
+      );
+
+      it('keeps rows that JSON.parse() builds with a reviver', () => {
+        expect(
+          run(
+            '',
+            `const rows = JSON.parse(text, (key, value) => value);
+  rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+          ),
+        ).toContain('rows.forEach(');
+      });
+
+      it.each([
+        [
+          'pushed',
+          'rows.push((prev: any) => ({ ...prev, count: prev.count + 1 }));',
+        ],
+        ['assigned', 'rows[0] = (prev: any) => prev;'],
+        ['passed to a function', 'addUpdaters(rows);'],
+        [
+          'through a computed method',
+          "rows['push' as any]((prev: any) => prev);",
+        ],
+        ['through an optional call', 'rows.push?.((prev: any) => prev);'],
+        [
+          'through a named callback',
+          'function stash(row: any, i: number, all: any[]) {\n    all.push((prev: any) => prev);\n  }\n  rows.forEach(stash);',
+        ],
+        [
+          'through a callback method',
+          'const helpers = {\n    stash(row: any, i: number, all: any[]) {\n      all.push((prev: any) => prev);\n    },\n  };\n  rows.forEach(helpers.stash);',
+        ],
+        [
+          "through a callback's array argument",
+          'rows.forEach((row, i, all) => all.push((prev: any) => prev));',
+        ],
+      ])(
+        'keeps parsed rows when code could put an updater in the array: %s',
+        (_, change) => {
+          expect(
+            run(
+              'declare function addUpdaters(rows: any[]): void;',
+              `const rows = JSON.parse(text);
+  ${change}
+  rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+            ),
+          ).toContain("rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));");
+        },
+      );
+
+      it('batches parsed rows the function only reads', () => {
+        expect(
+          run(
+            '',
+            `const rows = JSON.parse(text);
+  console.log(rows.length, rows[0], rows.map(row => row.id).join());
+  for (const row of rows) console.log(row);
+  rows.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+          ),
+        ).toContain('ctrl.set([Todo], rows)');
+      });
+
+      it.each([
+        [
+          'with Object.defineProperty()',
+          '',
+          "rows.forEach(row => Object.defineProperty(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with a destructured defineProperty()',
+          'const { defineProperty } = Object;',
+          "rows.forEach(row => defineProperty(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with Object.setPrototypeOf()',
+          'declare const proto: object;',
+          'rows.forEach(row => Object.setPrototypeOf(row, proto));',
+          'row',
+        ],
+        [
+          'with __proto__',
+          'declare const proto: object;',
+          'rows.forEach(row => (row.__proto__ = proto));',
+          'row',
+        ],
+        [
+          'with a declared setter',
+          'const box = { set row(row: any) {} };',
+          'rows.forEach(row => (box.row = row));',
+          'row',
+        ],
+        [
+          'with Object.defineProperties()',
+          '',
+          'rows.forEach(row => Object.defineProperties(row, { count: { get: currentCount } }));',
+          'row',
+        ],
+        [
+          'with __defineGetter__()',
+          '',
+          "rows.forEach(row => row.__defineGetter__('count', currentCount));",
+          'row',
+        ],
+        [
+          'with defineProperty() destructured by a string key',
+          "const { 'defineProperty': dp } = Object;",
+          "rows.forEach(row => dp(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with a computed Object member',
+          "const dp = Object['define' + 'Property'];",
+          "rows.forEach(row => dp(row, 'count', { get: currentCount }));",
+          'row',
+        ],
+        [
+          'with Object.create()',
+          'const proto = Object.create(null, { count: { get: currentCount } });',
+          'rows.forEach(row => (row.proto = proto));',
+          '{ id: row.id, count: row.proto.count }',
+        ],
+        [
+          'with an alias of Object',
+          'const O = Object;\nconst proto = O.create(null, { count: { get: currentCount } });',
+          'rows.forEach(row => (row.proto = proto));',
+          '{ id: row.id, count: row.proto.count }',
+        ],
+        [
+          'with a Proxy',
+          'declare const handler: object;',
+          'const live = rows.map(row => new Proxy(row, handler));\n  live.length;',
+          'row',
+        ],
+        [
+          'with an alias of Reflect',
+          'const R = Reflect;\ndeclare function install(row: any): void;',
+          'rows.forEach(row => R.apply(install, null, [row]));',
+          'row',
+        ],
+        [
+          'with globalThis.Object',
+          'const proto = globalThis.Object.create(null, { count: { get: currentCount } });',
+          'rows.forEach(row => (row.proto = proto));',
+          '{ id: row.id, count: row.proto.count }',
+        ],
+        [
+          'by storing an instance of a class the module declares with a getter',
+          'class Live { get count() { return currentCount(); } }',
+          'rows.forEach(row => (row.live = new Live()));',
+          '{ id: row.id, count: row.live.count }',
+        ],
+      ])(
+        'keeps parsed rows the module could give a getter %s',
+        (_, declarations, change, value) => {
+          expect(
+            run(
+              `declare function currentCount(): number;\n${declarations}`,
+              `const rows = JSON.parse(text);
+  ${change}
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, ${value});`,
+            ),
+          ).toContain('for (const row of rows)');
+        },
+      );
+
+      it.each([
+        [
+          'keeps',
+          'that declares a getter',
+          'class Live { get count() { return 1; } }\n',
+          'for (const row of rows)',
+        ],
+        [
+          'batches',
+          'with no getter',
+          '',
+          'ctrl.set([Todo], Array.from(rows, row => ({ ...row, at: now })))',
+        ],
+      ])(
+        '%s a value that reads a const set by a global call, in a file %s',
+        (_, __, declarations, expected) => {
+          expect(
+            run(
+              `${declarations}const now = Date.now();`,
+              `const rows = JSON.parse(text);
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, { ...row, at: now });`,
+            ),
+          ).toContain(expected);
+        },
+      );
+
+      it('keeps a value or rows from a parameter the module can pass a getter', () => {
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            {
+              source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+declare const store: { count: number };
+const live = { get count() { return store.count; } };
+export function save(ctrl, rows: { id: string }[], extra: { count: number }) {
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, { ...row, count: extra.count });
+}
+save(ctrl, [{ id: 'a' }], live);`,
+              path: 'save.tsx',
+            },
+          ),
+        ).toContain('for (const row of rows)');
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            {
+              source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+declare const store: { count: number };
+export function save(ctrl, rows: { id: string }[]) {
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, row);
+}
+save(ctrl, [{ id: 'a', get count() { return store.count; } }]);`,
+              path: 'save.tsx',
+            },
+          ),
+        ).toContain('for (const row of rows)');
+      });
+
+      it.each([
+        [
+          'an object method',
+          "const api = { save(ctrl, rows: { id: string }[], extra: { count: number }) { LOOP } };\napi.save(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a class method',
+          "class Saver { save(ctrl, rows: { id: string }[], extra: { count: number }) { LOOP } }\nnew Saver().save(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a function assigned to a member',
+          "const api: any = {};\napi.save = function (ctrl, rows: { id: string }[], extra: { count: number }) { LOOP };\napi.save(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a const function under `as`',
+          "const save = ((ctrl, rows: { id: string }[], extra: { count: number }) => { LOOP }) as any;\nsave(ctrl, [{ id: 'a' }], live);",
+        ],
+        [
+          'a callback',
+          "function run(f) { f(ctrl, [{ id: 'a' }], live); }\nrun((ctrl, rows: { id: string }[], extra: { count: number }) => { LOOP });",
+        ],
+      ])(
+        'keeps a value from a parameter of %s the module can pass a getter',
+        (_, code) => {
+          expect(
+            applyTransform(
+              transform,
+              { improvements: 'only' },
+              {
+                source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; count = 0; }
+declare const store: { count: number };
+const live = { get count() { return store.count; } };
+${code.replace('LOOP', 'for (const row of rows) ctrl.set(Todo, { id: row.id }, { ...row, count: extra.count });')}`,
+                path: 'save.tsx',
+              },
+            ),
+          ).toContain('for (const row of rows)');
+        },
+      );
+
+      it.each([
+        [
+          'a declared global in a module that declares a getter',
+          'class Live { get count() { return 1; } }\ndeclare const LIMIT: number;',
+          '{ ...row, at: LIMIT }',
+          'row',
+        ],
+        [
+          'a let in the dropped args of a module with no getter',
+          'let seq = 0;',
+          'row',
+          '{ seq }',
+        ],
+      ])('batches a loop that reads %s', (_, declarations, value, args) => {
+        expect(
+          run(
+            declarations,
+            `const rows = JSON.parse(text);
+  for (const row of rows) ctrl.set(Todo, ${args === 'row' ? '{ id: row.id }' : args}, ${value});`,
+          ),
+        ).toContain('ctrl.set([Todo]');
+      });
+
+      it('batches parsed rows only the loop reads in a module that declares a getter', () => {
+        expect(
+          run(
+            'class Live { get count() { return 1; } }',
+            `const rows = JSON.parse(text);
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, row);`,
+          ),
+        ).toContain('ctrl.set([Todo], rows)');
+      });
+
+      it.each([
+        [
+          'an object getter',
+          'const live = { get count() { return currentCount(); } };',
+          'live.count',
+        ],
+        [
+          'an instance of a class the module declares',
+          'class Live { get count() { return currentCount(); } }\nconst live = new Live();',
+          'live.count',
+        ],
+        [
+          'a static getter',
+          'class Live { static get count() { return currentCount(); } }',
+          'Live.count',
+        ],
+        [
+          'a nested object getter',
+          'const live = { inner: { get count() { return currentCount(); } } };',
+          'live.inner.count',
+        ],
+        [
+          'what a function the module declares returns',
+          'function makeLive() { return { get count() { return currentCount(); } }; }\nconst live = makeLive();',
+          'live.count',
+        ],
+        [
+          'a class expression that extends one with a static getter',
+          'class Base { static get count() { return currentCount(); } }\nconst Live = class extends Base {};',
+          'Live.count',
+        ],
+        [
+          'an inherited static getter',
+          'class Base { static get count() { return currentCount(); } }\nclass Live extends Base {}',
+          'Live.count',
+        ],
+        [
+          'a static getter two classes up',
+          'class Base { static get count() { return currentCount(); } }\nclass Mid extends Base {}\nclass Live extends Mid {}',
+          'Live.count',
+        ],
+        [
+          'a static getter of a base a function returns',
+          'function makeBase() { return class { static get count() { return currentCount(); } }; }\nconst Base = makeBase();\nclass Live extends Base {}',
+          'Live.count',
+        ],
+        [
+          'an alias of an object getter',
+          'const live0 = { get count() { return currentCount(); } };\nconst live = live0;',
+          'live.count',
+        ],
+        [
+          'a member of an object with a getter',
+          'const holder = { inner: { get count() { return currentCount(); } } };\nconst live = holder.inner;',
+          'live.count',
+        ],
+        [
+          'one branch of a conditional',
+          'const live0 = { get count() { return currentCount(); } };\nconst live = Math.random() ? live0 : { count: 0 };',
+          'live.count',
+        ],
+        [
+          'what an awaited function the module declares returns',
+          'async function makeLive() { return { get count() { return currentCount(); } }; }\nconst live = await makeLive();',
+          'live.count',
+        ],
+        [
+          'what an optional call of a function the module declares returns',
+          'const makeLive: any = () => ({ get count() { return currentCount(); } });\nconst live = makeLive?.();',
+          'live.count',
+        ],
+        [
+          'a global given a getter',
+          'const live = Object.freeze({ get count() { return currentCount(); } });',
+          'live.count',
+        ],
+        [
+          'a getter pushed into a plain array',
+          'const history: any[] = [];\nhistory.push({ get count() { return currentCount(); } });\nconst latest = history.at(0);',
+          'latest.count',
+        ],
+        [
+          'an element of a plain array given a getter',
+          'const history: any[] = [];\nhistory.push({ get count() { return currentCount(); } });',
+          'history[0].count',
+        ],
+        [
+          'a getter assigned into a plain object',
+          'const cfg: any = {};\ncfg.live = { get count() { return currentCount(); } };',
+          'cfg.live.count',
+        ],
+        [
+          'a getter a local function stores in a plain object',
+          'const cfg: any = {};\nfunction stash(o: any) { o.live = { get count() { return currentCount(); } }; }\nstash(cfg);',
+          'cfg.live.count',
+        ],
+        [
+          'a getter stored in what a global returns',
+          'declare const url: string;\nconst page = await (await fetch(url)).json();\npage.live = { get count() { return currentCount(); } };',
+          'page.live.count',
+        ],
+        [
+          'a getter stored through a member a function returns',
+          'const cfg: any = { live: {} };\nfunction inner() { return cfg.live; }\ninner().x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a member an object literal holds',
+          'const cfg: any = { live: {} };\nconst view = { inner: cfg.live };\nview.inner.x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a member an array literal holds',
+          'const cfg: any = { live: {} };\nconst box = [cfg.live];\nbox[0].x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a member an arrow returns',
+          'const cfg: any = { live: {} };\nconst inner = () => cfg.live;\ninner().x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter stored through a cast alias of a member',
+          'const cfg: any = { live: {} };\nconst alias = cfg.live as any;\nalias.x = { get count() { return currentCount(); } };',
+          'cfg.live.x.count',
+        ],
+        [
+          'a getter the value itself stores in a plain object',
+          'const g = { get count() { return currentCount(); } };\nconst cfg: any = {};',
+          '(cfg.x = g, cfg.x.count)',
+        ],
+        [
+          'a getter the value itself stores with a logical assignment',
+          'const g = { get count() { return currentCount(); } };\nconst cfg: any = {};',
+          '(cfg.x ??= g).count',
+        ],
+        [
+          'a spread of an object getter',
+          'const live = { get count() { return currentCount(); } };',
+          '{ ...live }.count',
+        ],
+        [
+          'an object getter stored whole',
+          'const live = { get count() { return currentCount(); } };',
+          '[live][0].count',
+        ],
+        [
+          'a getter a tag stores through a template value',
+          'const g = { get count() { return currentCount(); } };\nconst cfg: any = { x: {} };\nfunction tag(_: any, v: any) { v.y = g; }\ntag`${cfg.x}`;',
+          'cfg.x.y.count',
+        ],
+        [
+          'a destructured object getter',
+          'const cfg = { live: { get count() { return currentCount(); } } };\nconst { live } = cfg;',
+          'live.count',
+        ],
+        [
+          'a shorthand object holding a getter',
+          'const live = { get count() { return currentCount(); } };',
+          '{ live }.live.count',
+        ],
+        [
+          'a computed key whose conversion runs a getter',
+          'const live = { get toString() { return () => String(currentCount()); } };',
+          '({ [live]: 1 }).x',
+        ],
+        ['a let, which can change between rows', 'let scale = 2;', 'scale'],
+      ])('keeps a value that reads %s', (_, setup, read) => {
+        expect(
+          run(
+            `declare function currentCount(): number;\n${setup}`,
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: ${read} + 1 });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it.each([
+        [
+          'rows that are instances of a local class with a getter',
+          "class Live {\n  id = 'a';\n  get count() {\n    return currentCount();\n  }\n}",
+          'const rows = [new Live(), new Live()];',
+        ],
+        [
+          'rows that are object literals with a getter',
+          '',
+          "const rows = [{ id: 'a', get count() { return currentCount(); } }];",
+        ],
+      ])('keeps %s', (_, setup, rows) => {
+        expect(
+          run(
+            `declare function currentCount(): number;\n${setup}`,
+            `${rows}
+  for (const row of rows)
+    await ctrl.set(Todo, { id: row.id, count: row.count + 1 });`,
+          ),
+        ).toContain('for (const row of rows)');
+      });
+
+      it('batches rows that are plain objects, also spread from a parameter', () => {
+        expect(
+          run(
+            '',
+            `const rows = [{ id: 'a', count: 1 }, ...JSON.parse(text)];
+  for (const row of rows)
+    await ctrl.set(Todo, { id: row.id, count: row.count + 1 });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('keeps a loop whose dropped args spread a getter that changes the value', () => {
+        expect(
+          run(
+            'let seq = 0;\nconst options = { get args() { seq++; return {}; } };',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...options }, { ...row, id: row.id });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it('keeps a loop whose dropped args read a getter that changes the value', () => {
+        expect(
+          run(
+            'let seq = 0;\nconst options = { get args() { seq++; return {}; } };',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, options.args, { ...row, seq });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it('keeps parsed rows another module could change', () => {
+        expect(
+          run(
+            "export const shared = JSON.parse('[]');",
+            `shared.forEach(row => ctrl.set(Todo, { id: 'a' }, row));`,
+          ),
+        ).toContain('shared.forEach(');
+      });
+
+      it('keeps a value that reads this, which can have a getter', () => {
+        expect(
+          run(
+            '',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: (this as any).count + 1 });`,
+          ),
+        ).toContain('for (const row of JSON.parse(text))');
+      });
+
+      it('batches a value that reads what globals and imports return', () => {
+        expect(
+          run(
+            'declare const url: string;\nconst res = await fetch(url);\nconst page = await res.json();\nconst started = new Date();',
+            `const rows = JSON.parse(text);
+  console.log(rows.map(String), rows.filter(Boolean).length);
+  for (const row of rows)
+    await ctrl.set(Todo, { ...row, page: page.number, time: Date.now() });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('batches a value that reads plain objects and Entity members', () => {
+        expect(
+          run(
+            'const DEFAULTS = { count: 1 };',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: DEFAULTS.count, type: Todo.key });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('batches a value that reads a plain object the module only reads into conditions and math', () => {
+        expect(
+          run(
+            "const cfg = { n: 1, on: true, key: 'a' };\nif (cfg.on) console.log(`${cfg.n + 1}`, !cfg.on, { a: 1 }[cfg.key]);",
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: cfg.n, meta: { on: cfg.on } });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+
+      it('batches a value that reads plain data the module changes only with plain data', () => {
+        expect(
+          run(
+            'const history = [{ count: 1 }];\nhistory.push({ count: 2 });\nhistory[0].count++;\nconst latest = history.at(0);',
+            `for (const row of JSON.parse(text))
+    await ctrl.set(Todo, { ...row, count: latest.count + history[1].count });`,
+          ),
+        ).toContain('await ctrl.set([Todo], Array.from(');
+      });
+    });
+
+    describe('set() loops over a list that can be empty', () => {
+      const run = loop =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; }
+export function save(ctrl, text: string) {
+  ${loop}
+}`,
+            path: 'save.tsx',
+          },
+        );
+
+      it('keeps the set() statement comments on the batch set()', () => {
+        expect(
+          run(`for (const row of JSON.parse(text)) {
+    // keep the server title
+    ctrl.set(Todo, row); // per-row
+  }
+  /* after */`),
+        ).toContain(`if (rows.length) {
+    // keep the server title
+    // per-row
+    ctrl.set([Todo], rows);
+  }
+  /* after */`);
+      });
+
+      it('keeps a loop over an Entity with a class decorator', () => {
+        for (const decorator of [
+          `function argsPk(cls) {
+  cls.pk = (value, parent, key, args) => args[0].id;
+  return cls;
+}`,
+          "import { argsPk } from 'entity-registry';",
+        ]) {
+          expect(
+            applyTransform(
+              transform,
+              { improvements: 'only' },
+              {
+                source: `import { Entity } from '@data-client/rest';
+${decorator}
+@argsPk
+class Todo extends Entity { id = ''; }
+export function save(ctrl, rows: Todo[]) {
+  for (const row of rows) ctrl.set(Todo, { id: row.id }, row);
+}`,
+                path: 'save.tsx',
+              },
+            ),
+          ).toContain('for (const row of rows)');
+        }
+      });
+
+      it('keeps a loop over an empty array literal', () => {
+        expect(run('for (const id of []) ctrl.set(Todo, { id });')).toContain(
+          'for (const id of []) ctrl.set(Todo, { id });',
+        );
+      });
+
+      it('batches a non-empty array literal without a guard', () => {
+        expect(
+          run("for (const id of ['a', 'b']) ctrl.set(Todo, { id });"),
+        ).toContain(
+          "\n  ctrl.set([Todo], Array.from(['a', 'b'], id => ({ id })));\n",
+        );
+      });
+
+      it('guards an array literal with a spread, which can be empty', () => {
+        expect(run('for (const id of [...text]) ctrl.set(Todo, { id });'))
+          .toContain(`const rows = [...text];
+
+  if (rows.length) {
+    ctrl.set([Todo], Array.from(rows, id => ({ id })));
+  }`);
+      });
+
+      it('stores a property read in a const, since a getter could return a different list on the second read', () => {
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            {
+              source: `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; }
+export function save(ctrl, queue) {
+  for (const row of queue.items as Todo[]) ctrl.set(Todo, row);
+}`,
+              path: 'save.tsx',
+            },
+          ),
+        ).toContain(`const rows = queue.items as Todo[];
+
+  if (rows.length) {
+    ctrl.set([Todo], rows);
+  }`);
+      });
+
+      it('keeps an else after the loop on its own if', () => {
+        expect(
+          run(`if (text) for (const id of ['a', ...text]) ctrl.set(Todo, { id });
+  else console.log('none');`),
+        ).toContain(`if (text) {
+    const rows = ['a', ...text];
+
+    if (rows.length) {
+      ctrl.set([Todo], Array.from(rows, id => ({ id })));
+    }
+  } else
+    console.log('none');`);
+      });
+
+      it('wraps the stored list and guard in a block when the loop is a lone statement', () => {
+        expect(
+          run(
+            'if (text) for (const row of JSON.parse(text)) ctrl.set(Todo, row);',
+          ),
+        ).toContain(`if (text) {
+    const rows = JSON.parse(text);
+
+    if (rows.length) {
+      ctrl.set([Todo], rows);
+    }
+  }`);
+      });
+
+      it('wraps the stored list in a block when the loop is in a switch case', () => {
+        expect(
+          run(`switch (text) {
+  case 'a':
+    for (const row of JSON.parse(text)) ctrl.set(Todo, row);
+    break;
+  }`),
+        ).toContain(`case 'a':
+    {
+      const rows = JSON.parse(text);`);
+      });
+    });
+
+    describe('set() loops of an Entity with declaration-only members', () => {
+      const run = (members, before = '') =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+${before}
+class Todo extends Entity {
+  id = '';
+${members}
+}
+export function save(ctrl, rows: any[]) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id }));
+}`,
+            path: 'save.tsx',
+          },
+        );
+
+      it('batches when they only declare types', () => {
+        expect(
+          run(
+            '  declare static pk: typeof Entity.pk;\n  declare static process: typeof Entity.process;\n  declare pk: () => string;',
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it('keeps the loop when a field without a value hides pk()', () => {
+        expect(run('  pk: any;')).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when an accessor field overrides a hook', () => {
+        expect(
+          run(
+            '  static accessor process = (input, parent) => ({ ...input, scope: parent.scope });',
+          ),
+        ).toContain('rows.forEach(');
+        expect(run('  static accessor shouldUpdate = () => false;')).toContain(
+          'rows.forEach(',
+        );
+        expect(run('  static accessor schema = { author: User };')).toContain(
+          'rows.forEach(',
+        );
+        expect(
+          run('  accessor pk = (parent, key, args) => args[0].id;'),
+        ).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when a decorator could replace a member', () => {
+        expect(
+          run('  @wrap static pk(value) {\n    return value.id;\n  }'),
+        ).toContain('rows.forEach(');
+        expect(run('  @observable title = "";')).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when the Entity has indexes', () => {
+        // normalize() starts each index empty, so one set() per row keeps only the last row in the index
+        expect(run("  static indexes = ['title'] as const;")).toContain(
+          'rows.forEach(',
+        );
+        expect(
+          run(`  static schema = { author: class User extends Entity {
+    id = '';
+    static indexes = ['username'];
+  } };`),
+        ).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when pk() or process() calls code the module declares', () => {
+        // a batch runs them for every row before any write, so a helper that reads the store sees older data
+        const helper = `export const latest = { ctrl: undefined as any };
+function currentCount(id: string) {
+  return latest.ctrl.get(Todo, { id }, latest.ctrl.getState())?.count ?? 0;
+}`;
+        expect(
+          run(
+            '  static process(value) {\n    return { ...value, count: currentCount(value.id) + 1 };\n  }',
+            helper,
+          ),
+        ).toContain('rows.forEach(');
+        expect(
+          run(
+            '  pk() {\n    return `${this.id}-${currentCount(this.id)}`;\n  }',
+            helper,
+          ),
+        ).toContain('rows.forEach(');
+        expect(
+          run(
+            '  static pk(value) {\n    return this.key + currentCount(value.id);\n  }',
+            helper,
+          ),
+        ).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when pk() reaches code the module declares through the class', () => {
+        // a row can be an instance of the class, and `super` reaches the base class whatever the row is
+        const helper = `export const latest = { ctrl: undefined as any };
+function currentCount(id: string) {
+  return latest.ctrl.get(Todo, { id }, latest.ctrl.getState())?.count ?? 0;
+}
+class Tag {
+  count(id: string) {
+    return currentCount(id);
+  }
+}
+class Counter extends Entity {
+  id = '';
+  static fromJS(): any {
+    return { id: String(currentCount('all')) };
+  }
+}
+class SubCounter extends Counter {}`;
+        const kept = [
+          '  pk() {\n    return this.lookup();\n  }\n  lookup() {\n    return currentCount(this.id);\n  }',
+          '  pk() {\n    return `${this.id}-${this.count}`;\n  }\n  get count() {\n    return currentCount(this.id);\n  }',
+          '  pk() {\n    return this.#count();\n  }\n  #count() {\n    return currentCount(this.id);\n  }',
+          '  pk() {\n    return this.count();\n  }\n  count = () => currentCount(this.id);',
+          '  pk() {\n    return this.constructor.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    const Class = this.constructor;\n    return Class.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    const { constructor: Class } = this as any;\n    return Class.key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          "  pk() {\n    return Reflect.get(this, 'constructor').key(this.id);\n  }\n  static key(id) {\n    return currentCount(id);\n  }",
+          '  pk() {\n    return this.count(this.id);\n  }\n  count = currentCount;',
+          '  pk() {\n    return this.count(this.id);\n  }\n  count = ((id: string) => currentCount(id)) as any;',
+          '  pk() {\n    return this.count();\n  }\n  count = currentCount.bind(null, this.id);',
+          '  pk() {\n    return this.kind[this.name].key(this.id);\n  }\n  name = "con" + "structor";\n  kind = this as any;\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    return this.count(this.id);\n  }\n  constructor(...args) {\n    super(...args);\n    this.count = currentCount;\n  }',
+          '  pk() {\n    return this.kind.key(this.id);\n  }\n  constructor(...args) {\n    super(...args);\n    this.kind = new.target;\n  }\n  static key(id) {\n    return currentCount(id);\n  }',
+          '  pk() {\n    return this.counter()(this.id);\n  }\n  counter() {\n    return currentCount;\n  }',
+          '  pk() {\n    return this.tag.count(this.id);\n  }\n  tag = new Tag();',
+          // an Entity whose static fromJS() reads the store
+          '  pk() {\n    return this.id + Counter.fromJS().id;\n  }',
+          '  pk() {\n    return this.id + SubCounter.fromJS().id;\n  }',
+          '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this.constructor;\n  static key(id) {\n    return currentCount(id);\n  }',
+          "  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this['constructor'];\n  static key(id) {\n    return currentCount(id);\n  }",
+          '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = Object.getPrototypeOf(this);\n  static key(id) {\n    return currentCount(id);\n  }',
+          // a row built before the loop ran its constructor, which can install code pk() calls
+          '  pk() {\n    return this.count();\n  }\n  constructor() {\n    super();\n    this.count = () => currentCount(this.id);\n  }',
+        ];
+        for (const members of kept)
+          expect(run(members, helper)).toContain('rows.forEach(');
+        const base = applyTransform(
+          transform,
+          { improvements: 'only' },
+          {
+            source: `import { Entity } from '@data-client/rest';
+${helper}
+class Base extends Entity {
+  label() {
+    return currentCount(this.id);
+  }
+}
+class Todo extends Base {
+  id = '';
+  pk() {
+    return \`\${this.id}-\${super.label()}\`;
+  }
+}
+export function save(ctrl, rows: any[]) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id }));
+}`,
+            path: 'save.tsx',
+          },
+        );
+        expect(base).toContain('rows.forEach(');
+      });
+
+      it('batches when instance methods call only globals and members of the row', () => {
+        expect(
+          run(
+            "  slug = '';\n  pk() {\n    return `${this.id}-${this.label}`;\n  }\n  get label() {\n    return this.slug.trim();\n  }\n  title() {\n    return this.label.toUpperCase();\n  }\n  constructor(...args) {\n    super(...args);\n    this.slug = String(this.slug);\n  }",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+        // field values that construct an Entity or hold a literal const aren't code, and types aren't either
+        expect(
+          run(
+            '  tag = new Tag();\n  author = Tag.fromJS();\n  label = LABEL;\n  pk() {\n    return this.id;\n  }\n  title(): Label {\n    return LABEL;\n  }',
+            "class Tag extends Entity {\n  id = '';\n}\nconst LABEL = 'todo';\ntype Label = string;",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it('batches when instance code names a type, a lookup table or a method named like a module function', () => {
+        expect(
+          run(
+            "  kind = 'a';\n  pk() {\n    return KINDS[this.kind] + this.id;\n  }\n  owner(): Tag | undefined {\n    return undefined;\n  }\n  count(): typeof Tag {\n    return this.kind as any;\n  }",
+            "class Tag extends Entity {\n  id = '';\n  static fromJS(): any {\n    return { id: String(count()) };\n  }\n}\nfunction count() {\n  return 1;\n}\nconst KINDS = { a: 'x', b: 'y' };",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it('keeps the loop when a lookup table holds code', () => {
+        expect(
+          run(
+            "  kind = 'a';\n  pk() {\n    return KINDS[this.kind] + this.id;\n  }",
+            "function count() {\n  return 1;\n}\nconst KINDS: any = { a: 'x' };\nKINDS.b = count;",
+          ),
+        ).not.toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it.each([
+        [
+          'static process() reads a variable the value changes',
+          '  static process(value) {\n    return { ...value, stamp: seq++ };\n  }',
+          'let seq = 0;',
+        ],
+        [
+          'static pk() reads plain data something changes',
+          '  static pk(value) {\n    return value.id + STATE.n;\n  }',
+          'const STATE = { n: 0 };\nexport function bump() {\n  STATE.n++;\n}',
+        ],
+        [
+          'pk() reads plain data something changes',
+          '  pk() {\n    return this.id + STATE.n;\n  }',
+          'const STATE = { n: 0 };\nexport function bump() {\n  STATE.n++;\n}',
+        ],
+        [
+          'static process() reads a static getter of a local class',
+          '  static process(value) {\n    return { ...value, count: Live.count + 1 };\n  }',
+          'class Live {\n  static get count() {\n    return 1;\n  }\n}',
+        ],
+        [
+          'static process() reads a static field something changes',
+          '  static process(value) {\n    return { ...value, count: Live.n + 1 };\n  }',
+          'class Live {\n  static n = 0;\n}\nexport function bump() {\n  Live.n++;\n}',
+        ],
+        [
+          'static process() reads a static getter through this',
+          '  static get live() {\n    return 1;\n  }\n  static process(value) {\n    return { ...value, count: this.live + 1 };\n  }',
+          '',
+        ],
+        [
+          'static process() writes through this',
+          '  static process(value) {\n    this.n = (this.n ?? 0) + 1;\n    return { ...value, n: this.n };\n  }',
+          '',
+        ],
+      ])('keeps the loop when %s', (_, members, before) => {
+        expect(run(members, before)).not.toContain('ctrl.set([Todo]');
+      });
+
+      it('batches when pk() or process() calls only globals and methods of the row', () => {
+        expect(
+          run(
+            "  slug = '';\n  pk() {\n    return [this.id, this.slug].join('-');\n  }\n  static process(value) {\n    return { ...value, slug: String(value.slug).trim() };\n  }",
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it('batches with private and accessor members that are not hooks', () => {
+        expect(
+          run(
+            '  static #count = 0;\n  static #bump() {}\n  static accessor label = "";',
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+    });
+
+    describe('keeps set() loops of an Entity that code patches', () => {
+      const save = `
+export function save(ctrl, rows: any[]) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id }));
+}`;
+      const run = source =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          { source, path: 'save.tsx' },
+        );
+
+      it.each([
+        ['no other code', ''],
+        [
+          'a plain object property named like a hook',
+          `export function bind(form: any, schema: any) {
+  form.schema = schema;
+}
+const opts = { retries: 2 };
+Object.assign(opts, { process: (x: any) => x });`,
+        ],
+        [
+          'an instance property of another class',
+          `export class Form {
+  constructor(public opts: any) {
+    this.opts.validate = (v: any) => !!v;
+  }
+}`,
+        ],
+        [
+          'a constructor assigning options to an instance',
+          `export class StreamManager {
+  constructor(options: object) {
+    Object.assign(this, options);
+  }
+}`,
+        ],
+        [
+          'a schema assigned after the class',
+          `class Box extends Entity { id = 0; }
+Box.schema = { todos: [Todo] };`,
+        ],
+        [
+          'an instance assigning its own hook-named members',
+          `export class Form {
+  constructor(schema: any) {
+    this.schema = schema;
+    this.validate = (v: any) => !!v;
+    this.schema[schema.key] = schema;
+  }
+}`,
+        ],
+        [
+          'a static private counter',
+          `export class Counter {
+  static #next = 1;
+  static nextId() {
+    return this.#next++;
+  }
+}`,
+        ],
+        [
+          'a static method that reads, constructs and checks this, and calls a method of its schema',
+          `export class Model {
+  static label = 'model';
+  static make(props: object) {
+    const item = new this();
+    this.validate(item);
+    this.schema.todo.fromJS({});
+    return item instanceof this ? this.label : '';
+  }
+}`,
+        ],
+        [
+          'a nested computed write on an array',
+          `const grid: number[][] = [[0]];
+grid[0][1] = 2;
+grid[0][0]++;
+export const total = () => grid[0][0] + grid[0][1];`,
+        ],
+        [
+          'a nested computed write on a let array it never reassigns',
+          `let grid: number[][] = [[0]];
+grid[0][1] = 2;
+export const filled = () => (grid[0][0] && grid[0][1] ? 'yes' : 'no');`,
+        ],
+        [
+          'a namespace import from @data-client given the class',
+          `import * as DC from '@data-client/rest';
+export const TodoList = new DC.Collection(Todo);`,
+        ],
+        [
+          'an object method inside a static method',
+          `export class Mixer {
+  static make(mixin: object) {
+    return {
+      apply() {
+        Object.assign(this, mixin);
+      },
+    };
+  }
+}`,
+        ],
+      ])('batches the loop when %s writes', (_, setup) => {
+        expect(
+          run(
+            `import { Entity } from '@data-client/rest';\nclass Todo extends Entity { id = 0; }\n${setup}${save}`,
+          ),
+        ).toContain('ctrl.set([Todo], rows.map(');
+      });
+
+      it.each([
+        [
+          'an alias of it',
+          `class Todo extends Entity { id = 0; }
+const Alias = Todo;
+Alias.shouldUpdate = () => false;`,
+        ],
+        [
+          'Reflect.set()',
+          `class Todo extends Entity { id = 0; }
+Reflect.set(Todo, 'shouldUpdate', () => false);`,
+        ],
+        [
+          'a function imported from the app',
+          `import { register } from './registry';
+class Todo extends Entity { id = 0; }
+register(Todo);`,
+        ],
+        [
+          'a Set holding it',
+          `class Todo extends Entity { id = 0; }
+const entities = new Set([Todo]);
+for (const E of entities) E.pk = (v, p, k, args) => args[0].id;`,
+        ],
+        [
+          'a Map holding it',
+          `class Todo extends Entity { id = 0; }
+const byName = new Map([['todo', Todo]]);
+byName.get('todo').shouldUpdate = () => false;`,
+        ],
+        [
+          'Array.of()',
+          `class Todo extends Entity { id = 0; }
+Array.of(Todo)[0].shouldUpdate = () => false;`,
+        ],
+        [
+          'a cast',
+          `class Todo extends Entity { id = 0; }
+(Todo as any).process = (input, parent) => ({ ...input, parent });`,
+        ],
+        [
+          'a static block',
+          `class Todo extends Entity {
+  id = 0;
+  static {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}`,
+        ],
+        [
+          'a static method writing this',
+          `class Todo extends Entity {
+  id = 0;
+  static useArgs() {
+    this.process = (input, parent) => ({ ...input, parent });
+  }
+}`,
+        ],
+        [
+          'a static method setting indexes on this',
+          `class Todo extends Entity {
+  id = 0;
+  static configure() {
+    this.indexes = ['title'];
+  }
+}
+Todo.configure();`,
+        ],
+        [
+          'a static method writing super',
+          `class Todo extends Entity {
+  id = 0;
+  static useArgs() {
+    super.process = (input, parent) => ({ ...input, parent });
+  }
+}`,
+        ],
+        [
+          'a function given static this',
+          `function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Todo extends Entity {
+  id = 0;
+  static init() {
+    patch(this);
+  }
+}`,
+        ],
+        [
+          'a function given a class reached from static this',
+          `class Todo extends Entity { id = 0; }
+function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+  static init() {
+    patch(this.schema.todo);
+  }
+}`,
+        ],
+        [
+          'a function given a class reached from static super',
+          `class Todo extends Entity { id = 0; }
+function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+class SubBox extends Box {
+  static init() {
+    patch(super.schema.todo);
+  }
+}`,
+        ],
+        [
+          'a function given a computed member of static this',
+          `class Todo extends Entity { id = 0; }
+function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+  static init(name: string) {
+    patch(this[name].todo);
+  }
+}`,
+        ],
+        [
+          'a hook write through a computed member of static this',
+          `class Todo extends Entity { id = 0; }
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+  static init(name: string) {
+    this[name].todo.shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
+          'a computed key on an imported registry',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+export function patchOne(name: string) {
+  models[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a local alias of an imported registry',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const registry = models;
+export function patchOne(name: string) {
+  registry[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a let data literal later set to a registry',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+let grid: any = [[]];
+grid = models;
+export function patchOne(name: string) {
+  grid[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on an exported data literal',
+          `class Todo extends Entity { id = 0; }
+export const models: any = {};
+export function patchOne(name: string) {
+  models[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a data literal that a registry is stored in',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const grid: any = [[]];
+grid[0] = models;
+export function patchOne(i: number, name: string) {
+  grid[i][name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on a data literal passed to Object.assign()',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const grid: any = {};
+Object.assign(grid, models);
+export function patchOne(name: string) {
+  grid[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a computed key on an alias of a row of a data literal',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const grid: any = [[]];
+const row = grid[0];
+row[0] = models;
+export function patchOne(name: string) {
+  grid[0][0][name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
+          'a registry holding static this',
+          `const registry: any = {};
+class Todo extends Entity {
+  id = 0;
+  static register() {
+    registry.Todo = this;
+  }
+}
+registry.Todo.shouldUpdate = () => false;`,
+        ],
+        [
+          'an alias of this',
+          `class Todo extends Entity {
+  id = 0;
+  static useArgs() {
+    const self = this;
+    self.shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
+          'this.constructor',
+          `class Todo extends Entity {
+  id = 0;
+  touch() {
+    (this.constructor as any).shouldUpdate = () => false;
+  }
+}`,
+        ],
+        [
+          'Object.assign() in a static method',
+          `class Todo extends Entity {
+  id = 0;
+  static configure(mixin: object) {
+    Object.assign(this, mixin);
+  }
+}`,
+        ],
+        [
+          'Object.assign() with a later source',
+          `class Todo extends Entity {
+  id = 0;
+  static configure(mixin: object) {
+    Object.assign(this, { retries: 2 }, mixin);
+  }
+}`,
+        ],
+        [
+          'Object.assign() on an alias of this.constructor',
+          `class Todo extends Entity {
+  id = 0;
+  touch(mixin: object) {
+    const Cls = this.constructor as any;
+    Object.assign(Cls, mixin);
+  }
+}`,
+        ],
+        [
+          'a static private field',
+          `class Todo extends Entity {
+  id = 0;
+  static #configured = Object.assign(this, mixin);
+}`,
+        ],
+        [
+          'Object.assign() with a computed key',
+          `class Todo extends Entity {
+  id = 0;
+  static configure(name: string, fn: any) {
+    Object.assign(this, { [name]: fn });
+  }
+}`,
+        ],
+        [
+          'a computed key in a static method',
+          `class Todo extends Entity {
+  id = 0;
+  static define(name: string, fn: any) {
+    this[name] = fn;
+  }
+}`,
+        ],
+        [
+          'a let alias of it',
+          `class Todo extends Entity { id = 0; }
+let alias = Todo;
+alias.process = (input, parent) => ({ ...input, parent });`,
+        ],
+        [
+          'Reflect.set() with a computed key',
+          `class Todo extends Entity {
+  id = 0;
+  static patch(name: string, fn: any) {
+    Reflect.set(this, name, fn);
+  }
+}`,
+        ],
+        [
+          'an array holding it',
+          `class Todo extends Entity { id = 0; }
+const listed = [Todo];
+listed[0].shouldUpdate = () => false;`,
+        ],
+        [
+          'an object holding it',
+          `class Todo extends Entity { id = 0; }
+const holder = { todo: Todo };
+holder.todo.shouldUpdate = () => false;`,
+        ],
+        [
+          'a schema holding it',
+          `class Todo extends Entity { id = 0; }
+class Outer extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+Outer.schema.todo.shouldUpdate = () => false;`,
+        ],
+        [
+          'an alias of a schema slot',
+          `class Todo extends Entity { id = 0; }
+class Outer extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+const slot = Outer.schema.todo;
+slot.shouldUpdate = () => false;`,
+        ],
+        [
+          'a member assigned it',
+          `class Todo extends Entity { id = 0; }
+const store: any = {};
+store.T = Todo;
+store.T.shouldUpdate = () => false;`,
+        ],
+        [
+          'a class field holding it',
+          `class Todo extends Entity { id = 0; }
+class Holder {
+  static T = Todo;
+}
+Holder.T.shouldUpdate = () => false;`,
+        ],
+        [
+          'a function returning it',
+          `class Todo extends Entity { id = 0; }
+const returned = () => {
+  return Todo;
+};
+returned().shouldUpdate = () => false;`,
+        ],
+        [
+          'a local function',
+          `class Todo extends Entity { id = 0; }
+function patch(Cls) {
+  Cls.shouldUpdate = () => false;
+}
+patch(Todo);`,
+        ],
+        [
+          'a method of a local object',
+          `class Todo extends Entity { id = 0; }
+const helpers = {
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+};
+helpers.patch(Todo);`,
+        ],
+        [
+          'a method of a locally built object',
+          `class Todo extends Entity { id = 0; }
+const makeHelpers = () => ({
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+});
+makeHelpers().patch(Todo);`,
+        ],
+        [
+          'a method of a reassigned let',
+          `class Todo extends Entity { id = 0; }
+let helpers = makeHelpers();
+helpers = {
+  patch(Cls) {
+    Cls.shouldUpdate = () => false;
+  },
+};
+helpers.patch(Todo);`,
+        ],
+      ])('through %s', (_, setup) => {
+        const source = `import { Entity } from '@data-client/rest';\n${setup}${save}`;
+        expect(run(source)).toBe(source);
+      });
+    });
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity, schema } from '@data-client/rest';
+
+class Todo extends Entity { id = 0; }
+const todoList = [Todo];
+const TodoCollection = new schema.Collection(todoList);
+export const blank = () => new Todo();
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+Box.schema = { todos: [Todo] };
+
+export function save(ctrl, rows: Todo[]) {
+  rows.forEach(row => ctrl.set(Todo, row));
+}
+      `,
+      `
+import { Entity, schema } from '@data-client/rest';
+
+class Todo extends Entity { id = 0; }
+const todoList = [Todo];
+const TodoCollection = new schema.Collection(todoList);
+export const blank = () => new Todo();
+class Box extends Entity {
+  id = 0;
+  static schema = { todo: Todo };
+}
+Box.schema = { todos: [Todo] };
+
+export function save(ctrl, rows: Todo[]) {
+  if (rows.length) {
+    ctrl.set([Todo], rows);
+  }
+}
+      `,
+      'batches rows of an Entity that is constructed or held in a schema',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity, Invalidate } from '@data-client/rest';
+
+class Todo extends Entity { id = ''; }
+const cache = new Map();
+ctrl.set([new Invalidate(Todo)], [{ id: '5' }]);
+ctrl.set([new Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+ctrl.set([new Invalidate(Todo)], [row]);
+cache.set([new Invalidate(Todo)], [{ id: '5' }]);
+      `,
+      `
+import { Entity, Invalidate } from '@data-client/rest';
+
+class Todo extends Entity { id = ''; }
+const cache = new Map();
+ctrl.set(new Invalidate(Todo), { id: '5' });
+ctrl.set([new Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+ctrl.set([new Invalidate(Todo)], [row]);
+cache.set([new Invalidate(Todo)], [{ id: '5' }]);
+      `,
+      'deletes one entity without a one-row batch',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { computed } from 'vue';
+import { DataClientPlugin, GCPolicy, useSuspense, useCache } from '@data-client/vue';
+
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy() });
+const plugins = [[DataClientPlugin, { gcPolicy: new GCPolicy() }]];
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
+
+const props = defineProps<{ id: number }>();
+const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
+const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+const kept = useCache(ArticleResource.get, computed(function () { return props.id ? { id: props.id } : arguments[0]; }));
+const chosen = useCache(computed(() => props.endpoint), computed(() => ({ id: props.id })));
+      `,
+      `
+import { computed } from 'vue';
+import { DataClientPlugin, GCPolicy, useSuspense, useCache } from '@data-client/vue';
+
+app.use(DataClientPlugin);
+const plugins = [[DataClientPlugin]];
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
+
+const props = defineProps<{ id: number }>();
+const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
+const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+const kept = useCache(ArticleResource.get, computed(function () { return props.id ? { id: props.id } : arguments[0]; }));
+const chosen = useCache(computed(() => props.endpoint), () => ({ id: props.id }));
+      `,
+      'drops Vue options and wrappers that 0.19 makes the default',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { computed } from 'vue';
+import { DataClientPlugin, useSuspense } from '@data-client/vue';
+import { GCPolicy, Controller } from '@data-client/core';
+import { GCPolicy as DefaultGC } from '@data-client/core';
+
+app.use(DataClientPlugin, { gcPolicy: new DefaultGC() });
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
+      `,
+      `
+import { DataClientPlugin, useSuspense, GCPolicy } from '@data-client/vue';
+import { Controller } from '@data-client/core';
+
+app.use(DataClientPlugin);
+app.use(DataClientPlugin, { gcPolicy: new GCPolicy({ intervalMS: 60000 }) });
+const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
+      `,
+      'imports GCPolicy from @data-client/vue and drops unused imports',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { useCache, useDLE } from '@data-client/react';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useCache(TodoResource.get, { id });
+  const { data: user } = useDLE(UserResource.get, { id });
+  const other = useOther();
+  if (!todo || typeof todo === 'symbol') return <TodoPlaceholder />;
+  if (user && typeof user !== 'symbol') return <UserCard user={user} />;
+  if (typeof other === 'symbol' || !other) return null;
+  const shown = todo || typeof todo === 'symbol';
+  const label = todo && typeof todo !== 'symbol' ? todo.title : '';
+  const missing = !(todo || typeof todo === 'symbol');
+  if (id > 0 && (!user || typeof user === 'symbol')) return null;
+  const fallback = (todo || typeof todo === 'symbol') ?? true;
+  return <h3>{todo.title.trim()}</h3>;
+}
+      `,
+      `
+import { useCache, useDLE } from '@data-client/react';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useCache(TodoResource.get, { id });
+  const { data: user } = useDLE(UserResource.get, { id });
+  const other = useOther();
+  if (!todo) return <TodoPlaceholder />;
+  if (user) return <UserCard user={user} />;
+  if (typeof other === 'symbol' || !other) return null;
+  const shown = todo || typeof todo === 'symbol';
+  const label = todo ? todo.title : '';
+  const missing = !todo;
+  if (id > 0 && !user) return null;
+  const fallback = (todo || typeof todo === 'symbol') ?? true;
+  return <h3>{todo.title.trim()}</h3>;
+}
+      `,
+      'drops Symbol checks on useCache() and useDLE() data in conditions',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export async function write(ctrl, rows: Ticker[]) {
+  rows.map(row => ctrl.set(Ticker, row));
+  await rows.forEach(row => ctrl.set(Ticker, row));
+  const results = rows.map(row => ctrl.set(Ticker, row));
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export async function write(ctrl, rows: Ticker[]) {
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+
+  await rows.forEach(row => ctrl.set(Ticker, row));
+  const results = rows.map(row => ctrl.set(Ticker, row));
+}
+      `,
+      'batches an unused rows.map(), but not an awaited forEach() or a used map()',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: true },
+      `
+import { Entity } from '@data-client/rest';
+import { DataProvider } from '@data-client/react';
+
+class Ticker extends Entity { id = ''; }
+const managers = [new StreamManager()];
+export const App = () => <DataProvider managers={managers} />;
+export function write(ctrl, rows: Ticker[]) {
+  rows.forEach(row => ctrl.set(Ticker, row));
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+import { DataProvider } from '@data-client/react';
+
+class Ticker extends Entity { id = ''; }
+const managers = () => [new StreamManager()];
+export const App = () => <DataProvider managers={managers} />;
+export function write(ctrl, rows: Ticker[]) {
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+}
+      `,
+      'adds improvements to the required upgrade with --improvements',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export function write(ctrl, rows: Ticker[]) {
+  rows.forEach(row => ctrl.set(Ticker, row));
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class Ticker extends Entity { id = ''; }
+export function write(ctrl, rows: Ticker[]) {
+  rows.forEach(row => ctrl.set(Ticker, row));
+}
+      `,
+      'makes no improvements without --improvements',
+    );
+
+    defineInlineTest(
+      transform,
+      { improvements: 'only' },
+      DEPRECATIONS_INPUT,
+      DEPRECATIONS_INPUT,
+      'migrates nothing else with --improvements=only',
+    );
+
+    it('rejects other --improvements values', () => {
+      expect(() =>
+        applyTransform(
+          transform,
+          { improvements: 'yes' },
+          { source: DEPRECATIONS_INPUT },
+        ),
+      ).toThrow('--improvements must be true or only');
+    });
+
+    describe('entities imported from another module', () => {
+      const fs = require('node:fs');
+      const os = require('node:os');
+      const path = require('node:path');
+      let dir;
+      beforeAll(() => {
+        dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codemods-v0.19-'));
+        const write = (file, source) => {
+          fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+          fs.writeFileSync(path.join(dir, file), source);
+        };
+        write(
+          'resources/Ticker.ts',
+          `
+import { Entity } from '@data-client/rest';
+import { Product } from './Product';
+
+export class Ticker extends Entity {
+  product_id = '';
+  static schema = { product: Product };
+  pk() {
+    return this.product_id;
+  }
+}
+`,
+        );
+        write(
+          'resources/Product.ts',
+          `
+import { Entity } from '@data-client/rest';
+
+export class Product extends Entity {
+  id = '';
+  static process(value, parent) {
+    return { ...value, tickerId: parent.product_id };
+  }
+}
+export class Scoped extends Entity {
+  id = '';
+  static process(value, parent, key, args) {
+    return { ...value, scope: args[0].scope };
+  }
+}
+`,
+        );
+        write(
+          'resources/Quote.ts',
+          `
+import { Entity } from '@data-client/rest';
+import { Scoped } from './Product';
+
+export class Quote extends Entity {
+  id = '';
+  static schema = { scoped: Scoped };
+}
+`,
+        );
+        write(
+          'resources/Base.ts',
+          `
+import { Entity } from '@data-client/rest';
+
+export class Base extends Entity {}
+export class Leaf extends Entity {
+  id = '';
+}
+`,
+        );
+        write(
+          'resources/Order.ts',
+          `
+import { Entity } from '@data-client/rest';
+import { Base, Leaf } from './Base';
+
+Leaf.process = (value, parent, key, args) => ({ ...value, scope: args[0].scope });
+Base.shouldUpdate = () => false;
+export class Order extends Entity {
+  id = '';
+  static schema = { leaf: Leaf };
+}
+export class Sub extends Base {
+  id = '';
+}
+`,
+        );
+        write(
+          'resources/index.ts',
+          `export * from './Ticker';\nexport { Quote as LatestQuote } from './Quote';\n`,
+        );
+        write(
+          'patched/index.ts',
+          `export { Ticker } from '../resources/Ticker';
+export * from '../resources/Quote';
+import { Ticker } from '../resources/Ticker';
+import { Quote } from '../resources/Quote';
+Object.assign(Ticker, { pk(value, parent, key, args) { return args[0].id; } });
+Quote.shouldUpdate = () => false;
+`,
+        );
+        write('icons/index.ts', `export const star = '*';\n`);
+        // a barrel chain deeper than exportOrigin() follows
+        for (const [from, to] of [
+          ['f', './e'],
+          ['e', './d'],
+          ['d', './c'],
+          ['c', './b'],
+          ['b', './a'],
+          ['a', '../resources/Ticker'],
+        ])
+          write(`deep/${from}.ts`, `export * from '${to}';\n`);
+        write(
+          'nspatched/index.ts',
+          `export { Ticker } from '../resources/Ticker';
+import * as T from '../resources/Ticker';
+T.Ticker.shouldUpdate = () => false;
+`,
+        );
+      });
+      afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+      it('keeps rows of an Entity that a barrel it is imported through patches', () => {
+        const source = `
+import type { Controller } from '@data-client/react';
+import { Ticker, Quote } from '../patched';
+
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
+  for (const row of rows) ctrl.set(Quote, { id: row.id });
+}
+`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: path.join(dir, 'managers/PatchedManager.ts') },
+          ),
+        ).toBe(source.trim());
+      });
+
+      const nsFlush = (imports, setup) => `
+import type { Controller } from '@data-client/react';
+${imports}
+${setup}
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.id });
+}
+`;
+      const runNs = source =>
+        applyTransform(
+          transform,
+          { improvements: 'only' },
+          { source, path: path.join(dir, 'managers/NsManager.ts') },
+        );
+      const tickerImport = `import { Ticker } from '../resources/Ticker';`;
+
+      it.each([
+        [
+          'a barrel it is imported through',
+          `import { Ticker } from '../nspatched';`,
+          '',
+        ],
+        [
+          'the loop file',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';`,
+          'T.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, spelling the module with its extension',
+          `${tickerImport}\nimport * as T from '../resources/Ticker.ts';`,
+          'T.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, through a barrel',
+          `${tickerImport}\nimport * as R from '../resources';`,
+          'R.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, through a barrel chain too deep to follow',
+          `${tickerImport}\nimport * as NS from '../deep/f';`,
+          'NS.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, passing the namespace on',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';\nimport { register } from '../registry';`,
+          'register(T);',
+        ],
+        [
+          'the loop file, with a computed key',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';`,
+          'export const pick = (key: string) => T[key];',
+        ],
+      ])(
+        'keeps rows of an Entity patched through a namespace import in %s',
+        (_, imports, setup) => {
+          const source = nsFlush(imports, setup);
+          expect(runNs(source)).toBe(source.trim());
+        },
+      );
+
+      it.each([
+        [
+          'reads a member',
+          `${tickerImport}\nimport * as T from '../resources/Ticker';`,
+          'console.log(T.Ticker.key);',
+        ],
+        [
+          'reads a computed key of a namespace that does not export the Entity',
+          `${tickerImport}\nimport * as Icons from '../icons';`,
+          'export const pick = (key: string) => Icons[key];',
+        ],
+        [
+          'destructures a package namespace',
+          `${tickerImport}\nimport * as nodePath from 'node:path';`,
+          'const { join } = nodePath;',
+        ],
+      ])('batches rows when the loop file %s', (_, imports, setup) => {
+        expect(runNs(nsFlush(imports, setup))).toContain('ctrl.set([Ticker]');
+      });
+
+      it('keeps rows of an Entity whose module patches its nested Entity or base', () => {
+        const source = `
+import type { Controller } from '@data-client/react';
+import { Order, Sub } from '../resources/Order';
+
+export function flush(ctrl: Controller, rows: any[]) {
+  for (const row of rows) ctrl.set(Order, { id: row.id });
+  for (const row of rows) ctrl.set(Sub, { id: row.id });
+}
+`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: path.join(dir, 'managers/OrderManager.ts') },
+          ),
+        ).toBe(source.trim());
+      });
+
+      it('batches rows of an Entity whose nested Entities read no args', () => {
+        const source = `
+import type { Controller } from '@data-client/react';
+import { Ticker, LatestQuote } from '../resources';
+
+export function flush(ctrl: Controller, rows: Ticker[]) {
+  for (const row of rows) ctrl.set(Ticker, { product_id: row.product_id }, row);
+  for (const row of rows) ctrl.set(LatestQuote, row);
+}
+`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: path.join(dir, 'managers/StreamManager.ts') },
+          ),
+        ).toBe(
+          `
+import type { Controller } from '@data-client/react';
+import { Ticker, LatestQuote } from '../resources';
+
+export function flush(ctrl: Controller, rows: Ticker[]) {
+  if (rows.length) {
+    ctrl.set([Ticker], rows);
+  }
+
+  for (const row of rows) ctrl.set(LatestQuote, row);
+}
+`.trim(),
+        );
+      });
+    });
+  });
 });

@@ -17,7 +17,7 @@ Bump the app's `@data-client/*` dependencies to `^0.19.0` together.
   with React Navigation, stale data refetches on screen focus.
 - `@data-client/ssr` has no 0.19 release; if it's installed, read Step 4 first.
 - If the repo links skills with `data-client-skills`, run `npx --no data-client-skills --upgrade` after the bump so the
-  linked skills match 0.19 (Step 10 ends by unlinking the migration skills).
+  linked skills match 0.19 (Step 12 unlinks the migration skills).
 
 Commit first so you can review the diff, then point the codemod at your source roots, not the repo root (it skips only
 `node_modules`). Also pass any folder of debugging or end-to-end scripts that reads `__DC_CONTROLLERS__`
@@ -203,7 +203,107 @@ Then fix what's left of `rg -n 'waitForNextUpdate|createDataClient|actions(Black
 [future releases](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#future-releases) lists changes that will break
 later.
 
-Last, whether or not you did this step: if you ran `data-client-skills --upgrade` in Step 1, run
+## Step 11: adopt 0.19 features (optional, own commit)
+
+Nothing here is needed to upgrade: it simplifies code and speeds up store writes with features new in 0.19. Skip it
+when the user asked for only what the upgrade needs. Ask first when the user can answer mid-task. Otherwise run the
+codemod part, and list the judgment calls below in your summary instead of making them. Commit Steps 1-10 first and
+make this its own commit; if the user makes the commits, list the files this step changed instead.
+
+```bash
+npx @data-client/codemods v0.19 <source-root> --improvements=only
+```
+
+It rewrites only code it can prove does the same thing, apart from the differences noted below. Each item links the
+release post's example; read it when a rewrite or a judgment call below is unclear.
+
+- A loop (`for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`) that calls `set()` once per row
+  becomes one [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set):
+  `ctrl.set([Ticker], rows)`. It batches only when:
+  - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver
+    whose array the file only reads and doesn't export, or typed as the Entity or a plain object type;
+  - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
+    literals and `const`s set to a literal, and reads no `this`, `let` or `var`;
+  - in a file that can make a getter (it declares a getter or setter, names `defineProperty`, `defineProperties`,
+    `setPrototypeOf`, `__defineGetter__`, `__proto__` or `Proxy`, also destructured or as a string key, or uses
+    `Object` or `Reflect` other than to read a named member, like `Object.create()`, `Object[name]` or
+    `const O = Object`), the row and dropped args also read only the row, globals, imports, `const`s set to a
+    literal and variables of plain data, so `live.count` and `{ ...live }` can't run a getter there, and the rows
+    are parsed JSON or plain data that only the loop reads (`[new Live()]` and
+    `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keep the loop). A parameter counts as an
+    import only when its function is a named function the file uses only to export, so a parameter of a method, a
+    callback or a function the file calls (`save(ctrl, rows, live)`) keeps the loop;
+  - the Entity's `pk()` and `process()` read only the row;
+  - its `pk()` and `process()` call only globals, imports and methods of the row, since a helper the file declares could
+    read the store, and read no variable that can change between rows (`let seq`) and no static getter the file
+    declares (`Live.count`, `this.count`) or static field it writes, and never write through `this`; its instance code (constructor, methods, getters, setters and field values, which `pk()` can reach
+    through `this` or `super`) names only types, globals, imports, its own variables, `const`s set to a literal,
+    plain data nothing changes and Entity classes it constructs (`author = User.fromJS()`, if no class in its chain
+    overrides `fromJS()`), and never reaches static members (`this.constructor` or `new.target`);
+  - it has no `static indexes` (one `set()` per row keeps only the last row's index entry), no decorators, and no
+    override of `validate()` or the store-merge methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`,
+    `mergeMetaWithStore()`);
+  - nothing in the Entity's file, the loop's file or a barrel it is imported through changes the class's static
+    members or passes the class to a function outside `@data-client`. It reads only those files and the files its
+    schema imports, so check that no other file patches a batched Entity.
+
+  It guards each batch over a list that can be empty with `if (rows.length)`, so an empty list still dispatches
+  nothing; keep that guard when you batch by hand. Three things differ from the loop:
+  - Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check Managers and
+    middleware that match SET actions by schema: match `action.schema[0]` too.
+  - A row that throws while its value is built, or in `pk()` or `process()`, makes the whole batch write nothing,
+    where the loop still wrote the rows before it.
+  - Rows with the same `pk` in one batch merge with each other, so only the first is checked against the stored
+    entity's `fetchedAt`. This differs only when the store holds newer data than the client's clock (such as after
+    SSR from a server whose clock runs ahead), or when the list holds the same row object twice.
+
+- `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)). Its SET action's
+  `action.schema` is then the `Invalidate` instead of an Array.
+- Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
+  `@data-client/vue` ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)), and
+  `computed(() => args)` passed to a composable becomes the getter `() => args`
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-getter-args)).
+- `|| typeof data === 'symbol'` guards in conditions on React `useCache()` and `useDLE()` data are dropped
+  ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#deleted-entity-undefined)).
+
+Then, by judgment:
+
+- **Batch the `set()` loops it left** (`rg -n -B3 '\.set\(' <source-root>` near `for`, `forEach`, `map`): mixed
+  Entity types take a `Union`, deletes a `[new Invalidate(E)]`, rows keyed by id a `Values`, and a loop with an `if`
+  a `.filter()` first. `ctrl.set(R.getList.schema.push, args, row)` loops batch into one `push` of the list when the
+  Entity's `pk()` and `process()` don't read `parent`, which is the row per call and the list in a batch. Keep a loop
+  whose Entity reads `args` or `parent` in `pk()` or `process()`, whose `pk()` or `process()` calls a helper the
+  file declares, or whose instance code names one, a loop that passes updater functions or has a loop
+  variable default other than a literal, a name, or an array or object of them (`count = currentCount(id)`), and
+  `unshift` (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers
+  messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch
+  `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array body, since it sends
+  one request instead of N. Examples: [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
+  [push a list](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list).
+- **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its
+  schema doesn't describe, so fix the value instead: `as any` on `set()` args or values, `push`/`unshift`/`remove`
+  bodies (also on Collections in a `Query` or `Lazy`), union `body` values, `FormData`, `getOptimisticResponse()`
+  returns, a `Controller` subclass passed to `DataProvider`, `prepareStore()`'s store, `action.meta.promise`; and
+  `as unknown as T[]` on `fetch(getList.push, list)` results. Type `process(value, params)` params from the
+  endpoint by removing `params: any`. Examples:
+  [set() values](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#typed-set),
+  [process() params](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#extend-process-params),
+  [optimistic responses](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#typed-optimistic-response),
+  [push bodies](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list),
+  [Collections in a Query](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#query-collection-push),
+  [FormData](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#create-formdata),
+  [union bodies](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#union-body),
+  [other types](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#type-fixes).
+- **Vue**: `computed()` stored in a variable only to make composable args reactive can become a getter. Delete a
+  Vitest `server.deps.inline` entry for `@data-client` added to fix `useEnhancedReducer is not a function`
+  ([details](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#testing)).
+- **Cancellation**: a custom `Endpoint` that wraps an SDK call can pass `this.signal` on to it, without declaring
+  `this` ([example](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#endpoint-signal)).
+
+## Step 12: unlink the migration skills
+
+Whether or not you did Steps 10 and 11: if you ran `data-client-skills --upgrade` in Step 1, run
 `npx --no data-client-skills` to unlink the migration skills. Not before: it removes this skill.
 
 ## Reference
