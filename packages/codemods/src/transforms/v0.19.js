@@ -3321,9 +3321,10 @@ const oneElement = node =>
 /** Whether the value at `path` can run code the module declares, which could read the store the earlier rows
  * were written to: `{ ...row, count: currentCount(row.id) + 1 }` where `currentCount()` calls `ctrl.get()`.
  * Every name in a call's callee and arguments must be a global, an import, the row `names`, declared inside
- * the value (like `tag` in `row.tags.map(tag => tag.trim())`), or, in an argument, a `const` set to a
- * literal. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)` are safe, but `format(row)`,
- * `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are not. */
+ * the value (like `tag` in `row.tags.map(tag => tag.trim())`), or, in an argument (or a tagged template's
+ * `${}`), a `const` set to a literal like `3` or `-1`. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)`
+ * are safe, but `format(row)`, `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are
+ * not. */
 function callsLocalCode(j, path, names) {
   const isSafe = p =>
     names.has(p.node.name) ||
@@ -3331,7 +3332,9 @@ function callsLocalCode(j, path, names) {
     isWithin(bindingOf(p), path.node);
   const isLiteralConst = p => {
     const owner = bindingOf(p)?.parent;
-    const init = owner?.node.type === 'VariableDeclarator' && owner.node.init;
+    let init = owner?.node.type === 'VariableDeclarator' && owner.node.init;
+    if (init?.type === 'UnaryExpression' && '-+'.includes(init.operator))
+      init = init.argument;
     return (
       !!init &&
       owner.parent.node.kind === 'const' &&
@@ -3341,23 +3344,23 @@ function callsLocalCode(j, path, names) {
   };
   // whether the expression at `part` can name code the module declares
   const namesLocalCode = (part, allowed = isSafe) =>
-    part.node.type === 'ThisExpression' ||
-    j(part).find(j.ThisExpression).size() > 0 ||
-    identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
+    containsNode(
+      part.node,
+      n => n.type === 'ThisExpression' || n.type === 'Super',
+    ) || identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
+  const isArgSafe = p => isSafe(p) || isLiteralConst(p);
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
   return calls.some(type =>
     j(path)
       .find(type)
       .some(call => {
+        // a tag gets the template's `${}` values as its arguments
         const tagged = call.node.type === 'TaggedTemplateExpression';
+        const argList =
+          tagged ? call.get('quasi', 'expressions') : call.get('arguments');
         return (
           namesLocalCode(call.get(tagged ? 'tag' : 'callee')) ||
-          (call.node.arguments ?? []).some((_, i) =>
-            namesLocalCode(
-              call.get('arguments', i),
-              p => isSafe(p) || isLiteralConst(p),
-            ),
-          )
+          argList.map(arg => namesLocalCode(arg, isArgSafe)).includes(true)
         );
       }),
   );

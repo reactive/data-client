@@ -3067,10 +3067,15 @@ export async function save(ctrl, rows: any[]) {
           'a global with a literal constant',
           '{ id: row.id, n: Math.min(row.n, LIMIT) }',
         ],
+        [
+          'a global with a negative constant',
+          '{ id: row.id, n: Math.max(row.n, MIN) }',
+        ],
+        ['a global tag with row values', '{ id: String.raw`${row.id}` }'],
       ])('batches rows that call %s', (_, value) => {
         expect(
           run(
-            'function currentCount() {\n  return 0;\n}\nconst LIMIT = 3;',
+            'function currentCount() {\n  return 0;\n}\nconst LIMIT = 3;\nconst MIN = -1;',
             value,
           ),
         ).toContain('await ctrl.set([Todo], Array.from(');
@@ -3148,8 +3153,58 @@ const alias = countOf;`,
           `const counter = { next: (id: string) => id };`,
           '{ id: counter.next(row.id) }',
         ],
+        [
+          'a global tag with a function the module declares',
+          `function currentCount(id: string) {
+  return id.length;
+}`,
+          '{ id: row.id, n: String.raw`${currentCount}` }',
+        ],
+        [
+          'a global with a let',
+          `let LIMIT = 3;`,
+          '{ id: row.id, n: Math.min(row.n, LIMIT) }',
+        ],
+        [
+          'a global with a computed constant',
+          `const LIMIT = makeLimit();`,
+          '{ id: row.id, n: Math.min(row.n, LIMIT) }',
+        ],
       ])('keeps rows that call %s', (_, setup, value) => {
         expect(run(setup, value)).toContain('for (const row of rows)');
+      });
+
+      it('keeps rows that pass a parameter of the enclosing function', () => {
+        const source = `import { Entity } from '@data-client/rest';
+class Todo extends Entity { id = ''; }
+export function save(ctrl, rows: any[], format: (tag: string) => string) {
+  rows.forEach(row => ctrl.set(Todo, { id: row.id, tags: row.tags.map(format) }));
+}`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: 'save.tsx' },
+          ),
+        ).toContain('rows.forEach(');
+      });
+
+      it('keeps rows that call a method of super', () => {
+        const source = `import { Entity } from '@data-client/rest';
+import { Base } from './base';
+class Todo extends Entity { id = ''; }
+export class Saver extends Base {
+  save(ctrl, rows: any[]) {
+    rows.forEach(row => ctrl.set(Todo, { id: row.id, n: super.count(row.id) }));
+  }
+}`;
+        expect(
+          applyTransform(
+            transform,
+            { improvements: 'only' },
+            { source, path: 'save.tsx' },
+          ),
+        ).toContain('rows.forEach(');
       });
     });
 
