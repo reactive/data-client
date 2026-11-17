@@ -3616,6 +3616,23 @@ Alias.shouldUpdate = () => false;`,
 Reflect.set(Todo, 'shouldUpdate', () => false);`,
         ],
         [
+          'a Set holding it',
+          `class Todo extends Entity { id = 0; }
+const entities = new Set([Todo]);
+for (const E of entities) E.pk = (v, p, k, args) => args[0].id;`,
+        ],
+        [
+          'a Map holding it',
+          `class Todo extends Entity { id = 0; }
+const byName = new Map([['todo', Todo]]);
+byName.get('todo').shouldUpdate = () => false;`,
+        ],
+        [
+          'Array.of()',
+          `class Todo extends Entity { id = 0; }
+Array.of(Todo)[0].shouldUpdate = () => false;`,
+        ],
+        [
           'a cast',
           `class Todo extends Entity { id = 0; }
 (Todo as any).process = (input, parent) => ({ ...input, parent });`,

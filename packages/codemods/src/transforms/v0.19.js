@@ -2945,16 +2945,28 @@ function literalHolding(path) {
 }
 
 /** Whether the call that takes `path` as an argument can't write to it: its callee is neither `Object.*()`
- * nor `Reflect.*()`, nor a function or class this module declares (`patch(Todo)`), nor a method of an object
+ * nor `Reflect.*()`, nor a built-in container that could hand it back, nor a function or class this module declares (`patch(Todo)`), nor a method of an object
  * or class it declares (`helpers.patch(Todo)`), any of which could patch its parameter */
 function passesToLibrary(path) {
   if (isObjectOrReflectTarget(path)) return false;
   let callee = path.parent.get('callee');
-  if (callee.node.type === 'Identifier') return isLibraryName(callee);
+  const direct = callee.node.type === 'Identifier';
   if (isMember(callee.node) && isController(callee.get('object'))) return true;
   while (isMember(callee.node)) callee = callee.get('object');
-  return isLibraryValue(callee);
+  // a built-in container hands the class back, like `new Set([Todo])` or `Array.of(Todo)`
+  if (CONTAINER_GLOBALS.has(callee.node.name) && !bindingOf(callee))
+    return false;
+  return direct ? isLibraryName(callee) : isLibraryValue(callee);
 }
+
+const CONTAINER_GLOBALS = new Set([
+  'Array',
+  'Map',
+  'Set',
+  'WeakMap',
+  'WeakRef',
+  'Promise',
+]);
 
 /** Whether `path` names an import or a global, or a `const` set to a call of one, like `resource()`: a value
  * whose methods this module didn't write */
