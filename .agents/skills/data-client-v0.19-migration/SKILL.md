@@ -247,9 +247,9 @@ Then, by judgment:
   whose Entity reads `args` or `parent` in `pk()` or `process()`, a loop that passes updater functions or has a loop
   variable default other than a literal, a name, or an array or object of them (`count = currentCount(id)`), and
   `unshift` (a list goes in as given, one per row reverses it). A Manager that calls `set()` per message buffers
-  messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch `ctrl.fetch(getList.push,
-  row)` loops into one array `push` only when the API accepts an array body, since it sends one request instead of N.
-  Examples: [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
+  messages and flushes them with one `set()` (skill "data-client-manager", batching). Batch
+  `ctrl.fetch(getList.push, row)` loops into one array `push` only when the API accepts an array body, since it sends
+  one request instead of N. Examples: [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
   [push a list](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#push-list).
 - **Remove casts 0.19 types made unnecessary**, then type-check; a cast whose removal fails reveals a value its
   schema doesn't describe, so fix the value instead: `as any` on `set()` args or values, `push`/`unshift`/`remove`
