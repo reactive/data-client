@@ -2727,14 +2727,16 @@ function instanceCodeWithin(j, member) {
   const { node } = member;
   // normalize never constructs the class, and a row built before the loop was constructed already
   if (node.kind === 'constructor') return true;
-  let fn = member;
-  if (node.type !== 'ClassMethod' && node.type !== 'ClassPrivateMethod') {
-    if (!node.value) return true;
-    fn = unwrapPath(member.get('value'));
-    // a field can also hold a function the module declares, like `count = lookupCount` or `lookup.bind(this)`
-    if (!isFunction(fn.node)) return !mayHoldLocalCode(j, fn);
-  }
-  return !reachesStatics(j, fn) && !callsLocalCode(j, fn, new Set(), true);
+  const isMethod =
+    node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
+  if (!isMethod && !node.value) return true;
+  const code = isMethod ? member : unwrapPath(member.get('value'));
+  // a field can hold the class too, like `kind = this.constructor`, for pk() to call `this.kind.key()`
+  if (reachesStatics(j, code)) return false;
+  // or a function the module declares, like `count = lookupCount` or `lookupCount.bind(null)`
+  return isMethod || isFunction(code.node) ?
+      !callsLocalCode(j, code, new Set(), true)
+    : !mayHoldLocalCode(j, code);
 }
 
 /** Whether a field's value can be code the module declares: it names anything the module declares but a
@@ -2742,21 +2744,16 @@ function instanceCodeWithin(j, member) {
 function mayHoldLocalCode(j, value) {
   return identifiersIn(j, value).some(p => {
     if (isOtherName(p) || isLibraryName(p)) return false;
-    const declaration = bindingOf(p).parent;
-    const owner = declaration.node;
+    const binding = bindingOf(p);
     const parent = p.parent.node;
-    if (owner.type === 'ClassDeclaration')
+    if (binding.parent.node.type === 'ClassDeclaration')
       return !(
         (parent.type === 'NewExpression' && parent.callee === p.node) ||
         (memberName(parent) === 'fromJS' &&
           parent.object === p.node &&
           p.parent.parent.node.callee === parent)
       );
-    return !(
-      owner.type === 'VariableDeclarator' &&
-      declaration.parent.node.kind === 'const' &&
-      isLiteralValue(owner.init)
-    );
+    return !isLiteralValue(constInitOf(binding)?.node);
   });
 }
 

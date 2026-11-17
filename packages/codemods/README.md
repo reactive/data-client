@@ -24,7 +24,8 @@ that call `ctrl.set()` once per row become one [batch `set()`](https://dataclien
 and code that worked around older limits, like `computed()` around Vue composable args, is simplified. A batch runs only
 `if (rows.length)` (unless its list is an array literal without a spread). It keeps loops whose Entity has
 `static indexes`, decorators, hooks that read args, or a `pk()`, `process()` or instance method, getter, setter or
-function field that calls a function the file declares (it could read the store) or reaches `this.constructor`, but a file the codemod didn't read can still patch the Entity.
+field value that calls or holds a function the file declares (it could read the store) or reaches `this.constructor`,
+but a file the codemod didn't read can still patch the Entity.
 Three things differ from the loop:
 
 - The batch dispatches one SET action whose `action.schema` is `[Entity]` instead of one per row, so Managers that

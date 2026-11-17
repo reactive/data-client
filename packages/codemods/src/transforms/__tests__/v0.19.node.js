@@ -3589,6 +3589,9 @@ function currentCount(id: string) {
           '  pk() {\n    return this.count(this.id);\n  }\n  count = currentCount;',
           '  pk() {\n    return this.count(this.id);\n  }\n  count = ((id: string) => currentCount(id)) as any;',
           '  pk() {\n    return this.count();\n  }\n  count = currentCount.bind(null, this.id);',
+          '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this.constructor;\n  static key(id) {\n    return currentCount(id);\n  }',
+          "  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this['constructor'];\n  static key(id) {\n    return currentCount(id);\n  }",
+          '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = Object.getPrototypeOf(this);\n  static key(id) {\n    return currentCount(id);\n  }',
         ];
         for (const members of kept)
           expect(run(members, helper)).toContain('rows.forEach(');

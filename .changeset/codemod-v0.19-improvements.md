@@ -19,9 +19,9 @@ the same, apart from the differences noted below:
     literals and `const`s set to a literal. Loop variable defaults are literals, names, or arrays and objects of
     them.
   - The Entity is a class declared in the file, or imported from a relative path or tsconfig alias.
-  - Its `pk()` and `process()` read only the row. They and its instance code (methods, getters, setters and
-    function fields) call only globals, imports and methods of the row, and its instance code never reaches static
-    members (`this.constructor`). It has no `static indexes` and no decorators, and overrides neither `validate()`
+  - Its `pk()` and `process()` read only the row. They and its instance code (methods, getters, setters and field
+    values) call only globals, imports and methods of the row. A field value names only those, `const`s set to a
+    literal and classes it constructs, and no instance code reaches static members (`this.constructor`). It has no `static indexes` and no decorators, and overrides neither `validate()`
     nor the store-merge methods.
   - No code the codemod reads changes its static members or passes the class to a function outside `@data-client`:
     its own file, the loop's file, a barrel it is imported through, and the files its schema imports. Check that no
