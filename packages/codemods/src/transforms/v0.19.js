@@ -1980,16 +1980,22 @@ function parseModule(j, file) {
 
 /** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
  * `export * from`: `{ root, file, name, via }`, where `via` lists each module it re-exports through, outermost
- * first, with the source and name it re-exports. */
-function exportOrigin(j, file, name, depth = 0) {
-  const root = file && depth < 5 && parseModule(j, file);
-  if (!root) return;
+ * first, with the source and name it re-exports. Sets `unknown.hit` when a module in the chain is too deep to
+ * follow or can't be parsed. */
+function exportOrigin(j, file, name, depth = 0, unknown = {}) {
+  if (!file) return;
+  const root = depth < 5 && parseModule(j, file);
+  if (!root) {
+    unknown.hit = true;
+    return;
+  }
   const through = (source, local) => {
     const origin = exportOrigin(
       j,
       resolveModule(file, source),
       local,
       depth + 1,
+      unknown,
     );
     return (
       origin && {
@@ -2635,8 +2641,10 @@ const namespaceWrites = (j, root, file, name) =>
 function mayExport(j, file, source, name) {
   if (!file) return true;
   const target = resolveModule(file, source);
+  // a chain too deep to follow, or through a module it can't parse, might reach it
+  const unknown = {};
   return (
-    !!target && (!parseModule(j, target) || !!exportOrigin(j, target, name))
+    !!target && (!!exportOrigin(j, target, name, 0, unknown) || !!unknown.hit)
   );
 }
 
@@ -2823,7 +2831,9 @@ const mayLink = node =>
 
 /** Whether the object a write sets a hook on can be a class without naming it: `this` or `super` in a static
  * member, a chain through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like
- * `const self = this`. A class a module names has its writes followed by writesMembersOf() instead. */
+ * `const self = this`. A computed key it doesn't spell out, like `models[name]`, can pick a class too, unless
+ * it reads a local array or object literal of plain data, like `grid[0][1]`. A class a module names has its
+ * writes followed by writesMembersOf() instead. */
 function mayHoldClass(path, depth = 0) {
   const { node } = path;
   if (isThisOrSuper(node)) return inStaticMember(path);
@@ -2834,19 +2844,12 @@ function mayHoldClass(path, depth = 0) {
     for (; isMember(root.node); root = unwrapPath(root.get('object'))) {
       if (memberName(root.node) === 'constructor') return true;
       if (CLASS_LINKS.has(memberName(root.node))) linked = true;
-      else if (root.node.computed && memberName(root.node) === undefined)
-        dynamicKey = true;
+      else if (mayLink(root.node)) dynamicKey = true;
     }
     // an instance's own `this.schema` is not a class
     if (isThisOrSuper(root.node))
       return inStaticMember(path) && (linked || dynamicKey);
-    // a computed key it doesn't spell out can pick a class from static `this` or from a value another module
-    // fills, like `models[name].process = ...`; a local value holding a class is followed by readsClass()
-    // instead, so `grid[0][1] = 2` writes no hook
-    return (
-      linked ||
-      (dynamicKey && root.node.type === 'Identifier' && isLibraryName(root))
-    );
+    return linked || (dynamicKey && !isDataVariable(root));
   }
   if (node.type !== 'Identifier' || depth > 3) return false;
   const binding = bindingOf(path);
@@ -2857,6 +2860,36 @@ function mayHoldClass(path, depth = 0) {
     !!owner.node.init &&
     mayHoldClass(unwrapPath(owner.get('init')), depth + 1)
   );
+}
+
+/** Whether `path` names a variable set to an array or object literal of plain data, like `const grid = [[]]`,
+ * so a computed key into it can't reach a class */
+function isDataVariable(path) {
+  if (path.node.type !== 'Identifier') return false;
+  const binding = bindingOf(path);
+  const owner = binding?.parent;
+  return (
+    owner?.node.type === 'VariableDeclarator' &&
+    owner.node.id === binding.node &&
+    isDataLiteral(owner.node.init)
+  );
+}
+
+/** Whether `node` is an array or object literal that holds only literals, like `[[0, 1]]` or `{ a: '' }` */
+function isDataLiteral(node) {
+  node = node && unwrap(node);
+  if (node?.type === 'ArrayExpression')
+    return node.elements.every(
+      e => !e || isDataLiteral(e) || isLiteralValue(e),
+    );
+  if (node?.type === 'ObjectExpression')
+    return node.properties.every(
+      p =>
+        isProperty(p) &&
+        keyName(p) !== undefined &&
+        (isDataLiteral(p.value) || isLiteralValue(p.value)),
+    );
+  return false;
 }
 
 /** Whether static `this` or `super` at `path`, or a class reached from it like `this.schema.author`, leaves

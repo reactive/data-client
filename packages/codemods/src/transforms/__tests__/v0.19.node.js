@@ -3810,6 +3810,15 @@ export function patchOne(name: string) {
 }`,
         ],
         [
+          'a computed key on a local alias of an imported registry',
+          `import { models } from './registry';
+class Todo extends Entity { id = 0; }
+const registry = models;
+export function patchOne(name: string) {
+  registry[name].process = (input, parent) => ({ ...input, parent });
+}`,
+        ],
+        [
           'a registry holding static this',
           `const registry: any = {};
 class Todo extends Entity {
@@ -4373,6 +4382,16 @@ Quote.shouldUpdate = () => false;
 `,
         );
         write('icons/index.ts', `export const star = '*';\n`);
+        // a barrel chain deeper than exportOrigin() follows
+        for (const [from, to] of [
+          ['f', './e'],
+          ['e', './d'],
+          ['d', './c'],
+          ['c', './b'],
+          ['b', './a'],
+          ['a', '../resources/Ticker'],
+        ])
+          write(`deep/${from}.ts`, `export * from '${to}';\n`);
         write(
           'nspatched/index.ts',
           `export { Ticker } from '../resources/Ticker';
@@ -4438,6 +4457,11 @@ export function flush(ctrl: Controller, rows: any[]) {
           'the loop file, through a barrel',
           `${tickerImport}\nimport * as R from '../resources';`,
           'R.Ticker.shouldUpdate = () => false;',
+        ],
+        [
+          'the loop file, through a barrel chain too deep to follow',
+          `${tickerImport}\nimport * as NS from '../deep/f';`,
+          'NS.Ticker.shouldUpdate = () => false;',
         ],
         [
           'the loop file, passing the namespace on',
