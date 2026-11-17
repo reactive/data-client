@@ -1979,7 +1979,8 @@ function parseModule(j, file) {
 }
 
 /** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
- * `export * from`. `via` lists each module it re-exports through, with the source and name it re-exports. */
+ * `export * from`: `{ root, file, name, via }`, where `via` lists each module it re-exports through, outermost
+ * first, with the source and name it re-exports. */
 function exportOrigin(j, file, name, depth = 0) {
   const root = file && depth < 5 && parseModule(j, file);
   if (!root) return;
@@ -3000,12 +3001,12 @@ function isDataClientValue(path) {
   return callee.node.type === 'Identifier' && isDataClientName(callee);
 }
 
-/** Whether `path` names an import from a @data-client package */
+/** Whether `path` names a value imported from a @data-client package */
 function isDataClientName(path) {
-  const specifier = bindingOf(path)?.parent;
+  const specifier = valueImportOf(path);
   return (
-    !!specifier?.node.type.startsWith('Import') &&
-    specifier.parent.node.source.value.startsWith('@data-client/')
+    !!specifier &&
+    specifier.parent.node.source.value.startsWith(DATA_CLIENT_PREFIX)
   );
 }
 

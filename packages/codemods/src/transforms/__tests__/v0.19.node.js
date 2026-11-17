@@ -3609,7 +3609,7 @@ Box.schema = { todos: [Todo] };`,
 }`,
         ],
         [
-          'a static method that reads, constructs and checks this',
+          'a static method that reads, constructs and checks this, and calls a method of its schema',
           `export class Model {
   static label = 'model';
   static make(props: object) {
