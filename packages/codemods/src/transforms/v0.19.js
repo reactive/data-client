@@ -3316,66 +3316,40 @@ const oneElement = node =>
     node.elements[0]
   : undefined;
 
-/** Whether `path` names a function or class the module declares */
-function isLocalFunction(path) {
-  const binding = bindingOf(path);
-  const owner = binding?.parent?.node;
-  if (!owner || owner.id !== binding.node) return false;
-  if (owner.type === 'VariableDeclarator')
-    return (
-      !!owner.init &&
-      (isFunction(owner.init) || owner.init.type === 'ClassExpression')
-    );
-  return (
-    owner.type === 'FunctionDeclaration' || owner.type === 'ClassDeclaration'
-  );
-}
-
 /** Whether the value at `path` can run code the module declares, which could read the store the earlier rows
  * were written to: `{ ...row, count: currentCount(row.id) + 1 }` where `currentCount()` calls `ctrl.get()`.
- * A call is safe only on a global, an import, a literal, the row `names`, or a value the row value itself
- * declares, like `tag` in `row.tags.map(tag => tag.trim())`; any other callee, like `this.format()` or
- * `(cond ? a : b)()`, counts. */
+ * Every name in a callee must be a global, an import, the row `names`, or declared inside the value, like
+ * `tag` in `row.tags.map(tag => tag.trim())`, so `(row.name || '').trim()` is safe but `format(row)`,
+ * `this.format(row)` or `(0, format)(row)` is not. A name passed to a call, like `[row.id].map(format)`, may
+ * also be a parameter, since the module can't call what it didn't declare. */
 function callsLocalCode(j, path, names) {
-  const declaredInside = p => {
-    for (let q = p.scope?.lookup(p.node.name)?.path; q; q = q.parent)
-      if (q === path) return true;
-    return false;
+  const isSafe = p => {
+    if (names.has(p.node.name) || isLibraryName(p)) return true;
+    return isWithin(bindingOf(p), path.node);
   };
-  // an identifier that names a variable, not a property
-  const isVariable = p => {
-    const parent = p.parent.node;
-    if (isMember(parent) && parent.property === p.node) return parent.computed;
-    if (isProperty(parent) && parent.key === p.node)
-      return parent.computed || parent.shorthand;
-    return true;
+  const isParam = p => {
+    const owner = bindingOf(p)?.parent?.node;
+    return !!owner && isFunction(owner) && owner.id !== bindingOf(p).node;
   };
-  const safeRoot = root =>
-    root.node.type === 'Identifier' ?
-      names.has(root.node.name) || declaredInside(root) || isLibraryName(root)
-    : LITERALS.has(root.node.type) || root.node.type === 'TemplateLiteral';
   const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
-  return (
-    calls.some(type =>
-      j(path)
-        .find(type)
-        .some(p => {
-          let root = unwrapPath(
-            p.get(
-              p.node.type === 'TaggedTemplateExpression' ? 'tag' : 'callee',
-            ),
-          );
-          while (isMember(root.node) || root.node.type === 'CallExpression')
-            root = unwrapPath(
-              root.get(isMember(root.node) ? 'object' : 'callee'),
-            );
-          return !safeRoot(root);
-        }),
-    ) ||
-    // a local function passed along, like `[row.id].map(currentCount)`
+  return calls.some(type =>
     j(path)
-      .find(j.Identifier)
-      .some(p => isVariable(p) && isLocalFunction(p))
+      .find(type)
+      .some(call => {
+        const callee = call.get(
+          call.node.type === 'TaggedTemplateExpression' ? 'tag' : 'callee',
+        );
+        if (
+          j(callee).find(j.ThisExpression).size() ||
+          callee.node.type === 'ThisExpression' ||
+          identifiersIn(j, callee).some(p => !isOtherName(p) && !isSafe(p))
+        )
+          return true;
+        return (call.node.arguments ?? []).some((arg, i) => {
+          const a = unwrapPath(call.get('arguments', i));
+          return a.node.type === 'Identifier' && !isSafe(a) && !isParam(a);
+        });
+      }),
   );
 }
 

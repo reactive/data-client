@@ -3053,8 +3053,20 @@ export async function save(ctrl, rows: any[]) {
           '{ id: row.id, tags: row.tags.map(tag => tag.trim()) }',
         ],
         ['a method of a literal', "{ id: 'todo-'.concat(row.id) }"],
+        ['a method of a built value', '{ id: new Date(row.at).toISOString() }'],
+        ['a method of an expression', "{ id: (row.name || '').trim() }"],
+        [
+          'a method of an array literal',
+          "{ id: [row.first, row.last].join(' ') }",
+        ],
+        [
+          'a row field named like a local function',
+          '{ id: row.id, count: row.currentCount }',
+        ],
       ])('batches rows that call %s', (_, value) => {
-        expect(run('', value)).toContain('await ctrl.set([Todo], Array.from(');
+        expect(
+          run('function currentCount() {\n  return 0;\n}', value),
+        ).toContain('await ctrl.set([Todo], Array.from(');
       });
 
       it.each([
@@ -3088,6 +3100,20 @@ function currentCount(id: string) {
 }`,
           '{ id: new Counter(row.id).id }',
         ],
+        [
+          'a value the module builds, passed to map()',
+          `const format = makeFormatter();`,
+          '{ id: row.id, tags: row.tags.map(format) }',
+        ],
+        [
+          'an alias of a function the module declares',
+          `function countOf(id: string) {
+  return id.length;
+}
+const alias = countOf;`,
+          '{ id: row.id, tags: row.tags.map(alias) }',
+        ],
+        ['a method of this', '', '{ id: this.format(row.id) }'],
         [
           'a tagged template the module declares',
           `const tag = (strings: TemplateStringsArray, id: string) => id;`,
