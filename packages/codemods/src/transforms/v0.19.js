@@ -2571,6 +2571,7 @@ function topLevelClass(j, root, name) {
   );
 }
 
+/** The init of a `const name = init` declaration that declares `binding`, or undefined for any other binding */
 const constInitOf = binding => {
   const owner = binding?.parent;
   return (
@@ -3053,12 +3054,16 @@ function isArgsFreeSchema(j, path, file, seen) {
   }
 }
 
+/** Whether `path` names a class (found with classOf()) that no binding writes through and whose rows normalize
+ * the same in a batch within `limits` */
 function isPlainEntityAt(j, path, file, limits, seen) {
   const cls = classOf(j, path, file);
   return (
     !!cls && !writesThrough(j, path) && isPlainEntity(j, cls, limits, seen)
   );
 }
+
+/** Whether `path` is an Entity class whose rows normalize the same in a batch */
 const isRowOnlyEntity = (j, path, file) =>
   isPlainEntityAt(j, path, file, ROW_ONLY);
 
@@ -3497,12 +3502,7 @@ function emptyGuardOf(j, root, rows) {
   if (node.type === 'Identifier') return { list: rows.node, guarded: true };
   // a name the enclosing function never uses, so the `const` shadows nothing it reads
   const scope = j(rows).closest(j.Function).paths()[0] ?? root.paths()[0];
-  const used = new Set(
-    j(scope)
-      .find(j.Identifier)
-      .nodes()
-      .map(n => n.name),
-  );
+  const used = new Set(identifiersIn(j, scope).map(p => p.node.name));
   let name = 'rows';
   for (let i = 2; used.has(name); i++) name = `rows${i}`;
   return {

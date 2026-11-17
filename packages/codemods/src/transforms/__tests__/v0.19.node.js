@@ -3455,6 +3455,12 @@ export function save(ctrl, rows: any[]) {
         expect(run('  static accessor shouldUpdate = () => false;')).toContain(
           'rows.forEach(',
         );
+        expect(run('  static accessor schema = { author: User };')).toContain(
+          'rows.forEach(',
+        );
+        expect(
+          run('  accessor pk = (parent, key, args) => args[0].id;'),
+        ).toContain('rows.forEach(');
       });
 
       it('batches with private and accessor members that are not hooks', () => {
