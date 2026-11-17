@@ -3583,6 +3583,17 @@ const key = () => 'count';`,
           'const cfg = { live: { get count() { return currentCount(); } } };\nconst { live } = cfg;',
           'live.count',
         ],
+        [
+          'a shorthand object holding a getter',
+          'const live = { get count() { return currentCount(); } };',
+          '{ live }.live.count',
+        ],
+        [
+          'a computed key whose conversion runs a getter',
+          'const live = { get toString() { return () => String(currentCount()); } };',
+          '({ [live]: 1 }).x',
+        ],
+        ['a let, which can change between rows', 'let scale = 2;', 'scale'],
       ])('keeps a value that reads %s', (_, setup, read) => {
         expect(
           run(

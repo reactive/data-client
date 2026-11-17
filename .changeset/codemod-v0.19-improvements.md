@@ -11,8 +11,8 @@ the same, apart from the differences noted below:
 - A loop that calls `ctrl.set()` once per row becomes one
   [batch set()](https://dataclient.io/docs/api/Controller#set-array), which updates the store once. The loop can be
   `for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`. The codemod batches it only when each row is
-  plain data and nothing the loop runs (the row's value, the Entity's `pk()`, `process()` and instance code) can read
-  the store or state that changes between rows. The
+  plain data and nothing the loop runs (the row's value and args, the Entity's `pk()`, `process()` and instance
+  code) can read the store or state that changes between rows. The
   [codemods README](https://github.com/reactive/data-client/tree/master/packages/codemods#readme) lists what it
   keeps as a loop. It reads only the Entity's file, the loop's file, barrels between them and the files the schema
   imports, so check that no other file patches a batched Entity.

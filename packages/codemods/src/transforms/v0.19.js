@@ -272,13 +272,16 @@ function declaringBlock(binding) {
   }
 }
 
-/** Whether `p` names something else, like an object key, a non-computed member or the other module's
+/** Whether `p` names something else, like a non-computed object key or member, or the other module's
  * name in `import { name as local }` */
 function isOtherName(p) {
   const parent = p.parent.node;
   return (
     (isMember(parent) && parent.property === p.node && !parent.computed) ||
-    (isProperty(parent) && parent.key === p.node && parent.value !== p.node) ||
+    (isProperty(parent) &&
+      parent.key === p.node &&
+      parent.value !== p.node &&
+      !parent.computed) ||
     (parent.type === 'ImportSpecifier' &&
       parent.imported === p.node &&
       parent.local !== p.node)
