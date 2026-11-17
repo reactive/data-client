@@ -2793,12 +2793,27 @@ function mayHoldClass(path, depth = 0) {
   );
 }
 
+/** Whether static `this` at `path` leaves the class, so code the module doesn't show could set a hook on it:
+ * `patch(this)`, `registry.Quote = this` or `return this`. A member read, `new this()` and `instanceof this`
+ * keep it. */
+function thisEscapes(path) {
+  if (!inStaticMember(path)) return false;
+  const outer = outerPath(path);
+  const parent = outer.parent.node;
+  if (isMember(parent)) return parent.object !== outer.node;
+  if (parent.type === 'NewExpression') return parent.callee !== outer.node;
+  return !(
+    parent.type === 'BinaryExpression' && parent.operator === 'instanceof'
+  );
+}
+
 // whether each module writes an Entity hook without naming its class, by its Program node
 const hookWrites = new WeakMap();
 
 /** Whether the module `top` sets an Entity hook on a value that can be a class it doesn't name, which can
  * change a class whose name the write never uses: `static useArgs() { this.process = ... }`, `super.pk = ...`,
- * `const self = this; self.validate = ...` or `Parent.schema.leaf.process = ...` */
+ * `const self = this; self.validate = ...` or `Parent.schema.leaf.process = ...`. Static `this` passed out of
+ * the class, like `patch(this)`, counts too. */
 function writesHooksIndirectly(j, top) {
   if (!hookWrites.has(top.node)) {
     const types = [
@@ -2809,14 +2824,15 @@ function writesHooksIndirectly(j, top) {
     ];
     hookWrites.set(
       top.node,
-      types.some(type =>
-        j(top)
-          .find(type)
-          .some(p => {
-            const object = hookWriteOf(p);
-            return !!object && mayHoldClass(object);
-          }),
-      ),
+      j(top).find(j.ThisExpression).some(thisEscapes) ||
+        types.some(type =>
+          j(top)
+            .find(type)
+            .some(p => {
+              const object = hookWriteOf(p);
+              return !!object && mayHoldClass(object);
+            }),
+        ),
     );
   }
   return hookWrites.get(top.node);
@@ -2836,9 +2852,11 @@ function memberAllows(j, member, file, limits, seen) {
   if (!node.static) return name !== 'pk' || paramsWithin(node, limits.pk);
   switch (name) {
     // validate() could throw for one row, which drops the whole batch, and rows with the same pk meet in
-    // merge() within a batch, skipping the store checks
+    // merge() within a batch, skipping the store checks. normalize() starts each index empty, so one set() per
+    // row keeps only the last row's index entry.
     case 'normalize':
     case 'validate':
+    case 'indexes':
     case 'shouldUpdate':
     case 'shouldReorder':
     case 'mergeWithStore':
@@ -3575,15 +3593,19 @@ function replaceLoop(j, path, { call, guard }, awaited, inner) {
     ...(statement.comments ?? []),
     ...comments.filter(c => c.trailing),
   ];
-  // a lone `if` would take an `else` that followed the loop
-  if (guard.guarded && !Array.isArray(path.parentPath.value))
+  // a lone `if` would take an `else` that followed the loop, and a `const` in a `case` is visible to every case
+  if (
+    (guard.guarded && !Array.isArray(path.parentPath.value)) ||
+    (guard.setup && path.parent.node.type === 'SwitchCase')
+  )
     path.replace(j.blockStatement(statements));
   else path.replace(...statements);
 }
 
 /** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and `rows.map()` or
- * `Promise.all(rows.map())` whose result is unused. A row whose pk() or process() throws (a malformed row)
- * then makes the whole batch write nothing, where the loop still wrote some of the other rows. */
+ * `Promise.all(rows.map())` whose result is unused. A row that throws while its value is built or in pk() or
+ * process() (a malformed row) then makes the whole batch write nothing, where the loop still wrote the rows
+ * before it. */
 function batchSets(j, root, file) {
   let dirty = false;
   root.find(j.ForOfStatement).forEach(path => {
@@ -3661,9 +3683,11 @@ function unwrapOneRowInvalidate(j, root, file) {
     if (
       !isMember(node.callee) ||
       memberName(node.callee) !== 'set' ||
+      !isController(path.get('callee', 'object')) ||
       node.arguments.length !== 2 ||
       !oneElement(schema) ||
-      !oneElement(value) ||
+      // one set() calls a function value as an updater, and throws on null where a batch skips it
+      oneElement(value)?.type !== 'ObjectExpression' ||
       !isRowOnlyInvalidate(j, path.get('arguments', 0, 'elements', 0), file)
     )
       return;
@@ -3801,11 +3825,11 @@ function unwrapComputedArgs(j, root) {
   let dirty = false;
   root.find(j.CallExpression).forEach(call => {
     if (!importsNameFrom(call.get('callee'), GETTER_COMPOSABLES, VUE)) return;
-    call.get('arguments').each((arg, i) => {
+    call.get('arguments').each(arg => {
       const { node } = arg;
       // computed() passes its getter the previous value, which a getter argument doesn't get
       if (
-        i === 0 ||
+        arg.name === 0 ||
         node.type !== 'CallExpression' ||
         node.arguments.length !== 1 ||
         !isFunction(node.arguments[0]) ||

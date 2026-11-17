@@ -217,29 +217,37 @@ npx @data-client/codemods v0.19 <source-root> --improvements=only
 It rewrites only code it can prove does the same thing, apart from three batch differences. Each item links the
 release post's example; read it when a rewrite or a judgment call below is unclear.
 
-- A loop (`for...of`, `forEach()`, or `await Promise.all(rows.map())`) that calls `set()` once per row becomes one
-  [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set): `ctrl.set([Ticker], rows)`. Only
-  when each row is plain data (an object literal, a row of `JSON.parse()` without a reviver, or typed as the Entity
-  or a plain object type) that calls only globals, imports and methods of values built from the row, with arguments
-  built from the row, literals and `const`s set to a literal, never an updater function, and the Entity's `pk()` and
-  `process()` read only the row and it overrides neither `validate()` nor the store-merge methods (`shouldUpdate()`,
-  `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`), it has no decorators, and nothing in the Entity's
-  file, the loop's file or a barrel it is imported through changes the class's static members. It reads only those
-  files and the files its schema imports, so check that no other file patches a batched Entity. The codemod guards
-  each batch over a list that can be empty with `if (rows.length)`, so an empty list still dispatches nothing; keep
-  that guard when you batch by hand. Each batch dispatches one SET action whose `action.schema` is the Array
-  (`[Ticker]`), so check Managers and middleware that match SET actions by schema: match `action.schema[0]` too. A
-  row whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the
-  other rows. Rows with the same `pk` in one batch merge with each other, so only the first is checked against the
-  stored entity's `fetchedAt`; this differs only when the store holds newer data than the client's clock, such as
-  after SSR from a server whose clock runs ahead.
+- A loop (`for...of`, `forEach()`, `rows.map()` or `Promise.all(rows.map())`) that calls `set()` once per row
+  becomes one [batch set()](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set):
+  `ctrl.set([Ticker], rows)`. It batches only when:
+  - each row is plain data, never an updater function: an object literal, a row of `JSON.parse()` without a reviver,
+    or typed as the Entity or a plain object type;
+  - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
+    literals and `const`s set to a literal;
+  - the Entity's `pk()` and `process()` read only the row, and it has no `static indexes` (one `set()` per row keeps
+    only the last row's index entry), no decorators, and no override of `validate()` or the store-merge methods
+    (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`, `mergeMetaWithStore()`);
+  - nothing in the Entity's file, the loop's file or a barrel it is imported through changes the class's static
+    members. It reads only those files and the files its schema imports, so check that no other file patches a
+    batched Entity.
+
+  It guards each batch over a list that can be empty with `if (rows.length)`, so an empty list still dispatches
+  nothing; keep that guard when you batch by hand. Three things differ from the loop:
+  - Each batch dispatches one SET action whose `action.schema` is the Array (`[Ticker]`), so check Managers and
+    middleware that match SET actions by schema: match `action.schema[0]` too.
+  - A row that throws while its value is built, or in `pk()` or `process()`, makes the whole batch write nothing,
+    where the loop still wrote the rows before it.
+  - Rows with the same `pk` in one batch merge with each other, so only the first is checked against the stored
+    entity's `fetchedAt`. This differs only when the store holds newer data than the client's clock (such as after
+    SSR from a server whose clock runs ahead), or when the list holds the same row object twice.
+
 - `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`
   ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#set-invalidate)).
 - Vue: `DataClientPlugin`'s `gcPolicy: new GCPolicy()` (now the default) is dropped, `GCPolicy` is imported from
   `@data-client/vue` ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-gc)), and
   `computed(() => args)` passed to a composable becomes the getter `() => args`
   ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#vue-getter-args)).
-- `|| typeof data === 'symbol'` guards on React `useCache()` and `useDLE()` data are dropped
+- `|| typeof data === 'symbol'` guards in conditions on React `useCache()` and `useDLE()` data are dropped
   ([before/after](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#deleted-entity-undefined)).
 
 Then, by judgment:

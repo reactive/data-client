@@ -19,15 +19,21 @@ npx @data-client/codemods v0.19 src/
 | `axios-to-rest` | `axios` calls to `RestEndpoint` calls, with a `TODO(data-client)` comment on what's left ([axios migration guide](https://dataclient.io/rest/guides/axios-migration))                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 For `v0.19`, `--deprecations=false` skips deprecated APIs and `--deprecations=only` does just those, so they can go in
-their own commit. `--improvements=only` makes optional rewrites that adopt 0.19 features once you've upgraded, where the
-store ends up the same for valid rows, unless a file the codemod didn't read patches the Entity: loops that call
-`ctrl.set()` once per row become one [batch `set()`](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
+their own commit. `--improvements=only` makes optional rewrites that adopt 0.19 features once you've upgraded: loops
+that call `ctrl.set()` once per row become one [batch `set()`](https://dataclient.io/blog/2026/11/17/v0.19-batch-set#batch-set),
 and code that worked around older limits, like `computed()` around Vue composable args, is simplified. A batch runs only
-`if (rows.length)` (unless its list is an array literal) and dispatches one SET action whose `action.schema` is
-`[Entity]` instead of one per row, so Managers that match `action.schema` should check `action.schema[0]`, and a row
-whose `pk()` or `process()` throws makes the whole batch write nothing, where the loop still wrote some of the other
-rows. Rows with the same `pk` in one batch merge with each other, so only the first is checked against the stored
-entity's `fetchedAt`; this differs only when the store holds newer data than the client's clock, such as after SSR from
-a server whose clock runs ahead. It processes JavaScript and TypeScript files and skips `node_modules`. Other
+`if (rows.length)` (unless its list is an array literal without a spread). It keeps loops whose Entity has
+`static indexes`, decorators, or hooks that read args, but a file the codemod didn't read can still patch the Entity.
+Three things differ from the loop:
+
+- The batch dispatches one SET action whose `action.schema` is `[Entity]` instead of one per row, so Managers that
+  match `action.schema` should check `action.schema[0]`.
+- A row that throws while its value is built, or in `pk()` or `process()`, makes the whole batch write nothing, where
+  the loop still wrote the rows before it.
+- Rows with the same `pk` in one batch merge with each other, so only the first is checked against the stored entity's
+  `fetchedAt`. This differs only when the store holds newer data than the client's clock (such as after SSR from a
+  server whose clock runs ahead), or when the list holds the same row object twice.
+
+It processes JavaScript and TypeScript files and skips `node_modules`. Other
 [jscodeshift options](https://github.com/facebook/jscodeshift#usage-cli) pass through, such as `--dry` and `--print` to
 preview changes, or `--extensions` to override the file types.

@@ -3456,6 +3456,18 @@ export function save(ctrl, queue) {
     }
   }`);
       });
+
+      it('wraps the stored list in a block when the loop is in a switch case', () => {
+        expect(
+          run(`switch (text) {
+  case 'a':
+    for (const row of JSON.parse(text)) ctrl.set(Todo, row);
+    break;
+  }`),
+        ).toContain(`case 'a':
+    {
+      const rows = JSON.parse(text);`);
+      });
     });
 
     describe('set() loops of an Entity with declaration-only members', () => {
@@ -3510,6 +3522,19 @@ export function save(ctrl, rows: any[]) {
           run('  @wrap static pk(value) {\n    return value.id;\n  }'),
         ).toContain('rows.forEach(');
         expect(run('  @observable title = "";')).toContain('rows.forEach(');
+      });
+
+      it('keeps the loop when the Entity has indexes', () => {
+        // normalize() starts each index empty, so one set() per row keeps only the last row in the index
+        expect(run("  static indexes = ['title'] as const;")).toContain(
+          'rows.forEach(',
+        );
+        expect(
+          run(`  static schema = { author: class User extends Entity {
+    id = '';
+    static indexes = ['username'];
+  } };`),
+        ).toContain('rows.forEach(');
       });
 
       it('batches with private and accessor members that are not hooks', () => {
@@ -3663,6 +3688,29 @@ Array.of(Todo)[0].shouldUpdate = () => false;`,
     super.process = (input, parent) => ({ ...input, parent });
   }
 }`,
+        ],
+        [
+          'a function given static this',
+          `function patch(cls: any) {
+  cls.process = (input, parent, key, args) => ({ ...input, tenant: args[0].tenant });
+}
+class Todo extends Entity {
+  id = 0;
+  static init() {
+    patch(this);
+  }
+}`,
+        ],
+        [
+          'a registry holding static this',
+          `const registry: any = {};
+class Todo extends Entity {
+  id = 0;
+  static register() {
+    registry.Todo = this;
+  }
+}
+registry.Todo.shouldUpdate = () => false;`,
         ],
         [
           'an alias of this',
@@ -3899,15 +3947,21 @@ export function save(ctrl, rows: Todo[]) {
 import { Entity, Invalidate } from '@data-client/rest';
 
 class Todo extends Entity { id = ''; }
+const cache = new Map();
 ctrl.set([new Invalidate(Todo)], [{ id: '5' }]);
 ctrl.set([new Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+ctrl.set([new Invalidate(Todo)], [row]);
+cache.set([new Invalidate(Todo)], [{ id: '5' }]);
       `,
       `
 import { Entity, Invalidate } from '@data-client/rest';
 
 class Todo extends Entity { id = ''; }
+const cache = new Map();
 ctrl.set(new Invalidate(Todo), { id: '5' });
 ctrl.set([new Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+ctrl.set([new Invalidate(Todo)], [row]);
+cache.set([new Invalidate(Todo)], [{ id: '5' }]);
       `,
       'deletes one entity without a one-row batch',
     );
@@ -3927,6 +3981,7 @@ app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
 const props = defineProps<{ id: number }>();
 const article = await useSuspense(ArticleResource.get, computed(() => ({ id: props.id })));
 const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+const chosen = useCache(computed(() => props.endpoint), computed(() => ({ id: props.id })));
       `,
       `
 import { computed } from 'vue';
@@ -3940,6 +3995,7 @@ app.use(DataClientPlugin, { ...shared, gcPolicy: new GCPolicy() });
 const props = defineProps<{ id: number }>();
 const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
 const previous = useCache(ArticleResource.get, computed(prev => ({ id: props.id })));
+const chosen = useCache(computed(() => props.endpoint), () => ({ id: props.id }));
       `,
       'drops Vue options and wrappers that 0.19 makes the default',
     );
