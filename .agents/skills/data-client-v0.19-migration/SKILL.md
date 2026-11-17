@@ -225,10 +225,10 @@ release post's example; read it when a rewrite or a judgment call below is uncle
   - the row calls only globals, imports and methods of values built from the row, with arguments built from the row,
     literals and `const`s set to a literal;
   - the Entity's `pk()` and `process()` read only the row;
-  - its `pk()`, `process()` and instance code (methods, getters, setters and field values, which `pk()` can reach
-    through `this` or `super`) call only globals, imports and methods of the row, since a helper the file declares
-    could read the store; a field value names only those, `const`s set to a literal and classes it constructs; and
-    no instance code reaches static members (`this.constructor`);
+  - its `pk()`, `process()` and instance code (constructor, methods, getters, setters and field values, which `pk()` can
+    reach through `this` or `super`) call only globals, imports and methods of the row, since a helper the file
+    declares could read the store; a field value names only those, `const`s set to a literal and classes it
+    constructs; and no instance code reaches static members (`this.constructor`);
   - it has no `static indexes` (one `set()` per row keeps only the last row's index entry), no decorators, and no
     override of `validate()` or the store-merge methods (`shouldUpdate()`, `shouldReorder()`, `mergeWithStore()`,
     `mergeMetaWithStore()`);

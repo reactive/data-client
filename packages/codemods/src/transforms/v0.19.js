@@ -2725,8 +2725,6 @@ function hookWithin(j, member, max) {
  * (`this.constructor.key()`). */
 function instanceCodeWithin(j, member) {
   const { node } = member;
-  // normalize never constructs the class, and a row built before the loop was constructed already
-  if (node.kind === 'constructor') return true;
   const isMethod =
     node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
   if (!isMethod && !node.value) return true;
@@ -2761,19 +2759,30 @@ function mayHoldLocalCode(j, value) {
  * `const { constructor: C } = row`), or uses `this` or `super` other than to read a named member
  * (`this[key]`, `Reflect.get(this, 'constructor')`, `const self = this`) */
 function reachesStatics(j, fn) {
+  const { node } = fn;
+  // a method's own key, like `constructor() {}`, is not code
+  const code =
+    node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod' ?
+      [...node.params, node.body]
+    : [node];
   return (
-    containsNode(
-      fn.node,
-      n =>
-        isId(n, 'constructor') ||
-        ((n.type === 'StringLiteral' || n.type === 'Literal') &&
-          n.value === 'constructor'),
+    code.some(part =>
+      containsNode(
+        part,
+        n =>
+          isId(n, 'constructor') ||
+          ((n.type === 'StringLiteral' || n.type === 'Literal') &&
+            n.value === 'constructor'),
+      ),
     ) ||
     [j.ThisExpression, j.Super].some(type =>
       j(fn)
         .find(type)
         .some(p => {
           const parent = p.parent.node;
+          // a constructor's `super()`
+          if (parent.type === 'CallExpression' && parent.callee === p.node)
+            return false;
           return (
             !isMember(parent) ||
             parent.object !== p.node ||

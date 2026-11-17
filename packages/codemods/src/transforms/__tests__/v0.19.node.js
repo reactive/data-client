@@ -3592,6 +3592,8 @@ function currentCount(id: string) {
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this.constructor;\n  static key(id) {\n    return currentCount(id);\n  }',
           "  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = this['constructor'];\n  static key(id) {\n    return currentCount(id);\n  }",
           '  pk() {\n    return this.kind.key(this.id);\n  }\n  kind = Object.getPrototypeOf(this);\n  static key(id) {\n    return currentCount(id);\n  }',
+          // a row built before the loop ran its constructor, which can install code pk() calls
+          '  pk() {\n    return this.count();\n  }\n  constructor() {\n    super();\n    this.count = () => currentCount(this.id);\n  }',
         ];
         for (const members of kept)
           expect(run(members, helper)).toContain('rows.forEach(');
@@ -3624,7 +3626,7 @@ export function save(ctrl, rows: any[]) {
       it('batches when instance methods call only globals and members of the row', () => {
         expect(
           run(
-            "  slug = '';\n  pk() {\n    return `${this.id}-${this.label}`;\n  }\n  get label() {\n    return this.slug.trim();\n  }\n  title() {\n    return this.label.toUpperCase();\n  }",
+            "  slug = '';\n  pk() {\n    return `${this.id}-${this.label}`;\n  }\n  get label() {\n    return this.slug.trim();\n  }\n  title() {\n    return this.label.toUpperCase();\n  }\n  constructor(...args) {\n    super(...args);\n    this.slug = String(this.slug);\n  }",
           ),
         ).toContain('ctrl.set([Todo], rows.map(');
         // field values that construct a class or hold a literal const aren't code
