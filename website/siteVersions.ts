@@ -34,10 +34,17 @@ if (versionCurrent) {
   );
 }
 
-/** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml */
-const versionsArchived: { version: string; sha256: string }[] =
-  read('versionsArchived.json') ?? [];
-for (const { version, sha256 } of versionsArchived) {
+/** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml,
+ * with the blog posts each one serves (those it was the first to build) */
+const versionsArchived: {
+  version: string;
+  sha256: string;
+  posts?: string[];
+}[] = read('versionsArchived.json') ?? [];
+// A post's path below a site's root, as Docusaurus routes it
+const POST = /^blog\/\d{4}\/\d{2}\/\d{2}\/[^/?#]+$/;
+const listedPosts = new Set<string>();
+for (const { version, sha256, posts = [] } of versionsArchived) {
   check(LINE.test(version), `versionsArchived.json: ${version} isn't a line`);
   check(
     /^[0-9a-f]{64}$/.test(sha256),
@@ -51,7 +58,25 @@ for (const { version, sha256 } of versionsArchived) {
     version !== versionCurrent?.version,
     `${version} is both current and archived`,
   );
+  for (const post of posts) {
+    check(
+      POST.test(post),
+      `versionsArchived.json: ${version}'s post ${post} isn't a post path`,
+    );
+    check(!listedPosts.has(post), `versionsArchived.json lists ${post} twice`);
+    listedPosts.add(post);
+  }
 }
+
+const archiveUrl = (version: string) => `https://${version}.dataclient.io`;
+
+/** Each archived post's site: a post moves to the first archive that built
+ * it, so its docs links and playgrounds keep the docs of that time */
+export const archivedPosts: Record<string, string> = Object.fromEntries(
+  versionsArchived.flatMap(({ version, posts = [] }) =>
+    posts.map(post => [post, archiveUrl(version)]),
+  ),
+);
 
 /** The line a version belongs to. Matches line in version-line.sh */
 const lineOf = (version: string) => {
@@ -91,7 +116,7 @@ export const siteVersions: SiteVersion[] = [
     .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
     .map(version => ({
       label: `v${version}`,
-      url: `https://${version}.dataclient.io`,
+      url: archiveUrl(version),
     })),
 ];
 /** Frozen archives read this from site-versions.json: only add fields, and

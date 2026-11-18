@@ -68,8 +68,9 @@ reopen), an unprotected branch merges it at once, and the workflow dispatches `s
 itself to rebuild the root.
 
 Publish blog posts here too: the root's blog is this branch's, so a post runs the version that's
-current when it's published, at the URL it keeps. A post about the next major stays a draft on
-master until that release.
+current when it's published. When the next major ships, the version's archive serves its posts and
+their root URLs redirect there ([snapshot README](../../website/scripts/snapshot/README.md)). A post
+about the next major stays a draft on master until that release.
 
 ## When the next major ships
 

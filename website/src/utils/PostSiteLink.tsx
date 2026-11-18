@@ -1,24 +1,25 @@
-// @docusaurus/Link on /next/ (docusaurus.config.ts aliases it there): links to
-// the root's posts go straight to the root's copy (rootPost.ts), in
-// the same tab, though Docusaurus opens absolute URLs in a new one.
+// @docusaurus/Link wherever another site serves some posts (docusaurus.config.ts
+// aliases it there): links to those posts go straight to that site's copy
+// (postSite.ts), in the same tab, though Docusaurus opens absolute URLs in a
+// new one.
 import Link from '@docusaurus/core/lib/client/exports/Link';
 import useBaseUrl from '@docusaurus/core/lib/client/exports/useBaseUrl';
 import type { Props } from '@docusaurus/Link';
 import React from 'react';
 
-import { rootPost } from './rootPost';
+import { postSite } from './postSite';
 
 export default React.forwardRef<HTMLAnchorElement, Props>(
-  function RootPostLink(props, ref) {
+  function PostSiteLink(props, ref) {
     // as Link resolves it: /blog/... gains baseUrl
     const resolved = useBaseUrl(props.to ?? props.href ?? '');
-    const root = rootPost(resolved);
-    return root === resolved ?
+    const owner = postSite(resolved);
+    return owner === resolved ?
         <Link {...props} ref={ref} />
       : <Link
           {...props}
           ref={ref}
-          to={root}
+          to={owner}
           href={undefined}
           target="_self"
           rel={undefined}

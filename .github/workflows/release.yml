@@ -94,6 +94,12 @@ jobs:
           current="$([ ! -f "$cur" ] || jq -r .version "$cur")"
           prev="$(replaced_line "$old" "$new" "$current")" ||
             warn "the previous version, $old, is a prerelease"
+          # already archived (dispatched ahead of this release): rebuilding
+          # here would build from $old's tag, older than its branch
+          if [ -n "$prev" ] && jq -e --arg v "$prev" 'any(.[]; .version == $v)' website/versionsArchived.json > /dev/null; then
+            echo "::notice title=Docs archive::v$prev is already archived; dispatch docs-snapshot.yml to rebuild it"
+            exit 0
+          fi
           [ -z "$prev" ] || {
             echo "version=$prev"
             echo "ref=$([ -n "$current" ] && jq -r .ref "$cur" || echo "@data-client/react@$old")"
