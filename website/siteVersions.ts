@@ -43,6 +43,7 @@ const versionsArchived: {
 }[] = read('versionsArchived.json') ?? [];
 // A post's path below a site's root, as Docusaurus routes it
 const POST = /^blog\/\d{4}\/\d{2}\/\d{2}\/[^/?#]+$/;
+const listedPosts = new Set<string>();
 for (const { version, sha256, posts = [] } of versionsArchived) {
   check(LINE.test(version), `versionsArchived.json: ${version} isn't a line`);
   check(
@@ -62,10 +63,8 @@ for (const { version, sha256, posts = [] } of versionsArchived) {
       POST.test(post),
       `versionsArchived.json: ${version}'s post ${post} isn't a post path`,
     );
-    check(
-      versionsArchived.filter(v => v.posts?.includes(post)).length === 1,
-      `versionsArchived.json lists ${post} twice`,
-    );
+    check(!listedPosts.has(post), `versionsArchived.json lists ${post} twice`);
+    listedPosts.add(post);
   }
 }
 

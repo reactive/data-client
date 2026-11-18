@@ -68,11 +68,11 @@ const postPath = (name: string) => {
 // site (src/utils/PostSiteLink.tsx, scripts/snapshot/postSite.client.ts), as
 // do page loads (docs-deploy.yml)
 const postSites: Record<string, string> = {
-  ...(isNext && versionCurrent ?
+  ...(isNext &&
+    versionCurrent &&
     Object.fromEntries(
       [...branchPosts(versionCurrent.ref)].map(post => [post, url]),
-    )
-  : {}),
+    )),
   ...archivedPosts,
 };
 const hasPostSites = Object.keys(postSites).length > 0;
