@@ -320,12 +320,18 @@ Nesting data when your endpoint doesn't (part 2).
 
 A response nests in one direction only. Here `/posts` nests each post's `author`, but no response lists a user's
 posts. A reverse lookup builds that list on the client, so one fetch of `/posts` also gives each user's `posts`
-and `comments`. Click a name to see them.
+and `comments`. Here the People table sorts by them.
 
 Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
 
-```typescript title="resources/Post" {9-20,22-30}
-import { Entity, resource, type Schema } from '@data-client/rest';
+```typescript title="resources/Post" {15-26,28-36}
+import {
+  All,
+  Entity,
+  Query,
+  resource,
+  type Schema,
+} from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -412,6 +418,58 @@ export const UserResource = resource({
   path: '/users/:id',
   schema: User,
 });
+
+export type SortBy = 'posts' | 'comments';
+
+// `posts` and `comments` are in each user, so a Query can sort by them
+export const queryUsers = new Query(
+  new All(User),
+  (users, { sortBy }: { sortBy: SortBy }) =>
+    [...users].sort((a, b) => b[sortBy].length - a[sortBy].length),
+);
+```
+
+```html title="PeoplePage.vue" route="/users" start="/users"
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useQuery, useSuspense } from '@data-client/vue';
+  import { PostResource, queryUsers, type SortBy } from './resources/Post';
+
+  await useSuspense(PostResource.getList);
+  const sortBy = ref<SortBy>('posts');
+  const users = useQuery(queryUsers, () => ({ sortBy: sortBy.value }));
+  const columns: Record<SortBy, string> = {
+    posts: 'Posts',
+    comments: 'Comments',
+  };
+</script>
+
+<template>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th
+          v-for="(label, column) in columns"
+          :key="column"
+          class="value"
+          :aria-sort="sortBy === column ? 'descending' : undefined"
+        >
+          <button class="sort" @click="sortBy = column">{{ label }}</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="user in users" :key="user.pk()">
+        <td>
+          <RouterLink :to="`/users/${user.id}`">{{ user.name }}</RouterLink>
+        </td>
+        <td class="value">{{ user.posts.length }}</td>
+        <td class="value">{{ user.comments.length }}</td>
+      </tr>
+    </tbody>
+  </table>
+</template>
 ```
 
 ```html title="UserPage.vue" route="/users/:id"
@@ -426,56 +484,28 @@ export const UserResource = resource({
 </script>
 
 <template>
-  <div>
-    <h4>{{ user.name }}</h4>
-    <template v-if="user.posts.length">
-      <h5>Posts</h5>
-      <ul>
-        <li v-for="post in user.posts" :key="post.pk()">
-          {{ post.title }}
-        </li>
-      </ul>
-    </template>
-    <h5>Comments</h5>
-    <ul>
-      <li v-for="comment in user.comments" :key="comment.pk()">
-        {{ comment.content }}
-      </li>
-    </ul>
-  </div>
-</template>
-```
-
-```html title="PostPage.vue" route="/"
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './resources/Post';
-
-  const posts = await useSuspense(PostResource.getList);
-</script>
-
-<template>
-  <div>
-    <div v-for="post in posts" :key="post.pk()">
-      <h4>
-        {{ post.title }} -
-        <RouterLink :to="`/users/${post.author.id}`">
-          {{ post.author.name }}
-        </RouterLink>
-      </h4>
-      <ul>
-        <li v-for="comment in post.comments" :key="comment.pk()">
-          {{ comment.content }}
-          <small>
-            <RouterLink :to="`/users/${comment.commenter.id}`">
-              {{ comment.commenter.name }}{{ comment.commenter ===
-              post.author ? ' [OP]' : '' }}
-            </RouterLink>
-          </small>
-        </li>
-      </ul>
+  <h2>{{ user.name }}</h2>
+  <section v-if="user.posts.length">
+    <h3>Posts</h3>
+    <div class="list">
+      <div v-for="post in user.posts" :key="post.pk()" class="listItem">
+        {{ post.title }}
+      </div>
     </div>
-  </div>
+  </section>
+  <section v-if="user.comments.length">
+    <h3>Comments</h3>
+    <div class="list">
+      <div
+        v-for="comment in user.comments"
+        :key="comment.pk()"
+        class="listItem"
+      >
+        {{ comment.content }}
+        <span class="meta">{{ comment.post.title }}</span>
+      </div>
+    </div>
+  </section>
 </template>
 ```
 
@@ -483,16 +513,16 @@ export const UserResource = resource({
 and `key` that nest it. [merge()](./Entity.vue.md#merge) joins the copies of one user:
 
 ```ts
-// post 1 nests Paul as its `author`, so process() adds that post's id
-User.process({ id: '123', name: 'Paul' }, post1, 'author');
-// => { id: '123', name: 'Paul', posts: ['1'] }
+// post 101 nests Ada as its `author`, so process() adds that post's id
+User.process({ id: '1', name: 'Ada' }, post101, 'author');
+// => { id: '1', name: 'Ada', posts: ['101'] }
 
-// post 2 nests Paul too, so merge() joins both copies
+// post 102 nests Ada too, so merge() joins both copies
 User.merge(
-  { id: '123', name: 'Paul', posts: ['1'] },
-  { id: '123', name: 'Paul', posts: ['2'] },
+  { id: '1', name: 'Ada', posts: ['101'] },
+  { id: '1', name: 'Ada', posts: ['102'] },
 );
-// => { id: '123', name: 'Paul', posts: ['1', '2'] }
+// => { id: '1', name: 'Ada', posts: ['101', '102'] }
 ```
 
 Without the override, `merge()` keeps only the last copy's `posts`. `Comment.process()` sets `comment.post` in
@@ -500,8 +530,8 @@ the same way.
 
 ### When to use
 
-Nest a list in an entity when the data must have it, not only the screen. For example, a
-[Query](./Query.vue.md) that sorts users by `user.posts` reads it before any component renders. Then choose by
+Nest a list in an entity when the data must have it, not only the screen. For example, `queryUsers`
+sorts users by `user.posts` before any component renders. Then choose by
 where the list is:
 
 - **A response has the list** (the user response nests it, or `GET /posts?author=123` returns it): use a
