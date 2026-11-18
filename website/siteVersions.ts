@@ -95,7 +95,22 @@ check(
   LINE.test(packageLine),
   `packages/react/package.json: ${packageVersion} has no line`,
 );
-export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
+/** The line after one, which its next breaking release starts */
+const nextLine = (line: string) =>
+  line.startsWith('0.') ?
+    `0.${Number(line.slice(2)) + 1}`
+  : `${Number(line) + 1}`;
+/** The line master documents: once its line is archived (the switch can
+ * merge before the next line publishes), the next one */
+const masterLine =
+  versionsArchived.some(v => v.version === packageLine) ?
+    nextLine(packageLine)
+  : packageLine;
+check(
+  !versionsArchived.some(v => v.version === masterLine),
+  `versionsArchived.json lists ${masterLine}, the version master documents`,
+);
+export const siteLabel = versionCurrent ? 'next' : `v${masterLine}`;
 
 const SITE = 'https://dataclient.io';
 
@@ -105,9 +120,8 @@ export const siteVersions: SiteVersion[] = [
   ...(versionCurrent ?
     [{ label: 'Next', note: 'unreleased', url: `${SITE}/next` }]
   : []),
-  // master's version is the last release's until the next one publishes
   {
-    label: `v${versionCurrent?.version ?? packageLine}`,
+    label: `v${versionCurrent?.version ?? masterLine}`,
     note: 'latest',
     url: SITE,
   },
@@ -119,6 +133,10 @@ export const siteVersions: SiteVersion[] = [
       url: archiveUrl(version),
     })),
 ];
+check(
+  new Set(siteVersions.map(v => v.label)).size === siteVersions.length,
+  `version menu lists a version twice: ${siteVersions.map(v => v.label)}`,
+);
 /** Frozen archives read this from site-versions.json: only add fields, and
  * keep its path and CORS header (vercel.json) */
 export type SiteVersion = { label: string; note?: string; url: string };
