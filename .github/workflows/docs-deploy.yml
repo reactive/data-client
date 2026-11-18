@@ -130,7 +130,9 @@ jobs:
             def host($v): {type: "host", value: "\($v | gsub("\\."; "\\."))\\.dataclient\\.io"};
             def lines($s): $s | split("\n") | map(select(. != ""));
             # any archive host, by the pattern vercel.json uses, without its group name
-            (first(.redirects[].has[]? | select(.type == "host")) | .value |= sub("\\(\\?<version>"; "(?:")) as $archiveHost
+            (first(.redirects[].has[]? | select(.type == "host" and (.value | contains("(?<version>"))))
+              // error("vercel.json has no archive-host condition")
+              | .value |= sub("\\(\\?<version>"; "(?:")) as $archiveHost
             | (lines($archived) | map(split("\t") | {post: .[0], version: .[1]})) as $owned
             | .redirects = ($owned | map(
                 {source: "/\(.post)", missing: [host(.version)],
