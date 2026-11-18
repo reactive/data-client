@@ -42,18 +42,8 @@ const versionsArchived: {
   posts?: string[];
 }[] = read('versionsArchived.json') ?? [];
 // A post's path below a site's root, as Docusaurus routes it
-export const POST = /^blog\/\d{4}\/\d{2}\/\d{2}\/[^/?#]+/;
+const POST = /^blog\/\d{4}\/\d{2}\/\d{2}\/[^/?#]+$/;
 for (const { version, sha256, posts = [] } of versionsArchived) {
-  for (const post of posts) {
-    check(
-      POST.exec(post)?.[0] === post,
-      `versionsArchived.json: ${version}'s post ${post} isn't a post path`,
-    );
-    check(
-      versionsArchived.filter(v => v.posts?.includes(post)).length === 1,
-      `versionsArchived.json lists ${post} twice`,
-    );
-  }
   check(LINE.test(version), `versionsArchived.json: ${version} isn't a line`);
   check(
     /^[0-9a-f]{64}$/.test(sha256),
@@ -67,7 +57,19 @@ for (const { version, sha256, posts = [] } of versionsArchived) {
     version !== versionCurrent?.version,
     `${version} is both current and archived`,
   );
+  for (const post of posts) {
+    check(
+      POST.test(post),
+      `versionsArchived.json: ${version}'s post ${post} isn't a post path`,
+    );
+    check(
+      versionsArchived.filter(v => v.posts?.includes(post)).length === 1,
+      `versionsArchived.json lists ${post} twice`,
+    );
+  }
 }
+
+const archiveUrl = (version: string) => `https://${version}.dataclient.io`;
 
 /** Each archived post's site: a post moves to the first archive that built
  * it, so its docs links and playgrounds keep the docs of that time */
@@ -76,10 +78,6 @@ export const archivedPosts: Record<string, string> = Object.fromEntries(
     posts.map(post => [post, archiveUrl(version)]),
   ),
 );
-
-function archiveUrl(version: string) {
-  return `https://${version}.dataclient.io`;
-}
 
 /** The line a version belongs to. Matches line in version-line.sh */
 const lineOf = (version: string) => {
