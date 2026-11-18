@@ -5191,7 +5191,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/img@npm:0.18.0, @data-client/img@workspace:*, @data-client/img@workspace:packages/img":
+"@data-client/img@npm:0.19.0, @data-client/img@workspace:*, @data-client/img@workspace:packages/img":
   version: 0.0.0-use.local
   resolution: "@data-client/img@workspace:packages/img"
   dependencies:
@@ -5233,7 +5233,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/react@npm:0.18.1, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
+"@data-client/react@npm:0.19.0, @data-client/react@workspace:*, @data-client/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@data-client/react@workspace:packages/react"
   dependencies:
@@ -5282,7 +5282,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@data-client/rest@npm:0.18.1, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
+"@data-client/rest@npm:0.19.0, @data-client/rest@workspace:*, @data-client/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@data-client/rest@workspace:packages/rest"
   dependencies:
@@ -14828,9 +14828,9 @@ __metadata:
     "@anansi/webpack-config": "npm:22.0.4"
     "@babel/core": "npm:8.1.2"
     "@babel/runtime-corejs3": "npm:8.1.2"
-    "@data-client/img": "npm:0.18.0"
-    "@data-client/react": "npm:0.18.1"
-    "@data-client/rest": "npm:0.18.1"
+    "@data-client/img": "npm:0.19.0"
+    "@data-client/react": "npm:0.19.0"
+    "@data-client/rest": "npm:0.19.0"
     "@linaria/core": "npm:*"
     "@linaria/react": "npm:*"
     "@types/d3": "npm:^7"
