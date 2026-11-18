@@ -20,7 +20,9 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   the release, uploads the archive to the `docs-v<version>` GitHub release, named by its sha256,
   and opens a PR listing the version and checksum in `website/versionsArchived.json`. The workflow token makes that PR, so its CI only runs once someone pushes to it.
   `release.yml` calls the workflow when a new release line (a 0.x minor, otherwise a major;
-  `scripts/maintenance/version-line.sh`) first publishes a stable version, from the version's maintenance branch if `website/versionCurrent.json` names one. To
+  `scripts/maintenance/version-line.sh`) first publishes a stable version, from the version's maintenance branch if `website/versionCurrent.json` names one, unless
+  `versionsArchived.json` already lists the version (dispatched ahead of the release, so the
+  root can switch first). To
   rebuild one, dispatch it with the version and, for a fix, a branch with it (such as that
   maintenance branch) as `ref` (default: the newest tag, from `release-tag.sh`); the listed archive keeps serving until the new listing merges, which
   also deletes `versionCurrent.json` if it names that version.
