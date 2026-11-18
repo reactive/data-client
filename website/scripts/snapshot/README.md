@@ -63,9 +63,10 @@ archive, v0.18, takes every older post too (v0.2 through v0.18): earlier version
 
 ## Current and next
 
-**Now:** `0.18.x` serves [dataclient.io](https://dataclient.io) and master serves
-[dataclient.io/next](https://dataclient.io/next/) (`website/versionCurrent.json`). Update this line
-when that file changes.
+**Now:** master serves [dataclient.io](https://dataclient.io), with no `/next/` (no
+`website/versionCurrent.json`), and v0.18 is archived at
+[0.18.dataclient.io](https://0.18.dataclient.io) with every post up to v0.18. Update this line
+when `versionCurrent.json` or `versionsArchived.json` changes.
 
 While master takes the next major's breaking changes, the root keeps the released version's docs
 and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/maintenance/README.md)
