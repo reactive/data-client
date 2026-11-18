@@ -10,7 +10,12 @@ import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
 import { versionLabel } from './scripts/snapshot/versionLabel';
-import { siteLabel, siteVersions, versionCurrent } from './siteVersions';
+import {
+  archivedPosts,
+  siteLabel,
+  siteVersions,
+  versionCurrent,
+} from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -55,20 +60,22 @@ const postPath = (name: string) => {
   const post = /^(\d{4})-(\d{2})-(\d{2})-(.+?)(?:\.mdx?)?$/.exec(name);
   return post && `blog/${post.slice(1).join('/')}`;
 };
-// The root serves the posts on its branch, at URLs that never change, and
-// posts publish there too (scripts/maintenance/README.md). /next/ keeps the
-// rest; links and routes to the root's go there (src/utils/RootPostLink.tsx,
-// scripts/snapshot/rootBlog.client.ts), as do page loads (docs-deploy.yml)
-const rootPosts =
-  isNext && versionCurrent ? branchPosts(versionCurrent.ref) : undefined;
-const nextPosts = rootPosts && blogPosts().filter(post => !rootPosts.has(post));
-
-function blogPosts(): string[] {
-  return fs
-    .readdirSync(path.join(__dirname, 'blog'))
-    .map(postPath)
-    .filter(post => post !== null);
-}
+// A post lives on the site of the version it was published under, so its
+// docs links and playgrounds match it: an archive's posts on its host, and
+// while master is the next major, the posts on the current version's branch
+// (posts publish there too: scripts/maintenance/README.md) at the root. This
+// build still renders them for its lists, but links and routes go to their
+// site (src/utils/PostSiteLink.tsx, scripts/snapshot/postSite.client.ts), as
+// do page loads (docs-deploy.yml)
+const postSites: Record<string, string> = {
+  ...(isNext && versionCurrent ?
+    Object.fromEntries(
+      [...branchPosts(versionCurrent.ref)].map(post => [post, url]),
+    )
+  : {}),
+  ...archivedPosts,
+};
+const hasPostSites = Object.keys(postSites).length > 0;
 
 function branchPosts(ref: string): Set<string> {
   let names: string;
@@ -333,9 +340,9 @@ const config: Config = {
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
     require.resolve('./scripts/snapshot/versionMenu.client.ts'),
-    // /next/ sends in-app routes to the root's posts there
-    ...(isNext ?
-      [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
+    // in-app routes to posts another site serves go there
+    ...(hasPostSites ?
+      [require.resolve('./scripts/snapshot/postSite.client.ts')]
     : []),
   ],
   //favicon: '/favicon.ico', we declare our own headers for this above
@@ -344,7 +351,7 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by DocsSelector to switch between differently named pages
     docsEquivalents: frameworkDocs.docsEquivalents(),
-    nextPosts,
+    postSites,
   },
   onBrokenLinks: 'warn',
   future: {
@@ -388,7 +395,7 @@ const config: Config = {
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
-          // The root's feeds carry every post at its lasting URL
+          // The root's feeds carry every post at the URL it was published at
           ...(isNext && { feedOptions: { type: null } }),
         },
         theme: {
@@ -409,16 +416,16 @@ const config: Config = {
     ],
   ],
   plugins: [
-    // /next/ links the root's posts straight there
-    ...(nextPosts ?
+    // links to posts another site serves go straight there
+    ...(hasPostSites ?
       [
         () => ({
-          name: 'root-post-links',
+          name: 'post-site-links',
           configureWebpack: () => ({
             resolve: {
               alias: {
                 '@docusaurus/Link':
-                  require.resolve('./src/utils/RootPostLink.tsx'),
+                  require.resolve('./src/utils/PostSiteLink.tsx'),
               },
             },
           }),
@@ -446,8 +453,8 @@ const config: Config = {
           // social cards are for link previews, never shown on the site
           globIgnores: [
             'img/social/**',
-            // /next/ sends the root's posts there
-            ...(rootPosts ? [...rootPosts].map(post => `${post}.html`) : []),
+            // posts another site serves redirect there
+            ...Object.keys(postSites).map(post => `${post}.html`),
           ],
           // Pages are files like docs/intro.html served at /docs/intro
           // (trailingSlash: false), so cache them under the URL they're served
