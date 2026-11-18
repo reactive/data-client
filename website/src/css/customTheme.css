@@ -208,7 +208,10 @@ small {
    docs sidebar, and the post and its table of contents split the rest 3:1
    like a doc and its TOC, in a container that grows by the sidebar's width.
    So the post sits where a doc's text does, at the same width, at every
-   window size. Infima stacks the columns below 997px */
+   window size. Posts without a TOC, and the post list, keep the 3/4 measure
+   so lines stay readable. --doc-sidebar-width is Docusaurus's (theme-classic
+   DocRoot/Layout/Sidebar); the fallback covers pages that don't load it.
+   Infima stacks the columns below 997px */
 @media (min-width: 997px) {
   .blog-wrapper .main-wrapper > .container {
     --blog-sidebar-width: var(--doc-sidebar-width, 300px);
@@ -220,6 +223,7 @@ small {
   .blog-wrapper .container > .row > main.col--7 {
     --ifm-col-width: calc((100% - var(--blog-sidebar-width)) * 3 / 4);
   }
+  /* the post's table of contents */
   .blog-wrapper .container > .row > .col--2 {
     --ifm-col-width: calc((100% - var(--blog-sidebar-width)) / 4);
   }
