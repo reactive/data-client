@@ -27,7 +27,7 @@ archive, v0.18, takes every older post too (v0.2 through v0.18): earlier version
   since the release's install and build run third-party code. A second job, which runs nothing from
   the release, uploads the archive to the `docs-v<version>` GitHub release, named by its sha256,
   and opens a PR listing the version, checksum and posts in `website/versionsArchived.json`: the
-  posts the archive built that no other version lists. That PR's branch starts from the dispatching commit, so dispatch from master. The workflow token makes that PR, so its CI only runs once someone pushes to it.
+  posts the archive built that no other version lists. That PR's branch starts from the dispatching commit, so dispatch from master. Its CI runs once a maintainer approves the pending runs on the PR.
   `release.yml` calls the workflow when a new release line (a 0.x minor, otherwise a major;
   `scripts/maintenance/version-line.sh`) first publishes a stable version, from the version's maintenance branch if `website/versionCurrent.json` names one, unless
   `versionsArchived.json` already lists the version (dispatched ahead of the release, so the
@@ -63,9 +63,10 @@ archive, v0.18, takes every older post too (v0.2 through v0.18): earlier version
 
 ## Current and next
 
-**Now:** `0.18.x` serves [dataclient.io](https://dataclient.io) and master serves
-[dataclient.io/next](https://dataclient.io/next/) (`website/versionCurrent.json`). Update this line
-when that file changes.
+**Now:** master serves [dataclient.io](https://dataclient.io), with no `/next/` (no
+`website/versionCurrent.json`), and v0.18 is archived at
+[0.18.dataclient.io](https://0.18.dataclient.io) with every post up to v0.18. Update this line
+when `versionCurrent.json` or `versionsArchived.json` changes.
 
 While master takes the next major's breaking changes, the root keeps the released version's docs
 and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/maintenance/README.md)
