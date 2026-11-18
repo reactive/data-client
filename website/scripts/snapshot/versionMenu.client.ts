@@ -47,7 +47,7 @@ function here() {
 // or a failed request (a dev server, a deploy without vercel.json's CORS
 // header), counts as found, so the menu keeps the page's link as it did
 // before checking. A redirect to another site counts as missing: that version
-// sends the page elsewhere, like an old post to the site it was written for.
+// sends the page elsewhere, like an old post to its archive.
 const found = new Map<string, Promise<boolean>>();
 function exists(url: string) {
   let res = found.get(url);

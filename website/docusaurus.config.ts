@@ -60,8 +60,8 @@ const postPath = (name: string) => {
   const post = /^(\d{4})-(\d{2})-(\d{2})-(.+?)(?:\.mdx?)?$/.exec(name);
   return post && `blog/${post.slice(1).join('/')}`;
 };
-// A post lives on the site of the version it was published under, so its
-// docs links and playgrounds match it: an archive's posts on its host, and
+// A post moves to the first archive that built it, so its docs links and
+// playgrounds keep the docs of that time: an archive's posts on its host, and
 // while master is the next major, the posts on the current version's branch
 // (posts publish there too: scripts/maintenance/README.md) at the root. This
 // build still renders them for its lists, but links and routes go to their

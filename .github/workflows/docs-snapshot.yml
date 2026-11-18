@@ -121,8 +121,8 @@ jobs:
           gh release upload "$tag" "$asset" --clobber
       # fetch.sh checks the listed checksum, so a later change to the asset
       # fails the deploy instead of shipping
-      # A post lives on the site of the version it was published under: the
-      # archive serves the posts it built that no other version serves
+      # A post moves to the first archive that built it: this archive serves
+      # the posts it built that no other version lists
       - name: Open a PR listing the version
         env:
           GH_TOKEN: ${{ github.token }}

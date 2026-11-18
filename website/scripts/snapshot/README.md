@@ -6,11 +6,12 @@ host, like react.dev's (for example `0.18.dataclient.io/docs/api/useSuspense`). 
 own lockfile, packages, config and editor types, so its playgrounds run, and its examples
 type-check, as they did when that release's CI passed. Archives add nothing to the site's own builds.
 
-A post lives on the site of the version it was published under, so its docs links and playgrounds
-match it. For example, once v0.19 ships, `dataclient.io/blog/2026/05/01/v0.18-scalar-typed-downloads`
+A post moves to the first archive that built it, so its docs links and playgrounds keep the docs of
+that time. For example, once v0.19 ships, `dataclient.io/blog/2026/05/01/v0.18-scalar-typed-downloads`
 redirects to the same path on `0.18.dataclient.io`, where its `/docs` links open v0.18's docs. Only the
 latest site has the blog's lists (the index, tags, pages) and feeds, which list every post. A post's
-URL changes once, when its version is archived, and its old URL redirects.
+URL changes once, when the first archive that has it ships, and its old URL redirects. So the first
+archive, v0.18, takes every older post too (v0.2 through v0.18): earlier versions had no archive.
 
 - `build.sh <checkout> <version> <out.tar.gz>` builds an archive from a checkout of a release. It
   copies `docusaurus.snapshot.config.ts` beside that release's config, which sets its `url` to
@@ -19,7 +20,7 @@ URL changes once, when its version is archived, and its old URL redirects.
   loads to the latest site, and `postSite.client.ts` its in-app routes), labels the version under the logo (`versionLabel.ts`, like the latest site's),
   adds the version menu (`versionMenu.client.ts`; it links each version's copy of the page, or that
   version's section home, like `/docs`, when the page 404s there) in place of any version dropdown the release has,
-  and adds a banner linking to the latest docs (on a post: "This post was written for v<version>",
+  and adds a banner linking to the latest docs (on a post: "You're reading this post with the v<version> docs",
   with the latest docs and every post). The wrapper
   runs against old configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,

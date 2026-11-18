@@ -1,6 +1,6 @@
 import siteConfig from '@generated/docusaurus.config';
 
-// Each post lives on the site of the version it was published under
+// A post moves to the first archive that built it
 // (docusaurus.config.ts's postSites): links to a post this build doesn't own
 // go to that site, where its docs links and playgrounds match it. It can't
 // share scripts/snapshot/postSite.client.ts, which sends routes the same way:

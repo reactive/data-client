@@ -72,7 +72,7 @@ export default {
         id: `archive-${version}`,
         content:
           `<span class="archive-banner__docs">You're reading the docs for v${version}. <a href="${latest}/docs">See the latest version</a>.</span>` +
-          `<span class="archive-banner__post">This post was written for v${version}. <a href="${latest}/docs">Latest docs</a> · <a href="${latest}/blog">All posts</a></span>`,
+          `<span class="archive-banner__post">You're reading this post with the v${version} docs. <a href="${latest}/docs">Latest docs</a> · <a href="${latest}/blog">All posts</a></span>`,
         isCloseable: false,
       },
     }),

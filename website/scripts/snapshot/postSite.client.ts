@@ -1,8 +1,8 @@
 // Sends in-app routes to pages another site serves, as vercel.json and
 // docs-deploy.yml do for page loads. Added by docusaurus.config.ts wherever
 // another site serves some posts, and to archives by archiveBlog.ts.
-// - A post lives on the site of the version it was published under, at a
-//   URL that never changes after that (postSites; src/utils/postSite.ts
+// - A post moves to the first archive that built it, at a URL that never
+//   changes after that (postSites; src/utils/postSite.ts
 //   links them the same way).
 // - Only the latest site has the blog's lists (blogHome, set in archives):
 //   an archive keeps its own posts and sends every other blog page there.

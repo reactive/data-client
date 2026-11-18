@@ -35,7 +35,7 @@ if (versionCurrent) {
 }
 
 /** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml,
- * with the blog posts each one serves (published while it was the latest) */
+ * with the blog posts each one serves (those it was the first to build) */
 const versionsArchived: {
   version: string;
   sha256: string;
@@ -69,8 +69,8 @@ for (const { version, sha256, posts = [] } of versionsArchived) {
   );
 }
 
-/** Each archived post's site: a post lives on the site of the version it was
- * published under, so its docs links and playgrounds match it */
+/** Each archived post's site: a post moves to the first archive that built
+ * it, so its docs links and playgrounds keep the docs of that time */
 export const archivedPosts: Record<string, string> = Object.fromEntries(
   versionsArchived.flatMap(({ version, posts = [] }) =>
     posts.map(post => [post, archiveUrl(version)]),

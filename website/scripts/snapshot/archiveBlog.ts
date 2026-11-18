@@ -1,5 +1,5 @@
-// An archive serves the posts published while it was the latest version, so
-// their docs links and playgrounds match them, but only the latest site has
+// An archive serves the posts it was the first to build, so their docs links
+// and playgrounds keep the docs of that time, but only the latest site has
 // the blog's lists and feeds: postSite.client.ts sends in-app routes to any
 // other blog page there (blogHome), as vercel.json does page loads. build.sh
 // copies it beside an old release's config, so it reads only fields every

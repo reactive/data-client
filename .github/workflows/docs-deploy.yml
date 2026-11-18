@@ -96,8 +96,8 @@ jobs:
               | {source: "/next/\(.)", destination: "/\(.)", permanent: false}))' \
             website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
-      # A post lives on the site of the version it was published under:
-      # versionsArchived.json lists each archive's posts. Page loads of one
+      # A post moves to the first archive that built it: versionsArchived.json
+      # lists each archive's posts. Page loads of one
       # elsewhere (the root, /next, another archive's host) redirect there,
       # keeping the locale, query and fragment; the builds link and route to
       # it the same way (website/docusaurus.config.ts's postSites). An archive's
@@ -126,9 +126,10 @@ jobs:
           ! cut -f1 ../archived-posts.tsv ../root-posts.txt | grep -vE '^[A-Za-z0-9/._-]+$' ||
             { echo "::error::Post paths above need escaping in vercel.json"; exit 1; }
           cd ..
-          jq --rawfile archived archived-posts.tsv --rawfile root root-posts.txt \
-            --argjson versions "$(jq '[.[].version]' versionsArchived.json)" '
+          jq --rawfile archived archived-posts.tsv --rawfile root root-posts.txt '
             def host($v): {type: "host", value: "\($v | gsub("\\."; "\\."))\\.dataclient\\.io"};
+            # any archive host, as vercel.json matches them
+            def archiveHost: {type: "host", value: "(?:0\\.\\d+|[1-9]\\d*)\\.dataclient\\.io"};
             def lines($s): $s | split("\n") | map(select(. != ""));
             (lines($archived) | map(split("\t") | {post: .[0], version: .[1]})) as $owned
             | .redirects = ($owned | map(
@@ -136,9 +137,9 @@ jobs:
                  destination: "https://\(.version).dataclient.io/\(.post)", permanent: true},
                 {source: "/next/\(.post)",
                  destination: "https://\(.version).dataclient.io/\(.post)", permanent: false}))
-              + ($versions | map(. as $v | lines($root) | map(
-                {source: "/\(.)", has: [host($v)],
-                 destination: "https://dataclient.io/\(.)", permanent: true})) | add // [])
+              + (lines($root) | map(
+                {source: "/\(.)", has: [archiveHost],
+                 destination: "https://dataclient.io/\(.)", permanent: true}))
               + .redirects' vercel.json > vercel.json.tmp
           mv vercel.json.tmp vercel.json
       - uses: actions/setup-node@v7
