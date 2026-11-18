@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794536501221,
+  "lastUpdate": 1795037146262,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -1085,6 +1085,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.68%",
             "unit": "ops/sec",
             "extra": "91 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "41898282+github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "00b129c50515246826078b1285c3bd38d94a5f3d",
+          "message": "internal: Publish new version (#4020)\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "timestamp": "2026-11-18T21:23:51Z",
+          "tree_id": "f6cc87661e709a332d8b098ab48c69a5f6ab806e",
+          "url": "https://github.com/reactive/data-client/commit/00b129c50515246826078b1285c3bd38d94a5f3d"
+        },
+        "date": 1795037143206,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 151,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
           }
         ]
       }
