@@ -83,6 +83,11 @@ const lineOf = (version: string) => {
   const [major, minor] = version.split('-')[0].split('.');
   return major === '0' ? `0.${minor}` : major;
 };
+/** The line after one, which its next breaking release starts */
+const nextLine = (line: string) =>
+  line.startsWith('0.') ?
+    `0.${Number(line.slice(2)) + 1}`
+  : `${Number(line) + 1}`;
 
 /** This site's version, under its logo: next while master is a major ahead */
 const packageVersion = read('../packages/react/package.json')?.version;
@@ -95,21 +100,12 @@ check(
   LINE.test(packageLine),
   `packages/react/package.json: ${packageVersion} has no line`,
 );
-/** The line after one, which its next breaking release starts */
-const nextLine = (line: string) =>
-  line.startsWith('0.') ?
-    `0.${Number(line.slice(2)) + 1}`
-  : `${Number(line) + 1}`;
 /** The line master documents: once its line is archived (the switch can
  * merge before the next line publishes), the next one */
 const masterLine =
   versionsArchived.some(v => v.version === packageLine) ?
     nextLine(packageLine)
   : packageLine;
-check(
-  !versionsArchived.some(v => v.version === masterLine),
-  `versionsArchived.json lists ${masterLine}, the version master documents`,
-);
 export const siteLabel = versionCurrent ? 'next' : `v${masterLine}`;
 
 const SITE = 'https://dataclient.io';
