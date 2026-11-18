@@ -204,15 +204,32 @@ small {
   }
 }
 
-/* Blog: lay out like a docs page. The recent-posts list is as wide as the
-   docs sidebar, and the post and its table of contents split the rest 3:1
-   like a doc and its TOC, in a container that grows by the sidebar's width.
-   So the post sits where a doc's text does, at the same width, at every
-   window size. Posts without a TOC, and the post list, keep the 3/4 measure
-   so lines stay readable. --doc-sidebar-width is Docusaurus's (theme-classic
-   DocRoot/Layout/Sidebar); the fallback covers pages that don't load it.
+/* Blog, below 1440px: the post keeps 8 of 12 columns of Infima's 1140px
+   container (760px at 1280px), wide enough for side-by-side demos, while the
+   recent-posts list and the table of contents split the rest of the window.
    Infima stacks the columns below 997px */
-@media (min-width: 997px) {
+@media (min-width: 997px) and (max-width: 1439.98px) {
+  .blog-wrapper .main-wrapper > .container {
+    --blog-post-width: calc(min(100%, var(--ifm-container-width)) * 8 / 12);
+    max-width: none;
+  }
+  .blog-wrapper .container > .row > main.col--7 {
+    --ifm-col-width: var(--blog-post-width);
+  }
+  .blog-wrapper .container > .row > aside.col--3,
+  .blog-wrapper .container > .row > .col--2 {
+    --ifm-col-width: calc((100% - var(--blog-post-width)) / 2);
+  }
+}
+
+/* Blog, from 1440px: lay out like a docs page. The recent-posts list is as
+   wide as the docs sidebar, and the post and its table of contents split the
+   rest 3:1 like a doc and its TOC, in a container that grows by the
+   sidebar's width. So the post sits where a doc's text does, at the same
+   width. Posts without a TOC, and the post list, keep the 3/4 measure so
+   lines stay readable. --doc-sidebar-width is Docusaurus's (theme-classic
+   DocRoot/Layout/Sidebar); the fallback covers pages that don't load it */
+@media (min-width: 1440px) {
   .blog-wrapper .main-wrapper > .container {
     --blog-sidebar-width: var(--doc-sidebar-width, 300px);
     max-width: calc(var(--ifm-container-width-xl) + var(--blog-sidebar-width));
