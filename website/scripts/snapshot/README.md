@@ -58,8 +58,10 @@ archive, v0.18, takes every older post too (v0.2 through v0.18): earlier version
   host to the root. The version menu treats a page that redirects to another site as missing there.
 - The site reads `versionCurrent.json` and `versionsArchived.json` through `website/siteVersions.ts`,
   failing the build when one breaks an invariant: each version is a line, listed once, and not both
-  current and archived; each sha256 is one; the current `ref` is `<version>.x`. It also gives the
-  label under the logo (`siteLabel`): next, or the line of `packages/react`'s version.
+  current and archived; each sha256 is one; the current `ref` is `<version>.x`; the version menu
+  names each version once. It also gives the label under the logo (`siteLabel`): next, or the line
+  master documents: `packages/react`'s, or the one after it once that line is archived (the switch
+  can merge before the next line publishes).
 
 ## Current and next
 
