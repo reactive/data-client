@@ -645,6 +645,95 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   );
 });
 
+// ── createEditBrowse ─────────────────────────────────────────────────
+
+test('createEditBrowse shows each created and edited issue in both lists and its detail', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.createEditBrowse === 'function',
+    ))
+  )
+    return;
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.createEditBrowse!(3, 20));
+  await waitForComplete(page, 30000);
+
+  const timedOut = await page.evaluate(
+    () =>
+      document
+        .querySelector('[data-bench-harness]')
+        ?.hasAttribute('data-bench-timeout') ?? false,
+  );
+  assert(!timedOut, lib, 'createEditBrowse timeout', 'a step timed out');
+
+  const hasList = await page.evaluate(
+    () =>
+      document.querySelector('[data-issue-list] [data-bench-item]') !== null,
+  );
+  assert(hasList, lib, 'createEditBrowse list', 'list not in DOM at the end');
+
+  const editedTitle = await page.evaluate(
+    () =>
+      document.querySelector('[data-issue-list] [data-bench-item] [data-title]')
+        ?.textContent,
+  );
+  assert(
+    editedTitle?.startsWith('Edited ') ?? false,
+    lib,
+    'createEditBrowse edited',
+    `first row title is ${editedTitle}`,
+  );
+
+  // Ten steps per measured round; the warmup round is not measured.
+  const navSteps = (await collectMeasures(page)).filter(
+    m => m.name === 'nav-step',
+  ).length;
+  assert(
+    navSteps === 30,
+    lib,
+    'createEditBrowse measure',
+    `expected 30 nav-step measures, got ${navSteps}`,
+  );
+});
+
+// ── moveThenSwitch ───────────────────────────────────────────────────
+
+test('moveThenSwitch shows each moved issue in the closed list', async (page, lib) => {
+  if (
+    !(await page.evaluate(
+      () => typeof window.__BENCH__?.moveThenSwitch === 'function',
+    ))
+  )
+    return;
+
+  await clearComplete(page);
+  await page.evaluate(() => window.__BENCH__!.moveThenSwitch!(3, 30));
+  await waitForComplete(page, 30000);
+
+  const shown = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-state-list]')].map(el =>
+      el.getAttribute('data-state-list'),
+    ),
+  );
+  assert(
+    shown.length === 1 && shown[0] === 'open',
+    lib,
+    'moveThenSwitch tab',
+    `expected only the open list at the end, got ${JSON.stringify(shown)}`,
+  );
+
+  const navSteps = (await collectMeasures(page)).filter(
+    m => m.name === 'nav-step',
+  ).length;
+  assert(
+    navSteps === 3,
+    lib,
+    'moveThenSwitch measure',
+    `expected 3 nav-step measures, got ${navSteps}`,
+  );
+});
+
 // ── server list JSON ─────────────────────────────────────────────────
 
 test('server list replies match a fresh serialization after mutations', async (page, lib) => {

@@ -171,6 +171,8 @@ export function useBenchState({
     null,
   );
   const [pinnedNumbers, setPinnedNumbers] = useState<number[]>([]);
+  /** The one state-filtered list shown, like a tab (create/move navigation scenarios) */
+  const [stateList, setStateList] = useState<'open' | 'closed' | null>(null);
   const [renderLimit, setRenderLimit] = useState<number | undefined>();
   const containerRef = useRef<HTMLDivElement>(null);
   const completeResolveRef = useRef<(() => void) | null>(null);
@@ -367,6 +369,7 @@ export function useBenchState({
     setDoubleListCount(undefined);
     setDetailIssueNumber(null);
     setPinnedNumbers([]);
+    setStateList(null);
   }, []);
 
   const initDoubleList = useCallback(
@@ -408,24 +411,32 @@ export function useBenchState({
 
   /**
    * Time one navigation step: from right before `fn()` until a commit shows
-   * `selector`, skipping earlier commits such as a loading state. Records one
-   * `nav-step` measure.
+   * the `done` selector (or makes `done()` true), skipping earlier commits
+   * such as a loading state. Records one `nav-step` measure unless `record`
+   * is false, as in a warmup round.
    */
-  const measureNavStep = useCallback((fn: () => void, selector: string) => {
-    const container = containerRef.current!;
-    return new Promise<void>(resolve => {
-      timedWindow(
-        container,
-        fn,
-        () => container.querySelector(selector) != null,
-        (start, end) => {
-          performance.measure('nav-step', { start, end });
-          resolve();
-        },
-        () => resolve(),
-      );
-    });
-  }, []);
+  const measureNavStep = useCallback(
+    (fn: () => void, done: string | (() => boolean), record = true) => {
+      const container = containerRef.current!;
+      const isDone =
+        typeof done === 'string' ?
+          () => container.querySelector(done) != null
+        : done;
+      return new Promise<void>(resolve => {
+        timedWindow(
+          container,
+          fn,
+          isDone,
+          (start, end) => {
+            if (record) performance.measure('nav-step', { start, end });
+            resolve();
+          },
+          () => resolve(),
+        );
+      });
+    },
+    [],
+  );
 
   /**
    * Timed: each step from its state change until the next view commits,
@@ -469,6 +480,159 @@ export function useBenchState({
       measureNavStep,
       setComplete,
     ],
+  );
+
+  /**
+   * Timed, per round, ten steps the runner sums: create an issue from the
+   * all-issues list, switch to the open list, open the issue, go back, go
+   * forward, edit its title, go back to the open list and the all-issues
+   * list, then forward to the open list and the issue. Each step ends when
+   * its view shows the new issue or the new title. Both lists were loaded
+   * first, like tabs the user visited.
+   * Data Client sends only the create and the edit; per-request caches also
+   * refetch after each mutation and fetch views they haven't cached; the
+   * baseline fetches every view. Returning to the start is not timed, and
+   * the first round is an unmeasured warmup.
+   */
+  const createEditBrowse = useCallback(
+    async (rounds: number, seedCount: number) => {
+      await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
+      // The all-issues list, not the open list (which also renders an issue list)
+      const allList = '[data-issue-list]:not([data-state-list] *)';
+      const listItem = `${allList} [data-bench-item]`;
+      setDoubleListCount(seedCount);
+      setStateList('open');
+      await waitForElement('[data-state-list="open"] [data-bench-item]');
+      setStateList(null);
+      setListViewCount(seedCount);
+      await waitForElement(listItem);
+
+      const container = containerRef.current!;
+      const firstNumber = () =>
+        container.querySelector(listItem)?.getAttribute('data-issue-number');
+      const titleIs = (selector: string, title: string) => () =>
+        container.querySelector(`${selector} [data-title]`)?.textContent ===
+        title;
+      const showAll = () => {
+        setStateList(null);
+        setDetailIssueNumber(null);
+        setListViewCount(seedCount);
+      };
+      const showOpen = () => {
+        setListViewCount(undefined);
+        setDetailIssueNumber(null);
+        setStateList('open');
+      };
+      for (let i = 0; i <= rounds; i++) {
+        const step = (fn: () => void, done: string | (() => boolean)) =>
+          measureNavStep(fn, done, i > 0);
+        // A mutation's step ends when the view shows it. Like measureUpdate,
+        // the reply is held out of an optimistic update's window; it is then
+        // handled and painted before the next step, so it never lands in a
+        // later window.
+        const mutationStep = async <T,>(
+          fn: () => Promise<T>,
+          done: () => boolean,
+        ): Promise<T> => {
+          let pending!: Promise<T>;
+          if (optimisticMutations) holdMutationReplies();
+          try {
+            await step(() => {
+              pending = fn();
+            }, done);
+          } finally {
+            if (optimisticMutations) releaseMutationReplies();
+          }
+          const result = await pending;
+          await waitForPaint();
+          return result;
+        };
+
+        const before = firstNumber();
+        const number = await mutationStep(
+          () => apiRef.current.createItem!(),
+          () => {
+            const first = firstNumber();
+            return first != null && first !== before;
+          },
+        );
+        const inOpen = `[data-state-list="open"] [data-issue-number="${number}"]`;
+        const inAll = `${allList} [data-issue-number="${number}"]`;
+        const detail = `[data-detail-view][data-issue-number="${number}"]`;
+        const showDetail = () => {
+          setListViewCount(undefined);
+          setStateList(null);
+          setDetailIssueNumber(number);
+        };
+
+        await step(showOpen, inOpen);
+        await step(showDetail, detail);
+        await step(showOpen, inOpen);
+        await step(showDetail, detail);
+
+        const title = `Edited ${number} (${i})`;
+        await mutationStep(
+          () => apiRef.current.editTitle!(number, title),
+          titleIs(detail, title),
+        );
+        await step(showOpen, titleIs(inOpen, title));
+        await step(showAll, titleIs(inAll, title));
+        await step(showOpen, titleIs(inOpen, title));
+        await step(showDetail, titleIs(detail, title));
+        showAll();
+        await waitForElement(inAll);
+
+        if (container.hasAttribute('data-bench-timeout')) break;
+      }
+      setComplete();
+    },
+    [
+      setListViewCount,
+      setDoubleListCount,
+      setDetailIssueNumber,
+      waitForElement,
+      measureNavStep,
+      setComplete,
+      optimisticMutations,
+    ],
+  );
+
+  /**
+   * Timed: switching to the closed list after moving an open issue there,
+   * from the state change until the closed list shows it. Both lists were
+   * loaded first; only one is mounted at a time, like tabs. Moving, and
+   * switching back, are not timed. The first round is an unmeasured warmup.
+   */
+  const moveThenSwitch = useCallback(
+    async (navigations: number, seedCount: number) => {
+      const seed = FIXTURE_ISSUES.slice(0, seedCount);
+      await seedIssueList(seed);
+      const open = seed.filter(issue => issue.state === 'open');
+      const openItem = '[data-state-list="open"] [data-bench-item]';
+      setDoubleListCount(seedCount);
+      setStateList('closed');
+      await waitForElement('[data-state-list="closed"] [data-bench-item]');
+      setStateList('open');
+      await waitForElement(openItem);
+
+      const container = containerRef.current!;
+      for (let i = 0; i <= navigations && i < open.length; i++) {
+        const { number } = open[i];
+        await apiRef.current.moveToState!(number, 'closed');
+        const moved = `[data-state-list="closed"] [data-issue-number="${number}"]`;
+        if (i === 0) {
+          setStateList('closed');
+          await waitForElement(moved);
+        } else {
+          await measureNavStep(() => setStateList('closed'), moved);
+        }
+        setStateList('open');
+        await waitForElement(openItem);
+        if (container.hasAttribute('data-bench-timeout')) break;
+      }
+      setComplete();
+    },
+    [setDoubleListCount, waitForElement, measureNavStep, setComplete],
   );
 
   const initMultiView = useCallback(
@@ -525,6 +689,8 @@ export function useBenchState({
       mountUnmountCycle,
       mountSortedView,
       listDetailSwitch,
+      createEditBrowse,
+      moveThenSwitch,
       getRenderedCount,
       captureRefSnapshot,
       getRefStabilityReport,
@@ -561,6 +727,7 @@ export function useBenchState({
     doubleListCount,
     detailIssueNumber,
     pinnedNumbers,
+    stateList,
     renderLimit,
     containerRef,
 
