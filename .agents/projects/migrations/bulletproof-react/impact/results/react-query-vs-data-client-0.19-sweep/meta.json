@@ -1,0 +1,44 @@
+{
+ "config": ".agents/projects/migrations/bulletproof-react/impact/impact.config.mjs",
+ "prep": [
+  "fixed-latency.patch"
+ ],
+ "latency": {
+  "env": "VITE_MOCK_DELAY_MS",
+  "ms": 400,
+  "sweepMs": [
+   100,
+   1000
+  ]
+ },
+ "runs": 8,
+ "cpuThrottle": 4,
+ "node": "v22.23.4",
+ "playwright": "1.59.1",
+ "checkouts": {
+  "baseline": {
+   "commit": "9506629ed003a561c6627735480cce4994244bb4",
+   "treeDiffSha1": "8dfaf086b169",
+   "uncommittedFiles": 3,
+   "dataLibs": {
+    "@tanstack/react-query": "5.32.1",
+    "react-query-auth": "2.4.3",
+    "@data-client/react": null,
+    "@data-client/rest": null,
+    "axios": "1.6.8"
+   }
+  },
+  "migrated": {
+   "commit": "fa3e4f090bb89eba13d823b12ec2be34ae72cf10",
+   "treeDiffSha1": "ffd04de1330c",
+   "uncommittedFiles": 3,
+   "dataLibs": {
+    "@tanstack/react-query": null,
+    "react-query-auth": null,
+    "@data-client/react": "0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+    "@data-client/rest": "0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+    "axios": null
+   }
+  }
+ }
+}
