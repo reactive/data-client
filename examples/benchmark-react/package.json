@@ -43,7 +43,7 @@
     "@types/react-dom": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "playwright": "1.64.0",
-    "serve": "14.2.7",
+    "serve": "14.2.8",
     "tsx": "4.23.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "webpack": "5.112.2",
