@@ -1,0 +1,14 @@
+{
+  "name": "tunes",
+  "private": true,
+  "type": "module",
+  "scripts": { "typecheck": "tsc --noEmit", "test": "vitest run" },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.5.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-redux": "^9.2.0",
+    "tunes-sdk": "^3.1.0"
+  },
+  "devDependencies": { "typescript": "^5.9.0", "vitest": "^3.2.0", "@testing-library/react": "^16.3.0" }
+}

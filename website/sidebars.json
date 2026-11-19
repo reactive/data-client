@@ -140,6 +140,10 @@
           "id": "guides/tanstack-query-migration"
         },
         {
+          "type": "doc",
+          "id": "guides/redux-migration"
+        },
+        {
           "type": "category",
           "collapsible": false,
           "label": "Legacy",
