@@ -2402,13 +2402,6 @@ declare class ErrorBoundary<E extends Error> extends React__default.Component<Er
     render(): JSX.Element;
 }
 
-/**
- * Handles loading and error conditions of Suspense
- * @see https://dataclient.io/docs/api/AsyncBoundary
- */
-declare function AsyncBoundary({ children, errorComponent, fallback, ...errorProps }: Props): JSX.Element;
-declare const _default: typeof AsyncBoundary;
-
 interface Props {
     children: React__default.ReactNode;
     fallback?: React__default.ReactNode;
@@ -2418,6 +2411,14 @@ interface Props {
     /** Subscription handler to reset error state on events like URL location changes */
     listen?: ErrorBoundaryProps<Error>['listen'];
 }
+
+/**
+ * Handles loading and error conditions of Suspense
+ * @see https://dataclient.io/docs/api/AsyncBoundary
+ */
+declare function AsyncBoundary(props: Props): JSX.Element;
+declare const _default: typeof AsyncBoundary;
+//# sourceMappingURL=AsyncBoundary.d.ts.map
 
 /**
  * Ensure an endpoint is available.
