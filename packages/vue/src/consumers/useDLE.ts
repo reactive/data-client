@@ -51,7 +51,7 @@ export default function useDLE<
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
 ): {
   data: ComputedRef<
-    E['schema'] extends undefined | null ? undefined
+    E['schema'] extends undefined | null ? ResolveType<E> | undefined
     : DenormalizeNullable<E['schema']>
   >;
   loading: ComputedRef<boolean>;
