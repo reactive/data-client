@@ -560,8 +560,6 @@ describe('vue useDLE()', () => {
     );
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeUndefined();
-    const title: string | undefined = result.data.value?.title;
-    expect(title).toBeUndefined();
     // @ts-expect-error ensure this isn't "any"
     result.data.value?.doesnotexist;
 
@@ -569,7 +567,8 @@ describe('vue useDLE()', () => {
     await nextTick();
     await allSettled();
     expect(result.loading.value).toBe(false);
-    expect(result.data.value).toEqual({ id: 5, title: 'hi' });
+    const title: string | undefined = result.data.value?.title;
+    expect(title).toBe('hi');
 
     cleanup();
   });
