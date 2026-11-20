@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1795083876580,
+  "lastUpdate": 1795139327229,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -14837,6 +14837,114 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 320.51,
             "range": "± 2.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "a218d2231e5c6a6d2d1b74762f43e42484e04c24",
+          "message": "fix: useDLE() types data for schema-less endpoints with nullable args (#4709)\n\n* fix: useDLE() types data for schema-less endpoints with nullable args\n\nThe nullable-args overload typed data as undefined when the endpoint has\nno schema. Use ResolveType<E> | undefined, like useSuspense() and\nuseCache(). Applies to React (web and native) and Vue.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZEDW88C3UEjiAGULfv\n\n* internal: Make changeset example runnable, tighten tests, drop dead SuspenseReturn type\n\nSuspenseReturn and CondNull in react hooks/types.ts were unused and still\ncarried the old undefined typing for schema-less nullable args.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBtGvJe2W3ajt3TdxV\n\n* internal: Keep full-object check beside the typed title check in useDLE tests\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Y5C5ZBtGvJe2W3ajt3TdxV\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-11-20T01:45:06Z",
+          "tree_id": "9d127f0cf7339ca3acbba5d36d59bd0c754d196d",
+          "url": "https://github.com/reactive/data-client/commit/a218d2231e5c6a6d2d1b74762f43e42484e04c24"
+        },
+        "date": 1795139324107,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 379.51,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 97.09,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 968.53,
+            "range": "± 1.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 754.72,
+            "range": "± 0.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 93.15,
+            "range": "± 3.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 576.37,
+            "range": "± 0.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 649.35,
+            "range": "± 0.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 21.11,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 143.37,
+            "range": "± 2.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 112.52,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-ticker-stream",
+            "value": 14.89,
+            "range": "± 2.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 442.48,
+            "range": "± 1.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 590.85,
+            "range": "± 1.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 396.04,
+            "range": "± 2.5%",
             "unit": "ops/s"
           }
         ]
