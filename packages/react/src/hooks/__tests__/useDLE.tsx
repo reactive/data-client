@@ -134,6 +134,7 @@ describe('useDLE()', () => {
     expect(result.current.loading).toBe(true);
     await waitForNextUpdate();
     expect(result.current.loading).toBe(false);
+    expect(result.current.data).toEqual({ id: 5, title: 'hi' });
     const title: string | undefined = result.current.data?.title;
     expect(title).toBe('hi');
   });

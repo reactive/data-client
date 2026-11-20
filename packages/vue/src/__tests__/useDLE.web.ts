@@ -567,6 +567,7 @@ describe('vue useDLE()', () => {
     await nextTick();
     await allSettled();
     expect(result.loading.value).toBe(false);
+    expect(result.data.value).toEqual({ id: 5, title: 'hi' });
     const title: string | undefined = result.data.value?.title;
     expect(title).toBe('hi');
 
