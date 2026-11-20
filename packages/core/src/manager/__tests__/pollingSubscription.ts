@@ -454,3 +454,84 @@ describe('PollingSubscription', () => {
     });
   });
 });
+
+describe('PollingSubscription init() after cleanup()', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  function create(online = true) {
+    const dispatch = jest.fn(() => Promise.resolve());
+    const endpoint = new Endpoint(() => Promise.resolve({ id: 5 }), {
+      schema: Article,
+      key: () => 'test.com',
+      pollFrequency: 5000,
+    });
+    const controller = new Controller({ dispatch });
+    (controller as any).getState = makeState('test.com', 0);
+    const listener = new MockConnectionListener(online);
+    const sub = new PollingSubscription(
+      createSubscription(endpoint, { args: [] }),
+      controller,
+      listener,
+    );
+    jest.advanceTimersByTime(1);
+    return { dispatch, sub, listener };
+  }
+
+  it('resumes polling', () => {
+    const { dispatch, sub } = create();
+    sub.cleanup();
+    dispatch.mockClear();
+    jest.advanceTimersByTime(20000);
+    expect(dispatch).not.toHaveBeenCalled();
+
+    sub.init();
+    jest.advanceTimersByTime(1);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(10000);
+    expect(dispatch).toHaveBeenCalledTimes(3);
+    sub.cleanup();
+  });
+
+  it('does nothing while already running', () => {
+    const { dispatch, sub } = create();
+    dispatch.mockClear();
+    sub.init();
+    jest.advanceTimersByTime(10000);
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    sub.cleanup();
+  });
+
+  it('does not start when a faster frequency is added while stopped', () => {
+    const { dispatch, sub } = create();
+    sub.cleanup();
+    dispatch.mockClear();
+    sub.add(1000);
+    jest.advanceTimersByTime(10000);
+    expect(dispatch).not.toHaveBeenCalled();
+
+    sub.init();
+    jest.advanceTimersByTime(3001);
+    expect(dispatch).toHaveBeenCalledTimes(4);
+    sub.cleanup();
+  });
+
+  it('waits to come online when resumed offline', () => {
+    const { dispatch, sub, listener } = create();
+    sub.cleanup();
+    listener.online = false;
+    dispatch.mockClear();
+    sub.init();
+    jest.advanceTimersByTime(20000);
+    expect(dispatch).not.toHaveBeenCalled();
+
+    listener.trigger('online');
+    jest.advanceTimersByTime(1);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    sub.cleanup();
+  });
+});
