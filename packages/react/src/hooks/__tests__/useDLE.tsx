@@ -1,3 +1,4 @@
+import { Endpoint } from '@data-client/endpoint';
 import { CacheProvider } from '@data-client/react';
 import { makeRenderDataClient } from '@data-client/test';
 import {
@@ -109,6 +110,33 @@ describe('useDLE()', () => {
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
     expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
+  });
+
+  it('should type and return data with no schema and nullable args', async () => {
+    const getTitle = new Endpoint(async function getTitle({
+      id,
+    }: {
+      id: number;
+    }) {
+      return { id, title: 'hi' };
+    });
+    const { result, waitForNextUpdate, rerender } = renderDataClient(
+      ({ id }: { id: number | null }) =>
+        useDLE(getTitle, id === null ? null : { id }),
+      { initialProps: { id: null as number | null } },
+    );
+    expect(result.current.loading).toBe(false);
+    expect(result.current.data).toBeUndefined();
+    // @ts-expect-error ensure this isn't "any"
+    result.current.data?.doesnotexist;
+
+    rerender({ id: 5 });
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.data).toEqual({ id: 5, title: 'hi' });
+    const title: string | undefined = result.current.data?.title;
+    expect(title).toBe('hi');
   });
 
   it('should properly discriminate null args types', () => {

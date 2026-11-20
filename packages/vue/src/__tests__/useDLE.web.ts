@@ -541,6 +541,39 @@ describe('vue useDLE()', () => {
     cleanup();
   });
 
+  it('should type and return data with no schema and nullable args', async () => {
+    const getTitle = new Endpoint(async function getTitle({
+      id,
+    }: {
+      id: number;
+    }) {
+      return { id, title: 'hi' };
+    });
+    const props = reactive({ id: null as number | null });
+    const { result, allSettled, cleanup } = await renderDataCompose(
+      (props: { id: number | null }) =>
+        useDLE(
+          getTitle,
+          computed(() => (props.id !== null ? { id: props.id } : null)),
+        ),
+      { props },
+    );
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeUndefined();
+    // @ts-expect-error ensure this isn't "any"
+    result.data.value?.doesnotexist;
+
+    props.id = 5;
+    await nextTick();
+    await allSettled();
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toEqual({ id: 5, title: 'hi' });
+    const title: string | undefined = result.data.value?.title;
+    expect(title).toBe('hi');
+
+    cleanup();
+  });
+
   it('should handle switching from null to valid args', async () => {
     const props = reactive({ id: null as number | null });
     const { result, allSettled, cleanup } = await renderDataCompose(
