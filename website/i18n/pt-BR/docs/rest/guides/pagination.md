@@ -263,6 +263,81 @@ render(<ValidatorList />);
 
 </FrameworkPlayground>
 
+### Números de página em um envelope {#envelope}
+
+Muitas APIs envolvem cada lista em um envelope: um objeto externo que guarda os dados ao lado de metadados, como
+`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`. Faça do envelope o schema, com a
+[Collection](../api/Collection.md) em `data`, para que os componentes também possam ler `meta`:
+
+```ts title="Comment"
+import { Collection, Entity, RestEndpoint } from '@data-client/rest';
+
+export class Comment extends Entity {
+  id = '';
+  body = '';
+}
+
+export const getComments = new RestEndpoint({
+  path: '/comments',
+  searchParams: {} as { discussionId: string; page?: number },
+  paginationField: 'page',
+  schema: {
+    data: new Collection([Comment]),
+    meta: { page: 0, totalPages: 0 },
+  },
+});
+```
+
+:::react
+
+```tsx title="CommentList"
+import { useController, useSuspense } from '@data-client/react';
+import { getComments } from './Comment';
+
+function CommentList({ discussionId }: { discussionId: string }) {
+  const { data, meta } = useSuspense(getComments, { discussionId });
+  const ctrl = useController();
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 });
+  const add = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId }, { body });
+  // render data, a "Load more" button while meta.page < meta.totalPages, and a form calling add()
+}
+```
+
+:::
+
+:::vue
+
+```html title="CommentList.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { getComments } from './Comment';
+
+  const props = defineProps<{ discussionId: string }>();
+  const comments = await useSuspense(getComments, () => ({
+    discussionId: props.discussionId,
+  }));
+  const ctrl = useController();
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, {
+      discussionId: props.discussionId,
+      page: comments.value.meta.page + 1,
+    });
+  const add = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId: props.discussionId }, { body });
+</script>
+```
+
+:::
+
+- O primeiro fetch omite `page`: [getPage](../api/RestEndpoint.md#getpage) encontra a lista a ser estendida pelos args
+  sem o [paginationField](../api/RestEndpoint.md#paginationfield), então uma lista buscada com `page: 1` é outra,
+  que nunca cresce.
+- Cada página é anexada a `data` e substitui `meta`, então `meta` sempre descreve a página mais recente.
+- [push](../api/RestEndpoint.md#push) envia um `POST` para o mesmo path e adiciona o único `Comment` que ele retorna. Um endpoint
+  de criação separado entra na mesma lista com `schema: getComments.schema.data.push`, chamado com `{ discussionId }`.
+
 ### Scroll infinito {#infinite-scrolling}
 
 A UI de scroll infinito varia conforme o app e a plataforma (React Native ou web). Este exemplo usa um componente `Pagination` que

@@ -82,12 +82,12 @@ npx skills add reactive/data-client --skill data-client-setup -y
 | 组件自己渲染加载指示器或错误的 `useQuery()` | [useDLE()](../api/useDLE.md)：`{ data, loading, error }` |
 | `enabled: false` | 用 `null` 代替参数：`useSuspense(endpoint, id ? { id } : null)` 返回 `undefined`，且不获取任何东西 |
 | `select` | 在渲染中计算，或使用通过 [useQuery()](../api/useQuery.md) 读取的 [Query](/rest/api/Query) schema |
-| `useQueries()` | 对每一个使用 [useFetch()](../api/useFetch.md)，再使用 React 的 `use()`：它们会并行获取 |
+| `useQueries()` | 对每一个使用 [useFetch()](../api/useFetch.md)，再使用 React 19 的 `use()`：它们会并行获取。在 React 18 上，在 `useFetch()` 调用之后对每一个调用 `useSuspense()`；它会复用这些请求 |
 | `staleTime` | endpoint 或基类上的 [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength)。默认为 60 秒（TanStack Query 的默认值为 0） |
 | `gcTime` | `DataProvider` 的 [gcPolicy](../api/DataProvider.md#gcPolicy) |
 | `retry` | 删除它：Data Client 没有重试循环。出错的请求会在 `errorExpiryLength`（默认 1 秒）之后、有组件需要它时再次获取，类似 TanStack Query 的 `retry: false` |
 | `refetchInterval` | endpoint 上的 `pollFrequency`，通过 [useLive()](../api/useLive.md) 读取 |
-| `refetchOnWindowFocus` | 删除它：Data Client 不会在窗口获得焦点时重新获取 |
+| `refetchOnWindowFocus` | 删除它：Data Client 不会在窗口获得焦点时重新获取。在使用 React Navigation 的 React Native 上，屏幕重新获得焦点时会重新获取其过时的数据 |
 | `placeholderData: keepPreviousData` | 在 `startTransition()` 中修改参数（对于输入框则使用 [useDebounce()](../api/useDebounce.md)）：React 会在下一份数据加载期间继续展示当前数据 |
 | 来自列表查询的 `initialData` | 删除它：当详情 endpoint 的 schema 是该 Entity 时，只要列表的数据仍然新鲜，列表加载过的 Entity 就会在详情页直接渲染，无需获取 |
 | `useMutation()` | 在事件处理函数中调用来自 [useController()](../api/useController.md) 的 `ctrl.fetch(endpoint, ...args)` |
@@ -194,12 +194,13 @@ export function IssueTable({ page }: { page: number }) {
 `?? []` 防护也不再需要，因为 `useSuspense()` 只会在数据就绪后才返回。
 
 同一组件中的两个 `useSuspense()` 调用会依次加载。当两者都不依赖对方的数据时，用
-`useFetch()` 同时发起它们，再用 `use()` 读取（[并行数据加载](../api/useFetch.md#parallel-data-loading)）。
+`useFetch()` 同时发起它们，再用 `use()` 读取（[并行数据加载](../api/useFetch.md#parallel-data-loading)）。在
+没有 `use()` 的 React 18 上，在两个 `useFetch()` 调用之后用 `useSuspense()` 读取它们。
 
 ### 信封响应 {#envelope-responses}
 
-当 API 包装了响应时，比如 `{ "results": [...], "pagination": {...} }`，请在 schema 中描述这个信封，
-而不是把它解包，这样组件就能继续读取 `pagination`：
+当 API 用信封（一个把数据和元数据放在一起的外层对象）包装响应时，比如
+`{ "results": [...], "pagination": {...} }`，请把这个信封作为 schema，这样组件就能继续读取 `pagination`：
 
 ```ts title="resources/Issue.ts"
 import { Entity, resource } from '@data-client/rest';

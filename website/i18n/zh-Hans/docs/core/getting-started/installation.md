@@ -155,7 +155,7 @@ TypeScript 是可选的，但要获得完整的类型约束，至少需要 [4.0]
 <details>
 <summary><b>ReactJS 16-19 与 React Native</b></summary>
 
-支持 ReactJS 16.2 及以上版本（也就是带 hook 的版本！）。React 18 提供了更完善的 [Suspense](../api/useSuspense.md)
+支持 ReactJS 16.14 及以上版本。React 18 提供了更完善的 [Suspense](../api/useSuspense.md)
 支持和特性。React Native、[React Navigation](https://reactnavigation.org/) 和 [Expo](https://docs.expo.dev) 均受支持。
 
 如果你有一个结合其他 React 库
@@ -171,7 +171,7 @@ TypeScript 是可选的，但要获得完整的类型约束，至少需要 [4.0]
 <details>
 <summary><b>Vue 3</b></summary>
 
-`@data-client/vue` 支持 Vue 3，并基于[组合式 API](https://vuejs.org/guide/extras/composition-api-faq.html) 构建。
+`@data-client/vue` 支持 Vue 3.4 及以上版本，并基于[组合式 API](https://vuejs.org/guide/extras/composition-api-faq.html) 构建。
 
 </details>
 

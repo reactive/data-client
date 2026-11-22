@@ -82,12 +82,12 @@ o modifican lo que ven los usuarios, como agregar actualizaciones optimistas que
 | `useQuery()` donde el componente renderiza su propio indicador de carga o error | [useDLE()](../api/useDLE.md): `{ data, loading, error }` |
 | `enabled: false` | `null` en lugar de los args: `useSuspense(endpoint, id ? { id } : null)` devuelve `undefined` y no hace fetch de nada |
 | `select` | Calcúlalo al renderizar, o un schema [Query](/rest/api/Query) leído con [useQuery()](../api/useQuery.md) |
-| `useQueries()` | [useFetch()](../api/useFetch.md) para cada uno, y luego `use()` de React: hacen fetch en paralelo |
+| `useQueries()` | [useFetch()](../api/useFetch.md) para cada uno, y luego `use()` de React 19: hacen fetch en paralelo. En React 18, llama a `useSuspense()` para cada uno después de las llamadas a `useFetch()`; reutiliza sus peticiones |
 | `staleTime` | [dataExpiryLength](../concepts/expiry-policy.md#endpointdataexpirylength) en el endpoint o en la clase base. El valor predeterminado es 60 segundos (el de TanStack Query es 0) |
 | `gcTime` | [gcPolicy](../api/DataProvider.md#gcPolicy) de `DataProvider` |
 | `retry` | Elimínalo: Data Client no tiene un bucle de reintentos. Una petición con error se vuelve a obtener cuando un componente la necesita después de `errorExpiryLength` (1 segundo por defecto), como el `retry: false` de TanStack Query |
 | `refetchInterval` | `pollFrequency` en el endpoint, leído con [useLive()](../api/useLive.md) |
-| `refetchOnWindowFocus` | Elimínalo: Data Client no vuelve a obtener los datos al enfocar la ventana |
+| `refetchOnWindowFocus` | Elimínalo: Data Client no vuelve a obtener los datos al enfocar la ventana. En React Native con React Navigation, una pantalla vuelve a obtener sus datos obsoletos cuando recupera el foco |
 | `placeholderData: keepPreviousData` | Cambia los args dentro de `startTransition()` (o [useDebounce()](../api/useDebounce.md) para texto escrito): React sigue mostrando los datos actuales mientras se cargan los siguientes |
 | `initialData` de una consulta de lista | Elimínalo: mientras los datos de la lista están frescos, una Entity que cargó se renderiza en la página de detalle sin hacer fetch, cuando el schema del endpoint de detalle es esa Entity |
 | `useMutation()` | `ctrl.fetch(endpoint, ...args)` en el manejador de eventos, desde [useController()](../api/useController.md) |
@@ -194,12 +194,13 @@ La rama `isLoading` pasa al fallback de un `<Suspense>`, y la rama `isError` a u
 protección `?? []` desaparece, porque `useSuspense()` solo devuelve un valor cuando los datos ya están.
 
 Dos llamadas a `useSuspense()` en un mismo componente cargan una detrás de otra. Cuando ninguna necesita los datos de la otra, inicia ambas
-con `useFetch()` y léelas con `use()` ([carga de datos en paralelo](../api/useFetch.md#parallel-data-loading)).
+con `useFetch()` y léelas con `use()` ([carga de datos en paralelo](../api/useFetch.md#parallel-data-loading)). En
+React 18, que no tiene `use()`, léelas con `useSuspense()` después de ambas llamadas a `useFetch()`.
 
 ### Respuestas con envoltorio {#envelope-responses}
 
-Cuando la API envuelve las respuestas, como `{ "results": [...], "pagination": {...} }`, describe el envoltorio en el schema
-en lugar de desenvolverlo, para que los componentes sigan leyendo `pagination`:
+Cuando la API envuelve las respuestas en un envoltorio (un objeto externo que contiene los datos junto a metadatos), como
+`{ "results": [...], "pagination": {...} }`, haz que el envoltorio sea el schema, para que los componentes sigan leyendo `pagination`:
 
 ```ts title="resources/Issue.ts"
 import { Entity, resource } from '@data-client/rest';

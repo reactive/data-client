@@ -1,5 +1,7 @@
 ```ts
 (value, params) {
+  // the resource's or Endpoint class's process()
+  value = value && Object.keys(value).length && super.process(value, params);
   return value && Object.keys(value).length ? value : params;
 },
 ```

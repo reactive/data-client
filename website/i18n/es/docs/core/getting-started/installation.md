@@ -156,7 +156,7 @@ sigue las instrucciones para [agregar compatibilidad con navegadores heredados a
 <details>
 <summary><b>ReactJS 16-19 y React Native</b></summary>
 
-Se admite ReactJS 16.2 y posteriores (¡la versión con hooks!). React 18 ofrece un soporte y unas funcionalidades mejoradas de [Suspense](../api/useSuspense.md). Se admiten tanto React Native como [React Navigation](https://reactnavigation.org/) y [Expo](https://docs.expo.dev).
+Se admite ReactJS 16.14 y posteriores. React 18 ofrece un soporte y unas funcionalidades mejoradas de [Suspense](../api/useSuspense.md). Se admiten tanto React Native como [React Navigation](https://reactnavigation.org/) y [Expo](https://docs.expo.dev).
 
 Si tienes un proyecto funcionando con otras
 bibliotecas de React, [compártelo con los demás](https://github.com/reactive/data-client/discussions/2422) en nuestras
@@ -171,7 +171,7 @@ discusiones.
 <details>
 <summary><b>Vue 3</b></summary>
 
-`@data-client/vue` es compatible con Vue 3 y está construido sobre la [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
+`@data-client/vue` es compatible con Vue 3.4 y posteriores y está construido sobre la [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
 
 </details>
 

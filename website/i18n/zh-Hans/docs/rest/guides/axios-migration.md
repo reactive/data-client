@@ -214,7 +214,7 @@ export default class ApiEndpoint<
 
 </DiffEditor>
 
-修改响应体的响应 interceptor（例如转换 `snake_case` 键名）应放在
+修改响应体的响应 interceptor（例如解包 `{ data }` 或转换 `snake_case` 键名）应放在
 [`process()`](../api/RestEndpoint.md#process) 中；参见 [snake 转 camel](./network-transform.md#snakes-to-camels)。
 
 当响应 interceptor 返回 `response.data` 时，调用方的 `.data` 读取的是 body 中的字段，而不是 axios 的响应，
@@ -563,6 +563,7 @@ npm uninstall axios
 | `withCredentials: true`                  | 在 `getRequestInit()` 中使用 [`credentials: 'include'`](./auth.md#cookie-auth-credentials)                          |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
+| `delete()` 配置中的 `data`              | endpoint 上的 [`body`](../api/RestEndpoint.md#body)：`DELETE` 只有在拥有它时才发送请求体（rest 0.19+） |
 | `auth: { username, password }`           | [配合 `btoa()` 使用 `getHeaders()`](#basic-auth)                                                                  |
 | `validateStatus`                         | [自定义 `fetchResponse()`](#accepting-error-statuses)                                                             |
 | `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                                   |

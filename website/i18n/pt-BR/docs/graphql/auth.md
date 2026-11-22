@@ -13,28 +13,42 @@ import TabItem from '@theme/TabItem';
 Aqui está um exemplo usando autenticação simples por cookie:
 
 ```ts title="schema/endpoint.ts"
-export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
-  getRequestInit(body: any): Promise<RequestInit> {
+import { GQLEndpoint } from '@data-client/graphql';
+
+class CookieGQLEndpoint extends GQLEndpoint<any> {
+  getRequestInit(variables: any): RequestInit {
     return {
-      ...super.getRequestInit(body),
+      ...super.getRequestInit(variables),
       credentials: 'same-origin',
     };
   }
-});
+}
+
+export const gql = new CookieGQLEndpoint(
+  'https://nosy-baritone.glitch.me',
+);
 export default gql;
 ```
 
 ## Access tokens {#access-tokens}
 
-Aqui usaremos uma variável de membro para acompanhar o access token e enviá-lo
-em um header.
+Aqui guardaremos o access token em uma variável de módulo e o enviaremos em um header. Os endpoints criados com
+`gql.query()` e `gql.mutation()` copiam `gql` quando são criados, então um valor definido em `gql` depois
+não os alcançaria; uma variável de módulo é lida a cada requisição.
 
 ```ts title="schema/endpoint.ts"
+import { GQLEndpoint } from '@data-client/graphql';
+
+let accessToken = '';
+export function setAccessToken(token: string) {
+  accessToken = token;
+}
+
 export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
   getHeaders(headers: HeadersInit): HeadersInit {
     return {
       ...headers,
-      'Access-Token': this.accessToken,
+      'Access-Token': accessToken,
     };
   },
 });
@@ -44,7 +58,7 @@ export default gql;
 Em seguida, defina o access token no login:
 
 ```ts
-import gql from 'schema/endpoint';
+import { setAccessToken } from 'schema/endpoint';
 
 function Auth() {
   const handleLogin = useCallback(
@@ -52,7 +66,7 @@ function Auth() {
       const { accessToken } = await login(new FormData(e.target));
       // success!
       // highlight-next-line
-      gql.accessToken = accessToken;
+      setAccessToken(accessToken);
     },
     [login],
   );

@@ -72,3 +72,8 @@ agents:
   label: 'Agentes de IA'
   description: 'Skills, llms.txt y herramientas para agentes de programación con IA'
   permalink: /agents
+
+validation:
+  label: 'Validación'
+  description: 'Seguridad de tipos, utilidades de pruebas y advertencias en desarrollo'
+  permalink: /validation

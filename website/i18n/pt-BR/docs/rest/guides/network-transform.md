@@ -7,7 +7,8 @@ import { RestEndpoint } from '@data-client/rest';
 
 Transforme dados nos membros do [RestEndpoint](../api/RestEndpoint.md): [process()](../api/RestEndpoint.md#process) para
 respostas, [getRequestInit()](../api/RestEndpoint.md#getRequestInit) para corpos de requisição e
-[parseResponse()](../api/RestEndpoint.md#parseResponse) para headers e corpos brutos.
+[parseResponse()](../api/RestEndpoint.md#parseResponse) para headers e corpos brutos. Para alterar os campos de uma Entity
+onde quer que ela apareça, incluindo listas e dados aninhados, use [Entity.process()](../api/Entity.md#process).
 
 :::tip
 
@@ -45,7 +46,8 @@ class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     return super.getRequestInit(body);
   }
   process(value) {
-    return deeplyApplyKeyTransform(value, camelCase);
+    // a 204 response has no body
+    return value && deeplyApplyKeyTransform(value, camelCase);
   }
 }
 ```
@@ -467,30 +469,46 @@ Para respostas `ArrayBuffer` (úteis para processar dados binários em memória)
 
 ## Renomeando campos {#name-calling}
 
-Para renomear uma chave que a API usa, mapeie-a nos dois sentidos. Sua Entity e seus componentes passam a usar apenas o seu nome.
+Para renomear uma chave que a API usa, mapeie-a nos dois sentidos: o [process()](../api/Entity.md#process) da Entity a renomeia
+em toda resposta que contém a Entity, incluindo listas e dados aninhados, e o
+[getRequestInit()](../api/RestEndpoint.md#getRequestInit) do endpoint a renomeia de volta nos corpos de requisição. Os componentes passam a usar apenas
+o seu nome.
 
-```typescript title="ArticleResource.ts"
-class RenamedEndpoint<
+```typescript title="Article.ts"
+import { Entity, RestEndpoint, RestGenerics } from '@data-client/rest';
+
+export class Article extends Entity {
+  id = '';
+  carrotsUsed = 0;
+
+  static process(value: any, parent: any, key: string, args: any[]) {
+    const processed = super.process(value, parent, key, args);
+    if ('carrotsUsedIsThisNameTooLong' in processed) {
+      processed.carrotsUsed = processed.carrotsUsedIsThisNameTooLong;
+      delete processed.carrotsUsedIsThisNameTooLong;
+    }
+    return processed;
+  }
+}
+
+export class RenamedEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  getRequestInit(body) {
+  getRequestInit(body: any) {
     if (body && 'carrotsUsed' in body) {
-      const newBody = {
-        ...body,
-        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
-      };
-      delete newBody.carrotsUsed;
-      return super.getRequestInit(newBody);
+      const { carrotsUsed, ...rest } = body;
+      return super.getRequestInit({
+        ...rest,
+        carrotsUsedIsThisNameTooLong: carrotsUsed,
+      });
     }
     return super.getRequestInit(body);
   }
-  process(value) {
-    if ('carrotsUsedIsThisNameTooLong' in value) {
-      // ok to mutate jsonResponse since we control it
-      value.carrotsUsed = value.carrotsUsedIsThisNameTooLong;
-      delete value.carrotsUsedIsThisNameTooLong;
-    }
-    return value;
-  }
 }
+
+export const updateArticle = new RenamedEndpoint({
+  path: '/articles/:id',
+  method: 'PATCH',
+  schema: Article,
+});
 ```
