@@ -23,11 +23,12 @@ const users = await got('https://api.example.com/users', {
   searchParams: { page: 1 },
 }).json<User[]>();
 
-// After: RestEndpoint
+// After: RestEndpoint (auth moves to a base class)
 import { RestEndpoint } from '@data-client/rest';
 import { User } from './User';
 
 export const getUsers = new RestEndpoint({
+  urlPrefix: 'https://api.example.com',
   path: '/users',
   searchParams: {} as { page?: number },
   schema: [User],
@@ -42,11 +43,11 @@ export const getUsers = new RestEndpoint({
 | `headers` option | `getHeaders()` |
 | `searchParams` | `searchParams` type (same concept, different runtime) |
 | `hooks.beforeRequest` | `getHeaders()` or `getRequestInit()` |
-| `hooks.afterResponse` | `process()` |
+| `hooks.afterResponse` | `process()` in the base class |
 | `hooks.beforeError` | `fetchResponse()` override |
 | `.json<T>()` | Automatic — RestEndpoint parses JSON by default |
-| `retry` | Not built in; use error-policy for retry behavior |
-| `timeout` | `signal: AbortSignal.timeout(ms)` |
+| `retry` (got retries by default) | Delete it: Data Client has no retry loop, and a failed request is fetched again when a component next needs it after `errorExpiryLength` (default 1 second). Tell the user that automatic retries are dropped |
+| `timeout` | `AbortSignal.timeout(ms)` in a `getRequestInit()` override, so each request gets its own timer ([Timeout](axios-migration.md#timeout)); a `signal` option would start one timer when the endpoint is created |
 | `responseType: 'json'` | Default behavior |
 | `responseType: 'buffer'` | `parseResponse()` override with `response.arrayBuffer()` |
 

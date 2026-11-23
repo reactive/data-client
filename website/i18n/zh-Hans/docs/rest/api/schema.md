@@ -250,9 +250,8 @@ const data = memo.query(
 interface Queryable {
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (schema: any, args: readonly any[]) => any,
+    delegate: IQueryDelegate,
     // `{}` means non-void
   ): {};
 }

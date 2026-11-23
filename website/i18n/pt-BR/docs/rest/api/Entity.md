@@ -205,6 +205,53 @@ export class Issue extends Entity {
 }
 ```
 
+#### Chave primária em um objeto aninhado {#primary-key-in-a-nested-object}
+
+Algumas APIs aninham a chave dentro de outro objeto e não enviam nenhum `id` de nível superior, por exemplo
+`{ post: { id, title }, creator, saved }`. Copie a chave para `id` em [process()](#process). O
+`pk()` padrão então lê `id`, e você busca a entity com `{ id }` como qualquer outra Entity.
+
+```typescript
+export class Post extends Entity {
+  id = 0;
+  title = '';
+}
+
+export class PostView extends Entity {
+  id = 0;
+  post = Post.fromJS();
+  saved = false;
+
+  static key = 'PostView';
+  static schema = { post: Post };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-next-line
+    processed.id = processed.post?.id ?? processed.id;
+    return processed;
+  }
+}
+```
+
+`useQuery(PostView, { id })` agora encontra o `PostView` armazenado.
+
+Várias operações costumam enviar a chave sem `post`: buscas, [Invalidate](./Invalidate.md) (que
+o delete de um [resource](./resource.md) usa), `getList.remove` e atualizações parciais ou otimistas, como
+`{ id, saved }`. O `pk()` padrão ainda encontra a chave em `id`. Quando `process()` não recebe
+`post`, o fallback `?? processed.id` mantém o `id` que recebeu.
+
+Não sobrescreva `pk()` para retornar `this.post.id`. Esse `pk()` lança um erro para toda entrada sem `post`.
+Buscas com `{ post: { id } }` também falham na checagem de tipos, porque o argumento deve incluir todos os
+campos de `Post`.
+
+`fromJS()` não chama `process()`. Se você construir um `PostView` com `fromJS()`, defina `id` você mesmo.
+
 #### Entities singleton {#singleton-entities}
 
 E se existir apenas uma instância de uma Entity em toda a sua aplicação? Você

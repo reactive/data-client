@@ -334,6 +334,12 @@ render(<AssetPrice productId="BTC-USD" />);
 
 </FrameworkPlayground>
 
+### Chave em um objeto aninhado {#key-in-a-nested-object}
+
+Algumas APIs colocam a chave primária dentro de um objeto aninhado, como `{ post: { id }, creator, saved }`. Copie-a
+para um `id` de nível superior em [Entity.process()](../api/Entity.md#process), para que as buscas aceitem `{ id }`. Veja
+[Chave primária em um objeto aninhado](../api/Entity.md#primary-key-in-a-nested-object) para o exemplo.
+
 ## Usando headers HTTP {#using-http-headers}
 
 Para ler os [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) HTTP, sobrescreva

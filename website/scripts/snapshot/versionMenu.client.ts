@@ -46,13 +46,14 @@ function here() {
 // Whether a url isn't a 404, cached for the page's life. Any other status,
 // or a failed request (a dev server, a deploy without vercel.json's CORS
 // header), counts as found, so the menu keeps the page's link as it did
-// before checking.
+// before checking. A redirect to another site counts as missing: that version
+// sends the page elsewhere, like an old post to its archive.
 const found = new Map<string, Promise<boolean>>();
 function exists(url: string) {
   let res = found.get(url);
   if (!res) {
     res = fetch(url, { method: 'HEAD' }).then(
-      r => r.status !== 404,
+      r => r.status !== 404 && new URL(r.url).origin === new URL(url).origin,
       () => true,
     );
     found.set(url, res);

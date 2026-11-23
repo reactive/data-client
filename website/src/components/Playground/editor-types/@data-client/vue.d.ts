@@ -128,7 +128,7 @@ declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | unde
     error: ComputedRef<ErrorTypes | undefined>;
 };
 declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>>(endpoint: E, ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]): {
-    data: ComputedRef<E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>>;
+    data: ComputedRef<E['schema'] extends undefined | null ? ResolveType<E> | undefined : DenormalizeNullable<E['schema']>>;
     loading: ComputedRef<boolean>;
     error: ComputedRef<ErrorTypes | undefined>;
 };

@@ -68,7 +68,7 @@ Override only what the app does today:
 | Auth, CSRF or other headers (may be `async`, e.g. token refresh) | `getHeaders(headers)` |
 | Auth token from React context (Okta, Auth0) | [`hookifyResource()`](./data-client-rest-setup/references/hookifyResource.md); a base class can't read context |
 | Cookies (axios `withCredentials`), other `RequestInit` | `async getRequestInit(body)` returning `{ ...(await super.getRequestInit(body)), credentials: 'include' }`. Without `await`, the spread drops `method`, `body` and headers, so every mutation is sent as a GET |
-| Transform the response: unwrap an envelope like `{ "data": {...}, "meta": {...} }`, convert case | `process(value)`, e.g. `return value?.data` (`value` is null for a 204). Not axios's `response.data`: that is axios's wrapper, which the codemod already removed |
+| A response interceptor reshapes the body without losing data: unwraps a `{ "data": ... }` with nothing beside it, converts key case | `process(value)`, e.g. `return value?.data` (null for a 204). Fields the app reads, like `meta`, stay in the endpoint's schema |
 | Date fields | Not `process()`: the Entity's `static schema`, e.g. `createdAt: Temporal.Instant.from` (skill "data-client-schema") |
 | Status handling, like a 401 redirect | `async fetchResponse(input, init)`: `super.fetchResponse()` throws a `NetworkError` for any non-2xx status, so wrap it in `try`, check `error.status` in `catch`, and rethrow ([Server error messages](./data-client-rest-setup/references/axios-migration.md#server-error-messages) shows it) |
 | Arrays or nested objects in the query | `searchToString(searchParams)`, e.g. `qs.stringify(searchParams, { arrayFormat: 'brackets' })` |
@@ -78,7 +78,7 @@ Request bodies need no override: a plain object or array is sent as JSON, and an
 
 ## Defining endpoints
 
-**`resource()`** for standard CRUD on one path (`get`, `getList`, `create`, `update`, `partialUpdate`, `delete`):
+**`resource()`** for standard CRUD on one path (`get`, `getList`, `getList.push`, `update`, `partialUpdate`, `delete`):
 
 ```ts
 export const TodoResource = resource({
@@ -88,7 +88,7 @@ export const TodoResource = resource({
 });
 ```
 
-**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. A `POST`, `PUT` or `PATCH` that sends none needs that `body: undefined`, or its only argument is taken as the body and the path params go missing.
+**`new BaseEndpoint({ ... })`** for anything else (search, auth, custom actions). Type a body with a truthy value, `body: {} as { email: string; password: string }`, never `undefined as unknown as T`: `body: undefined` means the endpoint sends no body. Every method but `GET` and `DELETE` (including `HEAD` and `OPTIONS`) sends a body unless it sets that `body: undefined`, so one that sends none needs it, or its only argument is taken as the body and the path params go missing. A `DELETE` sends a body only when it has `body`, such as `body: {} as { ids: string[] }`, including one inherited through `extend()`: set `body: undefined` on a `DELETE` extended from an endpoint with a body.
 
 If the codebase validates responses with Zod or Yup, keep that by parsing in `process()` and still add an Entity `schema`; see "Coexisting with Zod or Yup" in the [Axios migration](./data-client-rest-setup/references/axios-migration.md).
 
@@ -98,4 +98,5 @@ If the codebase validates responses with Zod or Yup, keep that by parsing in `pr
 2. Apply skill "data-client-rest" for resource and endpoint patterns.
 3. Only when the user asks to move components onto the store: apply skill "data-client-react" or "data-client-vue".
 
-More: [Authentication](./data-client-rest-setup/references/auth.md), [Django REST Framework](./data-client-rest-setup/references/django.md).
+Auth on the base endpoint: [Authentication](./data-client-rest-setup/references/auth.md); with a Django backend,
+[Django REST Framework](./data-client-rest-setup/references/django.md) (CSRF header).

@@ -144,7 +144,16 @@ This warning will not show in production.`,
       // a `body` in the resource's options is for its other mutations
       body: undefined,
       name: getName('delete'),
+      // runs the resource's or Endpoint class's process(); an empty result becomes params
       process(res: any, params: any) {
+        res =
+          res &&
+          Object.keys(res).length &&
+          (extraMutateOptions.process || Endpoint.prototype.process).call(
+            this,
+            res,
+            params,
+          );
         return res && Object.keys(res).length ? res : params;
       },
       getOptimisticResponse: optimistic ? (optimisticDelete as any) : undefined,

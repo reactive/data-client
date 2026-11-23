@@ -156,7 +156,7 @@ follow the instructions to [add legacy browser support to packages](../guides/le
 <details>
 <summary><b>ReactJS 16-19 and React Native</b></summary>
 
-ReactJS 16.2 and above is supported (the one with hooks!). React 18 provides improved [Suspense](../api/useSuspense.md)
+ReactJS 16.14 and above is supported. React 18 provides improved [Suspense](../api/useSuspense.md)
 support and features. Both React Native, [React Navigation](https://reactnavigation.org/) and [Expo](https://docs.expo.dev) are supported.
 
 If you have a working project using other
@@ -172,7 +172,7 @@ discussions.
 <details>
 <summary><b>Vue 3</b></summary>
 
-`@data-client/vue` supports Vue 3 and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
+`@data-client/vue` supports Vue 3.4 and above and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
 
 </details>
 

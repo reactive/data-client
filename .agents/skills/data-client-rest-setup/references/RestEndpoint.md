@@ -540,10 +540,11 @@ getReactSite({ slug: 'cool', isReact: true });
 
 ### body {#body}
 
-`body` can be used to set a second argument for mutation endpoints. The actual **value is not
-used** in any way - this only determines [typing](#typing).
+`body` types the request body, the last argument of a mutation endpoint. Its value is never sent; it only sets the
+[typing](#typing), except that `body: undefined` means the endpoint sends no body.
 
-This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PATCH'.
+`GET` never sends a body. `DELETE` sends one only when it has `body`, set directly or inherited through
+[extend()](#extend). Every other method, including `HEAD` and `OPTIONS`, sends one unless it sets `body: undefined`.
 
 ```ts {6}
 import { RestEndpoint } from '@data-client/rest';

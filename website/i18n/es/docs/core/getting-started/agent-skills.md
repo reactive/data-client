@@ -46,6 +46,12 @@ actualizar desde una versión anterior, ejecuta `npx --no data-client-skills --u
 `--upgrade` cuando termines para quitarlas. Los plugins de Claude Code, Cursor y Codex configuran aplicaciones que aún no tienen Data
 Client. Si usas [TanStack Intent](https://tanstack.com/intent), este carga las mismas skills de los paquetes.
 
+En un monorepo de workspaces, las enlaza en la raíz del workspace, incluso si se ejecuta desde un paquete del workspace, y enlaza en ese
+paquete solo las skills que instala en otra versión, que los agentes cargan cuando trabajan con los archivos de ese paquete. Cuando
+esa raíz, o una aplicación sin workspaces, está en una subcarpeta del repositorio, las enlaza allí y te indica que inicies
+tu agente allí, ya que Claude Code y Cursor iniciados en la raíz del repositorio las cargan solo cuando trabajan con
+sus archivos.
+
 ### Skills disponibles {#available-skills}
 
 - [**`/data-client`**](https://skills.sh/reactive/data-client/data-client) — es el punto de partida cuando le pides a tu agente que agregue o use Data Client, y lo dirige a la configuración o a la skill adecuada para la tarea.
@@ -69,6 +75,8 @@ Client. Si usas [TanStack Intent](https://tanstack.com/intent), este carga las m
   y los hooks de mutación, y [depura tu aplicación en ejecución](./debugging.md#debugging-with-agents) desde una herramienta de navegador como el navegador de Cursor, Chrome DevTools MCP o Playwright MCP.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — escribe pruebas de React con `renderDataHook`,
   fixtures, interceptors y `nock`.
+- [**`/data-client-performance`**](https://skills.sh/reactive/data-client/data-client-performance) — ejecuta la
+  [pasada de rendimiento](../guides/performance-pass.md): encuentra las mejoras que le faltan a la aplicación y las aplica, salvo las que excluyas.
 
 :::
 

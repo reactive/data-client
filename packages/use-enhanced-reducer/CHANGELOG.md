@@ -1,5 +1,96 @@
 # @data-client/use-enhanced-reducer
 
+## 0.2.0
+
+### Minor Changes
+
+- [#4593](https://github.com/reactive/data-client/pull/4593) [`6855822`](https://github.com/reactive/data-client/commit/6855822af2adcb024495a2394bcb7ce7bf7918ac) - BREAKING: [Manager.cleanup()](https://dataclient.io/docs/api/Manager#cleanup) no longer means the store is gone
+
+  `cleanup()` now pauses a Manager. It does not end the store. `DataProvider` runs `init()` and `cleanup()` like an Effect's [setup and cleanup](https://react.dev/learn/synchronizing-with-effects#how-to-handle-the-effect-firing-twice-in-development). So React StrictMode, and [`<Activity>`](https://react.dev/reference/react/Activity) hiding a `DataProvider`, call `cleanup()` and later `init()` on the same store. The store keeps applying actions in between. In a custom Manager:
+
+  - Start timers and connections in `init()`, and stop them in `cleanup()`.
+  - Don't reset state about the store, like fetches in flight, in `cleanup()`.
+  - Expect actions after `cleanup()`. Guard side effects with a field `cleanup()` clears, like `this.channel?.postMessage()`.
+
+  A Manager that started an interval in `middleware` never restarted it after a hide and show:
+
+  ```ts title="Before"
+  middleware: Middleware = controller => {
+    this.intervalID = setInterval(() => {
+      controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
+    }, 1000);
+    return next => async action => next(action);
+  };
+
+  cleanup() {
+    clearInterval(this.intervalID);
+  }
+  ```
+
+  ```ts title="After"
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => async action => next(action);
+  };
+
+  init() {
+    this.intervalID = setInterval(() => {
+      this.controller.set(CurrentTime, { id: 1 }, { id: 1, time: Date.now() });
+    }, 1000);
+  }
+
+  cleanup() {
+    clearInterval(this.intervalID);
+  }
+  ```
+
+  [NetworkManager](https://dataclient.io/docs/api/NetworkManager) resolves responses that arrive after `cleanup()`. `NetworkManager.cleanupDate` is removed, since nothing reads it now. Delete code that reads or sets it.
+
+  On React 18 and later, an unmounted `DataProvider` now passes actions to its Managers, so its `fetch()` is sent. When a new `DataProvider` uses the same Managers, a `fetch()` from the unmounted one is not sent. Either way, React ignores the store update, so promises that wait for it never resolve: `set()`, `setResponse()`, `resetEntireStore()`, and `fetch()` of an endpoint without `sideEffect`. Don't `await` them after unmount. React 16 and 17 still drop these actions.
+
+  Why: `cleanup()` used to stop dispatches because React 16/17 warn about state updates after unmount. React 18 removed that warning, and an Effect cleanup can't tell hiding from unmounting.
+
+### Patch Changes
+
+- [#4593](https://github.com/reactive/data-client/pull/4593) [`6855822`](https://github.com/reactive/data-client/commit/6855822af2adcb024495a2394bcb7ce7bf7918ac) - Support React [`<Activity>`](https://react.dev/reference/react/Activity) above [DataProvider](https://dataclient.io/docs/api/DataProvider)
+
+  ```tsx
+  <Activity mode={tab === 'posts' ? 'visible' : 'hidden'}>
+    <DataProvider>
+      <Posts />
+    </DataProvider>
+  </Activity>
+  ```
+
+  Most apps should still put `DataProvider` at the root, above everything, including `<Activity>`. That still works as before.
+
+  Before, hiding a `DataProvider` dropped responses, so [useSuspense()](https://dataclient.io/docs/api/useSuspense) could stay suspended forever, optimistic updates never settled, `controller.fetch()` never resolved, and [useSubscription()](https://dataclient.io/docs/api/useSubscription) stopped polling for good. Now a hidden `DataProvider` keeps working, and promises resolve once it is shown.
+
+  A `DataProvider` remounted with the same `managers` also no longer waits on a fetch the unmounted one started, and responses for the unmounted one stay out of the new store.
+
+  A response to a fetch started before [`resetEntireStore()`](https://dataclient.io/docs/api/Controller#resetEntireStore) is now always dropped, even when it lands before the reset commits. A response also no longer settles an in-flight fetch of the same key that has a later `fetchedAt`; that fetch waits for its own response. Custom managers that call [`controller.resolve()`](https://dataclient.io/docs/api/Controller#resolve) should pass the `fetchedAt` of the fetch action they are resolving (`action.meta.fetchedAt`).
+
+- [#4209](https://github.com/reactive/data-client/pull/4209) [`b4899d0`](https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169) Thanks [@renovate](https://github.com/apps/renovate)! - Support `@babel/runtime` 8
+
+  Apps on Babel 8 now share their `@babel/runtime` with Data Client instead of installing a second copy. Apps on Babel 7 keep working unchanged.
+
+- [#4613](https://github.com/reactive/data-client/pull/4613) [`c17ca4f`](https://github.com/reactive/data-client/commit/c17ca4f93da2f7f9441c052568edfca1d3e80498) - Fix `DataProvider` crashing in Vitest 2 tests
+
+  With Vitest 2 and the `jsdom` environment, rendering `DataProvider` threw
+  `TypeError: useEnhancedReducer is not a function or its return value is not iterable`
+  unless the app inlined Data Client with `server.deps.inline`. It now renders with Vitest's default config, so you can
+  remove that workaround:
+
+  ```ts title="vite.config.ts"
+  export default defineConfig({
+    test: {
+      environment: 'jsdom',
+      // no longer needed
+      // server: { deps: { inline: [/@data-client/] } },
+    },
+  });
+  ```
+
 ## 0.1.14
 
 ### Patch Changes

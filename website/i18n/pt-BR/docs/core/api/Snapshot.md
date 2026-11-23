@@ -100,7 +100,8 @@ Obtém o erro, se houver, de um determinado endpoint. Retorna undefined quando n
 
 ### fetchedAt {#fetchedat}
 
-Quando o fetch que resultou neste snapshot foi chamado.
+Quando o fetch que resultou neste snapshot foi chamado, em milissegundos como `Date.now()`. Fetches iniciados no
+mesmo milissegundo recebem tempos separados por uma fração de milissegundo, para que mantenham sua ordem.
 
 ### abort {#abort}
 

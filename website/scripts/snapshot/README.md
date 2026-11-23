@@ -6,21 +6,32 @@ host, like react.dev's (for example `0.18.dataclient.io/docs/api/useSuspense`). 
 own lockfile, packages, config and editor types, so its playgrounds run, and its examples
 type-check, as they did when that release's CI passed. Archives add nothing to the site's own builds.
 
+A post moves to the first archive that built it, so its docs links and playgrounds keep the docs of
+that time. For example, once v0.19 ships, `dataclient.io/blog/2026/05/01/v0.18-scalar-typed-downloads`
+redirects to the same path on `0.18.dataclient.io`, where its `/docs` links open v0.18's docs. Only the
+latest site has the blog's lists (the index, tags, pages) and feeds, which list every post. A post's
+URL changes once, when the first archive that has it ships, and its old URL redirects. So the first
+archive, v0.18, takes every older post too (v0.2 through v0.18): earlier versions had no archive.
+
 - `build.sh <checkout> <version> <out.tar.gz>` builds an archive from a checkout of a release. It
   copies `docusaurus.snapshot.config.ts` beside that release's config, which sets its `url` to
-  `https://<version>.dataclient.io`, drops its blog with `withoutBlog.ts` (the latest site has every
-  post; `vercel.json` redirects the archive host's `/blog` page loads, and `rootBlog.client.ts` its
-  in-app links), labels the version under the logo (`versionLabel.ts`, like the latest site's),
+  `https://<version>.dataclient.io`, keeps only its blog's posts with `archiveBlog.ts` (no feeds,
+  and its lists out of the sitemap: `vercel.json` redirects the archive host's other `/blog` page
+  loads to the latest site, and `postSite.client.ts` its in-app routes), labels the version under the logo (`versionLabel.ts`, like the latest site's),
   adds the version menu (`versionMenu.client.ts`; it links each version's copy of the page, or that
   version's section home, like `/docs`, when the page 404s there) in place of any version dropdown the release has,
-  and adds a banner linking to the latest docs. The wrapper
+  and adds a banner linking to the latest docs (on a post: "You're reading this post with the v<version> docs",
+  with the latest docs and every post). The wrapper
   runs against old configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,
   since the release's install and build run third-party code. A second job, which runs nothing from
   the release, uploads the archive to the `docs-v<version>` GitHub release, named by its sha256,
-  and opens a PR listing the version and checksum in `website/versionsArchived.json`. The workflow token makes that PR, so its CI only runs once someone pushes to it.
+  and opens a PR listing the version, checksum and posts in `website/versionsArchived.json`: the
+  posts the archive built that no other version lists. That PR's branch starts from the dispatching commit, so dispatch from master. Its CI runs once a maintainer approves the pending runs on the PR.
   `release.yml` calls the workflow when a new release line (a 0.x minor, otherwise a major;
-  `scripts/maintenance/version-line.sh`) first publishes a stable version, from the version's maintenance branch if `website/versionCurrent.json` names one. To
+  `scripts/maintenance/version-line.sh`) first publishes a stable version, from the version's maintenance branch if `website/versionCurrent.json` names one, unless
+  `versionsArchived.json` already lists the version (dispatched ahead of the release, so the
+  root can switch first). To
   rebuild one, dispatch it with the version and, for a fix, a branch with it (such as that
   maintenance branch) as `ref` (default: the newest tag, from `release-tag.sh`); the listed archive keeps serving until the new listing merges, which
   also deletes `versionCurrent.json` if it names that version.
@@ -37,16 +48,27 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   deploys then add each listed host to the Vercel project as a domain (dataclient.io's DNS, on
   Cloudflare, already sends every subdomain to Vercel). The hostname scheme lives in `vercel.json`,
   `docusaurus.snapshot.config.ts` and that deploy step.
+- Archived posts: `siteVersions.ts` maps each listed post to its archive's host, and
+  `docusaurus.config.ts` merges that into `postSites` (with the root's posts while there's a `/next/`).
+  The site still renders those posts for its lists and feeds, but marks them noindex with a canonical
+  link to their site, leaves them out of the offline cache, links them there
+  (`src/utils/PostSiteLink.tsx`), sends in-app routes there (`postSite.client.ts`), and `docs deploy`
+  redirects page loads of each (and each locale the archive built it in) there from every other
+  host, failing if the archive lacks a listed post. It also sends the root's posts on an archive's
+  host to the root. The version menu treats a page that redirects to another site as missing there.
 - The site reads `versionCurrent.json` and `versionsArchived.json` through `website/siteVersions.ts`,
   failing the build when one breaks an invariant: each version is a line, listed once, and not both
-  current and archived; each sha256 is one; the current `ref` is `<version>.x`. It also gives the
-  label under the logo (`siteLabel`): next, or the line of `packages/react`'s version.
+  current and archived; each sha256 is one; the current `ref` is `<version>.x`; the version menu
+  names each version once. It also gives the label under the logo (`siteLabel`): next, or the line
+  master documents: `packages/react`'s, or the one after it once that line is archived (the switch
+  can merge before the next line publishes).
 
 ## Current and next
 
-**Now:** `0.18.x` serves [dataclient.io](https://dataclient.io) and master serves
-[dataclient.io/next](https://dataclient.io/next/) (`website/versionCurrent.json`). Update this line
-when that file changes.
+**Now:** master serves [dataclient.io](https://dataclient.io), with no `/next/` (no
+`website/versionCurrent.json`), and v0.18 is archived at
+[0.18.dataclient.io](https://0.18.dataclient.io) with every post up to v0.18. Update this line
+when `versionCurrent.json` or `versionsArchived.json` changes.
 
 While master takes the next major's breaking changes, the root keeps the released version's docs
 and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/maintenance/README.md)
@@ -57,8 +79,8 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
   `docusaurus.config.ts` builds at `/next/`. It serves its own blog lists (`/next/blog`, tags,
   pages) and the posts the branch doesn't have. The branch's posts are the current version's, since
   posts publish there too: `site-preview.yml` fetches the branch so the config can list them, every
-  link to one goes straight to the root's copy (`src/utils/RootPostLink.tsx`, which replaces
-  `@docusaurus/Link` there), in-app routes to them do too (`rootBlog.client.ts`), and `docs deploy`
+  link to one goes straight to the root's copy (`src/utils/PostSiteLink.tsx`, which replaces
+  `@docusaurus/Link` there), in-app routes to them do too (`postSite.client.ts`), and `docs deploy`
   redirects their `/next/` pages there, keeping the query and fragment. Once the next major ships
   and master serves the root again, the `/next/*` redirect below sends every `/next/blog` post to
   the root's copy at the same path. It shows an "unreleased" banner

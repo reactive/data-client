@@ -34,6 +34,7 @@ import { RestEndpoint } from '@data-client/rest';
 import { User } from './User';
 
 export const getUsers = new RestEndpoint({
+  urlPrefix: 'https://api.example.com',
   path: '/users',
   schema: [User],
 });
@@ -51,7 +52,7 @@ export const getUsers = new RestEndpoint({
 | `method: 'POST'` | `method` option on RestEndpoint |
 | `body: JSON.stringify(data)` | Pass object directly — RestEndpoint serializes automatically |
 | `credentials: 'include'` | `getRequestInit()` override on base class |
-| `AbortController` / `signal` | `signal` option on RestEndpoint |
+| `AbortController` / `signal` | `endpoint.extend({ signal })` for that one request ([Cancellation](axios-migration.md#cancellation)); a `signal` set when the endpoint is created aborts all of its requests |
 
 ### Fetch wrappers with shared config
 

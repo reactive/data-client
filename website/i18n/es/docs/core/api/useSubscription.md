@@ -14,14 +14,15 @@ import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
 
-Ideal para mantener actualizados los recursos que cambian con frecuencia.
+Mantiene actualizados los datos que cambian con frecuencia.
 
-Al usar las [suscripciones de sondeo](./PollingSubscription) por defecto, la frecuencia debe establecerse en
-[Endpoint](/rest/api/Endpoint); de lo contrario, no tendrá ningún efecto.
+Las [suscripciones de sondeo](./PollingSubscription.md) predeterminadas necesitan
+[pollFrequency](/rest/api/RestEndpoint#pollfrequency) definido en el [Endpoint](/rest/api/Endpoint). Sin él, al suscribirse
+se registra un error y no ocurre nada.
 
 :::tip
 
-[useLive()](./useLive.md) es una forma más concisa de usarlo en combinación con [useSuspense()](./useSuspense.md),
+[useLive()](./useLive.md) combina `useSubscription()` con [useSuspense()](./useSuspense.md) en una sola llamada.
 
 :::
 
@@ -329,8 +330,8 @@ render(
 
 </FrameworkPlayground>
 
-Cuando se envía `null` como segundo argumento, la suscripción se desactiva. Por supuesto,
-si otros componentes siguen suscritos, las actualizaciones de datos seguirán activas.
+Pasar `null` como segundo argumento desactiva la suscripción para este componente. Las actualizaciones continúan mientras
+otros componentes sigan suscritos a los mismos datos.
 
 :::react
 
@@ -342,8 +343,8 @@ lo mismo.
 
 :::vue
 
-[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) de VueUse usa [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), que es muy eficiente. Las [Template refs](https://vuejs.org/guide/essentials/template-refs.html) nos permiten
-acceder al [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) de VueUse usa [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), que es muy eficiente. Las [Template refs](https://vuejs.org/guide/essentials/template-refs.html) dan acceso al elemento del
+[DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
 
 :::
 
@@ -441,8 +442,8 @@ sin estado de carga.
 
 ### Precios de criptomonedas (websockets) {#crypto-prices-websockets}
 
-Implementamos nuestro propio `StreamManager` para manejar nuestro protocolo de websocket personalizado. Aquí escuchamos las [acciones
-subscribe/unsubscribe](./Actions.md#subscribe) enviadas por `useSubscription` para asegurarnos de escuchar solo las actualizaciones de los componentes que se están renderizando.
+Un `StreamManager` personalizado maneja el protocolo de websocket. Escucha las [acciones
+subscribe y unsubscribe](./Actions.md#subscribe) que envía `useSubscription()`, así que solo recibe actualizaciones de los componentes renderizados.
 
 <StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />
 

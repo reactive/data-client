@@ -34,7 +34,7 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     env:
       # renovate: datasource=npm depName=vercel
-      VERCEL_CLI_VERSION: 65.15.0
+      VERCEL_CLI_VERSION: 65.17.0
       TARGET: ${{ inputs.target }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -96,6 +96,54 @@ jobs:
               | {source: "/next/\(.)", destination: "/\(.)", permanent: false}))' \
             website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
+      # A post moves to the first archive that built it: versionsArchived.json
+      # lists each archive's posts. Page loads of one
+      # elsewhere (the root, /next, another archive's host) redirect there,
+      # keeping the locale, query and fragment; the builds link and route to
+      # it the same way (website/docusaurus.config.ts's postSites). An archive's
+      # host sends the root's posts to the root (vercel.json sends its other
+      # blog pages)
+      - name: Send each post to its version's site
+        run: |
+          cd website/build
+          find . -regextype posix-extended \
+            -regex '\./([a-z]{2}(-[A-Za-z]+)?/)?blog/[0-9]{4}/[0-9]{2}/[0-9]{2}/[^/]+\.html' |
+            sed 's#^\./##; s#\.html$##' | sort > ../all-posts.txt
+          : > ../archived-posts.tsv
+          while IFS=$'\t' read -r version post; do
+            [ -f "archives/$version/$post.html" ] ||
+              { echo "::error::versionsArchived.json lists $post for $version, but its archive has no $post.html"; exit 1; }
+            # each locale the archive built it in
+            for file in "archives/$version/$post.html" "archives/$version"/*/"$post.html"; do
+              [ ! -f "$file" ] || printf '%s\t%s\n' "$(sed "s#^archives/$version/##; s#\.html\$##" <<<"$file")" "$version"
+            done >> ../archived-posts.tsv
+          done < <(jq -r '.[] | .version as $v | .posts[]? | "\($v)\t\(.)"' ../versionsArchived.json)
+          # the root's own posts, the rest, which archive hosts send home (none
+          # without an archive)
+          cut -f1 ../archived-posts.tsv | sort | comm -23 ../all-posts.txt - > ../root-posts.txt
+          jq -e 'length > 0' ../versionsArchived.json > /dev/null || : > ../root-posts.txt
+          # Literal paths in Vercel's source patterns
+          ! cut -f1 ../archived-posts.tsv ../root-posts.txt | grep -vE '^[A-Za-z0-9/._-]+$' ||
+            { echo "::error::Post paths above need escaping in vercel.json"; exit 1; }
+          cd ..
+          jq --rawfile archived archived-posts.tsv --rawfile root root-posts.txt '
+            def host($v): {type: "host", value: "\($v | gsub("\\."; "\\."))\\.dataclient\\.io"};
+            def lines($s): $s | split("\n") | map(select(. != ""));
+            # any archive host, by the pattern vercel.json uses, without its group name
+            (first(.redirects[].has[]? | select(.type == "host" and (.value | contains("(?<version>"))))
+              // error("vercel.json has no archive-host condition")
+              | .value |= sub("\\(\\?<version>"; "(?:")) as $archiveHost
+            | (lines($archived) | map(split("\t") | {post: .[0], version: .[1]})) as $owned
+            | .redirects = ($owned | map(
+                {source: "/\(.post)", missing: [host(.version)],
+                 destination: "https://\(.version).dataclient.io/\(.post)", permanent: true},
+                {source: "/next/\(.post)",
+                 destination: "https://\(.version).dataclient.io/\(.post)", permanent: false}))
+              + (lines($root) | map(
+                {source: "/\(.)", has: [$archiveHost],
+                 destination: "https://dataclient.io/\(.)", permanent: true}))
+              + .redirects' vercel.json > vercel.json.tmp
+          mv vercel.json.tmp vercel.json
       - uses: actions/setup-node@v7
         with:
           node-version: '26'

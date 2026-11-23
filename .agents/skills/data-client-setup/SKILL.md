@@ -117,6 +117,10 @@ Skills linked during a session may not load until the next one (Claude Code only
 | React (all) | `@data-client/react` + dev: `@data-client/test` |
 | Vue | `@data-client/vue` (testing included) |
 
+Version floors: `vue` 3.4, and `typescript` 4.0 (4.5 with Vue). If the project is below one, tell the user before
+upgrading it. On React Native and Expo (React 18 or later), `@data-client/test` renders with
+`@testing-library/react-native`: add it as a dev dependency if the app doesn't have it.
+
 ### Install Command Examples
 
 **React (NextJS, Expo, React Native, plain React):**
@@ -148,17 +152,18 @@ import { DataProvider } from '@data-client/react/nextjs';
 export default function RootLayout({ children }) {
   return (
     <html>
-      <DataProvider>
-        <body>
-          {children}
-        </body>
-      </DataProvider>
+      <body>
+        <DataProvider>{children}</DataProvider>
+      </body>
     </html>
   );
 }
 ```
 
 **Important**: NextJS uses `@data-client/react/nextjs` import path.
+
+Data Client supports only the App Router. If the app renders pages from `pages/` (`pages/_app`), tell the user:
+moving to the App Router is a routing migration, so confirm with them before starting it.
 
 ### Expo
 

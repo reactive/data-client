@@ -121,6 +121,7 @@ const queryRemainingTodos = new Query(
   entries => entries.filter(todo => !todo.completed).length,
 );
 
+// the schema's lookup gets the args too, not only the function
 const allRemainingTodos = useQuery(queryRemainingTodos);
 const firstUserRemainingTodos = useQuery(queryRemainingTodos, { userId: 1 });
 ```
@@ -155,6 +156,7 @@ This is useful for websockets, SSE, logging, etc. Pass a module-level function t
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
 - **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill. Pass ids/args, not fetched data a component only hands down (a list passing each item to its row is fine); bindings with the same endpoint and args share one fetch and store entry
+- **Don't join data in components**: declare the relationship in the schema (skill "data-client-schema", "Relationships")
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 - `undefined` from `useCache`, or `useQuery` on an Entity, means "not loaded yet", not "doesn't exist"; a deep link or refresh starts empty. Read required data with `useSuspense`/`useDLE`, which fetch only when the cache is missing, stale or invalidated; use `useCache`/`useQuery` for data other code loads
 - For tests, apply the skill "data-client-react-testing"
@@ -176,8 +178,8 @@ For detailed API documentation, see the [references](references/) directory:
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
 - [DataProvider](references/DataProvider.md) - Root provider
-- [data-dependency](references/data-dependency.md) - Rendering guide
-- [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
+- [data-dependency](references/data-dependency.md) - Where data dependencies and their loading and error fallbacks go in the component tree
+- [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Create, update and delete from a component, with optimistic updates and pending state
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
 - [devtools-debugging](references/devtools-debugging.md) - Debug the running app from a browser tool
 - [browser-cursor.md](references/browser-cursor.md);[browser-chrome-devtools-mcp.md](references/browser-chrome-devtools-mcp.md);[browser-playwright-mcp.md](references/browser-playwright-mcp.md);[browser-claude-in-chrome.md](references/browser-claude-in-chrome.md) - Setup for one browser tool; read only yours

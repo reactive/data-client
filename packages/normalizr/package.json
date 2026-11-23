@@ -1,6 +1,6 @@
 {
   "name": "@data-client/normalizr",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "homepage": "https://dataclient.io/docs/concepts/normalization",
   "keywords": [
@@ -133,7 +133,7 @@
     "@data-client/endpoint": "workspace:*",
     "@types/jest": "30.0.0",
     "@types/node": "^26.0.0",
-    "immutable": "5.1.10",
+    "immutable": "5.2.1",
     "rollup-plugins": "workspace:*",
     "temporal-polyfill": "^1.0.0"
   }

@@ -227,6 +227,10 @@ packages/react/src/components/__tests__/DataProvider.test.tsx
 - Don't mock @data-client internals directly
 - Don't use raw fetch in tests when fixtures are available
 - Don't call `cleanup()` in `afterEach` -- cleanup is automatic
+- Don't `jest.mock()` a whole `@data-client/*` module (`TypeError: Class extends value undefined`): use fixtures or a
+  partial mock
+- `fetch is not defined` under Jest: add the `whatwg-fetch` polyfill in `setupFiles`
+  ([setup](references/unit-testing-hooks.md))
 
 ## References
 
@@ -237,5 +241,5 @@ For detailed API documentation, see the [references](references/) directory:
 - [Fixtures](references/Fixtures.md) - Fixture format reference
 - [MockResolver](references/MockResolver.md) - Component testing wrapper
 - [mockInitialState](references/mockInitialState.md) - Create initial state
-- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook testing guide
-- [unit-testing-components](references/unit-testing-components.md) - Component testing guide
+- [unit-testing-hooks](references/unit-testing-hooks.md) - Jest setup and a full `renderDataHook()` test file
+- [unit-testing-components](references/unit-testing-components.md) - A full component test file with `mockInitialState()` fixtures

@@ -113,6 +113,10 @@ Executado no início da normalização desta entity. O valor retornado é salvo 
 
 **Padrão**: simplesmente copiar a resposta (`{...input}`)
 
+`parent` é o objeto que aninha esta entity, e `key` é o campo sob o qual ela está. Uma entity em uma lista aninhada recebe
+o parent e a key da lista. No nível superior de uma resposta, `key` é `undefined`. Quando dois tipos de parent
+aninham esta entity sob a mesma `key`, verifique também um campo que apenas um deles tenha.
+
 Veja como sobrescrever para [construir buscas reversas para dados relacionais](/rest/guides/relational-data#reverse-lookups)
 
 ### Método estático mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
@@ -274,7 +278,7 @@ static mergeMetaWithStore(
 
 `mergeMetaWithStore()` é chamado durante a normalização quando uma entity processada já é encontrada no store.
 
-### Método estático queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+### Método estático queryKey(args, unvisit, delegate): pk? {#queryKey}
 
 Este método permite que `Entities` sejam [Queryable](/rest/api/schema#queryable), possibilitando o acesso ao store sem um endpoint.
 
@@ -324,7 +328,7 @@ desativar ou personalizar.
 ### Método estático fromJS(props): Entity {#fromJS}
 
 Método factory que copia props para uma nova instância. Use-o em vez de `new MyEntity()`,
-para garantir que as props padrão sejam sobrescritas.
+para garantir que as props padrão sejam sobrescritas. Ele não chama [process()](#process).
 
 ## Campos {#fields}
 

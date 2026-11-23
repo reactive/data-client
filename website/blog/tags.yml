@@ -72,3 +72,8 @@ agents:
   label: 'AI Agents'
   description: 'Skills, llms.txt and tools for AI coding agents'
   permalink: /agents
+
+validation:
+  label: 'Validation'
+  description: 'Type safety, testing utilities and development warnings'
+  permalink: /validation

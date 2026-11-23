@@ -121,19 +121,30 @@ jobs:
           gh release upload "$tag" "$asset" --clobber
       # fetch.sh checks the listed checksum, so a later change to the asset
       # fails the deploy instead of shipping
+      # A post moves to the first archive that built it: this archive serves
+      # the posts it built that no other version lists
       - name: Open a PR listing the version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          tar -tzf "docs-$VERSION-${SHA256:0:16}.tar.gz" |
+            grep -E "^$(sed 's/\./\\./g' <<<"$VERSION")/blog/[0-9]{4}/[0-9]{2}/[0-9]{2}/[^/]+\.html$" |
+            sed -E 's#^[^/]+/##; s#\.html$##' | sort > posts.txt
           node -e '
             const fs = require("fs");
             const file = "website/versionsArchived.json";
             const { VERSION: version, SHA256: sha256 } = process.env;
             // in place, so relisting the same build changes nothing
             const listed = JSON.parse(fs.readFileSync(file, "utf8"));
+            const elsewhere = new Set(
+              listed.filter(v => v.version !== version).flatMap(v => v.posts ?? []),
+            );
+            const posts = fs.readFileSync("posts.txt", "utf8").split("\n")
+              .filter(post => post && !elsewhere.has(post));
+            const entry = { version, sha256, posts };
             const versions = listed.some(v => v.version === version) ?
-              listed.map(v => v.version === version ? { version, sha256 } : v)
-            : listed.concat({ version, sha256 });
+              listed.map(v => v.version === version ? entry : v)
+            : listed.concat(entry);
             fs.writeFileSync(file, JSON.stringify(versions, null, 2) + "\n");
             // Archived, so it no longer serves at the root: master does again
             const current = "website/versionCurrent.json";

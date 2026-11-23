@@ -68,6 +68,11 @@ Mantén las pruebas de la aplicación en verde después de cada paso; son la pru
 9. **Limpieza.** Elimina las fábricas de claves de consulta, los helpers de `queryOptions()` y la configuración al estilo `lib/react-query.ts`. Desinstala
    `@tanstack/react-query` y `@tanstack/react-query-devtools` cuando ningún archivo los importe.
 
+Estos pasos conservan el comportamiento de la aplicación, salvo donde Data Client lo corrige con menos código: listas que mostraban datos obsoletos
+tras una mutación, refetches después de una mutación y fetches de elementos que una lista ya cargó. Los cambios que requieren código adicional
+o modifican lo que ven los usuarios, como agregar actualizaciones optimistas que la aplicación no tenía, son una
+[pasada de rendimiento](./performance-pass.md) aparte y opcional. Termina y verifica primero la migración, para poder medir cada etapa.
+
 ## Mapa de API {#api-map}
 
 | TanStack Query | Data Client |
@@ -95,10 +100,12 @@ Mantén las pruebas de la aplicación en verde después de cada paso; son la pru
 | `refetchQueries()` | `ctrl.fetch(endpoint, args)` |
 | `setQueryData()` | `ctrl.setResponse(endpoint, args, response)`; para Entities, `ctrl.set(Entity, args, value)` |
 | `getQueryData()` | En un componente, [useCache()](../api/useCache.md). En otros lugares, `ctrl.get(schema, args, ctrl.getState())` |
-| `prefetchQuery()`, `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | `ctrl.fetchIfStale(endpoint, args)` |
-| `fetchQuery()` | `ctrl.fetch(endpoint, args)` |
+| `prefetchQuery()` | `ctrl.fetchIfStale(endpoint, args)`, sin await: un fallo nunca provoca un rechazo sin manejar |
+| `ensureQueryData()`, `getQueryData() ?? fetchQuery()` | Los datos en caché de `ctrl.getResponse()` cuando se pueden renderizar; si no, `ctrl.fetchIfStale(endpoint, args)` ([Loaders](#loaders)) |
+| `fetchQuery()` | `await ctrl.fetchIfStale(endpoint, args)` con un `staleTime`; `ctrl.fetch(endpoint, args)` sin él |
 | Actualización optimista y reversión con `onMutate` | [getOptimisticResponse()](/rest/guides/optimistic-updates) en el endpoint: Data Client revierte en caso de error |
 | `useInfiniteQuery()` | Una [Collection](/rest/api/Collection) y `ctrl.fetch(endpoint.getPage, args)` ([Consultas infinitas](#infinite)) |
+| `onError` en `QueryCache` o `MutationCache` (reporte global de errores) | Un [Manager de reporte de errores](../concepts/managers.md#error-reporting): ve todos los fetches fallidos |
 | `queryClient.clear()`, `removeQueries()` al cerrar sesión | `ctrl.resetEntireStore()` |
 | `QueryClientProvider`, `new QueryClient()` | `DataProvider` |
 | `useQueryClient()` | `useController()` |
@@ -331,18 +338,33 @@ export const issueLoader =
 ```
 
 ```ts title="After"
-import type { Controller } from '@data-client/react';
+import { ExpiryStatus, type Controller } from '@data-client/react';
 import { IssueResource } from './resources/Issue';
 
 export const issueLoader =
   (ctrl: Controller) =>
-  ({ params }: { params: { issueId?: string } }) =>
-    ctrl.fetchIfStale(IssueResource.get, { id: Number(params.issueId) });
+  ({ params }: { params: { issueId?: string } }) => {
+    const args = { id: Number(params.issueId) };
+    const { data, expiryStatus } = ctrl.getResponse(
+      IssueResource.get,
+      args,
+      ctrl.getState(),
+    );
+    // fetches only when missing or stale
+    const fetched = ctrl.fetchIfStale(IssueResource.get, args);
+    // like ensureQueryData(): cached data, even stale, navigates now; a miss waits for the fetch
+    return expiryStatus === ExpiryStatus.Valid ? data : fetched;
+  };
 ```
 
-`fetchIfStale()` hace fetch solo cuando los datos faltan o están obsoletos. Úsalo también para precargar al pasar el cursor o al enfocar:
-`onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Carga varios endpoints con `Promise.all()` de
-llamadas a `fetchIfStale()`.
+`fetchIfStale()` hace fetch solo cuando los datos faltan o están obsoletos, y siempre devuelve una Promise. Sin await, funciona
+como `prefetchQuery()`: un fallo nunca provoca un rechazo sin manejar, y se almacena para que los componentes lo muestren. Úsalo también para precargar
+al pasar el cursor o al enfocar: `onMouseEnter={() => ctrl.fetchIfStale(IssueResource.get, { id })}`. Con await, funciona como
+`fetchQuery()` con un `staleTime`: resuelve los datos, esperando el refetch cuando los datos en caché están obsoletos, o se rechaza
+con el error. Usa la forma con await donde el loader usaba `fetchQuery()`, y el patrón anterior donde usaba
+`ensureQueryData()` o `getQueryData() ?? fetchQuery()`. [Loaders de rutas](../api/Controller.md#fetchIfStale-loaders)
+muestra loaders que no hacen esperar a la navegación. Carga varios endpoints como lo hacía el loader antes;
+dejar que la página se muestre antes de que lleguen los datos secundarios corresponde a la [pasada de rendimiento](./performance-pass.md#loaders).
 
 ## Consultas infinitas {#infinite}
 
@@ -543,5 +565,6 @@ Para cerrar la sesión ante cualquier otra respuesta 401, añade [LogoutManager]
 - El linter pasa, incluidas sus reglas de límites de importación, y ninguna carpeta de funcionalidad define una Entity.
 - Cada `<Suspense>` o `AsyncBoundary` que captura un `useSuspense()` está dentro de `DataProvider`.
 - El comprobador de tipos, las pruebas unitarias y las pruebas de extremo a extremo pasan.
+- Abrir un elemento desde una lista recién cargada no hace ninguna petición para ese elemento, cuando la lista devuelve el elemento completo.
 - Después de una mutación, toda página que muestra esa Entity muestra el cambio sin recargar. Una prueba que edita un elemento en
   su página de detalle y luego vuelve a la lista lo demuestra.

@@ -34,7 +34,7 @@ Accede al valor en el store de cualquier [Queryable Schema](/rest/api/schema#que
 Si el valor no existe, devuelve `undefined`.
 
 `useQuery()` reacciona a las [mutaciones](../getting-started/mutations.md) de datos; vuelve a renderizar solo cuando es necesario. Devuelve `undefined`
-cuando los datos son [Invalid](../concepts/expiry-policy#invalid).
+cuando los datos son [Invalid](../concepts/expiry-policy#invalid), o cuando `null` es el segundo argumento.
 
 :::tip
 
@@ -50,6 +50,8 @@ Las [Queries](/rest/api/Query) son un gran complemento para renderizar de forma 
 Consulta [truthiness narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing) para
 más información sobre el manejo de tipos
 
+<ConditionalDependencies hook="useQuery" target="Todo" />
+
 ## Tipos {#types}
 
 :::react
@@ -59,14 +61,14 @@ más información sobre el manejo de tipos
 ```typescript
 function useQuery(
   schema: Queryable,
-  ...args: SchemaArgs<typeof schema>
+  ...args: SchemaArgs<typeof schema> | [null]
 ): DenormalizeNullable<typeof endpoint.schema> | undefined;
 ```
 
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: SchemaArgs<S>
+  ...args: SchemaArgs<S> | [null]
 ): DenormalizeNullable<S> | undefined;
 ```
 
@@ -79,7 +81,7 @@ function useQuery<S extends Queryable>(
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: MaybeRefsOrGetters<SchemaArgs<S>>
+  ...args: MaybeRefsOrGetters<SchemaArgs<S>> | [null]
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 ```
 
@@ -99,9 +101,8 @@ Los schemas [Queryable](/rest/api/schema#queryable) requieren un método `queryK
 interface Queryable {
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (schema: any, args: readonly any[]) => any,
+    delegate: IQueryDelegate,
     // Must be non-void
   ): {};
 }
@@ -109,7 +110,7 @@ interface Queryable {
 
 ## Ejemplos {#examples}
 
-<!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index, vs pk; union needing 'type') -->
+<!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index vs pk; Union args with or without the type field) -->
 
 ### Ordenación y filtrado {#sorting--filtering}
 

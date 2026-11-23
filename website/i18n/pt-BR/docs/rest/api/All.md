@@ -17,6 +17,12 @@ Recupera todas as entidades no cache como um Array.
   _ `value`: O valor de entrada da entidade.
   _ `parent`: O objeto pai do array de entrada. \* `key`: A chave sob a qual o array de entrada aparece no objeto pai.
 
+`All` é toda entidade armazenada de um tipo, vinda de qualquer resposta. Use-o em uma [Query](./Query.md) para um resultado que
+nenhuma resposta tem, calculado a partir dos campos atuais de cada entidade: os todos que não estão concluídos, o total de todos os itens
+do carrinho, os posts de um autor quando um post pode mudar de autor. A Query é executada quando é lida e de novo a cada vez que
+qualquer entidade desse tipo muda. Quando uma resposta tem a lista, use uma [Collection](./Collection.md). Quando uma
+entidade precisa aninhar uma lista que nenhuma resposta tem, use uma [busca reversa](../guides/relational-data.md#reverse-lookups).
+
 ## Métodos de instância {#instance-methods}
 
 - `define(definition)`: Quando usado, o `definition` informado será mesclado com a definição original passada ao construtor de `All`. Este método costuma ser útil para criar referências circulares no schema.

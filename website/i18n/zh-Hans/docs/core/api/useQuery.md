@@ -33,8 +33,8 @@ export const sortDemo = [
 [Union](/rest/api/Union) 和 [Scalar](/rest/api/Scalar)。[Lazy](/rest/api/Lazy) 字段也可以通过其 [`.query`](/rest/api/Lazy#query) 访问器使用。
 如果该值不存在，则返回 `undefined`。
 
-`useQuery()` 会响应数据[变更](../getting-started/mutations.md)；只在必要时重新渲染。当数据为 [Invalid](../concepts/expiry-policy#invalid) 时
-返回 `undefined`。
+`useQuery()` 会响应数据[变更](../getting-started/mutations.md)；只在必要时重新渲染。当数据为 [Invalid](../concepts/expiry-policy#invalid) 时，
+或者第二个参数为 `null` 时，返回 `undefined`。
 
 :::tip
 
@@ -50,6 +50,8 @@ export const sortDemo = [
 关于类型处理的更多信息，请参阅
 [真值收窄](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing)
 
+<ConditionalDependencies hook="useQuery" target="Todo" />
+
 ## 类型 {#types}
 
 :::react
@@ -59,14 +61,14 @@ export const sortDemo = [
 ```typescript
 function useQuery(
   schema: Queryable,
-  ...args: SchemaArgs<typeof schema>
+  ...args: SchemaArgs<typeof schema> | [null]
 ): DenormalizeNullable<typeof endpoint.schema> | undefined;
 ```
 
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: SchemaArgs<S>
+  ...args: SchemaArgs<S> | [null]
 ): DenormalizeNullable<S> | undefined;
 ```
 
@@ -79,7 +81,7 @@ function useQuery<S extends Queryable>(
 ```typescript
 function useQuery<S extends Queryable>(
   schema: S,
-  ...args: MaybeRefsOrGetters<SchemaArgs<S>>
+  ...args: MaybeRefsOrGetters<SchemaArgs<S>> | [null]
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 ```
 
@@ -99,9 +101,8 @@ function useQuery<S extends Queryable>(
 interface Queryable {
   queryKey(
     args: readonly any[],
-    queryKey: (...args: any) => any,
-    getEntity: GetEntity,
-    getIndex: GetIndex,
+    unvisit: (schema: any, args: readonly any[]) => any,
+    delegate: IQueryDelegate,
     // Must be non-void
   ): {};
 }
@@ -109,7 +110,7 @@ interface Queryable {
 
 ## 示例 {#examples}
 
-<!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index, vs pk; union needing 'type') -->
+<!-- TODO: Add examples for each Queryable schema type and the different args that can be sent (like index vs pk; Union args with or without the type field) -->
 
 ### 排序与过滤 {#sorting--filtering}
 

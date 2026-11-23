@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "version": "0.18",
+    "sha256": "57c906189b578acb6d308b853f081107768d0d880180ce607064830bbaacc5a0",
+    "posts": [
+      "blog/2023/07/04/v0.2-release-announcement",
+      "blog/2024/01/15/v0.9-release-announcement",
+      "blog/2024/02/15/v0.10-null-consistency-url-utilities",
+      "blog/2024/04/08/v0.11-queries-querable-usequery",
+      "blog/2024/06/17/v0.13-nextjs-app-router-expogo-native",
+      "blog/2024/07/13/v0.14-release-announcement",
+      "blog/2026/01/06/v0.15-vue-support-collection-remove",
+      "blog/2026/04/01/v0.16-parallel-fetching-collection-move-lazy",
+      "blog/2026/05/01/v0.18-scalar-typed-downloads"
+    ]
+  }
+]

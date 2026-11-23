@@ -206,6 +206,53 @@ export class Issue extends Entity {
 }
 ```
 
+#### 嵌套对象中的主键 {#primary-key-in-a-nested-object}
+
+有些 API 会把 key 嵌套在另一个对象里，并且不发送顶层的 `id`，例如
+`{ post: { id, title }, creator, saved }`。请在 [process()](#process) 中把该 key 复制到 `id`。这样
+默认的 `pk()` 就会读取 `id`，你就能像其他 Entity 一样用 `{ id }` 查找该 Entity。
+
+```typescript
+export class Post extends Entity {
+  id = 0;
+  title = '';
+}
+
+export class PostView extends Entity {
+  id = 0;
+  post = Post.fromJS();
+  saved = false;
+
+  static key = 'PostView';
+  static schema = { post: Post };
+
+  static process(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: any[],
+  ) {
+    const processed = super.process(input, parent, key, args);
+    // highlight-next-line
+    processed.id = processed.post?.id ?? processed.id;
+    return processed;
+  }
+}
+```
+
+现在 `useQuery(PostView, { id })` 就能找到已存储的 `PostView`。
+
+有几种操作经常只发送 key 而不带 `post`：查找、[Invalidate](./Invalidate.md)（[resource](./resource.md)
+的删除会用到它）、`getList.remove`，以及部分更新或乐观更新，例如
+`{ id, saved }`。默认的 `pk()` 仍然能在 `id` 中找到 key。当 `process()` 没有拿到
+`post` 时，`?? processed.id` 这个回退会保留传入的 `id`。
+
+不要覆盖 `pk()` 让它返回 `this.post.id`。这样的 `pk()` 在每个不带 `post` 的输入上都会抛出错误。
+用 `{ post: { id } }` 查找也无法通过类型检查，因为参数必须包含 `Post` 的每个
+字段。
+
+`fromJS()` 不会调用 `process()`。如果你用 `fromJS()` 构建 `PostView`，请自己设置 `id`。
+
 #### 单例 Entity {#singleton-entities}
 
 如果在整个应用中某个 Entity 永远只有一个实例呢？你

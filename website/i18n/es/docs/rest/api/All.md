@@ -17,6 +17,12 @@ Obtiene todas las entities de la caché como un Array.
   _ `value`: El valor de entrada de la entity.
   _ `parent`: El objeto padre del array de entrada. \* `key`: La clave con la que el array de entrada aparece en el objeto padre.
 
+`All` es cada entity almacenada de un mismo tipo, venga de cualquier respuesta. Úsalo en una [Query](./Query.md) para obtener un resultado que
+ninguna respuesta tiene, calculado a partir de los campos actuales de cada entity: los todos que no están completados, el total de cada artículo
+del carrito, los posts de un autor cuando un post puede cambiar de autor. La Query se ejecuta cuando se lee, y de nuevo cada vez que
+cambia cualquier entity de ese tipo. Cuando una respuesta tiene la lista, usa una [Collection](./Collection.md). Cuando una
+entity debe anidar una lista que ninguna respuesta tiene, usa una [búsqueda inversa](../guides/relational-data.md#reverse-lookups).
+
 ## Métodos de instancia {#instance-methods}
 
 - `define(definition)`: Al usarse, la `definition` recibida se combinará con la definición original pasada al constructor de `All`. Este método suele ser útil para crear referencias circulares en el schema.

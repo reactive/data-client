@@ -26,6 +26,10 @@ import UseCancelling from '../shared/\_useCancelling.mdx';
 
 :::
 
+它无法中止尚未渲染的组件的首次 fetch：对于在挂载前就 suspend 的组件，React 不会保留任何状态。
+一旦组件显示过数据，每次参数变化都会中止它之前发起的 fetch。自定义的 [Endpoint](/rest/api/Endpoint#members-not-args) 必须把
+`this.signal` 传给它的请求。
+
 ## 取消与防抖 {#cancel-vs-debounce}
 
 当用户会在每个值上停留时使用 `useCancelling()`，比如用方向键逐项浏览的列表。它会立即获取，

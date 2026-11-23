@@ -560,6 +560,41 @@ describe('resource()', () => {
     ).toThrowErrorMatchingSnapshot();
   });
 
+  class UnwrapEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+    process(value: any, ..._args: any) {
+      return value.data;
+    }
+  }
+  const path = 'http\\://test.com/groups/:group/users/:id';
+  it.each([
+    [
+      'base class process()',
+      resource({ path, schema: User, Endpoint: UnwrapEndpoint }),
+    ],
+    [
+      'resource process option',
+      resource({ path, schema: User, process: (value: any) => value.data }),
+    ],
+  ])('delete runs the %s', async (_, EnvelopeResource) => {
+    mynock
+      .delete(`/groups/five/users/5`)
+      .reply(200, { data: { id: 5 }, meta: {} })
+      .delete(`/groups/five/users/6`)
+      .reply(204)
+      .delete(`/groups/five/users/7`)
+      .reply(200, { data: null });
+    await expect(
+      EnvelopeResource.delete({ group: 'five', id: '5' }),
+    ).resolves.toEqual({ id: 5 });
+    // an empty body, or one process() empties, becomes the params
+    await expect(
+      EnvelopeResource.delete({ group: 'five', id: '6' }),
+    ).resolves.toEqual({ group: 'five', id: '6' });
+    await expect(
+      EnvelopeResource.delete({ group: 'five', id: '7' }),
+    ).resolves.toEqual({ group: 'five', id: '7' });
+  });
+
   it('UserResource.get should work', async () => {
     const { result, waitForNextUpdate } = renderDataClient(() => {
       return useSuspense(UserResource.get, { group: 'five', id: '5' });

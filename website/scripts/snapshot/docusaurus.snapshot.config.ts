@@ -3,9 +3,9 @@
 // host (<version>.dataclient.io); the current version (SNAPSHOT_ROLE=current,
 // while master is the next major) stays at the root.
 // Keep it to fields every release's config has: it runs against old ones.
+import archiveBlog from './archiveBlog';
 import config from './docusaurus.config';
 import { VERSION_LABEL_ID, versionLabel } from './versionLabel';
-import withoutBlog from './withoutBlog';
 
 const version = process.env.SNAPSHOT_VERSION;
 if (!version) throw new Error('SNAPSHOT_VERSION is required');
@@ -18,7 +18,7 @@ const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 // every release's config has the production url
-const latestDocs = `${config.url}${localePrefix}/docs`;
+const latest = `${config.url}${localePrefix}`;
 
 // Drops the version dropdown some releases have: versionMenu.client.ts opens
 // one from the logo, with every version
@@ -32,12 +32,23 @@ const headTags = [
     (config as { headTags?: { attributes?: { id?: string } }[] }).headTags ?? []
   ).filter(tag => tag.attributes?.id !== VERSION_LABEL_ID),
   versionLabel(`v${version}`),
+  // The banner's post wording on blog pages (Docusaurus marks their <html>)
+  ...(isCurrent ?
+    []
+  : [
+      {
+        tagName: 'style',
+        attributes: {},
+        innerHTML:
+          '.archive-banner__post,html.plugin-blog .archive-banner__docs{display:none}html.plugin-blog .archive-banner__post{display:inline}',
+      },
+    ]),
 ];
 
 const site =
   isCurrent ? config : (
     {
-      ...withoutBlog(config),
+      ...archiveBlog(config),
       url: `https://${version}.dataclient.io`,
       baseUrl: '/',
     }
@@ -59,7 +70,9 @@ export default {
     ...(!isCurrent && {
       announcementBar: {
         id: `archive-${version}`,
-        content: `You're reading the docs for v${version}. <a href="${latestDocs}">See the latest version</a>.`,
+        content:
+          `<span class="archive-banner__docs">You're reading the docs for v${version}. <a href="${latest}/docs">See the latest version</a>.</span>` +
+          `<span class="archive-banner__post">You're reading this post with the v${version} docs. <a href="${latest}/docs">Latest docs</a> · <a href="${latest}/blog">All posts</a></span>`,
         isCloseable: false,
       },
     }),

@@ -34,10 +34,17 @@ if (versionCurrent) {
   );
 }
 
-/** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml */
-const versionsArchived: { version: string; sha256: string }[] =
-  read('versionsArchived.json') ?? [];
-for (const { version, sha256 } of versionsArchived) {
+/** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml,
+ * with the blog posts each one serves (those it was the first to build) */
+const versionsArchived: {
+  version: string;
+  sha256: string;
+  posts?: string[];
+}[] = read('versionsArchived.json') ?? [];
+// A post's path below a site's root, as Docusaurus routes it
+const POST = /^blog\/\d{4}\/\d{2}\/\d{2}\/[^/?#]+$/;
+const listedPosts = new Set<string>();
+for (const { version, sha256, posts = [] } of versionsArchived) {
   check(LINE.test(version), `versionsArchived.json: ${version} isn't a line`);
   check(
     /^[0-9a-f]{64}$/.test(sha256),
@@ -51,13 +58,36 @@ for (const { version, sha256 } of versionsArchived) {
     version !== versionCurrent?.version,
     `${version} is both current and archived`,
   );
+  for (const post of posts) {
+    check(
+      POST.test(post),
+      `versionsArchived.json: ${version}'s post ${post} isn't a post path`,
+    );
+    check(!listedPosts.has(post), `versionsArchived.json lists ${post} twice`);
+    listedPosts.add(post);
+  }
 }
+
+const archiveUrl = (version: string) => `https://${version}.dataclient.io`;
+
+/** Each archived post's site: a post moves to the first archive that built
+ * it, so its docs links and playgrounds keep the docs of that time */
+export const archivedPosts: Record<string, string> = Object.fromEntries(
+  versionsArchived.flatMap(({ version, posts = [] }) =>
+    posts.map(post => [post, archiveUrl(version)]),
+  ),
+);
 
 /** The line a version belongs to. Matches line in version-line.sh */
 const lineOf = (version: string) => {
   const [major, minor] = version.split('-')[0].split('.');
   return major === '0' ? `0.${minor}` : major;
 };
+/** The line after one, which its next breaking release starts */
+const nextLine = (line: string) =>
+  line.startsWith('0.') ?
+    `0.${Number(line.slice(2)) + 1}`
+  : `${Number(line) + 1}`;
 
 /** This site's version, under its logo: next while master is a major ahead */
 const packageVersion = read('../packages/react/package.json')?.version;
@@ -70,7 +100,13 @@ check(
   LINE.test(packageLine),
   `packages/react/package.json: ${packageVersion} has no line`,
 );
-export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
+/** The line master documents: once its line is archived (the switch can
+ * merge before the next line publishes), the next one */
+const masterLine =
+  versionsArchived.some(v => v.version === packageLine) ?
+    nextLine(packageLine)
+  : packageLine;
+export const siteLabel = versionCurrent ? 'next' : `v${masterLine}`;
 
 const SITE = 'https://dataclient.io';
 
@@ -80,9 +116,8 @@ export const siteVersions: SiteVersion[] = [
   ...(versionCurrent ?
     [{ label: 'Next', note: 'unreleased', url: `${SITE}/next` }]
   : []),
-  // master's version is the last release's until the next one publishes
   {
-    label: `v${versionCurrent?.version ?? packageLine}`,
+    label: `v${versionCurrent?.version ?? masterLine}`,
     note: 'latest',
     url: SITE,
   },
@@ -91,9 +126,13 @@ export const siteVersions: SiteVersion[] = [
     .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
     .map(version => ({
       label: `v${version}`,
-      url: `https://${version}.dataclient.io`,
+      url: archiveUrl(version),
     })),
 ];
+check(
+  new Set(siteVersions.map(v => v.label)).size === siteVersions.length,
+  `version menu lists a version twice: ${siteVersions.map(v => v.label)}`,
+);
 /** Frozen archives read this from site-versions.json: only add fields, and
  * keep its path and CORS header (vercel.json) */
 export type SiteVersion = { label: string; note?: string; url: string };

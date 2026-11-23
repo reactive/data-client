@@ -254,26 +254,11 @@ render(<TodoList />);
 
 这样它的所有变更都会使用以下默认的乐观响应：
 
-### update/getList.push/getList.unshift {#updategetlistpushgetlistunshift}
-
-```ts
-function optimisticUpdate(
-  snap: SnapshotInterface,
-  params: any,
-  body: any,
-) {
-  return {
-    ...params,
-    ...ensureBodyPojo(body),
-  };
-}
-
-function ensureBodyPojo(body: any) {
-  return body instanceof FormData
-    ? Object.fromEntries((body as any).entries())
-    : body;
-}
-```
+ Endpoint                                                                                        | 乐观响应                                                           |
+ ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+ `update`、`getList.push`、`getList.unshift`、`getList.assign`、`getList.remove`、`getList.move` | URL 参数与 body 合并（`FormData` 会变成对象）                      |
+ `partialUpdate`                                                                                 | 合并了 body 的缓存 Entity                                          |
+ `delete`                                                                                        | 参数，用于移除该 Entity                                            |
 
 创建操作（push/unshift）的 body 中通常没有可用于计算 pk 的 `id`。因此
 <abbr title="Reactive Data Client">Data Client</abbr> 会创建一个随机的 `pk`。
@@ -281,36 +266,11 @@ function ensureBodyPojo(body: any) {
 在服务器创建新对象之前，对它的变更通常会失败。因此在
 `POST` 完成之前，请禁止对它进行其他变更。例如，检查该 Entity 是否有真实的 `id`。
 
-### partialUpdate {#partialupdate}
-
-```ts
-function optimisticPartial(schema: Queryable) {
-  return function (snap: SnapshotInterface, params: any, body: any) {
-    const data = snap.get(schema, params);
-    if (!data) throw snap.abort;
-    return {
-      ...params,
-      ...data,
-      // even tho we don't always have two arguments, the extra one will simply be undefined which spreads fine
-      ...ensurePojo(body),
-    };
-  };
-}
-```
-
 部分更新不会发送完整的 body。预期响应中省略的字段会保留其
 缓存值，因此 Entity 只需要包含它的[主键](../api/Entity.md#pk)和发生变化的字段。
 如果该 Entity 尚不在 store 中，更新会[中止](/docs/api/Snapshot#abort)，而不是展示一个只由变化字段
 组成的 Entity。[Snapshots](/docs/api/Snapshot) 可以安全地读取 store 中的当前值，不会出现竞态
 条件。
-
-### delete {#delete}
-
-```ts
-function optimisticDelete(snap: SnapshotInterface, params: any) {
-  return params;
-}
-```
 
 要只让部分 endpoint 变成乐观的，或者要适配特殊的 API，请通过
 [Resource.extend()](../api/resource.md#extend) 设置
@@ -354,20 +314,20 @@ sequenceDiagram
 1. 服务器时序
 1. 响应时序
 
-Reactive Data Client 会为你处理请求时序和响应时序。这通常已经足够，因为服务器通常
-按请求到达的顺序处理它们。如果服务器以不同的顺序保存请求，竞态条件就依然
+Reactive Data Client 会为你处理响应时序。这通常已经足够，因为服务器通常
+按请求到达的顺序处理它们。如果请求以不同的顺序到达或被保存，竞态条件就依然
 存在。
 
 要解决它，请用同一个时钟维护一个[全序](https://en.wikipedia.org/wiki/Total_order)。服务器和客户端的时钟
 可能不同，而乐观更新发生在客户端，因此请使用客户端的时钟：
 
-1. 通过 [getRequestInit()](../api/RestEndpoint.md#getRequestInit) 在 `updatedAt` header 中发送请求时间。
+1. 通过 [getRequestInit()](../api/RestEndpoint.md#getRequestInit) 在 body 中以 `updatedAt` 发送请求时间。
 1. 服务器按 `updatedAt` 的顺序处理请求，把 `updatedAt` 存储在 Entity 中，并在每个
    响应中返回它。
 1. 覆盖 [shouldReorder](../api/Entity.md#shouldreorder)，按 `updatedAt` 对乱序的响应重新排序。
 
 [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse) 使用了 [snap.fetchedAt](/docs/api/Snapshot#fetchedat)。
-它表示获取开始的时刻，与 `updatedAt` header 的时间相同。
+它表示获取开始的时刻，与 `updatedAt` 使用同一个时钟（当多个 fetch 在同一毫秒内开始时，会晚不到一毫秒）。
 
 <FrameworkPlayground fixtures={[
 {
@@ -531,3 +491,55 @@ render(<CounterPage />);
 :::
 
 </FrameworkPlayground>
+
+:::react
+
+## 在负载较重的页面上保持点击响应迅速 {#transition}
+
+与 React 的 [useOptimistic()](https://react.dev/reference/react/useOptimistic) 一样，乐观更新会在浏览器绘制这次点击之前
+渲染。如果有很多组件展示了被更改的数据，这次渲染可能会让点击感觉
+迟缓。
+
+### 何时使用 transition {#when-to-use-a-transition}
+
+首先让这次渲染更廉价，可以使用 [React Compiler](https://react.dev/learn/react-compiler)，或对开销大的
+组件使用 `memo()`。更廉价的渲染能让更新保持即时，而 transition 只是把它挪到绘制之后。如果点击
+仍然迟缓，请在 [startTransition()](https://react.dev/reference/react/startTransition)（React 18+）中调用会应用乐观更新的
+`ctrl.fetch()`。
+
+以下情况请不要使用 transition：
+
+- 更新只会重新渲染少数几个组件。此时 transition 只会推迟更新，却没有需要隐藏的慢渲染。
+- 该控件是受控输入，例如 `TodoItem` 的复选框。React 会把输入重置为它上一次渲染的值，因此
+  在 transition 渲染之前，复选框会弹回原状（参见
+  [startTransition() 注意事项](https://react.dev/reference/react/startTransition#caveats)）。
+
+例如，重命名用户会重新渲染每一条显示其名字的评论：
+```tsx
+import { startTransition, type FormEvent } from 'react';
+import { useController } from '@data-client/react';
+import { UserResource, type User } from './UserResource';
+
+export function RenameUser({ user }: { user: User }) {
+  const ctrl = useController();
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const name = new FormData(e.currentTarget).get('name') as string;
+    startTransition(() => {
+      ctrl.fetch(UserResource.partialUpdate, { id: user.id }, { name });
+    });
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" defaultValue={user.name} />
+      <button type="submit">Rename</button>
+    </form>
+  );
+}
+```
+
+React 会以 transition 优先级渲染乐观更新，因此浏览器会先完成绘制并处理输入。请像上面那样用花括号包裹
+这次调用，让回调不返回任何值。在 React 19 中，返回 `fetch()` promise 的回调是
+一个异步 Action，React 会一直保留乐观更新，直到服务器响应。
+
+:::

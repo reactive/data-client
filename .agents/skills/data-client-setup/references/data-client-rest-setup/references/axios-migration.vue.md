@@ -165,7 +165,7 @@ export default class ApiEndpoint<
 }
 ```
 
-Response interceptors that change the body, such as converting `snake_case` keys, go in
+Response interceptors that change the body, such as unwrapping `{ data }` or converting `snake_case` keys, go in
 [`process()`](./RestEndpoint.vue.md#process); see [snakes to camels](https://dataclient.io/rest/guides/network-transform#snakes-to-camels).
 
 When a response interceptor returned `response.data`, a caller's `.data` read a field of the body, not axios's response,
@@ -489,24 +489,25 @@ npm uninstall axios
 
 ## Axios options reference {#quick-reference}
 
-| Axios                                    | @data-client/rest                                                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `baseURL`                                | [`urlPrefix`](./RestEndpoint.vue.md#urlPrefix)                                                              |
-| `headers` config                         | [`getHeaders()`](./RestEndpoint.vue.md#getHeaders)                                                          |
-| `interceptors.request`                   | [`getHeaders()`](./RestEndpoint.vue.md#getHeaders) / [`getRequestInit()`](./RestEndpoint.vue.md#getRequestInit) |
-| `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.vue.md#parseResponse) / [`process()`](./RestEndpoint.vue.md#process)         |
-| `transformRequest`                       | [`getRequestInit()`](./RestEndpoint.vue.md#getRequestInit)                                                  |
-| `transformResponse`                      | [`process()`](./RestEndpoint.vue.md#process)                                                                |
-| `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                        |
-| `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                               |
-| `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                               |
-| `withCredentials: true`                  | [`credentials: 'include'`](./auth.vue.md#cookie-auth-credentials) in `getRequestInit()`                     |
-| `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                |
-| `params` / `paramsSerializer`            | [`searchParams`](./RestEndpoint.vue.md#searchParams) / [`searchToString()`](#query-serialization)           |
-| `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                             |
-| `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                   |
-| `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                         |
-| `onUploadProgress`                       | [Custom `fetchResponse()` with XMLHttpRequest](#upload-progress)                                        |
+| Axios                                    | @data-client/rest                                                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `baseURL`                                | [`urlPrefix`](./RestEndpoint.vue.md#urlPrefix)                                                                  |
+| `headers` config                         | [`getHeaders()`](./RestEndpoint.vue.md#getHeaders)                                                              |
+| `interceptors.request`                   | [`getHeaders()`](./RestEndpoint.vue.md#getHeaders) / [`getRequestInit()`](./RestEndpoint.vue.md#getRequestInit)     |
+| `interceptors.response`                  | [`parseResponse()`](./RestEndpoint.vue.md#parseResponse) / [`process()`](./RestEndpoint.vue.md#process)             |
+| `transformRequest`                       | [`getRequestInit()`](./RestEndpoint.vue.md#getRequestInit)                                                      |
+| `transformResponse`                      | [`process()`](./RestEndpoint.vue.md#process)                                                                    |
+| `isAxiosError` / `error.response`        | [`NetworkError`](#error-handling) with `.status` and `.response`                                            |
+| `cancelToken` / `signal`                 | [`signal`](#cancellation)                                                                                   |
+| `timeout`                                | [`AbortSignal.timeout()`](#timeout) in `getRequestInit()`                                                   |
+| `withCredentials: true`                  | [`credentials: 'include'`](./auth.vue.md#cookie-auth-credentials) in `getRequestInit()`                         |
+| `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                    |
+| `params` / `paramsSerializer`            | [`searchParams`](./RestEndpoint.vue.md#searchParams) / [`searchToString()`](#query-serialization)               |
+| `data` in a `delete()` config            | [`body`](./RestEndpoint.vue.md#body) on the endpoint: a `DELETE` sends a body only when it has one (rest 0.19+) |
+| `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                                 |
+| `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                       |
+| `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                             |
+| `onUploadProgress`                       | [Custom `fetchResponse()` with XMLHttpRequest](#upload-progress)                                            |
 
 ### Cancellation
 

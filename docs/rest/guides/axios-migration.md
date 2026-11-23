@@ -214,7 +214,7 @@ export default class ApiEndpoint<
 
 </DiffEditor>
 
-Response interceptors that change the body, such as converting `snake_case` keys, go in
+Response interceptors that change the body, such as unwrapping `{ data }` or converting `snake_case` keys, go in
 [`process()`](../api/RestEndpoint.md#process); see [snakes to camels](./network-transform.md#snakes-to-camels).
 
 When a response interceptor returned `response.data`, a caller's `.data` read a field of the body, not axios's response,
@@ -563,6 +563,7 @@ npm uninstall axios
 | `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) in `getRequestInit()`                               |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
+| `data` in a `delete()` config            | [`body`](../api/RestEndpoint.md#body) on the endpoint: a `DELETE` sends a body only when it has one (rest 0.19+)  |
 | `auth: { username, password }`           | [`getHeaders()` with `btoa()`](#basic-auth)                                                                       |
 | `validateStatus`                         | [Custom `fetchResponse()`](#accepting-error-statuses)                                                             |
 | `xsrfCookieName` / `xsrfHeaderName`      | [`getHeaders()`](#csrf-headers)                                                                                   |

@@ -33,6 +33,11 @@ Campos [Lazy](./Lazy.md) produzem um Queryable por meio do acessor [`.query`](./
 Recebe a resposta (desnormalizada) como entries, além dos argumentos, e retorna a nova
 resposta para uso com [useQuery](/docs/api/useQuery)
 
+`useQuery(query, ...args)` passa todos os argumentos para o `schema` da Query e para `process`, depois das entries, então
+verifique cada argumento em relação a ambos. O schema encontra seus dados com os argumentos, como `useQuery(schema, ...args)`
+faria; quando não encontra nada, `useQuery()` retorna `undefined`. Dê a `process` um argumento próprio apenas se o
+schema o ignorar: [All](./All.md) ignora todos os argumentos.
+
 ## Uso {#usage}
 
 ### Mantendo a ordenação após criações {#sorting}

@@ -93,6 +93,8 @@ const deleteTodo = id => ctrl.fetch(TodoResource.delete, { id });
 const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page })
 ```
 
+Fetch the first page without the `paginationField` arg: `getPage` drops it to find the list to extend.
+
 For more detailed usage, apply the skill "data-client-react" or "data-client-vue".
 
 ---
@@ -151,12 +153,13 @@ step that owns the change, never `fetch` itself (that replaces the whole lifecyc
 | The network call (retries, another client) | `fetchResponse(input, init)` |
 | Non-JSON responses | `content` option (`'blob'`, `'text'`, …), else `parseResponse(response)` |
 | Shape of the parsed data | `process(value, ...args)` |
+| One Entity's fields, wherever it appears | `Entity.process()` (skill "data-client-schema") |
 
 ---
 
 ## 4. **Extending Resources**
 
-Use `.extend()` to add or override endpoints.
+Use `.extend()` to add or override endpoints. To add endpoints, return them from the function form:
 
 ```typescript
 export const IssueResource = resource({
@@ -166,8 +169,12 @@ export const IssueResource = resource({
     path: '/search/issues',
     // ...custom schema or params...
   }),
+  lock: new RestEndpoint({ path: '/issues/:id/lock', method: 'PUT', schema: Issue }),
 }));
 ```
+
+The object form, `.extend({ getList: { path } })`, only changes the options of endpoints the resource already
+has. A new name there throws.
 
 ---
 
@@ -191,17 +198,26 @@ For detailed API documentation, see the [references](references/) directory:
 - [RestEndpoint](references/RestEndpoint.md);[_EndpointLifecycle.md](references/_EndpointLifecycle.md);[RestEndpoint.js](references/RestEndpoint.js) - Single REST endpoint
 - Entity, Collection and other schemas: skill "data-client-schema"
 - [Fixtures](references/Fixtures.md) - Mock data for testing
-- [data-dependency](references/data-dependency.md);[_useLive.md](references/_useLive.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Rendering guide
-- [mutations](references/mutations.md);[_useLoading.md](references/_useLoading.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
+- [data-dependency](references/data-dependency.md);[_useLive.md](references/_useLive.md);[_AsyncBoundary.md](references/_AsyncBoundary.md) - Where data dependencies and their loading and error fallbacks go in the component tree
+- [mutations](references/mutations.md);[_useLoading.md](references/_useLoading.md);[_VoteDemo.md](references/_VoteDemo.md) - Create, update and delete from a component, with optimistic updates and pending state
 
-**Guides** (refer when user asks about these topics):
-- [auth](references/auth.md) - Authentication headers, tokens, login/logout flows
-- [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) - Cursor/offset pagination, infinite scroll
-- [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) - Instant UI feedback before server response
-- [network-transform](references/network-transform.md) - Transform responses, handle non-standard APIs
+## Guides by use case
 
-**Concepts** (refer when user asks about these topics):
-- [expiry-policy](references/expiry-policy.md) - Cache invalidation, stale data, dataExpiryLength, errorExpiryLength
-- [error-policy](references/error-policy.md) - Error handling, retry behavior, soft vs hard errors
+Each guide holds working code. Read the matching section before writing code.
+
+| Use case | Read | Technique |
+|---|---|---|
+| Requests need credentials | [auth](references/auth.md) | `getRequestInit()` for cookies, `getHeaders()` for a token, on a shared base endpoint |
+| The token is in React context | "Auth Headers from" in [auth](references/auth.md) | [`hookifyResource()`](references/hookifyResource.md) |
+| A `401` logs the user out | skill "data-client-manager" | `LogoutManager` |
+| A list loads in pages | [pagination](references/pagination.md);[_pagination.md](references/_pagination.md) | `paginationField` and `getList.getPage`, which adds each page to the list |
+| A paged list comes in a `{ data, meta }` envelope | "Page numbers in an envelope" in [pagination](references/pagination.md#envelope) | the envelope is the schema, with the `Collection` at `data` |
+| The next-page token is in a response header | "Tokens in HTTP Headers" in [pagination](references/pagination.md) | `parseResponse()` adds the header to the body |
+| The UI changes before the server answers | [optimistic-updates](references/optimistic-updates.md);[_optimisticTransform.md](references/_optimisticTransform.md) | `optimistic: true` on a resource; `getOptimisticResponse()` on other endpoints |
+| Responses can arrive out of order | "Compensating for Server timing variations" in [optimistic-updates](references/optimistic-updates.md) | compare `updatedAt` in `Entity.shouldReorder()` |
+| The API's shape differs from the app's (key case, field types, primary key, headers) | [network-transform](references/network-transform.md) | `process()` / `getRequestInit()` / `parseResponse()` on the endpoint; `Entity.process()` for one Entity's fields wherever it appears; `Entity.schema` for field types |
+| A response is not JSON | "File download" in [network-transform](references/network-transform.md#file-download) | `content: 'blob'` |
+| How long data stays fresh, and refreshing it on demand | [expiry-policy](references/expiry-policy.md) | `dataExpiryLength`, `invalidIfStale`; `ctrl.fetch()` / `ctrl.expireAll()`; `ctrl.invalidate()` |
+| What shows when a refetch fails | [error-policy](references/error-policy.md) | `errorPolicy()`: `'soft'` keeps the last data, `'hard'` replaces it with the error |
 
 **ALWAYS follow these patterns and refer to the official docs for edge cases. Prioritize code generation that is idiomatic, type-safe, and leverages automatic normalization/caching via schema definitions.**

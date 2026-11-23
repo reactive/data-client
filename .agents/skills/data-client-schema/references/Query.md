@@ -21,6 +21,11 @@ This accepts any [Queryable](./schema.md#queryable) schema: [Entity](./Entity.md
 Takes the (denormalized) response as entries and arguments and returns the new
 response for use with [useQuery](https://dataclient.io/docs/api/useQuery)
 
+`useQuery(query, ...args)` passes every argument to the Query's `schema` and to `process`, after the entries, so
+check each argument against both. The schema finds its data with the arguments, as `useQuery(schema, ...args)`
+would; when it finds nothing, `useQuery()` returns `undefined`. Give `process` an argument of its own only if the
+schema ignores it: [All](./All.md) ignores every argument.
+
 ## Usage
 
 ### Maintaining sort after creates {#sorting}

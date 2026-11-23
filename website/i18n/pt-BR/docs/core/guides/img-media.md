@@ -10,13 +10,13 @@ import TabItem from '@theme/TabItem';
 
 # Imagens e outras mídias
 
-Depois de configurar o Reactive Data Client para buscar dados estruturados, você pode querer incorporar
-também algumas buscas de mídia para aproveitar o suspense e o [suporte ao modo concorrente](/docs/guides/render-as-you-fetch).
+O Reactive Data Client também pode buscar mídia, então imagens e outros dados binários ganham Suspense e
+[render-as-you-fetch](/docs/guides/render-as-you-fetch).
 
 ## Armazenando ArrayBuffer {#storing-arraybuffer}
 
-[Resource](/rest/api/resource) e [Entity](/rest/api/Entity) não devem ser usados neste caso, pois ambos representam
-estruturas de mapa string -> valor. Em vez disso, definiremos nosso próprio [Endpoint](/rest/api/Endpoint) simples.
+Não use [Resource](/rest/api/resource) nem [Entity](/rest/api/Entity) para dados binários. Eles modelam objetos com
+chaves. Defina um [Endpoint](/rest/api/Endpoint) em vez disso.
 
 ```typescript
 import { Endpoint } from '@data-client/rest';
@@ -65,10 +65,11 @@ const photo = await getPhoto({ userId });
 
 ## Apenas imagens {#just-images}
 
-Em muitos casos, seria útil suspender o carregamento de itens custosos, como
-imagens, usando suspense. Isso se torna especialmente poderoso com o padrão [fetch as you render](/docs/guides/render-as-you-fetch) no modo concorrente.
+Imagens também podem suspender, então um boundary Suspense espera que elas carreguem. Isso funciona melhor com
+[render-as-you-fetch](/docs/guides/render-as-you-fetch).
 
-O [@data-client/img](https://www.npmjs.com/package/@data-client/img) fornece um componente `<Img />` que suspende, assim como o endpoint `getImage` para prefetch.
+O [@data-client/img](https://www.npmjs.com/package/@data-client/img) tem um componente `<Img />` que suspende e um
+endpoint `getImage` para prefetch.
 
 ## Instalação {#installation}
 
@@ -77,7 +78,7 @@ O [@data-client/img](https://www.npmjs.com/package/@data-client/img) fornece um 
 ## Uso {#usage}
 
 ```tsx title="Profile.tsx"
-import React, { ImgHTMLAttributes } from 'react';
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { Img } from '@data-client/img';
 import { UserResource } from './resources/User';
@@ -99,17 +100,17 @@ export default function Profile({ username }: { username: string }) {
 
 #### Prefetch {#prefetching}
 
-Observe que isso fará as requisições em cascata, esperando o user ser resolvido antes
-que a requisição da imagem possa começar. Se a url da imagem for determinística com base nos mesmos parâmetros, podemos iniciar essa requisição ao mesmo tempo que a requisição do user:
+O exemplo acima espera o user antes de iniciar a requisição da imagem. Se você puder calcular a url da imagem a partir dos mesmos
+parâmetros, inicie as duas requisições ao mesmo tempo:
 
 ```tsx title="Profile.tsx"
-import React, { ImgHTMLAttributes } from 'react';
+import React from 'react';
 import { useSuspense, useFetch } from '@data-client/react';
 import { Img, getImage } from '@data-client/img';
 import { UserResource } from './resources/User';
 
 export default function Profile({ username }: { username: string }) {
-  const imageSrc = `/profile_images/${username}}`;
+  const imageSrc = `/profile_images/${username}`;
   useFetch(getImage, { src: imageSrc });
   const user = useSuspense(UserResource.get, { username });
   return (
@@ -125,5 +126,5 @@ export default function Profile({ username }: { username: string }) {
 }
 ```
 
-Ao usar o padrão [fetch as you render](../guides/render-as-you-fetch) no modo concorrente, use [Controller.fetch()](../api/Controller.md#fetch) com o `getImage`
-[Endpoint](/rest/api/Endpoint) para pré-carregar a imagem.
+Com [render-as-you-fetch](/docs/guides/render-as-you-fetch), chame [Controller.fetch()](../api/Controller.md#fetch) com
+o `getImage` [Endpoint](/rest/api/Endpoint) para pré-carregar a imagem.

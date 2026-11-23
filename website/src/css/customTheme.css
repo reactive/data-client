@@ -228,15 +228,41 @@ small {
   }
 }
 
-/* Blog: the recent-posts list takes 2 of 12 columns instead of 3, so the
-   post gets 8 (760px at a 1280px window): room for side-by-side demos with
-   lines still short enough to read. Infima stacks the columns below 997px */
+/* Blog column widths. Infima stacks the columns below 997px.
+   From 997px the post keeps 8 of 12 columns of Infima's 1140px container
+   (760px at 1280px), wide enough for side-by-side demos. The container is
+   uncapped, so the recent-posts list and the table of contents split the
+   rest of the window */
 @media (min-width: 997px) {
+  .blog-wrapper .main-wrapper > .container {
+    --blog-post-width: calc(min(100%, var(--ifm-container-width)) * 8 / 12);
+    --blog-list-width: calc((100% - var(--blog-post-width)) / 2);
+    --blog-toc-width: var(--blog-list-width);
+    max-width: none;
+  }
   .blog-wrapper .container > .row > aside.col--3 {
-    --ifm-col-width: calc(2 / 12 * 100%);
+    --ifm-col-width: var(--blog-list-width);
   }
   .blog-wrapper .container > .row > main.col--7 {
-    --ifm-col-width: calc(8 / 12 * 100%);
+    --ifm-col-width: var(--blog-post-width);
+  }
+  /* the post's table of contents */
+  .blog-wrapper .container > .row > .col--2 {
+    --ifm-col-width: var(--blog-toc-width);
+  }
+}
+/* From 1440px, lay out like a docs page: the list is as wide as the docs
+   sidebar, and the post and its table of contents split the rest 3:1 like a
+   doc and its TOC, in a container that grows by the sidebar's width. Posts
+   without a TOC, and the post list, keep the 3/4 measure so lines stay
+   readable. --doc-sidebar-width is Docusaurus's (theme-classic
+   DocRoot/Layout/Sidebar); the fallback covers pages that don't load it */
+@media (min-width: 1440px) {
+  .blog-wrapper .main-wrapper > .container {
+    --blog-list-width: var(--doc-sidebar-width, 300px);
+    --blog-post-width: calc((100% - var(--blog-list-width)) * 3 / 4);
+    --blog-toc-width: calc((100% - var(--blog-list-width)) / 4);
+    max-width: calc(var(--ifm-container-width-xl) + var(--blog-list-width));
   }
 }
 

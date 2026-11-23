@@ -1,5 +1,9 @@
 'use strict';
 
+const fs = require('node:fs');
+
+const resolveModule = require('../resolveModule');
+
 /**
  * @data-client v0.19 migration codemod
  *
@@ -29,28 +33,55 @@
  *        `middleware: Middleware = () => next => next`.
  *      - Reads of the removed `NetworkManager.cleanupDate`, and `getMiddleware` code it can't
  *        rewrite, get a `// TODO(data-client):` comment.
+ *      - `controller.resolve(action.endpoint, { fetchedAt: Date.now() })` passes the fetch's
+ *        `action.meta.fetchedAt`, which 0.19 matches responses to fetches by.
  *   5. `fetchIfStale()` always returns a Promise:
  *      - `Promise.resolve(ctrl.fetchIfStale(...))` becomes the bare call.
- *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`.
- *      - A statement that reads its result as the data gets a `// TODO(data-client):` comment.
- *   6. Deprecated APIs:
+ *      - `if (x instanceof Promise)` (or `isPromise(x)`) on a result becomes its Promise branch, when
+ *        that branch awaits the result.
+ *      - `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` becomes `.mockResolvedValue(data)`, and
+ *        `fetchIfStale: jest.fn(() => data)` resolves its value.
+ *      - A statement that reads its result as the data, or that handles an awaited result being
+ *        missing, gets a `// TODO(data-client):` comment.
+ *   6. Unawaited reads never reject unhandled: a no-op `.catch(() => {})` on an unused `fetchIfStale()`,
+ *      or on `fetch()` of `XResource.get`/`getList`/`getList.getPage`, is dropped.
+ *   7. `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller` after `__DC__.store = name`, in any
+ *      file, since debugging scripts rarely import data-client; other uses get a TODO.
+ *   8. Deprecated APIs:
  *      - `Resource.create` becomes `Resource.getList.push` where it runs, for an unchanged `const`
- *        `resource()` declared in the file; DevTools `actionsBlacklist`/`actionsWhitelist` options
- *        become `actionsDenylist`/`actionsAllowlist`.
- *      - Other `*Resource.create`, `waitForNextUpdate()`, `renderDataHook.cleanup()`/`.allSettled()`
- *        and Vue `createDataClient()` get a `// TODO(data-client):` comment.
+ *        `resource()` declared in the file or imported from a relative or tsconfig-aliased module;
+ *        DevTools `actionsBlacklist`/`actionsWhitelist` options become `actionsDenylist`/`actionsAllowlist`;
+ *        `renderDataCompose()`'s `waitForNextUpdate()` becomes `allSettled()`; right after the render,
+ *        it is dropped before a statement that first awaits `result`, or becomes `await result` before one
+ *        that awaits it later; `static pk()` overrides type `args` as `readonly any[]`.
+ *      - Other `*Resource.create`, React `waitForNextUpdate()`, `renderDataHook.cleanup()`/
+ *        `.allSettled()` and Vue `createDataClient()` get a `// TODO(data-client):` comment.
+ *
+ *   9. Optional improvements that adopt 0.19 features (only with `--improvements`):
+ *      - A `for...of`, `forEach()`, or unused `rows.map()` or `Promise.all(rows.map())` that calls `ctrl.set()` once per
+ *        row becomes one batch `set()`: `ctrl.set(Ticker, args, row)` becomes `ctrl.set([Ticker], rows)`.
+ *        Only where it writes the same rows: the receiver is a Controller, `rows` is an array, each value is
+ *        row data rather than an updater function, and the Entity (and its nested Entities) is a class this
+ *        file or a relative module declares whose pk() and process() read only what a batch passes them and
+ *        that doesn't override validate().
+ *      - `ctrl.set([new Invalidate(E)], [row])` becomes `ctrl.set(new Invalidate(E), row)`.
+ *      - Vue: `gcPolicy: new GCPolicy()` is dropped from `DataClientPlugin`'s options, the default;
+ *        `GCPolicy` is imported from `@data-client/vue` instead of `@data-client/core`; and
+ *        `computed(() => args)` passed to a composable becomes the getter `() => args`.
+ *      - `|| typeof data === 'symbol'` is dropped where `data` is React `useCache()` or `useDLE()` data.
  *
  * Usage:
  *   npx @data-client/codemods v0.19 src/
- *   npx @data-client/codemods v0.19 src/ --deprecations=false  # skip section 6
- *   npx @data-client/codemods v0.19 src/ --deprecations=only   # just section 6
+ *   npx @data-client/codemods v0.19 src/ --deprecations=false  # skip section 8
+ *   npx @data-client/codemods v0.19 src/ --deprecations=only   # just section 8
+ *   npx @data-client/codemods v0.19 src/ --improvements=only   # just section 9
  */
 
 const DATA_CLIENT_PREFIX = '@data-client/';
 // every rewrite outside the deprecated APIs needs one of these names in the file
 const NAMES =
-  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b/;
-const BLOG = 'https://dataclient.io/blog/2026/10/03/v0.19-batch-set';
+  /managers|initManager|prepareStore|createPersistedStore|fetchIfStale|getMiddleware|cleanupDate|\bManager\b|fetchedAt|\.catch\(/;
+const BLOG = 'https://dataclient.io/blog/2026/11/18/v0.19-batch-set';
 // calls whose object argument has a `managers` option
 const OPTION_CALLS = new Set([
   'createDataClient',
@@ -69,6 +100,8 @@ const POSITIONAL_CALLS = new Map([
 ]);
 
 const isId = (node, name) => node?.type === 'Identifier' && node.name === name;
+const isThisOrSuper = node =>
+  node.type === 'ThisExpression' || node.type === 'Super';
 
 const isProperty = node =>
   node?.type === 'ObjectProperty' || node?.type === 'Property';
@@ -82,9 +115,29 @@ const isUndefined = node =>
   isId(node, 'undefined') ||
   (node.type === 'UnaryExpression' && node.operator === 'void');
 
+/** `undefined`, `void 0` or `null` */
+const isNullish = node =>
+  isId(node, 'undefined') ||
+  node.type === 'NullLiteral' ||
+  (node.type === 'Literal' && node.value === null) ||
+  (node.type === 'UnaryExpression' &&
+    node.operator === 'void' &&
+    /Literal$/.test(node.argument.type));
+
 const isGetDefaultManagersCall = node =>
   node.type === 'CallExpression' && isId(node.callee, 'getDefaultManagers');
 
+const isCall = node =>
+  node.type === 'CallExpression' || node.type === 'OptionalCallExpression';
+
+/** Whether `node` is the global `Object` or `Reflect`, or any member named like one, such as `globalThis.Object`
+ * (conservative: `lib.Reflect` matches too) */
+const isObjectGlobal = node =>
+  isId(node, 'Object') ||
+  isId(node, 'Reflect') ||
+  (node?.type?.endsWith('MemberExpression') &&
+    !node.computed &&
+    (isId(node.property, 'Object') || isId(node.property, 'Reflect')));
 const isMember = node =>
   node?.type === 'MemberExpression' ||
   node?.type === 'OptionalMemberExpression';
@@ -151,18 +204,95 @@ function findManagerSlots(j, root) {
   return slots;
 }
 
-/** The binding path (`id` of its declaration) for an identifier, if declared in this file */
-function bindingOf(path) {
-  const scope = path.scope?.lookup(path.node.name);
-  return scope?.getBindings()[path.node.name]?.[0];
+/** The binding path (`id` of its declaration) that `name` refers to at `path`, if declared in this file */
+function bindingAt(path, name) {
+  // ast-types puts block-scoped names in the function's scope, so pick the declaration in the innermost
+  // block that holds `path`, or look further out when none does
+  for (
+    let scope = path.scope?.lookup(name);
+    scope;
+    scope = scope.parent?.lookup(name)
+  ) {
+    const bindings = scope.getBindings()[name];
+    const blocks = bindings.map(declaringBlock);
+    for (let p = path; p; p = p.parent) {
+      const i = blocks.indexOf(p.node);
+      if (i !== -1) return bindings[i];
+    }
+  }
 }
 
-/** Whether `p` names something else, like an object key or a non-computed member */
+/** The binding path (`id` of its declaration) for an identifier, if declared in this file */
+const bindingOf = path => bindingAt(path, path.node.name);
+
+/** Whether the identifier at `path` names a variable this file declares, other than an ambient
+ * `declare var` or `declare global` one, which describes a global */
+function isLocalName(path) {
+  const binding = bindingOf(path);
+  if (!binding) return false;
+  for (let p = binding; p; p = p.parent)
+    if (p.node.declare || p.node.type === 'TSModuleDeclaration') return false;
+  return true;
+}
+
+/** Whether `node` is `path`'s node or one of its ancestors */
+function isWithin(path, node) {
+  for (let p = path; p; p = p.parent) if (p.node === node) return true;
+  return false;
+}
+
+const BLOCKS = new Set([
+  'BlockStatement',
+  'Program',
+  'SwitchCase',
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'CatchClause',
+]);
+
+const PATTERN_PARTS = new Set([
+  'Property',
+  'ObjectProperty',
+  'ObjectPattern',
+  'ArrayPattern',
+  'AssignmentPattern',
+  'RestElement',
+]);
+
+/** The node a declaration's name is visible in: its block for `let`, `const`, a class or a function
+ * declaration, else its function or the module */
+function declaringBlock(binding) {
+  let owner = binding.parent;
+  while (PATTERN_PARTS.has(owner.node.type)) owner = owner.parent;
+  const { type } = owner.node;
+  const blockScoped =
+    (type === 'VariableDeclarator' && owner.parent.node.kind !== 'var') ||
+    ((type === 'FunctionDeclaration' || type === 'ClassDeclaration') &&
+      owner.node.id === binding.node);
+  // a parameter is visible in its own function
+  if (/Function/.test(type) && owner.node.id !== binding.node)
+    return owner.node;
+  for (let path = owner.parent; path; path = path.parent) {
+    const t = path.node.type;
+    if (/Function/.test(t) || t === 'Program' || (blockScoped && BLOCKS.has(t)))
+      return path.node;
+  }
+}
+
+/** Whether `p` names something else, like a non-computed object key or member, or the other module's
+ * name in `import { name as local }` */
 function isOtherName(p) {
   const parent = p.parent.node;
   return (
     (isMember(parent) && parent.property === p.node && !parent.computed) ||
-    (isProperty(parent) && parent.key === p.node && parent.value !== p.node)
+    (isProperty(parent) &&
+      parent.key === p.node &&
+      parent.value !== p.node &&
+      !parent.computed) ||
+    (parent.type === 'ImportSpecifier' &&
+      parent.imported === p.node &&
+      parent.local !== p.node)
   );
 }
 
@@ -176,6 +306,13 @@ const usesOf = (j, root, binding) =>
       !isOtherName(p) &&
       bindingOf(p) === binding,
   );
+
+/** The uses of `binding` anywhere in the module that holds `path` */
+function moduleUsesOf(j, path, binding) {
+  let top = path;
+  while (top.parent) top = top.parent;
+  return usesOf(j, j(top), binding);
+}
 
 /** Whether a variable is declared in `export const`, so other modules can use or change it */
 const isExported = binding =>
@@ -288,6 +425,9 @@ const FETCH_IF_STALE_TODO =
   `${BLOG}#fetch-if-stale-promise`;
 // Promise methods; reading any other member of the result means the code expected the data
 const PROMISE_METHODS = new Set(['then', 'catch', 'finally']);
+const MOCK_TODO =
+  ' TODO(data-client): fetchIfStale() always returns a Promise since 0.19; make this mock resolve its data: ' +
+  `${BLOG}#fetch-if-stale-promise`;
 const MOCK_RENAMES = new Map([
   ['mockReturnValue', 'mockResolvedValue'],
   ['mockReturnValueOnce', 'mockResolvedValueOnce'],
@@ -300,6 +440,17 @@ const PASS_THROUGH = new Set([
   'TSTypeAssertion',
   'ParenthesizedExpression',
 ]);
+
+/** The outermost wrapper around the value at `path` that passes it through unchanged */
+function outerPath(path) {
+  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  return path;
+}
+
+/** Puts `comments` above the ones `node` already has */
+const prependComments = (node, comments) => {
+  node.comments = [...(comments ?? []), ...(node.comments ?? [])];
+};
 
 const isFetchIfStaleCall = node =>
   node?.type === 'CallExpression' && calleeName(node) === 'fetchIfStale';
@@ -321,7 +472,7 @@ function isPromiseMethodCall(path) {
 
 /** Whether the value at `path` is used as if it were the data, not a Promise */
 function readsSynchronously(path) {
-  while (PASS_THROUGH.has(path.parent.node.type)) path = path.parent;
+  path = outerPath(path);
   const { node } = path;
   const parent = path.parent.node;
   switch (parent.type) {
@@ -345,35 +496,252 @@ function readsSynchronously(path) {
     case 'VariableDeclarator':
       // destructuring: ObjectPattern or ArrayPattern
       return parent.init === node && parent.id.type.endsWith('Pattern');
+    case 'CallExpression':
+      // `isPromise(result)` checks for the data
+      return isPromiseCheckCall(parent) && parent.arguments[0] === node;
     default:
       return false;
   }
 }
 
-/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a `const` holding it */
+/** `const x = ctrl.fetchIfStale(...)` declarators, or with `anyKind` also `let` and `var` ones */
+const findFetchIfStaleConsts = (j, root, anyKind = false) =>
+  root
+    .find(j.VariableDeclarator, { id: { type: 'Identifier' } })
+    .filter(
+      decl =>
+        (anyKind || decl.parent.node.kind === 'const') &&
+        isFetchIfStaleCall(unwrap(decl.node.init)),
+    )
+    .paths();
+
+/** The identifiers in `path` (default: the declaration's scope) that read the variable `decl` declares */
+const refsTo = (j, decl, path = decl.scope.path) =>
+  usesOf(j, j(path), decl.get('id')).paths();
+
+/** Paths that use a `fetchIfStale()` result as the data: the call itself, or a variable holding it */
 function findSyncReads(j, root) {
   const reads = root
     .find(j.CallExpression)
     .filter(call => isFetchIfStaleCall(call.node) && readsSynchronously(call))
     .paths();
-  root
-    .find(j.VariableDeclarator, { id: { type: 'Identifier' } })
-    .filter(decl => isFetchIfStaleCall(unwrap(decl.node.init)))
-    .forEach(decl => {
-      const { name } = decl.node.id;
-      root.find(j.Identifier, { name }).forEach(ref => {
-        if (
-          // JSX names are JSXIdentifiers
-          ref.node.type === 'Identifier' &&
-          ref.node !== decl.node.id &&
-          !isOtherName(ref) &&
-          bindingOf(ref)?.parent.node === decl.node &&
-          readsSynchronously(ref)
-        )
-          reads.push(ref);
-      });
-    });
+  for (const decl of findFetchIfStaleConsts(j, root, true))
+    reads.push(...refsTo(j, decl).filter(readsSynchronously));
   return reads;
+}
+
+/** `isPromise(x)` or `isThenable(x)`, a helper that checks for a Promise */
+const isPromiseCheckCall = node =>
+  node.type === 'CallExpression' &&
+  node.arguments.length === 1 &&
+  /^is(Promise|Thenable)(Like)?$/.test(calleeName(node) ?? '');
+
+/** What a test checks is a Promise, and whether it is negated: `x instanceof Promise`, `isPromise(x)`,
+ * or either under `!` */
+function promiseCheckOf(test) {
+  let negated = false;
+  test = unwrap(test);
+  while (test?.type === 'UnaryExpression' && test.operator === '!') {
+    negated = !negated;
+    test = unwrap(test.argument);
+  }
+  if (
+    test?.type === 'BinaryExpression' &&
+    test.operator === 'instanceof' &&
+    isId(test.right, 'Promise')
+  )
+    return { checked: unwrap(test.left), negated };
+  if (test && isPromiseCheckCall(test))
+    return { checked: unwrap(test.arguments[0]), negated };
+}
+
+/** Whether `branch` waits for the Promise `decl` holds (`await x` or `x.then()`), and, with `uses`, also
+ * reads the data it resolves to (`(await x).title`, not a bare `await x;`, or `x.then(cb)`) */
+function awaits(j, branch, decl, uses) {
+  return refsTo(j, decl, branch).some(ref => {
+    const parent = ref.parent.node;
+    if (parent.type === 'AwaitExpression' && parent.argument === ref.node)
+      return (
+        !uses ||
+        outerPath(ref.parent).parent.node.type !== 'ExpressionStatement'
+      );
+    return (
+      isMember(parent) &&
+      parent.object === ref.node &&
+      isPromiseMethodCall(ref.parent) &&
+      (!uses ||
+        (memberName(parent) === 'then' &&
+          ref.parent.parent.node.arguments.length > 0))
+    );
+  });
+}
+
+const JUMPS = new Set([
+  'ReturnStatement',
+  'ThrowStatement',
+  'BreakStatement',
+  'ContinueStatement',
+]);
+
+/** Whether control never runs past the end of `statements`: the last one returns, throws, breaks or
+ * continues, directly or as the last statement of a nested block */
+function endsAbruptly(statements) {
+  const last = statements.at(-1);
+  return last?.type === 'BlockStatement' ?
+      endsAbruptly(last.body)
+    : JUMPS.has(last?.type);
+}
+
+/** Whether a branch ends abruptly, so code after its `if` was the other branch too */
+const endsEarly = branch => endsAbruptly([branch]);
+
+/** Whether `statements` can move into the block around `path` without their declarations clashing with
+ * names already visible there */
+function canInline(j, path, statements) {
+  // names read beside the check may be globals, which a declaration moved out of the branch would shadow
+  let beside;
+  const readBeside = name => {
+    beside ??= new Set(
+      path.parentPath.value
+        .filter(node => node !== path.node)
+        .flatMap(node =>
+          j(node)
+            .find(j.Identifier)
+            .nodes()
+            .map(id => id.name),
+        ),
+    );
+    return beside.has(name);
+  };
+  return statements.every(statement => {
+    const declared =
+      statement.type === 'VariableDeclaration' ?
+        statement.declarations.map(d => d.id)
+      : [statement.id];
+    if (!declared.every(id => id === undefined || id?.type === 'Identifier'))
+      return false;
+    return declared.every(id => {
+      if (!id) return true;
+      // ast-types puts block-scoped names in the function's scope, so the branch's own declaration is
+      // the one binding allowed there
+      const scope = path.scope.lookup(id.name);
+      return (
+        (!scope ||
+          (scope === path.scope &&
+            scope.getBindings()[id.name].length === 1 &&
+            !path.scope.parent?.lookup(id.name))) &&
+        !readBeside(id.name)
+      );
+    });
+  });
+}
+
+/** Replaces the `if` or `?:` at `path` with the branch at `branchPath` */
+function keepBranch(j, path, branchPath) {
+  const branch = branchPath.node;
+  if (path.node.type === 'ConditionalExpression') {
+    path.replace(branch);
+    return;
+  }
+  const statements = branch.type === 'BlockStatement' ? branch.body : [branch];
+  const replacement =
+    Array.isArray(path.parentPath.value) && canInline(j, path, statements) ?
+      statements
+    : [branch];
+  if (replacement[0]) prependComments(replacement[0], path.node.comments);
+  path.replace(...replacement);
+}
+
+/** A check like `if (x instanceof Promise)` on a `fetchIfStale()` result now always takes the Promise
+ * branch, so where that branch waits for the result, it replaces the whole check */
+function keepPromiseBranches(j, root) {
+  const consts = new Set(findFetchIfStaleConsts(j, root).map(d => d.node));
+  if (!consts.size) return false;
+  let dirty = false;
+  const checks = [
+    ...root.find(j.IfStatement).paths(),
+    ...root.find(j.ConditionalExpression).paths(),
+  ].reverse(); // inner checks first, so replacing an outer one keeps their edits
+  for (const path of checks) {
+    const check = promiseCheckOf(path.node.test);
+    if (check?.checked.type !== 'Identifier') continue;
+    const ref = j(path.get('test'))
+      .find(j.Identifier, { name: check.checked.name })
+      .paths()[0];
+    const decl = ref && bindingOf(ref)?.parent;
+    if (!decl || !consts.has(decl.node)) continue;
+    const branch = path.get(check.negated ? 'alternate' : 'consequent');
+    const other = path.node[check.negated ? 'consequent' : 'alternate'];
+    if (!branch.node) continue;
+    // keep a branch that only waits when the other did nothing, and otherwise only one that also reads
+    // the data, so nothing the other branch did with it disappears
+    const otherEmpty =
+      (!other && !endsEarly(branch.node)) ||
+      (other?.type === 'BlockStatement' && !other.body.length);
+    if (!awaits(j, branch, decl, !otherEmpty)) continue;
+    keepBranch(j, path, branch);
+    dirty = true;
+  }
+  return dirty;
+}
+
+const FALLBACK_TODO =
+  ' TODO(data-client): an awaited fetchIfStale() rejects, instead of resolving undefined, when the latest ' +
+  `fetch failed since 0.19; handle that case in .catch() or try/catch: ${BLOG}#fetch-if-stale-promise`;
+
+/** Whether the value at `path` is checked for a missing result: `x ?? fallback`, `x && x.id`, `!x`,
+ * `x == null`, `x?.id` */
+function checksMissing(path) {
+  path = outerPath(path);
+  const { node } = path;
+  const parent = path.parent.node;
+  switch (parent.type) {
+    case 'LogicalExpression':
+      return parent.left === node;
+    case 'UnaryExpression':
+      return parent.operator === '!';
+    case 'BinaryExpression': {
+      const other = parent.left === node ? parent.right : parent.left;
+      return (
+        ['==', '===', '!=', '!=='].includes(parent.operator) && isNullish(other)
+      );
+    }
+    case 'IfStatement':
+    case 'ConditionalExpression':
+      return parent.test === node;
+    case 'MemberExpression':
+    case 'OptionalMemberExpression':
+      return parent.object === node && !!parent.optional;
+    case 'CallExpression':
+    case 'OptionalCallExpression':
+      return parent.callee === node && !!parent.optional;
+    default:
+      return false;
+  }
+}
+
+/** Code that handled an awaited `fetchIfStale()` resolving `undefined` after a failed fetch */
+function markMissingChecks(j, root) {
+  const marked = [];
+  root
+    .find(j.AwaitExpression)
+    .filter(({ node }) => isFetchIfStaleCall(unwrap(node.argument)))
+    .forEach(awaited => marked.push(...missingChecks(j, awaited)));
+  return addTodos(j, marked, FALLBACK_TODO);
+}
+
+/** The places that check the value at `path`, or the `const` holding it, for a missing result */
+function missingChecks(j, path) {
+  const found = checksMissing(path) ? [path] : [];
+  const outer = outerPath(path);
+  const decl = outer.parent;
+  if (
+    decl.node.type === 'VariableDeclarator' &&
+    decl.node.init === outer.node &&
+    decl.node.id.type === 'Identifier'
+  )
+    found.push(...refsTo(j, decl).filter(checksMissing));
+  return found;
 }
 
 /** Comments `text` above each statement holding one of `paths`; returns whether it added any */
@@ -442,21 +810,6 @@ function statementOf(j, path) {
   return statement;
 }
 
-/** The `spyOn(obj, 'fetchIfStale')` call under a chain of `.mock*()` calls, if any */
-function spiesOnFetchIfStale(node) {
-  while (
-    node?.type === 'CallExpression' &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.property.name?.startsWith('mock')
-  )
-    node = node.callee.object;
-  return (
-    node?.type === 'CallExpression' &&
-    calleeName(node) === 'spyOn' &&
-    node.arguments[1]?.value === 'fetchIfStale'
-  );
-}
-
 /** `Promise.resolve(ctrl.fetchIfStale(...))` made `.catch()` work on fresh data, which the call now does itself */
 function unwrapPromiseResolve(j, root) {
   return (
@@ -474,22 +827,126 @@ function unwrapPromiseResolve(j, root) {
   );
 }
 
-/** Mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` */
-function renameFetchIfStaleMocks(j, root) {
+/** `jest.fn(...)` or `vi.fn(...)` */
+const isMockFn = node =>
+  node?.type === 'CallExpression' &&
+  memberName(node.callee) === 'fn' &&
+  ['jest', 'vi'].includes(node.callee.object?.name);
+
+/** The `.mock*()` calls chained onto the mock created at `path`, innermost first */
+function mockChain(path) {
+  const chain = [];
+  while (
+    isMember(path.parent.node) &&
+    path.parent.node.object === path.node &&
+    memberName(path.parent.node)?.startsWith('mock') &&
+    path.parent.parent.node.type === 'CallExpression' &&
+    path.parent.parent.node.callee === path.parent.node
+  ) {
+    path = path.parent.parent;
+    chain.push(path);
+  }
+  return chain;
+}
+
+/** Whether the mock created at `path` stands in for fetchIfStale: `spyOn(ctrl, 'fetchIfStale')`, or a
+ * `jest.fn()` held by a `fetchIfStale` property or assigned to `ctrl.fetchIfStale` */
+function mocksFetchIfStale(path) {
+  const { node } = path;
+  if (calleeName(node) === 'spyOn')
+    return node.arguments[1]?.value === 'fetchIfStale';
+  if (!isMockFn(node)) return false;
+  const top = mockChain(path).at(-1) ?? path;
+  const parent = top.parent.node;
   return (
-    root
-      .find(j.CallExpression, { callee: { type: 'MemberExpression' } })
-      .filter(
-        call =>
-          MOCK_RENAMES.has(call.node.callee.property.name) &&
-          spiesOnFetchIfStale(call.node.callee.object),
-      )
-      .forEach(call => {
-        const { callee } = call.node;
-        callee.property = j.identifier(MOCK_RENAMES.get(callee.property.name));
-      })
-      .size() > 0
+    (isProperty(parent) &&
+      parent.value === top.node &&
+      keyName(parent) === 'fetchIfStale') ||
+    (parent.type === 'AssignmentExpression' &&
+      parent.right === top.node &&
+      memberName(parent.left) === 'fetchIfStale')
   );
+}
+
+const MOCK_IMPLEMENTATIONS = new Set([
+  'mockImplementation',
+  'mockImplementationOnce',
+]);
+
+/** `Promise.resolve(...)`, `Promise.reject(...)` or `new Promise(...)` */
+const isPromiseValue = node =>
+  (node.type === 'CallExpression' &&
+    isId(node.callee.object, 'Promise') &&
+    ['resolve', 'reject'].includes(memberName(node.callee))) ||
+  (node.type === 'NewExpression' && isId(node.callee, 'Promise'));
+
+/** Makes a mock implementation return a Promise: `() => data` becomes `() => Promise.resolve(data)`.
+ * Returns whether it changed it. */
+function resolveImplementation(j, fn) {
+  if (!isFunction(fn) || fn.async || fn.generator) return false;
+  const wrap = value =>
+    j.callExpression(
+      j.memberExpression(j.identifier('Promise'), j.identifier('resolve')),
+      [value],
+    );
+  if (fn.body.type !== 'BlockStatement') {
+    if (isPromiseValue(unwrap(fn.body))) return false;
+    fn.body = wrap(fn.body);
+    return true;
+  }
+  // only this function's own returns, not those of functions inside it
+  const nested = new Set(
+    j(fn.body).find(j.Function).find(j.ReturnStatement).nodes(),
+  );
+  const returns = j(fn.body)
+    .find(j.ReturnStatement)
+    .filter(({ node }) => !nested.has(node))
+    .nodes();
+  // a bare `return;` or running off the end returns undefined, so make every path a Promise with `async`
+  if (
+    returns.some(node => !node.argument) ||
+    fn.body.body.at(-1)?.type !== 'ReturnStatement'
+  ) {
+    fn.async = true;
+    return true;
+  }
+  let dirty = false;
+  for (const node of returns) {
+    if (isPromiseValue(unwrap(node.argument))) continue;
+    node.argument = wrap(node.argument);
+    dirty = true;
+  }
+  return dirty;
+}
+
+/** Mocks of the old fresh-data return: `spyOn(ctrl, 'fetchIfStale').mockReturnValue(data)` resolves its
+ * value, and so do `jest.fn(() => data)` implementations of `fetchIfStale` */
+function resolveFetchIfStaleMocks(j, root) {
+  let dirty = false;
+  const marked = [];
+  // an implementation defined elsewhere (`mockImplementation(impl)`) gets a TODO
+  const resolve = (call, fn) => {
+    if (isFunction(fn)) dirty = resolveImplementation(j, fn) || dirty;
+    else marked.push(call);
+  };
+  root
+    .find(j.CallExpression)
+    .filter(mocksFetchIfStale)
+    .forEach(mock => {
+      if (isMockFn(mock.node) && mock.node.arguments[0])
+        resolve(mock, mock.node.arguments[0]);
+      for (const call of mockChain(mock)) {
+        const { node } = call;
+        const name = memberName(node.callee);
+        if (MOCK_RENAMES.has(name)) {
+          node.callee.property = j.identifier(MOCK_RENAMES.get(name));
+          dirty = true;
+        } else if (MOCK_IMPLEMENTATIONS.has(name) && node.arguments[0]) {
+          resolve(call, node.arguments[0]);
+        }
+      }
+    });
+  return addTodos(j, marked, MOCK_TODO) || dirty;
 }
 
 /** Where to `await` depends on the code around it, so mark the statement instead */
@@ -500,8 +957,224 @@ function markSyncReads(j, root) {
 function transformFetchIfStale(j, root, source) {
   if (!source.includes('fetchIfStale')) return false;
   let dirty = unwrapPromiseResolve(j, root);
-  dirty = renameFetchIfStaleMocks(j, root) || dirty;
+  dirty = resolveFetchIfStaleMocks(j, root) || dirty;
+  dirty = keepPromiseBranches(j, root) || dirty;
   dirty = markSyncReads(j, root) || dirty;
+  dirty = markMissingChecks(j, root) || dirty;
+  return dirty;
+}
+
+/* Reads you don't await never reject unhandled since 0.19, so their no-op catches are dead code */
+
+/** `() => {}`, `() => undefined` or `() => null` */
+function isNoopHandler(node) {
+  if (!isFunction(node) || node.async || node.generator) return false;
+  const { body } = node;
+  return body.type === 'BlockStatement' ?
+      body.body.length === 0
+    : isNullish(body);
+}
+
+// resource() members that read: they have no sideEffect
+const RESOURCE_READS = new Set(['get', 'getList']);
+
+/** Whether `path` reads `get`, `getList` or `getList.getPage` of a resource that keeps it a read: a plain
+ * `resource()` declared or imported here whose `extend()` doesn't replace it. An undeclared `*Resource`
+ * (a test's, say) counts by its name. */
+function isResourceRead(j, root, path, file) {
+  path = path.node && unwrapPath(path);
+  if (
+    memberName(path?.node) === 'getPage' &&
+    memberName(path.node.object) === 'getList'
+  )
+    path = path.get('object');
+  const node = path?.node;
+  if (
+    !isMember(node) ||
+    node.computed ||
+    !RESOURCE_READS.has(memberName(node)) ||
+    node.object.type !== 'Identifier' ||
+    !/Resource$/.test(node.object.name)
+  )
+    return false;
+  const binding = bindingOf(path.get('object'));
+  if (!binding) return true;
+  const replaced = new Set([memberName(node)]);
+  return isPlainResourceBinding(j, root, binding, file, replaced);
+}
+
+/** Whether the call at `path` starts a read that can't reject unhandled: any `fetchIfStale()`, or `fetch()`
+ * of a resource read. `fetch` named alone is `const { fetch } = useController()`, since the global
+ * fetch() takes a URL. */
+const isPrehandledRead = (j, root, path, file) =>
+  isFetchIfStaleCall(path.node) ||
+  (path.node.type === 'CallExpression' &&
+    calleeName(path.node) === 'fetch' &&
+    isResourceRead(j, root, path.get('arguments', 0), file));
+
+/** Whether nothing uses the value at `path`: a statement of its own, `void`, or the body of a JSX event
+ * handler, whose return value React ignores */
+function isUnused(path) {
+  const parent = path.parent.node;
+  if (parent.type === 'ExpressionStatement') return true;
+  if (parent.type === 'UnaryExpression' && parent.operator === 'void')
+    return true;
+  const container = path.parent.parent?.node;
+  const attribute = path.parent.parent.parent?.node;
+  const element = path.parent.parent.parent.parent?.node;
+  // an async handler returns a new Promise, and a component may await what its handler returns
+  return (
+    parent.type === 'ArrowFunctionExpression' &&
+    !parent.async &&
+    parent.body === path.node &&
+    container?.type === 'JSXExpressionContainer' &&
+    /^on[A-Z]/.test(attribute?.name?.name ?? '') &&
+    /^[a-z]/.test(element?.name?.name ?? '')
+  );
+}
+
+/** `ctrl.fetch(TodoResource.getList).catch(() => {})` becomes `ctrl.fetch(TodoResource.getList)` where
+ * nothing uses the result */
+function dropNoopCatches(j, root, file) {
+  return (
+    root
+      .find(j.CallExpression)
+      .filter(path => {
+        const { callee } = path.node;
+        return (
+          memberName(callee) === 'catch' &&
+          !callee.computed &&
+          path.node.arguments.length === 1 &&
+          isNoopHandler(path.node.arguments[0]) &&
+          isUnused(path) &&
+          isPrehandledRead(
+            j,
+            root,
+            unwrapPath(path.get('callee', 'object')),
+            file,
+          )
+        );
+      })
+      .forEach(call => {
+        const read = call.node.callee.object;
+        prependComments(read, call.node.comments);
+        call.replace(read);
+      })
+      .size() > 0
+  );
+}
+
+/* controller.resolve() matches a response to its fetch by fetchedAt since 0.19 */
+
+/** `Date.now()` */
+const isDateNow = node =>
+  node?.type === 'CallExpression' &&
+  !node.arguments.length &&
+  isId(node.callee.object, 'Date') &&
+  memberName(node.callee) === 'now';
+
+// names a fetch action goes by; another object with an `endpoint` (props, options) has no `meta`
+const isActionName = node =>
+  node?.type === 'Identifier' && /(^a|A)ction$/.test(node.name);
+
+/** Whether `path` runs only when `action` (an identifier path) is a fetch action: under
+ * `if (action.type === actionTypes.FETCH)` or `case actionTypes.FETCH:` of `switch (action.type)`, the
+ * actions that carry `meta.fetchedAt` */
+function inFetchBranch(path, action) {
+  const { name } = action.node;
+  const binding = bindingOf(action);
+  const isFetch = node =>
+    nameOf(node) === 'FETCH' ||
+    ((node.type === 'StringLiteral' || node.type === 'Literal') &&
+      node.value === 'rdc/fetch');
+  // `action.type` of the same variable, so a callback's own `action` isn't taken as the fetch
+  const isActionType = (node, at) =>
+    memberName(node) === 'type' &&
+    isId(node.object, name) &&
+    bindingAt(at, name) === binding;
+  // true only when the test holds just for fetch actions: `action.type === FETCH`, alone or in an `&&`
+  const onlyFetch = (test, at) =>
+    (test.type === 'LogicalExpression' &&
+      test.operator === '&&' &&
+      (onlyFetch(test.left, at) || onlyFetch(test.right, at))) ||
+    (test.type === 'BinaryExpression' &&
+      (test.operator === '===' || test.operator === '==') &&
+      ((isFetch(test.left) && isActionType(test.right, at)) ||
+        (isFetch(test.right) && isActionType(test.left, at))));
+  for (; path.parent; path = path.parent) {
+    const { node } = path.parent;
+    if (
+      node.type === 'IfStatement' &&
+      path.name === 'consequent' &&
+      onlyFetch(node.test, path.parent)
+    )
+      return true;
+    const switchPath = path.parent.parent;
+    if (
+      node.type === 'SwitchCase' &&
+      node.test &&
+      isFetch(node.test) &&
+      isActionType(switchPath.node.discriminant, switchPath)
+    ) {
+      // another case may fall through into this one
+      const { cases } = switchPath.node;
+      const before = cases[cases.indexOf(node) - 1];
+      if (!before || endsAbruptly(before.consequent)) return true;
+    }
+  }
+  return false;
+}
+
+/** The fetch action's `meta` for the endpoint at `path` in a fetch branch: `action.meta` for
+ * `action.endpoint`, or for `endpoint` destructured from `action` (its `meta` when destructured too) */
+function fetchMetaOf(j, path) {
+  const { node } = path;
+  const metaOf = action =>
+    j.memberExpression(j.identifier(action.name), j.identifier('meta'));
+  if (memberName(node) === 'endpoint' && isActionName(node.object))
+    return inFetchBranch(path, path.get('object')) ?
+        metaOf(node.object)
+      : undefined;
+  // `const { endpoint } = action`
+  const property = destructuredBy(path);
+  if (!property || keyName(property.node) !== 'endpoint') return;
+  const declarator = property.parent.parent;
+  if (
+    declarator.node.type !== 'VariableDeclarator' ||
+    !isActionName(declarator.node.init) ||
+    !inFetchBranch(path, declarator.get('init'))
+  )
+    return;
+  const meta = property.parent.node.properties.find(
+    p =>
+      isProperty(p) && keyName(p) === 'meta' && p.value.type === 'Identifier',
+  );
+  const { name } = meta ? meta.value : declarator.node.init;
+  // the name must mean the same variable at the resolve() call as where `endpoint` was destructured
+  if (bindingAt(path, name) !== bindingAt(property, name)) return;
+  return meta ? j.identifier(name) : metaOf(declarator.node.init);
+}
+
+/** `controller.resolve(action.endpoint, { ..., fetchedAt: Date.now() })` passes `action.meta.fetchedAt` */
+function passFetchedAt(j, root) {
+  let dirty = false;
+  root
+    .find(j.CallExpression)
+    .filter(
+      ({ node }) =>
+        memberName(node.callee) === 'resolve' &&
+        node.arguments[1]?.type === 'ObjectExpression',
+    )
+    .forEach(call => {
+      const fetchedAt = call.node.arguments[1].properties.find(
+        p => isProperty(p) && !p.computed && keyName(p) === 'fetchedAt',
+      );
+      if (!fetchedAt || !isDateNow(fetchedAt.value)) return;
+      const meta = fetchMetaOf(j, call.get('arguments', 0));
+      if (!meta) return;
+      fetchedAt.value = j.memberExpression(meta, j.identifier('fetchedAt'));
+      dirty = true;
+    });
   return dirty;
 }
 
@@ -566,7 +1239,7 @@ const returnsOwnMiddleware = member => {
 
 /** `x.getMiddleware()`, `x?.getMiddleware()` or `x['getMiddleware']()` */
 const isGetMiddlewareCall = node =>
-  (node.type === 'CallExpression' || node.type === 'OptionalCallExpression') &&
+  isCall(node) &&
   !node.arguments.length &&
   memberName(node.callee) === 'getMiddleware';
 
@@ -658,6 +1331,28 @@ const importsOf = root =>
   root
     .get()
     .node.program.body.filter(node => node.type === 'ImportDeclaration');
+
+/** Whether an import specifier imports a value, not only a type */
+const isValueImport = specifier =>
+  specifier.node.importKind !== 'type' &&
+  specifier.parent.node.importKind !== 'type';
+
+/** The import specifier the identifier at `path` is bound to, unless it imports only a type */
+function valueImportOf(path) {
+  const specifier = bindingOf(path)?.parent;
+  if (specifier?.node.type === 'ImportSpecifier' && isValueImport(specifier))
+    return specifier;
+}
+
+/** Whether `path` is an identifier imported as one of `names` from `sources` */
+function importsNameFrom(path, names, sources) {
+  const specifier = path.node.type === 'Identifier' && valueImportOf(path);
+  return (
+    !!specifier &&
+    names.has(staticName(specifier.node.imported)) &&
+    sources.has(specifier.parent.node.source.value)
+  );
+}
 
 /** Imports `name` next to the import of `sibling` or from an existing import of `source`, else adds an import */
 function ensureImport(j, root, name, { sibling, source, type = false }) {
@@ -866,6 +1561,267 @@ function transformManagerClasses(j, root, source) {
   return dirty;
 }
 
+/* globalThis.__DC__ replaces the __DC_CONTROLLERS__ Map of Controllers by store name */
+
+const DC_GLOBAL = '__DC_CONTROLLERS__';
+const DC_GLOBAL_TODO = ` TODO(data-client): __DC_CONTROLLERS__ was replaced by __DC__ in 0.19; read __DC__.controller, after setting __DC__.store when the page has several stores (it throws when the store is missing): ${BLOG}#dc-global`;
+
+/** `__DC__.<property>` on the same object `__DC_CONTROLLERS__` was read from */
+function dcMember(j, dcNode, property) {
+  const dc =
+    dcNode.type === 'Identifier' ?
+      j.identifier('__DC__')
+    : j.memberExpression(dcNode.object, j.identifier('__DC__'));
+  return j.memberExpression(dc, j.identifier(property));
+}
+
+/** Whether `node` calls the member `callee` with no arguments */
+const callsWithoutArgs = (node, callee) =>
+  node.type === 'CallExpression' &&
+  node.callee === callee &&
+  !node.arguments.length;
+
+/** `[...map.keys()]` or `Array.from(map.keys())` on the Map at `path`, which reads `__DC__.stores`. The
+ * first value isn't `__DC__.controller`: that throws when several stores are mounted and none is picked. */
+function storeKeysOf(path) {
+  const member = path.parent;
+  const call = member.parent;
+  if (
+    memberName(member.node) !== 'keys' ||
+    member.node.object !== path.node ||
+    !callsWithoutArgs(call.node, member.node)
+  )
+    return;
+  const up = call.parent;
+  if (
+    up.node.type === 'SpreadElement' &&
+    up.parent.node.type === 'ArrayExpression' &&
+    up.parent.node.elements.length === 1
+  )
+    return up.parent;
+  if (
+    up.node.type === 'CallExpression' &&
+    up.node.arguments.length === 1 &&
+    isId(up.node.callee.object, 'Array') &&
+    memberName(up.node.callee) === 'from'
+  )
+    return up;
+}
+
+// parents that evaluate the child whenever they run, and the children they may run conditionally
+const ALWAYS_EVALUATES = {
+  ConditionalExpression: ['test'],
+  IfStatement: ['test'],
+  LogicalExpression: ['left'],
+};
+const EVALUATES_ALL = new Set([
+  'CallExpression',
+  'NewExpression',
+  'MemberExpression',
+  'AwaitExpression',
+  'ArrayExpression',
+  'ObjectExpression',
+  'Property',
+  'ObjectProperty',
+  'SpreadElement',
+  'TemplateLiteral',
+  'VariableDeclarator',
+  'VariableDeclaration',
+  'ExpressionStatement',
+  'ReturnStatement',
+  'ThrowStatement',
+  ...PASS_THROUGH,
+]);
+
+/** Whether `statement` always evaluates the expression at `path` when it runs */
+function alwaysEvaluated(path, statement) {
+  for (; path !== statement; path = path.parent) {
+    const { node } = path.parent;
+    const always = ALWAYS_EVALUATES[node.type];
+    const evaluated =
+      always ?
+        always.includes(path.name)
+      : EVALUATES_ALL.has(node.type) ||
+        (node.type === 'AssignmentExpression' && node.operator === '=');
+    if (!evaluated || node.optional) return false;
+  }
+  return true;
+}
+
+/** Whether `statement` evaluates the expression at `path` before anything else, but the name of a function it
+ * calls: in `const data = await result` or `expect(await result)`, not `const ready = flag, data = await result` */
+function evaluatedFirst(path, statement) {
+  for (; path !== statement; path = path.parent) {
+    const { node } = path.parent;
+    // an array element's key is its array's, as `arguments`
+    const inArray = typeof path.name === 'number';
+    const key = inArray ? path.parentPath.name : path.name;
+    if (inArray && path.name !== 0) return false;
+    if (node.optional) return false;
+    switch (node.type) {
+      case 'CallExpression':
+      case 'NewExpression':
+        if (key !== 'callee' && node.callee.type !== 'Identifier') return false;
+        break;
+      case 'MemberExpression':
+        if (key !== 'object') return false;
+        break;
+      case 'AssignmentExpression':
+        if (node.operator !== '=' || node.left.type !== 'Identifier')
+          return false;
+        break;
+      case 'Property':
+      case 'ObjectProperty':
+        if (node.computed) return false;
+        break;
+      case 'TemplateLiteral':
+      case 'ArrayExpression':
+      case 'ObjectExpression':
+      case 'VariableDeclaration':
+        break;
+      default:
+        if (!alwaysEvaluated(path, path.parent)) return false;
+    }
+  }
+  return true;
+}
+
+/** `__DC_CONTROLLERS__.get(name)` becomes `__DC__.controller`, after `__DC__.store = name;` on its own line
+ * when it can move there, or else `(__DC__.store = name, __DC__.controller)` */
+function selectStore(j, call, dcNode, shared) {
+  const [name] = call.node.arguments;
+  const select = j.assignmentExpression(
+    '=',
+    dcMember(j, dcNode, 'store'),
+    name,
+  );
+  const statement = statementOf(j, call);
+  // a name with no side effects, in a statement that always reads it (not `flag && ...`) and reads no other
+  // store, of the same function (`page.evaluate(() => ...)` runs its function elsewhere); the variables in
+  // the name and the receiver (`frame.__DC_CONTROLLERS__`) must be declared before the statement and not
+  // set in it
+  const inputs = [
+    call.get('arguments', 0),
+    ...(isMember(dcNode) ? [call.get('callee', 'object', 'object')] : []),
+  ];
+  const settled =
+    statement &&
+    inputs.every(input =>
+      identifiersIn(j, input)
+        .filter(p => !isOtherName(p))
+        .every(
+          p =>
+            !isWithin(bindingOf(p), statement.node) &&
+            !assignsIn(j, statement, p.node.name),
+        ),
+    );
+  const canHoist =
+    settled &&
+    !shared.has(statement.node) &&
+    Array.isArray(statement.parentPath.value) &&
+    (name.type === 'Identifier' ||
+      name.type === 'StringLiteral' ||
+      (name.type === 'Literal' && typeof name.value === 'string') ||
+      (name.type === 'TemplateLiteral' && !name.expressions.length)) &&
+    alwaysEvaluated(call, statement);
+  if (!canHoist) {
+    call.replace(
+      j.sequenceExpression([select, dcMember(j, dcNode, 'controller')]),
+    );
+    return;
+  }
+  const line = j.expressionStatement(select);
+  // comments above the statement stay above both lines
+  const comments = statement.node.comments ?? [];
+  line.comments = comments.filter(c => c.leading);
+  statement.node.comments = comments.filter(c => !c.leading);
+  statement.insertBefore(line);
+  call.replace(dcMember(j, dcNode, 'controller'));
+}
+
+/** The identifiers at and inside `path` (find() skips the node it starts from) */
+const identifiersIn = (j, path) => [
+  ...(path.node.type === 'Identifier' ? [path] : []),
+  ...j(path).find(j.Identifier).paths(),
+];
+
+/** Whether `statement` writes a variable named `name`, by assignment, destructuring, `++` or a loop head */
+const assignsIn = (j, statement, name) =>
+  j(statement)
+    .find(j.Identifier, { name })
+    .some(p => !isOtherName(p) && isWriteTarget(p));
+
+/** Whether `node` is a name or a chain of named members (`window`, `(window as any).top`), so evaluating it
+ * twice reads the same object without side effects */
+function isPlainRef(node) {
+  node = unwrap(node);
+  return (
+    node.type === 'Identifier' ||
+    node.type === 'ThisExpression' ||
+    (isMember(node) && !node.computed && isPlainRef(node.object))
+  );
+}
+
+/** `__DC_CONTROLLERS__.get(name)` reads `__DC__.controller` after picking the store, unless the code
+ * handles a missing store; the keys read `__DC__.stores`. Debugging scripts often don't import
+ * data-client, so this runs on any file that names the global. */
+function migrateDcGlobal(j, root) {
+  let dirty = false;
+  const marked = [];
+  const uses = [
+    ...root
+      .find(j.Identifier, { name: DC_GLOBAL })
+      .filter(p => !isOtherName(p) && !isLocalName(p))
+      .paths(),
+    ...root
+      .find(j.MemberExpression)
+      .filter(({ node }) => memberName(node) === DC_GLOBAL)
+      .paths(),
+  ];
+  const getCallOf = path => {
+    const call = path.parent.parent;
+    return (
+      memberName(path.parent.node) === 'get' &&
+      path.parent.node.object === path.node &&
+      call.node.type === 'CallExpression' &&
+      call.node.callee === path.parent.node &&
+      call.node.arguments.length === 1 &&
+      call.node.arguments[0].type !== 'SpreadElement' &&
+      call
+    );
+  };
+  // statements that read more than one store keep each pick next to its read
+  const seen = new Set();
+  const shared = new Set();
+  for (const path of uses) {
+    const statement = statementOf(j, path)?.node;
+    if (seen.has(statement)) shared.add(statement);
+    seen.add(statement);
+  }
+  for (const path of uses) {
+    const { node } = path;
+    const call = getCallOf(path);
+    // `.get()` returned undefined for a missing store, but `__DC__.controller` throws
+    if (
+      call &&
+      !missingChecks(j, call).length &&
+      (node.type === 'Identifier' || isPlainRef(node.object))
+    ) {
+      selectStore(j, call, node, shared);
+      dirty = true;
+      continue;
+    }
+    const keys = storeKeysOf(path);
+    if (keys) {
+      keys.replace(dcMember(j, node, 'stores'));
+      dirty = true;
+      continue;
+    }
+    marked.push(path);
+  }
+  return addTodos(j, marked, DC_GLOBAL_TODO) || dirty;
+}
+
 /* Deprecated APIs: renamed where the replacement does the same thing, marked otherwise */
 
 const DEVTOOLS_RENAMES = new Map([
@@ -925,16 +1881,9 @@ function unwrapPath(path) {
   return path;
 }
 
-/** Whether `path` is an identifier bound to an import of `name` from `source` */
-function isImportOf(path, name, source) {
-  const specifier = bindingOf(path)?.parent;
-  return (
-    specifier?.node.type === 'ImportSpecifier' &&
-    (specifier.node.imported?.name ?? specifier.node.imported?.value) ===
-      name &&
-    specifier.parent.node.source.value === source
-  );
-}
+/** Whether `path` is an identifier bound to a value import of `name` from `source` */
+const isImportOf = (path, name, source) =>
+  importsNameFrom(path, new Set([name]), new Set([source]));
 
 // a custom Endpoint class, or a key() that may read this.name (create is `Post.create`, getList.push is
 // `Post.getList.create`), makes create differ from getList.push
@@ -953,7 +1902,7 @@ const hasOnlyKeysOutside = (object, names) =>
 /** Whether `path` is a `resource({...})` call from @data-client/rest, through `.extend()` calls that keep
  * `create` the same request as `getList.push`; an `extend()` that replaces either, or might, makes them
  * differ, and so can a custom `Endpoint` class */
-function isPlainResource(path) {
+function isPlainResource(path, replaced = CREATE_SOURCES) {
   path = unwrapPath(path);
   while (
     path.node?.type === 'CallExpression' &&
@@ -961,9 +1910,9 @@ function isPlainResource(path) {
   ) {
     const [first] = path.node.arguments;
     if (first?.type === 'StringLiteral' || first?.type === 'Literal') {
-      if (CREATE_SOURCES.has(first.value)) return false;
+      if (replaced.has(first.value)) return false;
     } else if (first?.type === 'ObjectExpression') {
-      if (!hasOnlyKeysOutside(first, CREATE_SOURCES)) return false;
+      if (!hasOnlyKeysOutside(first, replaced)) return false;
     } else return false;
     path = unwrapPath(path.get('callee', 'object'));
   }
@@ -1003,19 +1952,20 @@ function isWriteTarget(path) {
   );
 }
 
-/** Whether every use of a `const` resource reads its members without writing them, passing the resource
- * on, or letting `create` or `getList` escape, so they stay what its declaration made them */
-function isReadOnlyResource(j, root, binding) {
-  if (
-    !isPlainResourceDeclarator(binding) ||
-    binding.parent.parent.node.kind !== 'const' ||
-    isExported(binding)
-  )
-    return false;
+/** Whether a `const` resource declared here is a plain `resource()`, and this file only reads its members.
+ * Other modules could change an exported one, but they would have to write to an import. */
+const isReadOnlyResource = (j, root, binding, replaced) =>
+  isPlainResourceDeclarator(binding, replaced) &&
+  binding.parent.parent.node.kind === 'const' &&
+  readsOnly(j, root, binding);
+
+/** Whether every use of a resource reads its members without writing them, passing the resource on, or
+ * letting `create` or `getList` escape, so they stay what its declaration made them */
+function readsOnly(j, root, binding) {
   return usesOf(j, root, binding).every(p => {
     const parent = p.parent.node;
-    // `typeof X` in a type
-    if (parent.type === 'TSTypeQuery') return true;
+    // `typeof X` in a type or `export { X }`
+    if (['TSTypeQuery', 'ExportSpecifier'].includes(parent.type)) return true;
     return (
       isMember(parent) &&
       parent.object === p.node &&
@@ -1024,6 +1974,120 @@ function isReadOnlyResource(j, root, binding) {
       !escapes(p.parentPath)
     );
   });
+}
+
+// parsed modules by file, so each is read once per run
+const modules = new Map();
+
+function parseModule(j, file) {
+  if (!modules.has(file)) {
+    let root = null;
+    try {
+      root = j(fs.readFileSync(file, 'utf8'));
+    } catch {
+      // unreadable or unparsable: treat as unknown
+    }
+    modules.set(file, root);
+  }
+  return modules.get(file);
+}
+
+/** The module and local name that `file`'s export `name` comes from, following `export { name } from` and
+ * `export * from`: `{ root, file, name, via }`, where `via` lists each module it re-exports through, outermost
+ * first, with the source and name it re-exports. Sets `unresolved.hit` when a module in the chain is too deep to
+ * follow or can't be parsed. */
+function exportOrigin(j, file, name, depth = 0, unresolved = {}) {
+  if (!file) return;
+  const root = depth < 5 && parseModule(j, file);
+  if (!root) {
+    unresolved.hit = true;
+    return;
+  }
+  const through = (source, local) => {
+    const origin = exportOrigin(
+      j,
+      resolveModule(file, source),
+      local,
+      depth + 1,
+      unresolved,
+    );
+    return (
+      origin && {
+        ...origin,
+        via: [{ root, file, source, name: local }, ...origin.via],
+      }
+    );
+  };
+  const { body } = root.get().node.program;
+  for (const node of body) {
+    if (node.type !== 'ExportNamedDeclaration' || node.exportKind === 'type')
+      continue;
+    const { declaration } = node;
+    if (
+      isId(declaration?.id, name) ||
+      declaration?.declarations?.some(d => isId(d.id, name))
+    )
+      return { root, file, name, via: [] };
+    const specifier = node.specifiers?.find(
+      s => staticName(s.exported) === name,
+    );
+    if (!specifier) continue;
+    const local = specifier.local?.name ?? name;
+    return node.source ?
+        through(node.source.value, local)
+      : { root, file, name: local, via: [] };
+  }
+  // a module's own exports win over `export *`
+  for (const node of body) {
+    if (node.type !== 'ExportAllDeclaration' || node.exported) continue;
+    const origin = through(node.source.value, name);
+    if (origin) return origin;
+  }
+}
+
+/** Whether the module `file` exports `name` as a plain `resource()` that it only reads, following
+ * `export { name } from` and `export * from` */
+function exportsPlainResource(j, file, name, replaced) {
+  const origin = exportOrigin(j, file, name);
+  return (
+    !!origin && isLocalPlainResource(j, origin.root, origin.name, replaced)
+  );
+}
+
+/** Whether a module's top-level `const name` is a plain `resource()` that the module only reads */
+function isLocalPlainResource(j, root, name, replaced) {
+  const declarator = root
+    .find(j.VariableDeclarator, { id: { name } })
+    .filter(d =>
+      ['Program', 'ExportNamedDeclaration'].includes(d.parent.parent.node.type),
+    )
+    .paths()[0];
+  return (
+    !!declarator && isReadOnlyResource(j, root, declarator.get('id'), replaced)
+  );
+}
+
+/** Whether `binding` is a plain `resource()` that this file only reads, declared here or imported */
+const isPlainResourceBinding = (j, root, binding, file, replaced) =>
+  isReadOnlyResource(j, root, binding, replaced) ||
+  isImportedPlainResource(j, root, binding, file, replaced);
+
+/** Whether `binding` imports a plain `resource()` from a relative or tsconfig-aliased module, and this file
+ * only reads it */
+function isImportedPlainResource(j, root, binding, file, replaced) {
+  const specifier = valueImportOf(binding);
+  if (!specifier) return false;
+  const declaration = specifier.parent.node;
+  const imported = specifier.node.imported;
+  return (
+    readsOnly(j, root, binding) &&
+    exportsPlainResource(
+      j,
+      file && resolveModule(file, declaration.source.value),
+      staticName(imported),
+      replaced,
+    )
+  );
 }
 
 /** Whether `X.create` or `X.getList` at `path` goes somewhere that could change it, like `Object.assign()` or an alias */
@@ -1053,8 +2117,7 @@ const ENDPOINT_RUNNERS = new Set([
 function isRun(path) {
   const parent = path.parent.node;
   return (
-    (parent.type === 'CallExpression' ||
-      parent.type === 'OptionalCallExpression') &&
+    isCall(parent) &&
     (parent.callee === path.node ||
       (parent.arguments[0] === path.node &&
         ENDPOINT_RUNNERS.has(calleeName(parent))))
@@ -1063,14 +2126,20 @@ function isRun(path) {
 
 /** `Resource.create` -> `Resource.getList.push` where it runs, for a `resource()` declared in this file and
  * never changed; other `*Resource.create` get a TODO */
-function migrateResourceCreate(j, root) {
+function migrateResourceCreate(j, root, file) {
   let dirty = false;
   const marked = [];
   const readOnly = new Map();
   root
-    .find(j.MemberExpression, { object: { type: 'Identifier' } })
+    .find(j.MemberExpression)
     .filter(({ node }) => !node.computed && memberName(node) === 'create')
     .forEach(path => {
+      const { object } = path.node;
+      // `api.PostResource.create` from `import * as api`
+      if (object.type !== 'Identifier') {
+        if (/Resource$/.test(memberName(object) ?? '')) marked.push(path);
+        return;
+      }
       const binding = bindingOf(path.get('object'));
       const declaration = binding?.parent.node;
       // a class or function declared here is not a resource
@@ -1081,7 +2150,7 @@ function migrateResourceCreate(j, root) {
       )
         return;
       if (binding && !readOnly.has(binding))
-        readOnly.set(binding, isReadOnlyResource(j, root, binding));
+        readOnly.set(binding, isPlainResourceBinding(j, root, binding, file));
       if (readOnly.get(binding) && isRun(path)) {
         path.node.object = j.memberExpression(
           path.node.object,
@@ -1099,9 +2168,9 @@ function migrateResourceCreate(j, root) {
   return addTodos(j, marked, CREATE_TODO) || dirty;
 }
 
-const isPlainResourceDeclarator = binding =>
+const isPlainResourceDeclarator = (binding, replaced) =>
   binding?.parent.node.type === 'VariableDeclarator' &&
-  isPlainResource(binding.parent.get('init'));
+  isPlainResource(binding.parent.get('init'), replaced);
 
 /** Shared `renderDataHook.cleanup()` / `.allSettled()`, which act only on the latest render */
 const findSharedTestHelpers = (j, root) =>
@@ -1166,12 +2235,294 @@ const findWaitForNextUpdate = (j, root) =>
     })
     .filter(({ render }) => RENDER_CALLS.has(render));
 
+/** The `{ ... }` property a destructured name at `path` is bound by, if any */
+function destructuredBy(path) {
+  const binding = path.node.type === 'Identifier' ? bindingOf(path) : undefined;
+  const property = binding?.parent;
+  return (
+      isProperty(property?.node) &&
+        property.node.value === binding.node &&
+        property.parent.node.type === 'ObjectPattern'
+    ) ?
+      property
+    : undefined;
+}
+
+/** Renames every reference to the variable `binding` declares, unless `name` at some reference means another
+ * variable than `target` (none when undefined); returns whether it renamed */
+function renameRefs(j, root, binding, name, target) {
+  const refs = usesOf(j, root, binding);
+  if (!refs.every(ref => bindingAt(ref, name) === target)) return false;
+  refs.forEach(ref => {
+    ref.node.name = name;
+  });
+  return true;
+}
+
+/** `const { waitForNextUpdate } = await renderDataCompose(...)` destructures `allSettled` instead;
+ * returns whether it could */
+function destructureAllSettled(j, root, property) {
+  const pattern = property.parent.node;
+  const binding = property.get('value');
+  const existing = pattern.properties.find(
+    p =>
+      isProperty(p) &&
+      keyName(p) === 'allSettled' &&
+      p.value.type === 'Identifier',
+  );
+  if (existing) {
+    const target = property.parent.get(
+      'properties',
+      pattern.properties.indexOf(existing),
+      'value',
+    );
+    if (!renameRefs(j, root, binding, existing.value.name, target))
+      return false;
+    pattern.properties = pattern.properties.filter(p => p !== property.node);
+    return true;
+  }
+  if (!property.node.shorthand) {
+    property.node.key = j.identifier('allSettled');
+    return true;
+  }
+  // a visible `allSettled` would be shadowed, here or where a nested scope declares one
+  if (
+    bindingAt(property, 'allSettled') ||
+    !renameRefs(j, root, binding, 'allSettled')
+  )
+    return false;
+  property.node.key = j.identifier('allSettled');
+  property.node.value = j.identifier('allSettled');
+  return true;
+}
+
+/** For an awaited wait right after the render, `{ statement, drop }`. `drop` is set when the next statement
+ * always awaits the render's `result`, so the first load needs only that: `'delete'` when it awaits it before
+ * reading anything, else `'await'` (the wait becomes `await result`, so reads before it still come after the
+ * first load). `declarator` holds the render result: `{ result, allSettled }` or `rendered`. */
+function firstLoadWait(j, call, declarator) {
+  const statement = call.parent.parent;
+  if (
+    call.parent.node.type !== 'AwaitExpression' ||
+    statement.node.type !== 'ExpressionStatement' ||
+    !Array.isArray(statement.parentPath.value)
+  )
+    return;
+  const index = statement.parentPath.value.indexOf(statement.node);
+  const before = statement.parentPath.value[index - 1];
+  if (
+    before?.type !== 'VariableDeclaration' ||
+    !before.declarations.includes(declarator?.node)
+  )
+    return;
+  const after = statement.parentPath.get(index + 1);
+  const { id } = declarator.node;
+  const destructured = id.type === 'ObjectPattern';
+  const result =
+    destructured ?
+      id.properties.find(p => isProperty(p) && keyName(p) === 'result')?.value
+    : id;
+  const awaits =
+    after.node && result?.type === 'Identifier' ?
+      j(after)
+        .find(j.AwaitExpression)
+        .filter(path => {
+          const value = unwrap(path.node.argument);
+          return (
+            alwaysEvaluated(path, after) &&
+            (destructured ?
+              isId(value, result.name)
+            : memberName(value) === 'result' && isId(value.object, result.name))
+          );
+        })
+        .paths()
+    : [];
+  const drop =
+    awaits.some(path => evaluatedFirst(path, after)) ? 'delete'
+    : awaits.length ? 'await'
+    : undefined;
+  if (!drop) return { statement };
+  const awaited =
+    destructured ?
+      j.identifier(result.name)
+    : j.memberExpression(j.identifier(result.name), j.identifier('result'));
+  return { statement, drop, awaited };
+}
+
+/** Deletes the first-load wait (`drop` `'delete'`) or makes it `await result` (`'await'`), and deletes
+ * `allSettled` from the render's pattern when nothing else calls it */
+function dropFirstLoadWait(j, { statement, drop, awaited }, declarator) {
+  if (drop === 'delete') statement.prune();
+  else statement.node.expression = j.awaitExpression(awaited);
+  const { id } = declarator.node;
+  if (id.type !== 'ObjectPattern') return;
+  const allSettled = id.properties.find(
+    p => isProperty(p) && keyName(p) === 'allSettled',
+  )?.value;
+  if (allSettled?.type !== 'Identifier') return;
+  const calls = j(declarator.scope.path)
+    .find(j.Identifier, { name: allSettled.name })
+    .filter(p => p.node !== allSettled && !isOtherName(p));
+  if (!calls.size())
+    id.properties = id.properties.filter(p => p.value !== allSettled);
+}
+
+/** Vue `waitForNextUpdate()` becomes `allSettled()`, which also waits for fetches, with no time limit.
+ * Right after the render, the old call waited for a Promise `result`, which `allSettled()` doesn't, so
+ * there it is deleted where the next statement awaits `result`, and marked otherwise. Returns the calls
+ * it could not convert. */
+function waitForAllSettled(j, root, calls) {
+  const unconverted = [];
+  // read every binding before renaming any, since scopes keep the names they first saw
+  const plans = calls.map(call => {
+    const callee = call.get('callee');
+    const property = !isMember(callee.node) && destructuredBy(callee);
+    const declarator =
+      property ?
+        property.parent.parent
+      : isMember(callee.node) && bindingOf(callee.get('object'))?.parent;
+    return {
+      call,
+      property,
+      declarator,
+      first: declarator && firstLoadWait(j, call, declarator),
+    };
+  });
+  // a property with a first wait that must stay keeps its name for every call
+  const kept = new Set(
+    plans
+      .filter(p => p.property && p.first && !p.first.drop)
+      .map(p => p.property),
+  );
+  const converted = new Map();
+  for (const { call, property, declarator, first } of plans) {
+    if (!declarator || (first && !first.drop) || kept.has(property)) {
+      unconverted.push(call);
+      continue;
+    }
+    if (property) {
+      // keyed by path: removing the property clears its node
+      if (!converted.has(property))
+        converted.set(property, destructureAllSettled(j, root, property));
+      if (!converted.get(property)) {
+        unconverted.push(call);
+        continue;
+      }
+    } else {
+      call.node.callee.property = j.identifier('allSettled');
+      call.node.callee.computed = false;
+    }
+    if (first?.drop) dropFirstLoadWait(j, first, declarator);
+  }
+  return unconverted;
+}
+
+const PK_ARGS_TODO = ` TODO(data-client): a future release types Entity.pk() args as readonly any[]; make this parameter readonly: ${BLOG}#future-pk-args`;
+const MUTATING_ARRAY_METHODS = new Set([
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'sort',
+  'reverse',
+  'fill',
+  'copyWithin',
+]);
+
+/** The readonly form of an array type: `any[]` -> `readonly any[]`, `Array<T>` -> `ReadonlyArray<T>`,
+ * through unions; undefined when nothing changes */
+function readonlyType(j, type) {
+  if (type.type === 'TSArrayType' || type.type === 'TSTupleType')
+    return j.tsTypeOperator.from({
+      operator: 'readonly',
+      typeAnnotation: type,
+    });
+  if (type.type === 'TSTypeReference' && isId(type.typeName, 'Array'))
+    return j.tsTypeReference(
+      j.identifier('ReadonlyArray'),
+      type.typeParameters ?? null,
+    );
+  if (type.type === 'TSUnionType') {
+    const types = type.types.map(t => readonlyType(j, t));
+    if (!types.some(Boolean)) return;
+    return j.tsUnionType(types.map((t, i) => t ?? type.types[i]));
+  }
+}
+
+/** Whether a parameter of this type already accepts a `readonly any[]` */
+const acceptsReadonly = type =>
+  ['TSAnyKeyword', 'TSUnknownKeyword', 'TSUndefinedKeyword'].includes(
+    type.type,
+  ) ||
+  (type.type === 'TSTypeOperator' && type.operator === 'readonly') ||
+  (type.type === 'TSTypeReference' && isId(type.typeName, 'ReadonlyArray')) ||
+  (type.type === 'TSUnionType' && type.types.every(acceptsReadonly));
+
+/** Whether the parameter at `param` is only read: indexed, a non-mutating method called on it, spread,
+ * or passed to `super.pk()` */
+function onlyReadsArray(j, method, param) {
+  if (!method.node.body) return true;
+  return usesOf(j, j(method.get('body')), param).every(p => {
+    const parent = p.parent.node;
+    if (isMember(parent) && parent.object === p.node)
+      return (
+        !MUTATING_ARRAY_METHODS.has(memberName(parent)) &&
+        !isWriteTarget(p.parent)
+      );
+    return (
+      parent.type === 'SpreadElement' ||
+      (parent.type === 'CallExpression' &&
+        parent.callee.object?.type === 'Super' &&
+        memberName(parent.callee) === 'pk')
+    );
+  });
+}
+
+/** `static pk(value, parent, key, args?: any[])` overrides type `args` readonly, as Entity.pk() will
+ * require */
+function readonlyPkArgs(j, root) {
+  const marked = [];
+  let dirty = false;
+  root
+    .find(j.Node)
+    .filter(
+      ({ node, parent }) =>
+        (node.type === 'ClassMethod' || node.type === 'TSDeclareMethod') &&
+        node.static &&
+        keyName(node) === 'pk' &&
+        !!parent.parent.node.superClass,
+    )
+    .forEach(method => {
+      const arg = method.get('params', 3);
+      const param =
+        arg.node?.type === 'AssignmentPattern' ? arg.get('left') : arg;
+      const annotation = param.node?.typeAnnotation;
+      if (!annotation) return;
+      const type = readonlyType(j, annotation.typeAnnotation);
+      if (!type) {
+        // a named type (`args?: Args`) may need its own readonly
+        if (!acceptsReadonly(annotation.typeAnnotation)) marked.push(method);
+        return;
+      }
+      if (!onlyReadsArray(j, method, param)) {
+        marked.push(method);
+        return;
+      }
+      annotation.typeAnnotation = type;
+      dirty = true;
+    });
+  return addTodos(j, marked, PK_ARGS_TODO) || dirty;
+}
+
 const DEVTOOLS_NAMES = /actions(Black|White)list/;
 const CREATE_NAME = /\.create\b/;
 const TEST_HELPER_NAMES = /\.(cleanup|allSettled)\b/;
 const VUE_SETUP_NAMES = /createDataClient|ProvidedDataClient/;
 const WAIT_FOR_NEXT_UPDATE_NAME = /waitForNextUpdate/;
+const PK_NAME = /\bstatic\s+pk\b/;
 const DEPRECATED_NAMES = [
+  PK_NAME,
   DEVTOOLS_NAMES,
   CREATE_NAME,
   TEST_HELPER_NAMES,
@@ -1179,10 +2530,12 @@ const DEPRECATED_NAMES = [
   WAIT_FOR_NEXT_UPDATE_NAME,
 ];
 
-function migrateDeprecations(j, root, source) {
+function migrateDeprecations(j, root, { source, path: file }) {
   let dirty = false;
   if (DEVTOOLS_NAMES.test(source)) dirty = renameDevToolsOptions(j, root);
-  if (CREATE_NAME.test(source)) dirty = migrateResourceCreate(j, root) || dirty;
+  if (CREATE_NAME.test(source))
+    dirty = migrateResourceCreate(j, root, file) || dirty;
+  if (PK_NAME.test(source)) dirty = readonlyPkArgs(j, root) || dirty;
   if (TEST_HELPER_NAMES.test(source))
     dirty =
       addTodos(j, findSharedTestHelpers(j, root), SHARED_TEST_HELPER_TODO) ||
@@ -1197,26 +2550,2040 @@ function migrateDeprecations(j, root, source) {
         .filter(({ render }) => (render === 'renderDataCompose') === isVue)
         .map(({ path }) => path),
     );
+    const unconverted = waitForAllSettled(j, root, vue);
     dirty =
       [
+        unconverted.length < vue.length,
         addTodos(j, react, WAIT_FOR_NEXT_UPDATE_TODO),
-        addTodos(j, vue, VUE_WAIT_FOR_NEXT_UPDATE_TODO),
+        addTodos(j, unconverted, VUE_WAIT_FOR_NEXT_UPDATE_TODO),
       ].some(Boolean) || dirty;
   }
   return dirty;
 }
 
-/** `--deprecations=false` skips moving off deprecated APIs; `--deprecations=only` does just that */
+// ---- 9. Optional improvements that adopt 0.19 features (--improvements) ----
+
+const SCHEMA_PACKAGES = new Set([
+  '@data-client/rest',
+  '@data-client/endpoint',
+  '@data-client/graphql',
+]);
+const ENTITY_BASES = new Set(['Entity', 'GQLEntity']);
+
+/** Whether `path` names one of `names` from a schema package: `Entity` imported from `@data-client/rest`,
+ * or `schema.Entity` */
+const isSchemaExport = (path, names) =>
+  importsNameFrom(path, names, SCHEMA_PACKAGES) ||
+  (isMember(path.node) &&
+    names.has(memberName(path.node)) &&
+    importsNameFrom(path.get('object'), new Set(['schema']), SCHEMA_PACKAGES));
+
+/** The class a module declares at its top level as `name`: `class name` or `const name = class` */
+function topLevelClass(j, root, name) {
+  const atTop = p =>
+    ['Program', 'ExportNamedDeclaration'].includes(p.parent.node.type);
+  return (
+    root.find(j.ClassDeclaration, { id: { name } }).filter(atTop).paths()[0] ??
+    root
+      .find(j.VariableDeclarator, {
+        id: { name },
+        init: { type: 'ClassExpression' },
+      })
+      .filter(p => p.parent.node.kind === 'const' && atTop(p.parent))
+      .paths()[0]
+      ?.get('init')
+  );
+}
+
+/** The init of a `const name = init` declaration that declares `binding`, or undefined for any other binding */
+const constInitOf = binding => {
+  const owner = binding?.parent;
+  return (
+      owner?.node.type === 'VariableDeclarator' &&
+        owner.node.id === binding.node &&
+        owner.parent.node.kind === 'const' &&
+        owner.node.init
+    ) ?
+      owner.get('init')
+    : undefined;
+};
+
+/** Whether the file could pass the parameter `binding` anything, like `save(ctrl, rows, live)`: its function is
+ * a method, a callback or another function without a declared name, or the file uses that name other than to
+ * export it. */
+function fileCallsWith(j, binding) {
+  let path = binding;
+  while (PATTERN_PARTS.has(path.parent.node.type)) path = path.parent;
+  const fn = path.parent;
+  const name =
+    fn.node.type === 'FunctionDeclaration' ? fn.get('id')
+    : (
+      fn.parent.node.type === 'VariableDeclarator' &&
+      fn.parent.node.init === fn.node
+    ) ?
+      fn.parent.get('id')
+    : undefined;
+  if (name?.node?.type !== 'Identifier') return true;
+  return moduleUsesOf(j, name, bindingOf(name)).some(
+    use => use.parent.node.type !== 'ExportSpecifier',
+  );
+}
+
+/** Whether `binding` is a `const` set to a literal, like `const LIMIT = 3` */
+const isLiteralConst = binding => isLiteralValue(constInitOf(binding)?.node);
+
+/** Whether a module that re-exports `name` from `source` (a step of exportOrigin()'s `via`) could also write
+ * to its members, through a hook-writing pattern or its own import of it */
+const reexportWrites = (j, { root, file, source, name }) =>
+  writesHooksIndirectly(j, root.paths()[0]) ||
+  namespaceWrites(j, root, file, name) ||
+  root
+    .find(j.ImportDeclaration, { source: { value: source } })
+    .some(declaration =>
+      childPaths(declaration.get('specifiers')).some(
+        s =>
+          importedName(s) === name &&
+          isValueImport(s) &&
+          writesMembersOf(j, s.get('local'), file),
+      ),
+    );
+
+/** The export a named or default import specifier imports, or undefined for a namespace */
+const importedName = specifier =>
+  specifier.node.type === 'ImportDefaultSpecifier' ? 'default'
+  : specifier.node.type === 'ImportSpecifier' ?
+    staticName(specifier.node.imported)
+  : undefined;
+
+/** Whether the module `root`, at `file`, could write to a class exported as `name` through a namespace import.
+ * Each namespace of a module that exports `name` counts, since `'./Todo.ts'` and a barrel that re-exports it
+ * reach the same class as `'./Todo'`; namespaceUseWrites() then checks each use. With no `file` to resolve
+ * imports from, every namespace counts. */
+const namespaceWrites = (j, root, file, name) =>
+  root
+    .find(j.ImportNamespaceSpecifier)
+    .filter(
+      s =>
+        isValueImport(s) &&
+        mayExport(j, file, s.parent.node.source.value, name),
+    )
+    .some(s =>
+      moduleUsesOf(j, s, s.get('local')).some(use =>
+        namespaceUseWrites(j, use, name),
+      ),
+    );
+
+/** Whether the module that `file` imports as `source` could export the app class `name`: not a package, nor an
+ * app module whose exports don't reach it. A module this can't parse might. */
+function mayExport(j, file, source, name) {
+  if (!file) return true;
+  const target = resolveModule(file, source);
+  // a chain too deep to follow, or through a module it can't parse, might reach it
+  const unresolved = {};
+  return (
+    !!target &&
+    (!!exportOrigin(j, target, name, 0, unresolved) || !!unresolved.hit)
+  );
+}
+
+/** Whether a use of a namespace could write to its export `name`: any use but a type or a read of a member,
+ * like `M.Todo.process = ...`, `patch(M.Todo)`, `M[key]` or `patch(M)` */
+function namespaceUseWrites(j, use, name) {
+  const parent = use.parent.node;
+  if (parent.type === 'TSQualifiedName' || parent.type === 'TSTypeQuery')
+    return false;
+  if (!isMember(parent) || parent.object !== use.node) return true;
+  const member = memberName(parent);
+  return (
+    member === undefined || (member === name && !readsClass(j, use.parent))
+  );
+}
+
+/** The class the identifier at `path` names, declared in this file or exported by the relative or
+ * tsconfig-aliased module it is imported from: `{ path, file }` */
+function classOf(j, path, file) {
+  const binding = path.node.type === 'Identifier' && bindingOf(path);
+  const owner = binding?.parent;
+  if (!owner) return;
+  if (owner.node.type === 'ClassDeclaration' && owner.node.id === binding.node)
+    return { path: owner, file };
+  const init = constInitOf(binding);
+  if (init?.node.type === 'ClassExpression') return { path: init, file };
+  const specifier = valueImportOf(path);
+  const origin =
+    specifier &&
+    exportOrigin(
+      j,
+      file && resolveModule(file, specifier.parent.node.source.value),
+      staticName(specifier.node.imported),
+    );
+  if (!origin || origin.via.some(step => reexportWrites(j, step))) return;
+  const declared = topLevelClass(j, origin.root, origin.name);
+  return declared && { path: declared, file: origin.file };
+}
+
+// The most parameters an Entity's pk() and process() may declare and still compute the same row either way.
+// A batch normalizes each row with no args and the list as its parent; one set() per row passes the
+// row as its parent and its own args. So the entity a set() writes may read only the row...
+const ROW_ONLY = { staticPk: 1, pk: 0, process: 1 };
+// ...while an entity nested in its schema gets the same parent and key either way, and different args.
+const ARGS_FREE = { staticPk: 3, pk: 2, process: 3 };
+
+/** Whether a pk() or process() member declares at most `max` parameters and never reads `arguments` */
+function paramsWithin(node, max) {
+  const fn = node.type === 'ClassMethod' ? node : node.value;
+  // `declare static pk: ...` only types the inherited member, but a bare `pk;` field sets it to undefined
+  if (!fn) return !!node.declare;
+  if (!(fn.type === 'ClassMethod' ? fn.kind === 'method' : isFunction(fn)))
+    return false;
+  return takesAtMost(fn, max);
+}
+
+/** Whether the function `fn` reads at most its first `max` arguments: no more parameters, no rest parameter,
+ * and no `arguments` */
+function takesAtMost(fn, max) {
+  // a TypeScript `this` parameter isn't one
+  const params = fn.params.filter(p => !isId(p, 'this'));
+  return (
+    params.length <= max &&
+    params.every(p => p.type !== 'RestElement') &&
+    !containsNode(fn.body, n => isId(n, 'arguments'))
+  );
+}
+
+/** Whether a static pk() or process() declares at most `max` parameters, calls no code the module declares
+ * and reads no variable that can change between rows (namesMutableState()).
+ * A batch runs it for every row before any write, while one set() per row runs it after the earlier rows are
+ * stored, so a helper that reads the store, like `currentCount(value.id)`, would see different data. */
+function hookWithin(j, member, max, file) {
+  if (!paramsWithin(member.node, max)) return false;
+  const fn = member.node.type === 'ClassMethod' ? member : member.get('value');
+  return (
+    !fn.node ||
+    (!callsLocalCode(j, fn, new Set()) && !namesMutableState(j, fn, file))
+  );
+}
+
+/** Whether the function at `fn` names a variable outside it that could change between rows, like `seq` in
+ * `stamp: seq++`, which a batch reads after every row's value is built: anything but a global, an import, a
+ * class or function declaration, a `const` set to a literal, or plain data nothing changes (isReadOnlyData()) */
+function namesMutableState(j, fn, file) {
+  if (containsNode(fn.node, isThisOrSuper) && staticThisChanges(j, fn, file))
+    return true;
+  return outerNamesIn(j, fn).some(p => {
+    const binding = bindingOf(p);
+    const owner =
+      binding.parent.node.id === binding.node ? binding.parent.node : undefined;
+    // `Live.count` can be a static getter that reads the store, and `Live.count++` changes it between rows
+    if (owner?.type === 'ClassDeclaration')
+      return declaresStatic(j, p, file, isGetter, true) || membersWritten(j, p);
+    if (owner?.type === 'FunctionDeclaration') return false;
+    return !isLiteralConst(binding) && !isReadOnlyData(j, p);
+  });
+}
+
+/** The identifiers in `code` that name a variable the module declares outside it, not a type, global or
+ * import */
+const outerNamesIn = (j, code) =>
+  identifiersIn(j, code).filter(
+    p =>
+      !isOtherName(p) &&
+      !isTypeName(p) &&
+      !isLibraryName(p) &&
+      !isWithin(bindingOf(p), code.node),
+  );
+
+/** The `this` and `super` expressions within `path` */
+const selvesIn = (j, path) =>
+  [j.ThisExpression, j.Super].flatMap(type => j(path).find(type).paths());
+
+/** Whether `this.count` or `super.count` in the static hook `fn` can change between rows: the class's chain
+ * declares a static getter, which could read the store, or `fn` writes through `this` or `super` */
+function staticThisChanges(j, fn, file) {
+  const cls = j(fn)
+    .closest(j.Node, n => /^Class(Declaration|Expression)$/.test(n.type))
+    .paths()[0];
+  if (
+    classDeclaresStatic(cls, isGetter) ||
+    (cls.node.superClass &&
+      declaresStatic(j, cls.get('superClass'), file, isGetter, true))
+  )
+    return true;
+  return selvesIn(j, fn).some(p => isWriteTarget(memberChainOf(p)));
+}
+
+/** Whether code in the module writes a member of the variable at `path`, like `Live.count++` */
+const membersWritten = (j, path) =>
+  moduleUsesOf(j, path, bindingOf(path)).some(use =>
+    isWriteTarget(memberChainOf(use)),
+  );
+
+/** Whether `path` names plain data nothing changes, like `const KINDS = { a: 'x' }` read as `KINDS[this.kind]`:
+ * a variable isDataVariable() accepts that is never written */
+const isReadOnlyData = (j, path) =>
+  isDataVariable(j, path) && !membersWritten(j, path);
+
+const isMethodNode = node =>
+  node.type === 'ClassMethod' || node.type === 'ClassPrivateMethod';
+
+/** Whether an instance member (constructor, method, accessor or field value) can't run code the module
+ * declares. `this` in pk() is the row, which can be an instance of the class: its constructor ran when it was
+ * built, and pk() can call any of its methods, accessors and fields, or the base class's through `super`. So
+ * each of them is checked: it may call the others through `this` and `super`, but not reach static members
+ * (`this.constructor.key()`) or name a helper the module declares (`currentCount(this.id)`, `count =
+ * currentCount`). */
+function instanceCodeWithin(j, member, file, seen) {
+  const { node } = member;
+  const isMethod = isMethodNode(node);
+  if (!isMethod && !node.value) return true;
+  const code = isMethod ? member : unwrapPath(member.get('value'));
+  return !reachesStatics(j, code) && !namesLocalCode(j, code, file, seen);
+}
+
+/** Whether instance code names anything the module declares, which it could call, store (`this.count =
+ * currentCount`) or return for pk() to call. It may name types, globals, imports, its own declarations,
+ * `const`s set to a literal, plain data nothing changes (isReadOnlyData()), and Entity classes it
+ * constructs (`author = User.fromJS()`) whose own code passes these
+ * checks. */
+function namesLocalCode(j, code, file, seen) {
+  return outerNamesIn(j, code).some(p => {
+    const binding = bindingOf(p);
+    if (
+      // a method's own name, like `count() {}`, is not code
+      (p.node === code.node.key && !code.node.computed) ||
+      isLiteralConst(binding) ||
+      isReadOnlyData(j, p)
+    )
+      return false;
+    if (binding.parent.node.type === 'ClassDeclaration') {
+      const parent = p.parent.node;
+      const constructs =
+        (parent.type === 'NewExpression' && parent.callee === p.node) ||
+        (memberName(parent) === 'fromJS' &&
+          parent.object === p.node &&
+          p.parent.parent.node.callee === parent);
+      return (
+        !constructs ||
+        !isPlainEntityAt(j, p, file, ARGS_FREE, seen) ||
+        // an override of fromJS() runs code the check above doesn't read; `new` doesn't call it
+        (parent.type !== 'NewExpression' &&
+          declaresStatic(j, p, file, m => keyName(m) === 'fromJS'))
+      );
+    }
+    return true;
+  });
+}
+
+// how many links (superclasses, or variables set to one another) a walk follows before it counts the chain as unknown
+const MAX_CHAIN = 20;
+
+/** Whether the class at `cls` itself declares a static member that passes `test` */
+const classDeclaresStatic = (cls, test) =>
+  childPaths(cls.get('body', 'body')).some(m => m.node.static && test(m.node));
+
+/** Whether the class at `path` (from classOf()), or a class it extends, can declare a static member that
+ * passes `test`. A chain classOf() can't follow counts as one that does, unless `trustImports` and the class
+ * it stops at is an import or a global, like a library's base class. */
+function declaresStatic(j, path, file, test, trustImports = false) {
+  for (let depth = 0; depth < MAX_CHAIN; depth++) {
+    const cls = classOf(j, path, file);
+    if (!cls)
+      return !(
+        trustImports &&
+        path.node?.type === 'Identifier' &&
+        isLibraryName(path)
+      );
+    if (classDeclaresStatic(cls.path, test)) return true;
+    path = cls.path.get('superClass');
+    file = cls.file;
+    if (!path.node || isSchemaExport(path, ENTITY_BASES)) return false;
+  }
+  return true;
+}
+
+/** Whether instance code at `code` can reach the class's static members: it names `constructor`
+ * (`x.constructor`, `const { constructor: C } = row`) or `new.target`, or uses `this` or `super` other than to
+ * read a named member or call `super()` (`this[key]`, `Reflect.get(this, 'constructor')`, `kind = this`) */
+function reachesStatics(j, code) {
+  const { node } = code;
+  // a method's own key, like `constructor() {}`, is not code
+  const parts = isMethodNode(node) ? [...node.params, node.body] : [node];
+  const reachesByName = n =>
+    isId(n, 'constructor') ||
+    ((n.type === 'StringLiteral' || n.type === 'Literal') &&
+      n.value === 'constructor') ||
+    n.type === 'MetaProperty';
+  if (parts.some(part => containsNode(part, reachesByName))) return true;
+  const selves = selvesIn(j, code);
+  if (isThisOrSuper(node)) selves.push(code);
+  return selves.some(p => {
+    const parent = p.parent.node;
+    if (
+      p.node.type === 'Super' &&
+      parent.type === 'CallExpression' &&
+      parent.callee === p.node
+    )
+      return false;
+    return (
+      !isMember(parent) ||
+      parent.object !== p.node ||
+      memberName(parent) === undefined
+    );
+  });
+}
+
+/** Whether `test` holds for `node` or anything inside it */
+function containsNode(node, test) {
+  if (!node || typeof node.type !== 'string') return false;
+  if (test(node)) return true;
+  for (const key of Object.keys(node)) {
+    if (key === 'loc' || key === 'comments' || key === 'tokens') continue;
+    const value = node[key];
+    if (Array.isArray(value)) {
+      if (value.some(v => containsNode(v, test))) return true;
+    } else if (value && typeof value === 'object' && containsNode(value, test))
+      return true;
+  }
+  return false;
+}
+
+// Object.* and Reflect.* methods that write their first argument's members
+const OBJECT_WRITERS = new Set([
+  'assign',
+  'defineProperty',
+  'defineProperties',
+  'set',
+  'deleteProperty',
+]);
+// static members that decide how an Entity normalizes and merges rows
+const ENTITY_HOOKS = new Set([
+  'pk',
+  'process',
+  'schema',
+  'normalize',
+  'validate',
+  'merge',
+  'mergeWithStore',
+  'mergeMetaWithStore',
+  'shouldUpdate',
+  'shouldReorder',
+  'indexes',
+]);
+
+/** Whether a key named `name` can be an Entity hook: a hook's name, or a computed key it doesn't spell out, like
+ * `this[name]` or `{ [name]: fn }` */
+const mayBeHook = (name, computed) =>
+  ENTITY_HOOKS.has(name) || (computed && name === undefined);
+
+/** The hook names a write sets and the object it sets them on: an assignment, update or `delete` of a
+ * member, or `Object.assign(X, { process })`, `Object.defineProperty(X, 'pk', ...)` or
+ * `Reflect.set(X, 'pk', ...)` */
+function hookWriteOf(path) {
+  const { node } = path;
+  let target;
+  if (node.type === 'AssignmentExpression') target = path.get('left');
+  else if (node.type === 'UpdateExpression') target = path.get('argument');
+  else if (node.type === 'UnaryExpression' && node.operator === 'delete')
+    target = path.get('argument');
+  if (target) {
+    target = unwrapPath(target);
+    return (
+        isMember(target.node) &&
+          mayBeHook(memberName(target.node), target.node.computed)
+      ) ?
+        unwrapPath(target.get('object'))
+      : undefined;
+  }
+  if (
+    node.type !== 'CallExpression' ||
+    !isMember(node.callee) ||
+    !OBJECT_WRITERS.has(memberName(node.callee)) ||
+    !isObjectGlobal(node.callee.object)
+  )
+    return;
+  // Object.assign() copies every source after the target; the others take one key or descriptor map
+  const keys =
+    memberName(node.callee) === 'assign' ?
+      node.arguments.slice(1)
+    : node.arguments.slice(1, 2);
+  const writes = keys.some(key =>
+    key.type === 'ObjectExpression' ?
+      key.properties.some(
+        p => !isProperty(p) || mayBeHook(keyName(p), p.computed),
+      )
+      // a source or key it doesn't spell out, like `Object.assign(this, mixin)` or
+      // `Reflect.set(this, name, fn)`, could hold one
+    : mayBeHook(staticName(key, true), true),
+  );
+  // mayHoldClass() then drops an instance target, like a constructor's `Object.assign(this, options)`
+  return writes ? unwrapPath(path.get('arguments', 0)) : undefined;
+}
+
+// class members whose `static` flag decides what `this` is inside them
+const THIS_MEMBERS = new Set([
+  ...CLASS_MEMBERS,
+  'ClassPrivateMethod',
+  'ClassPrivateProperty',
+  'ClassAccessorProperty',
+]);
+// functions with their own `this`
+const THIS_FUNCTIONS = new Set([
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ObjectMethod',
+]);
+
+/** Whether `this` at `path` is a class: inside a static member, and not inside a nested function or object
+ * method */
+function inStaticMember(path) {
+  for (let p = path.parent; p; p = p.parent) {
+    const { type } = p.node;
+    if (type === 'StaticBlock') return true;
+    if (THIS_MEMBERS.has(type)) return !!p.node.static;
+    if (THIS_FUNCTIONS.has(type)) return false;
+  }
+  return false;
+}
+
+// members that lead from a value to a class: `this.constructor`, `Todo.prototype`, `Parent.schema.leaf`
+const CLASS_LINKS = new Set(['constructor', 'prototype', 'schema']);
+
+/** Whether the member `node` can lead to a class: a class link, or a computed key it doesn't spell out, like
+ * `this[name]` */
+const mayLink = node =>
+  CLASS_LINKS.has(memberName(node)) ||
+  (node.computed && memberName(node) === undefined);
+
+/** Whether the object a write sets a hook on can be a class without naming it: `this` or `super` in a static
+ * member, a chain through `.constructor`, `.prototype` or a schema slot, or a variable set to one, like
+ * `const self = this`. A computed key it doesn't spell out, like `models[name]`, can pick a class too, unless
+ * its root only ever holds plain data (isDataVariable()), like `grid` in `const grid = [[0]]; grid[0][1] = 2`.
+ * A class a module names has its writes followed by writesMembersOf() instead. */
+function mayHoldClass(j, path, depth = 0) {
+  const { node } = path;
+  if (isThisOrSuper(node)) return inStaticMember(path);
+  if (isMember(node)) {
+    let linked = false;
+    let dynamicKey = false;
+    let root = path;
+    for (; isMember(root.node); root = unwrapPath(root.get('object'))) {
+      if (memberName(root.node) === 'constructor') return true;
+      if (CLASS_LINKS.has(memberName(root.node))) linked = true;
+      else if (mayLink(root.node)) dynamicKey = true;
+    }
+    // an instance's own `this.schema` is not a class
+    if (isThisOrSuper(root.node))
+      return inStaticMember(path) && (linked || dynamicKey);
+    return linked || (dynamicKey && !isDataVariable(j, root));
+  }
+  if (node.type !== 'Identifier' || depth > 3) return false;
+  const binding = bindingOf(path);
+  const owner = binding?.parent;
+  return (
+    owner?.node.type === 'VariableDeclarator' &&
+    owner.node.id === binding.node &&
+    !!owner.node.init &&
+    mayHoldClass(j, unwrapPath(owner.get('init')), depth + 1)
+  );
+}
+
+/** Whether `path` names a module-private variable that only ever holds plain data, like `const grid = [[]]` with
+ * `grid[0][1] = 2`, so a computed key into it can't reach a class: set to a literal of plain data, never
+ * reassigned, exported or aliased, and used only to store plain data in it or to read from it into an expression
+ * that can't keep the value, like `total + grid[i][j]` or `if (grid[i][j])`. Storing anything else, such as a
+ * function in `grid[0][name].process = fn`, makes it not plain data. */
+function isDataVariable(j, path) {
+  if (path.node.type !== 'Identifier') return false;
+  const binding = bindingOf(path);
+  const owner = binding?.parent;
+  if (
+    owner?.node.type !== 'VariableDeclarator' ||
+    owner.node.id !== binding.node ||
+    isExported(binding) ||
+    !isPlainData(owner.node.init)
+  )
+    return false;
+  // any reassignment, export or alias is a use outside a member chain
+  return moduleUsesOf(j, path, binding).every(use => {
+    const parent = use.parent.node;
+    if (!isMember(parent) || parent.object !== use.node) return false;
+    const chain = memberChainOf(use);
+    const holder = chain.parent.node;
+    return holder.type === 'AssignmentExpression' ?
+        holder.left === chain.node && isPlainData(holder.right)
+      : isUnkeptRead(chain);
+  });
+}
+
+// expressions that use a value without keeping or passing it on, like `grid[0][1]++` or `total + grid[i][j]`
+const DATA_READS = new Set([
+  'UpdateExpression',
+  'BinaryExpression',
+  'TemplateLiteral',
+]);
+
+/** Whether the member chain at `chain` is read into an expression that can't keep the value, like
+ * `total + grid[i][j]`, `!cfg.on` or `if (cfg.on)`. A tag gets a template's values, so `` tag`${x.a}` `` can. */
+function isUnkeptRead(chain) {
+  const { type, operator } = chain.parent.node;
+  return (
+    (DATA_READS.has(type) &&
+      !(
+        type === 'TemplateLiteral' &&
+        chain.parent.parent.node.type === 'TaggedTemplateExpression'
+      )) ||
+    (type === 'UnaryExpression' && operator !== 'delete') ||
+    isCondition(chain)
+  );
+}
+
+/** Whether `node` is a literal, or an array or object literal of them, like `2`, `[[0, 1]]` or `{ a: '' }` */
+function isPlainData(node) {
+  const value = node && unwrap(node);
+  if (isLiteralValue(value)) return true;
+  if (value?.type === 'ArrayExpression')
+    return value.elements.every(e => !e || isPlainData(e));
+  if (value?.type === 'ObjectExpression')
+    return value.properties.every(p => hasStaticKey(p) && isPlainData(p.value));
+  return false;
+}
+
+/** Whether static `this` or `super` at `path`, or a class reached from it like `this.schema.author`, leaves
+ * the class, so code the module doesn't show could set a hook on it: `patch(this)`, `registry.Quote = this`,
+ * `return this` or `patch(super.schema.todo)`. A method call, `new this()` and `instanceof this` keep it, and
+ * so does a member chain with no class link, like `this.key`; a computed key it doesn't spell out, like
+ * `this[name]`, can be one. A chain through a link counts as a class even when it ends in a plain value, like
+ * `this.schema.key`. */
+function thisEscapes(path) {
+  if (!inStaticMember(path)) return false;
+  let outer = outerPath(path);
+  let read = false;
+  let linked = false;
+  while (
+    isMember(outer.parent.node) &&
+    outer.parent.node.object === outer.node
+  ) {
+    read = true;
+    linked ||= mayLink(outer.parent.node);
+    outer = outerPath(outer.parent);
+  }
+  if (read && !linked) return false;
+  const parent = outer.parent.node;
+  return parent.type === 'CallExpression' || parent.type === 'NewExpression' ?
+      parent.callee !== outer.node
+    : !(parent.type === 'BinaryExpression' && parent.operator === 'instanceof');
+}
+
+// whether each module writes an Entity hook without naming its class, by its Program node
+const hookWrites = new WeakMap();
+
+/** Whether the module `top` sets an Entity hook on a value that can be a class it doesn't name, which can
+ * change a class whose name the write never uses: `static useArgs() { this.process = ... }`, `super.pk = ...`,
+ * `const self = this; self.validate = ...` or `Parent.schema.leaf.process = ...`. Static `this` passed out of
+ * the class, like `patch(this)`, counts too. */
+function writesHooksIndirectly(j, top) {
+  if (!hookWrites.has(top.node)) {
+    const types = [
+      j.AssignmentExpression,
+      j.UpdateExpression,
+      j.UnaryExpression,
+      j.CallExpression,
+    ];
+    hookWrites.set(
+      top.node,
+      selvesIn(j, top).some(thisEscapes) ||
+        types.some(type =>
+          j(top)
+            .find(type)
+            .some(p => {
+              const object = hookWriteOf(p);
+              return !!object && mayHoldClass(j, object);
+            }),
+        ),
+    );
+  }
+  return hookWrites.get(top.node);
+}
+
+/** Whether a class member keeps rows the same when normalized in a batch, within `limits` */
+function memberAllows(j, member, file, limits, seen) {
+  const { node } = member;
+  // a static block can assign any member through `this`, and a decorator can replace the member
+  if (node.type === 'StaticBlock' || node.decorators?.length) return false;
+  // a type-only member does nothing at runtime
+  if (node.type.startsWith('TS')) return true;
+  const isPrivate = node.key?.type === 'PrivateName';
+  const name = keyName(node);
+  // a computed key could be any member
+  if (!isPrivate && name === undefined) return false;
+  // an instance pk() is held to the same parameter limit as a static one
+  if (!node.static)
+    return (
+      (isPrivate || name !== 'pk' || paramsWithin(node, limits.pk)) &&
+      instanceCodeWithin(j, member, file, seen)
+    );
+  // only a private member can't be a hook; an `accessor` field can
+  if (isPrivate) return true;
+  switch (name) {
+    // validate() could throw for one row, which drops the whole batch, and rows with the same pk meet in
+    // merge() within a batch, skipping the store checks. normalize() starts each index empty, so one set() per
+    // row keeps only the last row's index entry.
+    case 'normalize':
+    case 'validate':
+    case 'indexes':
+    case 'shouldUpdate':
+    case 'shouldReorder':
+    case 'mergeWithStore':
+    case 'mergeMetaWithStore':
+      return false;
+    case 'pk':
+      return hookWithin(j, member, limits.staticPk, file);
+    case 'process':
+      return hookWithin(j, member, limits.process, file);
+    case 'schema':
+      return (
+        node.type === 'ClassProperty' &&
+        isArgsFreeSchema(j, member.get('value'), file, seen)
+      );
+    default:
+      return true;
+  }
+}
+
+/** The identifier a class declaration, or the `const` holding a class expression, binds */
+const classBindingOf = path =>
+  path.node.type === 'ClassDeclaration' ?
+    path.get('id')
+  : path.parent.get('id');
+
+// member writes found per class binding
+const memberWrites = new WeakMap();
+
+/** Whether a use of a class only reads it or names it in a schema, call or type: `Todo.key`, `new Todo()`,
+ * `ctrl.set(Todo, row)`, `static schema = { todos: [Todo] }`, `extends Todo`, `Todo[]`. A `const` holding
+ * it, like `const list = [Todo]`, reads it when each of its uses does. */
+function readsClass(j, path, depth = 0) {
+  const chain = memberChainOf(path);
+  const parent = chain.parent.node;
+  // a member read that isn't a write, cast or alias, which could reach a member write later
+  if (chain !== path)
+    return (
+      !isWriteTarget(chain) &&
+      !PASS_THROUGH.has(parent.type) &&
+      !(parent.type === 'VariableDeclarator' && parent.init === chain.node) &&
+      !(
+        parent.type === 'AssignmentExpression' && parent.right === chain.node
+      ) &&
+      !isObjectOrReflectTarget(chain)
+    );
+  const outer = literalHolding(path);
+  const holder = outer.parent.node;
+  switch (holder.type) {
+    case 'CallExpression':
+    case 'NewExpression':
+      return holder.callee === outer.node || passesToLibrary(outer);
+    case 'VariableDeclarator': {
+      const id = outer.parent.get('id');
+      if (
+        holder.init !== outer.node ||
+        id.node.type !== 'Identifier' ||
+        outer.parent.parent.node.kind !== 'const' ||
+        // aliases of aliases this deep are rare enough to keep the loop
+        depth > 3
+      )
+        return false;
+      return moduleUsesOf(j, outer, bindingOf(id)).every(p =>
+        readsClass(j, p, depth + 1),
+      );
+    }
+    // a schema slot: `static schema = { todos: [Todo] }` or `Parent.schema = { todo: Todo }`; another field
+    // could be an alias that code writes through
+    case 'ClassProperty':
+    case 'PropertyDefinition':
+      return holder.value === outer.node && keyName(holder) === 'schema';
+    case 'AssignmentExpression':
+      return (
+        holder.right === outer.node &&
+        isMember(holder.left) &&
+        memberName(holder.left) === 'schema'
+      );
+    case 'ExportSpecifier':
+    case 'TSTypeReference':
+    case 'TSTypeQuery':
+    case 'TSQualifiedName':
+      return true;
+    case 'ClassDeclaration':
+    case 'ClassExpression':
+      return holder.superClass === outer.node;
+    default:
+      return false;
+  }
+}
+
+/** The outermost array or object literal that holds `path` as an element or property value, or `path` */
+function literalHolding(path) {
+  let p = path;
+  for (;;) {
+    const parent = p.parent.node;
+    if (parent.type === 'ArrayExpression') p = p.parent;
+    else if (
+      (parent.type === 'ObjectProperty' || parent.type === 'Property') &&
+      parent.value === p.node &&
+      !parent.computed
+    )
+      p = p.parent.parent;
+    else return p;
+  }
+}
+
+/** Whether the call that takes `path` as an argument can't write to it: a Controller method, or a function
+ * or a method of a value from a @data-client package, like `useSuspense(Todo)` or `TodoResource.extend(Todo)`.
+ * Any other function could patch its parameter or hand it back to code that does, like `patch(Todo)`,
+ * `Object.assign(Todo, ...)` or `new Set([Todo])`. */
+function passesToLibrary(path) {
+  let callee = path.parent.get('callee');
+  if (isMember(callee.node) && isController(callee.get('object'))) return true;
+  if (callee.node.type === 'Identifier') return isDataClientName(callee);
+  while (isMember(callee.node)) callee = callee.get('object');
+  return isDataClientValue(callee);
+}
+
+/** Whether `path` names a @data-client import, or a `const` set to a call of one, like `resource()`: a value
+ * whose methods this module didn't write */
+function isDataClientValue(path) {
+  if (path.node.type !== 'Identifier') return false;
+  if (isDataClientName(path)) return true;
+  const init = constInitOf(bindingOf(path));
+  if (!init) return false;
+  const call = unwrapPath(init);
+  if (call.node.type !== 'CallExpression' && call.node.type !== 'NewExpression')
+    return false;
+  let callee = call.get('callee');
+  while (isMember(callee.node)) callee = callee.get('object');
+  return callee.node.type === 'Identifier' && isDataClientName(callee);
+}
+
+/** Whether `path` names a value imported from a @data-client package, by name, default or namespace */
+function isDataClientName(path) {
+  const specifier = bindingOf(path)?.parent;
+  if (!specifier?.node.type.startsWith('Import')) return false;
+  const declaration = specifier.parent.node;
+  return (
+    isValueImport(specifier) &&
+    declaration.source.value.startsWith(DATA_CLIENT_PREFIX)
+  );
+}
+
+// TypeScript nodes whose child identifiers are values, like `row` in `row as Row`
+const TS_VALUE_WRAPPERS = new Set([
+  ...PASS_THROUGH,
+  'TSInstantiationExpression',
+  'TSParameterProperty',
+]);
+
+/** Whether `path` names a type, like `User` in `owner(): User` or `typeof LABEL`, which runs no code */
+function isTypeName(path) {
+  const { type } = path.parent.node;
+  return type.startsWith('TS') && !TS_VALUE_WRAPPERS.has(type);
+}
+
+/** Whether `path` names an import or a global */
+function isLibraryName(path) {
+  const binding = bindingOf(path);
+  return !binding || binding.parent.node.type.startsWith('Import');
+}
+
+/** Whether `path` is the first argument of an `Object.*()` or `Reflect.*()` call, which can write to it */
+function isObjectOrReflectTarget(path) {
+  const parent = path.parent.node;
+  return (
+    parent.type === 'CallExpression' &&
+    parent.arguments[0] === path.node &&
+    isMember(parent.callee) &&
+    isObjectGlobal(parent.callee.object)
+  );
+}
+
+/** Whether the module that declares or imports `binding` could write to the class's members, which can add
+ * what the class body doesn't show: any use other than a read, like `Todo.schema = { child }`,
+ * `(Todo as any).process = ...`, `Object.assign(Todo, ...)`, `patch(Todo)` with a local `patch()`, or a write
+ * through an alias like `const list = [Todo]` */
+function writesMembersOf(j, binding, file) {
+  if (!memberWrites.has(binding.node)) {
+    let top = binding;
+    while (top.parent) top = top.parent;
+    // a namespace import of the same module reaches the class too, like `M.Todo.process = ...`
+    const specifier = binding.parent;
+    const name = importedName(specifier);
+    memberWrites.set(
+      binding.node,
+      writesHooksIndirectly(j, top) ||
+        moduleUsesOf(j, top, binding).some(p => !readsClass(j, p)) ||
+        (name !== undefined &&
+          isValueImport(specifier) &&
+          namespaceWrites(j, j(top), file, name)),
+    );
+  }
+  return memberWrites.get(binding.node);
+}
+
+/** Whether the module that names a class at `path`, often by importing it, could write to its members */
+function writesThrough(j, path, file) {
+  const binding = path.node.type === 'Identifier' && bindingOf(path);
+  return !!binding && writesMembersOf(j, binding, file);
+}
+
+/** The paths of a list's items: a list's path has map() but no every() */
+const childPaths = listPath => listPath.map(p => p);
+
+/** Whether `cls` extends a data-client Entity, directly or through classes like it, without members that
+ * read more of normalize than `limits` allow. `seen` holds the classes being checked, by the limits they
+ * are checked with, so circular schemas end. */
+function isPlainEntity(j, cls, limits, seen = new Map()) {
+  const checked = seen.get(cls.path.node);
+  // ROW_ONLY is the stricter of the two
+  if (checked === limits || checked === ROW_ONLY) return true;
+  if (seen.size > 20) return false;
+  seen.set(cls.path.node, limits);
+  // a decorator can replace the class or its members, like a static block
+  if (cls.path.node.decorators?.length) return false;
+  if (writesMembersOf(j, classBindingOf(cls.path), cls.file)) return false;
+  const superClass = cls.path.get('superClass');
+  if (!superClass.node) return false;
+  if (
+    !isSchemaExport(superClass, ENTITY_BASES) &&
+    !isPlainEntityAt(j, superClass, cls.file, limits, seen)
+  )
+    return false;
+  return childPaths(cls.path.get('body', 'body')).every(member =>
+    memberAllows(j, member, cls.file, limits, seen),
+  );
+}
+
+// constructors a schema can name that normalize leaves the value to
+const SCALAR_GLOBALS = new Set([
+  'Date',
+  'Number',
+  'String',
+  'Boolean',
+  'BigInt',
+]);
+
+/** Whether a nested schema normalizes the same without args: plain objects and arrays of Entities that
+ * don't read args, and functions, which normalize skips */
+function isArgsFreeSchema(j, path, file, seen) {
+  path = unwrapPath(path);
+  const { node } = path;
+  switch (node?.type) {
+    case 'ObjectExpression':
+      return childPaths(path.get('properties')).every(
+        p =>
+          isProperty(p.node) && isArgsFreeSchema(j, p.get('value'), file, seen),
+      );
+    case 'ArrayExpression':
+      return (
+        !!oneElement(node) &&
+        isArgsFreeSchema(j, path.get('elements', 0), file, seen)
+      );
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+      return true;
+    case 'Identifier': {
+      if (SCALAR_GLOBALS.has(node.name) && !bindingOf(path)) return true;
+      return isPlainEntityAt(j, path, file, ARGS_FREE, seen);
+    }
+    default:
+      return false;
+  }
+}
+
+/** Whether `path` names a class (found with classOf()) that no binding writes through and whose rows normalize
+ * the same in a batch within `limits` */
+function isPlainEntityAt(j, path, file, limits, seen) {
+  const cls = classOf(j, path, file);
+  return (
+    !!cls &&
+    !writesThrough(j, path, file) &&
+    isPlainEntity(j, cls, limits, seen)
+  );
+}
+
+/** Whether `path` is an Entity class whose rows normalize the same in a batch */
+const isRowOnlyEntity = (j, path, file) =>
+  isPlainEntityAt(j, path, file, ROW_ONLY);
+
+const INVALIDATE = new Set(['Invalidate']);
+
+/** Whether `path` is `new Invalidate(Entity)` for an Entity whose rows normalize the same in a batch */
+const isRowOnlyInvalidate = (j, path, file) =>
+  path.node.type === 'NewExpression' &&
+  path.node.arguments.length === 1 &&
+  isSchemaExport(path.get('callee'), INVALIDATE) &&
+  isRowOnlyEntity(j, path.get('arguments', 0), file);
+
+/** Whether `path` is an Entity or `new Invalidate(Entity)` whose rows normalize the same in a batch */
+const isRowOnlySchema = (j, path, file) =>
+  isRowOnlyEntity(j, path, file) || isRowOnlyInvalidate(j, path, file);
+
+/** Whether the type annotation `type` is an array or tuple type, and the type of its elements when an array
+ * type names one: `{ element }` */
+function arrayType(type) {
+  while (type?.type === 'TSParenthesizedType') type = type.typeAnnotation;
+  if (type?.type === 'TSTypeOperator' && type.operator === 'readonly')
+    type = type.typeAnnotation;
+  if (type?.type === 'TSArrayType') return { element: type.elementType };
+  if (type?.type === 'TSTupleType') return {};
+  if (
+    type?.type === 'TSTypeReference' &&
+    ['Array', 'ReadonlyArray'].includes(type.typeName.name)
+  )
+    return { element: type.typeParameters?.params[0] };
+}
+
+// global calls that return an array
+const ARRAY_FACTORIES = new Map([
+  ['Object', new Set(['values', 'keys', 'entries'])],
+  ['Array', new Set(['from', 'of'])],
+  // a loop over a parsed object throws, and a set() per character or digit writes no rows
+  ['JSON', new Set(['parse'])],
+]);
+/** `JSON.parse(text)` with no reviver, which could return functions that a one-row set() calls as updaters */
+const isPlainParse = node =>
+  isId(node.callee.object, 'JSON') &&
+  memberName(node.callee) === 'parse' &&
+  node.arguments.length === 1 &&
+  node.arguments[0].type !== 'SpreadElement';
+// array methods that return a new array built from the one they're called on
+const ARRAY_METHODS = new Set([
+  'map',
+  'filter',
+  'slice',
+  'concat',
+  'flat',
+  'flatMap',
+  'toSorted',
+  'toReversed',
+]);
+
+// array methods that return some of an array's own elements
+const ELEMENT_METHODS = new Set(['filter', 'slice', 'toSorted', 'toReversed']);
+
+/** Whether the expression at `path` is an array, since a batch set() reads only arrays and plain objects, so
+ * a Set or Map loops differently. Returns what is known about its elements: `{ data: true }` for parsed
+ * JSON with no reviver, which holds no functions, or `{ element }`, their declared type. */
+function arrayOf(j, path, depth = 0) {
+  const { node } = path;
+  if (depth > 5 || !node) return;
+  if (PASS_THROUGH.has(node.type))
+    return (
+      arrayType(node.typeAnnotation) ??
+      arrayOf(j, path.get('expression'), depth + 1)
+    );
+  if (node.type === 'ArrayExpression') return {};
+  if (node.type === 'CallExpression' && isMember(node.callee)) {
+    const method = memberName(node.callee);
+    const object = path.get('callee', 'object');
+    if (
+      object.node.type === 'Identifier' &&
+      ARRAY_FACTORIES.get(object.node.name)?.has(method) &&
+      !bindingOf(object)
+    )
+      return (
+          isPlainParse(node) ||
+            (method === 'values' &&
+              arrayOf(j, path.get('arguments', 0), depth + 1)?.data)
+        ) ?
+          { data: true }
+        : {};
+    const array = ARRAY_METHODS.has(method) && arrayOf(j, object, depth + 1);
+    return array && (ELEMENT_METHODS.has(method) ? array : {});
+  }
+  if (node.type !== 'Identifier') return;
+  const binding = bindingOf(path);
+  if (!binding) return;
+  // a parameter or variable typed as an array
+  const typed = arrayType(binding.node.typeAnnotation?.typeAnnotation);
+  if (typed) return typed;
+  const init = constInitOf(binding);
+  const array = init && arrayOf(j, init, depth + 1);
+  // parsed JSON holds no functions only while nothing can put one in it
+  return array?.data && !readsOnlyArray(j, path, binding) ? {} : array;
+}
+
+// array members that read an array without changing it
+const ARRAY_READS = new Set([
+  ...ARRAY_METHODS,
+  'forEach',
+  'some',
+  'every',
+  'find',
+  'findIndex',
+  'findLast',
+  'findLastIndex',
+  'includes',
+  'indexOf',
+  'lastIndexOf',
+  'at',
+  'join',
+  'reduce',
+  'reduceRight',
+  'entries',
+  'keys',
+  'values',
+]);
+
+/** Whether every use of the array variable `binding` only reads it: loops over it, reads an element or
+ * `length`, or calls a method that doesn't change it. Anything else, like `rows.push(fn)`, `rows[0] = fn` or
+ * `fill(rows)`, could put a function in it. */
+function readsOnlyArray(j, path, binding) {
+  // another module could change an exported one
+  if (isExported(binding)) return false;
+  return moduleUsesOf(j, path, binding).every(use => {
+    const parent = use.parent.node;
+    if (parent.type === 'ForOfStatement') return parent.right === use.node;
+    if (parent.type === 'TSTypeQuery') return true;
+    if (
+      !isMember(parent) ||
+      parent.object !== use.node ||
+      isWriteTarget(memberChainOf(use))
+    )
+      return false;
+    const holder = use.parent.parent;
+    const called = isCall(holder.node) && holder.node.callee === parent;
+    // `rows[i]` or `rows.length`, not a method to call later like `rows.push.call(...)` or `rows['push']`
+    if (!called) {
+      const name = memberName(parent);
+      return (
+        name === 'length' ||
+        (parent.computed && (name === undefined || /^\d+$/.test(name)))
+      );
+    }
+    return (
+      ARRAY_READS.has(memberName(parent)) &&
+      // a callback gets the array as its third argument, so it must be one that can't use it: an inline function
+      // with at most two parameters, or a global or import like `String`. A variable could hold a function the
+      // module declares, so `rows.includes(id)` with a local `id` keeps the loop too.
+      childPaths(holder.get('arguments')).every(
+        arg =>
+          isLiteralValue(arg.node) ||
+          (isFunction(arg.node) && takesAtMost(arg.node, 2)) ||
+          (arg.node.type === 'Identifier' && isLibraryName(arg)),
+      )
+    );
+  });
+}
+
+const LITERALS = new Set([
+  'StringLiteral',
+  'NumericLiteral',
+  'BooleanLiteral',
+  'NullLiteral',
+  'Literal',
+]);
+
+/** A literal value like `3`, `-1` or `` `todo` `` */
+const isLiteralValue = node =>
+  !!node &&
+  (LITERALS.has(node.type) ||
+    (node.type === 'UnaryExpression' &&
+      '-+'.includes(node.operator) &&
+      LITERALS.has(node.argument.type)) ||
+    (node.type === 'TemplateLiteral' && !node.expressions.length));
+
+/** Whether `node` reads variables and properties without calling anything: `x`, `this.x`, `x['y']` */
+const isReference = node =>
+  node.type === 'Identifier' ||
+  node.type === 'ThisExpression' ||
+  (node.type === 'MemberExpression' &&
+    (!node.computed || LITERALS.has(node.property.type)) &&
+    isReference(node.object));
+
+/** Whether evaluating `node` once or once per row is the same: references, literals, and objects and
+ * arrays of them */
+function isPure(node) {
+  node = unwrap(node);
+  if (isReference(node) || LITERALS.has(node.type)) return true;
+  if (node.type === 'ArrayExpression')
+    return node.elements.every(
+      e => e && e.type !== 'SpreadElement' && isPure(e),
+    );
+  return (
+    node.type === 'ObjectExpression' &&
+    node.properties.every(
+      p =>
+        (isProperty(p) &&
+          (!p.computed || LITERALS.has(p.key.type)) &&
+          isPure(p.value)) ||
+        (p.type === 'SpreadElement' && isPure(p.argument)),
+    )
+  );
+}
+
+/** The names a loop variable or callback parameter binds */
+function patternNames(pattern, names = new Set()) {
+  if (!pattern) return names;
+  switch (pattern.type) {
+    case 'Identifier':
+      names.add(pattern.name);
+      break;
+    case 'ObjectPattern':
+      for (const p of pattern.properties)
+        patternNames(p.type === 'RestElement' ? p.argument : p.value, names);
+      break;
+    case 'ArrayPattern':
+      for (const e of pattern.elements) patternNames(e, names);
+      break;
+    case 'RestElement':
+      patternNames(pattern.argument, names);
+      break;
+    case 'AssignmentPattern':
+      patternNames(pattern.left, names);
+      break;
+  }
+  return names;
+}
+
+/** The root variable of a reference like `this.controller` or `ctrl` */
+const rootOf = node => (isMember(node) ? rootOf(node.object) : node);
+
+const CONTROLLER_NAMES = /^(ctrl|controller)$/i;
+const USE_CONTROLLER = new Set(['useController']);
+const CLIENT_PACKAGES = new Set(['@data-client/react', '@data-client/vue']);
+
+/** Whether the reference at `path` is a Controller: named `ctrl` or `controller` (`this.controller`), or a
+ * variable set to `useController()`. Other objects have set() methods too, like a Map. */
+function isController(path) {
+  const { node } = path;
+  const name = nameOf(node);
+  if (CONTROLLER_NAMES.test(name ?? '')) return true;
+  const declarator = node.type === 'Identifier' && bindingOf(path)?.parent;
+  return (
+    !!declarator &&
+    declarator.node.type === 'VariableDeclarator' &&
+    declarator.node.init?.type === 'CallExpression' &&
+    importsNameFrom(
+      declarator.get('init', 'callee'),
+      USE_CONTROLLER,
+      CLIENT_PACKAGES,
+    )
+  );
+}
+
+/** Whether the type literal `type` can't hold a function: only properties, and at least one required one that
+ * a function doesn't have, unlike `{}` or `{ name?: string }` */
+const isPlainObjectType = type =>
+  type.members.every(m => m.type === 'TSPropertySignature') &&
+  type.members.some(m => {
+    const key = keyName(m);
+    // a function's own keys: those it inherits, and `prototype`
+    return (
+      !m.optional &&
+      !m.computed &&
+      !(key in Function.prototype) &&
+      key !== 'prototype'
+    );
+  });
+
+/** Whether `value` is row data and never an updater function, which set() would call with the stored value
+ * where a batch normalizes it: an object or array literal, a row of parsed JSON, or a row of an array typed as
+ * instances of the `schema` class or as a plain object type */
+function isRowData(value, array, param, schema) {
+  value = unwrap(value);
+  if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression')
+    return true;
+  // otherwise only the loop variable itself (a destructured one has no name, and could have a function
+  // default), since a property of a parsed row could be a method its prototype gives it, like `row.trim`
+  if (!isId(value, param.name)) return false;
+  if (array.data) return true;
+  const { element } = array;
+  return (
+    (element?.type === 'TSTypeReference' &&
+      schema.type === 'Identifier' &&
+      isId(element.typeName, schema.name)) ||
+    (element?.type === 'TSTypeLiteral' && isPlainObjectType(element))
+  );
+}
+
+/** The schema of a batch that writes the rows of `call`'s schema, and the value of each row when it differs
+ * from `call`'s value */
+function batchSchemaOf(j, file, call) {
+  const [first, ...rest] = call.node.arguments;
+  const value = rest[rest.length - 1];
+  const schemaPath = call.get('arguments', 0);
+  // the Entity's pk() and process() read only the row, so the args can go
+  if (isRowOnlyEntity(j, schemaPath, file))
+    return { schema: j.arrayExpression([first]) };
+  if (rest.length === 2) return;
+  if (isRowOnlyInvalidate(j, schemaPath, file))
+    return { schema: j.arrayExpression([first]) };
+  // a one-row batch per element
+  const row = oneElement(value);
+  if (
+    row &&
+    oneElement(first) &&
+    isRowOnlySchema(j, schemaPath.get('elements', 0), file)
+  )
+    return { schema: first, value: row };
+}
+
+/** The only element of an array literal like `[x]` */
+const oneElement = node =>
+  (
+    node.type === 'ArrayExpression' &&
+    node.elements.length === 1 &&
+    node.elements[0]?.type !== 'SpreadElement'
+  ) ?
+    node.elements[0]
+  : undefined;
+
+/** Whether the value at `path` can run code the module declares, which could read the store the earlier rows
+ * were written to: `{ ...row, count: currentCount(row.id) + 1 }` where `currentCount()` calls `ctrl.get()`.
+ * Every name in a call's callee and arguments must be a global, an import, the row `names`, declared inside
+ * the value (like `tag` in `row.tags.map(tag => tag.trim())`), or, in an argument (or a tagged template's
+ * `${}`), a `const` set to a literal like `3` or `-1`. So `(row.name || '').trim()` and `Math.min(row.n, LIMIT)`
+ * are safe, but `format(row)`, `this.format(row)`, `(0, format)(row)` and `row.tags.map(helpers.format)` are
+ * not. */
+function callsLocalCode(j, path, names) {
+  const isSafe = p =>
+    names.has(p.node.name) ||
+    isLibraryName(p) ||
+    isWithin(bindingOf(p), path.node);
+  // whether the expression at `part` can name code the module declares
+  const namesCode = (part, allowed = isSafe) =>
+    containsNode(part.node, isThisOrSuper) ||
+    identifiersIn(j, part).some(p => !isOtherName(p) && !allowed(p));
+  const isArgSafe = p => isSafe(p) || isLiteralConst(bindingOf(p));
+  const calls = [j.CallExpression, j.NewExpression, j.TaggedTemplateExpression];
+  return calls.some(type =>
+    j(path)
+      .find(type)
+      .some(call => {
+        // a tag gets the template's `${}` values as its arguments
+        const tagged = call.node.type === 'TaggedTemplateExpression';
+        const argList =
+          tagged ? call.get('quasi', 'expressions') : call.get('arguments');
+        return (
+          namesCode(call.get(tagged ? 'tag' : 'callee')) ||
+          childPaths(argList).some(arg => namesCode(arg, isArgSafe))
+        );
+      }),
+  );
+}
+
+/** Whether the expression at `path`, which a batch evaluates for every row before any write, reads something
+ * that can differ from when the loop read it: `this` or `super`; a `let` or `var`, which other code can change
+ * while the loop awaits; or, in a file that can make a getter (`fileMakesGetters`, from makesGetters()), any
+ * name but the loop's own (`names`), a global (also `declare const`), an import, a function declaration, a `const`
+ * set to a literal or a variable of plain data (isDataVariable()), since `live.count`, `{ ...live }` and
+ * `{ [live]: 1 }` can each run a getter the file declares. A parameter is trusted like an import only when its
+ * function is a named one the file uses only to export (fileCallsWith()), not `save(ctrl, rows, live)`. */
+function readsChangingState(j, path, names, fileMakesGetters) {
+  if (containsNode(path.node, isThisOrSuper)) return true;
+  return outerNamesIn(j, path).some(p => {
+    if (names.has(p.node.name)) return false;
+    const binding = bindingOf(p);
+    const kind = bindingKind(binding);
+    if (kind === 'let' || kind === 'var') return true;
+    if (
+      !fileMakesGetters ||
+      kind === 'declare' ||
+      kind === 'FunctionDeclaration' ||
+      (kind === 'param' && !fileCallsWith(j, binding))
+    )
+      return false;
+    return (
+      kind !== 'const' || !(isLiteralConst(binding) || isDataVariable(j, p))
+    );
+  });
+}
+
+/** How `binding` is declared: `const`, `let` or `var` (also when destructured), `param` for a function's
+ * parameter, `declare` for an ambient `declare const`, or the declaring node's type, like `ClassDeclaration` */
+function bindingKind(binding) {
+  let path = binding;
+  while (PATTERN_PARTS.has(path.parent.node.type)) path = path.parent;
+  const owner = path.parent;
+  if (owner.node.type === 'VariableDeclarator' && owner.node.id === path.node)
+    return owner.parent.node.declare ? 'declare' : owner.parent.node.kind;
+  if (
+    owner.node.type === 'TSParameterProperty' ||
+    owner.node.params?.includes(path.node)
+  )
+    return 'param';
+  return owner.node.type;
+}
+
+const isGetter = member => member.kind === 'get';
+const isAccessor = member => member.kind === 'get' || member.kind === 'set';
+
+// names that give an object a getter: `Object.defineProperty(row, 'count', { get })`, also destructured as
+// `const { defineProperty } = Object` or spelled `Object['defineProperty']`, and `new Proxy(row, { get() {} })`
+const ACCESSOR_INSTALLERS = new Set([
+  'defineProperty',
+  'defineProperties',
+  'setPrototypeOf',
+  '__defineGetter__',
+  '__proto__',
+  'Proxy',
+]);
+/** Whether `node` stores or passes `Object` or `Reflect` itself, like `const O = Object`, `const { create } =
+ * Object` or `use(Reflect)`, so a later member read of it could be any of their methods */
+const isGlobalObjectValue = node =>
+  (node.type === 'VariableDeclarator' && isObjectGlobal(node.init)) ||
+  (node.type === 'AssignmentExpression' && isObjectGlobal(node.right)) ||
+  ((isCall(node) || node.type === 'NewExpression') &&
+    node.arguments.some(isObjectGlobal));
+// whether each module can make a getter, by its File node
+const accessorModules = new WeakMap();
+
+/** Whether the module `top` (its File node) can make a getter: it declares a getter or setter anywhere, names
+ * an accessor installer, or uses `Object` or `Reflect` other than to read a named member, which covers
+ * `Object.create(proto, { count: { get } })`, `Object['define' + 'Property']` and `const O = Object`. It reads
+ * only this file; an imported helper is trusted like any other import. */
+function makesGetters(top) {
+  if (!accessorModules.has(top))
+    accessorModules.set(
+      top,
+      containsNode(
+        top,
+        n =>
+          isAccessor(n) ||
+          (n.type === 'Identifier' && ACCESSOR_INSTALLERS.has(n.name)) ||
+          ((n.type === 'StringLiteral' || n.type === 'Literal') &&
+            ACCESSOR_INSTALLERS.has(n.value)) ||
+          (isMember(n) &&
+            isObjectGlobal(n.object) &&
+            (n.computed || memberName(n) === 'create')) ||
+          isGlobalObjectValue(n),
+      ),
+    );
+  return accessorModules.get(top);
+}
+
+/** Whether the rows a batch would hand to normalize() can have a getter the file declares, which would run
+ * before any row is written. Only a file that can make one (makesGetters()) needs this check. The rows must be
+ * a parameter the file can't pass them to (fileCallsWith()), or parsed JSON or a literal of plain data that only
+ * the loop (`loop`), a `length` read or a condition uses, so `rows.forEach(row => Object.defineProperty(row, 'count', { get }))` keeps the loop. */
+function rowsMayHoldGetter(j, rows, loop) {
+  rows = unwrapPath(rows);
+  const plain = path => arrayOf(j, path)?.data || isPlainData(path.node);
+  if (rows.node.type !== 'Identifier') return !plain(rows);
+  const binding = bindingOf(rows);
+  if (!binding) return true;
+  const kind = bindingKind(binding);
+  if (kind === 'param') return fileCallsWith(j, binding);
+  const init = constInitOf(binding);
+  return (
+    kind !== 'const' ||
+    !init ||
+    isExported(binding) ||
+    !plain(unwrapPath(init)) ||
+    !moduleUsesOf(j, rows, binding).every(
+      use =>
+        isWithin(use, loop) ||
+        isCondition(use) ||
+        (isMember(use.parent.node) &&
+          use.parent.node.object === use.node &&
+          memberName(use.parent.node) === 'length'),
+    )
+  );
+}
+
+/** The batch set() that does what `call`, run once per element of `rows`, does: one row per element, for an
+ * Entity or `new Invalidate(Entity)`. Returns `{ call, guard }`, the guard from emptyGuardOf(). */
+function batchSetOf(j, root, file, { rows, param, call, keepHoles = false }) {
+  const args = call.node.arguments;
+  if (
+    args.length < 2 ||
+    args.length > 3 ||
+    args.some(a => a.type === 'SpreadElement')
+  )
+    return;
+  const names = patternNames(param);
+  const mentions = node =>
+    containsNode(node, n => n.type === 'Identifier' && names.has(n.name));
+  const controller = call.node.callee.object;
+  let value = args[args.length - 1];
+  const valuePath = call.get('arguments', args.length - 1);
+  const extra = args.length === 3 ? args[1] : undefined;
+  const controllerRoot = rootOf(controller);
+  if (
+    !isReference(controller) ||
+    !isController(call.get('callee', 'object')) ||
+    mentions(controller) ||
+    mentions(args[0]) ||
+    (extra && !isPure(extra)) ||
+    !mentions(value) ||
+    // a batch evaluates the loop variable's defaults and computed keys for every row before any write
+    containsNode(
+      param,
+      n =>
+        (n.type === 'AssignmentPattern' &&
+          !isPure(n.right) &&
+          !isLiteralValue(n.right)) ||
+        (isProperty(n) && n.computed && !isPure(n.key)),
+    ) ||
+    containsNode(
+      value,
+      n =>
+        n.type === 'AwaitExpression' ||
+        n.type === 'YieldExpression' ||
+        // reads the store the earlier rows were written to
+        (controllerRoot.type === 'Identifier' ?
+          isId(n, controllerRoot.name)
+        : n.type === 'ThisExpression'),
+    ) ||
+    // a getter the file declares can't run where it can't make one
+    callsLocalCode(j, valuePath, names)
+  )
+    return;
+  const array = arrayOf(j, rows);
+  if (!array || !isRowData(value, array, param, args[0])) return;
+  const fileMakesGetters = makesGetters(root.paths()[0].node);
+  if (
+    readsChangingState(j, valuePath, names, fileMakesGetters) ||
+    // the batch drops the args, so a getter they read, like one that bumps `seq`, no longer runs
+    (fileMakesGetters &&
+      ((extra &&
+        readsChangingState(
+          j,
+          call.get('arguments', 1),
+          names,
+          fileMakesGetters,
+        )) ||
+        rowsMayHoldGetter(j, rows, rows.parent.node)))
+  )
+    return;
+  const batch = batchSchemaOf(j, file, call);
+  const guard = batch && emptyGuardOf(j, root, rows);
+  if (!guard) return;
+  const listRef = guard.list;
+  value = batch.value ?? value;
+  if (param.type === 'Identifier' && isId(value, param.name))
+    return {
+      guard,
+      call: j.callExpression(call.node.callee, [batch.schema, listRef]),
+    };
+  const mapper = j.arrowFunctionExpression(
+    [param],
+    // keeps `({ id })` on one line
+    value.type === 'ObjectExpression' ?
+      j.parenthesizedExpression(value)
+    : value,
+  );
+  // for...of visits a sparse array's holes, which map() skips
+  const list =
+    keepHoles ?
+      j.callExpression(
+        j.memberExpression(j.identifier('Array'), j.identifier('from')),
+        [listRef, mapper],
+      )
+    : j.callExpression(j.memberExpression(listRef, j.identifier('map')), [
+        mapper,
+      ]);
+  return {
+    guard,
+    call: j.callExpression(call.node.callee, [batch.schema, list]),
+  };
+}
+
+/** The `set()` call a loop body makes once per element, whether it awaits it, and whether a callback
+ * returns it (an expression body, or `return` when `returns`) */
+function setCallIn(path, returns = false) {
+  let { node } = path;
+  let inner;
+  if (node.type === 'BlockStatement') {
+    if (node.body.length !== 1) return;
+    path = path.get('body', 0);
+    node = inner = path.node;
+  }
+  let returned = true;
+  if (
+    node.type === 'ExpressionStatement' ||
+    (returns && node.type === 'ReturnStatement')
+  ) {
+    returned = node.type === 'ReturnStatement';
+    path = path.get(
+      node.type === 'ReturnStatement' ? 'argument' : 'expression',
+    );
+    node = path.node;
+  }
+  const awaited = node?.type === 'AwaitExpression';
+  if (awaited) path = path.get('argument');
+  return (
+      path.node?.type === 'CallExpression' &&
+        path.node.callee.type === 'MemberExpression' &&
+        memberName(path.node.callee) === 'set'
+    ) ?
+      { call: path, awaited, returned, inner }
+    : undefined;
+}
+
+const isPromiseAll = node =>
+  node?.type === 'CallExpression' &&
+  node.arguments.length === 1 &&
+  isMember(node.callee) &&
+  isId(node.callee.object, 'Promise') &&
+  memberName(node.callee) === 'all';
+
+/** How a batch keeps a loop's no-op on an empty list: `list` is what the batch reads, `guarded` (when the
+ * list can be empty) wraps it in `if (list.length)`, and `setup` (when `rows` is not a plain name, so reading it twice could differ, as
+ * with a getter) stores it in a new `const`. Undefined for an empty array literal, whose loop does nothing. */
+function emptyGuardOf(j, root, rows) {
+  const node = unwrap(rows.node);
+  if (
+    node.type === 'ArrayExpression' &&
+    !node.elements.some(el => el?.type === 'SpreadElement')
+  )
+    return node.elements.length ? { list: rows.node } : undefined;
+  if (node.type === 'Identifier') return { list: rows.node, guarded: true };
+  // a name the enclosing function never uses, so the `const` shadows nothing it reads
+  const scope = j(rows).closest(j.Function).paths()[0] ?? root.paths()[0];
+  const used = new Set(identifiersIn(j, scope).map(p => p.node.name));
+  let name = 'rows';
+  for (let i = 2; used.has(name); i++) name = `rows${i}`;
+  return {
+    list: j.identifier(name),
+    guarded: true,
+    setup: j.variableDeclaration('const', [
+      j.variableDeclarator(j.identifier(name), rows.node),
+    ]),
+  };
+}
+
+/** Replaces a loop statement with `call`, guarded by `guard` (from emptyGuardOf()), keeping the comments on the
+ * loop and on the set() statement */
+function replaceLoop(j, path, { call, guard }, awaited, inner) {
+  const batch = j.expressionStatement(awaited ? j.awaitExpression(call) : call);
+  // the set() statement's own comments, trailing ones too, stay on the batch set()
+  batch.comments = inner?.comments?.map(c => ({
+    ...c,
+    leading: true,
+    trailing: false,
+  }));
+  const statement =
+    guard.guarded ?
+      j.ifStatement(
+        j.memberExpression(guard.list, j.identifier('length')),
+        j.blockStatement([batch]),
+      )
+    : batch;
+  const statements = guard.setup ? [guard.setup, statement] : [statement];
+  // the loop's leading comments go before the first statement, and its trailing ones after the last
+  const comments = path.node.comments ?? [];
+  const trailing = comments.filter(c => c.trailing);
+  prependComments(
+    statements[0],
+    comments.filter(c => !c.trailing),
+  );
+  if (trailing.length)
+    statement.comments = [...(statement.comments ?? []), ...trailing];
+  // a lone `if` would take an `else` that followed the loop, and a `const` in a `case` is visible to every case
+  if (
+    (guard.guarded && !Array.isArray(path.parentPath.value)) ||
+    (guard.setup && path.parent.node.type === 'SwitchCase')
+  )
+    path.replace(j.blockStatement(statements));
+  else path.replace(...statements);
+}
+
+/** Loops that call set() once per row become one batch set(): `for...of`, `forEach()`, and `rows.map()` or
+ * `Promise.all(rows.map())` whose result is unused. A row that throws while its value is built or in pk() or
+ * process() (a malformed row) then makes the whole batch write nothing, where the loop still wrote the rows
+ * before it. */
+function batchSets(j, root, file) {
+  let dirty = false;
+  root.find(j.ForOfStatement).forEach(path => {
+    const { node } = path;
+    // a `var` stays visible after the loop, holding the last row
+    if (
+      node.await ||
+      node.left.type !== 'VariableDeclaration' ||
+      node.left.kind === 'var' ||
+      node.left.declarations.length !== 1
+    )
+      return;
+    const found = setCallIn(path.get('body'));
+    const batch =
+      found &&
+      batchSetOf(j, root, file, {
+        rows: path.get('right'),
+        param: node.left.declarations[0].id,
+        call: found.call,
+        keepHoles: true,
+      });
+    if (!batch) return;
+    replaceLoop(j, path, batch, found.awaited, found.inner);
+    dirty = true;
+  });
+  root.find(j.ExpressionStatement).forEach(path => {
+    let expression = path.get('expression');
+    const awaited = expression.node.type === 'AwaitExpression';
+    if (awaited) expression = expression.get('argument');
+    const viaAll = isPromiseAll(expression.node);
+    // `await rows.forEach()` waits for nothing, so it isn't a batch either
+    if (awaited && !viaAll) return;
+    const loop = viaAll ? expression.get('arguments', 0) : expression;
+    const { node } = loop;
+    if (
+      node.type !== 'CallExpression' ||
+      !isMember(node.callee) ||
+      node.arguments.length !== 1
+    )
+      return;
+    const method = memberName(node.callee);
+    if (method !== 'map' && (viaAll || method !== 'forEach')) return;
+    const callback = node.arguments[0];
+    // forEach() doesn't wait for an async callback, so its set() calls would not be awaited together
+    if (
+      callback.type !== 'ArrowFunctionExpression' ||
+      callback.params.length !== 1 ||
+      (callback.async && !viaAll)
+    )
+      return;
+    const found = setCallIn(loop.get('arguments', 0, 'body'), method === 'map');
+    // `Promise.all()` of callbacks that don't return the set() waits for none of them
+    if (viaAll && found && !found.returned && !found.awaited) return;
+    const batch =
+      found &&
+      batchSetOf(j, root, file, {
+        rows: loop.get('callee', 'object'),
+        param: callback.params[0],
+        call: found.call,
+      });
+    if (!batch) return;
+    replaceLoop(j, path, batch, awaited, found.inner);
+    dirty = true;
+  });
+  return dirty;
+}
+
+/** `ctrl.set([new Invalidate(Todo)], [{ id }])` becomes `ctrl.set(new Invalidate(Todo), { id })`, which
+ * type-checks since 0.19 */
+function unwrapOneRowInvalidate(j, root, file) {
+  let dirty = false;
+  root.find(j.CallExpression).forEach(path => {
+    const { node } = path;
+    const [schema, value] = node.arguments;
+    if (
+      !isMember(node.callee) ||
+      memberName(node.callee) !== 'set' ||
+      node.arguments.length !== 2 ||
+      !oneElement(schema) ||
+      // one set() calls a function value as an updater, and throws on null where a batch skips it
+      oneElement(value)?.type !== 'ObjectExpression' ||
+      !isController(path.get('callee', 'object')) ||
+      !isRowOnlyInvalidate(j, path.get('arguments', 0, 'elements', 0), file)
+    )
+      return;
+    node.arguments = [oneElement(schema), oneElement(value)];
+    dirty = true;
+  });
+  return dirty;
+}
+
+/** Removes the import of `name` when nothing else in the file uses it */
+function dropUnusedImport(j, root, name) {
+  const imported = importOf(j, root, name);
+  if (!imported) return;
+  const specifier = root
+    .find(j.ImportSpecifier)
+    .filter(p => p.node === imported.specifier)
+    .paths()[0];
+  const local = specifier.get(specifier.node.local ? 'local' : 'imported');
+  if (usesOf(j, root, local).size()) return;
+  removeSpecifiers(root, imported.declaration, [imported.specifier]);
+}
+
+/** Removes `specifiers` from an import, and the import when none are left */
+function removeSpecifiers(root, declaration, specifiers) {
+  declaration.specifiers = declaration.specifiers.filter(
+    s => !specifiers.includes(s),
+  );
+  if (declaration.specifiers.length) return;
+  const { body } = root.get().node.program;
+  body.splice(body.indexOf(declaration), 1);
+}
+
+const VUE = new Set(['@data-client/vue']);
+const GC_POLICY_SOURCES = new Set(['@data-client/vue', '@data-client/core']);
+const DATA_CLIENT_PLUGIN = new Set(['DataClientPlugin']);
+const GC_POLICY = new Set(['GCPolicy']);
+
+/** `app.use(DataClientPlugin, { gcPolicy: new GCPolicy() })` drops the option, the default since 0.19 */
+function dropDefaultGCPolicy(j, root) {
+  const options = [];
+  root.find(j.CallExpression).forEach(call => {
+    if (
+      memberName(call.node.callee) === 'use' &&
+      call.node.arguments.length === 2 &&
+      importsNameFrom(call.get('arguments', 0), DATA_CLIENT_PLUGIN, VUE)
+    )
+      options.push(call.get('arguments', 1));
+  });
+  // test plugins: `[DataClientPlugin, { gcPolicy }]`
+  root.find(j.ArrayExpression).forEach(array => {
+    if (
+      array.node.elements.length === 2 &&
+      array.node.elements[0] &&
+      importsNameFrom(array.get('elements', 0), DATA_CLIENT_PLUGIN, VUE)
+    )
+      options.push(array.get('elements', 1));
+  });
+  const dropped = new Set();
+  for (const path of options) {
+    if (path.node?.type !== 'ObjectExpression') continue;
+    const i = path.node.properties.findIndex(
+      p =>
+        isProperty(p) &&
+        !p.computed &&
+        keyName(p) === 'gcPolicy' &&
+        p.value.type === 'NewExpression' &&
+        p.value.arguments.length === 0,
+    );
+    // an earlier spread or computed key could set another gcPolicy that this one overrides
+    if (
+      i === -1 ||
+      path.node.properties
+        .slice(0, i)
+        .some(p => p.type === 'SpreadElement' || p.computed) ||
+      !importsNameFrom(
+        path.get('properties', i, 'value', 'callee'),
+        GC_POLICY,
+        GC_POLICY_SOURCES,
+      )
+    )
+      continue;
+    dropped.add(path.node.properties[i].value.callee.name);
+    path.node.properties.splice(i, 1);
+    if (!path.node.properties.length) path.prune();
+  }
+  for (const name of dropped) dropUnusedImport(j, root, name);
+  return dropped.size > 0;
+}
+
+/** `GCPolicy` from `@data-client/core` comes from `@data-client/vue`, which exports it since 0.19 */
+function importGCPolicyFromVue(j, root) {
+  const imports = importsOf(root);
+  const vue = imports.find(
+    d =>
+      d.source.value === '@data-client/vue' &&
+      d.importKind !== 'type' &&
+      d.specifiers.every(s => s.type === 'ImportSpecifier'),
+  );
+  if (!vue) return false;
+  let dirty = false;
+  for (const core of imports) {
+    if (core.source.value !== '@data-client/core' || core.importKind === 'type')
+      continue;
+    const moved = core.specifiers.filter(
+      s =>
+        s.type === 'ImportSpecifier' &&
+        s.importKind !== 'type' &&
+        staticName(s.imported) === 'GCPolicy',
+    );
+    if (!moved.length) continue;
+    removeSpecifiers(root, core, moved);
+    vue.specifiers.push(...moved);
+    dirty = true;
+  }
+  return dirty;
+}
+
+// Vue composables whose arguments may be getters since 0.19
+const GETTER_COMPOSABLES = new Set([
+  'useSuspense',
+  'useLive',
+  'useCache',
+  'useDLE',
+  'useFetch',
+  'useQuery',
+  'useSubscription',
+]);
+
+const COMPUTED = new Set(['computed']);
+const VUE_FRAMEWORK = new Set(['vue']);
+
+/** `useSuspense(E, computed(() => args))` becomes `useSuspense(E, () => args)`: composables read getters
+ * like refs since 0.19 */
+function unwrapComputedArgs(j, root) {
+  let dirty = false;
+  root.find(j.CallExpression).forEach(call => {
+    if (!importsNameFrom(call.get('callee'), GETTER_COMPOSABLES, VUE)) return;
+    // each() passes only the child path, whose `name` is its index
+    call.get('arguments').each(arg => {
+      const { node } = arg;
+      // computed() passes its getter the previous value, which a getter argument doesn't get
+      if (
+        arg.name === 0 ||
+        node.type !== 'CallExpression' ||
+        node.arguments.length !== 1 ||
+        !isFunction(node.arguments[0]) ||
+        // the previous value as a parameter or as `arguments[0]`
+        !takesAtMost(node.arguments[0], 0) ||
+        !importsNameFrom(arg.get('callee'), COMPUTED, VUE_FRAMEWORK)
+      )
+        return;
+      arg.replace(node.arguments[0]);
+      dirty = true;
+    });
+  });
+  if (dirty) dropUnusedImport(j, root, 'computed');
+  return dirty;
+}
+
+const REACT = new Set(['@data-client/react']);
+
+/** Whether the identifier at `path` holds React useCache()'s result or useDLE()'s `data`, which are never a
+ * Symbol since 0.19 */
+function isCachedData(path) {
+  const binding = bindingOf(path);
+  if (!binding) return false;
+  let declarator = binding.parent;
+  let hook = 'useCache';
+  if (isProperty(declarator.node)) {
+    if (
+      declarator.node.value !== binding.node ||
+      keyName(declarator.node) !== 'data'
+    )
+      return false;
+    declarator = declarator.parent.parent;
+    hook = 'useDLE';
+  } else if (declarator.node.id !== binding.node) return false;
+  return (
+    declarator?.node.type === 'VariableDeclarator' &&
+    declarator.parent.node.kind === 'const' &&
+    declarator.node.init?.type === 'CallExpression' &&
+    importsNameFrom(declarator.get('init', 'callee'), new Set([hook]), REACT)
+  );
+}
+
+const TESTS = new Set([
+  'IfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'ForStatement',
+  'ConditionalExpression',
+]);
+
+/** Whether only the truthiness of the expression at `path` matters: it is a condition, through `&&` and `||`,
+ * or the operand of `!`, which makes any value a boolean. Elsewhere `x || false` is `false`, not `x`, when `x`
+ * is falsy. */
+function isCondition(path) {
+  // `??` reads more than truthiness: when `x` is undefined, `(x || false) ?? true` is false and `x ?? true`
+  // is true
+  while (
+    (path.parent.node.type === 'LogicalExpression' &&
+      path.parent.node.operator !== '??') ||
+    path.parent.node.type === 'ParenthesizedExpression'
+  )
+    path = path.parent;
+  const parent = path.parent.node;
+  return (
+    (TESTS.has(parent.type) && parent.test === path.node) ||
+    (parent.type === 'UnaryExpression' && parent.operator === '!')
+  );
+}
+
+/** Replaces the expression at `path` with `node`, and drops the parentheses around it when its parent is a
+ * short `!` or `&&`/`||`: `!(todo)` becomes `!todo`. Recast keeps the source's parentheses unless it reprints
+ * the parent, which it does once the parent has no source position. Elsewhere the reprint would reflow
+ * more, so the parentheses stay. */
+function replaceInParens(path, node) {
+  const { parenthesized } = path.node.extra ?? {};
+  const parent = path.parent;
+  path.replace(node);
+  if (
+    !parenthesized ||
+    !['UnaryExpression', 'LogicalExpression'].includes(parent.node.type) ||
+    parent.node.loc?.start.line !== parent.node.loc?.end.line
+  )
+    return;
+  const reprinted = { ...parent.node };
+  for (const key of ['loc', 'start', 'end']) delete reprinted[key];
+  parent.replace(reprinted);
+}
+
+/** `!todo || typeof todo === 'symbol'` becomes `!todo` for React useCache() and useDLE() data */
+function dropSymbolChecks(j, root) {
+  let dirty = false;
+  root.find(j.BinaryExpression).forEach(path => {
+    const { node } = path;
+    const typeofSide = [node.left, node.right].findIndex(
+      n =>
+        n.type === 'UnaryExpression' &&
+        n.operator === 'typeof' &&
+        n.argument.type === 'Identifier',
+    );
+    const other = typeofSide === 0 ? node.right : node.left;
+    if (
+      typeofSide === -1 ||
+      !LITERALS.has(other.type) ||
+      other.value !== 'symbol'
+    )
+      return;
+    // `|| typeof x === 'symbol'` is always `|| false`, and `&& typeof x !== 'symbol'` is `&& true`
+    const operator =
+      ['===', '=='].includes(node.operator) ? '||'
+      : ['!==', '!='].includes(node.operator) ? '&&'
+      : undefined;
+    const logical = path.parent;
+    if (
+      logical.node.type !== 'LogicalExpression' ||
+      logical.node.operator !== operator ||
+      !isCondition(logical) ||
+      !isCachedData(path.get(typeofSide === 0 ? 'left' : 'right', 'argument'))
+    )
+      return;
+    replaceInParens(
+      logical,
+      logical.node.left === node ? logical.node.right : logical.node.left,
+    );
+    dirty = true;
+  });
+  return dirty;
+}
+
+const IMPROVEMENT_NAMES = /\.set\(|GCPolicy|computed\(|['"]symbol['"]/;
+
+function adoptImprovements(j, root, { source, path: file }) {
+  let dirty = false;
+  if (source.includes('.set(')) {
+    dirty = batchSets(j, root, file);
+    if (source.includes('Invalidate'))
+      dirty = unwrapOneRowInvalidate(j, root, file) || dirty;
+  }
+  if (source.includes('GCPolicy')) {
+    dirty = dropDefaultGCPolicy(j, root) || dirty;
+    dirty = importGCPolicyFromVue(j, root) || dirty;
+  }
+  if (source.includes('computed('))
+    dirty = unwrapComputedArgs(j, root) || dirty;
+  if (/['"]symbol['"]/.test(source)) dirty = dropSymbolChecks(j, root) || dirty;
+  return dirty;
+}
+
+/** Which passes run. `--deprecations=false` skips moving off deprecated APIs and `--deprecations=only` does
+ * just that; `--improvements` adds the optional rewrites that adopt 0.19 features, and
+ * `--improvements=only` does just those. */
 function passesFor(options) {
   // jscodeshift parses `--deprecations=false` to a boolean
   const deprecations = options?.deprecations ?? true;
+  const improvements = options?.improvements ?? false;
   if (![true, false, 'only'].includes(deprecations))
     throw new Error(
       `--deprecations must be false or only, not ${JSON.stringify(deprecations)}`,
     );
+  if (![true, false, 'only'].includes(improvements))
+    throw new Error(
+      `--improvements must be true or only, not ${JSON.stringify(improvements)}`,
+    );
+  if (improvements === 'only')
+    return { breaking: false, deprecations: false, improvements: true };
   return {
     breaking: deprecations !== 'only',
     deprecations: deprecations !== false,
+    improvements,
   };
 }
 
@@ -1225,22 +4592,26 @@ module.exports = function transformer(fileInfo, api, options) {
   const names = [
     ...(passes.breaking ? [NAMES] : []),
     ...(passes.deprecations ? DEPRECATED_NAMES : []),
+    ...(passes.improvements ? [IMPROVEMENT_NAMES] : []),
   ];
+  // debugging scripts that read the global often don't import data-client
+  const dcGlobal = passes.breaking && fileInfo.source.includes(DC_GLOBAL);
   // skip parsing files that have nothing to migrate
   if (
-    !fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
-    !names.some(name => name.test(fileInfo.source))
+    !dcGlobal &&
+    (!fileInfo.source.includes(DATA_CLIENT_PREFIX) ||
+      !names.some(name => name.test(fileInfo.source)))
   )
     return fileInfo.source;
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
 
+  let dirty = dcGlobal && migrateDcGlobal(j, root);
   const hasDataClientImport = importsOf(root).some(d =>
     String(d.source.value).startsWith(DATA_CLIENT_PREFIX),
   );
-  if (!hasDataClientImport) return fileInfo.source;
+  if (!hasDataClientImport) return printIf(dirty, root, fileInfo.source);
 
-  let dirty = false;
   if (passes.breaking) {
     dirty = transformManagers(j, root) || dirty;
     if (/renderData(Hook|Client)/.test(fileInfo.source))
@@ -1248,14 +4619,20 @@ module.exports = function transformer(fileInfo, api, options) {
     dirty = transformInitManager(j, root) || dirty;
     dirty = transformManagerClasses(j, root, fileInfo.source) || dirty;
     dirty = transformFetchIfStale(j, root, fileInfo.source) || dirty;
+    if (fileInfo.source.includes('.catch('))
+      dirty = dropNoopCatches(j, root, fileInfo.path) || dirty;
+    if (fileInfo.source.includes('fetchedAt'))
+      dirty = passFetchedAt(j, root) || dirty;
   }
   if (passes.deprecations)
-    dirty = migrateDeprecations(j, root, fileInfo.source) || dirty;
-
-  // recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
-  return dirty ?
-      root.toSource({ quote: 'single', wrapColumn: Infinity })
-    : fileInfo.source;
+    dirty = migrateDeprecations(j, root, fileInfo) || dirty;
+  if (passes.improvements)
+    dirty = adoptImprovements(j, root, fileInfo) || dirty;
+  return printIf(dirty, root, fileInfo.source);
 };
+
+// recast wraps a reprinted line longer than wrapColumn, reformatting code the codemod only extended
+const printIf = (dirty, root, source) =>
+  dirty ? root.toSource({ quote: 'single', wrapColumn: Infinity }) : source;
 
 module.exports.parser = 'tsx';

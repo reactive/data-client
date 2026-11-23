@@ -57,7 +57,7 @@ export default function useDLE<
   endpoint: E,
   ...args: readonly [...Parameters<E>] | readonly [null]
 ): {
-  data: E['schema'] extends undefined | null ? undefined
+  data: E['schema'] extends undefined | null ? ResolveType<E> | undefined
   : DenormalizeNullable<E['schema']>;
   loading: boolean;
   error: ErrorTypes | undefined;
