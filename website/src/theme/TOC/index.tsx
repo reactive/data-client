@@ -80,7 +80,8 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
         aria-label={label}
         aria-expanded={open}
         tabIndex={covered ? 0 : -1}
-        onClick={() => setPinned(pinned => !pinned)}
+        // a click, tap or Enter closes an open card, whatever opened it
+        onClick={() => (open ? close() : setPinned(true))}
       >
         <svg viewBox="0 0 16 16" aria-hidden="true">
           <path d="M5.5 4h7M5.5 8h7M5.5 12h7" />
