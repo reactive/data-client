@@ -1,13 +1,15 @@
-/* Docusaurus's sticky TOC, padded out by the same amount it reaches out, so
-   the card it becomes above a wide Playground has room inside its edge */
+/* Docusaurus's sticky TOC. Its left edge is the list's border, the line
+   that separates the TOC from the doc, so that line is the left side of the
+   card it becomes above a wide Playground; the card reaches out on the other
+   sides to give the links room */
 .tableOfContents {
   max-height: calc(100vh - (var(--ifm-navbar-height) + 2rem));
   overflow-y: auto;
   position: sticky;
   top: calc(var(--ifm-navbar-height) + 1rem);
-  margin: -0.5rem -0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.75rem;
+  margin: -0.5rem -0.75rem -0.5rem 0;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-radius: 0 0.75rem 0.75rem 0;
   transition:
     background-color var(--motion-snappy),
     box-shadow var(--motion-snappy);
@@ -68,7 +70,8 @@
 
 /* a wide Playground is under the TOC: the TOC fades out where the
    Playground passes (theme/TOC measures --under-top and --under-bottom),
-   and its button, right of the Playground, opens the whole list */
+   and hovering what shows of it, or its button right of the Playground,
+   opens the whole list */
 .tableOfContents[data-covered] .toggle {
   opacity: 1;
   visibility: visible;
@@ -83,13 +86,14 @@
   );
 }
 
-/* hovering, focusing or tapping the button lifts the TOC into a card above
-   the Playground */
+/* opened, the TOC lifts into a card above the Playground. Its outline is
+   inset so its left side lands on the list's border: the line stays where
+   it is and the card grows out of it */
 .tableOfContents[data-covered][data-open] {
   z-index: 2;
   background: var(--ifm-background-surface-color);
   box-shadow:
-    0 0 0 1px var(--ifm-toc-border-color),
+    inset 0 0 0 1px var(--ifm-toc-border-color),
     var(--ifm-global-shadow-md);
 }
 .tableOfContents[data-covered][data-open] .content {
