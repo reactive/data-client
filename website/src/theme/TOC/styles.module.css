@@ -1,0 +1,101 @@
+/* Docusaurus's sticky TOC, padded out by the same amount it reaches out, so
+   the card it becomes above a wide Playground has room inside its edge */
+.tableOfContents {
+  max-height: calc(100vh - (var(--ifm-navbar-height) + 2rem));
+  overflow-y: auto;
+  position: sticky;
+  top: calc(var(--ifm-navbar-height) + 1rem);
+  margin: -0.5rem -0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  transition:
+    background-color var(--motion-snappy),
+    box-shadow var(--motion-snappy);
+}
+
+@media (max-width: 996px) {
+  .tableOfContents {
+    display: none;
+  }
+}
+
+/* lines up with the links' text, past the list's left border; the
+   button sits at its right */
+.label {
+  padding: 0 2.5rem 0 calc(2 * var(--ifm-toc-padding-horizontal) + 1px);
+  line-height: 2rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 50%;
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-color-emphasis-700);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--motion-snappy),
+    visibility var(--motion-snappy),
+    color var(--motion-snappy),
+    border-color var(--motion-snappy);
+}
+.toggle svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.toggle circle {
+  fill: currentColor;
+}
+
+/* a wide Playground is under the TOC: the TOC fades out where the
+   Playground passes (theme/TOC measures --under-top and --under-bottom),
+   and its button, right of the Playground, opens the whole list */
+.tableOfContents[data-covered] .toggle {
+  opacity: 1;
+  visibility: visible;
+}
+.tableOfContents[data-covered] .content {
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(var(--under-top) - 1.5rem),
+    transparent calc(var(--under-top) - 0.25rem),
+    transparent calc(var(--under-bottom) + 0.25rem),
+    #000 calc(var(--under-bottom) + 1.5rem)
+  );
+}
+
+/* hovering, focusing or tapping the button lifts the TOC into a card above
+   the Playground */
+.tableOfContents[data-covered]:is([data-open], :has(:focus-visible)) {
+  z-index: 2;
+  background: var(--ifm-background-surface-color);
+  box-shadow:
+    0 0 0 1px var(--ifm-toc-border-color),
+    var(--ifm-global-shadow-md);
+}
+.tableOfContents[data-covered]:is([data-open], :has(:focus-visible)) .content {
+  mask-image: none;
+}
+.tableOfContents[data-covered]:is([data-open], :has(:focus-visible)) .toggle {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}

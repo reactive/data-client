@@ -176,49 +176,31 @@ small {
   }
 }
 
-/* Docs: everything in the doc column keeps the prose's measure (958px, the
-   column's width beside the TOC in Infima's 1320px container), centered in
-   the column. On wide screens the container fills the page instead of
-   stopping there: the TOC keeps its 330px at the right edge, and the prose
-   stays where it was, centered between the sidebar and the TOC. A row
-   Playground (`wide-embed`) reaches into the room right of the prose, which
-   its preview takes. The column is the `doc` container that components'
-   container queries measure */
-.docs-wrapper main > .container {
-  --ifm-container-width-xl: none;
-}
-/* the TOC column: Infima's quarter, up to its 330px at 1320px; below 997px
-   Infima stacks it at full width */
-@media (min-width: 997px) {
-  .docs-wrapper main > .container > .row > .col--3 {
-    --ifm-col-width: min(25%, 330px);
-  }
-}
-.docs-wrapper main > .container > .row > .col:first-child {
+/* Docs keep Infima's layout: the prose (958px at most) with the TOC right
+   beside it. On wide screens a row Playground (`wide-embed`) reaches into
+   the TOC column, which its preview takes, stopping short of the TOC's
+   button (theme/TOC), and the TOC folds away while one is under it */
+.theme-doc-markdown {
   --doc-prose-width: 958px;
   /* the most a wide embed takes: a row Playground's preview gains little
      past about 36rem */
   --doc-wide-width: 1200px;
-  /* beats Docusaurus's 75% cap (docItemCol, also !important); the TOC
-     column sets the split */
-  max-width: none !important;
   container: doc / inline-size;
 }
-.docs-wrapper main > .container > .row > .col:first-child > * {
-  max-width: var(--doc-prose-width);
-  margin-inline: auto;
-}
-/* the room the column (100cqw) has right of the centered prose, up to
-   --doc-wide-width in all */
-.theme-doc-markdown .wide-embed {
-  margin-right: calc(
-    -1 *
-      clamp(
-        0px,
-        (100cqw - var(--doc-prose-width)) / 2,
-        var(--doc-wide-width) - var(--doc-prose-width)
-      )
-  );
+@container doc (min-width: 958px) {
+  /* a TOC column follows the doc column: a quarter of the row, so a third
+     of this column with its gutters */
+  .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
+    position: relative;
+    z-index: 1;
+    margin-right: calc(
+      -1 *
+        min(
+          var(--doc-wide-width) - 100cqw,
+          (100cqw + 2 * var(--ifm-spacing-horizontal)) / 3 - 3rem
+        )
+    );
+  }
 }
 
 /* a diagram beside the doc text after it, or under it when the doc column is
