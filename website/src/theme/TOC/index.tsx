@@ -12,13 +12,14 @@ const LINK_CLASS_NAME = 'table-of-contents__link toc-highlight';
 const LINK_ACTIVE_CLASS_NAME = 'table-of-contents__link--active';
 
 /** The desktop TOC, with a header that stays when a wide Playground covers
- * the list: hovering or tapping its button opens the list above it */
+ * the list: hovering it, or tapping its button, opens the list above it */
 export default function TOC({ className, ...props }: Props): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const covered = useCoveredByWideEmbed(ref, contentRef);
-  // a tap or click keeps it open; hovering the button opens it until the
-  // pointer leaves the card, and keyboard focus until focus leaves it
+  // a tap or click on the button keeps it open; hovering any visible part
+  // opens it until the pointer leaves the card, and keyboard focus until
+  // focus leaves it
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -28,6 +29,14 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
     setHovered(false);
     setFocused(false);
   };
+
+  // nothing stays pinned for the next Playground once this one has passed
+  useEffect(() => {
+    if (covered) return;
+    setPinned(false);
+    setHovered(false);
+    setFocused(false);
+  }, [covered]);
 
   useEffect(() => {
     if (!open) return;
@@ -51,6 +60,9 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
       onClick={event => {
         if ((event.target as Element).closest('a')) close();
       }}
+      onPointerEnter={event => {
+        if (event.pointerType === 'mouse') setHovered(true);
+      }}
       onPointerLeave={() => setHovered(false)}
       onFocus={event => {
         if (event.target.matches(':focus-visible')) setFocused(true);
@@ -69,9 +81,6 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
         aria-expanded={open}
         tabIndex={covered ? 0 : -1}
         onClick={() => setPinned(pinned => !pinned)}
-        onPointerEnter={event => {
-          if (event.pointerType === 'mouse') setHovered(true);
-        }}
       >
         <svg viewBox="0 0 16 16" aria-hidden="true">
           <path d="M5.5 4h7M5.5 8h7M5.5 12h7" />
@@ -94,7 +103,7 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
 
 /** Whether a wide embed (a row Playground reaching into the TOC column) is
  * under the TOC, and where: `--under-top` and `--under-bottom` on the TOC
- * hold its edges, measured from the TOC's content, while it scrolls by */
+ * hold its edges, measured from the TOC's content */
 function useCoveredByWideEmbed(
   ref: React.RefObject<HTMLElement | null>,
   contentRef: React.RefObject<HTMLElement | null>,
@@ -103,67 +112,46 @@ function useCoveredByWideEmbed(
   useEffect(() => {
     const toc = ref.current;
     const content = contentRef.current;
-    const embeds = [
-      ...document.querySelectorAll('.theme-doc-markdown .wide-embed'),
-    ];
-    if (!toc || !content || !embeds.length) return;
-    const under = new Set<Element>();
+    if (!toc || !content) return;
+    // live, so it follows Playgrounds that remount (PlaygroundTabs) and the
+    // next doc after a navigation
+    const embeds = document.getElementsByClassName('wide-embed');
     let frame = 0;
     const measure = () => {
       frame = 0;
-      const box = content.getBoundingClientRect();
+      const box = toc.getBoundingClientRect();
+      const origin = content.getBoundingClientRect().top;
       let top = Infinity;
       let bottom = -Infinity;
-      for (const embed of under) {
+      for (const embed of embeds) {
         const rect = embed.getBoundingClientRect();
-        top = Math.min(top, rect.top - box.top);
-        bottom = Math.max(bottom, rect.bottom - box.top);
+        if (rect.right <= box.left) continue;
+        if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
+        top = Math.min(top, rect.top - origin);
+        bottom = Math.max(bottom, rect.bottom - origin);
       }
-      toc.style.setProperty('--under-top', `${top}px`);
-      toc.style.setProperty('--under-bottom', `${bottom}px`);
+      if (top < bottom) {
+        toc.style.setProperty('--under-top', `${top}px`);
+        toc.style.setProperty('--under-bottom', `${bottom}px`);
+      }
+      setCovered(top < bottom);
     };
     const schedule = () => {
       frame ||= requestAnimationFrame(measure);
     };
-    let observer: IntersectionObserver | undefined;
-    // the viewport cut down to the TOC's box; the sticky TOC barely moves
-    const observe = () => {
-      observer?.disconnect();
-      under.clear();
-      const box = toc.getBoundingClientRect();
-      observer = new IntersectionObserver(
-        entries => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) under.add(entry.target);
-            else under.delete(entry.target);
-          }
-          setCovered(under.size > 0);
-          if (under.size) {
-            measure();
-            window.addEventListener('scroll', schedule, { passive: true });
-            toc.addEventListener('scroll', schedule, { passive: true });
-          } else {
-            window.removeEventListener('scroll', schedule);
-            toc.removeEventListener('scroll', schedule);
-          }
-        },
-        {
-          rootMargin: `${-box.top}px ${box.right - innerWidth}px ${box.bottom - innerHeight}px ${-box.left}px`,
-        },
-      );
-      embeds.forEach(embed => observer?.observe(embed));
-    };
-    observe();
-    const resize = new ResizeObserver(observe);
-    resize.observe(toc);
-    window.addEventListener('resize', observe);
+    measure();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    toc.addEventListener('scroll', schedule, { passive: true });
+    // the page's length changes on navigation and as content loads
+    const resize = new ResizeObserver(schedule);
+    resize.observe(document.body);
     return () => {
-      observer?.disconnect();
-      resize.disconnect();
       cancelAnimationFrame(frame);
-      window.removeEventListener('resize', observe);
       window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
       toc.removeEventListener('scroll', schedule);
+      resize.disconnect();
     };
   }, [ref, contentRef]);
   return covered;
