@@ -179,7 +179,7 @@ small {
 /* Docs keep Infima's layout: the prose (958px at most) with the TOC right
    beside it. On wide screens a row Playground (`wide-embed`) reaches into
    the TOC column, which its preview takes, stopping short of the TOC's
-   button (theme/TOC), and the TOC folds away while one is under it */
+   button (theme/TOC), and the TOC fades out where one passes under it */
 .theme-doc-markdown {
   --doc-prose-width: 958px;
   /* the most a wide embed takes: a row Playground's preview gains little
