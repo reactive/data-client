@@ -18,18 +18,24 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
   const contentRef = useRef<HTMLDivElement>(null);
   const covered = useCoveredByWideEmbed(ref, contentRef);
   // a tap or click keeps it open; hovering the button opens it until the
-  // pointer leaves the card
+  // pointer leaves the card, and keyboard focus until focus leaves it
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const open = covered && (pinned || hovered);
+  const [focused, setFocused] = useState(false);
+  const open = covered && (pinned || hovered || focused);
+  const close = () => {
+    setPinned(false);
+    setHovered(false);
+    setFocused(false);
+  };
 
   useEffect(() => {
     if (!open) return;
-    const close = (event: PointerEvent) => {
+    const closeOutside = (event: PointerEvent) => {
       if (!ref.current?.contains(event.target as Node)) setPinned(false);
     };
-    document.addEventListener('pointerdown', close);
-    return () => document.removeEventListener('pointerdown', close);
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
   }, [open]);
 
   const label = translate({
@@ -43,11 +49,18 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
       data-covered={covered || undefined}
       data-open={open || undefined}
       onClick={event => {
-        if (!(event.target as Element).closest('a')) return;
-        setPinned(false);
-        setHovered(false);
+        if ((event.target as Element).closest('a')) close();
       }}
       onPointerLeave={() => setHovered(false)}
+      onFocus={event => {
+        if (event.target.matches(':focus-visible')) setFocused(true);
+      }}
+      onBlur={event => {
+        if (!ref.current?.contains(event.relatedTarget)) close();
+      }}
+      onKeyDown={event => {
+        if (event.key === 'Escape' && open) close();
+      }}
     >
       <button
         type="button"

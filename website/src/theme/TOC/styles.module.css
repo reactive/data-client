@@ -85,17 +85,17 @@
 
 /* hovering, focusing or tapping the button lifts the TOC into a card above
    the Playground */
-.tableOfContents[data-covered]:is([data-open], :has(:focus-visible)) {
+.tableOfContents[data-covered][data-open] {
   z-index: 2;
   background: var(--ifm-background-surface-color);
   box-shadow:
     0 0 0 1px var(--ifm-toc-border-color),
     var(--ifm-global-shadow-md);
 }
-.tableOfContents[data-covered]:is([data-open], :has(:focus-visible)) .content {
+.tableOfContents[data-covered][data-open] .content {
   mask-image: none;
 }
-.tableOfContents[data-covered]:is([data-open], :has(:focus-visible)) .toggle {
+.tableOfContents[data-covered][data-open] .toggle {
   border-color: var(--ifm-color-primary);
   color: var(--ifm-color-primary);
 }
