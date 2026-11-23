@@ -17,9 +17,10 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const covered = useCoveredByWideEmbed(ref, contentRef);
-  // a tap or click on the button keeps it open; hovering any visible part
-  // opens it until the pointer leaves the card, and keyboard focus until
-  // focus leaves it
+  // a tap or click on the button keeps it open; moving the mouse over any
+  // visible part opens it until the pointer leaves the card (a pointer
+  // parked there as a Playground scrolls in doesn't), and keyboard focus
+  // until focus leaves it
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -60,15 +61,19 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
       onClick={event => {
         if ((event.target as Element).closest('a')) close();
       }}
-      onPointerEnter={event => {
-        if (event.pointerType === 'mouse') setHovered(true);
+      onPointerMove={event => {
+        if (covered && event.pointerType === 'mouse') setHovered(true);
       }}
       onPointerLeave={() => setHovered(false)}
       onFocus={event => {
         if (event.target.matches(':focus-visible')) setFocused(true);
       }}
       onBlur={event => {
-        if (!ref.current?.contains(event.relatedTarget)) close();
+        // a click on the card's text blurs the button but stays inside;
+        // focus moving to another element (Tab) leaves
+        if (ref.current?.contains(event.relatedTarget)) return;
+        setFocused(false);
+        if (event.relatedTarget) setPinned(false);
       }}
       onKeyDown={event => {
         if (event.key === 'Escape' && open) close();
@@ -120,13 +125,14 @@ function useCoveredByWideEmbed(
     let frame = 0;
     const measure = () => {
       frame = 0;
+      if (!embeds.length) return setCovered(false);
       const box = toc.getBoundingClientRect();
       const origin = content.getBoundingClientRect().top;
       let top = Infinity;
       let bottom = -Infinity;
       for (const embed of embeds) {
         const rect = embed.getBoundingClientRect();
-        if (rect.right <= box.left) continue;
+        if (rect.right <= box.left || rect.left >= box.right) continue;
         if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
         top = Math.min(top, rect.top - origin);
         bottom = Math.max(bottom, rect.bottom - origin);
