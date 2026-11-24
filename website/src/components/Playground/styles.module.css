@@ -1623,8 +1623,8 @@ div.fixtureJson + div.fixtureJson {
     /* the code gets 65% of the room it would have at the prose's width;
        the app gets the rest, so in the docs a playground reaching past the
        prose into the TOC column (`--doc-reach`, css/customTheme.css) gives
-       that room to the app. This and the 720px breakpoint set the app widths
-       skill playground-demos lists: update its table when they change */
+       that room to the app. Never under 16rem, the width demos are built
+       to fit (skill playground-demos) */
     --pg-preview-col: max(
       16rem,
       100cqw - var(--pg-gap) - (100cqw - var(--doc-reach) - var(--pg-gap)) *

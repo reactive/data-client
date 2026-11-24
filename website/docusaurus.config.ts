@@ -355,8 +355,7 @@ const config: Config = {
     // A row Playground in the docs whose app lays out for more room
     // (DesignSystem's .split) reaches into the TOC column on wide screens,
     // giving its preview the room (css/customTheme.css, theme/TOC).
-    // false keeps every Playground at the prose width, as before. The app
-    // widths in skill playground-demos assume true
+    // false keeps every Playground at the prose width, as before
     widePlaygrounds: true,
   },
   onBrokenLinks: 'warn',

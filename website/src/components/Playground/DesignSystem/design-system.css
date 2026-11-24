@@ -331,7 +331,8 @@ div.playground-preview h1:first-child {
 }
 
 /* A list and what it opens (an inbox and its open message): side by side
-   when there's room for both, the list above otherwise */
+   when there's room for both, the list above otherwise. A docs Playground
+   using it widens on wide screens (./layouts.ts lists such layouts) */
 .playground-preview .split {
   container: split / inline-size;
   display: flex;

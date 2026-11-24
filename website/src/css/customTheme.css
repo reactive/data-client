@@ -191,9 +191,7 @@ small {
 }
 .theme-doc-markdown {
   /* the most a wide embed takes: room for a list beside what it opens
-     (an inbox, DesignSystem's .split). Changing the reach changes the app
-     widths skill playground-demos lists: re-measure them (the content width
-     of `.playground-preview`) and update its table */
+     (an inbox, DesignSystem's .split) */
   --doc-wide-width: 1240px;
   container: doc / inline-size;
 }
