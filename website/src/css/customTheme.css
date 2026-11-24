@@ -176,11 +176,50 @@ small {
   }
 }
 
-/* a diagram beside the doc text after it, or under it when the doc column is
-   too narrow for both */
+/* Docs keep Infima's layout: the prose with the TOC right beside it. Where
+   a TOC column follows, a row Playground whose app lays out for more room
+   (`wide-embed`: Playground/DesignSystem/layouts.ts; the others fit beside
+   the code at the prose's width) reaches into it, by
+   as much as the column has room for, stopping short of the TOC's button
+   (theme/TOC); its preview takes that room (`--doc-reach`,
+   Playground/styles.module.css). The TOC fades out beside what the embed
+   draws there, its `wide-embed-part` elements */
+@property --doc-reach {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
 .theme-doc-markdown {
+  /* the most a wide embed takes: room for a list beside what it opens
+     (an inbox, DesignSystem's .split) */
+  --doc-wide-width: 1240px;
   container: doc / inline-size;
 }
+/* only once the reach makes a row Playground side by side (its 720px
+   breakpoint): narrower, it stacks, and its full-width editor would cover
+   the TOC. D + (D + 2rem) / 3 - 3rem = 720px at a doc width D of
+   540px + 1.75rem (568px at a 16px root); 600px holds for roots up to 34px */
+@media (min-width: 997px) {
+  @container doc (min-width: 600px) {
+    /* the TOC column is a quarter of the row, so a third of the doc column
+       with its gutters; 3rem leaves the TOC's 2rem button and a gap */
+    .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
+      --doc-reach: max(
+        0px,
+        min(
+          var(--doc-wide-width) - 100cqw,
+          (100cqw + 2 * var(--ifm-spacing-horizontal)) / 3 - 3rem
+        )
+      );
+      position: relative;
+      z-index: 1;
+      margin-right: calc(-1 * var(--doc-reach));
+    }
+  }
+}
+
+/* a diagram beside the doc text after it, or under it when the doc column is
+   too narrow for both */
 .theme-doc-markdown .doc-float {
   display: block;
   float: right;
