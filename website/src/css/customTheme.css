@@ -176,30 +176,38 @@ small {
   }
 }
 
-/* Docs keep Infima's layout: the prose (958px at most) with the TOC right
-   beside it. On wide screens a row Playground (`wide-embed`) reaches into
-   the TOC column, which its preview takes, stopping short of the TOC's
-   button (theme/TOC), and the TOC fades out where one passes under it */
+/* Docs keep Infima's layout: the prose with the TOC right beside it. Where
+   a TOC column follows, a row Playground (`wide-embed`) reaches into it, by
+   as much as the column has room for, stopping short of the TOC's button
+   (theme/TOC); its preview takes that room (`--doc-reach`,
+   Playground/styles.module.css), and the TOC fades out beside it */
+@property --doc-reach {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
 .theme-doc-markdown {
-  --doc-prose-width: 958px;
-  /* the most a wide embed takes: a row Playground's preview gains little
-     past about 36rem */
-  --doc-wide-width: 1200px;
+  /* the most a wide embed takes: room for a list beside what it opens
+     (an inbox, DesignSystem's .split). Changing the reach changes the app
+     widths skill playground-demos lists: re-measure them (the content width
+     of `.playground-preview`) and update its table */
+  --doc-wide-width: 1240px;
   container: doc / inline-size;
 }
-@container doc (min-width: 958px) {
-  /* a TOC column follows the doc column: a quarter of the row, so a third
-     of this column with its gutters */
+@media (min-width: 997px) {
+  /* the TOC column is a quarter of the row, so a third of the doc column
+     with its gutters */
   .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
+    --doc-reach: max(
+      0px,
+      min(
+        var(--doc-wide-width) - 100cqw,
+        (100cqw + 2 * var(--ifm-spacing-horizontal)) / 3 - 3rem
+      )
+    );
     position: relative;
     z-index: 1;
-    margin-right: calc(
-      -1 *
-        min(
-          var(--doc-wide-width) - 100cqw,
-          (100cqw + 2 * var(--ifm-spacing-horizontal)) / 3 - 3rem
-        )
-    );
+    margin-right: calc(-1 * var(--doc-reach));
   }
 }
 

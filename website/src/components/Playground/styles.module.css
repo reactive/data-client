@@ -1621,13 +1621,15 @@ div.fixtureJson + div.fixtureJson {
        preview's foot curving into it, no deeper than that run */
     --pg-foot-curve: min(var(--pg-card-radius), var(--pg-preview-gap, 0px));
     /* about a third; in the docs, the code keeps the width it has at the
-       prose measure (css/customTheme.css), so a playground reaching past
-       the prose gives all that room to the app */
+       prose's width, so a playground reaching past the prose into the TOC
+       column (`--doc-reach`, css/customTheme.css) gives that room to the app.
+       This and the 720px breakpoint set the app widths skill
+       playground-demos lists: update its table when they change */
     --pg-preview-col: max(
       16rem,
       (100cqw - var(--pg-gap)) * 0.35,
       100cqw - var(--pg-gap) -
-        (var(--doc-prose-width, 100cqw) - var(--pg-gap)) * 0.65
+        (100cqw - var(--doc-reach, 0px) - var(--pg-gap)) * 0.65
     );
     /* the preview's edge, where the drawer parks */
     --pg-fold: calc(100cqw - var(--pg-preview-col));
