@@ -7,7 +7,8 @@ import { RestEndpoint } from '@data-client/rest';
 
 在 [RestEndpoint](../api/RestEndpoint.md) 的成员中转换数据：用 [process()](../api/RestEndpoint.md#process) 处理
 响应，用 [getRequestInit()](../api/RestEndpoint.md#getRequestInit) 处理请求体，用
-[parseResponse()](../api/RestEndpoint.md#parseResponse) 处理响应头和原始响应体。
+[parseResponse()](../api/RestEndpoint.md#parseResponse) 处理响应头和原始响应体。要在某个 Entity 出现的任何地方
+（包括列表和嵌套数据）修改它的字段，请使用 [Entity.process()](../api/Entity.md#process)。
 
 :::tip
 
@@ -45,7 +46,8 @@ class CamelEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     return super.getRequestInit(body);
   }
   process(value) {
-    return deeplyApplyKeyTransform(value, camelCase);
+    // a 204 response has no body
+    return value && deeplyApplyKeyTransform(value, camelCase);
   }
 }
 ```
@@ -467,30 +469,46 @@ export const downloadFile = new RestEndpoint({
 
 ## 重命名键 {#name-calling}
 
-要重命名 API 使用的某个键，请在两个方向上映射它。这样你的 Entity 和组件就只会使用你起的名字。
+要重命名 API 使用的某个键，请在两个方向上映射它：Entity 的 [process()](../api/Entity.md#process) 会在每个包含该 Entity
+的响应中（包括列表和嵌套数据）重命名它，而 endpoint 的
+[getRequestInit()](../api/RestEndpoint.md#getRequestInit) 会在请求体中把它改回去。这样组件就只会使用
+你起的名字。
 
-```typescript title="ArticleResource.ts"
-class RenamedEndpoint<
+```typescript title="Article.ts"
+import { Entity, RestEndpoint, RestGenerics } from '@data-client/rest';
+
+export class Article extends Entity {
+  id = '';
+  carrotsUsed = 0;
+
+  static process(value: any, parent: any, key: string, args: any[]) {
+    const processed = super.process(value, parent, key, args);
+    if ('carrotsUsedIsThisNameTooLong' in processed) {
+      processed.carrotsUsed = processed.carrotsUsedIsThisNameTooLong;
+      delete processed.carrotsUsedIsThisNameTooLong;
+    }
+    return processed;
+  }
+}
+
+export class RenamedEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  getRequestInit(body) {
+  getRequestInit(body: any) {
     if (body && 'carrotsUsed' in body) {
-      const newBody = {
-        ...body,
-        carrotsUsedIsThisNameTooLong: body.carrotsUsed,
-      };
-      delete newBody.carrotsUsed;
-      return super.getRequestInit(newBody);
+      const { carrotsUsed, ...rest } = body;
+      return super.getRequestInit({
+        ...rest,
+        carrotsUsedIsThisNameTooLong: carrotsUsed,
+      });
     }
     return super.getRequestInit(body);
   }
-  process(value) {
-    if ('carrotsUsedIsThisNameTooLong' in value) {
-      // ok to mutate jsonResponse since we control it
-      value.carrotsUsed = value.carrotsUsedIsThisNameTooLong;
-      delete value.carrotsUsedIsThisNameTooLong;
-    }
-    return value;
-  }
 }
+
+export const updateArticle = new RenamedEndpoint({
+  path: '/articles/:id',
+  method: 'PATCH',
+  schema: Article,
+});
 ```

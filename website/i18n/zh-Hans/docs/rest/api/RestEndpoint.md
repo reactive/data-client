@@ -636,10 +636,11 @@ getReactSite({ slug: 'cool', isReact: true });
 
 ### body {#body}
 
-`body` 可用于为变更类 endpoint 设置第二个参数。其实际的**值不会以任何方式
-被使用**——它只决定[类型](#typing)。
+`body` 为请求体（变更类 endpoint 的最后一个参数）提供类型。它的值从不会被发送；它只设置
+[类型](#typing)，唯一的例外是 `body: undefined` 表示该 endpoint 不发送请求体。
 
-它只用于 method 会携带 body 的 endpoint：'POST'、'PUT'、'PATCH'。
+`GET` 从不发送请求体。`DELETE` 只有在拥有 `body`（直接设置或通过 [extend()](#extend) 继承）时才发送请求体。
+其他所有 method，包括 `HEAD` 和 `OPTIONS`，都会发送请求体，除非设置了 `body: undefined`。
 
 <EndpointPlayground>
 

@@ -72,3 +72,8 @@ agents:
   label: 'AI 智能体'
   description: '面向 AI 编码智能体的 Skills、llms.txt 和工具'
   permalink: /agents
+
+validation:
+  label: '校验'
+  description: '类型安全、测试工具与开发警告'
+  permalink: /validation

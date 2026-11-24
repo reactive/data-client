@@ -13,28 +13,41 @@ import TabItem from '@theme/TabItem';
 下面是一个使用简单 cookie 认证的示例：
 
 ```ts title="schema/endpoint.ts"
-export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
-  getRequestInit(body: any): Promise<RequestInit> {
+import { GQLEndpoint } from '@data-client/graphql';
+
+class CookieGQLEndpoint extends GQLEndpoint<any> {
+  getRequestInit(variables: any): RequestInit {
     return {
-      ...super.getRequestInit(body),
+      ...super.getRequestInit(variables),
       credentials: 'same-origin',
     };
   }
-});
+}
+
+export const gql = new CookieGQLEndpoint(
+  'https://nosy-baritone.glitch.me',
+);
 export default gql;
 ```
 
 ## 访问令牌 {#access-tokens}
 
-这里我们使用一个成员变量来记录访问令牌，并在
-header 中发送它。
+这里我们把访问令牌保存在一个模块变量中，并在 header 中发送它。用 `gql.query()` 和 `gql.mutation()`
+创建的 endpoint 会在创建时复制 `gql`，因此之后在 `gql` 上设置的值不会传递给它们；而模块变量在每次请求时都会被读取。
 
 ```ts title="schema/endpoint.ts"
+import { GQLEndpoint } from '@data-client/graphql';
+
+let accessToken = '';
+export function setAccessToken(token: string) {
+  accessToken = token;
+}
+
 export const gql = new GQLEndpoint('https://nosy-baritone.glitch.me', {
   getHeaders(headers: HeadersInit): HeadersInit {
     return {
       ...headers,
-      'Access-Token': this.accessToken,
+      'Access-Token': accessToken,
     };
   },
 });
@@ -44,7 +57,7 @@ export default gql;
 然后务必在登录时设置访问令牌：
 
 ```ts
-import gql from 'schema/endpoint';
+import { setAccessToken } from 'schema/endpoint';
 
 function Auth() {
   const handleLogin = useCallback(
@@ -52,7 +65,7 @@ function Auth() {
       const { accessToken } = await login(new FormData(e.target));
       // success!
       // highlight-next-line
-      gql.accessToken = accessToken;
+      setAccessToken(accessToken);
     },
     [login],
   );

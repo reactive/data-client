@@ -215,7 +215,7 @@ export default class ApiEndpoint<
 
 </DiffEditor>
 
-Interceptors de resposta que alteram o corpo, como a conversão de chaves em `snake_case`, pertencem a
+Interceptors de resposta que alteram o corpo, como desembrulhar `{ data }` ou converter chaves em `snake_case`, pertencem a
 [`process()`](../api/RestEndpoint.md#process); veja [snakes to camels](./network-transform.md#snakes-to-camels).
 
 Quando um interceptor de resposta devolvia `response.data`, o `.data` de um chamador lia um campo do corpo, não a resposta do axios,
@@ -563,6 +563,7 @@ npm uninstall axios
 | `timeout`                                | [`AbortSignal.timeout()`](#timeout) em `getRequestInit()`                                                         |
 | `withCredentials: true`                  | [`credentials: 'include'`](./auth.md#cookie-auth-credentials) em `getRequestInit()`                               |
 | `responseType: 'blob'` / `'arraybuffer'` | [`content: 'blob'`](#binary-responses) / `'arrayBuffer'`                                                          |
+| `data` in a `delete()` config            | [`body`](../api/RestEndpoint.md#body) on the endpoint: a `DELETE` sends a body only when it has one (rest 0.19+)  |
 | `params` / `paramsSerializer`            | [`searchParams`](../api/RestEndpoint.md#searchParams) / [`searchToString()`](#query-serialization)                |
 | `auth: { username, password }`           | [`getHeaders()` com `btoa()`](#basic-auth)                                                                        |
 | `validateStatus`                         | [`fetchResponse()` personalizado](#accepting-error-statuses)                                                      |

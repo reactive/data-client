@@ -636,10 +636,11 @@ getReactSite({ slug: 'cool', isReact: true });
 
 ### body {#body}
 
-`body` pode ser usado para definir um segundo argumento para endpoints de mutação. O **valor em si não é
-usado** de nenhuma forma - isso apenas determina a [tipagem](#typing).
+`body` tipa o corpo da requisição, o último argumento de um endpoint de mutação. Seu valor nunca é enviado; ele apenas define a
+[tipagem](#typing), exceto que `body: undefined` significa que o endpoint não envia corpo.
 
-Isso só é usado por endpoints com um método que usa body: 'POST', 'PUT', 'PATCH'.
+`GET` nunca envia corpo. `DELETE` só envia um quando tem `body`, definido diretamente ou herdado por meio de
+[extend()](#extend). Todos os outros métodos, incluindo `HEAD` e `OPTIONS`, enviam um, a menos que definam `body: undefined`.
 
 <EndpointPlayground>
 

@@ -155,7 +155,7 @@ siga as instruções para [adicionar suporte a navegadores legados aos pacotes](
 <details>
 <summary><b>ReactJS 16-19 e React Native</b></summary>
 
-O ReactJS 16.2 e superior é compatível (a versão com hooks!). O React 18 oferece suporte e recursos aprimorados de [Suspense](../api/useSuspense.md).
+O ReactJS 16.14 e superior é compatível. O React 18 oferece suporte e recursos aprimorados de [Suspense](../api/useSuspense.md).
 React Native, [React Navigation](https://reactnavigation.org/) e [Expo](https://docs.expo.dev) também são compatíveis.
 
 Se você tem um projeto funcionando com outras
@@ -171,7 +171,7 @@ discussões.
 <details>
 <summary><b>Vue 3</b></summary>
 
-`@data-client/vue` é compatível com Vue 3 e é construído sobre a [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
+`@data-client/vue` é compatível com Vue 3.4 e superior e é construído sobre a [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
 
 </details>
 

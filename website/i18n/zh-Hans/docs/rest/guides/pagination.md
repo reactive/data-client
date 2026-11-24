@@ -263,6 +263,81 @@ render(<ValidatorList />);
 
 </FrameworkPlayground>
 
+### 信封中的页码 {#envelope}
+
+许多 API 会把每个列表包装在信封中：一个把数据和元数据放在一起的外层对象，比如
+`{ "data": [...], "meta": { "page": 1, "totalPages": 4 } }`。请把这个信封作为 schema，并把
+[Collection](../api/Collection.md) 放在 `data` 上，这样组件也能读取 `meta`：
+
+```ts title="Comment"
+import { Collection, Entity, RestEndpoint } from '@data-client/rest';
+
+export class Comment extends Entity {
+  id = '';
+  body = '';
+}
+
+export const getComments = new RestEndpoint({
+  path: '/comments',
+  searchParams: {} as { discussionId: string; page?: number },
+  paginationField: 'page',
+  schema: {
+    data: new Collection([Comment]),
+    meta: { page: 0, totalPages: 0 },
+  },
+});
+```
+
+:::react
+
+```tsx title="CommentList"
+import { useController, useSuspense } from '@data-client/react';
+import { getComments } from './Comment';
+
+function CommentList({ discussionId }: { discussionId: string }) {
+  const { data, meta } = useSuspense(getComments, { discussionId });
+  const ctrl = useController();
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, { discussionId, page: meta.page + 1 });
+  const add = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId }, { body });
+  // render data, a "Load more" button while meta.page < meta.totalPages, and a form calling add()
+}
+```
+
+:::
+
+:::vue
+
+```html title="CommentList.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { getComments } from './Comment';
+
+  const props = defineProps<{ discussionId: string }>();
+  const comments = await useSuspense(getComments, () => ({
+    discussionId: props.discussionId,
+  }));
+  const ctrl = useController();
+  const loadMore = () =>
+    ctrl.fetch(getComments.getPage, {
+      discussionId: props.discussionId,
+      page: comments.value.meta.page + 1,
+    });
+  const add = (body: string) =>
+    ctrl.fetch(getComments.push, { discussionId: props.discussionId }, { body });
+</script>
+```
+
+:::
+
+- 第一次获取时不要带 `page`：[getPage](../api/RestEndpoint.md#getpage) 根据去掉
+  [paginationField](../api/RestEndpoint.md#paginationfield) 后的参数来查找要扩展的列表，因此用 `page: 1` 获取的列表
+  是另一个列表，永远不会增长。
+- 每一页都会追加到 `data` 并替换 `meta`，因此 `meta` 始终描述最新的一页。
+- [push](../api/RestEndpoint.md#push) 向同一路径发送 `POST`，并添加它返回的那一个 `Comment`。单独的
+  创建 endpoint 可以通过 `schema: getComments.schema.data.push` 加入同一个列表，调用时传入 `{ discussionId }`。
+
 ### 无限滚动 {#infinite-scrolling}
 
 无限滚动的 UI 因应用和平台（React Native 或 web）而异。这个示例使用一个 `Pagination` 组件，它
