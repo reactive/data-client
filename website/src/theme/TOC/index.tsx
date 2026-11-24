@@ -33,8 +33,9 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
       ref={tocRef}
       className={clsx(styles.tableOfContents, className)}
       data-covered={covered || undefined}
-      // Not data-open: Playground rules match :has([data-open]), so changing
-      // that attribute anywhere restyles every playground on the page.
+      // A name of its own: an attribute shared with rules elsewhere would
+      // restyle what they match when this toggles (see the Playground
+      // README's Design system on :has()).
       data-lifted={open || undefined}
       {...cardProps}
     >
