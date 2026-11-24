@@ -76,21 +76,29 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const open = covered && (pinned || hovered || focused);
-  // set as the card closes, so a pointer still on it doesn't reopen it
-  const hoverSpent = useRef(false);
-  const close = useCallback(() => {
-    hoverSpent.current = true;
+  const reset = useCallback(() => {
     setPinned(false);
     setHovered(false);
     setFocused(false);
   }, []);
+  // set as the reader closes the card, so a pointer still on it doesn't
+  // reopen it. A ref: the pointerenter that clears it and the pointermove
+  // that reads it come in one task, before React re-renders
+  const hoverSpent = useRef(false);
+  const close = useCallback(() => {
+    hoverSpent.current = true;
+    reset();
+  }, [reset]);
 
-  // nothing stays pinned for the next Playground once this one has passed
+  // nothing carries over to the next Playground once this one has passed
   const [wasCovered, setWasCovered] = useState(covered);
   if (covered !== wasCovered) {
     setWasCovered(covered);
-    if (!covered) close();
+    if (!covered) reset();
   }
+  useEffect(() => {
+    if (!covered) hoverSpent.current = false;
+  }, [covered]);
 
   useEffect(() => {
     if (!open) return;
@@ -99,7 +107,8 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
     };
     // wherever focus is: a card the mouse opened holds none
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close();
+      // unless a Playground layer (QuickLook, the drawer) already took it
+      if (event.key === 'Escape' && !event.defaultPrevented) close();
     };
     document.addEventListener('pointerdown', closeOutside);
     document.addEventListener('keydown', closeOnEscape);
