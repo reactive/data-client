@@ -5,6 +5,16 @@
   container-name: playground;
   margin-bottom: var(--ifm-leading);
 }
+/* a wide row reaches over the TOC column (css/customTheme.css), where it
+   draws only its preview: the room under that, beside a taller editor,
+   lets the pointer through to the TOC */
+.playgroundQueryContainer:global(.wide-embed),
+:global(.wide-embed) > .playgroundContainer {
+  pointer-events: none;
+}
+:global(.wide-embed) > .playgroundContainer > :not(.storeHost) {
+  pointer-events: auto;
+}
 .playgroundContainer {
   /* The Store's motion (its slide and everything that moves with it) runs
      only while the reader or a demo moves it (`data-store-moving`,

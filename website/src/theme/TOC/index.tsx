@@ -131,11 +131,17 @@ function useCoveredByWideEmbed(
       let top = Infinity;
       let bottom = -Infinity;
       for (const embed of embeds) {
-        const rect = embed.getBoundingClientRect();
-        if (rect.right <= box.left || rect.left >= box.right) continue;
-        if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
-        top = Math.min(top, rect.top - origin);
-        bottom = Math.max(bottom, rect.bottom - origin);
+        // only what it draws there: a row Playground's preview, not the
+        // empty room under it beside a taller editor
+        const parts = embed.getElementsByClassName('wide-embed-part');
+        for (const part of parts.length ? parts : [embed]) {
+          const rect = part.getBoundingClientRect();
+          if (rect.right <= box.left || rect.left >= box.right) continue;
+          if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
+          if (!rect.height) continue;
+          top = Math.min(top, rect.top - origin);
+          bottom = Math.max(bottom, rect.bottom - origin);
+        }
       }
       if (top < bottom) {
         toc.style.setProperty('--under-top', `${top}px`);
@@ -150,6 +156,8 @@ function useCoveredByWideEmbed(
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
     toc.addEventListener('scroll', schedule, { passive: true });
+    // a click can open a part over the room under the preview (Fixtures)
+    document.addEventListener('click', schedule, true);
     // the page's length changes on navigation and as content loads
     const resize = new ResizeObserver(schedule);
     resize.observe(document.body);
@@ -158,6 +166,7 @@ function useCoveredByWideEmbed(
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
       toc.removeEventListener('scroll', schedule);
+      document.removeEventListener('click', schedule, true);
       resize.disconnect();
     };
   }, [ref, contentRef]);
