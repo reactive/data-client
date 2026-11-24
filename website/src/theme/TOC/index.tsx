@@ -18,17 +18,17 @@ const WIDE_EMBED_PART = 'wide-embed-part';
 /** The desktop TOC, with a header that stays when a wide Playground covers
  * the list: hovering it, or tapping its button, opens the list above it */
 export default function TOC({ className, ...props }: Props): React.JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
+  const tocRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const covered = useCoveredByWideEmbed(ref, contentRef);
-  const { open, toggle, cardProps } = useCard(ref, covered);
+  const covered = useCoveredByWideEmbed(tocRef, contentRef);
+  const { open, toggle, cardProps } = useCard(tocRef, covered);
   const label = translate({
     id: 'theme.TOCCollapsible.toggleButtonLabel',
     message: 'On this page',
   });
   return (
     <div
-      ref={ref}
+      ref={tocRef}
       className={clsx(styles.tableOfContents, className)}
       data-covered={covered || undefined}
       // Not data-open: Playground rules match :has([data-open]), so changing
@@ -230,15 +230,20 @@ function bandsUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
       drawn.push({ top: rect.top, bottom: rect.bottom });
     }
   }
-  drawn.sort((a, b) => a.top - b.top);
-  const bands: Band[] = [];
-  for (const band of drawn) {
-    const last = bands.at(-1);
+  return merged(drawn);
+}
+
+/** The bands sorted top to bottom, with overlapping ones joined */
+function merged(bands: Band[]) {
+  const sorted = [...bands].sort((a, b) => a.top - b.top);
+  const joined: Band[] = [];
+  for (const band of sorted) {
+    const last = joined.at(-1);
     if (last && band.top <= last.bottom)
       last.bottom = Math.max(last.bottom, band.bottom);
-    else bands.push({ ...band });
+    else joined.push({ ...band });
   }
-  return bands;
+  return joined;
 }
 
 /** A mask that fades the list out over each band, measured from `origin`,
