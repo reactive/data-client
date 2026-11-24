@@ -357,21 +357,14 @@ controls keep an edge). Before restyling a class, grep `docs/` and
 `website/src/components/Demo/code` for its users. Prefer a class or element
 style to a new component.
 
-Do not put `:has()` in a rule whose last part matches broadly (`:first-child`,
-`:not(...)`): Chrome then restyles the whole page on every DOM change, and
-Monaco changes the DOM on every keystroke. Use a class or a sibling selector
-(`.stepper ~ .meta`) instead.
-
-Keep `:has()` in a rule's last part (`.row:has(> .x)`, not
-`.row:has(> .x) .y`), and never on `html` or `body`. Chrome rechecks a
-`:has()` with more selector after it from the page's root: changing any
-attribute, class or state named inside one (`data-open`, `aria-pressed`,
-`:hover`), on any element of the page, restyles everything such rules can
-match, in every playground. For state that comes later in the DOM, mark an
-element before it: the playground's container carries the Store's state
-(`data-store-open`, `data-drawer-shown`, `data-store-beside`), the tab
-header carries TabList's flush marks. Or set a custom property in the
-`:has()` rule and read it below (`--ds-row-name-margin`).
+Put `:has()` only in a selector's last part (`.row:has(> .x)`, not
+`.row:has(> .x) .y`), and never on `html` or `body`. Chrome checks the other
+forms from the page's root, so changing anything named inside them (an
+attribute, a class, `:hover`) on any element restyles every playground.
+Instead, mark an earlier element and select forward: the container's
+`data-store-open` or `data-drawer-shown`, a sibling selector (`.stepper ~ .meta`), or a
+custom property set on the `:has()` subject (`--ds-row-name-margin`).
+`__tests__/hasSelectors.test.ts` fails on new ones.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
