@@ -383,7 +383,13 @@ export default function Playground<T>({
         data-store-host={(!demo && kept) || undefined}
         data-store-open={(!demo && kept && storeOpen) || undefined}
         data-drawer-shown={storeShown.drawer || undefined}
-        data-store-beside={storeShown.beside || undefined}
+        // the loading preview (and the server's HTML) shows the open Store
+        // beside the result too, before its panel can report
+        data-store-beside={
+          storeShown.beside ||
+          (layout === 'stacked' && kept && storeOpen && !folder) ||
+          undefined
+        }
         onPointerOver={nearLatch.set}
         onFocus={nearLatch.set}
         // also a click with neither (a script's, assistive tech's)

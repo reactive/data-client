@@ -181,8 +181,8 @@ function useOverflowEdges(
   useLayoutEffect(() => {
     if (!enabled) return;
     const row = list.current;
-    const edges = row?.parentElement;
-    if (!row || !edges) return;
+    const header = row?.parentElement;
+    if (!row || !header) return;
     const style = getComputedStyle(row);
     const reach = Math.max(
       1,
@@ -195,13 +195,13 @@ function useOverflowEdges(
     const padRight = parseFloat(style.scrollPaddingRight) || 0;
     const mark = () => {
       const tab = selectedTab?.getBoundingClientRect();
-      const box = edges.getBoundingClientRect();
+      const box = header.getBoundingClientRect();
       const view = row.getBoundingClientRect();
-      edges.toggleAttribute(
+      header.toggleAttribute(
         'data-flush-left',
         !!tab && tab.left < box.left + reach,
       );
-      edges.toggleAttribute(
+      header.toggleAttribute(
         'data-flush-right',
         !!tab && tab.right > box.right - reach,
       );
@@ -238,7 +238,7 @@ function useOverflowEdges(
           mark();
         })
       );
-    observer?.observe(edges);
+    observer?.observe(header);
     for (const tab of row.children) observer?.observe(tab);
     return () => {
       row.removeEventListener('scroll', mark);
