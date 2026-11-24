@@ -196,20 +196,26 @@ small {
   --doc-wide-width: 1240px;
   container: doc / inline-size;
 }
+/* only once the reach makes a row Playground side by side (its 720px
+   breakpoint, 45rem): narrower, it stacks, and its full-width editor would
+   cover the TOC. D + (D + 2rem) / 3 - 3rem = 45rem at a doc width D of
+   35.5rem; 36rem leaves rounding room */
 @media (min-width: 997px) {
-  /* the TOC column is a quarter of the row, so a third of the doc column
-     with its gutters; 3rem leaves the TOC's 2rem button and a gap */
-  .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
-    --doc-reach: max(
-      0px,
-      min(
-        var(--doc-wide-width) - 100cqw,
-        (100cqw + 2 * var(--ifm-spacing-horizontal)) / 3 - 3rem
-      )
-    );
-    position: relative;
-    z-index: 1;
-    margin-right: calc(-1 * var(--doc-reach));
+  @container doc (min-width: 36rem) {
+    /* the TOC column is a quarter of the row, so a third of the doc column
+       with its gutters; 3rem leaves the TOC's 2rem button and a gap */
+    .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
+      --doc-reach: max(
+        0px,
+        min(
+          var(--doc-wide-width) - 100cqw,
+          (100cqw + 2 * var(--ifm-spacing-horizontal)) / 3 - 3rem
+        )
+      );
+      position: relative;
+      z-index: 1;
+      margin-right: calc(-1 * var(--doc-reach));
+    }
   }
 }
 

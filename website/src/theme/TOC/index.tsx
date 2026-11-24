@@ -2,7 +2,7 @@ import { translate } from '@docusaurus/Translate';
 import type { Props } from '@theme/TOC';
 import TOCItems from '@theme/TOCItems';
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import styles from './styles.module.css';
 
@@ -73,16 +73,18 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const open = covered && (pinned || hovered || focused);
-  const close = useCallback(() => {
+  const close = () => {
     setPinned(false);
     setHovered(false);
     setFocused(false);
-  }, []);
+  };
 
   // nothing stays pinned for the next Playground once this one has passed
-  useEffect(() => {
+  const [wasCovered, setWasCovered] = useState(covered);
+  if (covered !== wasCovered) {
+    setWasCovered(covered);
     if (!covered) close();
-  }, [covered, close]);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -120,9 +122,8 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
   return { open, toggle, cardProps };
 }
 
-/** Whether a wide embed is under the TOC, and where: `--under-top` and
- * `--under-bottom` on the TOC's list hold its edges, measured from the
- * list's top */
+/** Whether a wide embed is under the TOC. Where they are is
+ * `--under-mask` on the TOC's list, which fades it out beside each one */
 function useCoveredByWideEmbed(
   ref: React.RefObject<HTMLElement | null>,
   contentRef: React.RefObject<HTMLElement | null>,
@@ -138,16 +139,12 @@ function useCoveredByWideEmbed(
     let frame = 0;
     const measure = () => {
       frame = 0;
-      const band = embeds.length ? bandUnder(toc, embeds) : undefined;
-      if (band) {
+      const bands = embeds.length ? bandsUnder(toc, embeds) : [];
+      if (bands.length) {
         const origin = content.getBoundingClientRect().top;
-        content.style.setProperty('--under-top', `${band.top - origin}px`);
-        content.style.setProperty(
-          '--under-bottom',
-          `${band.bottom - origin}px`,
-        );
+        content.style.setProperty('--under-mask', maskOf(bands, origin));
       }
-      setCovered(!!band);
+      setCovered(bands.length > 0);
     };
     const schedule = () => {
       frame ||= requestAnimationFrame(measure);
@@ -191,13 +188,18 @@ function useCoveredByWideEmbed(
   return covered;
 }
 
-/** The viewport band where wide embeds draw over the TOC, if any: only what
- * each draws there (its parts: a row Playground's preview, not the empty
- * room under it beside a taller editor) */
-function bandUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
+interface Band {
+  top: number;
+  bottom: number;
+}
+
+/** The viewport bands where wide embeds draw over the TOC, top to bottom:
+ * only what each draws there (its parts: a row Playground's preview, not
+ * the empty room under it beside a taller editor), so the TOC shows between
+ * two Playgrounds */
+function bandsUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
   const box = toc.getBoundingClientRect();
-  let top = Infinity;
-  let bottom = -Infinity;
+  const drawn: Band[] = [];
   for (const embed of embeds) {
     const parts = embed.getElementsByClassName(WIDE_EMBED_PART);
     for (const part of parts.length ? parts : [embed]) {
@@ -207,9 +209,28 @@ function bandUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
       // a closed Fixtures popover keeps its box, hidden
       if (!rect.height || getComputedStyle(part).visibility === 'hidden')
         continue;
-      top = Math.min(top, rect.top);
-      bottom = Math.max(bottom, rect.bottom);
+      drawn.push({ top: rect.top, bottom: rect.bottom });
     }
   }
-  return top < bottom ? { top, bottom } : undefined;
+  drawn.sort((a, b) => a.top - b.top);
+  const bands: Band[] = [];
+  for (const band of drawn) {
+    const last = bands.at(-1);
+    if (last && band.top <= last.bottom)
+      last.bottom = Math.max(last.bottom, band.bottom);
+    else bands.push({ ...band });
+  }
+  return bands;
+}
+
+/** A mask that fades the list out over each band, measured from `origin`,
+ * the list's top */
+function maskOf(bands: Band[], origin: number) {
+  const stops = bands.flatMap(({ top, bottom }) => [
+    `#000 calc(${top - origin}px - 1.5rem)`,
+    `transparent calc(${top - origin}px - 0.25rem)`,
+    `transparent calc(${bottom - origin}px + 0.25rem)`,
+    `#000 calc(${bottom - origin}px + 1.5rem)`,
+  ]);
+  return `linear-gradient(to bottom, ${stops.join(', ')})`;
 }

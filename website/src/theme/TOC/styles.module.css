@@ -87,21 +87,15 @@
   fill: currentColor;
 }
 
-/* set on .content as the page scrolls; not inherited, so moving them
+/* set on .content as the page scrolls; not inherited, so changing it
    restyles only the list, not every link in it */
-@property --under-top {
-  syntax: '<length>';
+@property --under-mask {
+  syntax: '*';
   inherits: false;
-  initial-value: 0px;
-}
-@property --under-bottom {
-  syntax: '<length>';
-  inherits: false;
-  initial-value: 0px;
 }
 
-/* a wide Playground is under the TOC: the TOC fades out where the
-   Playground passes (theme/TOC measures --under-top and --under-bottom),
+/* a wide Playground is under the TOC: the TOC fades out where each
+   Playground passes (theme/TOC builds --under-mask from where they are),
    and hovering what shows of it, or its button right of the Playground,
    opens the whole list */
 .tableOfContents[data-covered] .toggle {
@@ -109,13 +103,7 @@
   visibility: visible;
 }
 .tableOfContents[data-covered] .content {
-  mask-image: linear-gradient(
-    to bottom,
-    #000 calc(var(--under-top) - 1.5rem),
-    transparent calc(var(--under-top) - 0.25rem),
-    transparent calc(var(--under-bottom) + 0.25rem),
-    #000 calc(var(--under-bottom) + 1.5rem)
-  );
+  mask-image: var(--under-mask);
 }
 
 /* opened, the TOC lifts into a card above the Playground. Its outline is
