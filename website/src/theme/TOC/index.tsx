@@ -15,12 +15,14 @@ const LINK_ACTIVE_CLASS_NAME = 'table-of-contents__link--active';
 const WIDE_EMBED = 'wide-embed';
 const WIDE_EMBED_PART = 'wide-embed-part';
 
-/** The desktop TOC, with a header that stays when a wide Playground covers
- * the list: hovering it, or tapping its button, opens the list above it */
+/** The desktop TOC. Where a wide Playground covers it, it fades out and
+ * shows a button beside the Playground: hovering what shows of it, or
+ * tapping the button, opens the list above the Playground */
 export default function TOC({ className, ...props }: Props): React.JSX.Element {
   const tocRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const covered = useCoveredByWideEmbed(tocRef, contentRef);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const covered = useCoveredByWideEmbed(tocRef, contentRef, toggleRef);
   const { open, toggle, cardProps } = useCard(tocRef, covered);
   const label = translate({
     id: 'theme.TOCCollapsible.toggleButtonLabel',
@@ -37,6 +39,7 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
       {...cardProps}
     >
       <button
+        ref={toggleRef}
         type="button"
         className={styles.toggle}
         aria-label={label}
@@ -52,7 +55,6 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
         </svg>
       </button>
       <div ref={contentRef} className={clsx(styles.content, 'thin-scrollbar')}>
-        <div className={styles.label}>{label}</div>
         <TOCItems
           {...props}
           linkClassName={LINK_CLASS_NAME}
@@ -123,16 +125,19 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
 }
 
 /** Whether a wide embed is under the TOC. Where they are is
- * `--under-mask` on the TOC's list, which fades it out beside each one */
+ * `--under-mask` on the TOC's list, which fades it out beside each one, and
+ * the toggle's position: beside the first, where no link shows under it */
 function useCoveredByWideEmbed(
   ref: React.RefObject<HTMLElement | null>,
   contentRef: React.RefObject<HTMLElement | null>,
+  toggleRef: React.RefObject<HTMLElement | null>,
 ) {
   const [covered, setCovered] = useState(false);
   useEffect(() => {
     const toc = ref.current;
     const content = contentRef.current;
-    if (!toc || !content) return;
+    const toggle = toggleRef.current;
+    if (!toc || !content || !toggle) return;
     // live, so it follows Playgrounds that remount (PlaygroundTabs) and the
     // next doc after a navigation
     const embeds = document.getElementsByClassName(WIDE_EMBED);
@@ -144,8 +149,15 @@ function useCoveredByWideEmbed(
     // preview can grow (data arriving) beside a taller editor without it
     const resize = new ResizeObserver(schedule);
     resize.observe(document.body);
-    const observed = new WeakSet<Element>();
+    // the observer holds what it watches, so parts that left the page
+    // (another doc, a remount) are let go
+    const observed = new Set<Element>();
     const observeParts = () => {
+      for (const part of observed) {
+        if (part.isConnected) continue;
+        observed.delete(part);
+        resize.unobserve(part);
+      }
       for (const embed of embeds) {
         for (const part of partsOf(embed)) {
           if (observed.has(part)) continue;
@@ -161,6 +173,7 @@ function useCoveredByWideEmbed(
       if (bands.length) {
         const origin = content.getBoundingClientRect().top;
         content.style.setProperty('--under-mask', maskOf(bands, origin));
+        toggle.style.translate = `0 ${toggleOffset(toc, toggle, bands[0])}px`;
       }
       setCovered(bands.length > 0);
     };
@@ -196,7 +209,7 @@ function useCoveredByWideEmbed(
       listening.abort();
       resize.disconnect();
     };
-  }, [ref, contentRef]);
+  }, [ref, contentRef, toggleRef]);
   return covered;
 }
 
@@ -244,6 +257,14 @@ function merged(bands: Band[]) {
     else joined.push({ ...band });
   }
   return joined;
+}
+
+/** How far below its place at the TOC's top the toggle goes to sit at the
+ * band's top, kept inside the TOC */
+function toggleOffset(toc: HTMLElement, toggle: HTMLElement, band: Band) {
+  const top = toc.getBoundingClientRect().top;
+  const room = toc.clientHeight - toggle.offsetHeight - 2 * toggle.offsetTop;
+  return Math.min(Math.max(band.top - top - toggle.offsetTop, 0), room);
 }
 
 /** A mask that fades the list out over each band, measured from `origin`,

@@ -37,20 +37,9 @@
   }
 }
 
-/* lines up with the links' text, past the list's left border; the
-   button sits at its right */
-.label {
-  padding: 0 2.5rem 0 calc(2 * var(--ifm-toc-padding-horizontal) + 1px);
-  line-height: 2rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ifm-color-emphasis-600);
-}
-
 /* a wide embed's reach (css/customTheme.css) stops short of this button:
-   change both together */
+   change both together. theme/TOC moves it down beside the first wide
+   embed (translate) */
 .toggle {
   position: absolute;
   top: 0.5rem;

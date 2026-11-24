@@ -27,12 +27,12 @@ A demo soft-sells Data Client first and teaches users and agents how to use it s
 - The code follows the practices a careful app would, even where the demo could skip them, because readers copy it.
 - Use the `row` layout, with one uncollapsed file, when the code is the lesson. Use `demo`, which hides the code, only when the point is purely visual, and ask the user first.
 - Anything extra a demo needs goes in the demo code with a design-system component, never a new Playground prop.
-- Build the app to work at 256px wide. Where more room makes a better layout (a list beside what it opens), add a DesignSystem class that switches on a container query on its own element, as `.split` does, never a viewport media query, since the app's width doesn't follow the screen's. The app's width inside the preview, for screens from 320 to 2560px (with `widePlaygrounds` on in docusaurus.config.ts; off, docs rows match the homepage):
+- Build the app to work at 256px wide. Where more room makes a better layout (a list beside what it opens), use `.split`, or add a DesignSystem class that switches on a container query on its own element, never a viewport media query, since the app's width doesn't follow the screen's. A docs `row` Playground whose app contains `.split` reaches into the TOC column for the room; add a new such class to that selector in `website/src/css/customTheme.css` (`.wide-embed:has(...)`). The app's width inside the preview, for screens from 320 to 2560px (with `widePlaygrounds` on in docusaurus.config.ts; off, `.split` gets the docs row width too):
 
   | Where                                                       | App width |
   | ----------------------------------------------------------- | --------- |
-  | Docs, `row`, beside the code                                | 256–613px |
-  | Homepage, `row`, beside the code                            | 256–331px |
+  | Docs or homepage, `row`, beside the code                    | 256–331px |
+  | Docs, `row` with `.split`, beside the code                  | 256–613px |
   | `row`, playground under 720px wide (preview under the code) | 288–718px |
   | Docs, stacked                                               | 288–958px |
 
