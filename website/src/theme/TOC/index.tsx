@@ -107,8 +107,11 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
     };
     // wherever focus is: a card the mouse opened holds none
     const closeOnEscape = (event: KeyboardEvent) => {
-      // unless a Playground layer (QuickLook, the drawer) already took it
-      if (event.key === 'Escape' && !event.defaultPrevented) close();
+      // unless a Playground layer (QuickLook, the drawer) already took it;
+      // taking it, it claims the key the same way
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      event.preventDefault();
+      close();
     };
     document.addEventListener('pointerdown', closeOutside);
     document.addEventListener('keydown', closeOnEscape);
