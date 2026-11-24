@@ -402,7 +402,7 @@ div.playgroundTextEdit > .playgroundHeader {
 /* the navbar slides away while scrolling down (hideOnScroll), so the Store
    takes its place rather than leave a gap; its class is a CSS module's,
    whose name keeps its `navbarHidden_` prefix */
-:global(html:has(.navbar[class*='navbarHidden_'])) .storePanel {
+:global(.navbar[class*='navbarHidden_'] ~ .main-wrapper) .storePanel {
   --store-top: 0px;
 }
 /* instant, in step with the navbar's hide (css/customTheme.css) */
@@ -562,12 +562,12 @@ div.playgroundTextEdit > .playgroundHeader {
   --pg-fillet-at: 100% 0;
 }
 /* too near the card's edge for its curve and the card's corner both
-   (TabList's flush marks): straight down into the squared corner. Hidden,
-   the last tab's curve no longer lets the row scroll past the edge */
-.row
-  .tabs:is([data-flush-left], :has(> .tab:first-child.selected))
-  > .tab.selected::before,
-.row .tabs[data-flush-right] > .tab.selected::after {
+   (TabList's flush marks, on the header): straight down into the squared
+   corner. Hidden, the last tab's curve no longer lets the row scroll past
+   the edge */
+.row [data-flush-left] > .tabs > .tab.selected::before,
+.row .tabs > .tab.selected:first-child::before,
+.row [data-flush-right] > .tabs > .tab.selected::after {
   content: none;
 }
 .row .tab:focus-visible {
@@ -672,12 +672,10 @@ div.playgroundTextEdit > .playgroundHeader {
   box-shadow: none;
 }
 /* the open file's tab at the card's edge runs straight into it */
-.row
-  .tabControls:has(.tabs[data-flush-left], .tab:first-child.selected)
-  + .editorDocs {
+.row .tabControls:is([data-flush-left], .firstSelected) + .editorDocs {
   --pg-card-top-left: 0px;
 }
-.row .tabControls:has(.tabs[data-flush-right]) + .editorDocs {
+.row .tabControls[data-flush-right] + .editorDocs {
   --pg-card-top-right: 0px;
 }
 /* the preview's folder: the row's height, its header and the app's sheet on
@@ -920,8 +918,8 @@ div.playgroundTextEdit > .playgroundHeader {
 .storeTab::after,
 .stacked .storeHeaderToggle[aria-pressed='true']::before,
 .stacked .storeHeaderToggle[aria-pressed='true']::after,
-.row:not(.stacked):has(> .storeHost[data-open])::after,
-.stacked .playgroundResult:has(> .storePanel[data-visible])::after {
+.row:not(.stacked)[data-store-open]::after,
+.stacked[data-store-beside] .playgroundResult::after {
   content: '';
   position: absolute;
   width: calc(var(--pg-fillet-r, var(--pg-card-radius)) + 1px);
@@ -1115,7 +1113,7 @@ div.playgroundTextEdit > .playgroundHeader {
   z-index: 4;
 }
 @media (hover: hover) {
-  .row > .previewWrapper:has(.fixturesToggle:hover, .fixturesPopover:hover) {
+  .row > .previewWrapper[data-fixtures-peek] {
     z-index: 4;
   }
 }
@@ -1168,17 +1166,13 @@ div.playgroundTextEdit > .playgroundHeader {
       calc(100% - 2 * var(--fixtures-foot)) 100% no-repeat;
 }
 .row .headerButton.fixturesToggle[aria-expanded='true'],
-.row
-  .previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover)
-  .headerButton.fixturesToggle {
+.row .previewWrapper[data-fixtures-peek] .headerButton.fixturesToggle {
   border-radius: var(--pg-tab-radius);
   background: var(--fixtures-tab);
   color: var(--pg-tab-selected);
 }
 .row .headerButton.fixturesToggle[aria-expanded='true']::after,
-.row
-  .previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover)
-  .headerButton.fixturesToggle::after {
+.row .previewWrapper[data-fixtures-peek] .headerButton.fixturesToggle::after {
   opacity: 1;
 }
 @media (hover: hover) {
@@ -1193,9 +1187,7 @@ div.playgroundTextEdit > .playgroundHeader {
 }
 @media (hover: hover) {
   /* a preview while the pointer is on the toggle or the fixtures */
-  .previewHeader:has(.fixturesToggle:hover)
-    + .fixturesAnchor
-    > .fixturesPopover,
+  .previewWrapper[data-fixtures-peek] .fixturesPopover,
   .fixturesPopover:hover {
     visibility: visible;
     opacity: 1;
@@ -1723,7 +1715,7 @@ div.fixtureJson + div.fixtureJson {
       bottom var(--pg-store-smooth),
       visibility 0s var(--pg-store-drawer);
   }
-  .row:not(.stacked):has(> .storeHost[data-open])::before {
+  .row:not(.stacked)[data-store-open]::before {
     bottom: 0;
     right: calc(var(--pg-preview-col) + var(--pg-gap));
     visibility: visible;
@@ -1734,19 +1726,17 @@ div.fixtureJson + div.fixtureJson {
   .row:not(.stacked) > .previewWrapper::before {
     transition: left var(--pg-store-drawer);
   }
-  .row:not(.stacked):has(> .storeHost[data-open]) > .previewWrapper::before,
-  .row:not(.stacked):has(> .storeHost[data-open])::before {
+  .row:not(.stacked)[data-store-open] > .previewWrapper::before,
+  .row:not(.stacked)[data-store-open]::before {
     left: 0;
   }
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
-    > .previewWrapper {
+  .row:not(.stacked)[data-drawer-shown] > .previewWrapper {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
   /* its foot's paper a pixel on under the Store's edge, so no seam shows
      (not its content's: the Store's sheet meets it, square) */
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
-    > .previewWrapper::after {
+  .row:not(.stacked)[data-drawer-shown] > .previewWrapper::after {
     box-shadow: -1px 0 var(--pg-stage);
   }
   /* its content runs on from the Store's strip (its header stays inset:
@@ -1755,22 +1745,17 @@ div.fixtureJson + div.fixtureJson {
   .row:not(.stacked) .sheet {
     transition: border-top-left-radius var(--pg-store-snappy);
   }
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
-    .playgroundResult {
+  .row:not(.stacked)[data-drawer-shown] .playgroundResult {
     border-top-left-radius: 0;
   }
   /* sliding shut, the Store's sheet meets the app's at the fold: square,
      the two read as one bar until it has slid behind */
-  .row:not(.stacked):has(
-      > .storeHost:not([data-open]) .storePanel[data-visible]
-    )
-    .sheet {
+  .row:not(.stacked)[data-drawer-shown]:not([data-store-open]) .sheet {
     border-top-left-radius: 0;
   }
   /* the Store running on below the preview: its corner there squares
      where the two boxes meet */
-  .row:not(.stacked):has(> .storeHost .storePanel[data-visible])
-    > .previewWrapper::before {
+  .row:not(.stacked)[data-drawer-shown] > .previewWrapper::before {
     border-bottom-left-radius: calc(
       var(--pg-card-radius) - var(--pg-foot-curve)
     );
@@ -1779,7 +1764,7 @@ div.fixtureJson + div.fixtureJson {
      curves into the Store's sheet's edge, as a tab does into its card;
      open only, so it goes as the drawer starts to shut: the sheet's edge
      it curves into leaves at once */
-  .row:not(.stacked):has(> .storeHost[data-open])::after {
+  .row:not(.stacked)[data-store-open]::after {
     --pg-fillet-at: 100% 100%;
     --pg-fillet-r: var(--pg-foot-curve);
     /* a pixel on under the sheet's edge */
@@ -1797,10 +1782,10 @@ div.fixtureJson + div.fixtureJson {
   .row:not(.stacked) .tabControls {
     transition: opacity var(--pg-store-drawer);
   }
-  .row:not(.stacked):has(> .storeHost[data-open]) .editorDocs {
+  .row:not(.stacked)[data-store-open] .editorDocs {
     box-shadow: none;
   }
-  .row:not(.stacked):has(> .storeHost[data-open]) .tabControls {
+  .row:not(.stacked)[data-store-open] .tabControls {
     opacity: 0;
   }
   /* clipped at the fold, but for the header's row, where the Store's
@@ -1992,7 +1977,7 @@ div.fixtureJson + div.fixtureJson {
   }
   /* the shut handle sticks up into the code card's foot: keep the gutter
      under the last line, so the handle doesn't sit on it */
-  .row:has(> .storeHost) .editorDocs {
+  .row[data-store-host] .editorDocs {
     --pg-gutter-cut: 0px;
   }
   /* the fixtures hang on past its foot, over the page below (it stacks
@@ -2055,20 +2040,20 @@ div.fixtureJson + div.fixtureJson {
   }
   /* the folder's top edge joins the Store's, while it shows: its header
      the paper between the two sheets, edge to edge */
-  .row:has(> .storeHost .storePanel[data-visible]) > .previewWrapper {
+  .row[data-drawer-shown] > .previewWrapper {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader {
+  .row[data-drawer-shown] .previewHeader {
     --pg-head-start: 0px;
     --pg-head-end: 0px;
     border-radius: 0;
   }
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before,
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::after {
+  .row[data-drawer-shown] .previewHeader::before,
+  .row[data-drawer-shown] .previewHeader::after {
     opacity: 0;
   }
-  .row:has(> .storeHost .storePanel[data-visible]) .playgroundResult {
+  .row[data-drawer-shown] .playgroundResult {
     border-radius: 0;
   }
   /* once the Store has slid shut, the header eases back into its inset
@@ -2084,8 +2069,8 @@ div.fixtureJson + div.fixtureJson {
   .row .previewHeader::after {
     transition: opacity var(--pg-store-fade);
   }
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::before,
-  .row:has(> .storeHost .storePanel[data-visible]) .previewHeader::after {
+  .row[data-drawer-shown] .previewHeader::before,
+  .row[data-drawer-shown] .previewHeader::after {
     transition: none;
   }
   .row .playgroundResult {
@@ -2201,10 +2186,10 @@ div.fixtureJson + div.fixtureJson {
     transition: width var(--pg-store-smooth);
   }
   /* as tall as the Store's sheet (useAppBox, preview/PreviewWrapper.tsx) */
-  .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundResult {
+  .stacked[data-store-open] .playgroundResult {
     min-height: var(--pg-store-height);
   }
-  .stacked:has(.storeHeaderToggle[aria-pressed='true']) .playgroundPreview {
+  .stacked[data-store-open] .playgroundPreview {
     width: calc(100% - var(--pg-store-side) - var(--pg-gap));
   }
   /* the gap before it rides with it, so it slides as far as the app's
@@ -2228,7 +2213,7 @@ div.fixtureJson + div.fixtureJson {
   }
   /* the strip's curve at the app's foot, on under the sheet's edge (the
      sheet over it), no deeper than the sheet runs on below the app */
-  .stacked .playgroundResult:has(> .storePanel[data-visible])::after {
+  .stacked[data-store-beside] .playgroundResult::after {
     --pg-fillet-at: 0 100%;
     --pg-fillet-r: clamp(
       0px,
@@ -2266,36 +2251,29 @@ div.fixtureJson + div.fixtureJson {
    ::after, whose place the result holds), as deep and as round, so the
    card is the same when the Store has gone and the foot is back */
 @container playground (min-width: 720px) {
-  .stacked
-    .playgroundResult:has(> .storePanel[data-visible])
-    .playgroundPreview
-    .sheet {
+  .stacked[data-store-beside] .playgroundResult .playgroundPreview .sheet {
     padding-bottom: var(--pg-sheet-pad);
     border-radius: var(--pg-body-radius) var(--pg-body-radius)
       var(--pg-card-radius) var(--pg-card-radius);
   }
   /* its loading page is one height, so the app's box is known before the
      page hydrates (as the row's, .row:not(.stacked) .sheet[aria-busy]) */
-  .stacked
-    .playgroundResult:has(> .storePanel[data-visible])
+  .stacked[data-store-beside]
+    .playgroundResult
     .playgroundPreview
     .sheet[aria-busy] {
     height: var(--pg-pending-card);
   }
-  .stacked
-    > .previewWrapper:has(
-      > .playgroundResult > .storePanel[data-visible]
-    )::after {
+  .stacked[data-store-beside] > .previewWrapper::after {
     display: none;
   }
   /* the folder's paper: behind the header's foot and the app's card (but
      its foot's corners), and the strip beside it on under the Store's
      corner */
-  .stacked .playgroundResult:has(> .storePanel[data-visible]) {
+  .stacked[data-store-beside] .playgroundResult {
     background: none;
   }
-  .stacked
-    > .previewWrapper:has(> .playgroundResult > .storePanel[data-visible]) {
+  .stacked[data-store-beside] > .previewWrapper {
     background:
       linear-gradient(var(--pg-stage) 0 0)
         calc(var(--pg-app-width) - var(--pg-sheet-radius)) var(--pg-row) /
@@ -2780,8 +2758,9 @@ div.fixtureJson + div.fixtureJson {
     opacity var(--motion-smooth),
     visibility var(--motion-smooth);
 }
-.row:has(> .beforeFolder:not([data-ended]))
-  > .storeHost:not([data-open])
+.row
+  > .beforeFolder:not([data-ended])
+  ~ .storeHost:not([data-open])
   .drawerTabs {
   opacity: 0;
   visibility: hidden;
@@ -2813,7 +2792,7 @@ div.fixtureJson + div.fixtureJson {
 .storeHeaderToggle[aria-pressed='true'],
 .codeHeaderToggle[aria-pressed='true'],
 .fixturesToggle[aria-expanded='true'],
-.previewHeader:has(+ .fixturesAnchor > .fixturesPopover:hover) .fixturesToggle {
+.previewWrapper[data-fixtures-peek] .fixturesToggle {
   background-color: var(--pg-tab-hover-bg);
   color: var(--ifm-color-primary);
 }

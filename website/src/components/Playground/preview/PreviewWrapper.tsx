@@ -31,6 +31,11 @@ export default function PreviewWrapper({
   // (stacked), or the narrow folder's while shut (StoreInspector.tsx)
   const [quickLookHost, setQuickLookHost] = useState<HTMLElement | null>(null);
   const [fixturesOpen, setFixturesOpen] = useState(false);
+  // the pointer on the fixtures' toggle or their popover: each lights the
+  // other (CSS reads the wrapper's mark, not `:has(:hover)`, which Chrome
+  // rechecks from the page's root on every hover change; see the README)
+  const [overToggle, setOverToggle] = useState(false);
+  const [overFixtures, setOverFixtures] = useState(false);
   const [result, setResult] = useState<HTMLDivElement | null>(null);
   // the row's folder (beside the code) ends with its sheet
   const rowResult = layout === 'row' ? result : null;
@@ -48,7 +53,11 @@ export default function PreviewWrapper({
     </span>
   );
   return (
-    <div className={styles.previewWrapper} ref={ref}>
+    <div
+      className={styles.previewWrapper}
+      ref={ref}
+      data-fixtures-peek={overToggle || overFixtures || undefined}
+    >
       <Header className={styles.previewHeader}>
         {code && layout === 'demo' ?
           <span
@@ -80,6 +89,7 @@ export default function PreviewWrapper({
               aria-expanded={fixturesOpen}
               aria-controls={fixturesId}
               onClick={() => setFixturesOpen(open => !open)}
+              {...hoverHandlers(setOverToggle)}
             >
               <NetworkIcon />
             </button>
@@ -96,6 +106,7 @@ export default function PreviewWrapper({
             id={fixturesId}
             className={styles.fixturesPopover}
             data-open={fixturesOpen || undefined}
+            {...hoverHandlers(setOverFixtures)}
           >
             {fixtures}
           </div>
@@ -115,6 +126,16 @@ export default function PreviewWrapper({
     </div>
   );
 }
+/** Tracks a pointer that hovers (not a touch) over an element */
+function hoverHandlers(set: (over: boolean) => void) {
+  return {
+    onPointerEnter: (event: React.PointerEvent) => {
+      if (event.pointerType !== 'touch') set(true);
+    },
+    onPointerLeave: () => set(false),
+  };
+}
+
 /** The app's surface in the frame: also the design system's scope
  * (../DesignSystem/base.css), so the loading page is styled as the app is */
 export const previewSurfaceClassName = `playground-preview ${styles.playgroundPreview}`;

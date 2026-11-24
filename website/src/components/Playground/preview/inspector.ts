@@ -65,6 +65,16 @@ export const ActionsByContext = createContext<{
   defaultBy: ActionsBy;
 }>({ groupId: 'playground', defaultBy: 'interaction' });
 
+/** Where the Store shows, reported by its panel (./StoreInspector.tsx) so
+ * ../index.tsx marks the playground with it: `drawer` on the folder,
+ * `beside` the result. CSS reads the marks on the playground, not
+ * `:has(.storePanel[data-visible])`, which Chrome rechecks from the page's
+ * root on changes anywhere (see the README) */
+export type StoreShownAt = 'drawer' | 'beside';
+export const StoreShownContext = createContext<
+  (at: StoreShownAt, shown: boolean) => void
+>(() => {});
+
 /** Where the preview's header shows its toggles' quick look (stacked,
  * ./PreviewWrapper.tsx): over the code, above the header. Without one, the
  * header's toggles open none */

@@ -362,6 +362,17 @@ Do not put `:has()` in a rule whose last part matches broadly (`:first-child`,
 Monaco changes the DOM on every keystroke. Use a class or a sibling selector
 (`.stepper ~ .meta`) instead.
 
+Keep `:has()` in a rule's last part (`.row:has(> .x)`, not
+`.row:has(> .x) .y`), and never on `html` or `body`. Chrome rechecks a
+`:has()` with more selector after it from the page's root: changing any
+attribute, class or state named inside one (`data-open`, `aria-pressed`,
+`:hover`), on any element of the page, restyles everything such rules can
+match, in every playground. For state that comes later in the DOM, mark an
+element before it: the playground's container carries the Store's state
+(`data-store-open`, `data-drawer-shown`, `data-store-beside`), the tab
+header carries TabList's flush marks. Or set a custom property in the
+`:has()` rule and read it below (`--ds-row-name-margin`).
+
 Styled elements: `h2` (page title), `button` (`primary` fills one;
 `aria-busy` shows pending), text inputs, `nav`, `fieldset`, `progress`,
 `table`. A `section` whose `h3` holds an `Avatar` (a person's tasks) is a

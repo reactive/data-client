@@ -31,9 +31,11 @@ import {
   ActionsByContext,
   DemoViewContext,
   InspectorContext,
+  StoreShownContext,
   type ActionsBy,
   type Inspect,
   type InspectorOpen,
+  type StoreShownAt,
 } from './preview/inspector';
 import type LivePreviewType from './preview/LivePreview';
 import PendingSheet from './preview/PendingSheet';
@@ -171,6 +173,15 @@ export default function Playground<T>({
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const storeId = useId();
   const codeCovered = folder && storeOpen;
+  // where the Store's panel shows (from showing until it has slid away)
+  const [storeShown, setStoreShown] = useState<
+    Readonly<Record<StoreShownAt, boolean>>
+  >({ drawer: false, beside: false });
+  const reportStoreShown = useCallback(
+    (at: StoreShownAt, shown: boolean) =>
+      setStoreShown(was => (was[at] === shown ? was : { ...was, [at]: shown })),
+    [],
+  );
   // the folder's handle: Escape anywhere on the folder pushes it shut
   const handle = useRef<HTMLButtonElement>(null);
   const shutStore = (event: React.KeyboardEvent) => {
@@ -317,31 +328,33 @@ export default function Playground<T>({
         }
       >
         <DemoViewContext.Provider value={demoView}>
-          <ActionsByContext.Provider value={actionsBy}>
-            <InspectorContext.Provider value={inspector}>
-              <CodeOpenerContext.Provider value={codeOpener}>
-                <LivePreview
-                  documents={documents}
-                  fixtureContent={previewFixtures}
-                  storeOpen={storeOpen}
-                  toggleStore={toggleStoreInPreview}
-                  layout={layout}
-                  storeHost={storeHost}
-                  narrow={narrow}
-                  hidden={hidden}
-                  fixtures={fixtures}
-                  getInitialInterceptorData={getInitialInterceptorData}
-                  renderCount={renderCount}
-                  inFlight={inFlight}
-                  actionLog={actionLog}
-                  autoRun={autoRun}
-                  showStore={showStore}
-                  storeMoves={storeMoves}
-                  code={code}
-                />
-              </CodeOpenerContext.Provider>
-            </InspectorContext.Provider>
-          </ActionsByContext.Provider>
+          <StoreShownContext.Provider value={reportStoreShown}>
+            <ActionsByContext.Provider value={actionsBy}>
+              <InspectorContext.Provider value={inspector}>
+                <CodeOpenerContext.Provider value={codeOpener}>
+                  <LivePreview
+                    documents={documents}
+                    fixtureContent={previewFixtures}
+                    storeOpen={storeOpen}
+                    toggleStore={toggleStoreInPreview}
+                    layout={layout}
+                    storeHost={storeHost}
+                    narrow={narrow}
+                    hidden={hidden}
+                    fixtures={fixtures}
+                    getInitialInterceptorData={getInitialInterceptorData}
+                    renderCount={renderCount}
+                    inFlight={inFlight}
+                    actionLog={actionLog}
+                    autoRun={autoRun}
+                    showStore={showStore}
+                    storeMoves={storeMoves}
+                    code={code}
+                  />
+                </CodeOpenerContext.Provider>
+              </InspectorContext.Provider>
+            </ActionsByContext.Provider>
+          </StoreShownContext.Provider>
         </DemoViewContext.Provider>
       </Boundary>
     : null;
@@ -365,6 +378,12 @@ export default function Playground<T>({
         data-code={(codeClosed && codeShown) || undefined}
         data-comparing={comparing || undefined}
         data-store-moving={storeMoving || undefined}
+        // the Store's state, for styles of what comes before it (CSS can't
+        // look back without :has(), see the README's Design system)
+        data-store-host={(!demo && kept) || undefined}
+        data-store-open={(!demo && kept && storeOpen) || undefined}
+        data-drawer-shown={storeShown.drawer || undefined}
+        data-store-beside={storeShown.beside || undefined}
         onPointerOver={nearLatch.set}
         onFocus={nearLatch.set}
         // also a click with neither (a script's, assistive tech's)

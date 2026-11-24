@@ -2,9 +2,11 @@ import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import React, {
   Activity,
   memo,
+  useCallback,
   useContext,
   useDeferredValue,
   useEffect,
+  useLayoutEffect,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -12,7 +14,11 @@ import { createPortal } from 'react-dom';
 import { Reveal } from '../../motion';
 import styles from '../styles.module.css';
 import { storeOnFolder, type Layout, type PreviewProps } from '../types';
-import { QuickLookHost, useQuickLookShown } from './inspector';
+import {
+  QuickLookHost,
+  StoreShownContext,
+  useQuickLookShown,
+} from './inspector';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
 import { heldPlayground, StoreToggle } from './StoreToggle';
@@ -57,6 +63,11 @@ function StoreInspector({
   const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
   const quickLookHost = useContext(QuickLookHost);
   const onPanel = folder && (open || !narrow);
+  const report = useContext(StoreShownContext);
+  const reportBeside = useCallback(
+    (shown: boolean) => report('beside', shown),
+    [report],
+  );
   const tree =
     showTree ?
       <StorePanel
@@ -93,6 +104,7 @@ function StoreInspector({
         className={styles.storePanel}
         hold={heldPlayground}
         active={quickLookShown}
+        onVisible={reportBeside}
       >
         {tree}
       </Reveal>
@@ -144,6 +156,11 @@ function FolderPanel({
       cancelAnimationFrame(frame);
     };
   }, [open, shut, host, blockElementScrollPositionUntilNextRender]);
+  const report = useContext(StoreShownContext);
+  useLayoutEffect(() => {
+    report('drawer', !shut);
+    return () => report('drawer', false);
+  }, [report, shut]);
   return (
     <div
       ref={ref}

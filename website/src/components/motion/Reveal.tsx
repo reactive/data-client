@@ -28,6 +28,7 @@ export default function Reveal({
   className,
   hold,
   active = false,
+  onVisible,
   children,
 }: {
   show: boolean;
@@ -38,6 +39,8 @@ export default function Reveal({
   /** Hidden, its children still render and stay live, though not shown:
    * for a portal of theirs that shows (a drawer's quick look) */
   active?: boolean;
+  /** Called with `data-visible`'s state as it changes, and false on unmount */
+  onVisible?: (visible: boolean) => void;
   children: React.ReactNode;
 }) {
   const [visible, setVisible] = useState(show);
@@ -84,6 +87,12 @@ export default function Reveal({
       reopened = true;
     };
   }, [show, willGlide, hold, blockElementScrollPositionUntilNextRender]);
+  const shownNow = mounted && visible;
+  useLayoutEffect(() => {
+    if (!onVisible) return;
+    onVisible(shownNow);
+    return () => onVisible(false);
+  }, [onVisible, shownNow]);
   // the box stays outside the <Activity>, whose hidden contents only update
   // later: hidden, it leaves the layout in this commit, as `hold` expects. It
   // leaves the group while hidden, so it slides back in from the end.

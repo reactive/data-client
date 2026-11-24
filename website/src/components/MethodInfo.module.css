@@ -140,9 +140,6 @@
 .inherited::before {
   opacity: 1;
 }
-.card:not(:has(.row dd a[href^='#'])) .legend {
-  display: none;
-}
 
 .method {
   display: inline-flex;

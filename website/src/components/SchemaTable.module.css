@@ -35,13 +35,18 @@
   white-space: nowrap;
 }
 
-/* a hairline over each data type is the only line */
+/* a hairline over each data type is the only line. Each data type is its
+ * own tbody, so no :has() looks for the rowspan cell: Chrome rechecks a
+ * :has() with a rule after it from the page's root on changes anywhere.
+ * `td[rowspan] ~ td` keeps the hairline on a table still in one tbody (a
+ * translation not yet updated) */
 @container doc (min-width: 641px) {
-  .schemaTable tbody tr:has(td[rowspan]) td {
+  .schemaTable tbody tr:first-child td,
+  .schemaTable td[rowspan],
+  .schemaTable td[rowspan] ~ td {
     border-top: var(--hairline);
     padding-top: 0.9rem;
   }
-  .schemaTable tbody tr:has(+ tr td[rowspan]) td,
   .schemaTable tbody tr:last-child td {
     padding-bottom: 0.9rem;
   }
@@ -130,11 +135,10 @@
     padding-top: 1.15rem;
   }
 
-  .schemaTable tbody tr:has(td[rowspan]) {
+  .schemaTable tbody tr:first-child {
     border-top: var(--hairline);
     padding-top: 0.9rem;
   }
-  .schemaTable tbody tr:has(+ tr td[rowspan]),
   .schemaTable tbody tr:last-child {
     padding-bottom: 0.6rem;
   }

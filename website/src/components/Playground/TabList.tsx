@@ -165,10 +165,11 @@ function usePillSettled(
 
 /** Keeps the selected tab in the row's view (its scroll padding past it) and
  * marks the row's edges: `data-more-left` / `data-more-right` while tabs hide
- * past that edge (where it fades), `data-flush-left` / `data-flush-right`
- * while the selected tab is too near the header's edge for its curve and the
- * corner of what it rises from (`--pg-card-radius` each) to fit between, so
- * that corner squares to meet it */
+ * past that edge (where it fades). It marks the row's parent (the header)
+ * `data-flush-left` / `data-flush-right` while the selected tab is too near
+ * the header's edge for its curve and the corner of what it rises from
+ * (`--pg-card-radius` each) to fit between, so that corner squares to meet
+ * it: on the header, CSS reaches what follows it without `:has()` */
 function useOverflowEdges(
   list: RefObject<HTMLDivElement | null>,
   selected: number,
@@ -196,11 +197,11 @@ function useOverflowEdges(
       const tab = selectedTab?.getBoundingClientRect();
       const box = edges.getBoundingClientRect();
       const view = row.getBoundingClientRect();
-      row.toggleAttribute(
+      edges.toggleAttribute(
         'data-flush-left',
         !!tab && tab.left < box.left + reach,
       );
-      row.toggleAttribute(
+      edges.toggleAttribute(
         'data-flush-right',
         !!tab && tab.right > box.right - reach,
       );
