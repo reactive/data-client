@@ -2,7 +2,7 @@ import { translate } from '@docusaurus/Translate';
 import type { Props } from '@theme/TOC';
 import TOCItems from '@theme/TOCItems';
 import clsx from 'clsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import styles from './styles.module.css';
 
@@ -69,17 +69,21 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
  * it open; moving the mouse over any visible part opens it until the pointer
  * leaves the card (a pointer parked there as a Playground scrolls in
  * doesn't), and keyboard focus until focus leaves it. A link, Escape, the
- * button again, or a click outside closes it */
+ * button again, or a click outside closes it, and the mouse reopens it only
+ * once it has left and come back */
 function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const open = covered && (pinned || hovered || focused);
-  const close = () => {
+  // set as the card closes, so a pointer still on it doesn't reopen it
+  const hoverSpent = useRef(false);
+  const close = useCallback(() => {
+    hoverSpent.current = true;
     setPinned(false);
     setHovered(false);
     setFocused(false);
-  };
+  }, []);
 
   // nothing stays pinned for the next Playground once this one has passed
   const [wasCovered, setWasCovered] = useState(covered);
@@ -93,16 +97,29 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
     const closeOutside = (event: PointerEvent) => {
       if (!ref.current?.contains(event.target as Node)) setPinned(false);
     };
+    // wherever focus is: a card the mouse opened holds none
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close();
+    };
     document.addEventListener('pointerdown', closeOutside);
-    return () => document.removeEventListener('pointerdown', closeOutside);
-  }, [open, ref]);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [open, ref, close]);
 
   const cardProps: React.HTMLAttributes<HTMLElement> = {
     onClick: event => {
       if ((event.target as Element).closest('a')) close();
     },
     onPointerMove: event => {
-      if (covered && event.pointerType === 'mouse') setHovered(true);
+      if (covered && event.pointerType === 'mouse' && !hoverSpent.current)
+        setHovered(true);
+    },
+    // a pointer coming in from outside can open it again
+    onPointerEnter: () => {
+      hoverSpent.current = false;
     },
     onPointerLeave: () => setHovered(false),
     onFocus: event => {
@@ -114,9 +131,6 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
       if (ref.current?.contains(event.relatedTarget)) return;
       setFocused(false);
       if (event.relatedTarget) setPinned(false);
-    },
-    onKeyDown: event => {
-      if (event.key === 'Escape' && open) close();
     },
   };
   // a click, tap or Enter closes an open card, whatever opened it
