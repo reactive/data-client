@@ -2,7 +2,7 @@ import { translate } from '@docusaurus/Translate';
 import type { Props } from '@theme/TOC';
 import TOCItems from '@theme/TOCItems';
 import clsx from 'clsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import styles from './styles.module.css';
 
@@ -11,43 +11,17 @@ import styles from './styles.module.css';
 const LINK_CLASS_NAME = 'table-of-contents__link toc-highlight';
 const LINK_ACTIVE_CLASS_NAME = 'table-of-contents__link--active';
 
+// the contract with blocks that reach into the TOC column (css/customTheme.css)
+const WIDE_EMBED = 'wide-embed';
+const WIDE_EMBED_PART = 'wide-embed-part';
+
 /** The desktop TOC, with a header that stays when a wide Playground covers
  * the list: hovering it, or tapping its button, opens the list above it */
 export default function TOC({ className, ...props }: Props): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const covered = useCoveredByWideEmbed(ref, contentRef);
-  // a tap or click on the button keeps it open; moving the mouse over any
-  // visible part opens it until the pointer leaves the card (a pointer
-  // parked there as a Playground scrolls in doesn't), and keyboard focus
-  // until focus leaves it
-  const [pinned, setPinned] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const open = covered && (pinned || hovered || focused);
-  const close = () => {
-    setPinned(false);
-    setHovered(false);
-    setFocused(false);
-  };
-
-  // nothing stays pinned for the next Playground once this one has passed
-  useEffect(() => {
-    if (covered) return;
-    setPinned(false);
-    setHovered(false);
-    setFocused(false);
-  }, [covered]);
-
-  useEffect(() => {
-    if (!open) return;
-    const closeOutside = (event: PointerEvent) => {
-      if (!ref.current?.contains(event.target as Node)) setPinned(false);
-    };
-    document.addEventListener('pointerdown', closeOutside);
-    return () => document.removeEventListener('pointerdown', closeOutside);
-  }, [open]);
-
+  const { open, toggle, cardProps } = useCard(ref, covered);
   const label = translate({
     id: 'theme.TOCCollapsible.toggleButtonLabel',
     message: 'On this page',
@@ -60,26 +34,7 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
       // Not data-open: Playground rules match :has([data-open]), so changing
       // that attribute anywhere restyles every playground on the page.
       data-lifted={open || undefined}
-      onClick={event => {
-        if ((event.target as Element).closest('a')) close();
-      }}
-      onPointerMove={event => {
-        if (covered && event.pointerType === 'mouse') setHovered(true);
-      }}
-      onPointerLeave={() => setHovered(false)}
-      onFocus={event => {
-        if (event.target.matches(':focus-visible')) setFocused(true);
-      }}
-      onBlur={event => {
-        // a click on the card's text blurs the button but stays inside;
-        // focus moving to another element (Tab) leaves
-        if (ref.current?.contains(event.relatedTarget)) return;
-        setFocused(false);
-        if (event.relatedTarget) setPinned(false);
-      }}
-      onKeyDown={event => {
-        if (event.key === 'Escape' && open) close();
-      }}
+      {...cardProps}
     >
       <button
         type="button"
@@ -87,8 +42,7 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
         aria-label={label}
         aria-expanded={open}
         tabIndex={covered ? 0 : -1}
-        // a click, tap or Enter closes an open card, whatever opened it
-        onClick={() => (open ? close() : setPinned(true))}
+        onClick={toggle}
       >
         <svg viewBox="0 0 16 16" aria-hidden="true">
           <path d="M5.5 4h7M5.5 8h7M5.5 12h7" />
@@ -109,9 +63,66 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
   );
 }
 
-/** Whether a wide embed (a row Playground reaching into the TOC column) is
- * under the TOC, and where: `--under-top` and `--under-bottom` on the TOC's
- * list hold its edges, measured from the list's top */
+/** When the covered TOC opens as a card: a tap or click on its button keeps
+ * it open; moving the mouse over any visible part opens it until the pointer
+ * leaves the card (a pointer parked there as a Playground scrolls in
+ * doesn't), and keyboard focus until focus leaves it. A link, Escape, the
+ * button again, or a click outside closes it */
+function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
+  const [pinned, setPinned] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const open = covered && (pinned || hovered || focused);
+  const close = useCallback(() => {
+    setPinned(false);
+    setHovered(false);
+    setFocused(false);
+  }, []);
+
+  // nothing stays pinned for the next Playground once this one has passed
+  useEffect(() => {
+    if (!covered) close();
+  }, [covered, close]);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!ref.current?.contains(event.target as Node)) setPinned(false);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [open, ref]);
+
+  const cardProps: React.HTMLAttributes<HTMLElement> = {
+    onClick: event => {
+      if ((event.target as Element).closest('a')) close();
+    },
+    onPointerMove: event => {
+      if (covered && event.pointerType === 'mouse') setHovered(true);
+    },
+    onPointerLeave: () => setHovered(false),
+    onFocus: event => {
+      if (event.target.matches(':focus-visible')) setFocused(true);
+    },
+    onBlur: event => {
+      // a click on the card's text blurs the button but stays inside;
+      // focus moving to another element (Tab) leaves
+      if (ref.current?.contains(event.relatedTarget)) return;
+      setFocused(false);
+      if (event.relatedTarget) setPinned(false);
+    },
+    onKeyDown: event => {
+      if (event.key === 'Escape' && open) close();
+    },
+  };
+  // a click, tap or Enter closes an open card, whatever opened it
+  const toggle = () => (open ? close() : setPinned(true));
+  return { open, toggle, cardProps };
+}
+
+/** Whether a wide embed is under the TOC, and where: `--under-top` and
+ * `--under-bottom` on the TOC's list hold its edges, measured from the
+ * list's top */
 function useCoveredByWideEmbed(
   ref: React.RefObject<HTMLElement | null>,
   contentRef: React.RefObject<HTMLElement | null>,
@@ -123,68 +134,82 @@ function useCoveredByWideEmbed(
     if (!toc || !content) return;
     // live, so it follows Playgrounds that remount (PlaygroundTabs) and the
     // next doc after a navigation
-    const embeds = document.getElementsByClassName('wide-embed');
+    const embeds = document.getElementsByClassName(WIDE_EMBED);
     let frame = 0;
     const measure = () => {
       frame = 0;
-      if (!embeds.length) return setCovered(false);
-      const box = toc.getBoundingClientRect();
-      const origin = content.getBoundingClientRect().top;
-      let top = Infinity;
-      let bottom = -Infinity;
-      for (const embed of embeds) {
-        // only what it draws there: a row Playground's preview, not the
-        // empty room under it beside a taller editor
-        const parts = embed.getElementsByClassName('wide-embed-part');
-        for (const part of parts.length ? parts : [embed]) {
-          const rect = part.getBoundingClientRect();
-          if (rect.right <= box.left || rect.left >= box.right) continue;
-          if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
-          // a closed Fixtures popover keeps its box, hidden
-          if (!rect.height || getComputedStyle(part).visibility === 'hidden')
-            continue;
-          top = Math.min(top, rect.top - origin);
-          bottom = Math.max(bottom, rect.bottom - origin);
-        }
+      const band = embeds.length ? bandUnder(toc, embeds) : undefined;
+      if (band) {
+        const origin = content.getBoundingClientRect().top;
+        content.style.setProperty('--under-top', `${band.top - origin}px`);
+        content.style.setProperty(
+          '--under-bottom',
+          `${band.bottom - origin}px`,
+        );
       }
-      if (top < bottom) {
-        content.style.setProperty('--under-top', `${top}px`);
-        content.style.setProperty('--under-bottom', `${bottom}px`);
-      }
-      setCovered(top < bottom);
+      setCovered(!!band);
     };
     const schedule = () => {
       frame ||= requestAnimationFrame(measure);
     };
     measure();
+
+    const listening = new AbortController();
+    const { signal } = listening;
+    window.addEventListener('scroll', schedule, { passive: true, signal });
+    window.addEventListener('resize', schedule, { signal });
     // a click or hover in a wide embed can show a part over the room under
     // its preview (Fixtures), which hides again once it has faded out or a
     // click elsewhere closes it
     const inEmbed = (node: EventTarget | null) =>
-      node instanceof Element && node.closest('.wide-embed') !== null;
-    const onPointerOver = (event: PointerEvent) => {
-      if (inEmbed(event.target) || inEmbed(event.relatedTarget)) schedule();
-    };
-    const onTransitionEnd = (event: TransitionEvent) => {
-      if (inEmbed(event.target)) schedule();
-    };
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    document.addEventListener('click', schedule, true);
-    document.addEventListener('pointerover', onPointerOver, true);
-    document.addEventListener('transitionend', onTransitionEnd, true);
+      node instanceof Element && node.closest('.' + WIDE_EMBED) !== null;
+    const capture = { capture: true, signal };
+    document.addEventListener('click', schedule, capture);
+    document.addEventListener(
+      'pointerover',
+      event => {
+        if (inEmbed(event.target) || inEmbed(event.relatedTarget)) schedule();
+      },
+      capture,
+    );
+    document.addEventListener(
+      'transitionend',
+      event => {
+        if (inEmbed(event.target)) schedule();
+      },
+      capture,
+    );
     // the page's length changes on navigation and as content loads
     const resize = new ResizeObserver(schedule);
     resize.observe(document.body);
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-      document.removeEventListener('click', schedule, true);
-      document.removeEventListener('pointerover', onPointerOver, true);
-      document.removeEventListener('transitionend', onTransitionEnd, true);
+      listening.abort();
       resize.disconnect();
     };
   }, [ref, contentRef]);
   return covered;
+}
+
+/** The viewport band where wide embeds draw over the TOC, if any: only what
+ * each draws there (its parts: a row Playground's preview, not the empty
+ * room under it beside a taller editor) */
+function bandUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
+  const box = toc.getBoundingClientRect();
+  let top = Infinity;
+  let bottom = -Infinity;
+  for (const embed of embeds) {
+    const parts = embed.getElementsByClassName(WIDE_EMBED_PART);
+    for (const part of parts.length ? parts : [embed]) {
+      const rect = part.getBoundingClientRect();
+      if (rect.right <= box.left || rect.left >= box.right) continue;
+      if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
+      // a closed Fixtures popover keeps its box, hidden
+      if (!rect.height || getComputedStyle(part).visibility === 'hidden')
+        continue;
+      top = Math.min(top, rect.top);
+      bottom = Math.max(bottom, rect.bottom);
+    }
+  }
+  return top < bottom ? { top, bottom } : undefined;
 }

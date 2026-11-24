@@ -25,6 +25,7 @@
   transition: opacity var(--motion-snappy);
   pointer-events: none;
 }
+/* the viewport below the sticky top, less the card's padding */
 .content {
   max-height: calc(100vh - (var(--ifm-navbar-height) + 3rem));
   overflow-y: auto;
@@ -48,6 +49,8 @@
   color: var(--ifm-color-emphasis-600);
 }
 
+/* a wide embed's reach (css/customTheme.css) stops short of this button:
+   change both together */
 .toggle {
   position: absolute;
   top: 0.5rem;
