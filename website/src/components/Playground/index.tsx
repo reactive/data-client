@@ -16,6 +16,7 @@ import React, {
 
 import BeforeFolder from './BeforeFolder';
 import Boundary from './Boundary';
+import { asksForRoom } from './DesignSystem/layouts';
 import { useCodeDocuments } from './editor/codeModel';
 import type { CodeDocument } from './editor/codeModel';
 import { declarationsOf, keepSameDeclarations } from './editor/declarations';
@@ -150,6 +151,11 @@ export default function Playground<T>({
     : 'stacked';
   const widePlaygrounds =
     !!useDocusaurusContext().siteConfig.customFields?.widePlaygrounds;
+  // from the code as written, so it's known before the app first renders
+  // and editing never moves the layout
+  const [roomy] = useState(() =>
+    model.documents.some(doc => asksForRoom(doc.value)),
+  );
   const {
     open: storeOpen,
     toggle: toggleStore,
@@ -355,8 +361,9 @@ export default function Playground<T>({
       data-playground
       className={clsx(styles.playgroundQueryContainer, {
         [styles.hidden]: hidden,
-        // side by side, its preview takes the doc column's room past the prose
-        'wide-embed': layout === 'row' && widePlaygrounds,
+        // side by side, its preview takes the doc column's room past the
+        // prose, for an app laid out to use it
+        'wide-embed': layout === 'row' && widePlaygrounds && roomy,
       })}
     >
       <div

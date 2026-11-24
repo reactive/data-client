@@ -237,7 +237,7 @@ interface Band {
 function bandsUnder(box: DOMRect, embeds: HTMLCollectionOf<Element>) {
   const drawn: Band[] = [];
   for (const embed of embeds) {
-    // most don't reach (CSS decides which do): one read each
+    // one read for an embed that doesn't reach (narrow screens)
     if (!overlaps(embed.getBoundingClientRect(), box)) continue;
     for (const part of embed.getElementsByClassName(WIDE_EMBED_PART)) {
       const rect = part.getBoundingClientRect();

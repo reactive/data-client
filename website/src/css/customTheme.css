@@ -177,9 +177,9 @@ small {
 }
 
 /* Docs keep Infima's layout: the prose with the TOC right beside it. Where
-   a TOC column follows, a row Playground (`wide-embed`) whose app lays out
-   for more room (DesignSystem's .split, a list beside what it opens; the
-   others fit beside the code at the prose's width) reaches into it, by
+   a TOC column follows, a row Playground whose app lays out for more room
+   (`wide-embed`: Playground/DesignSystem/layouts.ts; the others fit beside
+   the code at the prose's width) reaches into it, by
    as much as the column has room for, stopping short of the TOC's button
    (theme/TOC); its preview takes that room (`--doc-reach`,
    Playground/styles.module.css). The TOC fades out beside what the embed
@@ -205,7 +205,7 @@ small {
   @container doc (min-width: 600px) {
     /* the TOC column is a quarter of the row, so a third of the doc column
        with its gutters; 3rem leaves the TOC's 2rem button and a gap */
-    .row > .col:not(:last-child) .theme-doc-markdown .wide-embed:has(.split) {
+    .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
       --doc-reach: max(
         0px,
         min(
