@@ -322,10 +322,13 @@ function EditorTabs({
     .map((document, index) => ({ document, index }))
     .filter(({ document }) => !document.col);
 
+  // the first tab is the open file: the code card's corner meets it square
+  // (before TabList measures, as on the server)
+  const firstSelected = !lead && tabs.length > 0 && !closedList[tabs[0].index];
   return (
     <Header
       className={clsx(
-        { [styles.subtabs]: subtabs },
+        { [styles.subtabs]: subtabs, [styles.firstSelected]: firstSelected },
         styles.noupper,
         styles.tabControls,
       )}

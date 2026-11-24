@@ -727,7 +727,7 @@ div.playground-preview h1:first-child {
   box-shadow: 0 0 0 2px var(--ds-accent);
 }
 /* nothing to clear: gone, Tab included (the input needs a placeholder) */
-.playground-preview .search:has(> input:placeholder-shown) > .clear {
+.playground-preview .search > input:placeholder-shown ~ .clear {
   visibility: hidden;
 }
 
@@ -1169,8 +1169,14 @@ div.playground-preview h1:first-child {
   flex: none;
   font-weight: 600;
 }
-.playground-preview .listItem:has(> .value) h4 {
-  margin-bottom: 0;
+/* the row sets the name's margin and its h4 reads it: `.listItem:has(> .value)
+   h4` would make Chrome restyle every h4 on the page on changes anywhere
+   (the Playground README's Design system) */
+.playground-preview .listItem:has(> .value) {
+  --ds-row-name-margin: 0;
+}
+.playground-preview .listItem h4 {
+  margin-bottom: var(--ds-row-name-margin, var(--ifm-heading-margin-bottom));
 }
 /* Actions on what is above it (Fail Soft, Fail Hard) as one segmented
    control: one edge around them all, a hairline between each. On a phone

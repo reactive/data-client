@@ -38,10 +38,12 @@ describe("row layout: the Store on the preview's folder", () => {
     expect(folder.hasAttribute('data-open')).toBe(false);
     expect(code).toBeNull();
 
-    // the folder slides out: the code under it is inert
+    // the folder slides out: the code under it is inert, and the playground
+    // is marked for styles of what comes before the folder
     fireEvent.click(handle);
     expect(handle.getAttribute('aria-selected')).toBe('true');
     expect(folder.hasAttribute('data-open')).toBe(true);
+    expect(folder.parentElement!.hasAttribute('data-store-open')).toBe(true);
     expect(
       container.querySelector('textarea')!.closest('[inert]'),
     ).not.toBeNull();
@@ -51,6 +53,7 @@ describe("row layout: the Store on the preview's folder", () => {
     fireEvent.keyDown(folder.firstElementChild!, { key: 'Escape' });
     expect(handle.getAttribute('aria-selected')).toBe('false');
     expect(folder.hasAttribute('data-open')).toBe(false);
+    expect(folder.parentElement!.hasAttribute('data-store-open')).toBe(false);
     expect(document.activeElement).toBe(handle);
     expect(container.querySelector('textarea')!.closest('[inert]')).toBeNull();
   });

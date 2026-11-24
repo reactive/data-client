@@ -160,6 +160,31 @@ it('hides at once when no group slides it out', () => {
   expectHidden();
 });
 
+it('reports data-visible as it changes, and false once unmounted', () => {
+  const seen: boolean[] = [];
+  const onVisible = (visible: boolean) => void seen.push(visible);
+  const { rerender, unmount } = render(
+    <Reveal show onVisible={onVisible}>
+      alone
+    </Reveal>,
+  );
+  expect(seen.at(-1)).toBe(true);
+  rerender(
+    <Reveal show={false} onVisible={onVisible}>
+      alone
+    </Reveal>,
+  );
+  expect(seen.at(-1)).toBe(false);
+  rerender(
+    <Reveal show onVisible={onVisible}>
+      alone
+    </Reveal>,
+  );
+  expect(seen.at(-1)).toBe(true);
+  unmount();
+  expect(seen.at(-1)).toBe(false);
+});
+
 it('keeps its children live while `active`, though hidden', () => {
   const live: boolean[] = [];
   function Child() {
