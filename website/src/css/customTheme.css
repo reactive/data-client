@@ -183,8 +183,7 @@ small {
    as much as the column has room for, stopping short of the TOC's button
    (theme/TOC); its preview takes that room (`--doc-reach`,
    Playground/styles.module.css). The TOC fades out beside what the embed
-   draws there, its `wide-embed-part` elements (the whole embed if it marks
-   none) */
+   draws there, its `wide-embed-part` elements */
 @property --doc-reach {
   syntax: '<length>';
   inherits: true;
@@ -206,10 +205,7 @@ small {
   @container doc (min-width: 600px) {
     /* the TOC column is a quarter of the row, so a third of the doc column
        with its gutters; 3rem leaves the TOC's 2rem button and a gap */
-    .row
-      > .col:not(:last-child)
-      .theme-doc-markdown
-      .wide-embed:has(.playground-preview .split) {
+    .row > .col:not(:last-child) .theme-doc-markdown .wide-embed:has(.split) {
       --doc-reach: max(
         0px,
         min(

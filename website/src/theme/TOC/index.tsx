@@ -159,21 +159,33 @@ function useCoveredByWideEmbed(
         resize.unobserve(part);
       }
       for (const embed of embeds) {
-        for (const part of partsOf(embed)) {
+        for (const part of embed.getElementsByClassName(WIDE_EMBED_PART)) {
           if (observed.has(part)) continue;
           observed.add(part);
           resize.observe(part);
         }
       }
     };
+    // hovers inside an embed measure often; write only what changed
+    let mask = '';
+    let offset = '';
     const measure = () => {
       frame = 0;
       observeParts();
-      const bands = embeds.length ? bandsUnder(toc, embeds) : [];
+      const box = toc.getBoundingClientRect();
+      const bands = embeds.length ? bandsUnder(box, embeds) : [];
       if (bands.length) {
         const origin = content.getBoundingClientRect().top;
-        content.style.setProperty('--under-mask', maskOf(bands, origin));
-        toggle.style.translate = `0 ${toggleOffset(toc, toggle, bands[0])}px`;
+        const nextMask = maskOf(bands, origin);
+        if (nextMask !== mask) {
+          mask = nextMask;
+          content.style.setProperty('--under-mask', mask);
+        }
+        const nextOffset = `0 ${toggleOffset(box, toc, toggle, bands[0])}px`;
+        if (nextOffset !== offset) {
+          offset = nextOffset;
+          toggle.style.translate = offset;
+        }
       }
       setCovered(bands.length > 0);
     };
@@ -213,30 +225,23 @@ function useCoveredByWideEmbed(
   return covered;
 }
 
-/** What a wide embed draws in the TOC column: its `wide-embed-part`
- * elements, or the whole embed if it marks none */
-function partsOf(embed: Element): Iterable<Element> {
-  const parts = embed.getElementsByClassName(WIDE_EMBED_PART);
-  return parts.length ? parts : [embed];
-}
-
 interface Band {
   top: number;
   bottom: number;
 }
 
-/** The viewport bands where wide embeds draw over the TOC, top to bottom:
- * only what each draws there (a row Playground's preview, not the empty
- * room under it beside a taller editor), so the TOC shows between two
- * Playgrounds */
-function bandsUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
-  const box = toc.getBoundingClientRect();
+/** The viewport bands where wide embeds draw over the TOC's `box`, top to
+ * bottom: only what each draws there, its `wide-embed-part` elements (a row
+ * Playground's preview, not the empty room under it beside a taller
+ * editor), so the TOC shows between two Playgrounds */
+function bandsUnder(box: DOMRect, embeds: HTMLCollectionOf<Element>) {
   const drawn: Band[] = [];
   for (const embed of embeds) {
-    for (const part of partsOf(embed)) {
+    // most don't reach (CSS decides which do): one read each
+    if (!overlaps(embed.getBoundingClientRect(), box)) continue;
+    for (const part of embed.getElementsByClassName(WIDE_EMBED_PART)) {
       const rect = part.getBoundingClientRect();
-      if (rect.right <= box.left || rect.left >= box.right) continue;
-      if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
+      if (!overlaps(rect, box)) continue;
       // a closed Fixtures popover keeps its box, hidden
       if (!rect.height || getComputedStyle(part).visibility === 'hidden')
         continue;
@@ -246,11 +251,16 @@ function bandsUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
   return merged(drawn);
 }
 
+function overlaps(a: DOMRect, b: DOMRect) {
+  return (
+    a.right > b.left && a.left < b.right && a.bottom > b.top && a.top < b.bottom
+  );
+}
+
 /** The bands sorted top to bottom, with overlapping ones joined */
 function merged(bands: Band[]) {
-  const sorted = [...bands].sort((a, b) => a.top - b.top);
   const joined: Band[] = [];
-  for (const band of sorted) {
+  for (const band of bands.sort((a, b) => a.top - b.top)) {
     const last = joined.at(-1);
     if (last && band.top <= last.bottom)
       last.bottom = Math.max(last.bottom, band.bottom);
@@ -261,10 +271,14 @@ function merged(bands: Band[]) {
 
 /** How far below its place at the TOC's top the toggle goes to sit at the
  * band's top, kept inside the TOC */
-function toggleOffset(toc: HTMLElement, toggle: HTMLElement, band: Band) {
-  const top = toc.getBoundingClientRect().top;
+function toggleOffset(
+  box: DOMRect,
+  toc: HTMLElement,
+  toggle: HTMLElement,
+  band: Band,
+) {
   const room = toc.clientHeight - toggle.offsetHeight - 2 * toggle.offsetTop;
-  return Math.min(Math.max(band.top - top - toggle.offsetTop, 0), room);
+  return Math.min(Math.max(band.top - box.top - toggle.offsetTop, 0), room);
 }
 
 /** A mask that fades the list out over each band, measured from `origin`,
