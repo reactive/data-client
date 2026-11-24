@@ -70,7 +70,7 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
  * leaves the card (a pointer parked there as a Playground scrolls in
  * doesn't), and keyboard focus until focus leaves it. A link, Escape, the
  * button again, or a click outside closes it, and the mouse reopens it only
- * once it has left and come back */
+ * once it has left and come back, or beside the next Playground */
 function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -96,6 +96,7 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
     setWasCovered(covered);
     if (!covered) reset();
   }
+  // after commit, since render can't write a ref
   useEffect(() => {
     if (!covered) hoverSpent.current = false;
   }, [covered]);
@@ -107,8 +108,8 @@ function useCard(ref: React.RefObject<HTMLElement | null>, covered: boolean) {
     };
     // wherever focus is: a card the mouse opened holds none
     const closeOnEscape = (event: KeyboardEvent) => {
-      // unless a Playground layer (QuickLook, the drawer) already took it;
-      // taking it, it claims the key the same way
+      // unless a Playground layer (QuickLook, the drawer) already took it,
+      // which it marks with preventDefault(); taking it, so does this
       if (event.key !== 'Escape' || event.defaultPrevented) return;
       event.preventDefault();
       close();
