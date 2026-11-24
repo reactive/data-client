@@ -197,11 +197,11 @@ small {
   container: doc / inline-size;
 }
 /* only once the reach makes a row Playground side by side (its 720px
-   breakpoint, 45rem): narrower, it stacks, and its full-width editor would
-   cover the TOC. D + (D + 2rem) / 3 - 3rem = 45rem at a doc width D of
-   35.5rem; 36rem leaves rounding room */
+   breakpoint): narrower, it stacks, and its full-width editor would cover
+   the TOC. D + (D + 2rem) / 3 - 3rem = 720px at a doc width D of
+   540px + 1.75rem (568px at a 16px root); 600px holds for roots up to 34px */
 @media (min-width: 997px) {
-  @container doc (min-width: 36rem) {
+  @container doc (min-width: 600px) {
     /* the TOC column is a quarter of the row, so a third of the doc column
        with its gutters; 3rem leaves the TOC's 2rem button and a gap */
     .row > .col:not(:last-child) .theme-doc-markdown .wide-embed {
