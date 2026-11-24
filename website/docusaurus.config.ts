@@ -352,6 +352,11 @@ const config: Config = {
     // read by DocsSelector to switch between differently named pages
     docsEquivalents: frameworkDocs.docsEquivalents(),
     postSites,
+    // A row Playground in the docs reaches into the TOC column on wide
+    // screens, giving its preview the room (css/customTheme.css, theme/TOC).
+    // false keeps every Playground at the prose width, as before. The app
+    // widths in skill playground-demos assume true
+    widePlaygrounds: true,
   },
   onBrokenLinks: 'warn',
   future: {

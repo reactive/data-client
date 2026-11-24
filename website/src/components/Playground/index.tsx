@@ -1,4 +1,5 @@
 import { translate } from '@docusaurus/Translate';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
 import React, {
   Activity,
@@ -147,6 +148,8 @@ export default function Playground<T>({
     demo ? 'demo'
     : rowLayout || before ? 'row'
     : 'stacked';
+  const widePlaygrounds =
+    !!useDocusaurusContext().siteConfig.customFields?.widePlaygrounds;
   const {
     open: storeOpen,
     toggle: toggleStore,
@@ -353,7 +356,7 @@ export default function Playground<T>({
       className={clsx(styles.playgroundQueryContainer, {
         [styles.hidden]: hidden,
         // side by side, its preview takes the doc column's room past the prose
-        'wide-embed': layout === 'row',
+        'wide-embed': layout === 'row' && widePlaygrounds,
       })}
     >
       <div

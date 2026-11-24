@@ -114,6 +114,8 @@ const projects = [
         '<rootDir>/website/src/components/Playground/testing/docusaurusUseIsBrowser.ts',
       '^@docusaurus/useIsomorphicLayoutEffect$':
         '<rootDir>/website/src/components/Playground/testing/docusaurusUseIsomorphicLayoutEffect.ts',
+      '^@docusaurus/useDocusaurusContext$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusContext.ts',
       '^@theme/CodeBlock$':
         '<rootDir>/website/src/components/Playground/testing/themeCodeBlock.tsx',
     },
