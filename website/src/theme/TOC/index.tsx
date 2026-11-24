@@ -55,9 +55,11 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
   return (
     <div
       ref={ref}
-      className={clsx(styles.tableOfContents, 'thin-scrollbar', className)}
+      className={clsx(styles.tableOfContents, className)}
       data-covered={covered || undefined}
-      data-open={open || undefined}
+      // Not data-open: Playground rules match :has([data-open]), so changing
+      // that attribute anywhere restyles every playground on the page.
+      data-lifted={open || undefined}
       onClick={event => {
         if ((event.target as Element).closest('a')) close();
       }}
@@ -95,7 +97,7 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
           <circle cx="3" cy="12" r=".5" />
         </svg>
       </button>
-      <div ref={contentRef} className={styles.content}>
+      <div ref={contentRef} className={clsx(styles.content, 'thin-scrollbar')}>
         <div className={styles.label}>{label}</div>
         <TOCItems
           {...props}
@@ -108,8 +110,8 @@ export default function TOC({ className, ...props }: Props): React.JSX.Element {
 }
 
 /** Whether a wide embed (a row Playground reaching into the TOC column) is
- * under the TOC, and where: `--under-top` and `--under-bottom` on the TOC
- * hold its edges, measured from the TOC's content */
+ * under the TOC, and where: `--under-top` and `--under-bottom` on the TOC's
+ * list hold its edges, measured from the list's top */
 function useCoveredByWideEmbed(
   ref: React.RefObject<HTMLElement | null>,
   contentRef: React.RefObject<HTMLElement | null>,
@@ -146,8 +148,8 @@ function useCoveredByWideEmbed(
         }
       }
       if (top < bottom) {
-        toc.style.setProperty('--under-top', `${top}px`);
-        toc.style.setProperty('--under-bottom', `${bottom}px`);
+        content.style.setProperty('--under-top', `${top}px`);
+        content.style.setProperty('--under-bottom', `${bottom}px`);
       }
       setCovered(top < bottom);
     };
@@ -155,13 +157,22 @@ function useCoveredByWideEmbed(
       frame ||= requestAnimationFrame(measure);
     };
     measure();
+    // a click or hover in a wide embed can show a part over the room under
+    // its preview (Fixtures), which hides again once it has faded out or a
+    // click elsewhere closes it
+    const inEmbed = (node: EventTarget | null) =>
+      node instanceof Element && node.closest('.wide-embed') !== null;
+    const onPointerOver = (event: PointerEvent) => {
+      if (inEmbed(event.target) || inEmbed(event.relatedTarget)) schedule();
+    };
+    const onTransitionEnd = (event: TransitionEvent) => {
+      if (inEmbed(event.target)) schedule();
+    };
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
-    toc.addEventListener('scroll', schedule, { passive: true });
-    // a click or hover can show a part over the room under the preview
-    // (Fixtures), which hides again once it has faded out
-    const shows = ['click', 'pointerover', 'transitionend'];
-    for (const type of shows) document.addEventListener(type, schedule, true);
+    document.addEventListener('click', schedule, true);
+    document.addEventListener('pointerover', onPointerOver, true);
+    document.addEventListener('transitionend', onTransitionEnd, true);
     // the page's length changes on navigation and as content loads
     const resize = new ResizeObserver(schedule);
     resize.observe(document.body);
@@ -169,9 +180,9 @@ function useCoveredByWideEmbed(
       cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
-      toc.removeEventListener('scroll', schedule);
-      for (const type of shows)
-        document.removeEventListener(type, schedule, true);
+      document.removeEventListener('click', schedule, true);
+      document.removeEventListener('pointerover', onPointerOver, true);
+      document.removeEventListener('transitionend', onTransitionEnd, true);
       resize.disconnect();
     };
   }, [ref, contentRef]);
