@@ -5,6 +5,16 @@
   container-name: playground;
   margin-bottom: var(--ifm-leading);
 }
+/* a wide row reaches over the TOC column (css/customTheme.css), where it
+   draws only its preview: the room under that, beside a taller editor,
+   lets the pointer through to the TOC */
+.playgroundQueryContainer:global(.wide-embed),
+:global(.wide-embed) > .playgroundContainer {
+  pointer-events: none;
+}
+:global(.wide-embed) > .playgroundContainer > :not(.storeHost) {
+  pointer-events: auto;
+}
 .playgroundContainer {
   /* The Store's motion (its slide and everything that moves with it) runs
      only while the reader or a demo moves it (`data-store-moving`,
@@ -1610,7 +1620,16 @@ div.fixtureJson + div.fixtureJson {
     /* where the Store runs on below the preview: its corner and the
        preview's foot curving into it, no deeper than that run */
     --pg-foot-curve: min(var(--pg-card-radius), var(--pg-preview-gap, 0px));
-    --pg-preview-col: max(16rem, calc((100cqw - var(--pg-gap)) * 0.35));
+    /* the code gets 65% of the room it would have at the prose's width;
+       the app gets the rest, so in the docs a playground reaching past the
+       prose into the TOC column (`--doc-reach`, css/customTheme.css) gives
+       that room to the app. Never under 16rem, the width demos are built
+       to fit (skill playground-demos) */
+    --pg-preview-col: max(
+      16rem,
+      100cqw - var(--pg-gap) - (100cqw - var(--doc-reach) - var(--pg-gap)) *
+        0.65
+    );
     /* the preview's edge, where the drawer parks */
     --pg-fold: calc(100cqw - var(--pg-preview-col));
     /* how far the Store's header runs on past the fold: over the preview's

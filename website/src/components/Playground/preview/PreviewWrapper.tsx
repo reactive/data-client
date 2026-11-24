@@ -48,7 +48,9 @@ export default function PreviewWrapper({
     </span>
   );
   return (
-    <div className={styles.previewWrapper} ref={ref}>
+    // wide-embed-part: what a wide row draws in the TOC column, which the
+    // TOC fades out beside (theme/TOC)
+    <div className={clsx(styles.previewWrapper, 'wide-embed-part')} ref={ref}>
       <Header className={styles.previewHeader}>
         {code && layout === 'demo' ?
           <span
@@ -94,7 +96,7 @@ export default function PreviewWrapper({
         <div className={styles.fixturesAnchor}>
           <div
             id={fixturesId}
-            className={styles.fixturesPopover}
+            className={clsx(styles.fixturesPopover, 'wide-embed-part')}
             data-open={fixturesOpen || undefined}
           >
             {fixtures}

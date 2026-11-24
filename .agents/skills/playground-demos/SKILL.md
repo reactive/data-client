@@ -27,4 +27,5 @@ A demo soft-sells Data Client first and teaches users and agents how to use it s
 - The code follows the practices a careful app would, even where the demo could skip them, because readers copy it.
 - Use the `row` layout, with one uncollapsed file, when the code is the lesson. Use `demo`, which hides the code, only when the point is purely visual, and ask the user first.
 - Anything extra a demo needs goes in the demo code with a design-system component, never a new Playground prop.
+- Build the app to work at 256px wide, and switch its layout with container queries on its own elements, never viewport media queries: its width follows where the Playground sits, not the screen. For a list beside what it opens, use DesignSystem's `.split`; on wide docs screens its Playground widens to give it room.
 - Check phone width and both themes.
