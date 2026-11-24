@@ -362,8 +362,9 @@ Put `:has()` only in a selector's last part (`.row:has(> .x)`, not
 forms from the page's root, so changing anything named inside them (an
 attribute, a class, `:hover`) on any element restyles every playground.
 Instead, mark an earlier element and select forward: the container's
-`data-store-open` or `data-drawer-shown`, a sibling selector (`.stepper ~ .meta`), or a
-custom property set on the `:has()` subject (`--ds-row-name-margin`).
+`data-store-open` or `data-drawer-shown`, a sibling selector
+(`.stepper ~ .meta`), or a custom property set on the `:has()` subject
+(`--ds-row-name-margin`).
 `__tests__/hasSelectors.test.ts` fails on new ones.
 
 Styled elements: `h2` (page title), `button` (`primary` fills one;
