@@ -137,17 +137,32 @@ function useCoveredByWideEmbed(
     // next doc after a navigation
     const embeds = document.getElementsByClassName(WIDE_EMBED);
     let frame = 0;
+    const schedule = () => {
+      frame ||= requestAnimationFrame(measure);
+    };
+    // the page's length changes on navigation and as content loads; a
+    // preview can grow (data arriving) beside a taller editor without it
+    const resize = new ResizeObserver(schedule);
+    resize.observe(document.body);
+    const observed = new WeakSet<Element>();
+    const observeParts = () => {
+      for (const embed of embeds) {
+        for (const part of partsOf(embed)) {
+          if (observed.has(part)) continue;
+          observed.add(part);
+          resize.observe(part);
+        }
+      }
+    };
     const measure = () => {
       frame = 0;
+      observeParts();
       const bands = embeds.length ? bandsUnder(toc, embeds) : [];
       if (bands.length) {
         const origin = content.getBoundingClientRect().top;
         content.style.setProperty('--under-mask', maskOf(bands, origin));
       }
       setCovered(bands.length > 0);
-    };
-    const schedule = () => {
-      frame ||= requestAnimationFrame(measure);
     };
     measure();
 
@@ -176,9 +191,6 @@ function useCoveredByWideEmbed(
       },
       capture,
     );
-    // the page's length changes on navigation and as content loads
-    const resize = new ResizeObserver(schedule);
-    resize.observe(document.body);
     return () => {
       cancelAnimationFrame(frame);
       listening.abort();
@@ -188,21 +200,27 @@ function useCoveredByWideEmbed(
   return covered;
 }
 
+/** What a wide embed draws in the TOC column: its `wide-embed-part`
+ * elements, or the whole embed if it marks none */
+function partsOf(embed: Element): Iterable<Element> {
+  const parts = embed.getElementsByClassName(WIDE_EMBED_PART);
+  return parts.length ? parts : [embed];
+}
+
 interface Band {
   top: number;
   bottom: number;
 }
 
 /** The viewport bands where wide embeds draw over the TOC, top to bottom:
- * only what each draws there (its parts: a row Playground's preview, not
- * the empty room under it beside a taller editor), so the TOC shows between
- * two Playgrounds */
+ * only what each draws there (a row Playground's preview, not the empty
+ * room under it beside a taller editor), so the TOC shows between two
+ * Playgrounds */
 function bandsUnder(toc: Element, embeds: HTMLCollectionOf<Element>) {
   const box = toc.getBoundingClientRect();
   const drawn: Band[] = [];
   for (const embed of embeds) {
-    const parts = embed.getElementsByClassName(WIDE_EMBED_PART);
-    for (const part of parts.length ? parts : [embed]) {
+    for (const part of partsOf(embed)) {
       const rect = part.getBoundingClientRect();
       if (rect.right <= box.left || rect.left >= box.right) continue;
       if (rect.bottom <= box.top || rect.top >= box.bottom) continue;
