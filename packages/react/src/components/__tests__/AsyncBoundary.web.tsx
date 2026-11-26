@@ -1,9 +1,11 @@
 import { NetworkError, Endpoint } from '@data-client/rest';
 import { render } from '@testing-library/react';
-import { ReactElement, StrictMode } from 'react';
+import { ReactElement, StrictMode, Suspense } from 'react';
 
 import { useSuspense } from '../../hooks';
 import AsyncBoundary from '../AsyncBoundary';
+import { BoundaryContext } from '../BoundaryContext';
+import type { BoundaryWrap } from '../BoundaryContext';
 import DataProvider from '../DataProvider';
 
 describe('<AsyncBoundary />', () => {
@@ -107,5 +109,24 @@ describe('<AsyncBoundary />', () => {
     expect(getByText(/my status text/i)).not.toBeNull();
     expect(queryByText(/hi/i)).toBe(null);
     errorSpy.mockRestore();
+  });
+  it('lets the wrap from BoundaryContext build the Suspense', () => {
+    const wrap = jest.fn<ReactElement, Parameters<BoundaryWrap>>(
+      (suspenseProps, content) => (
+        <section data-testid="wrap">
+          <Suspense {...suspenseProps}>{content}</Suspense>
+        </section>
+      ),
+    );
+    const { getByTestId } = render(
+      <BoundaryContext.Provider value={wrap}>
+        <AsyncBoundary fallback="loading">
+          <div>hi</div>
+        </AsyncBoundary>
+      </BoundaryContext.Provider>,
+    );
+    expect(getByTestId('wrap').textContent).toBe('hi');
+    expect(wrap).toHaveBeenCalledTimes(1);
+    expect(wrap.mock.calls[0][0]).toEqual({ fallback: 'loading' });
   });
 });

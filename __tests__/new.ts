@@ -578,8 +578,7 @@ export const PaginatedArticleResource = {
   getList: PaginatedArticleResourceBase.getList.extend({
     schema: paginatedSchema,
     searchParams: {} as
-      | undefined
-      | { cursor?: string | number; admin?: boolean },
+      undefined | { cursor?: string | number; admin?: boolean },
   }),
   getListDefaults: PaginatedArticleResourceBase.getList.extend({
     schema: makePaginatedRecord(PaginatedArticle),
