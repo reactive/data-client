@@ -1,5 +1,30 @@
 # @data-client/react
 
+## 0.19.1
+
+### Patch Changes
+
+- [#4709](https://github.com/reactive/data-client/pull/4709) [`a218d22`](https://github.com/reactive/data-client/commit/a218d2231e5c6a6d2d1b74762f43e42484e04c24) - Fix `useDLE()` typing `data` as `undefined` for endpoints without a schema when args can be `null`
+
+  When an endpoint has no `schema` and its args can be `null` (to skip the fetch), `data` is now typed as the endpoint's resolved value or `undefined`, matching `useSuspense()` and `useCache()`.
+
+  ```tsx
+  import { Endpoint } from '@data-client/endpoint';
+  import { useDLE } from '@data-client/react';
+
+  const getTitle = new Endpoint(async ({ id }: { id: number }) => ({
+    id,
+    title: 'hi',
+  }));
+
+  function Title({ id }: { id: number | null }) {
+    const { data } = useDLE(getTitle, id === null ? null : { id });
+    // Before: data is typed as undefined
+    // After: data is typed as { id: number; title: string } | undefined
+    return <h1>{data?.title}</h1>;
+  }
+  ```
+
 ## 0.19.0
 
 ### Minor Changes
