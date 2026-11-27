@@ -1,0 +1,13 @@
+diff --git a/apps/react-vite/src/testing/mocks/utils.ts b/apps/react-vite/src/testing/mocks/utils.ts
+index 3b61948..321264d 100644
+--- a/apps/react-vite/src/testing/mocks/utils.ts
++++ b/apps/react-vite/src/testing/mocks/utils.ts
+@@ -32,7 +32,7 @@ export const hash = (str: string) => {
+ export const networkDelay = () => {
+   const delayTime = import.meta.env.TEST
+     ? 200
+-    : Math.floor(Math.random() * 700) + 300;
++    : Number(import.meta.env.VITE_MOCK_DELAY_MS ?? 400);
+   return delay(delayTime);
+ };
+ 

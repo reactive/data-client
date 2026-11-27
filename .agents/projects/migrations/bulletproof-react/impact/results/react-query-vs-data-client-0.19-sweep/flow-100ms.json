@@ -1,0 +1,6180 @@
+{
+ "kind": "flow",
+ "app": "bulletproof-react",
+ "date": "2026-11-08T21:54:05.575Z",
+ "runs": 8,
+ "cpuThrottle": 4,
+ "latencyMs": 100,
+ "steps": [
+  {
+   "name": "open discussions",
+   "kind": "nav",
+   "fresh": false
+  },
+  {
+   "name": "create discussion",
+   "kind": "mutation",
+   "fresh": false
+  },
+  {
+   "name": "open discussion",
+   "kind": "nav",
+   "fresh": false
+  },
+  {
+   "name": "update discussion",
+   "kind": "mutation",
+   "fresh": false
+  },
+  {
+   "name": "create comment",
+   "kind": "mutation",
+   "fresh": false
+  },
+  {
+   "name": "delete comment",
+   "kind": "mutation",
+   "fresh": false
+  },
+  {
+   "name": "back to list (shows rename?)",
+   "kind": "nav",
+   "fresh": true
+  },
+  {
+   "name": "reopen discussion (comment gone?)",
+   "kind": "nav",
+   "fresh": true
+  },
+  {
+   "name": "profile",
+   "kind": "nav",
+   "fresh": false
+  },
+  {
+   "name": "update profile",
+   "kind": "mutation",
+   "fresh": false
+  },
+  {
+   "name": "dashboard (shows new name?)",
+   "kind": "nav",
+   "fresh": true
+  },
+  {
+   "name": "list again",
+   "kind": "nav",
+   "fresh": true
+  },
+  {
+   "name": "delete discussion",
+   "kind": "mutation",
+   "fresh": false
+  }
+ ],
+ "failures": {
+  "baseline": [],
+  "migrated": []
+ },
+ "metrics": [
+  {
+   "group": "flow",
+   "id": "failedRuns",
+   "label": "Failed runs (left out)",
+   "unit": "runs",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "mutationReflectMs",
+   "label": "Mutation submit to UI updated (sum)",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 3017.5,
+   "migrated": 1496,
+   "delta": -1521.5,
+   "pct": -50.4,
+   "ci95": [
+    -1935.79,
+    -1429.5
+   ],
+   "spread": {
+    "baseline": [
+     2958.5,
+     3150.75
+    ],
+    "migrated": [
+     1464,
+     1529.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 2.017
+  },
+  {
+   "group": "flow",
+   "id": "mutationFollowupReads",
+   "label": "Reads triggered by mutations",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 6,
+   "migrated": 2,
+   "delta": -4,
+   "pct": -66.7,
+   "ci95": [
+    -4,
+    -4
+   ],
+   "spread": {
+    "baseline": [
+     6,
+     6
+    ],
+    "migrated": [
+     2,
+     2
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "flow",
+   "id": "staleViews",
+   "label": "Stale views (checked views showing old data)",
+   "unit": "views",
+   "lowerIsBetter": true,
+   "baseline": 2,
+   "migrated": 0,
+   "delta": -2,
+   "pct": -100,
+   "ci95": [
+    -2,
+    -2
+   ],
+   "spread": {
+    "baseline": [
+     2,
+     2
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "flow",
+   "id": "flowMs",
+   "label": "All steps, action to ready (sum)",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 4786,
+   "migrated": 3174.5,
+   "delta": -1611.5,
+   "pct": -33.7,
+   "ci95": [
+    -1912,
+    -1380.41
+   ],
+   "spread": {
+    "baseline": [
+     4698,
+     4909
+    ],
+    "migrated": [
+     3149.5,
+     3261.25
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 1.508
+  },
+  {
+   "group": "flow",
+   "id": "requests",
+   "label": "API requests",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 15,
+   "migrated": 10,
+   "delta": -5,
+   "pct": -33.3,
+   "ci95": [
+    -5,
+    -5
+   ],
+   "spread": {
+    "baseline": [
+     15,
+     15
+    ],
+    "migrated": [
+     10,
+     10
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "flow",
+   "id": "reads",
+   "label": "API reads (GET)",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 9,
+   "migrated": 4,
+   "delta": -5,
+   "pct": -55.6,
+   "ci95": [
+    -5,
+    -5
+   ],
+   "spread": {
+    "baseline": [
+     9,
+     9
+    ],
+    "migrated": [
+     4,
+     4
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "flow",
+   "id": "writes",
+   "label": "API writes",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 6,
+   "migrated": 6,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     6,
+     6
+    ],
+    "migrated": [
+     6,
+     6
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "redundant",
+   "label": "Redundant reads (same URL, same payload already received)",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "navsWithoutLoading",
+   "label": "Navigations with no loading indicator (of 7)",
+   "unit": "navs",
+   "lowerIsBetter": false,
+   "baseline": 7,
+   "migrated": 7,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     7,
+     7
+    ],
+    "migrated": [
+     7,
+     7
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "navsWithoutReads",
+   "label": "Navigations served from cache, no reads (of 7)",
+   "unit": "navs",
+   "lowerIsBetter": false,
+   "baseline": 5,
+   "migrated": 5,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     5,
+     5
+    ],
+    "migrated": [
+     5,
+     5
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "loadingShown",
+   "label": "Loading indicators shown",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "loadingMs",
+   "label": "Loading indicator visible",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "longTasks",
+   "label": "Long tasks (>50ms)",
+   "unit": "count",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 1,
+   "delta": 1,
+   "pct": null,
+   "ci95": [
+    1,
+    1
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     1,
+     1
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse"
+  },
+  {
+   "group": "flow",
+   "id": "maxInteractionMs",
+   "label": "Slowest interaction (input to next paint)",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 44,
+   "migrated": 84,
+   "delta": 40,
+   "pct": 90.9,
+   "ci95": [
+    20,
+    64
+   ],
+   "spread": {
+    "baseline": [
+     40,
+     50
+    ],
+    "migrated": [
+     72,
+     100
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.524
+  },
+  {
+   "group": "flow",
+   "id": "cls",
+   "label": "Layout shift (CLS sum)",
+   "unit": "score",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "unhashedReads",
+   "label": "Reads the redundancy check could not hash",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "flow",
+   "id": "tbtMs",
+   "label": "Total blocking time",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 18.5,
+   "delta": 18.5,
+   "pct": null,
+   "ci95": [
+    6,
+    42
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     6.75,
+     34.5
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse"
+  },
+  {
+   "group": "cold load",
+   "id": "readyMs",
+   "label": "First screen ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 1737.5,
+   "migrated": 1756,
+   "delta": 18.5,
+   "pct": 1.1,
+   "ci95": [
+    -53.5,
+    121
+   ],
+   "spread": {
+    "baseline": [
+     1705.25,
+     1759.75
+    ],
+    "migrated": [
+     1707.5,
+     1809.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.989
+  },
+  {
+   "group": "cold load",
+   "id": "loadMs",
+   "label": "Load event",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 426.5,
+   "migrated": 446,
+   "delta": 19.5,
+   "pct": 4.6,
+   "ci95": [
+    -34.5,
+    72
+   ],
+   "spread": {
+    "baseline": [
+     413.25,
+     442.75
+    ],
+    "migrated": [
+     411.75,
+     478.25
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.956
+  },
+  {
+   "group": "cold load",
+   "id": "lcpMs",
+   "label": "Largest contentful paint",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 1274,
+   "migrated": 1290,
+   "delta": 16,
+   "pct": 1.3,
+   "ci95": [
+    -74,
+    92.05
+   ],
+   "spread": {
+    "baseline": [
+     1245,
+     1313
+    ],
+    "migrated": [
+     1253,
+     1317
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.988
+  },
+  {
+   "group": "cold load",
+   "id": "parseCompileMs",
+   "label": "JS parse + compile",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 504.54,
+   "migrated": 501.45,
+   "delta": -3.09,
+   "pct": -0.6,
+   "ci95": [
+    -34.19,
+    56.75
+   ],
+   "spread": {
+    "baseline": [
+     480.51,
+     516.49
+    ],
+    "migrated": [
+     494.81,
+     545.4
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.006
+  },
+  {
+   "group": "cold load",
+   "id": "evaluateMs",
+   "label": "JS module evaluation",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 447.6,
+   "migrated": 450.42,
+   "delta": 2.82,
+   "pct": 0.6,
+   "ci95": [
+    -37.65,
+    43.31
+   ],
+   "spread": {
+    "baseline": [
+     436.9,
+     461.82
+    ],
+    "migrated": [
+     423.46,
+     473.63
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.994
+  },
+  {
+   "group": "cold load",
+   "id": "scriptMs",
+   "label": "Main-thread JS",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 751.89,
+   "migrated": 756.38,
+   "delta": 4.49,
+   "pct": 0.6,
+   "ci95": [
+    -73.67,
+    55.98
+   ],
+   "spread": {
+    "baseline": [
+     737.68,
+     800.63
+    ],
+    "migrated": [
+     717.87,
+     785.6
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.994
+  },
+  {
+   "group": "cold load",
+   "id": "tbtMs",
+   "label": "Total blocking time",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 321,
+   "migrated": 343.5,
+   "delta": 22.5,
+   "pct": 7,
+   "ci95": [
+    -28,
+    85.01
+   ],
+   "spread": {
+    "baseline": [
+     308,
+     352.75
+    ],
+    "migrated": [
+     323.25,
+     387.25
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise"
+  },
+  {
+   "group": "cold load",
+   "id": "loadingMs",
+   "label": "Loading indicator visible",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 258.4,
+   "migrated": 0,
+   "delta": -258.4,
+   "pct": -100,
+   "ci95": [
+    -269.9,
+    -246.3
+   ],
+   "spread": {
+    "baseline": [
+     246.52,
+     268.85
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "cold load",
+   "id": "heapMb",
+   "label": "JS heap",
+   "unit": "MB",
+   "lowerIsBetter": true,
+   "baseline": 6.58,
+   "migrated": 6.39,
+   "delta": -0.19,
+   "pct": -2.9,
+   "ci95": [
+    -0.21,
+    -0.17
+   ],
+   "spread": {
+    "baseline": [
+     6.57,
+     6.6
+    ],
+    "migrated": [
+     6.39,
+     6.4
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "nav steps",
+   "id": "open discussions.readyMs",
+   "label": "open discussions: action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 351.5,
+   "migrated": 351.5,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    -13.5,
+    20.54
+   ],
+   "spread": {
+    "baseline": [
+     342,
+     357.5
+    ],
+    "migrated": [
+     343.75,
+     363.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1
+  },
+  {
+   "group": "nav steps",
+   "id": "open discussions.reads",
+   "label": "open discussions: reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 1,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     1,
+     1
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "mutation steps",
+   "id": "create discussion.readyMs",
+   "label": "create discussion: submit to UI updated",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 958.5,
+   "migrated": 933,
+   "delta": -25.5,
+   "pct": -2.7,
+   "ci95": [
+    -57.5,
+    19
+   ],
+   "spread": {
+    "baseline": [
+     941.5,
+     970.25
+    ],
+    "migrated": [
+     914.5,
+     957
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.027
+  },
+  {
+   "group": "mutation steps",
+   "id": "create discussion.reads",
+   "label": "create discussion: follow-up reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 1,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     1,
+     1
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "mutation steps",
+   "id": "create discussion.maxInteractionMs",
+   "label": "create discussion: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 32,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    -8,
+    16
+   ],
+   "spread": {
+    "baseline": [
+     32,
+     40
+    ],
+    "migrated": [
+     32,
+     44
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1
+  },
+  {
+   "group": "nav steps",
+   "id": "open discussion.readyMs",
+   "label": "open discussion: action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 423.5,
+   "migrated": 388,
+   "delta": -35.5,
+   "pct": -8.4,
+   "ci95": [
+    -63.5,
+    10.1
+   ],
+   "spread": {
+    "baseline": [
+     411,
+     435.25
+    ],
+    "migrated": [
+     372.25,
+     420.25
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.091
+  },
+  {
+   "group": "nav steps",
+   "id": "open discussion.reads",
+   "label": "open discussion: reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 2,
+   "migrated": 1,
+   "delta": -1,
+   "pct": -50,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     2,
+     2
+    ],
+    "migrated": [
+     1,
+     1
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "mutation steps",
+   "id": "update discussion.readyMs",
+   "label": "update discussion: submit to UI updated",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 432,
+   "migrated": 118,
+   "delta": -314,
+   "pct": -72.7,
+   "ci95": [
+    -823,
+    -284
+   ],
+   "spread": {
+    "baseline": [
+     408.75,
+     577.75
+    ],
+    "migrated": [
+     103.25,
+     120.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 3.661
+  },
+  {
+   "group": "mutation steps",
+   "id": "update discussion.reads",
+   "label": "update discussion: follow-up reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "mutation steps",
+   "id": "update discussion.maxInteractionMs",
+   "label": "update discussion: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 52,
+   "delta": 20,
+   "pct": 62.5,
+   "ci95": [
+    16,
+    32
+   ],
+   "spread": {
+    "baseline": [
+     24,
+     32
+    ],
+    "migrated": [
+     48,
+     56
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.615
+  },
+  {
+   "group": "mutation steps",
+   "id": "create comment.readyMs",
+   "label": "create comment: submit to UI updated",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 408.5,
+   "migrated": 154.5,
+   "delta": -254,
+   "pct": -62.2,
+   "ci95": [
+    -274.5,
+    -224
+   ],
+   "spread": {
+    "baseline": [
+     386.75,
+     418.25
+    ],
+    "migrated": [
+     145.5,
+     163.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 2.644
+  },
+  {
+   "group": "mutation steps",
+   "id": "create comment.reads",
+   "label": "create comment: follow-up reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "mutation steps",
+   "id": "create comment.maxInteractionMs",
+   "label": "create comment: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 84,
+   "delta": 52,
+   "pct": 162.5,
+   "ci95": [
+    40,
+    76
+   ],
+   "spread": {
+    "baseline": [
+     30,
+     32
+    ],
+    "migrated": [
+     72,
+     100
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.381
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete comment.readyMs",
+   "label": "delete comment: submit to UI updated",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 387.5,
+   "migrated": 86,
+   "delta": -301.5,
+   "pct": -77.8,
+   "ci95": [
+    -320.5,
+    -280
+   ],
+   "spread": {
+    "baseline": [
+     384.5,
+     401.25
+    ],
+    "migrated": [
+     79.25,
+     103
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 4.506
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete comment.reads",
+   "label": "delete comment: follow-up reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete comment.maxInteractionMs",
+   "label": "delete comment: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 16,
+   "migrated": 32,
+   "delta": 16,
+   "pct": 100,
+   "ci95": [
+    16,
+    40
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     16
+    ],
+    "migrated": [
+     32,
+     42
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse",
+   "speed": 0.5
+  },
+  {
+   "group": "nav steps",
+   "id": "back to list (shows rename?).readyMs",
+   "label": "back to list (shows rename?): action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 110.5,
+   "migrated": 102,
+   "delta": -8.5,
+   "pct": -7.7,
+   "ci95": [
+    -28.54,
+    55.5
+   ],
+   "spread": {
+    "baseline": [
+     96.5,
+     124.75
+    ],
+    "migrated": [
+     95.75,
+     143.5
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.083
+  },
+  {
+   "group": "nav steps",
+   "id": "back to list (shows rename?).reads",
+   "label": "back to list (shows rename?): reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "stale views",
+   "id": "back to list (shows rename?).stale",
+   "label": "back to list (shows rename?): stale (1 = yes)",
+   "unit": "median of runs",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "nav steps",
+   "id": "reopen discussion (comment gone?).readyMs",
+   "label": "reopen discussion (comment gone?): action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 109,
+   "migrated": 102,
+   "delta": -7,
+   "pct": -6.4,
+   "ci95": [
+    -14.5,
+    20.5
+   ],
+   "spread": {
+    "baseline": [
+     106,
+     111
+    ],
+    "migrated": [
+     96.75,
+     109.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.069
+  },
+  {
+   "group": "nav steps",
+   "id": "reopen discussion (comment gone?).reads",
+   "label": "reopen discussion (comment gone?): reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "stale views",
+   "id": "reopen discussion (comment gone?).stale",
+   "label": "reopen discussion (comment gone?): stale (1 = yes)",
+   "unit": "median of runs",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "nav steps",
+   "id": "profile.readyMs",
+   "label": "profile: action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 547,
+   "migrated": 508,
+   "delta": -39,
+   "pct": -7.1,
+   "ci95": [
+    -76,
+    68.5
+   ],
+   "spread": {
+    "baseline": [
+     498,
+     564
+    ],
+    "migrated": [
+     493,
+     575.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.077
+  },
+  {
+   "group": "nav steps",
+   "id": "profile.reads",
+   "label": "profile: reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "mutation steps",
+   "id": "update profile.readyMs",
+   "label": "update profile: submit to UI updated",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 407.5,
+   "migrated": 112,
+   "delta": -295.5,
+   "pct": -72.5,
+   "ci95": [
+    -318,
+    -288.5
+   ],
+   "spread": {
+    "baseline": [
+     404.5,
+     410
+    ],
+    "migrated": [
+     97.25,
+     114.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 3.638
+  },
+  {
+   "group": "mutation steps",
+   "id": "update profile.reads",
+   "label": "update profile: follow-up reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "mutation steps",
+   "id": "update profile.maxInteractionMs",
+   "label": "update profile: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 32,
+   "migrated": 40,
+   "delta": 8,
+   "pct": 25,
+   "ci95": [
+    0,
+    24
+   ],
+   "spread": {
+    "baseline": [
+     32,
+     32
+    ],
+    "migrated": [
+     38,
+     50
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.8
+  },
+  {
+   "group": "nav steps",
+   "id": "dashboard (shows new name?).readyMs",
+   "label": "dashboard (shows new name?): action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 93,
+   "migrated": 104,
+   "delta": 11,
+   "pct": 11.8,
+   "ci95": [
+    -13.5,
+    22.5
+   ],
+   "spread": {
+    "baseline": [
+     85.75,
+     111.25
+    ],
+    "migrated": [
+     96.75,
+     108.75
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 0.894
+  },
+  {
+   "group": "nav steps",
+   "id": "dashboard (shows new name?).reads",
+   "label": "dashboard (shows new name?): reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "stale views",
+   "id": "dashboard (shows new name?).stale",
+   "label": "dashboard (shows new name?): stale (1 = yes)",
+   "unit": "median of runs",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "nav steps",
+   "id": "list again.readyMs",
+   "label": "list again: action to ready",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 119,
+   "migrated": 101,
+   "delta": -18,
+   "pct": -15.1,
+   "ci95": [
+    -35.5,
+    8
+   ],
+   "spread": {
+    "baseline": [
+     110.25,
+     134.25
+    ],
+    "migrated": [
+     97.5,
+     118
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "noise",
+   "speed": 1.178
+  },
+  {
+   "group": "nav steps",
+   "id": "list again.reads",
+   "label": "list again: reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 0,
+   "delta": 0,
+   "pct": null,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "stale views",
+   "id": "list again.stale",
+   "label": "list again: stale (1 = yes)",
+   "unit": "median of runs",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 0,
+   "delta": -1,
+   "pct": -100,
+   "ci95": [
+    -1,
+    -1
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     0,
+     0
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better"
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete discussion.readyMs",
+   "label": "delete discussion: submit to UI updated",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 389.5,
+   "migrated": 91.5,
+   "delta": -298,
+   "pct": -76.5,
+   "ci95": [
+    -309.5,
+    -282.5
+   ],
+   "spread": {
+    "baseline": [
+     378,
+     395.25
+    ],
+    "migrated": [
+     85.5,
+     96
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "better",
+   "speed": 4.257
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete discussion.reads",
+   "label": "delete discussion: follow-up reads",
+   "unit": "requests",
+   "lowerIsBetter": true,
+   "baseline": 1,
+   "migrated": 1,
+   "delta": 0,
+   "pct": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "spread": {
+    "baseline": [
+     1,
+     1
+    ],
+    "migrated": [
+     1,
+     1
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "same"
+  },
+  {
+   "group": "mutation steps",
+   "id": "delete discussion.maxInteractionMs",
+   "label": "delete discussion: slowest interaction",
+   "unit": "ms",
+   "lowerIsBetter": true,
+   "baseline": 0,
+   "migrated": 32,
+   "delta": 32,
+   "pct": null,
+   "ci95": [
+    32,
+    32
+   ],
+   "spread": {
+    "baseline": [
+     0,
+     0
+    ],
+    "migrated": [
+     32,
+     32
+    ]
+   },
+   "n": {
+    "baseline": 8,
+    "migrated": 8
+   },
+   "verdict": "worse"
+  }
+ ],
+ "samples": {
+  "landing": {
+   "cold load": {
+    "loadMs": {
+     "baseline": [
+      436,
+      463,
+      478,
+      386,
+      428,
+      399,
+      425,
+      418
+     ],
+     "migrated": [
+      415,
+      471,
+      523,
+      500,
+      428,
+      363,
+      402,
+      464
+     ]
+    },
+    "readyMs": {
+     "baseline": [
+      1774,
+      1755,
+      1778,
+      1628,
+      1741,
+      1670,
+      1734,
+      1717
+     ],
+     "migrated": [
+      1729,
+      1842,
+      1321,
+      1948,
+      1799,
+      1697,
+      1711,
+      1783
+     ]
+    },
+    "lcpMs": {
+     "baseline": [
+      1352,
+      1304,
+      1340,
+      1200,
+      1288,
+      1196,
+      1260,
+      1260
+     ],
+     "migrated": [
+      1208,
+      1344,
+      1308,
+      1448,
+      1308,
+      1192,
+      1272,
+      1268
+     ]
+    },
+    "parseCompileMs": {
+     "baseline": [
+      501.802,
+      555.476,
+      539.628,
+      467.066,
+      507.277,
+      479.362,
+      480.898,
+      508.775
+     ],
+     "migrated": [
+      454.053,
+      544.158,
+      480.43,
+      623.34,
+      549.141,
+      502.18,
+      499.599,
+      500.724
+     ]
+    },
+    "evaluateMs": {
+     "baseline": [
+      458.928,
+      498.42,
+      470.478,
+      394.893,
+      449.174,
+      418.338,
+      443.092,
+      446.029
+     ],
+     "migrated": [
+      388.787,
+      474.808,
+      416.923,
+      603.363,
+      473.232,
+      456.672,
+      425.635,
+      444.164
+     ]
+    },
+    "scriptMs": {
+     "baseline": [
+      799.16,
+      805.048,
+      823.096,
+      716.839,
+      752.501,
+      709.032,
+      744.633,
+      751.272
+     ],
+     "migrated": [
+      680.823,
+      766.662,
+      690.214,
+      903.825,
+      805.645,
+      746.095,
+      778.923,
+      727.09
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      350,
+      361,
+      382,
+      272,
+      315,
+      287,
+      323,
+      319
+     ],
+     "migrated": [
+      298,
+      387,
+      303,
+      494,
+      388,
+      350,
+      337,
+      330
+     ]
+    },
+    "heapMb": {
+     "baseline": [
+      6.574344,
+      6.575844,
+      6.589628,
+      6.569296,
+      6.612296,
+      6.598168,
+      6.547964,
+      6.599036
+     ],
+     "migrated": [
+      6.418044,
+      6.411104,
+      6.397096,
+      6.394912,
+      6.394908,
+      6.381884,
+      6.385504,
+      6.3931
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      269.8999999999651,
+      251.70000000001164,
+      286.0999999999767,
+      268.5,
+      246.30000000004657,
+      241.09999999997672,
+      246.59999999997672,
+      265.10000000009313
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "steps": {
+   "open discussions": {
+    "readyMs": {
+     "baseline": [
+      362,
+      354,
+      342,
+      364,
+      342,
+      356,
+      331,
+      349
+     ],
+     "migrated": [
+      340,
+      340,
+      369,
+      352,
+      351,
+      345,
+      394,
+      362
+     ]
+    },
+    "requests": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      32,
+      24,
+      24,
+      24,
+      16,
+      24,
+      24,
+      32
+     ],
+     "migrated": [
+      24,
+      24,
+      32,
+      24,
+      24,
+      24,
+      32,
+      32
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "create discussion": {
+    "readyMs": {
+     "baseline": [
+      949,
+      967,
+      1035,
+      919,
+      965,
+      952,
+      897,
+      980
+     ],
+     "migrated": [
+      896,
+      910,
+      992,
+      969,
+      930,
+      953,
+      916,
+      936
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "writes": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      40,
+      32,
+      32,
+      32,
+      32,
+      40,
+      24,
+      40
+     ],
+     "migrated": [
+      32,
+      32,
+      56,
+      56,
+      32,
+      40,
+      32,
+      32
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "open discussion": {
+    "readyMs": {
+     "baseline": [
+      435,
+      371,
+      436,
+      425,
+      419,
+      475,
+      387,
+      422
+     ],
+     "migrated": [
+      433,
+      389,
+      370,
+      347,
+      373,
+      421,
+      387,
+      420
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "reads": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      32,
+      24,
+      32,
+      24,
+      24,
+      40,
+      16,
+      24
+     ],
+     "migrated": [
+      24,
+      24,
+      24,
+      24,
+      32,
+      24,
+      24,
+      32
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "update discussion": {
+    "readyMs": {
+     "baseline": [
+      438,
+      953,
+      388,
+      411,
+      426,
+      946,
+      402,
+      455
+     ],
+     "migrated": [
+      120,
+      118,
+      118,
+      101,
+      101,
+      126,
+      123,
+      104
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      32,
+      32,
+      32,
+      24,
+      24,
+      24,
+      32,
+      32
+     ],
+     "migrated": [
+      56,
+      56,
+      56,
+      48,
+      40,
+      48,
+      56,
+      48
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "create comment": {
+    "readyMs": {
+     "baseline": [
+      433,
+      386,
+      413,
+      404,
+      387,
+      415,
+      381,
+      428
+     ],
+     "migrated": [
+      176,
+      163,
+      166,
+      141,
+      147,
+      162,
+      147,
+      135
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      1,
+      1,
+      3,
+      0,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      42,
+      32,
+      63,
+      0,
+      6,
+      29,
+      8,
+      7
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      32,
+      32,
+      32,
+      24,
+      32,
+      24,
+      32,
+      32
+     ],
+     "migrated": [
+      112,
+      96,
+      112,
+      72,
+      72,
+      96,
+      72,
+      72
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "delete comment": {
+    "readyMs": {
+     "baseline": [
+      389,
+      383,
+      401,
+      402,
+      386,
+      414,
+      382,
+      385
+     ],
+     "migrated": [
+      77,
+      101,
+      109,
+      82,
+      80,
+      109,
+      90,
+      77
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      252,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      16,
+      16,
+      16,
+      16,
+      0,
+      0,
+      16,
+      0
+     ],
+     "migrated": [
+      32,
+      40,
+      48,
+      32,
+      32,
+      48,
+      32,
+      32
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "back to list (shows rename?)": {
+    "readyMs": {
+     "baseline": [
+      107,
+      122,
+      133,
+      114,
+      95,
+      93,
+      97,
+      134
+     ],
+     "migrated": [
+      136,
+      96,
+      431,
+      95,
+      94,
+      166,
+      105,
+      99
+     ]
+    },
+    "requests": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "reads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      258,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      16,
+      16,
+      24,
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "migrated": [
+      16,
+      16,
+      24,
+      24,
+      16,
+      24,
+      16,
+      16
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "stale": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "freshMs": {
+     "baseline": [],
+     "migrated": [
+      7,
+      10,
+      8,
+      7,
+      9,
+      7,
+      9,
+      8
+     ]
+    }
+   },
+   "reopen discussion (comment gone?)": {
+    "readyMs": {
+     "baseline": [
+      110,
+      107,
+      103,
+      101,
+      109,
+      125,
+      114,
+      109
+     ],
+     "migrated": [
+      95,
+      102,
+      145,
+      96,
+      97,
+      130,
+      102,
+      103
+     ]
+    },
+    "requests": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "reads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      16,
+      24,
+      16,
+      16,
+      16,
+      24,
+      16,
+      24
+     ],
+     "migrated": [
+      16,
+      16,
+      32,
+      32,
+      24,
+      32,
+      16,
+      16
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "stale": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "freshMs": {
+     "baseline": [
+      6,
+      3,
+      6,
+      5,
+      8,
+      9,
+      6,
+      6
+     ],
+     "migrated": [
+      10,
+      6,
+      4,
+      5,
+      10,
+      9,
+      9,
+      10
+     ]
+    }
+   },
+   "profile": {
+    "readyMs": {
+     "baseline": [
+      562,
+      477,
+      456,
+      570,
+      505,
+      536,
+      578,
+      558
+     ],
+     "migrated": [
+      471,
+      500,
+      472,
+      575,
+      578,
+      582,
+      500,
+      516
+     ]
+    },
+    "requests": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "reads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      40,
+      56,
+      40,
+      48,
+      64,
+      40,
+      48,
+      40
+     ],
+     "migrated": [
+      40,
+      48,
+      48,
+      40,
+      40,
+      40,
+      56,
+      48
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "update profile": {
+    "readyMs": {
+     "baseline": [
+      413,
+      407,
+      405,
+      401,
+      408,
+      423,
+      403,
+      409
+     ],
+     "migrated": [
+      114,
+      100,
+      89,
+      138,
+      88,
+      111,
+      117,
+      113
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32,
+      32
+     ],
+     "migrated": [
+      40,
+      32,
+      40,
+      56,
+      40,
+      32,
+      48,
+      56
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   },
+   "dashboard (shows new name?)": {
+    "readyMs": {
+     "baseline": [
+      86,
+      80,
+      111,
+      96,
+      90,
+      125,
+      85,
+      112
+     ],
+     "migrated": [
+      103,
+      93,
+      133,
+      97,
+      96,
+      111,
+      108,
+      105
+     ]
+    },
+    "requests": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "reads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      24,
+      16,
+      16,
+      16,
+      16,
+      24,
+      24,
+      16
+     ],
+     "migrated": [
+      0,
+      16,
+      24,
+      16,
+      16,
+      16,
+      24,
+      16
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "stale": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "freshMs": {
+     "baseline": [
+      6,
+      7,
+      6,
+      8,
+      4,
+      6,
+      5,
+      6
+     ],
+     "migrated": [
+      2,
+      4,
+      8,
+      7,
+      4,
+      6,
+      6,
+      5
+     ]
+    }
+   },
+   "list again": {
+    "readyMs": {
+     "baseline": [
+      141,
+      122,
+      135,
+      108,
+      116,
+      111,
+      102,
+      134
+     ],
+     "migrated": [
+      130,
+      101,
+      101,
+      88,
+      96,
+      116,
+      124,
+      98
+     ]
+    },
+    "requests": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "reads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "writes": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      16,
+      16,
+      32,
+      16,
+      24,
+      24,
+      16,
+      16
+     ],
+     "migrated": [
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      32,
+      16
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "stale": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "freshMs": {
+     "baseline": [],
+     "migrated": [
+      16,
+      6,
+      6,
+      6,
+      6,
+      12,
+      7,
+      6
+     ]
+    }
+   },
+   "delete discussion": {
+    "readyMs": {
+     "baseline": [
+      387,
+      375,
+      402,
+      402,
+      393,
+      392,
+      379,
+      369
+     ],
+     "migrated": [
+      84,
+      111,
+      96,
+      93,
+      77,
+      86,
+      96,
+      90
+     ]
+    },
+    "requests": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    },
+    "reads": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "writes": {
+     "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "migrated": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      16,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      32,
+      40,
+      32,
+      32,
+      24,
+      32,
+      32,
+      32
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "totals": {
+   "flow": {
+    "flowMs": {
+     "baseline": [
+      4812,
+      5104,
+      4760,
+      4717,
+      4641,
+      5363,
+      4538,
+      4844
+     ],
+     "migrated": [
+      3175,
+      3124,
+      3591,
+      3174,
+      3108,
+      3418,
+      3209,
+      3158
+     ]
+    },
+    "staleViews": {
+     "baseline": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "navsWithoutLoading": {
+     "baseline": [
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+     ],
+     "migrated": [
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+     ]
+    },
+    "mutationFollowupReads": {
+     "baseline": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "migrated": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+     ]
+    },
+    "mutationReflectMs": {
+     "baseline": [
+      3009,
+      3471,
+      3044,
+      2939,
+      2965,
+      3542,
+      2844,
+      3026
+     ],
+     "migrated": [
+      1467,
+      1503,
+      1570,
+      1524,
+      1423,
+      1547,
+      1489,
+      1455
+     ]
+    },
+    "maxInteractionMs": {
+     "baseline": [
+      40,
+      56,
+      40,
+      48,
+      64,
+      40,
+      48,
+      40
+     ],
+     "migrated": [
+      112,
+      96,
+      112,
+      72,
+      72,
+      96,
+      72,
+      72
+     ]
+    },
+    "cls": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "requests": {
+     "baseline": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "migrated": [
+      10,
+      10,
+      10,
+      10,
+      10,
+      10,
+      10,
+      10
+     ]
+    },
+    "reads": {
+     "baseline": [
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9
+     ],
+     "migrated": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+     ]
+    },
+    "writes": {
+     "baseline": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+     ],
+     "migrated": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+     ]
+    },
+    "redundant": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "unhashedReads": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingShown": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "loadingMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "longTasks": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      1,
+      1,
+      6,
+      0,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    "tbtMs": {
+     "baseline": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "migrated": [
+      42,
+      32,
+      573,
+      0,
+      6,
+      29,
+      8,
+      7
+     ]
+    },
+    "navsWithoutReads": {
+     "baseline": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+     ],
+     "migrated": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+     ]
+    }
+   }
+  }
+ }
+}
