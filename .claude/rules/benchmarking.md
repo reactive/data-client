@@ -59,6 +59,11 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
   - Relevant for: `@data-client/endpoint` Query, `@data-client/normalizr` MemoCache, `@data-client/react` useQuery
   - All libraries
 
+- **Mutation, then navigation** (`create-edit-browse-5`, `move-switch-list-10`)
+  - Exercises: a create and an edit each updating every stored list and the detail found through `queryKey` (Queryable), across navigation, back and forward between two lists and the detail; and `Collection.move` into a stored list that isn't mounted, followed by a navigation step
+  - Relevant for: `@data-client/core` `getResponseMeta` (store queries for endpoints without a response), `@data-client/endpoint` Collection create/move, `@data-client/react` `useSuspense`/`useDLE`
+  - All libraries (others fetch the detail, or refetch the invalidated list on mount)
+
 - **Optimistic update** (`optimistic-update`) — data-client only
   - Exercises: `getOptimisticResponse` + `controller.fetch` pipeline
   - Relevant for: `@data-client/core` optimistic dispatch
@@ -73,7 +78,7 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
 |---|---|---|
 | **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | <2% |
 | **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view`, `move-item` | 2–4% |
-| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5–15% |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes, `create-edit-browse-5`, `move-switch-list-10` | 5–15% |
 
 CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
 
