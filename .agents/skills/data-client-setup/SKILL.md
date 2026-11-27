@@ -239,6 +239,18 @@ app.use(DataClientPlugin, {
 app.mount('#app');
 ```
 
+## Where App Code Goes
+
+Data Client keeps three layers apart. When setup or a migration moves app code, put each part in its layer:
+
+- **Data definition**, which imports no view framework. Schemas declare the data model (nouns). Endpoints are the API
+  definition: the operations on that data model (verbs).
+- **Runtime in the view framework**: hooks bind the data in the component that renders it.
+- **Runtime outside the view framework**: Managers, the bridge to the world outside the app: global side effects and
+  outside events, such as error reporting, sockets and logging.
+
+So a component names its data and does not build a request or join data, and a Manager does not define data.
+
 ## Error Reporting
 
 If the app's data layer sends fetch errors to a tracker itself (TanStack Query's `QueryCache({ onError })`, a fetch
