@@ -1,0 +1,2415 @@
+diff --git a/apps/react-vite/.agents/skills/data-client b/apps/react-vite/.agents/skills/data-client
+new file mode 120000
+index 0000000..05dc4ee
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client
+@@ -0,0 +1 @@
++../../node_modules/@data-client/core/skills/data-client
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-manager b/apps/react-vite/.agents/skills/data-client-manager
+new file mode 120000
+index 0000000..e325a2b
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-manager
+@@ -0,0 +1 @@
++../../node_modules/@data-client/core/skills/data-client-manager
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-react b/apps/react-vite/.agents/skills/data-client-react
+new file mode 120000
+index 0000000..8557fb7
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-react
+@@ -0,0 +1 @@
++../../node_modules/@data-client/react/skills/data-client-react
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-react-testing b/apps/react-vite/.agents/skills/data-client-react-testing
+new file mode 120000
+index 0000000..6cb204b
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-react-testing
+@@ -0,0 +1 @@
++../../node_modules/@data-client/react/skills/data-client-react-testing
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-rest b/apps/react-vite/.agents/skills/data-client-rest
+new file mode 120000
+index 0000000..3e18040
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-rest
+@@ -0,0 +1 @@
++../../node_modules/@data-client/rest/skills/data-client-rest
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-schema b/apps/react-vite/.agents/skills/data-client-schema
+new file mode 120000
+index 0000000..1673ae7
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-schema
+@@ -0,0 +1 @@
++../../node_modules/@data-client/endpoint/skills/data-client-schema
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-setup b/apps/react-vite/.agents/skills/data-client-setup
+new file mode 120000
+index 0000000..389d898
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-setup
+@@ -0,0 +1 @@
++../../node_modules/@data-client/core/skills/data-client-setup
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/data-client-v0.18-migration b/apps/react-vite/.agents/skills/data-client-v0.18-migration
+new file mode 120000
+index 0000000..e88382d
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/data-client-v0.18-migration
+@@ -0,0 +1 @@
++../../node_modules/@data-client/endpoint/skills/data-client-v0.18-migration
+\ No newline at end of file
+diff --git a/apps/react-vite/.agents/skills/path-to-regexp-v8-migration b/apps/react-vite/.agents/skills/path-to-regexp-v8-migration
+new file mode 120000
+index 0000000..258ed24
+--- /dev/null
++++ b/apps/react-vite/.agents/skills/path-to-regexp-v8-migration
+@@ -0,0 +1 @@
++../../node_modules/@data-client/rest/skills/path-to-regexp-v8-migration
+\ No newline at end of file
+diff --git a/apps/react-vite/.claude/skills b/apps/react-vite/.claude/skills
+new file mode 120000
+index 0000000..2b7a412
+--- /dev/null
++++ b/apps/react-vite/.claude/skills
+@@ -0,0 +1 @@
++../.agents/skills
+\ No newline at end of file
+diff --git a/apps/react-vite/package.json b/apps/react-vite/package.json
+index 5d81cb7..71a24c6 100644
+--- a/apps/react-vite/package.json
++++ b/apps/react-vite/package.json
+@@ -18,6 +18,8 @@
+     "run-mock-server": "vite-node mock-server.ts | pino-pretty -c"
+   },
+   "dependencies": {
++    "@data-client/react": "^0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
++    "@data-client/rest": "^0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+     "@hookform/resolvers": "^3.3.4",
+     "@ngneat/falso": "^7.2.0",
+     "@radix-ui/react-dialog": "^1.0.5",
+@@ -26,9 +28,6 @@
+     "@radix-ui/react-label": "^2.0.2",
+     "@radix-ui/react-slot": "^1.0.2",
+     "@radix-ui/react-switch": "^1.0.3",
+-    "@tanstack/react-query": "^5.32.0",
+-    "@tanstack/react-query-devtools": "^5.32.0",
+-    "axios": "^1.6.8",
+     "class-variance-authority": "^0.7.0",
+     "clsx": "^2.1.1",
+     "dayjs": "^1.11.11",
+@@ -42,7 +41,6 @@
+     "react-error-boundary": "^4.0.13",
+     "react-helmet-async": "^2.0.4",
+     "react-hook-form": "^7.51.3",
+-    "react-query-auth": "^2.4.3",
+     "react-router": "^7.0.2",
+     "tailwind-merge": "^2.3.0",
+     "tailwindcss-animate": "^1.0.7",
+@@ -50,6 +48,7 @@
+     "zustand": "^4.5.2"
+   },
+   "devDependencies": {
++    "@data-client/test": "^0.19.0-beta-20261108175612-3ae266bf35a5a44fec04d951fc8503e0cb578dda",
+     "@eslint/eslintrc": "^3.0.2",
+     "@mswjs/data": "^0.16.1",
+     "@mswjs/http-middleware": "^0.10.1",
+diff --git a/apps/react-vite/src/app/provider.tsx b/apps/react-vite/src/app/provider.tsx
+index d2161b5..d432b58 100644
+--- a/apps/react-vite/src/app/provider.tsx
++++ b/apps/react-vite/src/app/provider.tsx
+@@ -1,5 +1,4 @@
+-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
++import { DataProvider } from '@data-client/react';
+ import * as React from 'react';
+ import { ErrorBoundary } from 'react-error-boundary';
+ import { HelmetProvider } from 'react-helmet-async';
+@@ -7,46 +6,28 @@ import { HelmetProvider } from 'react-helmet-async';
+ import { MainErrorFallback } from '@/components/errors/main';
+ import { Notifications } from '@/components/ui/notifications';
+ import { Spinner } from '@/components/ui/spinner';
+-import { AuthLoader } from '@/lib/auth';
+-import { queryConfig } from '@/lib/react-query';
+ 
+ type AppProviderProps = {
+   children: React.ReactNode;
+ };
+ 
+ export const AppProvider = ({ children }: AppProviderProps) => {
+-  const [queryClient] = React.useState(
+-    () =>
+-      new QueryClient({
+-        defaultOptions: queryConfig,
+-      }),
+-  );
+-
+   return (
+-    <React.Suspense
+-      fallback={
+-        <div className="flex h-screen w-screen items-center justify-center">
+-          <Spinner size="xl" />
+-        </div>
+-      }
+-    >
+-      <ErrorBoundary FallbackComponent={MainErrorFallback}>
+-        <HelmetProvider>
+-          <QueryClientProvider client={queryClient}>
+-            {import.meta.env.DEV && <ReactQueryDevtools />}
++    <DataProvider>
++      <React.Suspense
++        fallback={
++          <div className="flex h-screen w-screen items-center justify-center">
++            <Spinner size="xl" />
++          </div>
++        }
++      >
++        <ErrorBoundary FallbackComponent={MainErrorFallback}>
++          <HelmetProvider>
+             <Notifications />
+-            <AuthLoader
+-              renderLoading={() => (
+-                <div className="flex h-screen w-screen items-center justify-center">
+-                  <Spinner size="xl" />
+-                </div>
+-              )}
+-            >
+-              {children}
+-            </AuthLoader>
+-          </QueryClientProvider>
+-        </HelmetProvider>
+-      </ErrorBoundary>
+-    </React.Suspense>
++            {children}
++          </HelmetProvider>
++        </ErrorBoundary>
++      </React.Suspense>
++    </DataProvider>
+   );
+ };
+diff --git a/apps/react-vite/src/app/router.tsx b/apps/react-vite/src/app/router.tsx
+index 4ea857d..b30ddfe 100644
+--- a/apps/react-vite/src/app/router.tsx
++++ b/apps/react-vite/src/app/router.tsx
+@@ -1,4 +1,4 @@
+-import { QueryClient, useQueryClient } from '@tanstack/react-query';
++import { Controller, useController } from '@data-client/react';
+ import { useMemo } from 'react';
+ import { createBrowserRouter } from 'react-router';
+ import { RouterProvider } from 'react-router/dom';
+@@ -11,29 +11,29 @@ import {
+   ErrorBoundary as AppRootErrorBoundary,
+ } from './routes/app/root';
+ 
+-const convert = (queryClient: QueryClient) => (m: any) => {
++const convert = (ctrl: Controller) => (m: any) => {
+   const { clientLoader, clientAction, default: Component, ...rest } = m;
+   return {
+     ...rest,
+-    loader: clientLoader?.(queryClient),
+-    action: clientAction?.(queryClient),
++    loader: clientLoader?.(ctrl),
++    action: clientAction?.(ctrl),
+     Component,
+   };
+ };
+ 
+-export const createAppRouter = (queryClient: QueryClient) =>
++export const createAppRouter = (ctrl: Controller) =>
+   createBrowserRouter([
+     {
+       path: paths.home.path,
+-      lazy: () => import('./routes/landing').then(convert(queryClient)),
++      lazy: () => import('./routes/landing').then(convert(ctrl)),
+     },
+     {
+       path: paths.auth.register.path,
+-      lazy: () => import('./routes/auth/register').then(convert(queryClient)),
++      lazy: () => import('./routes/auth/register').then(convert(ctrl)),
+     },
+     {
+       path: paths.auth.login.path,
+-      lazy: () => import('./routes/auth/login').then(convert(queryClient)),
++      lazy: () => import('./routes/auth/login').then(convert(ctrl)),
+     },
+     {
+       path: paths.app.root.path,
+@@ -47,42 +47,37 @@ export const createAppRouter = (queryClient: QueryClient) =>
+         {
+           path: paths.app.discussions.path,
+           lazy: () =>
+-            import('./routes/app/discussions/discussions').then(
+-              convert(queryClient),
+-            ),
++            import('./routes/app/discussions/discussions').then(convert(ctrl)),
+         },
+         {
+           path: paths.app.discussion.path,
+           lazy: () =>
+-            import('./routes/app/discussions/discussion').then(
+-              convert(queryClient),
+-            ),
++            import('./routes/app/discussions/discussion').then(convert(ctrl)),
+         },
+         {
+           path: paths.app.users.path,
+-          lazy: () => import('./routes/app/users').then(convert(queryClient)),
++          lazy: () => import('./routes/app/users').then(convert(ctrl)),
+         },
+         {
+           path: paths.app.profile.path,
+-          lazy: () => import('./routes/app/profile').then(convert(queryClient)),
++          lazy: () => import('./routes/app/profile').then(convert(ctrl)),
+         },
+         {
+           path: paths.app.dashboard.path,
+-          lazy: () =>
+-            import('./routes/app/dashboard').then(convert(queryClient)),
++          lazy: () => import('./routes/app/dashboard').then(convert(ctrl)),
+         },
+       ],
+     },
+     {
+       path: '*',
+-      lazy: () => import('./routes/not-found').then(convert(queryClient)),
++      lazy: () => import('./routes/not-found').then(convert(ctrl)),
+     },
+   ]);
+ 
+ export const AppRouter = () => {
+-  const queryClient = useQueryClient();
++  const ctrl = useController();
+ 
+-  const router = useMemo(() => createAppRouter(queryClient), [queryClient]);
++  const router = useMemo(() => createAppRouter(ctrl), [ctrl]);
+ 
+   return <RouterProvider router={router} />;
+ };
+diff --git a/apps/react-vite/src/app/routes/app/dashboard.tsx b/apps/react-vite/src/app/routes/app/dashboard.tsx
+index 324e2f3..8c1281a 100644
+--- a/apps/react-vite/src/app/routes/app/dashboard.tsx
++++ b/apps/react-vite/src/app/routes/app/dashboard.tsx
+@@ -7,19 +7,19 @@ const DashboardRoute = () => {
+   return (
+     <ContentLayout title="Dashboard">
+       <h1 className="text-xl">
+-        Welcome <b>{`${user.data?.firstName} ${user.data?.lastName}`}</b>
++        Welcome <b>{`${user?.firstName} ${user?.lastName}`}</b>
+       </h1>
+       <h4 className="my-3">
+-        Your role is : <b>{user.data?.role}</b>
++        Your role is : <b>{user?.role}</b>
+       </h4>
+       <p className="font-medium">In this application you can:</p>
+-      {user.data?.role === ROLES.USER && (
++      {user?.role === ROLES.USER && (
+         <ul className="my-4 list-inside list-disc">
+           <li>Create comments in discussions</li>
+           <li>Delete own comments</li>
+         </ul>
+       )}
+-      {user.data?.role === ROLES.ADMIN && (
++      {user?.role === ROLES.ADMIN && (
+         <ul className="my-4 list-inside list-disc">
+           <li>Create discussions</li>
+           <li>Edit discussions</li>
+diff --git a/apps/react-vite/src/app/routes/app/discussions/discussion.tsx b/apps/react-vite/src/app/routes/app/discussions/discussion.tsx
+index 035afd0..1107515 100644
+--- a/apps/react-vite/src/app/routes/app/discussions/discussion.tsx
++++ b/apps/react-vite/src/app/routes/app/discussions/discussion.tsx
+@@ -1,57 +1,30 @@
+-import { QueryClient } from '@tanstack/react-query';
++import { Controller, useSuspense } from '@data-client/react';
+ import { ErrorBoundary } from 'react-error-boundary';
+ import { useParams, LoaderFunctionArgs } from 'react-router';
+ 
+ import { ContentLayout } from '@/components/layouts';
+-import { Spinner } from '@/components/ui/spinner';
+-import { getInfiniteCommentsQueryOptions } from '@/features/comments/api/get-comments';
+ import { Comments } from '@/features/comments/components/comments';
+-import {
+-  useDiscussion,
+-  getDiscussionQueryOptions,
+-} from '@/features/discussions/api/get-discussion';
+ import { DiscussionView } from '@/features/discussions/components/discussion-view';
++import { CommentResource, DiscussionResource } from '@/lib/resources/resources';
+ 
+ export const clientLoader =
+-  (queryClient: QueryClient) =>
++  (ctrl: Controller) =>
+   async ({ params }: LoaderFunctionArgs) => {
+     const discussionId = params.discussionId as string;
+ 
+-    const discussionQuery = getDiscussionQueryOptions(discussionId);
+-    const commentsQuery = getInfiniteCommentsQueryOptions(discussionId);
+-
+-    const promises = [
+-      queryClient.getQueryData(discussionQuery.queryKey) ??
+-        (await queryClient.fetchQuery(discussionQuery)),
+-      queryClient.getQueryData(commentsQuery.queryKey) ??
+-        (await queryClient.fetchInfiniteQuery(commentsQuery)),
+-    ] as const;
+-
+-    const [discussion, comments] = await Promise.all(promises);
+-
+-    return {
+-      discussion,
+-      comments,
+-    };
++    return Promise.all([
++      ctrl.fetchIfStale(DiscussionResource.get, { id: discussionId }),
++      ctrl.fetchIfStale(CommentResource.getList, { discussionId }),
++    ]);
+   };
+ 
+ const DiscussionRoute = () => {
+   const params = useParams();
+   const discussionId = params.discussionId as string;
+-  const discussionQuery = useDiscussion({
+-    discussionId,
++  const { data: discussion } = useSuspense(DiscussionResource.get, {
++    id: discussionId,
+   });
+ 
+-  if (discussionQuery.isLoading) {
+-    return (
+-      <div className="flex h-48 w-full items-center justify-center">
+-        <Spinner size="lg" />
+-      </div>
+-    );
+-  }
+-
+-  const discussion = discussionQuery.data?.data;
+-
+   if (!discussion) return null;
+ 
+   return (
+diff --git a/apps/react-vite/src/app/routes/app/discussions/discussions.tsx b/apps/react-vite/src/app/routes/app/discussions/discussions.tsx
+index 7d1f0f0..9c62c16 100644
+--- a/apps/react-vite/src/app/routes/app/discussions/discussions.tsx
++++ b/apps/react-vite/src/app/routes/app/discussions/discussions.tsx
+@@ -1,29 +1,23 @@
+-import { QueryClient, useQueryClient } from '@tanstack/react-query';
++import { Controller, useController } from '@data-client/react';
+ import { LoaderFunctionArgs } from 'react-router';
+ 
+ import { ContentLayout } from '@/components/layouts';
+-import { getInfiniteCommentsQueryOptions } from '@/features/comments/api/get-comments';
+-import { getDiscussionsQueryOptions } from '@/features/discussions/api/get-discussions';
+ import { CreateDiscussion } from '@/features/discussions/components/create-discussion';
+ import { DiscussionsList } from '@/features/discussions/components/discussions-list';
++import { CommentResource, DiscussionResource } from '@/lib/resources/resources';
+ 
+ export const clientLoader =
+-  (queryClient: QueryClient) =>
++  (ctrl: Controller) =>
+   async ({ request }: LoaderFunctionArgs) => {
+     const url = new URL(request.url);
+ 
+     const page = Number(url.searchParams.get('page') || 1);
+ 
+-    const query = getDiscussionsQueryOptions({ page });
+-
+-    return (
+-      queryClient.getQueryData(query.queryKey) ??
+-      (await queryClient.fetchQuery(query))
+-    );
++    return ctrl.fetchIfStale(DiscussionResource.getList, { page });
+   };
+ 
+ const DiscussionsRoute = () => {
+-  const queryClient = useQueryClient();
++  const ctrl = useController();
+   return (
+     <ContentLayout title="Discussions">
+       <div className="flex justify-end">
+@@ -33,9 +27,7 @@ const DiscussionsRoute = () => {
+         <DiscussionsList
+           onDiscussionPrefetch={(id) => {
+             // Prefetch the comments data when the user hovers over the link in the list
+-            queryClient.prefetchInfiniteQuery(
+-              getInfiniteCommentsQueryOptions(id),
+-            );
++            ctrl.fetchIfStale(CommentResource.getList, { discussionId: id });
+           }}
+         />
+       </div>
+diff --git a/apps/react-vite/src/app/routes/app/profile.tsx b/apps/react-vite/src/app/routes/app/profile.tsx
+index a84b9a4..2061f1f 100644
+--- a/apps/react-vite/src/app/routes/app/profile.tsx
++++ b/apps/react-vite/src/app/routes/app/profile.tsx
+@@ -18,7 +18,7 @@ const Entry = ({ label, value }: EntryProps) => (
+ const ProfileRoute = () => {
+   const user = useUser();
+ 
+-  if (!user.data) return null;
++  if (!user) return null;
+ 
+   return (
+     <ContentLayout title="Profile">
+@@ -36,11 +36,11 @@ const ProfileRoute = () => {
+         </div>
+         <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
+           <dl className="sm:divide-y sm:divide-gray-200">
+-            <Entry label="First Name" value={user.data.firstName} />
+-            <Entry label="Last Name" value={user.data.lastName} />
+-            <Entry label="Email Address" value={user.data.email} />
+-            <Entry label="Role" value={user.data.role} />
+-            <Entry label="Bio" value={user.data.bio} />
++            <Entry label="First Name" value={user.firstName} />
++            <Entry label="Last Name" value={user.lastName} />
++            <Entry label="Email Address" value={user.email} />
++            <Entry label="Role" value={user.role} />
++            <Entry label="Bio" value={user.bio} />
+           </dl>
+         </div>
+       </div>
+diff --git a/apps/react-vite/src/app/routes/app/users.tsx b/apps/react-vite/src/app/routes/app/users.tsx
+index 77640dd..7931d76 100644
+--- a/apps/react-vite/src/app/routes/app/users.tsx
++++ b/apps/react-vite/src/app/routes/app/users.tsx
+@@ -1,17 +1,12 @@
+-import { QueryClient } from '@tanstack/react-query';
++import { Controller } from '@data-client/react';
+ 
+ import { ContentLayout } from '@/components/layouts';
+-import { getUsersQueryOptions } from '@/features/users/api/get-users';
+ import { UsersList } from '@/features/users/components/users-list';
+ import { Authorization, ROLES } from '@/lib/authorization';
++import { UserResource } from '@/lib/resources/resources';
+ 
+-export const clientLoader = (queryClient: QueryClient) => async () => {
+-  const query = getUsersQueryOptions();
+-
+-  return (
+-    queryClient.getQueryData(query.queryKey) ??
+-    (await queryClient.fetchQuery(query))
+-  );
++export const clientLoader = (ctrl: Controller) => async () => {
++  return ctrl.fetchIfStale(UserResource.getList);
+ };
+ 
+ const UsersRoute = () => {
+diff --git a/apps/react-vite/src/app/routes/auth/register.tsx b/apps/react-vite/src/app/routes/auth/register.tsx
+index afee8a4..772826a 100644
+--- a/apps/react-vite/src/app/routes/auth/register.tsx
++++ b/apps/react-vite/src/app/routes/auth/register.tsx
+@@ -1,10 +1,11 @@
++import { useDLE } from '@data-client/react';
+ import { useState } from 'react';
+ import { useNavigate, useSearchParams } from 'react-router';
+ 
+ import { AuthLayout } from '@/components/layouts/auth-layout';
+ import { paths } from '@/config/paths';
+ import { RegisterForm } from '@/features/auth/components/register-form';
+-import { useTeams } from '@/features/teams/api/get-teams';
++import { TeamResource } from '@/lib/resources/resources';
+ 
+ const RegisterRoute = () => {
+   const navigate = useNavigate();
+@@ -12,11 +13,8 @@ const RegisterRoute = () => {
+   const redirectTo = searchParams.get('redirectTo');
+   const [chooseTeam, setChooseTeam] = useState(false);
+ 
+-  const teamsQuery = useTeams({
+-    queryConfig: {
+-      enabled: chooseTeam,
+-    },
+-  });
++  // fetches only once the user chooses to join an existing team
++  const { data: teams } = useDLE(TeamResource.getList, chooseTeam ? {} : null);
+ 
+   return (
+     <AuthLayout title="Register your account">
+@@ -31,7 +29,7 @@ const RegisterRoute = () => {
+         }}
+         chooseTeam={chooseTeam}
+         setChooseTeam={() => setChooseTeam(!chooseTeam)}
+-        teams={teamsQuery.data?.data}
++        teams={teams?.data}
+       />
+     </AuthLayout>
+   );
+diff --git a/apps/react-vite/src/app/routes/landing.tsx b/apps/react-vite/src/app/routes/landing.tsx
+index 4fb6540..a213a70 100644
+--- a/apps/react-vite/src/app/routes/landing.tsx
++++ b/apps/react-vite/src/app/routes/landing.tsx
+@@ -11,7 +11,7 @@ const LandingRoute = () => {
+   const user = useUser();
+ 
+   const handleStart = () => {
+-    if (user.data) {
++    if (user) {
+       navigate(paths.app.dashboard.getHref());
+     } else {
+       navigate(paths.auth.login.getHref());
+diff --git a/apps/react-vite/src/components/layouts/auth-layout.tsx b/apps/react-vite/src/components/layouts/auth-layout.tsx
+index 8390e11..c29b16a 100644
+--- a/apps/react-vite/src/components/layouts/auth-layout.tsx
++++ b/apps/react-vite/src/components/layouts/auth-layout.tsx
+@@ -21,12 +21,12 @@ export const AuthLayout = ({ children, title }: LayoutProps) => {
+   const navigate = useNavigate();
+ 
+   useEffect(() => {
+-    if (user.data) {
++    if (user) {
+       navigate(redirectTo ? redirectTo : paths.app.dashboard.getHref(), {
+         replace: true,
+       });
+     }
+-  }, [user.data, navigate, redirectTo]);
++  }, [user, navigate, redirectTo]);
+ 
+   return (
+     <>
+diff --git a/apps/react-vite/src/components/layouts/dashboard-layout.tsx b/apps/react-vite/src/components/layouts/dashboard-layout.tsx
+index 5182391..2f2d412 100644
+--- a/apps/react-vite/src/components/layouts/dashboard-layout.tsx
++++ b/apps/react-vite/src/components/layouts/dashboard-layout.tsx
+@@ -78,9 +78,9 @@ const Progress = () => {
+ 
+ export function DashboardLayout({ children }: { children: React.ReactNode }) {
+   const navigate = useNavigate();
+-  const logout = useLogout({
+-    onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
+-  });
++  const logout = useLogout(() =>
++    navigate(paths.auth.login.getHref(location.pathname)),
++  );
+   const { checkAccess } = useAuthorization();
+   const navigation = [
+     { name: 'Dashboard', to: paths.app.dashboard.getHref(), icon: Home },
+@@ -189,7 +189,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
+               <DropdownMenuSeparator />
+               <DropdownMenuItem
+                 className={cn('block px-4 py-2 text-sm text-gray-700 w-full')}
+-                onClick={() => logout.mutate({})}
++                onClick={() => logout.run()}
+               >
+                 Sign Out
+               </DropdownMenuItem>
+diff --git a/apps/react-vite/src/features/auth/components/login-form.tsx b/apps/react-vite/src/features/auth/components/login-form.tsx
+index 02ad0fc..d5f3da2 100644
+--- a/apps/react-vite/src/features/auth/components/login-form.tsx
++++ b/apps/react-vite/src/features/auth/components/login-form.tsx
+@@ -10,9 +10,7 @@ type LoginFormProps = {
+ };
+ 
+ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
+-  const login = useLogin({
+-    onSuccess,
+-  });
++  const login = useLogin(onSuccess);
+   const [searchParams] = useSearchParams();
+   const redirectTo = searchParams.get('redirectTo');
+ 
+@@ -20,7 +18,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
+     <div>
+       <Form
+         onSubmit={(values) => {
+-          login.mutate(values);
++          login.run(values);
+         }}
+         schema={loginInputSchema}
+       >
+diff --git a/apps/react-vite/src/features/auth/components/register-form.tsx b/apps/react-vite/src/features/auth/components/register-form.tsx
+index 9eb4a03..e80e487 100644
+--- a/apps/react-vite/src/features/auth/components/register-form.tsx
++++ b/apps/react-vite/src/features/auth/components/register-form.tsx
+@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
+ import { Form, Input, Select, Label, Switch } from '@/components/ui/form';
+ import { paths } from '@/config/paths';
+ import { useRegister, registerInputSchema } from '@/lib/auth';
+-import { Team } from '@/types/api';
++import type { Team } from '@/lib/resources/resources';
+ 
+ type RegisterFormProps = {
+   onSuccess: () => void;
+@@ -20,7 +20,7 @@ export const RegisterForm = ({
+   setChooseTeam,
+   teams,
+ }: RegisterFormProps) => {
+-  const registering = useRegister({ onSuccess });
++  const registering = useRegister(onSuccess);
+   const [searchParams] = useSearchParams();
+   const redirectTo = searchParams.get('redirectTo');
+ 
+@@ -28,7 +28,7 @@ export const RegisterForm = ({
+     <div>
+       <Form
+         onSubmit={(values) => {
+-          registering.mutate(values);
++          registering.run(values);
+         }}
+         schema={registerInputSchema}
+         options={{
+diff --git a/apps/react-vite/src/features/comments/api/create-comment.ts b/apps/react-vite/src/features/comments/api/create-comment.ts
+index 506a689..90419fb 100644
+--- a/apps/react-vite/src/features/comments/api/create-comment.ts
++++ b/apps/react-vite/src/features/comments/api/create-comment.ts
+@@ -1,48 +1,8 @@
+-import { useMutation, useQueryClient } from '@tanstack/react-query';
+ import { z } from 'zod';
+ 
+-import { api } from '@/lib/api-client';
+-import { MutationConfig } from '@/lib/react-query';
+-import { Comment } from '@/types/api';
+-
+-import { getInfiniteCommentsQueryOptions } from './get-comments';
+-
+ export const createCommentInputSchema = z.object({
+   discussionId: z.string().min(1, 'Required'),
+   body: z.string().min(1, 'Required'),
+ });
+ 
+ export type CreateCommentInput = z.infer<typeof createCommentInputSchema>;
+-
+-export const createComment = ({
+-  data,
+-}: {
+-  data: CreateCommentInput;
+-}): Promise<Comment> => {
+-  return api.post('/comments', data);
+-};
+-
+-type UseCreateCommentOptions = {
+-  discussionId: string;
+-  mutationConfig?: MutationConfig<typeof createComment>;
+-};
+-
+-export const useCreateComment = ({
+-  mutationConfig,
+-  discussionId,
+-}: UseCreateCommentOptions) => {
+-  const queryClient = useQueryClient();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (...args) => {
+-      queryClient.invalidateQueries({
+-        queryKey: getInfiniteCommentsQueryOptions(discussionId).queryKey,
+-      });
+-      onSuccess?.(...args);
+-    },
+-    ...restConfig,
+-    mutationFn: createComment,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/comments/api/delete-comment.ts b/apps/react-vite/src/features/comments/api/delete-comment.ts
+deleted file mode 100644
+index 7e2dcd3..0000000
+--- a/apps/react-vite/src/features/comments/api/delete-comment.ts
++++ /dev/null
+@@ -1,35 +0,0 @@
+-import { useMutation, useQueryClient } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { MutationConfig } from '@/lib/react-query';
+-
+-import { getInfiniteCommentsQueryOptions } from './get-comments';
+-
+-export const deleteComment = ({ commentId }: { commentId: string }) => {
+-  return api.delete(`/comments/${commentId}`);
+-};
+-
+-type UseDeleteCommentOptions = {
+-  discussionId: string;
+-  mutationConfig?: MutationConfig<typeof deleteComment>;
+-};
+-
+-export const useDeleteComment = ({
+-  mutationConfig,
+-  discussionId,
+-}: UseDeleteCommentOptions) => {
+-  const queryClient = useQueryClient();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (...args) => {
+-      queryClient.invalidateQueries({
+-        queryKey: getInfiniteCommentsQueryOptions(discussionId).queryKey,
+-      });
+-      onSuccess?.(...args);
+-    },
+-    ...restConfig,
+-    mutationFn: deleteComment,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/comments/api/get-comments.ts b/apps/react-vite/src/features/comments/api/get-comments.ts
+deleted file mode 100644
+index 84c07ee..0000000
+--- a/apps/react-vite/src/features/comments/api/get-comments.ts
++++ /dev/null
+@@ -1,47 +0,0 @@
+-import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { QueryConfig } from '@/lib/react-query';
+-import { Comment, Meta } from '@/types/api';
+-
+-export const getComments = ({
+-  discussionId,
+-  page = 1,
+-}: {
+-  discussionId: string;
+-  page?: number;
+-}): Promise<{ data: Comment[]; meta: Meta }> => {
+-  return api.get(`/comments`, {
+-    params: {
+-      discussionId,
+-      page,
+-    },
+-  });
+-};
+-
+-export const getInfiniteCommentsQueryOptions = (discussionId: string) => {
+-  return infiniteQueryOptions({
+-    queryKey: ['comments', discussionId],
+-    queryFn: ({ pageParam = 1 }) => {
+-      return getComments({ discussionId, page: pageParam as number });
+-    },
+-    getNextPageParam: (lastPage) => {
+-      if (lastPage?.meta?.page === lastPage?.meta?.totalPages) return undefined;
+-      const nextPage = lastPage.meta.page + 1;
+-      return nextPage;
+-    },
+-    initialPageParam: 1,
+-  });
+-};
+-
+-type UseCommentsOptions = {
+-  discussionId: string;
+-  page?: number;
+-  queryConfig?: QueryConfig<typeof getComments>;
+-};
+-
+-export const useInfiniteComments = ({ discussionId }: UseCommentsOptions) => {
+-  return useInfiniteQuery({
+-    ...getInfiniteCommentsQueryOptions(discussionId),
+-  });
+-};
+diff --git a/apps/react-vite/src/features/comments/components/comments-list.tsx b/apps/react-vite/src/features/comments/components/comments-list.tsx
+index ee30725..7729348 100644
+--- a/apps/react-vite/src/features/comments/components/comments-list.tsx
++++ b/apps/react-vite/src/features/comments/components/comments-list.tsx
+@@ -1,3 +1,4 @@
++import { useController, useLoading, useSuspense } from '@data-client/react';
+ import { ArchiveX } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+@@ -5,11 +6,9 @@ import { MDPreview } from '@/components/ui/md-preview';
+ import { Spinner } from '@/components/ui/spinner';
+ import { useUser } from '@/lib/auth';
+ import { POLICIES, Authorization } from '@/lib/authorization';
+-import { User } from '@/types/api';
++import { CommentResource } from '@/lib/resources/resources';
+ import { formatDate } from '@/utils/format';
+ 
+-import { useInfiniteComments } from '../api/get-comments';
+-
+ import { DeleteComment } from './delete-comment';
+ 
+ type CommentsListProps = {
+@@ -18,19 +17,17 @@ type CommentsListProps = {
+ 
+ export const CommentsList = ({ discussionId }: CommentsListProps) => {
+   const user = useUser();
+-  const commentsQuery = useInfiniteComments({ discussionId });
+-
+-  if (commentsQuery.isLoading) {
+-    return (
+-      <div className="flex h-48 w-full items-center justify-center">
+-        <Spinner size="lg" />
+-      </div>
+-    );
+-  }
+-
+-  const comments = commentsQuery.data?.pages.flatMap((page) => page.data);
++  const { data: comments, meta } = useSuspense(CommentResource.getList, {
++    discussionId,
++  });
++  const ctrl = useController();
++  const [loadMore, isLoadingMore] = useLoading(
++    (page: number) =>
++      ctrl.fetch(CommentResource.getList.getPage, { discussionId, page }),
++    [ctrl, discussionId],
++  );
+ 
+-  if (!comments?.length)
++  if (!comments.length)
+     return (
+       <div
+         role="list"
+@@ -52,10 +49,7 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
+             className="w-full bg-white p-4 shadow-sm"
+           >
+             <Authorization
+-              policyCheck={POLICIES['comment:delete'](
+-                user.data as User,
+-                comment,
+-              )}
++              policyCheck={POLICIES['comment:delete'](user!, comment)}
+             >
+               <div className="flex justify-between">
+                 <div>
+@@ -69,7 +63,7 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
+                     </span>
+                   )}
+                 </div>
+-                <DeleteComment discussionId={discussionId} id={comment.id} />
++                <DeleteComment id={comment.id} />
+               </div>
+             </Authorization>
+ 
+@@ -77,14 +71,10 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
+           </li>
+         ))}
+       </ul>
+-      {commentsQuery.hasNextPage && (
++      {meta.page < meta.totalPages && (
+         <div className="flex items-center justify-center py-4">
+-          <Button onClick={() => commentsQuery.fetchNextPage()}>
+-            {commentsQuery.isFetchingNextPage ? (
+-              <Spinner />
+-            ) : (
+-              'Load More Comments'
+-            )}
++          <Button onClick={() => loadMore(meta.page + 1)}>
++            {isLoadingMore ? <Spinner /> : 'Load More Comments'}
+           </Button>
+         </div>
+       )}
+diff --git a/apps/react-vite/src/features/comments/components/create-comment.tsx b/apps/react-vite/src/features/comments/components/create-comment.tsx
+index cb8d797..44bd7e1 100644
+--- a/apps/react-vite/src/features/comments/components/create-comment.tsx
++++ b/apps/react-vite/src/features/comments/components/create-comment.tsx
+@@ -1,11 +1,14 @@
++import { useController } from '@data-client/react';
+ import { Plus } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+ import { Form, FormDrawer, Textarea } from '@/components/ui/form';
+ import { useNotifications } from '@/components/ui/notifications';
++import { useMutate } from '@/hooks/use-mutate';
++import { createComment } from '@/lib/resources/resources';
+ 
+ import {
+-  useCreateComment,
++  CreateCommentInput,
+   createCommentInputSchema,
+ } from '../api/create-comment';
+ 
+@@ -15,21 +18,21 @@ type CreateCommentProps = {
+ 
+ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
+   const { addNotification } = useNotifications();
+-  const createCommentMutation = useCreateComment({
+-    discussionId,
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'Comment Created',
+-        });
+-      },
++  const ctrl = useController();
++  const createCommentMutation = useMutate(
++    async (data: CreateCommentInput) => {
++      await ctrl.fetch(createComment, data);
++      addNotification({
++        type: 'success',
++        title: 'Comment Created',
++      });
+     },
+-  });
++    [ctrl, addNotification],
++  );
+ 
+   return (
+     <FormDrawer
+-      isDone={createCommentMutation.isSuccess}
++      isDone={createCommentMutation.isDone}
+       triggerButton={
+         <Button size="sm" icon={<Plus className="size-4" />}>
+           Create Comment
+@@ -51,9 +54,7 @@ export const CreateComment = ({ discussionId }: CreateCommentProps) => {
+       <Form
+         id="create-comment"
+         onSubmit={(values) => {
+-          createCommentMutation.mutate({
+-            data: values,
+-          });
++          createCommentMutation.run(values);
+         }}
+         schema={createCommentInputSchema}
+         options={{
+diff --git a/apps/react-vite/src/features/comments/components/delete-comment.tsx b/apps/react-vite/src/features/comments/components/delete-comment.tsx
+index ac9b396..f1bb18e 100644
+--- a/apps/react-vite/src/features/comments/components/delete-comment.tsx
++++ b/apps/react-vite/src/features/comments/components/delete-comment.tsx
+@@ -1,33 +1,30 @@
++import { useController } from '@data-client/react';
+ import { Trash } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+ import { ConfirmationDialog } from '@/components/ui/dialog';
+ import { useNotifications } from '@/components/ui/notifications';
+-
+-import { useDeleteComment } from '../api/delete-comment';
++import { useMutate } from '@/hooks/use-mutate';
++import { CommentResource } from '@/lib/resources/resources';
+ 
+ type DeleteCommentProps = {
+   id: string;
+-  discussionId: string;
+ };
+ 
+-export const DeleteComment = ({ id, discussionId }: DeleteCommentProps) => {
++export const DeleteComment = ({ id }: DeleteCommentProps) => {
+   const { addNotification } = useNotifications();
+-  const deleteCommentMutation = useDeleteComment({
+-    discussionId,
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'Comment Deleted',
+-        });
+-      },
+-    },
+-  });
++  const ctrl = useController();
++  const deleteCommentMutation = useMutate(async () => {
++    await ctrl.fetch(CommentResource.delete, { id });
++    addNotification({
++      type: 'success',
++      title: 'Comment Deleted',
++    });
++  }, [ctrl, id, addNotification]);
+ 
+   return (
+     <ConfirmationDialog
+-      isDone={deleteCommentMutation.isSuccess}
++      isDone={deleteCommentMutation.isDone}
+       icon="danger"
+       title="Delete Comment"
+       body="Are you sure you want to delete this comment?"
+@@ -45,7 +42,7 @@ export const DeleteComment = ({ id, discussionId }: DeleteCommentProps) => {
+           isLoading={deleteCommentMutation.isPending}
+           type="button"
+           variant="destructive"
+-          onClick={() => deleteCommentMutation.mutate({ commentId: id })}
++          onClick={() => deleteCommentMutation.run()}
+         >
+           Delete Comment
+         </Button>
+diff --git a/apps/react-vite/src/features/discussions/api/create-discussion.ts b/apps/react-vite/src/features/discussions/api/create-discussion.ts
+index d052884..0e7fc74 100644
+--- a/apps/react-vite/src/features/discussions/api/create-discussion.ts
++++ b/apps/react-vite/src/features/discussions/api/create-discussion.ts
+@@ -1,46 +1,8 @@
+-import { useMutation, useQueryClient } from '@tanstack/react-query';
+ import { z } from 'zod';
+ 
+-import { api } from '@/lib/api-client';
+-import { MutationConfig } from '@/lib/react-query';
+-import { Discussion } from '@/types/api';
+-
+-import { getDiscussionsQueryOptions } from './get-discussions';
+-
+ export const createDiscussionInputSchema = z.object({
+   title: z.string().min(1, 'Required'),
+   body: z.string().min(1, 'Required'),
+ });
+ 
+ export type CreateDiscussionInput = z.infer<typeof createDiscussionInputSchema>;
+-
+-export const createDiscussion = ({
+-  data,
+-}: {
+-  data: CreateDiscussionInput;
+-}): Promise<Discussion> => {
+-  return api.post(`/discussions`, data);
+-};
+-
+-type UseCreateDiscussionOptions = {
+-  mutationConfig?: MutationConfig<typeof createDiscussion>;
+-};
+-
+-export const useCreateDiscussion = ({
+-  mutationConfig,
+-}: UseCreateDiscussionOptions = {}) => {
+-  const queryClient = useQueryClient();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (...args) => {
+-      queryClient.invalidateQueries({
+-        queryKey: getDiscussionsQueryOptions().queryKey,
+-      });
+-      onSuccess?.(...args);
+-    },
+-    ...restConfig,
+-    mutationFn: createDiscussion,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/discussions/api/delete-discussion.ts b/apps/react-vite/src/features/discussions/api/delete-discussion.ts
+deleted file mode 100644
+index 07c95ec..0000000
+--- a/apps/react-vite/src/features/discussions/api/delete-discussion.ts
++++ /dev/null
+@@ -1,37 +0,0 @@
+-import { useMutation, useQueryClient } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { MutationConfig } from '@/lib/react-query';
+-
+-import { getDiscussionsQueryOptions } from './get-discussions';
+-
+-export const deleteDiscussion = ({
+-  discussionId,
+-}: {
+-  discussionId: string;
+-}) => {
+-  return api.delete(`/discussions/${discussionId}`);
+-};
+-
+-type UseDeleteDiscussionOptions = {
+-  mutationConfig?: MutationConfig<typeof deleteDiscussion>;
+-};
+-
+-export const useDeleteDiscussion = ({
+-  mutationConfig,
+-}: UseDeleteDiscussionOptions = {}) => {
+-  const queryClient = useQueryClient();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (...args) => {
+-      queryClient.invalidateQueries({
+-        queryKey: getDiscussionsQueryOptions().queryKey,
+-      });
+-      onSuccess?.(...args);
+-    },
+-    ...restConfig,
+-    mutationFn: deleteDiscussion,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/discussions/api/get-discussion.ts b/apps/react-vite/src/features/discussions/api/get-discussion.ts
+deleted file mode 100644
+index 592ef62..0000000
+--- a/apps/react-vite/src/features/discussions/api/get-discussion.ts
++++ /dev/null
+@@ -1,35 +0,0 @@
+-import { useQuery, queryOptions } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { QueryConfig } from '@/lib/react-query';
+-import { Discussion } from '@/types/api';
+-
+-export const getDiscussion = ({
+-  discussionId,
+-}: {
+-  discussionId: string;
+-}): Promise<{ data: Discussion }> => {
+-  return api.get(`/discussions/${discussionId}`);
+-};
+-
+-export const getDiscussionQueryOptions = (discussionId: string) => {
+-  return queryOptions({
+-    queryKey: ['discussions', discussionId],
+-    queryFn: () => getDiscussion({ discussionId }),
+-  });
+-};
+-
+-type UseDiscussionOptions = {
+-  discussionId: string;
+-  queryConfig?: QueryConfig<typeof getDiscussionQueryOptions>;
+-};
+-
+-export const useDiscussion = ({
+-  discussionId,
+-  queryConfig,
+-}: UseDiscussionOptions) => {
+-  return useQuery({
+-    ...getDiscussionQueryOptions(discussionId),
+-    ...queryConfig,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/discussions/api/get-discussions.ts b/apps/react-vite/src/features/discussions/api/get-discussions.ts
+deleted file mode 100644
+index fd92874..0000000
+--- a/apps/react-vite/src/features/discussions/api/get-discussions.ts
++++ /dev/null
+@@ -1,42 +0,0 @@
+-import { queryOptions, useQuery } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { QueryConfig } from '@/lib/react-query';
+-import { Discussion, Meta } from '@/types/api';
+-
+-export const getDiscussions = (
+-  page = 1,
+-): Promise<{
+-  data: Discussion[];
+-  meta: Meta;
+-}> => {
+-  return api.get(`/discussions`, {
+-    params: {
+-      page,
+-    },
+-  });
+-};
+-
+-export const getDiscussionsQueryOptions = ({
+-  page,
+-}: { page?: number } = {}) => {
+-  return queryOptions({
+-    queryKey: page ? ['discussions', { page }] : ['discussions'],
+-    queryFn: () => getDiscussions(page),
+-  });
+-};
+-
+-type UseDiscussionsOptions = {
+-  page?: number;
+-  queryConfig?: QueryConfig<typeof getDiscussionsQueryOptions>;
+-};
+-
+-export const useDiscussions = ({
+-  queryConfig,
+-  page,
+-}: UseDiscussionsOptions) => {
+-  return useQuery({
+-    ...getDiscussionsQueryOptions({ page }),
+-    ...queryConfig,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/discussions/api/update-discussion.ts b/apps/react-vite/src/features/discussions/api/update-discussion.ts
+index c5705a6..156ea7a 100644
+--- a/apps/react-vite/src/features/discussions/api/update-discussion.ts
++++ b/apps/react-vite/src/features/discussions/api/update-discussion.ts
+@@ -1,48 +1,8 @@
+-import { useMutation, useQueryClient } from '@tanstack/react-query';
+ import { z } from 'zod';
+ 
+-import { api } from '@/lib/api-client';
+-import { MutationConfig } from '@/lib/react-query';
+-import { Discussion } from '@/types/api';
+-
+-import { getDiscussionQueryOptions } from './get-discussion';
+-
+ export const updateDiscussionInputSchema = z.object({
+   title: z.string().min(1, 'Required'),
+   body: z.string().min(1, 'Required'),
+ });
+ 
+ export type UpdateDiscussionInput = z.infer<typeof updateDiscussionInputSchema>;
+-
+-export const updateDiscussion = ({
+-  data,
+-  discussionId,
+-}: {
+-  data: UpdateDiscussionInput;
+-  discussionId: string;
+-}): Promise<Discussion> => {
+-  return api.patch(`/discussions/${discussionId}`, data);
+-};
+-
+-type UseUpdateDiscussionOptions = {
+-  mutationConfig?: MutationConfig<typeof updateDiscussion>;
+-};
+-
+-export const useUpdateDiscussion = ({
+-  mutationConfig,
+-}: UseUpdateDiscussionOptions = {}) => {
+-  const queryClient = useQueryClient();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (data, ...args) => {
+-      queryClient.refetchQueries({
+-        queryKey: getDiscussionQueryOptions(data.id).queryKey,
+-      });
+-      onSuccess?.(data, ...args);
+-    },
+-    ...restConfig,
+-    mutationFn: updateDiscussion,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/discussions/components/create-discussion.tsx b/apps/react-vite/src/features/discussions/components/create-discussion.tsx
+index 17e5361..df7ebcf 100644
+--- a/apps/react-vite/src/features/discussions/components/create-discussion.tsx
++++ b/apps/react-vite/src/features/discussions/components/create-discussion.tsx
+@@ -1,32 +1,38 @@
++import { useController } from '@data-client/react';
+ import { Plus } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+ import { Form, FormDrawer, Input, Textarea } from '@/components/ui/form';
+ import { useNotifications } from '@/components/ui/notifications';
++import { useMutate } from '@/hooks/use-mutate';
+ import { Authorization, ROLES } from '@/lib/authorization';
+-
+ import {
+-  createDiscussionInputSchema,
+-  useCreateDiscussion,
+-} from '../api/create-discussion';
++  DiscussionResource,
++  createDiscussion,
++} from '@/lib/resources/resources';
++
++import { createDiscussionInputSchema } from '../api/create-discussion';
+ 
+ export const CreateDiscussion = () => {
+   const { addNotification } = useNotifications();
+-  const createDiscussionMutation = useCreateDiscussion({
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'Discussion Created',
+-        });
+-      },
++  const ctrl = useController();
++  const createDiscussionMutation = useMutate(
++    async (data: { title: string; body: string }) => {
++      await ctrl.fetch(createDiscussion, data);
++      // a new discussion shifts every numbered page
++      ctrl.expireAll(DiscussionResource.getList);
++      addNotification({
++        type: 'success',
++        title: 'Discussion Created',
++      });
+     },
+-  });
++    [ctrl, addNotification],
++  );
+ 
+   return (
+     <Authorization allowedRoles={[ROLES.ADMIN]}>
+       <FormDrawer
+-        isDone={createDiscussionMutation.isSuccess}
++        isDone={createDiscussionMutation.isDone}
+         triggerButton={
+           <Button size="sm" icon={<Plus className="size-4" />}>
+             Create Discussion
+@@ -47,7 +53,7 @@ export const CreateDiscussion = () => {
+         <Form
+           id="create-discussion"
+           onSubmit={(values) => {
+-            createDiscussionMutation.mutate({ data: values });
++            createDiscussionMutation.run(values);
+           }}
+           schema={createDiscussionInputSchema}
+         >
+diff --git a/apps/react-vite/src/features/discussions/components/delete-discussion.tsx b/apps/react-vite/src/features/discussions/components/delete-discussion.tsx
+index e4d625f..8c41f6c 100644
+--- a/apps/react-vite/src/features/discussions/components/delete-discussion.tsx
++++ b/apps/react-vite/src/features/discussions/components/delete-discussion.tsx
+@@ -1,11 +1,12 @@
++import { useController } from '@data-client/react';
+ import { Trash } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+ import { ConfirmationDialog } from '@/components/ui/dialog';
+ import { useNotifications } from '@/components/ui/notifications';
++import { useMutate } from '@/hooks/use-mutate';
+ import { Authorization, ROLES } from '@/lib/authorization';
+-
+-import { useDeleteDiscussion } from '../api/delete-discussion';
++import { DiscussionResource } from '@/lib/resources/resources';
+ 
+ type DeleteDiscussionProps = {
+   id: string;
+@@ -13,16 +14,16 @@ type DeleteDiscussionProps = {
+ 
+ export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
+   const { addNotification } = useNotifications();
+-  const deleteDiscussionMutation = useDeleteDiscussion({
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'Discussion Deleted',
+-        });
+-      },
+-    },
+-  });
++  const ctrl = useController();
++  const deleteDiscussionMutation = useMutate(async () => {
++    await ctrl.fetch(DiscussionResource.delete, { id });
++    // later discussions move up a page
++    ctrl.expireAll(DiscussionResource.getList);
++    addNotification({
++      type: 'success',
++      title: 'Discussion Deleted',
++    });
++  }, [ctrl, id, addNotification]);
+ 
+   return (
+     <Authorization allowedRoles={[ROLES.ADMIN]}>
+@@ -40,9 +41,7 @@ export const DeleteDiscussion = ({ id }: DeleteDiscussionProps) => {
+             isLoading={deleteDiscussionMutation.isPending}
+             type="button"
+             variant="destructive"
+-            onClick={() =>
+-              deleteDiscussionMutation.mutate({ discussionId: id })
+-            }
++            onClick={() => deleteDiscussionMutation.run()}
+           >
+             Delete Discussion
+           </Button>
+diff --git a/apps/react-vite/src/features/discussions/components/discussion-view.tsx b/apps/react-vite/src/features/discussions/components/discussion-view.tsx
+index 47d42b0..c27ea72 100644
+--- a/apps/react-vite/src/features/discussions/components/discussion-view.tsx
++++ b/apps/react-vite/src/features/discussions/components/discussion-view.tsx
+@@ -1,25 +1,16 @@
++import { useSuspense } from '@data-client/react';
++
+ import { MDPreview } from '@/components/ui/md-preview';
+-import { Spinner } from '@/components/ui/spinner';
++import { DiscussionResource } from '@/lib/resources/resources';
+ import { formatDate } from '@/utils/format';
+ 
+-import { useDiscussion } from '../api/get-discussion';
+ import { UpdateDiscussion } from '../components/update-discussion';
+ 
+ export const DiscussionView = ({ discussionId }: { discussionId: string }) => {
+-  const discussionQuery = useDiscussion({
+-    discussionId,
++  const { data: discussion } = useSuspense(DiscussionResource.get, {
++    id: discussionId,
+   });
+ 
+-  if (discussionQuery.isLoading) {
+-    return (
+-      <div className="flex h-48 w-full items-center justify-center">
+-        <Spinner size="lg" />
+-      </div>
+-    );
+-  }
+-
+-  const discussion = discussionQuery?.data?.data;
+-
+   if (!discussion) return null;
+ 
+   return (
+diff --git a/apps/react-vite/src/features/discussions/components/discussions-list.tsx b/apps/react-vite/src/features/discussions/components/discussions-list.tsx
+index 9aa5fba..717c6db 100644
+--- a/apps/react-vite/src/features/discussions/components/discussions-list.tsx
++++ b/apps/react-vite/src/features/discussions/components/discussions-list.tsx
+@@ -1,15 +1,12 @@
+-import { useQueryClient } from '@tanstack/react-query';
++import { useController, useSuspense } from '@data-client/react';
+ import { useSearchParams } from 'react-router';
+ 
+ import { Link } from '@/components/ui/link';
+-import { Spinner } from '@/components/ui/spinner';
+ import { Table } from '@/components/ui/table';
+ import { paths } from '@/config/paths';
++import { DiscussionResource } from '@/lib/resources/resources';
+ import { formatDate } from '@/utils/format';
+ 
+-import { getDiscussionQueryOptions } from '../api/get-discussion';
+-import { useDiscussions } from '../api/get-discussions';
+-
+ import { DeleteDiscussion } from './delete-discussion';
+ 
+ export type DiscussionsListProps = {
+@@ -21,23 +18,10 @@ export const DiscussionsList = ({
+ }: DiscussionsListProps) => {
+   const [searchParams] = useSearchParams();
+ 
+-  const discussionsQuery = useDiscussions({
++  const { data: discussions, meta } = useSuspense(DiscussionResource.getList, {
+     page: +(searchParams.get('page') || 1),
+   });
+-  const queryClient = useQueryClient();
+-
+-  if (discussionsQuery.isLoading) {
+-    return (
+-      <div className="flex h-48 w-full items-center justify-center">
+-        <Spinner size="lg" />
+-      </div>
+-    );
+-  }
+-
+-  const discussions = discussionsQuery.data?.data;
+-  const meta = discussionsQuery.data?.meta;
+-
+-  if (!discussions) return null;
++  const ctrl = useController();
+ 
+   return (
+     <Table
+@@ -62,7 +46,7 @@ export const DiscussionsList = ({
+               <Link
+                 onMouseEnter={() => {
+                   // Prefetch the discussion data when the user hovers over the link
+-                  queryClient.prefetchQuery(getDiscussionQueryOptions(id));
++                  ctrl.fetchIfStale(DiscussionResource.get, { id });
+                   onDiscussionPrefetch?.(id);
+                 }}
+                 to={paths.app.discussion.getHref(id)}
+diff --git a/apps/react-vite/src/features/discussions/components/update-discussion.tsx b/apps/react-vite/src/features/discussions/components/update-discussion.tsx
+index 3c81ce9..0357314 100644
+--- a/apps/react-vite/src/features/discussions/components/update-discussion.tsx
++++ b/apps/react-vite/src/features/discussions/components/update-discussion.tsx
+@@ -1,14 +1,16 @@
++import { useController, useSuspense } from '@data-client/react';
+ import { Pen } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+ import { Form, FormDrawer, Input, Textarea } from '@/components/ui/form';
+ import { useNotifications } from '@/components/ui/notifications';
++import { useMutate } from '@/hooks/use-mutate';
+ import { Authorization, ROLES } from '@/lib/authorization';
++import { DiscussionResource } from '@/lib/resources/resources';
+ 
+-import { useDiscussion } from '../api/get-discussion';
+ import {
++  UpdateDiscussionInput,
+   updateDiscussionInputSchema,
+-  useUpdateDiscussion,
+ } from '../api/update-discussion';
+ 
+ type UpdateDiscussionProps = {
+@@ -17,24 +19,29 @@ type UpdateDiscussionProps = {
+ 
+ export const UpdateDiscussion = ({ discussionId }: UpdateDiscussionProps) => {
+   const { addNotification } = useNotifications();
+-  const discussionQuery = useDiscussion({ discussionId });
+-  const updateDiscussionMutation = useUpdateDiscussion({
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'Discussion Updated',
+-        });
+-      },
+-    },
++  const { data: discussion } = useSuspense(DiscussionResource.get, {
++    id: discussionId,
+   });
+-
+-  const discussion = discussionQuery.data?.data;
++  const ctrl = useController();
++  const updateDiscussionMutation = useMutate(
++    async (data: UpdateDiscussionInput) => {
++      await ctrl.fetch(
++        DiscussionResource.partialUpdate,
++        { id: discussionId },
++        data,
++      );
++      addNotification({
++        type: 'success',
++        title: 'Discussion Updated',
++      });
++    },
++    [ctrl, discussionId, addNotification],
++  );
+ 
+   return (
+     <Authorization allowedRoles={[ROLES.ADMIN]}>
+       <FormDrawer
+-        isDone={updateDiscussionMutation.isSuccess}
++        isDone={updateDiscussionMutation.isDone}
+         triggerButton={
+           <Button icon={<Pen className="size-4" />} size="sm">
+             Update Discussion
+@@ -55,10 +62,7 @@ export const UpdateDiscussion = ({ discussionId }: UpdateDiscussionProps) => {
+         <Form
+           id="update-discussion"
+           onSubmit={(values) => {
+-            updateDiscussionMutation.mutate({
+-              data: values,
+-              discussionId,
+-            });
++            updateDiscussionMutation.run(values);
+           }}
+           options={{
+             defaultValues: {
+diff --git a/apps/react-vite/src/features/teams/api/get-teams.ts b/apps/react-vite/src/features/teams/api/get-teams.ts
+deleted file mode 100644
+index f9d009b..0000000
+--- a/apps/react-vite/src/features/teams/api/get-teams.ts
++++ /dev/null
+@@ -1,27 +0,0 @@
+-import { queryOptions, useQuery } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { QueryConfig } from '@/lib/react-query';
+-import { Team } from '@/types/api';
+-
+-export const getTeams = (): Promise<{ data: Team[] }> => {
+-  return api.get('/teams');
+-};
+-
+-export const getTeamsQueryOptions = () => {
+-  return queryOptions({
+-    queryKey: ['teams'],
+-    queryFn: () => getTeams(),
+-  });
+-};
+-
+-type UseTeamsOptions = {
+-  queryConfig?: QueryConfig<typeof getTeamsQueryOptions>;
+-};
+-
+-export const useTeams = ({ queryConfig = {} }: UseTeamsOptions = {}) => {
+-  return useQuery({
+-    ...getTeamsQueryOptions(),
+-    ...queryConfig,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/users/api/delete-user.ts b/apps/react-vite/src/features/users/api/delete-user.ts
+deleted file mode 100644
+index 5f2cb2e..0000000
+--- a/apps/react-vite/src/features/users/api/delete-user.ts
++++ /dev/null
+@@ -1,37 +0,0 @@
+-import { useMutation, useQueryClient } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { MutationConfig } from '@/lib/react-query';
+-
+-import { getUsersQueryOptions } from './get-users';
+-
+-export type DeleteUserDTO = {
+-  userId: string;
+-};
+-
+-export const deleteUser = ({ userId }: DeleteUserDTO) => {
+-  return api.delete(`/users/${userId}`);
+-};
+-
+-type UseDeleteUserOptions = {
+-  mutationConfig?: MutationConfig<typeof deleteUser>;
+-};
+-
+-export const useDeleteUser = ({
+-  mutationConfig,
+-}: UseDeleteUserOptions = {}) => {
+-  const queryClient = useQueryClient();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (...args) => {
+-      queryClient.invalidateQueries({
+-        queryKey: getUsersQueryOptions().queryKey,
+-      });
+-      onSuccess?.(...args);
+-    },
+-    ...restConfig,
+-    mutationFn: deleteUser,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/users/api/get-users.ts b/apps/react-vite/src/features/users/api/get-users.ts
+deleted file mode 100644
+index e13d106..0000000
+--- a/apps/react-vite/src/features/users/api/get-users.ts
++++ /dev/null
+@@ -1,27 +0,0 @@
+-import { queryOptions, useQuery } from '@tanstack/react-query';
+-
+-import { api } from '@/lib/api-client';
+-import { QueryConfig } from '@/lib/react-query';
+-import { User } from '@/types/api';
+-
+-export const getUsers = (): Promise<{ data: User[] }> => {
+-  return api.get(`/users`);
+-};
+-
+-export const getUsersQueryOptions = () => {
+-  return queryOptions({
+-    queryKey: ['users'],
+-    queryFn: getUsers,
+-  });
+-};
+-
+-type UseUsersOptions = {
+-  queryConfig?: QueryConfig<typeof getUsersQueryOptions>;
+-};
+-
+-export const useUsers = ({ queryConfig }: UseUsersOptions = {}) => {
+-  return useQuery({
+-    ...getUsersQueryOptions(),
+-    ...queryConfig,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/users/api/update-profile.ts b/apps/react-vite/src/features/users/api/update-profile.ts
+index cf36049..7709154 100644
+--- a/apps/react-vite/src/features/users/api/update-profile.ts
++++ b/apps/react-vite/src/features/users/api/update-profile.ts
+@@ -1,10 +1,5 @@
+-import { useMutation } from '@tanstack/react-query';
+ import { z } from 'zod';
+ 
+-import { api } from '@/lib/api-client';
+-import { useUser } from '@/lib/auth';
+-import { MutationConfig } from '@/lib/react-query';
+-
+ export const updateProfileInputSchema = z.object({
+   email: z.string().min(1, 'Required').email('Invalid email'),
+   firstName: z.string().min(1, 'Required'),
+@@ -13,28 +8,3 @@ export const updateProfileInputSchema = z.object({
+ });
+ 
+ export type UpdateProfileInput = z.infer<typeof updateProfileInputSchema>;
+-
+-export const updateProfile = ({ data }: { data: UpdateProfileInput }) => {
+-  return api.patch(`/users/profile`, data);
+-};
+-
+-type UseUpdateProfileOptions = {
+-  mutationConfig?: MutationConfig<typeof updateProfile>;
+-};
+-
+-export const useUpdateProfile = ({
+-  mutationConfig,
+-}: UseUpdateProfileOptions = {}) => {
+-  const { refetch: refetchUser } = useUser();
+-
+-  const { onSuccess, ...restConfig } = mutationConfig || {};
+-
+-  return useMutation({
+-    onSuccess: (...args) => {
+-      refetchUser();
+-      onSuccess?.(...args);
+-    },
+-    ...restConfig,
+-    mutationFn: updateProfile,
+-  });
+-};
+diff --git a/apps/react-vite/src/features/users/components/delete-user.tsx b/apps/react-vite/src/features/users/components/delete-user.tsx
+index 3078e16..11f2f3e 100644
+--- a/apps/react-vite/src/features/users/components/delete-user.tsx
++++ b/apps/react-vite/src/features/users/components/delete-user.tsx
+@@ -1,9 +1,11 @@
++import { useController } from '@data-client/react';
++
+ import { Button } from '@/components/ui/button';
+ import { ConfirmationDialog } from '@/components/ui/dialog';
+ import { useNotifications } from '@/components/ui/notifications';
++import { useMutate } from '@/hooks/use-mutate';
+ import { useUser } from '@/lib/auth';
+-
+-import { useDeleteUser } from '../api/delete-user';
++import { UserResource } from '@/lib/resources/resources';
+ 
+ type DeleteUserProps = {
+   id: string;
+@@ -12,18 +14,16 @@ type DeleteUserProps = {
+ export const DeleteUser = ({ id }: DeleteUserProps) => {
+   const user = useUser();
+   const { addNotification } = useNotifications();
+-  const deleteUserMutation = useDeleteUser({
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'User Deleted',
+-        });
+-      },
+-    },
+-  });
++  const ctrl = useController();
++  const deleteUserMutation = useMutate(async () => {
++    await ctrl.fetch(UserResource.delete, { id });
++    addNotification({
++      type: 'success',
++      title: 'User Deleted',
++    });
++  }, [ctrl, id, addNotification]);
+ 
+-  if (user.data?.id === id) return null;
++  if (user?.id === id) return null;
+ 
+   return (
+     <ConfirmationDialog
+@@ -36,7 +36,7 @@ export const DeleteUser = ({ id }: DeleteUserProps) => {
+           isLoading={deleteUserMutation.isPending}
+           type="button"
+           variant="destructive"
+-          onClick={() => deleteUserMutation.mutate({ userId: id })}
++          onClick={() => deleteUserMutation.run()}
+         >
+           Delete User
+         </Button>
+diff --git a/apps/react-vite/src/features/users/components/update-profile.tsx b/apps/react-vite/src/features/users/components/update-profile.tsx
+index 4af708f..509a9df 100644
+--- a/apps/react-vite/src/features/users/components/update-profile.tsx
++++ b/apps/react-vite/src/features/users/components/update-profile.tsx
+@@ -1,32 +1,36 @@
++import { useController } from '@data-client/react';
+ import { Pen } from 'lucide-react';
+ 
+ import { Button } from '@/components/ui/button';
+ import { Form, FormDrawer, Input, Textarea } from '@/components/ui/form';
+ import { useNotifications } from '@/components/ui/notifications';
++import { useMutate } from '@/hooks/use-mutate';
+ import { useUser } from '@/lib/auth';
++import { UserResource } from '@/lib/resources/resources';
+ 
+ import {
++  UpdateProfileInput,
+   updateProfileInputSchema,
+-  useUpdateProfile,
+ } from '../api/update-profile';
+ 
+ export const UpdateProfile = () => {
+   const user = useUser();
+   const { addNotification } = useNotifications();
+-  const updateProfileMutation = useUpdateProfile({
+-    mutationConfig: {
+-      onSuccess: () => {
+-        addNotification({
+-          type: 'success',
+-          title: 'Profile Updated',
+-        });
+-      },
++  const ctrl = useController();
++  const updateProfileMutation = useMutate(
++    async (data: UpdateProfileInput) => {
++      await ctrl.fetch(UserResource.updateProfile, data);
++      addNotification({
++        type: 'success',
++        title: 'Profile Updated',
++      });
+     },
+-  });
++    [ctrl, addNotification],
++  );
+ 
+   return (
+     <FormDrawer
+-      isDone={updateProfileMutation.isSuccess}
++      isDone={updateProfileMutation.isDone}
+       triggerButton={
+         <Button icon={<Pen className="size-4" />} size="sm">
+           Update Profile
+@@ -47,14 +51,14 @@ export const UpdateProfile = () => {
+       <Form
+         id="update-profile"
+         onSubmit={(values) => {
+-          updateProfileMutation.mutate({ data: values });
++          updateProfileMutation.run(values);
+         }}
+         options={{
+           defaultValues: {
+-            firstName: user.data?.firstName ?? '',
+-            lastName: user.data?.lastName ?? '',
+-            email: user.data?.email ?? '',
+-            bio: user.data?.bio ?? '',
++            firstName: user?.firstName ?? '',
++            lastName: user?.lastName ?? '',
++            email: user?.email ?? '',
++            bio: user?.bio ?? '',
+           },
+         }}
+         schema={updateProfileInputSchema}
+diff --git a/apps/react-vite/src/features/users/components/users-list.tsx b/apps/react-vite/src/features/users/components/users-list.tsx
+index 380a3c1..d488917 100644
+--- a/apps/react-vite/src/features/users/components/users-list.tsx
++++ b/apps/react-vite/src/features/users/components/users-list.tsx
+@@ -1,25 +1,13 @@
+-import { Spinner } from '@/components/ui/spinner';
++import { useSuspense } from '@data-client/react';
++
+ import { Table } from '@/components/ui/table';
++import { UserResource } from '@/lib/resources/resources';
+ import { formatDate } from '@/utils/format';
+ 
+-import { useUsers } from '../api/get-users';
+-
+ import { DeleteUser } from './delete-user';
+ 
+ export const UsersList = () => {
+-  const usersQuery = useUsers();
+-
+-  if (usersQuery.isLoading) {
+-    return (
+-      <div className="flex h-48 w-full items-center justify-center">
+-        <Spinner size="lg" />
+-      </div>
+-    );
+-  }
+-
+-  const users = usersQuery.data?.data;
+-
+-  if (!users) return null;
++  const { data: users } = useSuspense(UserResource.getList);
+ 
+   return (
+     <Table
+diff --git a/apps/react-vite/src/hooks/use-mutate.ts b/apps/react-vite/src/hooks/use-mutate.ts
+new file mode 100644
+index 0000000..dc63179
+--- /dev/null
++++ b/apps/react-vite/src/hooks/use-mutate.ts
+@@ -0,0 +1,16 @@
++import { useLoading } from '@data-client/react';
++import { useState } from 'react';
++
++/** Runs a mutation and tracks `isPending`, `error` and `isDone`. */
++export function useMutate<A extends unknown[]>(
++  mutate: (...args: A) => Promise<unknown>,
++  deps: readonly unknown[],
++) {
++  const [isDone, setIsDone] = useState(false);
++  const [run, isPending, error] = useLoading(async (...args: A) => {
++    setIsDone(false);
++    await mutate(...args);
++    setIsDone(true);
++  }, deps);
++  return { run, isPending, error, isDone };
++}
+diff --git a/apps/react-vite/src/lib/api-client.ts b/apps/react-vite/src/lib/api-client.ts
+index 86a60a2..e7e4d19 100644
+--- a/apps/react-vite/src/lib/api-client.ts
++++ b/apps/react-vite/src/lib/api-client.ts
+@@ -1,42 +1,43 @@
+-import Axios, { InternalAxiosRequestConfig } from 'axios';
++import { NetworkError, RestEndpoint, RestGenerics } from '@data-client/rest';
+ 
+ import { useNotifications } from '@/components/ui/notifications';
+ import { env } from '@/config/env';
+ import { paths } from '@/config/paths';
+ 
+-function authRequestInterceptor(config: InternalAxiosRequestConfig) {
+-  if (config.headers) {
+-    config.headers.Accept = 'application/json';
+-  }
++export class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
++  urlPrefix = env.API_URL;
+ 
+-  config.withCredentials = true;
+-  return config;
+-}
++  getHeaders(headers: HeadersInit): HeadersInit {
++    return { ...headers, Accept: 'application/json' };
++  }
+ 
+-export const api = Axios.create({
+-  baseURL: env.API_URL,
+-});
++  requestInit: RequestInit = { credentials: 'include' };
+ 
+-api.interceptors.request.use(authRequestInterceptor);
+-api.interceptors.response.use(
+-  (response) => {
+-    return response.data;
+-  },
+-  (error) => {
+-    const message = error.response?.data?.message || error.message;
+-    useNotifications.getState().addNotification({
+-      type: 'error',
+-      title: 'Error',
+-      message,
+-    });
++  async fetchResponse(input: RequestInfo, init: RequestInit) {
++    try {
++      return await super.fetchResponse(input, init);
++    } catch (error) {
++      if (error instanceof NetworkError) {
++        const body = await error.response
++          .clone()
++          .json()
++          .catch(() => null);
++        // keep the NetworkError so `status` and `errorPolicy()` still work
++        error.message = body?.message ?? error.message;
++        useNotifications.getState().addNotification({
++          type: 'error',
++          title: 'Error',
++          message: error.message,
++        });
+ 
+-    if (error.response?.status === 401) {
+-      const searchParams = new URLSearchParams();
+-      const redirectTo =
+-        searchParams.get('redirectTo') || window.location.pathname;
+-      window.location.href = paths.auth.login.getHref(redirectTo);
++        if (error.status === 401) {
++          const searchParams = new URLSearchParams();
++          const redirectTo =
++            searchParams.get('redirectTo') || window.location.pathname;
++          window.location.href = paths.auth.login.getHref(redirectTo);
++        }
++      }
++      throw error;
+     }
+-
+-    return Promise.reject(error);
+-  },
+-);
++  }
++}
+diff --git a/apps/react-vite/src/lib/auth.tsx b/apps/react-vite/src/lib/auth.tsx
+index 1537981..3cf3d8e 100644
+--- a/apps/react-vite/src/lib/auth.tsx
++++ b/apps/react-vite/src/lib/auth.tsx
+@@ -1,24 +1,32 @@
+-import { configureAuth } from 'react-query-auth';
++import { useController, useSuspense } from '@data-client/react';
+ import { Navigate, useLocation } from 'react-router';
+ import { z } from 'zod';
+ 
+ import { paths } from '@/config/paths';
+-import { AuthResponse, User } from '@/types/api';
++import { useMutate } from '@/hooks/use-mutate';
+ 
+-import { api } from './api-client';
++import { ApiEndpoint } from './api-client';
++import { User, getUser } from './resources/resources';
+ 
+-// api call definitions for auth (types, schemas, requests):
+-// these are not part of features as this is a module shared across features
+-
+-const getUser = async (): Promise<User> => {
+-  const response = await api.get('/auth/me');
++const logoutEndpoint = new ApiEndpoint({
++  path: '/auth/logout',
++  method: 'POST',
++  body: undefined,
++});
+ 
+-  return response.data;
+-};
++const loginWithEmailAndPasswordEndpoint = new ApiEndpoint({
++  path: '/auth/login',
++  method: 'POST',
++  body: {} as LoginInput,
++  schema: { jwt: '', user: User },
++});
+ 
+-const logout = (): Promise<void> => {
+-  return api.post('/auth/logout');
+-};
++const registerWithEmailAndPasswordEndpoint = new ApiEndpoint({
++  path: '/auth/register',
++  method: 'POST',
++  body: {} as RegisterInput,
++  schema: { jwt: '', user: User },
++});
+ 
+ export const loginInputSchema = z.object({
+   email: z.string().min(1, 'Required').email('Invalid email'),
+@@ -26,9 +34,6 @@ export const loginInputSchema = z.object({
+ });
+ 
+ export type LoginInput = z.infer<typeof loginInputSchema>;
+-const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
+-  return api.post('/auth/login', data);
+-};
+ 
+ export const registerInputSchema = z
+   .object({
+@@ -53,33 +58,55 @@ export const registerInputSchema = z
+ 
+ export type RegisterInput = z.infer<typeof registerInputSchema>;
+ 
+-const registerWithEmailAndPassword = (
+-  data: RegisterInput,
+-): Promise<AuthResponse> => {
+-  return api.post('/auth/register', data);
++/** The signed-in user, or `undefined` when nobody is signed in */
++export const useUser = (): User | undefined =>
++  useSuspense(getUser).data as User | undefined;
++
++export const useLogin = (onSuccess?: () => void) => {
++  const ctrl = useController();
++  return useMutate(
++    async (data: LoginInput) => {
++      const { user } = await ctrl.fetch(
++        loginWithEmailAndPasswordEndpoint,
++        data,
++      );
++      // the signed-in user becomes the current one without refetching
++      await ctrl.setResponse(getUser, { data: user });
++      onSuccess?.();
++    },
++    [ctrl, onSuccess],
++  );
+ };
+ 
+-const authConfig = {
+-  userFn: getUser,
+-  loginFn: async (data: LoginInput) => {
+-    const response = await loginWithEmailAndPassword(data);
+-    return response.user;
+-  },
+-  registerFn: async (data: RegisterInput) => {
+-    const response = await registerWithEmailAndPassword(data);
+-    return response.user;
+-  },
+-  logoutFn: logout,
++export const useRegister = (onSuccess?: () => void) => {
++  const ctrl = useController();
++  return useMutate(
++    async (data: RegisterInput) => {
++      const { user } = await ctrl.fetch(
++        registerWithEmailAndPasswordEndpoint,
++        data,
++      );
++      await ctrl.setResponse(getUser, { data: user });
++      onSuccess?.();
++    },
++    [ctrl, onSuccess],
++  );
+ };
+ 
+-export const { useUser, useLogin, useLogout, useRegister, AuthLoader } =
+-  configureAuth(authConfig);
++export const useLogout = (onSuccess?: () => void) => {
++  const ctrl = useController();
++  return useMutate(async () => {
++    await ctrl.fetch(logoutEndpoint);
++    await ctrl.resetEntireStore();
++    onSuccess?.();
++  }, [ctrl, onSuccess]);
++};
+ 
+ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+   const user = useUser();
+   const location = useLocation();
+ 
+-  if (!user.data) {
++  if (!user) {
+     return (
+       <Navigate to={paths.auth.login.getHref(location.pathname)} replace />
+     );
+diff --git a/apps/react-vite/src/lib/authorization.tsx b/apps/react-vite/src/lib/authorization.tsx
+index 563fca3..c065e19 100644
+--- a/apps/react-vite/src/lib/authorization.tsx
++++ b/apps/react-vite/src/lib/authorization.tsx
+@@ -1,8 +1,7 @@
+ import * as React from 'react';
+ 
+-import { Comment, User } from '@/types/api';
+-
+ import { useUser } from './auth';
++import type { Comment, User } from './resources/resources';
+ 
+ export enum ROLES {
+   ADMIN = 'ADMIN',
+@@ -28,22 +27,22 @@ export const POLICIES = {
+ export const useAuthorization = () => {
+   const user = useUser();
+ 
+-  if (!user.data) {
++  if (!user) {
+     throw Error('User does not exist!');
+   }
+ 
+   const checkAccess = React.useCallback(
+     ({ allowedRoles }: { allowedRoles: RoleTypes[] }) => {
+-      if (allowedRoles && allowedRoles.length > 0 && user.data) {
+-        return allowedRoles?.includes(user.data.role);
++      if (allowedRoles && allowedRoles.length > 0 && user) {
++        return allowedRoles?.includes(user.role);
+       }
+ 
+       return true;
+     },
+-    [user.data],
++    [user],
+   );
+ 
+-  return { checkAccess, role: user.data.role };
++  return { checkAccess, role: user.role };
+ };
+ 
+ type AuthorizationProps = {
+diff --git a/apps/react-vite/src/lib/react-query.ts b/apps/react-vite/src/lib/react-query.ts
+deleted file mode 100644
+index 0ac673c..0000000
+--- a/apps/react-vite/src/lib/react-query.ts
++++ /dev/null
+@@ -1,26 +0,0 @@
+-import { UseMutationOptions, DefaultOptions } from '@tanstack/react-query';
+-
+-export const queryConfig = {
+-  queries: {
+-    // throwOnError: true,
+-    refetchOnWindowFocus: false,
+-    retry: false,
+-    staleTime: 1000 * 60,
+-  },
+-} satisfies DefaultOptions;
+-
+-export type ApiFnReturnType<FnType extends (...args: any) => Promise<any>> =
+-  Awaited<ReturnType<FnType>>;
+-
+-export type QueryConfig<T extends (...args: any[]) => any> = Omit<
+-  ReturnType<T>,
+-  'queryKey' | 'queryFn'
+->;
+-
+-export type MutationConfig<
+-  MutationFnType extends (...args: any) => Promise<any>,
+-> = UseMutationOptions<
+-  ApiFnReturnType<MutationFnType>,
+-  Error,
+-  Parameters<MutationFnType>[0]
+->;
+diff --git a/apps/react-vite/src/lib/resources/entities.ts b/apps/react-vite/src/lib/resources/entities.ts
+new file mode 100644
+index 0000000..51d80a0
+--- /dev/null
++++ b/apps/react-vite/src/lib/resources/entities.ts
+@@ -0,0 +1,72 @@
++import { Entity } from '@data-client/rest';
++
++export class User extends Entity {
++  id = '';
++  createdAt = 0;
++  firstName = '';
++  lastName = '';
++  email = '';
++  role: 'ADMIN' | 'USER' = 'USER';
++  teamId = '';
++  bio = '';
++
++  static key = 'User';
++}
++
++export class Team extends Entity {
++  id = '';
++  createdAt = 0;
++  name = '';
++  description = '';
++
++  static key = 'Team';
++}
++
++/** The API sends `author: {}` when the author no longer exists. */
++function emptyAuthorToUndefined(processed: any) {
++  const { author } = processed;
++  if (author && typeof author === 'object' && !Object.keys(author).length)
++    processed.author = undefined;
++  return processed;
++}
++
++export class Discussion extends Entity {
++  id = '';
++  createdAt = 0;
++  title = '';
++  body = '';
++  teamId = '';
++  author?: User = undefined;
++
++  static schema = { author: User };
++  static key = 'Discussion';
++
++  static process(
++    input: any,
++    parent: any,
++    key: string | undefined,
++    args: any[],
++  ) {
++    return emptyAuthorToUndefined(super.process(input, parent, key, args));
++  }
++}
++
++export class Comment extends Entity {
++  id = '';
++  createdAt = 0;
++  body = '';
++  discussionId = '';
++  author?: User = undefined;
++
++  static schema = { author: User };
++  static key = 'Comment';
++
++  static process(
++    input: any,
++    parent: any,
++    key: string | undefined,
++    args: any[],
++  ) {
++    return emptyAuthorToUndefined(super.process(input, parent, key, args));
++  }
++}
+diff --git a/apps/react-vite/src/lib/resources/resources.ts b/apps/react-vite/src/lib/resources/resources.ts
+new file mode 100644
+index 0000000..e83a6e1
+--- /dev/null
++++ b/apps/react-vite/src/lib/resources/resources.ts
+@@ -0,0 +1,99 @@
++import { Collection, resource } from '@data-client/rest';
++
++import { ApiEndpoint } from '@/lib/api-client';
++import type { Meta } from '@/types/api';
++
++import { Comment, Discussion, Team, User } from './entities';
++
++export { Comment, Discussion, Team, User } from './entities';
++
++export const TeamResource = resource({
++  path: '/teams/:id',
++  schema: Team,
++  Endpoint: ApiEndpoint,
++}).extend((Base) => ({
++  getList: Base.getList.extend({ schema: { data: [Team] } }),
++}));
++
++export const UserResource = resource({
++  path: '/users/:id',
++  schema: User,
++  Endpoint: ApiEndpoint,
++}).extend((Base) => ({
++  getList: Base.getList.extend({ schema: { data: [User] } }),
++  // the API updates the signed-in user at a path without an id
++  updateProfile: new ApiEndpoint({
++    path: '/users/profile',
++    method: 'PATCH',
++    body: {} as {
++      email: string;
++      firstName: string;
++      lastName: string;
++      bio: string;
++    },
++    schema: User,
++    getOptimisticResponse(snap, body) {
++      const session = snap.getResponse(getUser);
++      const current = session.data?.data;
++      if (!current) throw snap.abort;
++      return { ...current, ...body };
++    },
++  }),
++}));
++
++export const DiscussionResource = resource({
++  path: '/discussions/:id',
++  searchParams: {} as { page?: number },
++  schema: Discussion,
++  Endpoint: ApiEndpoint,
++  optimistic: true,
++}).extend((Base) => ({
++  get: Base.get.extend({ schema: { data: Discussion } }),
++  getList: Base.getList.extend({
++    schema: { data: [Discussion], meta: {} as Meta },
++  }),
++}));
++
++// a new discussion shifts every numbered page, so this POST joins no list: callers expire the list
++export const createDiscussion = new ApiEndpoint({
++  path: '/discussions',
++  method: 'POST',
++  body: {} as { title: string; body: string },
++  schema: Discussion,
++});
++
++/** Every page of one discussion's comments shares one list */
++const discussionComments = new Collection([Comment], {
++  argsKey: ({ discussionId }: { discussionId?: string }) => ({ discussionId }),
++});
++
++export const CommentResource = resource({
++  path: '/comments/:id',
++  searchParams: {} as { discussionId?: string; page?: number },
++  schema: Comment,
++  Endpoint: ApiEndpoint,
++  optimistic: true,
++}).extend((Base) => ({
++  getList: Base.getList.extend({
++    schema: { data: discussionComments, meta: {} as Meta },
++    paginationField: 'page',
++  }),
++}));
++
++/** Joins the discussion's list, shown at once with the signed-in user as author */
++export const createComment = new ApiEndpoint({
++  path: '/comments',
++  method: 'POST',
++  body: {} as { discussionId: string; body: string },
++  schema: discussionComments.push,
++  getOptimisticResponse(snap, body) {
++    const author = snap.getResponse(getUser).data?.data;
++    return { ...body, author };
++  },
++});
++
++/** The signed-in user. The API answers `{}` when nobody is signed in. */
++export const getUser = new ApiEndpoint({
++  path: '/auth/me',
++  schema: { data: User },
++});
+diff --git a/apps/react-vite/src/testing/test-utils.tsx b/apps/react-vite/src/testing/test-utils.tsx
+index b50e372..faa3864 100644
+--- a/apps/react-vite/src/testing/test-utils.tsx
++++ b/apps/react-vite/src/testing/test-utils.tsx
+@@ -34,14 +34,16 @@ export const loginAsUser = async (user: any) => {
+   return authUser;
+ };
+ 
+-export const waitForLoadingToFinish = () =>
+-  waitForElementToBeRemoved(
+-    () => [
+-      ...screen.queryAllByTestId(/loading/i),
+-      ...screen.queryAllByText(/loading/i),
+-    ],
+-    { timeout: 4000 },
+-  );
++const loadingElements = () => [
++  ...screen.queryAllByTestId(/loading/i),
++  ...screen.queryAllByText(/loading/i),
++];
++
++// data already in the store renders without a spinner, so only wait when one is shown
++export const waitForLoadingToFinish = async () => {
++  if (loadingElements().length)
++    await waitForElementToBeRemoved(loadingElements, { timeout: 4000 });
++};
+ 
+ const initializeUser = async (user: any) => {
+   if (typeof user === 'undefined') {
+diff --git a/apps/react-vite/src/types/api.ts b/apps/react-vite/src/types/api.ts
+index dbdf434..8687547 100644
+--- a/apps/react-vite/src/types/api.ts
++++ b/apps/react-vite/src/types/api.ts
+@@ -16,35 +16,3 @@ export type Meta = {
+   total: number;
+   totalPages: number;
+ };
+-
+-export type User = Entity<{
+-  firstName: string;
+-  lastName: string;
+-  email: string;
+-  role: 'ADMIN' | 'USER';
+-  teamId: string;
+-  bio: string;
+-}>;
+-
+-export type AuthResponse = {
+-  jwt: string;
+-  user: User;
+-};
+-
+-export type Team = Entity<{
+-  name: string;
+-  description: string;
+-}>;
+-
+-export type Discussion = Entity<{
+-  title: string;
+-  body: string;
+-  teamId: string;
+-  author: User;
+-}>;
+-
+-export type Comment = Entity<{
+-  body: string;
+-  discussionId: string;
+-  author: User;
+-}>;
